@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.map;
+package com.google.android.gnd.ui.terms;
 
-import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 
-@InstallIn(ApplicationComponent.class)
-@Module
-public abstract class MapProviderModule {
+// TODO: Needs to handle view state and behaviors of the Terms Fragment
+public class TermsOfServiceViewModel extends AbstractViewModel {
 
-  @Binds
-  abstract MapProvider googleMapsProvider(GoogleMapsMapProvider mapsMapProvider);
 }

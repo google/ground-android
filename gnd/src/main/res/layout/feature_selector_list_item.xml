@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2021 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,8 +16,16 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:state_focused="true" android:color="@color/colorAccent"/>
-  <item android:state_enabled="false" android:color="@color/colorGrey500"/>
-  <item android:color="@color/colorGrey500"/>
-</selector>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <TextView
+    android:id="@+id/feature_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/selector_dialog_list_item_padding"
+    android:textColor="@color/colorForeground"
+    android:textSize="@dimen/selector_dialog_list_item_text_size" />
+
+</FrameLayout>

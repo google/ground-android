@@ -41,6 +41,7 @@ public abstract class MapGeoJson extends MapFeature {
   public abstract @Dimension int getStrokeWidth();
 
   // TODO: Just store the ID and pull the feature when needed.
+  @Override
   public abstract Feature getFeature();
 
   public abstract Builder toBuilder();

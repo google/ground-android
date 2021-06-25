@@ -18,7 +18,10 @@ package com.google.android.gnd.ui.home;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.google.android.gnd.rx.Nil.NIL;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -30,20 +33,23 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
-import com.google.android.gnd.rx.Action;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.MapGeoJson;
+import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -63,11 +69,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Project>> projectLoadingState;
 
   // TODO(#719): Move into MapContainersViewModel
-  @Hot(replays = true)
-  private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Point> addFeatureDialogRequests = PublishProcessor.create();
   // TODO(#719): Move into FeatureDetailsViewModel.
-  @Hot(replays = true)
-  private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
@@ -76,15 +80,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final LiveData<Feature> addFeatureResults;
-  private final LiveData<Boolean> updateFeatureResults;
-  private final LiveData<Boolean> deleteFeatureResults;
+  @Hot private final Flowable<Feature> addFeatureResults;
+  @Hot private final Flowable<Boolean> updateFeatureResults;
+  @Hot private final Flowable<Boolean> deleteFeatureResults;
 
-  @Hot(replays = true)
-  private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+
+  @Hot
+  private final PublishSubject<ImmutableList<Feature>> overlappingFeaturesSubject =
+      PublishSubject.create();
+
+  private final LiveData<ImmutableList<Feature>> overlappingFeatures;
 
   @Inject
   HomeScreenViewModel(
@@ -103,28 +112,22 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            addFeatureClicks.switchMapSingle(
-                feature ->
-                    featureRepository
-                        .createFeature(feature)
-                        .toSingleDefault(feature)
-                        .doOnError(this::handleError)
-                        .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
+        addFeatureClicks.switchMapSingle(
+            feature ->
+                featureRepository
+                    .createFeature(feature)
+                    .toSingleDefault(feature)
+                    .doOnError(errors::onNext)
+                    .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
     deleteFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            deleteFeatureRequests.switchMapSingle(
-                feature ->
-                    toBooleanSingle(featureRepository.deleteFeature(feature), this::handleError)));
+        deleteFeatureRequests.switchMapSingle(
+            feature -> toBooleanSingle(featureRepository.deleteFeature(feature), errors::onNext));
     updateFeatureResults =
+        updateFeatureRequests.switchMapSingle(
+            feature -> toBooleanSingle(featureRepository.updateFeature(feature), errors::onNext));
+    overlappingFeatures =
         LiveDataReactiveStreams.fromPublisher(
-            updateFeatureRequests.switchMapSingle(
-                feature ->
-                    toBooleanSingle(featureRepository.updateFeature(feature), this::handleError)));
-  }
-
-  private void handleError(Throwable throwable) {
-    errors.postValue(throwable);
+            overlappingFeaturesSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -148,19 +151,23 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureButtonVisibility;
   }
 
-  public LiveData<Feature> getAddFeatureResults() {
+  public LiveData<ImmutableList<Feature>> getOverlappingFeatures() {
+    return overlappingFeatures;
+  }
+
+  public Flowable<Feature> getAddFeatureResults() {
     return addFeatureResults;
   }
 
-  public LiveData<Boolean> getUpdateFeatureResults() {
+  public Flowable<Boolean> getUpdateFeatureResults() {
     return updateFeatureResults;
   }
 
-  public LiveData<Boolean> getDeleteFeatureResults() {
+  public Flowable<Boolean> getDeleteFeatureResults() {
     return deleteFeatureResults;
   }
 
-  public LiveData<Throwable> getErrors() {
+  public Flowable<Throwable> getErrors() {
     return errors;
   }
 
@@ -183,19 +190,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return projectRepository.getLastActiveProjectId().isEmpty();
   }
 
-  public LiveData<Action> getOpenDrawerRequests() {
+  public Flowable<Nil> getOpenDrawerRequests() {
     return openDrawerRequests;
   }
 
   public void openNavDrawer() {
-    openDrawerRequests.setValue(Action.create());
+    openDrawerRequests.onNext(NIL);
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
-  public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
+  public Flowable<Point> getShowAddFeatureDialogRequests() {
     return addFeatureDialogRequests;
   }
 
@@ -208,6 +215,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showBottomSheet(marker.getFeature());
   }
 
+  public void onFeatureSelection(Feature feature) {
+    showBottomSheet(feature);
+  }
+
   private void showBottomSheet(Feature feature) {
     Timber.d("showing bottom sheet");
     isObservationButtonVisible.setValue(true);
@@ -216,7 +227,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.setValue(Event.create(location));
+    addFeatureDialogRequests.onNext(location);
   }
 
   public void onBottomSheetHidden() {
@@ -266,8 +277,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    showBottomSheet(mapGeoJson.getFeature());
+  public Observable<ImmutableList<Feature>> getOverlappingFeaturesOnceAndStream() {
+    return overlappingFeaturesSubject;
+  }
+
+  public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
+    ImmutableList<Feature> features =
+        stream(mapFeatures)
+            .map(MapFeature::getFeature)
+            .filter(f -> f != null)
+            .collect(toImmutableList());
+    overlappingFeaturesSubject.onNext(features);
   }
 
   private Optional<Project> getActiveProject() {
