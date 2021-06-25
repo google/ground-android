@@ -39,10 +39,8 @@
   <issue id="TypographyEllipsis" severity="error" />
   <issue id="TypographyQuotes" severity="error" />
   <issue id="UnusedResources" severity="error">
-    <!-- TODO: Remove the below ignores -->
-    <ignore regexp="res/values/colors.xml" />
-    <ignore regexp="res/values/dimens.xml" />
-    <ignore regexp="res/values/strings.xml" />
+    <!-- TODO: Remove the ignore regex -->
+    <ignore regexp="res/.*/.*\.xml" />
   </issue>
   <issue id="UselessLeaf" severity="error">
     <ignore path="res/layout/feature_details_frag.xml" />
