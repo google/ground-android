@@ -79,7 +79,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon assembleStaging assembleStagingUnitTest assembleStagingAndroidTest -PtestBuildType=staging --stacktrace
+        ./gradlew -PdisablePreDex --no-daemon assembleStaging assembleStagingUnitTest assembleStagingAndroidTest --stacktrace
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
