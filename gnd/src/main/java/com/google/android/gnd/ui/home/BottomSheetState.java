@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.PointFeature;
 import java8.util.Optional;
 
 public class BottomSheetState {
@@ -49,6 +50,10 @@ public class BottomSheetState {
 
   public Optional<Feature> getFeature() {
     return feature;
+  }
+
+  public boolean isPointFeature() {
+    return feature.isPresent() && feature.get() instanceof PointFeature;
   }
 
   public Visibility getVisibility() {

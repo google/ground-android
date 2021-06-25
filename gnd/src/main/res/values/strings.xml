@@ -159,7 +159,6 @@
   <string name="completed">Completed</string>
   <string name="uploading_data">Uploading data</string>
   <string name="failed">Failed</string>
-  <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
   <string name="offline_base_map_viewer_navgraph_label">Offline Base Map Viewer</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>
@@ -185,4 +184,9 @@
 
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
+
+  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
+  <string name="feature_properties">Feature properties</string>
+  <!-- Label on button shown to dismiss the feature properties dialog. -->
+  <string name="close_feature_properties">OK</string>
 </resources>
