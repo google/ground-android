@@ -70,7 +70,7 @@ public class PhotoSyncWorker extends BaseWorker {
       Timber.d("Starting photo upload: %s, %s", localSourcePath, remoteDestinationPath);
       try {
         remoteStorageManager
-            .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
+            .uploadMediaFromFile(file, remoteDestinationPath)
             .compose(this::notifyTransferState)
             .blockingForEach(this::sendNotification);
         return Result.success();
