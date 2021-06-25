@@ -24,5 +24,8 @@
   <item
     android:id="@+id/delete_feature_menu_item"
     android:title="@string/delete_feature"/>
+  <item
+    android:id="@+id/feature_properties_menu_item"
+    android:title="@string/feature_properties"/>
 
 </menu>

@@ -25,9 +25,10 @@ import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
-import java.util.Collections;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /** Represents view state and behaviors of the project selector dialog. */
 public class ProjectSelectorViewModel extends AbstractViewModel {
@@ -51,17 +52,25 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return projectRepository.getOfflineProjects();
   }
 
-  private Project getProjectSummary(int idx) {
-    return Loadable.getValue(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
-  }
-
   /**
    * Triggers the specified project to be loaded and activated.
    *
    * @param idx the index in the project summary list.
    */
   public void activateProject(int idx) {
-    projectRepository.activateProject(getProjectSummary(idx).getId());
+    Optional<List<Project>> projects = Loadable.getValue(this.projectSummaries);
+    if (projects.isEmpty()) {
+      Timber.e("Can't activate project before list is loaded");
+      return;
+    }
+    if (idx >= projects.get().size()) {
+      Timber.e(
+          "Can't activate project at index %d, only %d projects in list",
+          idx, projects.get().size());
+      return;
+    }
+    Project project = projects.get().get(idx);
+    projectRepository.activateProject(project.getId());
   }
 
   public void activateOfflineProject(String projectId) {
