@@ -63,8 +63,7 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    // Use flag -PtestBuildType with desired variant to change default behavior.
-    testBuildType project.getProperties().getOrDefault("testBuildType", "debug")
+    testBuildType "staging"
 
     // gradle doesn't sign debug test apk (needed for running instrumentation tests on firebase)
     // https://stackoverflow.com/questions/3082780/java-lang-securityexception-permission-denial/38202106
