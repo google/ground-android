@@ -193,7 +193,7 @@ steps:
     args:
       - '-c'
       - |
-        tar zcf cache.tgz .gradle
+        tar zcf cache.tgz .gradle/caches .gradle/wrapper
 
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_cache 'Save gradle cache to GCS'
