@@ -204,7 +204,6 @@ steps:
 options:
   env:
     - 'TERM=dumb'
-    - 'GRADLE_OPT=-Dorg.gradle.daemon=false'
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
   machineType: 'N1_HIGHCPU_8'
