@@ -51,4 +51,8 @@ images:
   - 'gcr.io/$PROJECT_ID/android:base'
   - 'gcr.io/$PROJECT_ID/android:${_ANDROID_VERSION}'
 
+# Available options: https://cloud.google.com/compute/docs/machine-types
+options:
+  machineType: 'N1_HIGHCPU_8'
+
 timeout: 2000s
