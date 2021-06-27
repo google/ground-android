@@ -61,7 +61,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon assembleStaging assembleStagingUnitTest assembleStagingAndroidTest -PtestBuildType=staging
+        ./gradlew -PdisablePreDex assembleStaging assembleStagingUnitTest assembleStagingAndroidTest -PtestBuildType=staging
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -71,7 +71,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon checkCode 2> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -81,7 +81,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
