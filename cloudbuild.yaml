@@ -79,7 +79,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon --debug assembleStaging assembleStagingUnitTest assembleStagingAndroidTest -PtestBuildType=staging
+        ./gradlew -PdisablePreDex --debug assembleStaging assembleStagingUnitTest assembleStagingAndroidTest -PtestBuildType=staging
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -205,8 +205,9 @@ options:
   env:
     # Set gradle options manually to prevent gradle from using single use only daemon.
     # For more info : https://github.com/gradle/gradle/issues/11517
-    - 'GRADLE_OPTS=-XX:MaxPermSize=4096m -XX:+HeapDumpOnOutOfMemoryError --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.prefs/java.util.prefs=ALL-UNNAMED -Xmx4096m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant'
+#    - 'GRADLE_OPTS=-XX:MaxPermSize=4096m -XX:+HeapDumpOnOutOfMemoryError --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.prefs/java.util.prefs=ALL-UNNAMED -Xmx4096m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant'
     - 'TERM=dumb'
+    - 'GRADLE_OPT=-Dorg.gradle.daemon=false'
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
 
