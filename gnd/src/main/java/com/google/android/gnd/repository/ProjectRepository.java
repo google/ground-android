@@ -53,7 +53,7 @@ import timber.log.Timber;
 @Singleton
 public class ProjectRepository {
 
-  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 15;
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final InMemoryCache cache;
