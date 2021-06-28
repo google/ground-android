@@ -26,7 +26,6 @@ import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.facebook.stetho.Stetho;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.hilt.android.HiltAndroidApp;
@@ -60,11 +59,6 @@ public class GndApplication extends Application implements Configuration.Provide
     super.onCreate();
     if (BuildConfig.DEBUG) {
       Timber.d("DEBUG build config active; enabling debug tooling");
-
-      // Debug bridge for Android applications. Enables network and database debugging for the app
-      // accessible under chrome://inspect in Chrome desktop browser. Must be done before calling
-      // setStrictMode().
-      Stetho.initializeWithDefaults(this);
 
       // Log failures when trying to do work in the UI thread.
       setStrictMode();
