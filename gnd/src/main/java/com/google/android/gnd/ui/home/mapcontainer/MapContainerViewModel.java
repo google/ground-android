@@ -233,7 +233,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
-        .setStrokeWidth(defaultPolygonStrokeWidth) // TODO: Make configurable.
+        .setStrokeWidth(defaultPolygonStrokeWidth)
         .setFeature(feature)
         .build();
   }
