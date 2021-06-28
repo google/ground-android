@@ -47,12 +47,14 @@ if (secretsFile.exists()) {
 def googleMapsApiKey = secrets.getProperty('GOOGLE_MAPS_API_KEY', '')
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
         minSdkVersion 16
-        targetSdkVersion 30
+        // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
+        // fix before increasing this value.
+        targetSdkVersion 26
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName
         testInstrumentationRunner "com.google.android.gnd.CustomTestRunner"
