@@ -16,21 +16,16 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.persistence.local.LocalValueStore;
-import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ApplicationComponent;
 
 @InstallIn(ApplicationComponent.class)
 @Module
-public class MapProviderModule {
+public abstract class MapProviderModule {
 
-  @Provides
-  static MapProvider googleMapsProvider(MarkerIconFactory markerIconFactory,
-      LocalValueStore localValueStore) {
-    return new GoogleMapsMapProvider(markerIconFactory, localValueStore);
-  }
+  @Binds
+  abstract MapProvider googleMapsProvider(GoogleMapsMapProvider mapsMapProvider);
 }

@@ -24,11 +24,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.ui.util.BitmapUtil;
-import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
@@ -64,23 +62,16 @@ public class StorageManagerTest {
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   @Inject ActivityStreams activityStreams;
-  @Inject FileUtil fileUtil;
 
   @Mock BitmapUtil mockBitmapUtil;
   @Mock PermissionsManager mockPermissionsManager;
-  @Mock RemoteStorageManager mockRemoteStorageManager;
 
   private StorageManager storageManager;
 
   @Before
   public void setUp() {
     hiltRule.inject();
-    storageManager =
-        new StorageManager(
-            mockPermissionsManager,
-            activityStreams,
-            fileUtil,
-            mockBitmapUtil);
+    storageManager = new StorageManager(mockPermissionsManager, activityStreams, mockBitmapUtil);
   }
 
   private Bitmap mockBitmap() throws IOException {
