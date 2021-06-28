@@ -22,11 +22,10 @@
 #
 #  Copy cache --> Extract tar -->                      -------> Code quality -------> Unit tests ------------------------>
 #                                \                   /                                                                     \
-#                                 > Build debug apks                                                                       Save reports to GCS --> Update CI status
+#                                 > Build debug apks                                                                       Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
 #                                /                   \                                                                     /
 #  Fetch google-services.json -->                      --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
-#                                                      \
-#                                                       --> Compress gradle cache --> Save gradle cache to GCS
+#
 
 steps:
 
@@ -173,7 +172,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'
     waitFor:
-      - *assemble_debug
+      - *update_status
     args:
       - '-c'
       - |
