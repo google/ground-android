@@ -85,17 +85,18 @@ steps:
         ./gradlew -PdisablePreDex testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-#  - name: 'gcr.io/$PROJECT_ID/android:28'
-#    id: &authenticate_gcloud 'Authorize gcloud'
-#    waitFor:
-#      - *assemble_debug
-#    entrypoint: 'bash'
-#    args:
-#      - '-c'
-#      - |
-#        gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
-#        gcloud auth activate-service-account --key-file client-secret.json
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: &authenticate_gcloud 'Authorize gcloud'
+    waitFor:
+      - *assemble_debug
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
+        gcloud auth activate-service-account --key-file client-secret.json
 
+  # TODO(#922): Reenable once instrumented test CI is fixed.
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
 #  - name: 'gcr.io/$PROJECT_ID/android:28'
 #    id: &instrumented_tests 'Run instrumented tests'
