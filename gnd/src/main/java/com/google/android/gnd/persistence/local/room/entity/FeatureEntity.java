@@ -66,6 +66,11 @@ public abstract class FeatureEntity {
   @ColumnInfo(name = "geo_json")
   public abstract String getGeoJson();
 
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "polygon_vertices")
+  public abstract String getPolygonVertices();
+
   // TODO: Rename to DeletionState.
   @CopyAnnotations
   @NonNull
@@ -166,6 +171,7 @@ public abstract class FeatureEntity {
       String projectId,
       String layerId,
       String geoJson,
+      String polygonVertices,
       EntityState state,
       Coordinates location,
       AuditInfoEntity created,
@@ -175,6 +181,7 @@ public abstract class FeatureEntity {
         .setProjectId(projectId)
         .setLayerId(layerId)
         .setGeoJson(geoJson)
+        .setPolygonVertices(polygonVertices)
         .setState(state)
         .setLocation(location)
         .setCreated(created)
@@ -196,6 +203,8 @@ public abstract class FeatureEntity {
     public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setGeoJson(@Nullable String newGeoJson);
+
+    public abstract Builder setPolygonVertices(@Nullable String newPolygonVertices);
 
     public abstract Builder setState(EntityState newState);
 
