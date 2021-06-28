@@ -98,7 +98,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   }
 
   private void onMapReady(MapAdapter map) {
-    map.getCameraMoves()
+    map.getCameraMovedEvents()
         .map(__ -> map.getViewport())
         .startWith(map.getViewport())
         .as(autoDisposable(this))
