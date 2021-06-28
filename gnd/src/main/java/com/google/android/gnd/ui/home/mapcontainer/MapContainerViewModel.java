@@ -21,6 +21,8 @@ import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.content.res.Resources;
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -103,12 +105,16 @@ public class MapContainerViewModel extends AbstractViewModel {
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
+  private final @Dimension int defaultPolygonStrokeWidth;
+  private final @Dimension int selectedPolygonStrokeWidth;
+
   /** The currently selected feature on the map. */
   private BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
   @Inject
   MapContainerViewModel(
+      Resources resources,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
@@ -117,7 +123,9 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
-
+    this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
+    this.selectedPolygonStrokeWidth =
+        (int) resources.getDimension(R.dimen.selected_polyline_stroke_width);
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
@@ -141,7 +149,7 @@ public class MapContainerViewModel extends AbstractViewModel {
                 projectRepository
                     .getActiveProject()
                     .switchMap(this::getFeaturesStream)
-                    .map(MapContainerViewModel::toMapFeatures),
+                    .map(this::toMapFeatures),
                 selectedFeature,
                 this::updateSelectedFeature));
     this.mbtilesFilePaths =
@@ -173,8 +181,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         String geoJsonFeatureId = geoJsonFeature.getFeature().getId();
         if (geoJsonFeatureId.equals(selectedFeatureId)) {
           Timber.v("Restyling selected GeoJSON feature " + selectedFeatureId);
-          // TODO: Make width configurable.
-          updatedFeatures.add(geoJsonFeature.toBuilder().setStrokeWidth(16).build());
+          updatedFeatures.add(
+              geoJsonFeature.toBuilder().setStrokeWidth(selectedPolygonStrokeWidth).build());
           continue;
         }
       }
@@ -183,7 +191,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return updatedFeatures.build();
   }
 
-  private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
+  private ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
     ImmutableSet<MapFeature> mapPins =
         stream(features)
             .filter(Feature::isPoint)
@@ -197,7 +205,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         stream(features)
             .filter(Feature::isGeoJson)
             .map(GeoJsonFeature.class::cast)
-            .map(MapContainerViewModel::toMapGeoJson)
+            .map(this::toMapGeoJson)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
@@ -212,7 +220,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
+  private MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
     JSONObject jsonObject;
     try {
       jsonObject = new JSONObject(feature.getGeoJsonString());
@@ -225,7 +233,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
-        .setStrokeWidth(4) // TODO: Make configurable.
+        .setStrokeWidth(defaultPolygonStrokeWidth) // TODO: Make configurable.
         .setFeature(feature)
         .build();
   }
