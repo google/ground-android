@@ -63,7 +63,8 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    testBuildType "staging"
+    // Use flag -PtestBuildType with desired variant to change default behavior.
+    testBuildType project.getProperties().getOrDefault("testBuildType", "debug")
 
     // gradle doesn't sign debug test apk (needed for running instrumentation tests on firebase)
     // https://stackoverflow.com/questions/3082780/java-lang-securityexception-permission-denial/38202106
@@ -83,12 +84,16 @@ android {
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
         }
         debug {
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
                 instrumentationEnabled false
             }
         }
         staging {
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
             signingConfig signingConfigs.staging
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
