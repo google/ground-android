@@ -84,12 +84,16 @@ android {
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
         }
         debug {
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
                 instrumentationEnabled false
             }
         }
         staging {
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
             signingConfig signingConfigs.staging
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
