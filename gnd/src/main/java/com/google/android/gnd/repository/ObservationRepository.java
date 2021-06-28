@@ -45,7 +45,7 @@ import timber.log.Timber;
  */
 public class ObservationRepository {
 
-  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 15;
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
