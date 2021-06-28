@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import java.util.Map;
 
 /** Feature entity stored in Firestore. */
 @IgnoreExtraProperties
@@ -27,7 +28,12 @@ class FeatureDocument {
   @Nullable private String customId;
   @Nullable private String caption;
   @Nullable private GeoPoint location;
-  @Nullable private String geoJson;
+  /**
+   * Use geometry instead.
+   *
+   */
+  @Deprecated @Nullable private String geoJson;
+  @Nullable private Map<String, Object> geometry;
   @Nullable private AuditInfoNestedObject created;
   @Nullable private AuditInfoNestedObject lastModified;
 
@@ -41,6 +47,7 @@ class FeatureDocument {
       @Nullable String caption,
       @Nullable GeoPoint location,
       @Nullable String geoJson,
+      @Nullable Map<String, Object> geometry,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject lastModified) {
     this.layerId = layerId;
@@ -48,6 +55,7 @@ class FeatureDocument {
     this.caption = caption;
     this.location = location;
     this.geoJson = geoJson;
+    this.geometry = geometry;
     this.created = created;
     this.lastModified = lastModified;
   }
@@ -75,6 +83,11 @@ class FeatureDocument {
   @Nullable
   public String getGeoJson() {
     return geoJson;
+  }
+
+  @Nullable
+  public Map<String, Object> getGeometry() {
+    return geometry;
   }
 
   @Nullable
