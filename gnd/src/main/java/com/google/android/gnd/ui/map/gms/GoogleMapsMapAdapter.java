@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.CameraPosition;
@@ -92,11 +94,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
   /** Ambiguous click events. */
   @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
 
-  /** Map drag events. Emits items repeatedly while the map is being dragged. */
-  @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
+  /** Map drag events. Emits items when the map drag has started. */
+  @Hot private final FlowableProcessor<Nil> startDragEvents = PublishProcessor.create();
 
-  /** Camera move events. Emits items repeatedly while camera is in motion. */
-  @Hot private final FlowableProcessor<CameraPosition> cameraMoves = PublishProcessor.create();
+  /** Camera move events. Emits items after the camera has stopped moving. */
+  @Hot
+  private final FlowableProcessor<CameraPosition> cameraMovedEvents = PublishProcessor.create();
 
   // TODO(#693): Simplify impl of tile providers.
   // TODO(#691): This is a limitation of the MapBox tile provider we're using;
@@ -132,9 +135,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
 
-  @Nullable private LatLng cameraTargetBeforeDrag;
   private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
   private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
+
+  private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
   public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
     this.map = map;
@@ -155,8 +159,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     uiSettings.setIndoorLevelPickerEnabled(false);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
-    map.setOnCameraMoveListener(this::onCameraMove);
-    onCameraMove();
   }
 
   private static Point fromLatLng(LatLng latLng) {
@@ -222,14 +224,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Hot
   @Override
-  public Flowable<Point> getDragInteractions() {
-    return dragInteractions;
+  public Flowable<Nil> getStartDragEvents() {
+    return startDragEvents;
   }
 
   @Hot
   @Override
-  public Flowable<CameraPosition> getCameraMoves() {
-    return cameraMoves;
+  public Flowable<CameraPosition> getCameraMovedEvents() {
+    return cameraMovedEvents;
   }
 
   @Hot
@@ -470,25 +472,18 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void onCameraIdle() {
-    cameraTargetBeforeDrag = null;
+    if (cameraChangeReason == REASON_GESTURE) {
+      LatLng target = map.getCameraPosition().target;
+      float zoom = map.getCameraPosition().zoom;
+      cameraMovedEvents.onNext(new CameraPosition(fromLatLng(target), zoom));
+      cameraChangeReason = REASON_DEVELOPER_ANIMATION;
+    }
   }
 
   private void onCameraMoveStarted(int reason) {
-    if (reason == REASON_DEVELOPER_ANIMATION) {
-      // MapAdapter was panned by the app, not the user.
-      return;
-    }
-    cameraTargetBeforeDrag = map.getCameraPosition().target;
-  }
-
-  private void onCameraMove() {
-    com.google.android.gms.maps.model.CameraPosition gmsCameraPosition = map.getCameraPosition();
-    Point target = fromLatLng(gmsCameraPosition.target);
-    CameraPosition position = new CameraPosition(target, gmsCameraPosition.zoom);
-    cameraMoves.onNext(position);
-    if (cameraTargetBeforeDrag != null
-        && !gmsCameraPosition.target.equals(cameraTargetBeforeDrag)) {
-      dragInteractions.onNext(target);
+    cameraChangeReason = reason;
+    if (reason == REASON_GESTURE) {
+      startDragEvents.onNext(Nil.NIL);
     }
   }
 
