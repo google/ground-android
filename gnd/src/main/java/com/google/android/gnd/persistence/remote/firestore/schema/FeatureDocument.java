@@ -28,11 +28,8 @@ class FeatureDocument {
   @Nullable private String customId;
   @Nullable private String caption;
   @Nullable private GeoPoint location;
-  /**
-   * Use geometry instead.
-   *
-   */
-  @Deprecated @Nullable private String geoJson;
+  // TODO(#929): Harmonize representation of points, polygons, and geometries in remote db.
+  @Nullable private String geoJson;
   @Nullable private Map<String, Object> geometry;
   @Nullable private AuditInfoNestedObject created;
   @Nullable private AuditInfoNestedObject lastModified;
