@@ -200,7 +200,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void moveToNewPosition(Point point) {
-    Optional<Feature> feature = mapContainerViewModel.getSelectedFeature();
+    Optional<Feature> feature = mapContainerViewModel.getReposFeature();
     if (feature.isEmpty()) {
       Timber.e("Move point failed: No feature selected");
       return;
@@ -214,13 +214,13 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
+    mapContainerViewModel.setSelectedFeature(state.getFeature());
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
         // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
         // selected. This will involve calculating centroid and possibly zoom level based on
-        //
-        // // vertices.
+        // vertices.
         state
             .getFeature()
             .filter(Feature::isPoint)
@@ -314,12 +314,12 @@ public class MapContainerFragment extends AbstractFragment {
 
   public void setDefaultMode() {
     mapContainerViewModel.setViewMode(Mode.DEFAULT);
-    mapContainerViewModel.setSelectedFeature(Optional.empty());
+    mapContainerViewModel.setReposFeature(Optional.empty());
   }
 
   public void setRepositionMode(Optional<Feature> feature) {
     mapContainerViewModel.setViewMode(Mode.REPOSITION);
-    mapContainerViewModel.setSelectedFeature(feature);
+    mapContainerViewModel.setReposFeature(feature);
 
     Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
   }

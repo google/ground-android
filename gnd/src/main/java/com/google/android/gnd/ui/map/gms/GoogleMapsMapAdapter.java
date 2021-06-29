@@ -53,7 +53,6 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.collections.MarkerManager;
-import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
@@ -74,6 +73,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
 import timber.log.Timber;
@@ -130,10 +130,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Set<Polyline> polylines = new HashSet<>();
 
   /**
-   * References to Google Maps SDK GeoJSON present on the map. Used to sync and update GeoJSON with
-   * current view and data state.
+   * References to Google Maps SDK GeoJSON layers present on the map, keyed by MapGeoJson features.
+   * Used to sync and update GeoJSON with current data and UI state.
    */
-  private final Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
+  private Map<MapGeoJson, GeoJsonLayer> geoJsonLayersByFeature = new HashMap<>();
 
   private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
   private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
@@ -159,6 +159,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     uiSettings.setIndoorLevelPickerEnabled(false);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
+    map.setOnMapClickListener(this::onMapClick);
   }
 
   private static Point fromLatLng(LatLng latLng) {
@@ -309,15 +310,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonLayer layer =
         new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, null, null, null);
 
-    int width = getPolylineStrokeWidth();
+    int width = mapFeature.getStrokeWidth();
     int color = parseColor(mapFeature.getStyle().getColor());
 
     GeoJsonPointStyle pointStyle = layer.getDefaultPointStyle();
-    pointStyle.setLineStringWidth(width);
-    pointStyle.setPolygonFillColor(color);
     pointStyle.setZIndex(1);
 
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
+    polygonStyle.setStrokeWidth(width);
     polygonStyle.setLineStringWidth(width);
     polygonStyle.setStrokeColor(color);
     polygonStyle.setClickable(false);
@@ -325,7 +325,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     GeoJsonLineStringStyle lineStringStyle = layer.getDefaultLineStringStyle();
     lineStringStyle.setLineStringWidth(width);
-    lineStringStyle.setPolygonFillColor(color);
     lineStringStyle.setZIndex(1);
 
     layer.addLayerToMap();
@@ -334,8 +333,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
       updateGeoJsonPolygonBoundaries(geoJsonFeature, mapFeature);
     }
 
-    map.setOnMapClickListener(this::onMapClick);
-    geoJsonLayers.add(layer);
+    geoJsonLayersByFeature.put(mapFeature, layer);
   }
 
   /* Adds the inner and outer boundaries (holes and loops) of polygons defined by a GeoJson feature
@@ -362,20 +360,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     handleAmbiguity(latLng);
   }
 
-  private void removeAllMarkers() {
-    markers.clear();
-  }
-
-  private void removeAllPolylines() {
-    stream(polylines).forEach(Polyline::remove);
-    polylines.clear();
-  }
-
-  private void removeAllGeoJsonLayers() {
-    stream(geoJsonLayers).forEach(Layer::removeLayerFromMap);
-    geoJsonLayers.clear();
-  }
-
   @Override
   public Point getCameraTarget() {
     return fromLatLng(map.getCameraPosition().target);
@@ -395,22 +379,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void setMapFeatures(ImmutableSet<MapFeature> updatedFeatures) {
-    if (updatedFeatures.isEmpty()) {
-      removeAllMarkers();
-      removeAllPolylines();
-      removeAllGeoJsonLayers();
-      return;
-    }
-    Set<MapFeature> featuresToAdd = new HashSet<>(updatedFeatures);
+  public void setMapFeatures(ImmutableSet<MapFeature> features) {
+    Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
     for (Marker marker : markers.getMarkers()) {
       MapPin pin = (MapPin) marker.getTag();
-      if (updatedFeatures.contains(pin)) {
-        // If pin already exists on map, don't add it.
-        featuresToAdd.remove(pin);
+      if (features.contains(pin)) {
+        // If existing pin is present and up-to-date, don't update it.
+        featuresToUpdate.remove(pin);
       } else {
-        // Remove existing pins not in list of updatedFeatures.
+        // If pin isn't present or up-to-date, remove it so it can be added back later.
         removeMarker(marker);
       }
     }
@@ -419,9 +397,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     while (polylineIterator.hasNext()) {
       Polyline polyline = polylineIterator.next();
       MapPolygon polygon = (MapPolygon) polyline.getTag();
-      if (updatedFeatures.contains(polygon)) {
+      if (features.contains(polygon)) {
         // If polygon already exists on map, don't add it.
-        featuresToAdd.remove(polygon);
+        featuresToUpdate.remove(polygon);
       } else {
         // Remove existing polyline not in list of updatedFeatures.
         removePolygon(polyline);
@@ -429,17 +407,35 @@ class GoogleMapsMapAdapter implements MapAdapter {
       }
     }
 
-    stream(featuresToAdd)
-        .forEach(
-            mapFeature -> {
-              if (mapFeature instanceof MapPin) {
-                addMapPin((MapPin) mapFeature);
-              } else if (mapFeature instanceof MapPolygon) {
-                addMapPolyline((MapPolygon) mapFeature);
-              } else if (mapFeature instanceof MapGeoJson) {
-                addMapGeoJson((MapGeoJson) mapFeature);
-              }
-            });
+    // Iterate over all existing GeoJSON on the map.
+    Iterator<Entry<MapGeoJson, GeoJsonLayer>> geoJsonIterator =
+        geoJsonLayersByFeature.entrySet().iterator();
+    while (geoJsonIterator.hasNext()) {
+      Entry<MapGeoJson, GeoJsonLayer> entry = geoJsonIterator.next();
+      MapGeoJson geoJsonFeature = entry.getKey();
+      GeoJsonLayer layer = entry.getValue();
+      if (features.contains(geoJsonFeature)) {
+        // If existing GeoJSON is present and up-to-date, don't update it.
+        featuresToUpdate.remove(geoJsonFeature);
+      } else {
+        // If pin isn't present or up-to-date, remove it so it can be added back later.
+        Timber.v("Removing GeoJSON feature %s", geoJsonFeature.getFeature().getId());
+        geoJsonPolygonHoles.remove(geoJsonFeature);
+        geoJsonPolygonLoops.remove(geoJsonFeature);
+        geoJsonIterator.remove();
+        layer.removeLayerFromMap();
+      }
+    }
+
+    for (MapFeature mapFeature : featuresToUpdate) {
+      if (mapFeature instanceof MapPin) {
+        addMapPin((MapPin) mapFeature);
+      } else if (mapFeature instanceof MapPolygon) {
+        addMapPolyline((MapPolygon) mapFeature);
+      } else if (mapFeature instanceof MapGeoJson) {
+        addMapGeoJson((MapGeoJson) mapFeature);
+      }
+    }
   }
 
   @Override
