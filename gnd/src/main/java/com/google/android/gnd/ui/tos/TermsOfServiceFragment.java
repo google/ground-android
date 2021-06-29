@@ -36,9 +36,6 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
 
   private TermsOfServiceViewModel viewModel;
 
-  @SuppressWarnings("NullAway")
-  private FragmentTermsServiceBinding binding;
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -52,7 +49,8 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    binding = FragmentTermsServiceBinding.inflate(inflater, container, false);
+    FragmentTermsServiceBinding binding = FragmentTermsServiceBinding
+        .inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
