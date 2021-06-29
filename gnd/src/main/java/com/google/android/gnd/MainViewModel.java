@@ -55,6 +55,7 @@ public class MainViewModel extends AbstractViewModel {
 
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
+  private final UserRepository userRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
 
@@ -69,6 +70,7 @@ public class MainViewModel extends AbstractViewModel {
       Schedulers schedulers) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
+    this.userRepository = userRepository;
     this.navigator = navigator;
     this.popups = popups;
 
@@ -146,6 +148,7 @@ public class MainViewModel extends AbstractViewModel {
   void onSignedOut() {
     hideProgressDialog();
     projectRepository.clearActiveProject();
+    userRepository.clearUserPreferences();
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 

@@ -32,6 +32,10 @@ public abstract class Feature<B extends Feature.Builder> {
     return this instanceof GeoJsonFeature;
   }
 
+  public boolean isPolygon() {
+    return this instanceof PolygonFeature;
+  }
+
   @NonNull
   public abstract String getId();
 
