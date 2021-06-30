@@ -90,7 +90,7 @@
       android:layout_height="wrap_content"
       android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
       android:src="@drawable/ic_menu_black_24dp"
-      app:tint="@color/colorGrey500"
+      app:tint="@{viewModel.getIconTint()}"
       app:backgroundTint="@color/colorBackground"
       app:layout_constraintStart_toStartOf="parent"
       app:fabSize="mini"
