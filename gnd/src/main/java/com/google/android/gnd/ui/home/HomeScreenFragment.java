@@ -134,7 +134,6 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
     viewModel
         .getAddFeatureResults()
-        .subscribeOn(schedulers.io())
         .observeOn(schedulers.ui())
         .as(autoDisposable(this))
         .subscribe(this::onFeatureAdded);
