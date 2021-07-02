@@ -523,6 +523,9 @@ public class HomeScreenFragment extends AbstractFragment
           showProjectSelector();
           closeDrawer();
           break;
+        case R.id.sync_status:
+          viewModel.showSyncStatus();
+          break;
         case R.id.nav_offline_areas:
           showOfflineAreas();
           closeDrawer();
