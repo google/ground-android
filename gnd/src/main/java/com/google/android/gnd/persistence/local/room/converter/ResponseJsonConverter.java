@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import static java8.lang.Iterables.forEach;
 
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
@@ -57,24 +58,25 @@ class ResponseJsonConverter {
       }
       return value;
     } else if (response instanceof DateResponse) {
-      return convertToIsoFormat(((DateResponse) response).getDate());
+      return dateToIsoString(((DateResponse) response).getDate());
     } else if (response instanceof TimeResponse) {
-      return convertToIsoFormat(((TimeResponse) response).getTime());
+      return dateToIsoString(((TimeResponse) response).getTime());
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
   }
 
-  public static String convertToIsoFormat(Date date) {
+  public static String dateToIsoString(Date date) {
     synchronized (ISO_INSTANT_FORMAT) {
       return ISO_INSTANT_FORMAT.format(date);
     }
   }
 
-  public static Date stringToIsoFormat(String dtStart) {
+  @Nullable
+  public static Date isoStringToDate(String isoString) {
     try {
       synchronized (ISO_INSTANT_FORMAT) {
-        return ISO_INSTANT_FORMAT.parse(dtStart);
+        return ISO_INSTANT_FORMAT.parse(isoString);
       }
     } catch (ParseException e) {
       Timber.e("Error parsing Date : %s", e.getMessage());
@@ -111,10 +113,10 @@ class ResponseJsonConverter {
         return NumberResponse.fromNumber(obj.toString());
       case DATE:
         DataStoreException.checkType(String.class, obj);
-        return DateResponse.fromDate(ResponseJsonConverter.stringToIsoFormat((String) obj));
+        return DateResponse.fromDate(ResponseJsonConverter.isoStringToDate((String) obj));
       case TIME:
         DataStoreException.checkType(String.class, obj);
-        return TimeResponse.fromDate(ResponseJsonConverter.stringToIsoFormat((String) obj));
+        return TimeResponse.fromDate(ResponseJsonConverter.isoStringToDate((String) obj));
       case UNKNOWN:
       default:
         throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());
