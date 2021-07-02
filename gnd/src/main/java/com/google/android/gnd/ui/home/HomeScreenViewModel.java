@@ -35,6 +35,7 @@ import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -100,7 +101,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
       AuthenticationManager authenticationManager,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      Navigator navigator) {
+      Navigator navigator,
+      Schedulers schedulers) {
     this.authenticationManager = authenticationManager;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
@@ -112,13 +114,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
-        addFeatureClicks.switchMapSingle(
-            feature ->
-                featureRepository
-                    .createFeature(feature)
-                    .toSingleDefault(feature)
-                    .doOnError(errors::onNext)
-                    .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
+        addFeatureClicks
+            .switchMapSingle(
+                feature ->
+                    featureRepository
+                        .createFeature(feature)
+                        .toSingleDefault(feature)
+                        .doOnError(errors::onNext)
+                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
+            .subscribeOn(schedulers.io());
     deleteFeatureResults =
         deleteFeatureRequests.switchMapSingle(
             feature -> toBooleanSingle(featureRepository.deleteFeature(feature), errors::onNext));
