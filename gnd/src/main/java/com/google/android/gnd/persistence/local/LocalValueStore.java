@@ -74,8 +74,8 @@ public class LocalValueStore {
     return preferences.getInt(MAP_TYPE, defaultType);
   }
 
-  /** Returns whether the currently logged in user have accepted the terms or not. */
-  public boolean areTermsOfServiceAccepted() {
+  /** Returns whether the currently logged in user has accepted the terms of service or not. */
+  public boolean isTermsOfServiceAccepted() {
     return preferences.getBoolean(TOS_ACCEPTED, false);
   }
 

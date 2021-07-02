@@ -45,8 +45,8 @@ public class TermsOfServiceRepository {
         .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
-  public boolean areTermsOfServiceAccepted() {
-    return localValueStore.areTermsOfServiceAccepted();
+  public boolean isTermsOfServiceAccepted() {
+    return localValueStore.isTermsOfServiceAccepted();
   }
 
   public void setTermsOfServiceAccepted(boolean value) {
