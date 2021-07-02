@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -36,23 +37,24 @@ public interface MapAdapter {
   @Hot
   Observable<MapPin> getMapPinClicks();
 
-  @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks();
-
-  /**
-   * Returns map drag events. Emits the new viewport center each time the map is dragged by the
-   * user. Subscribers that can't keep up receive the latest event ({@link
-   * Flowable#onBackpressureLatest()}).
-   */
   @Hot
-  Flowable<Point> getDragInteractions();
+  Observable<ImmutableList<MapFeature>> getFeatureClicks();
 
   /**
-   * Returns camera move events. Emits the new camera position each time the map pans or zooms.
+   * Returns map drag events. Emits an empty event when the map starts to move by the user.
    * Subscribers that can't keep up receive the latest event ({@link
    * Flowable#onBackpressureLatest()}).
    */
   @Hot
-  Flowable<CameraPosition> getCameraMoves();
+  Flowable<Nil> getStartDragEvents();
+
+  /**
+   * Returns camera move events. Emits the new camera position each time the map stops moving.
+   * Subscribers that can't keep up receive the latest event ({@link
+   * Flowable#onBackpressureLatest()}).
+   */
+  @Hot
+  Flowable<CameraPosition> getCameraMovedEvents();
 
   /** Enables map gestures like pan and zoom. */
   void enable();

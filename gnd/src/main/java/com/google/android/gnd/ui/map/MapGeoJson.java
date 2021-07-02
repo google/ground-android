@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import androidx.annotation.Dimension;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
@@ -23,6 +24,9 @@ import org.json.JSONObject;
 
 @AutoValue
 public abstract class MapGeoJson extends MapFeature {
+
+  /** Used to generate hash code for instances of this class. */
+  private static final int HASH_MULTIPLER = 1_000_003;
 
   public static Builder newBuilder() {
     return new AutoValue_MapGeoJson.Builder();
@@ -34,9 +38,45 @@ public abstract class MapGeoJson extends MapFeature {
 
   public abstract Style getStyle();
 
+  public abstract @Dimension int getStrokeWidth();
+
   // TODO: Just store the ID and pull the feature when needed.
   @Override
   public abstract Feature getFeature();
+
+  public abstract Builder toBuilder();
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (o instanceof MapGeoJson) {
+      MapGeoJson that = (MapGeoJson) o;
+      return this.getId().equals(that.getId())
+          && this.getGeoJson().toString().equals(that.getGeoJson().toString())
+          && this.getStyle().equals(that.getStyle())
+          && this.getStrokeWidth() == that.getStrokeWidth()
+          && this.getFeature().equals(that.getFeature());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hc = 1;
+    hc *= HASH_MULTIPLER;
+    hc ^= getId().hashCode();
+    hc *= HASH_MULTIPLER;
+    hc ^= getGeoJson().toString().hashCode();
+    hc *= HASH_MULTIPLER;
+    hc ^= getStyle().hashCode();
+    hc *= HASH_MULTIPLER;
+    hc ^= getStrokeWidth();
+    hc *= HASH_MULTIPLER;
+    hc ^= getFeature().hashCode();
+    return hc;
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -45,6 +85,8 @@ public abstract class MapGeoJson extends MapFeature {
     public abstract Builder setGeoJson(JSONObject newGeoJson);
 
     public abstract Builder setStyle(Style style);
+
+    public abstract Builder setStrokeWidth(@Dimension int newStrokeWidth);
 
     public abstract Builder setFeature(Feature feature);
 
