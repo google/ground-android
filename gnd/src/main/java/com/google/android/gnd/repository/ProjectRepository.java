@@ -16,13 +16,12 @@
 
 package com.google.android.gnd.repository;
 
-import static com.google.android.gnd.model.Project.CONTRIBUTOR;
-import static com.google.android.gnd.model.Project.MANAGER;
-import static com.google.android.gnd.model.Project.OWNER;
+import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -185,9 +184,17 @@ public class ProjectRepository {
   }
 
   private boolean canAddFeatures(String role, Layer layer) {
-    return OWNER.equals(role)
-        || MANAGER.equals(role)
-        || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
+    switch (toEnum(Role.class, role)) {
+      case OWNER:
+      case MANAGER:
+        return true;
+      case CONTRIBUTOR:
+        return !layer.getContributorsCanAdd().isEmpty();
+      case UNKNOWN:
+        Timber.e("Unknown role: %s", role);
+        return false;
+    }
+    return false;
   }
 
   public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
