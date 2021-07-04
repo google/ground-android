@@ -65,7 +65,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   @Cold(stateful = true, terminates = false)
-  protected Flowable<String> getDetailsTextFlowable() {
+  protected final Flowable<String> getDetailsTextFlowable() {
     return responseSubject
         .distinctUntilChanged()
         .map(responseOptional -> responseOptional.map(Response::getDetailsText).orElse(""));
