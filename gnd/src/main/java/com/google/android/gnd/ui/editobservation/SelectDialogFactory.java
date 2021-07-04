@@ -51,6 +51,7 @@ public abstract class SelectDialogFactory {
   /** Returns the selected item(s) as a {@link Response}. */
   protected Optional<Response> onCreateResponse() {
     return MultipleChoiceResponse.fromList(
+        getMultipleChoice(),
         stream(getSelectedOptions()).map(Option::getId).collect(toImmutableList()));
   }
 

@@ -69,10 +69,11 @@ class ResponseJsonConverter {
         return TextResponse.fromString((String) obj);
       case MULTIPLE_CHOICE:
         if (obj == JSONObject.NULL) {
-          return MultipleChoiceResponse.fromList(Collections.emptyList());
+          return MultipleChoiceResponse.fromList(
+              field.getMultipleChoice(), Collections.emptyList());
         }
         DataStoreException.checkType(JSONArray.class, obj);
-        return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
+        return MultipleChoiceResponse.fromList(field.getMultipleChoice(), toList((JSONArray) obj));
       case NUMBER:
         if (JSONObject.NULL == obj) {
           return NumberResponse.fromNumber("");

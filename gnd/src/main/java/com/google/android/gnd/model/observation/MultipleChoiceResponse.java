@@ -19,18 +19,34 @@ package com.google.android.gnd.model.observation;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 public class MultipleChoiceResponse implements Response {
 
-  private List<String> choices;
+  private final MultipleChoice multipleChoice;
+  private final List<String> choices;
 
-  public MultipleChoiceResponse(List<String> choices) {
+  public MultipleChoiceResponse(MultipleChoice multipleChoice, List<String> choices) {
+    this.multipleChoice = multipleChoice;
     this.choices = choices;
+  }
+
+  public static Optional<Response> fromList(MultipleChoice multipleChoice, List<String> codes) {
+    if (codes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(new MultipleChoiceResponse(multipleChoice, codes));
+    }
+  }
+
+  public MultipleChoice getMultipleChoice() {
+    return multipleChoice;
   }
 
   public List<String> getChoices() {
@@ -78,16 +94,9 @@ public class MultipleChoiceResponse implements Response {
     return choices.hashCode();
   }
 
+  @NotNull
   @Override
   public String toString() {
     return stream(choices).sorted().collect(Collectors.joining(","));
-  }
-
-  public static Optional<Response> fromList(List<String> codes) {
-    if (codes.isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(new MultipleChoiceResponse(codes));
-    }
   }
 }
