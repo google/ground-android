@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.Objects.requireNonNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Application;
@@ -56,7 +57,7 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   public void updateResponse(ImmutableList<Option> options) {
     setResponse(
         MultipleChoiceResponse.fromList(
-            getField().getMultipleChoice(),
+            requireNonNull(getField().getMultipleChoice()),
             stream(options).map(Option::getId).collect(toImmutableList())));
   }
 }
