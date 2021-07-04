@@ -30,11 +30,11 @@ import org.jetbrains.annotations.NotNull;
 public class MultipleChoiceResponse implements Response {
 
   private final MultipleChoice multipleChoice;
-  private final List<String> choices;
+  private final List<String> selectedOptionIds;
 
-  public MultipleChoiceResponse(MultipleChoice multipleChoice, List<String> choices) {
+  public MultipleChoiceResponse(MultipleChoice multipleChoice, List<String> selectedOptionIds) {
     this.multipleChoice = multipleChoice;
-    this.choices = choices;
+    this.selectedOptionIds = selectedOptionIds;
   }
 
   public static Optional<Response> fromList(MultipleChoice multipleChoice, List<String> codes) {
@@ -49,16 +49,16 @@ public class MultipleChoiceResponse implements Response {
     return multipleChoice;
   }
 
-  public List<String> getChoices() {
-    return choices;
+  public List<String> getSelectedOptionIds() {
+    return selectedOptionIds;
   }
 
   public Optional<String> getFirstId() {
-    return stream(choices).findFirst();
+    return stream(selectedOptionIds).findFirst();
   }
 
   public boolean isSelected(Option option) {
-    return choices.contains(option.getId());
+    return selectedOptionIds.contains(option.getId());
   }
 
   public String getSummaryText(Field field) {
@@ -67,7 +67,7 @@ public class MultipleChoiceResponse implements Response {
 
   // TODO: Make these inner classes non-static and access Form directly.
   public String getDetailsText(Field field) {
-    return stream(choices)
+    return stream(selectedOptionIds)
         .map(field.getMultipleChoice()::getOptionById)
         .filter(Optional::isPresent)
         .map(Optional::get)
@@ -78,25 +78,25 @@ public class MultipleChoiceResponse implements Response {
 
   @Override
   public boolean isEmpty() {
-    return choices.isEmpty();
+    return selectedOptionIds.isEmpty();
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof MultipleChoiceResponse) {
-      return choices.equals(((MultipleChoiceResponse) obj).choices);
+      return selectedOptionIds.equals(((MultipleChoiceResponse) obj).selectedOptionIds);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return choices.hashCode();
+    return selectedOptionIds.hashCode();
   }
 
   @NotNull
   @Override
   public String toString() {
-    return stream(choices).sorted().collect(Collectors.joining(","));
+    return stream(selectedOptionIds).sorted().collect(Collectors.joining(","));
   }
 }

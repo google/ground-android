@@ -54,7 +54,7 @@ class ResponseJsonConverter {
 
   private static Object toJsonArray(MultipleChoiceResponse response) {
     JSONArray array = new JSONArray();
-    forEach(response.getChoices(), array::put);
+    forEach(response.getSelectedOptionIds(), array::put);
     return array;
   }
 
