@@ -45,11 +45,11 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
+import java8.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -277,15 +277,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public Observable<ImmutableList<Feature>> getOverlappingFeaturesOnceAndStream() {
-    return overlappingFeaturesSubject;
-  }
-
   public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
     ImmutableList<Feature> features =
         stream(mapFeatures)
             .map(MapFeature::getFeature)
-            .filter(f -> f != null)
+            .filter(Objects::nonNull)
             .collect(toImmutableList());
     overlappingFeaturesSubject.onNext(features);
   }
