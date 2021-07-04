@@ -29,6 +29,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
@@ -290,9 +291,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return Loadable.getValue(getProjectLoadingState());
   }
 
-  public ImmutableList<Layer> getModifiableLayers() {
+  public ImmutableList<Layer> getModifiableLayers(Type featureType) {
     return getActiveProject()
-        .map(projectRepository::getModifiableLayers)
+        .map(project -> projectRepository.getModifiableLayers(project, featureType))
         .orElse(ImmutableList.of());
   }
 }

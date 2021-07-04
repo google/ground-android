@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.Type;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -174,14 +175,16 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
-  public ImmutableList<Layer> getModifiableLayers(Project project) {
+  public ImmutableList<Layer> getModifiableLayers(Project project, Type featureType) {
+    // TODO: Use enums instead of string values
+    String featureTypeValue = featureType.name().toLowerCase();
     switch (userRepository.getUserRole(project)) {
       case OWNER:
       case MANAGER:
         return project.getLayers();
       case CONTRIBUTOR:
         return stream(project.getLayers())
-            .filter(layer -> !layer.getContributorsCanAdd().isEmpty())
+            .filter(layer -> layer.getContributorsCanAdd().contains(featureTypeValue))
             .collect(toImmutableList());
       case UNKNOWN:
       default:
