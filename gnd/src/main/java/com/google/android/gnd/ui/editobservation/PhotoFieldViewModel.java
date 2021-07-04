@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import javax.inject.Inject;
@@ -70,5 +71,9 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   public LiveData<Boolean> isEditable() {
     return editable;
+  }
+
+  public void updateResponse(String value) {
+    setResponse(TextResponse.fromString(value));
   }
 }

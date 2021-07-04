@@ -46,7 +46,6 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -263,7 +262,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
               // TODO: Do not set response if already handled.
               Field field = fieldViewModel.getField();
               if (map.containsKey(field)) {
-                fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
+                fieldViewModel.updateResponse(map.get(field));
               }
             });
   }
