@@ -68,7 +68,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   private Single<String> getDetailsText(Optional<Response> responseOptional) {
-    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
+    return Single.just(responseOptional.map(Response::getDetailsText).orElse(""));
   }
 
   /** Checks if the current response is valid and updates error value. */

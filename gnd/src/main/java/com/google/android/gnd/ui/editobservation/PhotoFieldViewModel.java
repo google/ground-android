@@ -78,7 +78,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     if (response == null) {
       destinationPath.onNext(EMPTY_PATH);
     } else {
-      destinationPath.onNext(response.getDetailsText(field));
+      destinationPath.onNext(response.getDetailsText());
     }
   }
 

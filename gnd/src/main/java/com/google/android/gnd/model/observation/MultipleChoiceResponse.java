@@ -18,7 +18,6 @@ package com.google.android.gnd.model.observation;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import java.util.List;
@@ -61,14 +60,14 @@ public class MultipleChoiceResponse implements Response {
     return selectedOptionIds.contains(option.getId());
   }
 
-  public String getSummaryText(Field field) {
-    return getDetailsText(field);
+  public String getSummaryText() {
+    return getDetailsText();
   }
 
   // TODO: Make these inner classes non-static and access Form directly.
-  public String getDetailsText(Field field) {
+  public String getDetailsText() {
     return stream(selectedOptionIds)
-        .map(field.getMultipleChoice()::getOptionById)
+        .map(getMultipleChoice()::getOptionById)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .map(Option::getLabel)
