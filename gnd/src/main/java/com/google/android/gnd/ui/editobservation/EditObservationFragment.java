@@ -192,7 +192,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
           break;
         case UNKNOWN:
         default:
-          Timber.d(element.getType() + " form elements not yet supported");
+          Timber.e("%s form elements not yet supported", element.getType());
           break;
       }
     }
@@ -222,7 +222,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .setContext(requireContext())
             .setTitle(field.getLabel())
             .setMultipleChoice(multipleChoice)
-            .setCurrentValue(response)
+            .setCurrentResponse(response)
             .setValueConsumer(consumer)
             .build()
             .createDialog();
@@ -231,7 +231,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .setContext(requireContext())
             .setTitle(field.getLabel())
             .setMultipleChoice(multipleChoice)
-            .setCurrentValue(response)
+            .setCurrentResponse(response)
             .setValueConsumer(consumer)
             .build()
             .createDialog();

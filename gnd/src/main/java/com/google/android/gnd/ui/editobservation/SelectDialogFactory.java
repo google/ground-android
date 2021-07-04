@@ -88,7 +88,7 @@ public abstract class SelectDialogFactory {
 
   public abstract MultipleChoice getMultipleChoice();
 
-  public abstract Optional<MultipleChoiceResponse> getCurrentValue();
+  public abstract Optional<MultipleChoiceResponse> getCurrentResponse();
 
   public abstract Consumer<Optional<Response>> getValueConsumer();
 
@@ -100,7 +100,7 @@ public abstract class SelectDialogFactory {
 
     public abstract B setMultipleChoice(MultipleChoice multipleChoice);
 
-    public abstract B setCurrentValue(Optional<MultipleChoiceResponse> response);
+    public abstract B setCurrentResponse(Optional<MultipleChoiceResponse> response);
 
     public abstract B setValueConsumer(Consumer<Optional<Response>> consumer);
   }
