@@ -37,7 +37,6 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -61,7 +60,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
 
-  private final AuthenticationManager authenticationManager;
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
@@ -98,12 +96,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Inject
   HomeScreenViewModel(
-      AuthenticationManager authenticationManager,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       Navigator navigator,
       Schedulers schedulers) {
-    this.authenticationManager = authenticationManager;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
@@ -300,10 +296,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public ImmutableList<Layer> getModifiableLayers() {
     return getActiveProject()
-        .map(
-            project ->
-                projectRepository.getModifiableLayers(
-                    project, authenticationManager.getCurrentUser()))
+        .map(projectRepository::getModifiableLayers)
         .orElse(ImmutableList.of());
   }
 }

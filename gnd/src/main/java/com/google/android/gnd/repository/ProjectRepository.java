@@ -16,12 +16,10 @@
 
 package com.google.android.gnd.repository;
 
-import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -56,6 +54,7 @@ public class ProjectRepository {
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final InMemoryCache cache;
+  private final UserRepository userRepository;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final LocalValueStore localValueStore;
@@ -71,10 +70,12 @@ public class ProjectRepository {
 
   @Inject
   public ProjectRepository(
+      UserRepository userRepository,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       InMemoryCache cache,
       LocalValueStore localValueStore) {
+    this.userRepository = userRepository;
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
@@ -173,28 +174,19 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
-  public ImmutableList<Layer> getModifiableLayers(Project project, User user) {
-    String role = project.getAcl().get(user.getEmail());
-    if (role == null) {
-      return ImmutableList.of();
-    }
-    return stream(project.getLayers())
-        .filter(layer -> canAddFeatures(role, layer))
-        .collect(toImmutableList());
-  }
-
-  private boolean canAddFeatures(String role, Layer layer) {
-    switch (toEnum(Role.class, role)) {
+  public ImmutableList<Layer> getModifiableLayers(Project project) {
+    switch (userRepository.getUserRole(project)) {
       case OWNER:
       case MANAGER:
-        return true;
+        return project.getLayers();
       case CONTRIBUTOR:
-        return !layer.getContributorsCanAdd().isEmpty();
+        return stream(project.getLayers())
+            .filter(layer -> !layer.getContributorsCanAdd().isEmpty())
+            .collect(toImmutableList());
       case UNKNOWN:
-        Timber.e("Unknown role: %s", role);
-        return false;
+      default:
+        return ImmutableList.of();
     }
-    return false;
   }
 
   public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
