@@ -67,17 +67,13 @@ class ResponseJsonConverter {
   }
 
   public static String dateToIsoString(Date date) {
-    synchronized (ISO_INSTANT_FORMAT) {
       return ISO_INSTANT_FORMAT.format(date);
-    }
   }
 
   @Nullable
   public static Date isoStringToDate(String isoString) {
     try {
-      synchronized (ISO_INSTANT_FORMAT) {
         return ISO_INSTANT_FORMAT.parse(isoString);
-      }
     } catch (ParseException e) {
       Timber.e("Error parsing Date : %s", e.getMessage());
     }
