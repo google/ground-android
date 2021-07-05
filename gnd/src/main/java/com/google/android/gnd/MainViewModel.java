@@ -23,7 +23,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
@@ -168,7 +167,6 @@ public class MainViewModel extends AbstractViewModel {
   void onSignedOut() {
     hideProgressDialog();
     projectRepository.clearActiveProject();
-    userRepository.clearUserPreferences();
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
@@ -193,4 +191,5 @@ public class MainViewModel extends AbstractViewModel {
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
     return signInProgressDialogVisibility;
   }
+
 }

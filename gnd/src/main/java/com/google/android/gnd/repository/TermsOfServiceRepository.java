@@ -29,7 +29,7 @@ import timber.log.Timber;
 
 public class TermsOfServiceRepository {
 
-  private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
+  private static final long LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS = 30;
 
   private final RemoteDataStore remoteDataStore;
   private final LocalValueStore localValueStore;
@@ -56,7 +56,7 @@ public class TermsOfServiceRepository {
   private Single<TermsOfService> loadTermsOfServiceFromRemote() {
     return remoteDataStore
         .loadTermsOfService()
-        .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
+        .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
   public boolean isTermsOfServiceAccepted() {
