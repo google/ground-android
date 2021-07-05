@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.TermsOfService;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -31,17 +32,20 @@ public class TermsOfServiceRepository {
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final RemoteDataStore remoteDataStore;
+  private final LocalValueStore localValueStore;
 
   @Inject
   public TermsOfServiceRepository(
-      RemoteDataStore remoteDataStore) {
+      RemoteDataStore remoteDataStore,
+      LocalValueStore localValueStore) {
     this.remoteDataStore = remoteDataStore;
+    this.localValueStore = localValueStore;
 
   }
 
   @Cold
-  public Flowable<Loadable<TermsOfService>> getProjectTerms() {
-    return loadTermsFromRemote()
+  public Flowable<Loadable<TermsOfService>> getProjectTermsOfService() {
+    return loadTermsOfServiceFromRemote()
         .doOnSubscribe(__ -> Timber.d("Loading terms from remote"))
         .doOnError(err -> Timber.d("Failed to load terms from remote"))
         .toFlowable()
@@ -49,10 +53,18 @@ public class TermsOfServiceRepository {
   }
 
   @Cold
-  private Single<TermsOfService> loadTermsFromRemote() {
+  private Single<TermsOfService> loadTermsOfServiceFromRemote() {
     return remoteDataStore
         .loadTermsOfService()
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
+  }
+
+  public boolean isTermsOfServiceAccepted() {
+    return localValueStore.areTermsAccepted();
+  }
+
+  public void setTermsOfServiceAccepted(boolean value) {
+    localValueStore.setTermsAccepted(value);
   }
 
 }

@@ -64,9 +64,9 @@ public class MainViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
+  private final TermsOfServiceRepository termsOfServiceRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
-  private final LocalValueStore localValueStore;
   private final AuthenticationManager authenticationManager;
 
   @Inject
@@ -78,13 +78,13 @@ public class MainViewModel extends AbstractViewModel {
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
-      Schedulers schedulers, LocalValueStore localValueStore) {
+      Schedulers schedulers) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
+    this.termsOfServiceRepository = termsOfServiceRepository;
     this.userRepository = userRepository;
     this.navigator = navigator;
     this.popups = popups;
-    this.localValueStore = localValueStore;
     this.authenticationManager = authenticationManager;
 
     // TODO: Move to background service.
@@ -102,7 +102,7 @@ public class MainViewModel extends AbstractViewModel {
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
 
-    disposeOnClear(termsOfServiceRepository.getProjectTerms()
+    disposeOnClear(termsOfServiceRepository.getProjectTermsOfService()
         .observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
   }
 
@@ -175,10 +175,10 @@ public class MainViewModel extends AbstractViewModel {
   private void onSignedIn() {
     hideProgressDialog();
     if (termsState.getValue() == LoadState.NOT_FOUND) {
-      localValueStore.setTermsAccepted(true);
+      termsOfServiceRepository.setTermsOfServiceAccepted(true);
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      if (localValueStore.areTermsAccepted()) {
+      if (termsOfServiceRepository.isTermsOfServiceAccepted()) {
         navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
       } else {
         if (signInProgressDialogVisibility.getValue() == null) {
