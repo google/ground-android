@@ -66,6 +66,7 @@ public class MainViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final TermsOfServiceRepository termsOfServiceRepository;
+  private final UserRepository userRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
 
@@ -84,6 +85,7 @@ public class MainViewModel extends AbstractViewModel {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.termsOfServiceRepository = termsOfServiceRepository;
+    this.userRepository = userRepository;
     this.navigator = navigator;
     this.popups = popups;
 
