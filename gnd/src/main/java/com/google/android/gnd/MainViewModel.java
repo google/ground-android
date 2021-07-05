@@ -65,8 +65,8 @@ public class MainViewModel extends AbstractViewModel {
 
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
-  private final TermsOfServiceRepository termsOfServiceRepository;
   private final UserRepository userRepository;
+  private final TermsOfServiceRepository termsOfServiceRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
 
@@ -168,6 +168,7 @@ public class MainViewModel extends AbstractViewModel {
   void onSignedOut() {
     hideProgressDialog();
     projectRepository.clearActiveProject();
+    userRepository.clearUserPreferences();
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
