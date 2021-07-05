@@ -42,8 +42,10 @@ public class TermsOfServiceRepository {
   }
 
   @Cold
-  public Flowable<Loadable<TermsOfService>> getProjectTermsOfService() {
-    return loadTermsOfServiceFromRemote()
+  public Flowable<Loadable<TermsOfService>> getTermsOfService() {
+    return remoteDataStore
+        .loadTermsOfService()
+        .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
         .doOnSubscribe(__ -> Timber.d("Loading terms from remote"))
         .doOnError(err -> Timber.d("Failed to load terms from remote"))
         .toFlowable()
@@ -58,10 +60,10 @@ public class TermsOfServiceRepository {
   }
 
   public boolean isTermsOfServiceAccepted() {
-    return localValueStore.areTermsAccepted();
+    return localValueStore.areTermsOfServiceAccepted();
   }
 
   public void setTermsOfServiceAccepted(boolean value) {
-    localValueStore.setTermsAccepted(value);
+    localValueStore.setTermsOfServiceAccepted(value);
   }
 }
