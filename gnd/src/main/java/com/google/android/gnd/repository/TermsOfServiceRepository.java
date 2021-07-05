@@ -19,13 +19,10 @@ package com.google.android.gnd.repository;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import timber.log.Timber;
 
 public class TermsOfServiceRepository {
 
@@ -42,15 +39,10 @@ public class TermsOfServiceRepository {
   }
 
   @Cold
-  public Flowable<Loadable<TermsOfService>> getTermsOfService() {
+  public Maybe<TermsOfService> getTermsOfService() {
     return remoteDataStore
         .loadTermsOfService()
-        .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .doOnSubscribe(__ -> Timber.d("Loading terms from remote"))
-        .doOnError(err -> Timber.d("Failed to load terms from remote"))
-        .toFlowable()
-        .compose(Loadable::loadingOnceAndWrap)
-        .defaultIfEmpty(Loadable.notFound());
+        .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
   public boolean isTermsOfServiceAccepted() {

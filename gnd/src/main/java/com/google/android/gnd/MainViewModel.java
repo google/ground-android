@@ -28,8 +28,6 @@ import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
-import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Loadable.LoadState;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -62,9 +60,6 @@ public class MainViewModel extends AbstractViewModel {
   /** The state of sign in progress dialog visibility. */
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  public final MutableLiveData<LoadState> termsState = new MutableLiveData<>();
 
   @Hot private final Subject<Integer> unrecoverableErrors = PublishSubject.create();
 
@@ -129,10 +124,6 @@ public class MainViewModel extends AbstractViewModel {
     windowInsets.setValue(insets);
   }
 
-  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
-    termsState.setValue(projectTerms.getState());
-  }
-
   private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
       termsOfServiceRepository.setTermsOfServiceAccepted(false);
@@ -190,7 +181,7 @@ public class MainViewModel extends AbstractViewModel {
 
   private NavDirections onGetTermsOfServiceComplete(Optional<TermsOfService> termsOfService) {
     hideProgressDialog();
-    if (termsOfService.isEmpty() || termsOfServiceRepository.areTermsOfServiceAccepted()) {
+    if (termsOfService.isEmpty() || termsOfServiceRepository.isTermsOfServiceAccepted()) {
       return HomeScreenFragmentDirections.showHomeScreen();
     } else {
       return SignInFragmentDirections.showTermsOfService()
