@@ -16,65 +16,41 @@
 
 package com.google.android.gnd.ui.terms;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
-import timber.log.Timber;
 
-// TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
 
   private final Navigator navigator;
 
-  @Hot(replays = true)
-  public final MutableLiveData<String> termsOfServiceText = new MutableLiveData<>();
+  private String termsOfServiceText = "";
 
   @Hot(replays = true)
-  public final MutableLiveData<Boolean> acceptTermsCheckboxState = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
+  public final MutableLiveData<Boolean> agreeCheckboxChecked = new MutableLiveData<>();
 
   private final TermsOfServiceRepository termsOfServiceRepository;
-  private final LiveData<Loadable<TermsOfService>> termsOfService;
 
   @Inject
   public TermsOfServiceViewModel(
       Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
     this.termsOfServiceRepository = termsOfServiceRepository;
-    this.termsOfService =
-        LiveDataReactiveStreams.fromPublisher(
-            termsOfServiceRepository
-                .getTermsOfService()
-                .doOnSubscribe(__ -> Timber.d("Loading terms of service from remote"))
-                .doOnError(err -> Timber.d(err, "Error loading terms of service from remote"))
-                .toFlowable()
-                .compose(Loadable::loadingOnceAndWrap)
-                .defaultIfEmpty(Loadable.notFound()));
+  }
+
+  public String getTermsOfServiceText() {
+    return termsOfServiceText;
+  }
+
+  public void setTermsOfServiceText(String termsOfServiceText) {
+    this.termsOfServiceText = termsOfServiceText;
   }
 
   public void onButtonClicked() {
     termsOfServiceRepository.setTermsOfServiceAccepted(true);
     navigator.navigate(TermsOfServiceFragmentDirections.proceedToHomeScreen());
-  }
-
-  public LiveData<Loadable<TermsOfService>> getTermsOfService() {
-    return termsOfService;
-  }
-
-  public void setTermsOfServiceTextView(String terms) {
-    termsOfServiceText.setValue(terms);
-  }
-
-  public void setTermsOfServiceLoadState(boolean value) {
-    termsOfServiceLoadState.setValue(value);
   }
 }
