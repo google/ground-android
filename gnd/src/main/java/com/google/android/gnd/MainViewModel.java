@@ -132,7 +132,7 @@ public class MainViewModel extends AbstractViewModel {
 
   private void onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
-      termsOfServiceRepository.setTermsAccepted(false);
+      termsOfServiceRepository.setTermsOfServiceAccepted(false);
     }
 
     switch (signInState.state()) {
@@ -196,5 +196,4 @@ public class MainViewModel extends AbstractViewModel {
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
     return signInProgressDialogVisibility;
   }
-
 }

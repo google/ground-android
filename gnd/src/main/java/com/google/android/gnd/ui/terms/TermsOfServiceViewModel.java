@@ -45,8 +45,8 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   private final LiveData<Loadable<TermsOfService>> projectTermsOfService;
 
   @Inject
-  public TermsOfServiceViewModel(Navigator navigator,
-      TermsOfServiceRepository termsOfServiceRepository) {
+  public TermsOfServiceViewModel(
+      Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
     this.termsOfServiceRepository = termsOfServiceRepository;
     this.projectTermsOfService = LiveDataReactiveStreams.fromPublisher(
@@ -55,7 +55,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
 
   public void onButtonClicked() {
     termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedToHomeScreen());
   }
 
   public LiveData<Loadable<TermsOfService>> getTermsOfService() {

@@ -36,11 +36,9 @@ public class TermsOfServiceRepository {
 
   @Inject
   public TermsOfServiceRepository(
-      RemoteDataStore remoteDataStore,
-      LocalValueStore localValueStore) {
+      RemoteDataStore remoteDataStore, LocalValueStore localValueStore) {
     this.remoteDataStore = remoteDataStore;
     this.localValueStore = localValueStore;
-
   }
 
   @Cold
@@ -66,5 +64,4 @@ public class TermsOfServiceRepository {
   public void setTermsOfServiceAccepted(boolean value) {
     localValueStore.setTermsAccepted(value);
   }
-
 }

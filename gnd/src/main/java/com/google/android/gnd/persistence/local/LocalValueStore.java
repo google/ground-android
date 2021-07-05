@@ -41,7 +41,7 @@ public class LocalValueStore {
   public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
   public static final String MAP_TYPE = "map_type";
   public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
-  public static final String TERMS_ACCEPTED = "terms_accepted";
+  public static final String TOS_ACCEPTED = "tos_accepted";
 
   private final SharedPreferences preferences;
 
@@ -112,17 +112,13 @@ public class LocalValueStore {
     }
   }
 
-  /**
-   * Returns whether the currently logged in user have accepted the terms or not.
-   */
-  public boolean areTermsAccepted() {
-    return preferences.getBoolean(TERMS_ACCEPTED, false);
+  /** Returns whether the currently logged in user have accepted the terms or not. */
+  public boolean areTermsOfServiceAccepted() {
+    return preferences.getBoolean(TOS_ACCEPTED, false);
   }
 
-  /**
-   * Updates the terms of service acceptance state for the currently signed in user.
-   */
-  public void setTermsAccepted(boolean value) {
-    preferences.edit().putBoolean(TERMS_ACCEPTED, value).apply();
-  }
+  /** Updates the terms of service acceptance state for the currently signed in user. */
+  public void setTermsOfServiceAccepted(boolean value){
+      preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
+    }
 }
