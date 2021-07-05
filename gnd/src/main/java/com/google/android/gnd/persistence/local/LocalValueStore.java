@@ -112,13 +112,13 @@ public class LocalValueStore {
     }
   }
 
-  /** Returns whether the currently logged in user have accepted the terms or not. */
-  public boolean areTermsOfServiceAccepted() {
+  /** Returns whether the currently logged in user has accepted the terms or not. */
+  public boolean isTermsOfServiceAccepted() {
     return preferences.getBoolean(TOS_ACCEPTED, false);
   }
 
   /** Updates the terms of service acceptance state for the currently signed in user. */
-  public void setTermsOfServiceAccepted(boolean value){
-      preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
-    }
+  public void setTermsOfServiceAccepted(boolean value) {
+    preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
+  }
 }

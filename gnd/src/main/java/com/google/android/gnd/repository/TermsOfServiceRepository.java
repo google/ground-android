@@ -53,8 +53,8 @@ public class TermsOfServiceRepository {
         .defaultIfEmpty(Loadable.notFound());
   }
 
-  public boolean areTermsOfServiceAccepted() {
-    return localValueStore.areTermsOfServiceAccepted();
+  public boolean isTermsOfServiceAccepted() {
+    return localValueStore.isTermsOfServiceAccepted();
   }
 
   public void setTermsOfServiceAccepted(boolean value) {

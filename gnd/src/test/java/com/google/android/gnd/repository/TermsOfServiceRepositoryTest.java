@@ -65,14 +65,14 @@ public class TermsOfServiceRepositoryTest {
   }
 
   @Test
-  public void testTermsAccepted() {
+  public void testTermsOfServiceAccepted() {
     termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    assertThat(termsOfServiceRepository.areTermsOfServiceAccepted()).isTrue();
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
   }
 
   @Test
-  public void testTermsNotAccepted() {
-    assertThat(termsOfServiceRepository.areTermsOfServiceAccepted()).isFalse();
+  public void testTermsOfServiceNotAccepted() {
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isFalse();
   }
 }
 
