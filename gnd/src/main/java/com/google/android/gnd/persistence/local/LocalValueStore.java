@@ -113,15 +113,14 @@ public class LocalValueStore {
   }
 
   /**
-   * This method will return whether the user have accepted the terms or not.
-   * @return true or false depending upon the user.
+   * Returns whether the currently logged in user have accepted the terms or not.
    */
   public boolean areTermsAccepted() {
     return preferences.getBoolean(TERMS_ACCEPTED, false);
   }
 
   /**
-   * This method will update terms_accepted value.
+   * Updates the terms of service acceptance state for the currently signed in user.
    */
   public void setTermsAccepted(boolean value) {
     preferences.edit().putBoolean(TERMS_ACCEPTED, value).apply();
