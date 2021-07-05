@@ -53,14 +53,7 @@ public class TermsOfServiceRepository {
         .defaultIfEmpty(Loadable.notFound());
   }
 
-  @Cold
-  private Single<TermsOfService> loadTermsOfServiceFromRemote() {
-    return remoteDataStore
-        .loadTermsOfService()
-        .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS);
-  }
-
-  public boolean isTermsOfServiceAccepted() {
+  public boolean areTermsOfServiceAccepted() {
     return localValueStore.areTermsOfServiceAccepted();
   }
 

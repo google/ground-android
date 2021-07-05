@@ -26,6 +26,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
@@ -36,21 +37,28 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public final MutableLiveData<String> termsOfServiceText = new MutableLiveData<>();
 
   @Hot(replays = true)
-  public final MutableLiveData<Boolean> termsOfServiceCheckBox = new MutableLiveData<>();
+  public final MutableLiveData<Boolean> acceptTermsCheckboxState = new MutableLiveData<>();
 
   @Hot(replays = true)
   public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
 
   private final TermsOfServiceRepository termsOfServiceRepository;
-  private final LiveData<Loadable<TermsOfService>> projectTermsOfService;
+  private final LiveData<Loadable<TermsOfService>> termsOfServiceOfService;
 
   @Inject
   public TermsOfServiceViewModel(
       Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
     this.termsOfServiceRepository = termsOfServiceRepository;
-    this.projectTermsOfService = LiveDataReactiveStreams.fromPublisher(
-        termsOfServiceRepository.getProjectTermsOfService());
+    this.termsOfServiceOfService =
+        LiveDataReactiveStreams.fromPublisher(
+            termsOfServiceRepository
+                .getTermsOfService()
+                .doOnSubscribe(__ -> Timber.d("Loading terms of service from remote"))
+                .doOnError(err -> Timber.d("Failed to load terms of service from remote"))
+                .toFlowable()
+                .compose(Loadable::loadingOnceAndWrap)
+                .defaultIfEmpty(Loadable.notFound()));
   }
 
   public void onButtonClicked() {
@@ -59,7 +67,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   }
 
   public LiveData<Loadable<TermsOfService>> getTermsOfService() {
-    return projectTermsOfService;
+    return termsOfServiceOfService;
   }
 
   public void setTermsOfServiceTextView(String terms) {

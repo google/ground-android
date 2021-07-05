@@ -21,6 +21,8 @@ import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.navigation.NavDirections;
+import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.repository.FeatureRepository;
@@ -42,6 +44,8 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -100,7 +104,8 @@ public class MainViewModel extends AbstractViewModel {
             .getSignInState()
             .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
-            .subscribe(this::onSignInStateChange));
+            .switchMap(this::onSignInStateChange)
+            .subscribe(navigator::navigate));
 
     disposeOnClear(termsOfServiceRepository.getProjectTermsOfService()
         .observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
@@ -130,7 +135,7 @@ public class MainViewModel extends AbstractViewModel {
     termsState.setValue(projectTerms.getState());
   }
 
-  private void onSignInStateChange(SignInState signInState) {
+  private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
       termsOfServiceRepository.setTermsOfServiceAccepted(false);
     }
@@ -153,6 +158,7 @@ public class MainViewModel extends AbstractViewModel {
         Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
+    return Observable.never();
   }
 
   private void showProgressDialog() {
