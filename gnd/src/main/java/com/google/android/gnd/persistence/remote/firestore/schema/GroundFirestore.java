@@ -25,7 +25,6 @@ import javax.inject.Singleton;
 @Singleton
 public class GroundFirestore extends FluentFirestore {
   private static final String PROJECTS = "projects";
-  private static final String CONFIG = "config";
 
   @Inject
   GroundFirestore(FirebaseFirestore db) {
@@ -34,9 +33,5 @@ public class GroundFirestore extends FluentFirestore {
 
   public ProjectsCollectionReference projects() {
     return new ProjectsCollectionReference(db().collection(PROJECTS));
-  }
-
-  public TermsOfServiceCollectionReference termsOfService() {
-    return new TermsOfServiceCollectionReference(db().collection(CONFIG));
   }
 }

@@ -68,7 +68,7 @@
       app:tint="@{viewModel.getIconTint()}"
       app:backgroundTint="@color/colorBackground"
       app:fabSize="normal"
-      app:layout_constraintBottom_toTopOf="@id/add_feature_btn"
+      app:layout_constraintBottom_toTopOf="@+id/add_feature_btn"
       app:layout_constraintEnd_toEndOf="parent"
       app:useCompatPadding="true" />
 
@@ -84,19 +84,18 @@
       app:tint="@color/colorBackground"
       app:useCompatPadding="true" />
 
-    <ImageButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/hamburger_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:background="?android:attr/selectableItemBackground"
-      android:clickable="true"
-      android:focusable="true"
       android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
-      android:padding="16dp"
       android:src="@drawable/ic_menu_black_24dp"
-      android:tint="@color/colorBackground"
+      app:tint="@{viewModel.getIconTint()}"
+      app:backgroundTint="@color/colorBackground"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+      app:fabSize="mini"
+      app:layout_constraintTop_toTopOf="parent"
+      app:useCompatPadding="true" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

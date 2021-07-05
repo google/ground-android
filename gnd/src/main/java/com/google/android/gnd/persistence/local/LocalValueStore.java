@@ -16,12 +16,19 @@
 
 package com.google.android.gnd.persistence.local;
 
+import static java8.util.J8Arrays.stream;
+
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
+import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.settings.Keys;
+import java8.util.Optional;
+import java8.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Simple value store persisted locally on device. Unlike {@link LocalDataStore}, this class
@@ -33,7 +40,8 @@ public class LocalValueStore {
 
   public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
   public static final String MAP_TYPE = "map_type";
-  public static final String TOS_ACCEPTED = "tos_accepted";
+  public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
+  public static final String TERMS_ACCEPTED = "terms_accepted";
 
   private final SharedPreferences preferences;
 
@@ -53,9 +61,9 @@ public class LocalValueStore {
     preferences.edit().putString(ACTIVE_PROJECT_ID_KEY, id).apply();
   }
 
-  /** Removes the last active project id in the local value store. */
-  public void clearLastActiveProjectId() {
-    preferences.edit().remove(ACTIVE_PROJECT_ID_KEY).apply();
+  /** Removes all values stored in the local store. */
+  public void clear() {
+    preferences.edit().clear().apply();
   }
 
   public boolean shouldUploadMediaOverUnmeteredConnectionOnly() {
@@ -74,13 +82,48 @@ public class LocalValueStore {
     return preferences.getInt(MAP_TYPE, defaultType);
   }
 
-  /** Returns whether the currently logged in user has accepted the terms of service or not. */
-  public boolean isTermsOfServiceAccepted() {
-    return preferences.getBoolean(TOS_ACCEPTED, false);
+  public void setLastCameraPosition(String projectId, CameraPosition cameraPosition) {
+    Double[] values = {
+      cameraPosition.getTarget().getLatitude(),
+      cameraPosition.getTarget().getLongitude(),
+      (double) cameraPosition.getZoomLevel()
+    };
+    String value = stream(values).map(d -> String.valueOf(d)).collect(Collectors.joining(","));
+    preferences.edit().putString(LAST_VIEWPORT_PREFIX + projectId, value).apply();
   }
 
-  /** Updates the terms of service acceptance state for the currently signed in user. */
-  public void setTermsOfServiceAccepted(boolean value) {
-    preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
+  public Optional<CameraPosition> getLastCameraPosition(String projectId) {
+    try {
+      String value = preferences.getString(LAST_VIEWPORT_PREFIX + projectId, "");
+      if (value.isEmpty()) {
+        return Optional.empty();
+      }
+      String[] values = value.split(",");
+      return Optional.of(
+          new CameraPosition(
+              Point.newBuilder()
+                  .setLatitude(Double.valueOf(values[0]))
+                  .setLongitude(Double.valueOf(values[1]))
+                  .build(),
+              Float.valueOf(values[2])));
+    } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+      Timber.e(e, "Invalid camera pos in prefs");
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * This method will return whether the user have accepted the terms or not.
+   * @return true or false depending upon the user.
+   */
+  public boolean areTermsAccepted() {
+    return preferences.getBoolean(TERMS_ACCEPTED, false);
+  }
+
+  /**
+   * This method will update terms_accepted value.
+   */
+  public void setTermsAccepted(boolean value) {
+    preferences.edit().putBoolean(TERMS_ACCEPTED, value).apply();
   }
 }

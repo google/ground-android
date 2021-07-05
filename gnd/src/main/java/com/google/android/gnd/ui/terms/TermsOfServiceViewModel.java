@@ -14,44 +14,34 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.tos;
+package com.google.android.gnd.ui.terms;
 
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.repository.TermsOfServiceRepository;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import javax.inject.Inject;
 
+// TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
 
-  private final Navigator navigator;
 
-  private String termsOfServiceText = "";
+  private final Navigator navigator;
+  private final LocalValueStore localValueStore;
 
   @Hot(replays = true)
-  public final MutableLiveData<Boolean> agreeCheckboxChecked = new MutableLiveData<>();
-
-  private final TermsOfServiceRepository termsOfServiceRepository;
+  public final MutableLiveData<Boolean> termsCheckBox = new MutableLiveData<>();
 
   @Inject
-  public TermsOfServiceViewModel(
-      Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
+  public TermsOfServiceViewModel(Navigator navigator, LocalValueStore localValueStore) {
     this.navigator = navigator;
-    this.termsOfServiceRepository = termsOfServiceRepository;
-  }
-
-  public String getTermsOfServiceText() {
-    return termsOfServiceText;
-  }
-
-  public void setTermsOfServiceText(String termsOfServiceText) {
-    this.termsOfServiceText = termsOfServiceText;
+    this.localValueStore = localValueStore;
   }
 
   public void onButtonClicked() {
-    termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+    localValueStore.setTermsAccepted(true);
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
   }
+
 }

@@ -16,17 +16,16 @@
 
 package com.google.android.gnd.ui.map.gms;
 
+import android.util.Pair;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
-import java.util.HashMap;
-import java.util.Map;
 import javax.inject.Inject;
 
 /** Ground map adapter implementation for Google Maps API. */
@@ -88,14 +87,13 @@ public class GoogleMapsMapProvider implements MapProvider {
   }
 
   @Override
-  public ImmutableMap<Integer, String> getMapTypes() {
+  public ImmutableList<Pair<Integer, String>> getMapTypes() {
     // TODO(#711): Allow user to select language and use here.
-    Map<Integer, String> map = new HashMap<>();
-    map.put(GoogleMap.MAP_TYPE_NONE, "None");
-    map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
-    map.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
-    map.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
-    map.put(GoogleMap.MAP_TYPE_HYBRID, "Hybrid");
-    return ImmutableMap.copyOf(map);
+    return ImmutableList.<Pair<Integer, String>>builder()
+        .add(new Pair<>(GoogleMap.MAP_TYPE_NORMAL, "Normal"))
+        .add(new Pair<>(GoogleMap.MAP_TYPE_SATELLITE, "Satellite"))
+        .add(new Pair<>(GoogleMap.MAP_TYPE_TERRAIN, "Terrain"))
+        .add(new Pair<>(GoogleMap.MAP_TYPE_HYBRID, "Hybrid"))
+        .build();
   }
 }

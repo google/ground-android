@@ -19,7 +19,6 @@ package com.google.android.gnd.persistence.remote.firestore;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -39,7 +38,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 import javax.inject.Inject;
@@ -75,12 +73,6 @@ public class FirestoreDataStore implements RemoteDataStore {
         .observations()
         .observationsByFeatureId(feature)
         .subscribeOn(schedulers.io());
-  }
-
-  @Cold
-  @Override
-  public Maybe<TermsOfService> loadTermsOfService() {
-    return db.termsOfService().getTerm().get().subscribeOn(schedulers.io());
   }
 
   @Cold

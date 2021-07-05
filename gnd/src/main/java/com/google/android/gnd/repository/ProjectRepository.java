@@ -31,6 +31,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -52,7 +53,7 @@ import timber.log.Timber;
 @Singleton
 public class ProjectRepository {
 
-  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 15;
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final InMemoryCache cache;
@@ -167,10 +168,9 @@ public class ProjectRepository {
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
-  /** Clears the currently active project from cache and from local localValueStore. */
+  /** Clears the currently active project from cache. */
   public void clearActiveProject() {
     cache.clear();
-    localValueStore.clearLastActiveProjectId();
     selectProjectEvent.onNext(Optional.empty());
   }
 
@@ -188,5 +188,13 @@ public class ProjectRepository {
     return OWNER.equals(role)
         || MANAGER.equals(role)
         || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
+  }
+
+  public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
+    localValueStore.setLastCameraPosition(projectId, cameraPosition);
+  }
+
+  public Optional<CameraPosition> getLastCameraPosition(String projectId) {
+    return localValueStore.getLastCameraPosition(projectId);
   }
 }

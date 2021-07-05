@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.tos;
+package com.google.android.gnd.ui.terms;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,26 +24,17 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.FragmentTermsServiceBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
-import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.common.base.Strings;
 import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
-
-  @Inject EphemeralPopups popups;
 
   private TermsOfServiceViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    TermsOfServiceFragmentArgs args = TermsOfServiceFragmentArgs.fromBundle(getArguments());
-
     this.viewModel = getViewModel(TermsOfServiceViewModel.class);
-
-    viewModel.setTermsOfServiceText(Strings.nullToEmpty(args.getTermsOfServiceText()));
   }
 
   @Override

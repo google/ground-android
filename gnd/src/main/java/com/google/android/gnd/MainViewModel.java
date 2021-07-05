@@ -21,30 +21,24 @@ import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.TermsOfService;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
-import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
-import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
+import com.google.android.gnd.ui.terms.TermsOfServiceFragmentDirections;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -61,31 +55,28 @@ public class MainViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
-  @Hot private final Subject<Integer> unrecoverableErrors = PublishSubject.create();
-
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
-  private final TermsOfServiceRepository termsOfServiceRepository;
+  private final UserRepository userRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
-
-  public Optional<TermsOfService> termsOfService = Optional.empty();
+  private final LocalValueStore localValueStore;
 
   @Inject
   public MainViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       UserRepository userRepository,
-      TermsOfServiceRepository termsOfServiceRepository,
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
-      Schedulers schedulers) {
+      Schedulers schedulers, LocalValueStore localValueStore) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
-    this.termsOfServiceRepository = termsOfServiceRepository;
+    this.userRepository = userRepository;
     this.navigator = navigator;
     this.popups = popups;
+    this.localValueStore = localValueStore;
 
     // TODO: Move to background service.
     disposeOnClear(
@@ -100,8 +91,7 @@ public class MainViewModel extends AbstractViewModel {
             .getSignInState()
             .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
-            .switchMap(this::onSignInStateChange)
-            .subscribe(navigator::navigate));
+            .subscribe(this::onSignInStateChange));
   }
 
   /**
@@ -124,11 +114,7 @@ public class MainViewModel extends AbstractViewModel {
     windowInsets.setValue(insets);
   }
 
-  private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
-    if (signInState.state() != State.SIGNED_IN) {
-      termsOfServiceRepository.setTermsOfServiceAccepted(false);
-    }
-
+  private void onSignInStateChange(SignInState signInState) {
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
@@ -138,7 +124,8 @@ public class MainViewModel extends AbstractViewModel {
         showProgressDialog();
         break;
       case SIGNED_IN:
-        return onSignedIn();
+        onSignedIn();
+        break;
       case ERROR:
         onSignInError(signInState);
         break;
@@ -146,7 +133,6 @@ public class MainViewModel extends AbstractViewModel {
         Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
-    return Observable.never();
   }
 
   private void showProgressDialog() {
@@ -166,46 +152,20 @@ public class MainViewModel extends AbstractViewModel {
   void onSignedOut() {
     hideProgressDialog();
     projectRepository.clearActiveProject();
+    userRepository.clearUserPreferences();
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
-  private Observable<NavDirections> onSignedIn() {
-    return termsOfServiceRepository
-        .getTermsOfService()
-        .onErrorResumeNext(this::onGetTermsOfServiceError)
-        .map(Optional::of)
-        .defaultIfEmpty(Optional.empty())
-        .map(this::onGetTermsOfServiceComplete)
-        .toObservable();
-  }
-
-  private NavDirections onGetTermsOfServiceComplete(Optional<TermsOfService> termsOfService) {
+  private void onSignedIn() {
     hideProgressDialog();
-    if (termsOfService.isEmpty() || termsOfServiceRepository.areTermsOfServiceAccepted()) {
-      return HomeScreenFragmentDirections.showHomeScreen();
+    if (localValueStore.areTermsAccepted()) {
+      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      return SignInFragmentDirections.showTermsOfService()
-          .setTermsOfServiceText(termsOfService.get().getText());
+      navigator.navigate(TermsOfServiceFragmentDirections.showTermsScreen());
     }
-  }
-
-  /**
-   * Handle error loading terms of service from remote config. This could happen if the network
-   * connection was lost immediately after signing in, but before the terms of service could be
-   * loaded or if permission to the remote config is denied (e.g., user not in passlist).
-   */
-  private Maybe<TermsOfService> onGetTermsOfServiceError(Throwable err) {
-    Timber.e(err, "Error loading terms of service from remote db");
-    unrecoverableErrors.onNext(R.string.config_load_error);
-    return Maybe.never();
   }
 
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
     return signInProgressDialogVisibility;
-  }
-
-  @Hot
-  public Observable<Integer> getUnrecoverableErrors() {
-    return unrecoverableErrors;
   }
 }
