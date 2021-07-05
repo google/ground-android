@@ -30,7 +30,6 @@ import javax.inject.Inject;
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
 
-
   private final Navigator navigator;
 
   @Hot(replays = true)
@@ -70,5 +69,4 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public void setTermsOfServiceLoadState(boolean value) {
     termsOfServiceLoadState.setValue(value);
   }
-
 }
