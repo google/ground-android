@@ -48,6 +48,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
@@ -459,7 +460,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onShowAddFeatureDialogRequest(Point point) {
     addFeatureDialogFragment.show(
-        viewModel.getModifiableLayers(),
+        viewModel.getModifiableLayers(FeatureType.POINT),
         getChildFragmentManager(),
         layer -> viewModel.addFeature(layer, point));
   }

@@ -16,13 +16,11 @@
 
 package com.google.android.gnd;
 
-import android.app.Application;
-import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.hilt.work.HiltWorkerFactory;
-import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
@@ -35,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 @HiltAndroidApp
-public class GndApplication extends Application implements Configuration.Provider {
+public class GndApplication extends MultiDexApplication implements Configuration.Provider {
 
   @Inject HiltWorkerFactory workerFactory;
 
@@ -46,12 +44,6 @@ public class GndApplication extends Application implements Configuration.Provide
     } else {
       Timber.plant(new CrashReportingTree());
     }
-  }
-
-  @Override
-  protected void attachBaseContext(Context base) {
-    super.attachBaseContext(base);
-    MultiDex.install(this);
   }
 
   @Override
