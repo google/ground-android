@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
@@ -25,7 +24,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Response;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import java8.util.function.Consumer;
@@ -48,12 +46,6 @@ public abstract class SelectDialogFactory {
     return stream(getMultipleChoice().getOptions()).map(Option::getLabel).toArray(String[]::new);
   }
 
-  /** Returns the selected item(s) as a {@link Response}. */
-  protected Optional<Response> onCreateResponse() {
-    return MultipleChoiceResponse.fromList(
-        stream(getSelectedOptions()).map(Option::getId).collect(toImmutableList()));
-  }
-
   // TODO: Replace with modal bottom sheet.
   protected AlertDialog.Builder createDialogBuilder() {
     return new AlertDialog.Builder(getContext())
@@ -61,7 +53,7 @@ public abstract class SelectDialogFactory {
         .setTitle(getTitle())
         .setPositiveButton(
             R.string.apply_multiple_choice_changes,
-            (dialog, which) -> getValueConsumer().accept(onCreateResponse()))
+            (dialog, which) -> getValueConsumer().accept(getSelectedOptions()))
         .setNegativeButton(R.string.cancel, (dialog, which) -> {});
   }
 
@@ -87,9 +79,9 @@ public abstract class SelectDialogFactory {
 
   public abstract MultipleChoice getMultipleChoice();
 
-  public abstract Optional<MultipleChoiceResponse> getCurrentValue();
+  public abstract Optional<MultipleChoiceResponse> getCurrentResponse();
 
-  public abstract Consumer<Optional<Response>> getValueConsumer();
+  public abstract Consumer<ImmutableList<Option>> getValueConsumer();
 
   public abstract static class Builder<B> {
 
@@ -99,8 +91,8 @@ public abstract class SelectDialogFactory {
 
     public abstract B setMultipleChoice(MultipleChoice multipleChoice);
 
-    public abstract B setCurrentValue(Optional<MultipleChoiceResponse> response);
+    public abstract B setCurrentResponse(Optional<MultipleChoiceResponse> response);
 
-    public abstract B setValueConsumer(Consumer<Optional<Response>> consumer);
+    public abstract B setValueConsumer(Consumer<ImmutableList<Option>> consumer);
   }
 }
