@@ -22,9 +22,9 @@ import java8.util.Optional;
 /** A user-provided response to a single {@link Field}. */
 public interface Response {
 
-  String getSummaryText(Field field);
+  String getSummaryText();
 
-  String getDetailsText(Field field);
+  String getDetailsText();
 
   static String toString(Optional<Response> response) {
     return response.map(Response::toString).orElse("");
