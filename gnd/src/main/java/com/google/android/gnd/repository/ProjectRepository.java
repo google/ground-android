@@ -177,13 +177,13 @@ public class ProjectRepository {
   }
 
   public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
-    // TODO: Use enums instead of string values
-    String featureTypeValue = featureType.name().toLowerCase(Locale.getDefault());
     switch (userRepository.getUserRole(project)) {
       case OWNER:
       case MANAGER:
         return project.getLayers();
       case CONTRIBUTOR:
+        // TODO: Use enums instead of string values
+        String featureTypeValue = featureType.name().toLowerCase(Locale.getDefault());
         return stream(project.getLayers())
             .filter(layer -> layer.getContributorsCanAdd().contains(featureTypeValue))
             .collect(toImmutableList());
