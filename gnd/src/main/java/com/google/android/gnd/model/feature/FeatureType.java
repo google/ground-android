@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.model.feature;
 
-public enum Type {
+public enum FeatureType {
   UNKNOWN,
-  POINTS
+  POINT
 }
