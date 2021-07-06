@@ -139,6 +139,10 @@ public abstract class FeatureEntity {
       return builder.build();
     }
 
+    if (featureEntity.getPolygonVertices() != null) {
+      // TODO : Implement save to local db;
+    }
+
     throw new LocalDataConsistencyException(
         "No geometry data found in feature " + featureEntity.getId());
   }
