@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.app.Application;
+import android.content.res.Resources;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -31,7 +31,7 @@ public class TimeFieldViewModel extends AbstractFieldViewModel {
   @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  TimeFieldViewModel(Application application) {
+  TimeFieldViewModel(Resources application) {
     super(application);
   }
 

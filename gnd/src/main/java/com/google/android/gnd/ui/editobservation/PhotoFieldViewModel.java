@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.app.Application;
+import android.content.res.Resources;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -50,7 +50,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Boolean> editable = new MutableLiveData<>(false);
 
   @Inject
-  PhotoFieldViewModel(UserMediaRepository userMediaRepository, Application application) {
+  PhotoFieldViewModel(UserMediaRepository userMediaRepository, Resources application) {
     super(application);
     this.photoPresent =
         LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));

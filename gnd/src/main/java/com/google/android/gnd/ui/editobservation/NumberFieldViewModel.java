@@ -16,14 +16,14 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.app.Application;
+import android.content.res.Resources;
 import com.google.android.gnd.model.observation.NumberResponse;
 import javax.inject.Inject;
 
 public class NumberFieldViewModel extends AbstractFieldViewModel {
 
   @Inject
-  NumberFieldViewModel(Application application) {
+  NumberFieldViewModel(Resources application) {
     super(application);
   }
 

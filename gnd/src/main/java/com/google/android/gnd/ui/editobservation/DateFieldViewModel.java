@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.app.Application;
+import android.content.res.Resources;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -31,7 +31,7 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
   @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  DateFieldViewModel(Application application) {
+  DateFieldViewModel(Resources application) {
     super(application);
   }
 
@@ -43,7 +43,7 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
     showDialogClicks.onNext(Nil.NIL);
   }
 
-  Observable<Nil> getShowDialogClicks() {
+  public Observable<Nil> getShowDialogClicks() {
     return showDialogClicks;
   }
 }

@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.app.Application;
+import android.content.res.Resources;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.rx.Nil;
@@ -30,7 +30,7 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  MultipleChoiceFieldViewModel(Application application) {
+  MultipleChoiceFieldViewModel(Resources application) {
     super(application);
   }
 
