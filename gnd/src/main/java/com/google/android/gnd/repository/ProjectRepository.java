@@ -37,6 +37,7 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -177,7 +178,7 @@ public class ProjectRepository {
 
   public ImmutableList<Layer> getModifiableLayers(Project project, Type featureType) {
     // TODO: Use enums instead of string values
-    String featureTypeValue = featureType.name().toLowerCase();
+    String featureTypeValue = featureType.name().toLowerCase(Locale.getDefault());
     switch (userRepository.getUserRole(project)) {
       case OWNER:
       case MANAGER:
