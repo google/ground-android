@@ -68,7 +68,7 @@ public abstract class GeoJsonFeature extends Feature<GeoJsonFeature.Builder> {
       Iterator<String> keyIter = properties.keys();
       while (keyIter.hasNext()) {
         String key = keyIter.next();
-        if (key.toLowerCase().equals(matchKey)) {
+        if (key.equalsIgnoreCase(matchKey)) {
           return String.valueOf(properties.opt(key));
         }
       }
