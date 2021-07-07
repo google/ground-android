@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.map;
 
 import android.util.Pair;
 import androidx.fragment.app.Fragment;
+import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 
@@ -38,6 +39,8 @@ public interface MapProvider {
 
   // TODO(#714): Use enum instead of int to represent basemap types.
   void setMapType(int mapType);
+
+  Point getTargetPoint();
 
   ImmutableList<Pair<Integer, String>> getMapTypes();
 }

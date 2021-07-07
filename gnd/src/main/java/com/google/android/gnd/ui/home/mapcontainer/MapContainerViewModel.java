@@ -22,6 +22,7 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -97,6 +98,19 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Point> confirmButtonClicks = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Action> cancelButtonClicks = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> featureAddButtonBackgroundTint =
+      new MutableLiveData<>(R.color.colorGrey500);
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
@@ -364,6 +378,22 @@ public class MapContainerViewModel extends AbstractViewModel {
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
+  public void confirmButtonClicked() {
+    confirmButtonClicks.postValue(getCameraPosition().getValue().getTarget());
+  }
+
+  public void cancelButtonClicked() {
+    cancelButtonClicks.postValue(Action.create());
+  }
+
+  public LiveData<Point> getConfirmButtonClicks() {
+    return confirmButtonClicks;
+  }
+
+  public LiveData<Action> getCancelButtonClicks() {
+    return cancelButtonClicks;
+  }
+
   public LiveData<Integer> getMapControlsVisibility() {
     return mapControlsVisibility;
   }
@@ -383,6 +413,22 @@ public class MapContainerViewModel extends AbstractViewModel {
   /** Called when a feature is (de)selected. */
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
     this.selectedFeature.onNext(selectedFeature);
+  }
+
+  public LiveData<Boolean> getLocationLockEnabled() {
+    return locationLockEnabled;
+  }
+
+  public void setLocationLockEnabled(boolean enabled) {
+    locationLockEnabled.postValue(enabled);
+  }
+
+  public void setFeatureButtonBackgroundTint(@ColorRes int colorRes) {
+    featureAddButtonBackgroundTint.postValue(colorRes);
+  }
+
+  public LiveData<Integer> getFeatureAddButtonBackgroundTint() {
+    return featureAddButtonBackgroundTint;
   }
 
   public enum Mode {

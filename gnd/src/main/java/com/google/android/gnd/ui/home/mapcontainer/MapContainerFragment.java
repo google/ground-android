@@ -21,7 +21,6 @@ import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -71,7 +70,6 @@ public class MapContainerFragment extends AbstractFragment {
 
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
-  private MapContainerFragBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,7 +115,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    binding = MapContainerFragBinding.inflate(inflater, container, false);
+    MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
     binding.setLifecycleOwner(this);
@@ -151,17 +149,13 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
-    binding.mapControls.addFeatureBtn.setOnClickListener(
-        __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
-    binding.moveFeature.confirmButton.setOnClickListener(
-        __ -> showConfirmationDialog(map.getCameraTarget()));
-    binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
-    enableLocationLockBtn();
+    mapContainerViewModel.getConfirmButtonClicks().observe(this, this::showConfirmationDialog);
+    mapContainerViewModel.getCancelButtonClicks().observe(this, __ -> setDefaultMode());
+    mapContainerViewModel.setLocationLockEnabled(true);
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
     mapContainerViewModel
         .getSelectMapTypeClicks()
-        .observe(
-            getViewLifecycleOwner(), action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
+        .observe(this, action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
 
     // TODO: Do this the RxJava way
     map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
@@ -190,7 +184,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showConfirmationDialog(Point point) {
-    new AlertDialog.Builder(getContext())
+    new AlertDialog.Builder(requireContext())
         .setTitle(R.string.move_point_confirmation)
         .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
         .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
@@ -247,20 +241,14 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void enableLocationLockBtn() {
-    binding.mapControls.locationLockBtn.setEnabled(true);
-  }
-
   private void enableAddFeatureBtn() {
-    binding.mapControls.addFeatureBtn.setBackgroundTintList(
-        ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
+    mapContainerViewModel.setFeatureButtonBackgroundTint(R.color.colorMapAccent);
   }
 
   private void disableAddFeatureBtn() {
     // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
-    binding.mapControls.addFeatureBtn.setBackgroundTintList(
-        ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
+    mapContainerViewModel.setFeatureButtonBackgroundTint(R.color.colorGrey500);
   }
 
   private void onLocationLockStateChange(BooleanOrError result, MapAdapter map) {

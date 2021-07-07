@@ -21,6 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+    <import type="androidx.core.content.ContextCompat" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
@@ -63,6 +64,7 @@
       android:id="@+id/location_lock_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:enabled="@{viewModel.getLocationLockEnabled()}"
       android:onClick="@{() -> viewModel.onLocationLockClick()}"
       app:srcCompat="@drawable/ic_gps_lock"
       app:tint="@{viewModel.getIconTint()}"
@@ -76,12 +78,14 @@
       android:id="@+id/add_feature_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:onClick="@{() -> homeScreenViewModel.onAddFeatureBtnClick()}"
       android:visibility="@{homeScreenViewModel.getAddFeatureButtonVisibility()}"
       app:fabSize="normal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:srcCompat="@drawable/ic_add"
       app:tint="@color/colorBackground"
+      app:backgroundTintList="@{ContextCompat.getColorStateList(context, viewModel.getFeatureAddButtonBackgroundTint())}"
       app:useCompatPadding="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -43,6 +43,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.gnd.ui.map.MapProvider;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -61,6 +62,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
 
+  private final MapProvider mapProvider;
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
@@ -97,10 +99,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Inject
   HomeScreenViewModel(
+      MapProvider mapProvider,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       Navigator navigator,
       Schedulers schedulers) {
+    this.mapProvider = mapProvider;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
@@ -226,9 +230,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     bottomSheetState.setValue(BottomSheetState.visible(feature));
   }
 
-  public void onAddFeatureBtnClick(Point location) {
+  public void onAddFeatureBtnClick() {
     // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.onNext(location);
+    addFeatureDialogRequests.onNext(mapProvider.getTargetPoint());
   }
 
   public void onBottomSheetHidden() {
