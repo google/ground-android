@@ -39,12 +39,12 @@ public class TimeResponse implements Response {
   }
 
   @Override
-  public String getSummaryText(Field field) {
-    return getDetailsText(field);
+  public String getSummaryText() {
+    return getDetailsText();
   }
 
   @Override
-  public String getDetailsText(Field field) {
+  public String getDetailsText() {
     synchronized (TIME_FORMAT) {
       return TIME_FORMAT.format(epochTime);
     }

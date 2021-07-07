@@ -16,18 +16,17 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.Observer;
-import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.SchedulersModule;
-import com.google.common.truth.Truth;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
@@ -48,18 +47,20 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class TimeFieldViewModelTest {
 
-  public TimeFieldViewModel timeFieldViewModel;
+  private TimeFieldViewModel timeFieldViewModel;
+  //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+  public static final Date DATE = new Date(1632501600000L);
 
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Before
-  public void before() {
+  public void setup() {
     timeFieldViewModel = new TimeFieldViewModel(null);
   }
 
   @Test
   public void testUpdateResponse() {
-    timeFieldViewModel.updateResponse(new Date(1632501600000L));
+    timeFieldViewModel.updateResponse(DATE);
     Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
@@ -69,13 +70,13 @@ public class TimeFieldViewModelTest {
     };
     timeFieldViewModel.getResponse().observeForever(optionalObserver);
     TimeResponse response = (TimeResponse) timeFieldViewModel.getResponse().getValue().get();
-    Truth.assertThat(response.getTime())
-        .isEqualTo(new TimeResponse(new Date(1632501600000L)).getTime());
+    assertThat(response.getTime())
+        .isEqualTo(new TimeResponse(DATE).getTime());
   }
 
   @Test
   public void testUpdateResponse_mismatchTime() {
-    timeFieldViewModel.updateResponse(new Date(1632501600000L));
+    timeFieldViewModel.updateResponse(DATE);
     Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
@@ -85,7 +86,7 @@ public class TimeFieldViewModelTest {
     };
     timeFieldViewModel.getResponse().observeForever(optionalObserver);
     TimeResponse response = (TimeResponse) timeFieldViewModel.getResponse().getValue().get();
-    Truth.assertThat(response.getTime())
+    assertThat(response.getTime())
         .isNotEqualTo(new TimeResponse(new Date()).getTime());
   }
 

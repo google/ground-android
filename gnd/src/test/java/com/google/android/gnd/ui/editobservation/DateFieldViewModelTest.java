@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -26,7 +27,6 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.SchedulersModule;
-import com.google.common.truth.Truth;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
@@ -47,18 +47,20 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class DateFieldViewModelTest {
 
-  public DateFieldViewModel dateFieldViewModel;
+  private DateFieldViewModel dateFieldViewModel;
+  //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+  public static final Date DATE = new Date(1632501600000L);
 
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Before
-  public void before() {
+  public void setup() {
     dateFieldViewModel = new DateFieldViewModel(null);
   }
 
   @Test
   public void testUpdateResponse() {
-    dateFieldViewModel.updateResponse(new Date(1632501600000L));
+    dateFieldViewModel.updateResponse(DATE);
     Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
@@ -68,13 +70,13 @@ public class DateFieldViewModelTest {
     };
     dateFieldViewModel.getResponse().observeForever(optionalObserver);
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
-    Truth.assertThat(response.getDate())
-        .isEqualTo(new DateResponse(new Date(1632501600000L)).getDate());
+    assertThat(response.getDate())
+        .isEqualTo(new DateResponse(DATE).getDate());
   }
 
   @Test
   public void testUpdateResponse_mismatchDate() {
-    dateFieldViewModel.updateResponse(new Date(1632501600000L));
+    dateFieldViewModel.updateResponse(DATE);
     Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
@@ -84,7 +86,7 @@ public class DateFieldViewModelTest {
     };
     dateFieldViewModel.getResponse().observeForever(optionalObserver);
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
-    Truth.assertThat(response.getDate()).isNotEqualTo(new DateResponse(new Date()).getDate());
+    assertThat(response.getDate()).isNotEqualTo(new DateResponse(new Date()).getDate());
   }
 
 

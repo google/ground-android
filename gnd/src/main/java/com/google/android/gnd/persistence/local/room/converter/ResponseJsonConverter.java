@@ -43,7 +43,8 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 class ResponseJsonConverter {
-  private static final String ISO_INSTANT_FORMAT = "yyyy-MM-dd'T'HH:mmZ";
+  private static final DateFormat ISO_INSTANT_FORMAT =
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
 
   static Object toJsonObject(Response response) {
     if (response instanceof TextResponse) {
@@ -66,15 +67,17 @@ class ResponseJsonConverter {
   }
 
   public static String dateToIsoString(Date date) {
-    DateFormat dateFormat = new SimpleDateFormat(ISO_INSTANT_FORMAT, Locale.getDefault());
-    return dateFormat.format(date);
+    synchronized (ISO_INSTANT_FORMAT) {
+      return ISO_INSTANT_FORMAT.format(date);
+    }
   }
 
   @Nullable
   public static Date isoStringToDate(String isoString) {
     try {
-      DateFormat dateFormat = new SimpleDateFormat(ISO_INSTANT_FORMAT, Locale.getDefault());
-      return dateFormat.parse(isoString);
+      synchronized (ISO_INSTANT_FORMAT) {
+        return ISO_INSTANT_FORMAT.parse(isoString);
+      }
     } catch (ParseException e) {
       Timber.e("Error parsing Date : %s", e.getMessage());
     }

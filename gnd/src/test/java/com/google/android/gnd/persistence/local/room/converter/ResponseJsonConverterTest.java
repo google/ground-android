@@ -17,6 +17,8 @@
 package com.google.android.gnd.persistence.local.room.converter;
 
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.DateResponse;
@@ -41,44 +43,47 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class ResponseJsonConverterTest {
 
-  public String dateString = "2021-09-24T22:10+0530";
-  public Date date = new Date(1632501600000L);
+  //Date represented in YYYY-MM-DDTHH:mmZ Format from 1632501600000L milliseconds.
+  private static final String DATE_STRING = "2021-09-24T22:10+0530";
+  //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+  public static final Date DATE = new Date(1632501600000L);
 
   @Test
   public void testIsoStringToDate() {
-    String dateToIsoString = ResponseJsonConverter.dateToIsoString(new Date(1632501600000L));
-    Truth.assertThat(dateString).isEqualTo(dateToIsoString);
+    String dateToIsoString = ResponseJsonConverter.dateToIsoString(DATE);
+    assertThat(DATE_STRING).isEqualTo(dateToIsoString);
   }
 
   @Test
   public void testDateToIso() {
-    Date stringToDate = ResponseJsonConverter.isoStringToDate(dateString);
-    Truth.assertThat(date).isEqualTo(stringToDate);
+    Date stringToDate = ResponseJsonConverter.isoStringToDate(DATE_STRING);
+
+    assertThat(DATE).isEqualTo(stringToDate);
   }
 
   @Test
   public void testDateToIso_mismatchDate() {
     Date currentDate = new Date();
-    Date stringToDate = ResponseJsonConverter.isoStringToDate(dateString);
+    Date stringToDate = ResponseJsonConverter.isoStringToDate(DATE_STRING);
     boolean checkMismatchDate = currentDate.equals(stringToDate);
-    Truth.assertThat(checkMismatchDate).isEqualTo(false);
+    assertThat(checkMismatchDate).isEqualTo(false);
   }
 
   @Test
-  public void responseToObject_dateResponse() {
-    Object response = ResponseJsonConverter.toJsonObject(new DateResponse(date));
-    Truth.assertThat(response).isInstanceOf(Object.class);
+  public void testResponseToObject_dateResponse() {
+    Object response = ResponseJsonConverter.toJsonObject(new DateResponse(DATE));
+    assertThat(response).isInstanceOf(Object.class);
   }
 
   @Test
-  public void responseToObject_timeResponse() {
-    Object response = ResponseJsonConverter.toJsonObject(new TimeResponse(date));
-    Truth.assertThat(response).isInstanceOf(Object.class);
+  public void testResponseToObject_timeResponse() {
+    Object response = ResponseJsonConverter.toJsonObject(new TimeResponse(DATE));
+    assertThat(response).isInstanceOf(Object.class);
   }
 
   @Test
-  public void objectToResponse_dateResponse() {
-    Object dateObject = ResponseJsonConverter.toJsonObject(new DateResponse(date));
+  public void testObjectToResponse_dateResponse() {
+    Object dateObject = ResponseJsonConverter.toJsonObject(new DateResponse(DATE));
     Optional<Response> response = ResponseJsonConverter.toResponse(Field
         .newBuilder()
         .setId("1")
@@ -87,12 +92,12 @@ public class ResponseJsonConverterTest {
         .setRequired(true)
         .setType(Type.DATE)
         .build(), dateObject);
-    Truth.assertThat(response.get()).isInstanceOf(DateResponse.class);
+    assertThat(((DateResponse) response.get()).getDate()).isEqualTo(DATE);
   }
 
   @Test
-  public void objectToResponse_timeResponse() {
-    Object timeObject = ResponseJsonConverter.toJsonObject(new TimeResponse(date));
+  public void testObjectToResponse_timeResponse() {
+    Object timeObject = ResponseJsonConverter.toJsonObject(new TimeResponse(DATE));
     Optional<Response> response = ResponseJsonConverter.toResponse(Field
         .newBuilder()
         .setId("2")
@@ -101,6 +106,6 @@ public class ResponseJsonConverterTest {
         .setRequired(true)
         .setType(Type.TIME)
         .build(), timeObject);
-    Truth.assertThat(response.get()).isInstanceOf(TimeResponse.class);
+    assertThat(((TimeResponse) response.get()).getTime()).isEqualTo(DATE);
   }
 }
