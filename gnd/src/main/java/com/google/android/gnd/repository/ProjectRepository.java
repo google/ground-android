@@ -176,7 +176,6 @@ public class ProjectRepository {
 
   public ImmutableList<Layer> getModifiableLayers(Project project, User user) {
     String role = project.getAcl().get(user.getEmail());
-    Timber.v("User %s, Layers: %s", project.getLayers(), user);
     if (role == null) {
       return ImmutableList.of();
     }
