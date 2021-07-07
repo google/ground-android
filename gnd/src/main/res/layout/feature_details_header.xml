@@ -22,10 +22,6 @@
 
   <data>
     <import type="android.view.View" />
-    <!-- TODO: Refactor and remove reference to Fragment. -->
-    <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
@@ -57,7 +53,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="center_horizontal"
-          android:text="@{fragment.getFeatureTitle(viewModel.feature)}"
+          android:text="@{viewModel.getFeatureTitle()}"
           android:textAlignment="center"
           android:textAppearance="@style/TextAppearance.AppCompat.Title"
           tools:text="Feature Sheet Title" />
@@ -66,7 +62,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="center_horizontal"
-          android:text="@{fragment.getFeatureSubtitle(viewModel.feature)}"
+          android:text="@{viewModel.getFeatureSubtitle()}"
           android:textAlignment="center"
           android:textColor="@color/colorGrey600"
           android:textSize="12sp"

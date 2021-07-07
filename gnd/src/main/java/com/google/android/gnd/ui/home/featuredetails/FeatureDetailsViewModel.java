@@ -16,15 +16,17 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
+
 import android.graphics.Bitmap;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.util.DrawableUtil;
@@ -42,12 +44,18 @@ public class FeatureDetailsViewModel extends ViewModel {
   private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
+  private final LiveData<String> featureTitle;
+  private final LiveData<String> featureSubtitle;
+
   private final Bitmap markerBitmap;
 
   @Inject
-  public FeatureDetailsViewModel(MarkerIconFactory markerIconFactory, DrawableUtil drawableUtil) {
+  public FeatureDetailsViewModel(
+      MarkerIconFactory markerIconFactory, DrawableUtil drawableUtil, FeatureHelper featureHelper) {
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
+    this.featureTitle = fromPublisher(selectedFeature.map(featureHelper::getTitle));
+    this.featureSubtitle = fromPublisher(selectedFeature.map(featureHelper::getCreatedBy));
   }
 
   /**
@@ -55,7 +63,7 @@ public class FeatureDetailsViewModel extends ViewModel {
    * to each new observer.
    */
   public LiveData<Optional<Feature>> getSelectedFeatureOnceAndStream() {
-    return LiveDataReactiveStreams.fromPublisher(selectedFeature);
+    return fromPublisher(selectedFeature);
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
@@ -71,5 +79,13 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public Bitmap getMarkerBitmap() {
     return markerBitmap;
+  }
+
+  public LiveData<String> getFeatureTitle() {
+    return featureTitle;
+  }
+
+  public LiveData<String> getFeatureSubtitle() {
+    return featureSubtitle;
   }
 }

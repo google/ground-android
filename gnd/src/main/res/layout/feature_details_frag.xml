@@ -21,9 +21,6 @@
 
   <data>
     <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment" />
-    <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
   </data>
@@ -52,7 +49,6 @@
 
       <include
         layout="@layout/feature_details_header"
-        app:fragment="@{fragment}"
         app:viewModel="@{viewModel}" />
 
       <androidx.fragment.app.FragmentContainerView
