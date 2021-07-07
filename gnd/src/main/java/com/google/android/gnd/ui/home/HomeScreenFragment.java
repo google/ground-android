@@ -48,6 +48,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
@@ -132,7 +133,11 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
-    viewModel.getAddFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureAdded);
+    viewModel
+        .getAddFeatureResults()
+        .observeOn(schedulers.ui())
+        .as(autoDisposable(this))
+        .subscribe(this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
@@ -455,7 +460,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onShowAddFeatureDialogRequest(Point point) {
     addFeatureDialogFragment.show(
-        viewModel.getModifiableLayers(),
+        viewModel.getModifiableLayers(FeatureType.POINT),
         getChildFragmentManager(),
         layer -> viewModel.addFeature(layer, point));
   }

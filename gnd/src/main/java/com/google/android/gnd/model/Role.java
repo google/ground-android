@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.observation;
+package com.google.android.gnd.model;
 
-import com.google.android.gnd.model.form.Field;
-import java8.util.Optional;
-
-/** A user-provided response to a single {@link Field}. */
-public interface Response {
-
-  String getSummaryText();
-
-  String getDetailsText();
-
-  static String toString(Optional<Response> response) {
-    return response.map(Response::toString).orElse("");
-  }
-
-  boolean isEmpty();
+public enum Role {
+  UNKNOWN,
+  OWNER,
+  MANAGER,
+  CONTRIBUTOR
 }
