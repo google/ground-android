@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
+import static com.google.android.gnd.rx.Nil.NIL;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
@@ -30,9 +31,8 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
-import com.google.android.gnd.rx.Action;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -42,6 +42,7 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
@@ -66,11 +67,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Project>> projectLoadingState;
 
   // TODO(#719): Move into MapContainersViewModel
-  @Hot(replays = true)
-  private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Point> addFeatureDialogRequests = PublishProcessor.create();
   // TODO(#719): Move into FeatureDetailsViewModel.
-  @Hot(replays = true)
-  private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
@@ -79,12 +78,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final LiveData<Feature> addFeatureResults;
-  private final LiveData<Boolean> updateFeatureResults;
-  private final LiveData<Boolean> deleteFeatureResults;
+  @Hot private final Flowable<Feature> addFeatureResults;
+  @Hot private final Flowable<Boolean> updateFeatureResults;
+  @Hot private final Flowable<Boolean> deleteFeatureResults;
 
-  @Hot(replays = true)
-  private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
@@ -112,31 +110,22 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            addFeatureClicks.switchMapSingle(
-                feature ->
-                    featureRepository
-                        .createFeature(feature)
-                        .toSingleDefault(feature)
-                        .doOnError(this::handleError)
-                        .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
+        addFeatureClicks.switchMapSingle(
+            feature ->
+                featureRepository
+                    .createFeature(feature)
+                    .toSingleDefault(feature)
+                    .doOnError(errors::onNext)
+                    .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
     deleteFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            deleteFeatureRequests.switchMapSingle(
-                feature ->
-                    toBooleanSingle(featureRepository.deleteFeature(feature), this::handleError)));
+        deleteFeatureRequests.switchMapSingle(
+            feature -> toBooleanSingle(featureRepository.deleteFeature(feature), errors::onNext));
     updateFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            updateFeatureRequests.switchMapSingle(
-                feature ->
-                    toBooleanSingle(featureRepository.updateFeature(feature), this::handleError)));
+        updateFeatureRequests.switchMapSingle(
+            feature -> toBooleanSingle(featureRepository.updateFeature(feature), errors::onNext));
     overlappingFeatures =
         LiveDataReactiveStreams.fromPublisher(
             overlappingFeaturesSubject.toFlowable(BackpressureStrategy.LATEST));
-  }
-
-  private void handleError(Throwable throwable) {
-    errors.postValue(throwable);
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -166,19 +155,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return overlappingFeatures;
   }
 
-  public LiveData<Feature> getAddFeatureResults() {
+  public Flowable<Feature> getAddFeatureResults() {
     return addFeatureResults;
   }
 
-  public LiveData<Boolean> getUpdateFeatureResults() {
+  public Flowable<Boolean> getUpdateFeatureResults() {
     return updateFeatureResults;
   }
 
-  public LiveData<Boolean> getDeleteFeatureResults() {
+  public Flowable<Boolean> getDeleteFeatureResults() {
     return deleteFeatureResults;
   }
 
-  public LiveData<Throwable> getErrors() {
+  public Flowable<Throwable> getErrors() {
     return errors;
   }
 
@@ -201,19 +190,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return projectRepository.getLastActiveProjectId().isEmpty();
   }
 
-  public LiveData<Action> getOpenDrawerRequests() {
+  public Flowable<Nil> getOpenDrawerRequests() {
     return openDrawerRequests;
   }
 
   public void openNavDrawer() {
-    openDrawerRequests.setValue(Action.create());
+    openDrawerRequests.onNext(NIL);
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
-  public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
+  public Flowable<Point> getShowAddFeatureDialogRequests() {
     return addFeatureDialogRequests;
   }
 
@@ -238,7 +227,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.setValue(Event.create(location));
+    addFeatureDialogRequests.onNext(location);
   }
 
   public void onBottomSheetHidden() {

@@ -64,9 +64,8 @@ import timber.log.Timber;
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
-  // A note on Zoom levels: The higher the number the more zoomed in the map will be.
-  // 0.0f is fully zoomed out.
-  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 20.0f;
+  // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
+  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
@@ -80,6 +79,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<CameraPosition> cameraPosition =
       new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
 
+  private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
@@ -109,6 +109,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
 
@@ -140,6 +141,14 @@ public class MapContainerViewModel extends AbstractViewModel {
             offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
+    disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
+  }
+
+  private void onProjectChange(Optional<Project> project) {
+    project
+        .map(Project::getId)
+        .flatMap(projectRepository::getLastCameraPosition)
+        .ifPresent(this::panAndZoomCamera);
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
@@ -210,7 +219,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     Flowable<Point> locationUpdates = locationManager.getLocationUpdates();
     return locationUpdates
         .take(1)
-        .map(CameraUpdate::panAndZoom)
+        .map(CameraUpdate::panAndZoomIn)
         .concatWith(locationUpdates.map(CameraUpdate::pan).skip(1));
   }
 
@@ -271,7 +280,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
-    this.cameraPosition.setValue(newCameraPosition);
+    cameraPosition.setValue(newCameraPosition);
+    Loadable.getValue(projectLoadingState)
+        .ifPresent(
+            project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
   public void onMapDrag(Point newCameraPosition) {
@@ -285,8 +297,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     panAndZoomCamera(pin.getPosition());
   }
 
+  public void panAndZoomCamera(CameraPosition cameraPosition) {
+    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(cameraPosition));
+  }
+
   public void panAndZoomCamera(Point position) {
-    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(position));
+    cameraUpdateSubject.onNext(CameraUpdate.panAndZoomIn(position));
   }
 
   public void onLocationLockClick() {
@@ -331,33 +347,44 @@ public class MapContainerViewModel extends AbstractViewModel {
   static class CameraUpdate {
 
     private final Point center;
-    private final Optional<Float> minZoomLevel;
+    private final Optional<Float> zoomLevel;
+    private final boolean allowZoomOut;
 
-    public CameraUpdate(Point center, Optional<Float> minZoomLevel) {
+    public CameraUpdate(Point center, Optional<Float> zoomLevel, boolean allowZoomOut) {
       this.center = center;
-      this.minZoomLevel = minZoomLevel;
+      this.zoomLevel = zoomLevel;
+      this.allowZoomOut = allowZoomOut;
     }
 
     private static CameraUpdate pan(Point center) {
-      return new CameraUpdate(center, Optional.empty());
+      return new CameraUpdate(center, Optional.empty(), false);
     }
 
-    private static CameraUpdate panAndZoom(Point center) {
-      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL));
+    private static CameraUpdate panAndZoomIn(Point center) {
+      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL), false);
+    }
+
+    public static CameraUpdate panAndZoom(CameraPosition cameraPosition) {
+      return new CameraUpdate(
+          cameraPosition.getTarget(), Optional.of(cameraPosition.getZoomLevel()), true);
     }
 
     public Point getCenter() {
       return center;
     }
 
-    public Optional<Float> getMinZoomLevel() {
-      return minZoomLevel;
+    public Optional<Float> getZoomLevel() {
+      return zoomLevel;
+    }
+
+    public boolean isAllowZoomOut() {
+      return allowZoomOut;
     }
 
     @NonNull
     @Override
     public String toString() {
-      if (minZoomLevel.isPresent()) {
+      if (zoomLevel.isPresent()) {
         return "Pan + zoom";
       } else {
         return "Pan";

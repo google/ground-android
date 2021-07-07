@@ -86,9 +86,8 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(
                     uploadTask -> {
-                      if (file.delete()) {
-                        Timber.d("File deleted: %s", file.getName());
-                      }
+                      // Do not delete the file after successful upload. It is used as a cache
+                      // while viewing observations when network is unavailable.
                       emitter.onComplete();
                     })
                 .addOnPausedListener(taskSnapshot -> emitter.onNext(TransferProgress.paused()))
