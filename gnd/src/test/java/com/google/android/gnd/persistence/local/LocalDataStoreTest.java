@@ -45,6 +45,7 @@ import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
+import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
@@ -76,6 +77,25 @@ public class LocalDataStoreTest {
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
+  private static final String POLYGON_VERTICES_STRING = "[[37.4219739586005,-122.08401426672937],"
+      + "[37.421822184467786,-122.0839988440275],[37.42181286499347,-122.08384495228529],"
+      + "[37.421955053418316,-122.08382986485958],[37.42197688757199,-122.08401359617709],"
+      + "[37.42197688757199,-122.08401359617709]]";
+
+  private static final ImmutableList<Point> POLYGON_VERTICES_LIST =
+      ImmutableList.<Point>builder()
+          .add(Point.newBuilder().setLatitude(37.4219739586005)
+              .setLongitude(-122.08401426672937).build())
+          .add(Point.newBuilder().setLatitude(37.421822184467786)
+              .setLongitude(-122.0839988440275).build())
+          .add(Point.newBuilder().setLatitude(37.42181286499347)
+              .setLongitude(-122.08384495228529).build())
+          .add(Point.newBuilder().setLatitude(37.421955053418316)
+              .setLongitude(-122.08382986485958).build())
+          .add(Point.newBuilder().setLatitude(37.42197688757199)
+              .setLongitude(-122.08401359617709).build())
+          .add(Point.newBuilder().setLatitude(37.42197688757199)
+              .setLongitude(-122.08401359617709).build()).build();
 
   private static final Field TEST_FIELD =
       Field.newBuilder()
@@ -657,5 +677,38 @@ public class LocalDataStoreTest {
         .getOfflineAreasOnceAndStream()
         .test()
         .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
+  }
+
+  @Test
+  public void testStringToList() {
+    assertThat(FeatureEntity.stringToList(POLYGON_VERTICES_STRING))
+        .isEqualTo(POLYGON_VERTICES_LIST);
+  }
+
+  @Test
+  public void testStringToList_emptyValue() {
+    assertThat(FeatureEntity.stringToList("")).isEqualTo(null);
+  }
+
+  @Test
+  public void testStringToList_nullValue() {
+    assertThat(FeatureEntity.stringToList(null)).isEqualTo(null);
+  }
+
+  @Test
+  public void testListToString() {
+    assertThat(FeatureEntity.listToString(POLYGON_VERTICES_LIST))
+        .isEqualTo(POLYGON_VERTICES_STRING);
+  }
+
+  @Test
+  public void testListToString_emptyList() {
+    assertThat(FeatureEntity.listToString(ImmutableList.<Point>builder().build()))
+        .isEqualTo(null);
+  }
+
+  @Test
+  public void testListToString_nullValue() {
+    assertThat(FeatureEntity.listToString(null)).isEqualTo(null);
   }
 }

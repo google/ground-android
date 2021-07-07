@@ -168,7 +168,7 @@ public abstract class FeatureEntity {
 
   @Nullable
   public static String listToString(ImmutableList<Point> vertices) {
-    if (vertices == null) {
+    if (vertices == null || vertices.isEmpty()) {
       Timber.d("vertices are null");
       return null;
     }
@@ -181,7 +181,7 @@ public abstract class FeatureEntity {
 
   @Nullable
   public static ImmutableList<Point> stringToList(String vertices) {
-    if (vertices == null) {
+    if (vertices == null || vertices.isEmpty()) {
       Timber.d("vertices are null");
       return null;
     }
