@@ -37,6 +37,8 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
    */
   public abstract Optional<Point> getNewLocation();
 
+  public abstract Optional<ImmutableList<Point>> getNewPolygonVertices();
+
   @Override
   public abstract Builder toBuilder();
 
@@ -68,6 +70,8 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
   public abstract static class Builder extends Mutation.Builder<Builder> {
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
+
+    public abstract Builder setNewPolygonVertices(Optional<ImmutableList<Point>> polygonVertices);
 
     @Override
     public abstract FeatureMutation build();

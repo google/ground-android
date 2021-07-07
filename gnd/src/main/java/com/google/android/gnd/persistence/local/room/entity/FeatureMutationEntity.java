@@ -17,6 +17,8 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,12 +28,20 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java8.util.Optional;
+import java8.util.stream.Collectors;
+import timber.log.Timber;
 
 /**
  * Defines how Room persists feature mutations for remote sync in the local db. By default, Room
@@ -78,12 +88,43 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
+        .setNewPolygonVertices(listToString(m.getNewPolygonVertices().orElse(null)))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
         .setClientTimestamp(m.getClientTimestamp().getTime())
         .build();
+  }
+
+  @Nullable
+  public static String listToString(ImmutableList<Point> vertices) {
+    if (vertices == null) {
+      Timber.d("vertices are null");
+      return null;
+    }
+    Gson gson = new Gson();
+    List<List<Double>> verticesArray = stream(vertices)
+        .map(point -> ImmutableList.of(point.getLatitude(),
+            point.getLongitude())).collect(Collectors.toList());
+    return gson.toJson(verticesArray);
+  }
+
+  @Nullable
+  public static ImmutableList<Point> stringToList(String vertices) {
+    if (vertices == null) {
+      Timber.d("vertices are null");
+      return null;
+    }
+    Gson gson = new Gson();
+    ArrayList<ArrayList<Double>> verticesArray =
+        gson.fromJson(vertices, new TypeToken<ArrayList<ArrayList<Double>>>(){}.getType());
+
+    return stream(verticesArray).map(vertice -> Point.newBuilder()
+        .setLatitude(vertice.get(0))
+        .setLongitude(vertice.get(1))
+        .build())
+        .collect(toImmutableList());
   }
 
   public FeatureMutation toMutation() {
@@ -93,6 +134,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
+        .setNewPolygonVertices(Optional.of(stringToList(getNewPolygonVertices())))
         .setType(getType().toMutationType())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
