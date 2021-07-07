@@ -134,7 +134,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
-        .setNewPolygonVertices(Optional.of(stringToList(getNewPolygonVertices())))
+        .setNewPolygonVertices(Optional.ofNullable(stringToList(getNewPolygonVertices())))
         .setType(getType().toMutationType())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
