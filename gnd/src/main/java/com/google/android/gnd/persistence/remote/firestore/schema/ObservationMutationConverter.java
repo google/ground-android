@@ -85,7 +85,7 @@ class ObservationMutationConverter {
     if (response instanceof TextResponse) {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
-      return ((MultipleChoiceResponse) response).getChoices();
+      return ((MultipleChoiceResponse) response).getSelectedOptionIds();
     } else if (response instanceof NumberResponse) {
       return ((NumberResponse) response).getValue();
     } else if (response instanceof TimeResponse) {

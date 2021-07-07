@@ -16,14 +16,12 @@
 
 package com.google.android.gnd.repository;
 
-import static com.google.android.gnd.model.Project.CONTRIBUTOR;
-import static com.google.android.gnd.model.Project.MANAGER;
-import static com.google.android.gnd.model.Project.OWNER;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -39,6 +37,7 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -57,6 +56,7 @@ public class ProjectRepository {
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final InMemoryCache cache;
+  private final UserRepository userRepository;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final LocalValueStore localValueStore;
@@ -72,10 +72,12 @@ public class ProjectRepository {
 
   @Inject
   public ProjectRepository(
+      UserRepository userRepository,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       InMemoryCache cache,
       LocalValueStore localValueStore) {
+    this.userRepository = userRepository;
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
@@ -174,20 +176,21 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
-  public ImmutableList<Layer> getModifiableLayers(Project project, User user) {
-    String role = project.getAcl().get(user.getEmail());
-    if (role == null) {
-      return ImmutableList.of();
+  public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
+    switch (userRepository.getUserRole(project)) {
+      case OWNER:
+      case MANAGER:
+        return project.getLayers();
+      case CONTRIBUTOR:
+        // TODO: Use enums instead of string values
+        String featureTypeValue = featureType.name().toLowerCase(Locale.getDefault());
+        return stream(project.getLayers())
+            .filter(layer -> layer.getContributorsCanAdd().contains(featureTypeValue))
+            .collect(toImmutableList());
+      case UNKNOWN:
+      default:
+        return ImmutableList.of();
     }
-    return stream(project.getLayers())
-        .filter(layer -> canAddFeatures(role, layer))
-        .collect(toImmutableList());
-  }
-
-  private boolean canAddFeatures(String role, Layer layer) {
-    return OWNER.equals(role)
-        || MANAGER.equals(role)
-        || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
   }
 
   public void setCameraPosition(String projectId, CameraPosition cameraPosition) {

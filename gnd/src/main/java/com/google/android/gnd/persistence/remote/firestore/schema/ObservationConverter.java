@@ -24,6 +24,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.DateResponse;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Observation;
@@ -96,7 +97,7 @@ class ObservationConverter {
         putTextResponse(fieldId, obj, responses);
         break;
       case MULTIPLE_CHOICE:
-        putMultipleChoiceResponse(fieldId, obj, responses);
+        putMultipleChoiceResponse(fieldId, field.getMultipleChoice(), obj, responses);
         break;
       case NUMBER:
         putNumberResponse(fieldId, obj, responses);
@@ -135,10 +136,10 @@ class ObservationConverter {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static void putMultipleChoiceResponse(
-      String fieldId, Object obj, ResponseMap.Builder responses) {
+      String fieldId, MultipleChoice multipleChoice, Object obj, Builder responses) {
     List values = (List) DataStoreException.checkType(List.class, obj);
     stream(values).forEach(v -> DataStoreException.checkType(String.class, v));
-    MultipleChoiceResponse.fromList((List<String>) values)
+    MultipleChoiceResponse.fromList(multipleChoice, (List<String>) values)
         .ifPresent(r -> responses.putResponse(fieldId, r));
   }
 }

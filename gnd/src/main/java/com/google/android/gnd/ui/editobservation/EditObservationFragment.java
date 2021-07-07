@@ -50,15 +50,15 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -221,7 +221,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
           break;
         case UNKNOWN:
         default:
-          Timber.d(element.getType() + " form elements not yet supported");
+          Timber.e("%s form elements not yet supported", element.getType());
           break;
       }
     }
@@ -236,14 +236,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                 createDialog(
                         viewModel.getField(),
                         viewModel.getCurrentResponse(),
-                        viewModel::setResponse)
+                        viewModel::updateResponse)
                     .show());
   }
 
   private AlertDialog createDialog(
       Field field,
       Optional<MultipleChoiceResponse> response,
-      Consumer<Optional<Response>> consumer) {
+      Consumer<ImmutableList<Option>> consumer) {
     MultipleChoice multipleChoice = requireNonNull(field.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
@@ -251,7 +251,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .setContext(requireContext())
             .setTitle(field.getLabel())
             .setMultipleChoice(multipleChoice)
-            .setCurrentValue(response)
+            .setCurrentResponse(response)
             .setValueConsumer(consumer)
             .build()
             .createDialog();
@@ -260,7 +260,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .setContext(requireContext())
             .setTitle(field.getLabel())
             .setMultipleChoice(multipleChoice)
-            .setCurrentValue(response)
+            .setCurrentResponse(response)
             .setValueConsumer(consumer)
             .build()
             .createDialog();
@@ -291,7 +291,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
               // TODO: Do not set response if already handled.
               Field field = fieldViewModel.getField();
               if (map.containsKey(field)) {
-                fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
+                fieldViewModel.updateResponse(map.get(field));
               }
             });
   }

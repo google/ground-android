@@ -17,10 +17,16 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.content.res.Resources;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.Objects.requireNonNull;
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -46,5 +52,12 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
     return getResponse().getValue() == null
         ? Optional.empty()
         : getResponse().getValue().map(response -> (MultipleChoiceResponse) response);
+  }
+
+  public void updateResponse(ImmutableList<Option> options) {
+    setResponse(
+        MultipleChoiceResponse.fromList(
+            requireNonNull(getField().getMultipleChoice()),
+            stream(options).map(Option::getId).collect(toImmutableList())));
   }
 }

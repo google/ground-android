@@ -83,7 +83,7 @@ class ResponseJsonConverter {
 
   private static Object toJsonArray(MultipleChoiceResponse response) {
     JSONArray array = new JSONArray();
-    forEach(response.getChoices(), array::put);
+    forEach(response.getSelectedOptionIds(), array::put);
     return array;
   }
 
@@ -98,10 +98,11 @@ class ResponseJsonConverter {
         return TextResponse.fromString((String) obj);
       case MULTIPLE_CHOICE:
         if (obj == JSONObject.NULL) {
-          return MultipleChoiceResponse.fromList(Collections.emptyList());
+          return MultipleChoiceResponse.fromList(
+              field.getMultipleChoice(), Collections.emptyList());
         }
         DataStoreException.checkType(JSONArray.class, obj);
-        return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
+        return MultipleChoiceResponse.fromList(field.getMultipleChoice(), toList((JSONArray) obj));
       case NUMBER:
         if (JSONObject.NULL == obj) {
           return NumberResponse.fromNumber("");

@@ -23,9 +23,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import io.reactivex.Single;
+import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
@@ -52,12 +53,8 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
   AbstractFieldViewModel(Resources resources) {
     this.resources = resources;
-
-    responseText =
-        LiveDataReactiveStreams.fromPublisher(
-            responseSubject.distinctUntilChanged().switchMapSingle(this::getDetailsText));
-
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
+    responseText = LiveDataReactiveStreams.fromPublisher(getDetailsTextFlowable());
   }
 
   // TODO: Add a reference of Field in Response for simplification.
@@ -66,8 +63,11 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     setResponse(response);
   }
 
-  private Single<String> getDetailsText(Optional<Response> responseOptional) {
-    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
+  @Cold(stateful = true, terminates = false)
+  protected final Flowable<String> getDetailsTextFlowable() {
+    return responseSubject
+        .distinctUntilChanged()
+        .map(responseOptional -> responseOptional.map(Response::getDetailsText).orElse(""));
   }
 
   /** Checks if the current response is valid and updates error value. */
