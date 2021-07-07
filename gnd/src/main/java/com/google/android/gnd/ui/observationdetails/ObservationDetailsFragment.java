@@ -43,6 +43,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -131,19 +132,19 @@ public class ObservationDetailsFragment extends AbstractFragment {
             response -> {
               if (field.getType() == Type.PHOTO) {
                 fieldBinding.fieldValue.setVisibility(View.GONE);
-                addPhotoField((ViewGroup) fieldBinding.getRoot(), field, response);
+                addPhotoField((ViewGroup) fieldBinding.getRoot(), response);
               } else {
-                fieldBinding.fieldValue.setText(response.getDetailsText(field));
+                fieldBinding.fieldValue.setText(response.getDetailsText());
               }
             });
   }
 
-  private void addPhotoField(ViewGroup container, Field field, Response response) {
-    PhotoFieldBinding photoFieldBinding = PhotoFieldBinding.inflate(getLayoutInflater());
+  private void addPhotoField(ViewGroup container, Response response) {
     PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldViewModel.setResponse(Optional.of(response));
+    PhotoFieldBinding photoFieldBinding = PhotoFieldBinding.inflate(getLayoutInflater());
     photoFieldBinding.setLifecycleOwner(this);
     photoFieldBinding.setViewModel(photoFieldViewModel);
-    photoFieldViewModel.updateField(response, field);
     container.addView(photoFieldBinding.getRoot());
   }
 
