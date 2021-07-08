@@ -18,30 +18,19 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
-import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.annotations.Hot;
-import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.FlowableProcessor;
-import java8.util.Optional;
 import javax.inject.Inject;
-import timber.log.Timber;
 
 public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
-  private static final String EMPTY_PATH = "";
-
-  @Hot(replays = true)
-  private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
-
   private final LiveData<Uri> uri;
-  public final LiveData<Boolean> photoPresent;
+  private final LiveData<Boolean> photoPresent;
 
   @Hot(replays = true)
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
@@ -53,33 +42,15 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   PhotoFieldViewModel(UserMediaRepository userMediaRepository, Application application) {
     super(application);
     this.photoPresent =
-        LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
+        LiveDataReactiveStreams.fromPublisher(
+            getDetailsTextFlowable().map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
-            destinationPath.switchMapSingle(userMediaRepository::getDownloadUrl));
+            getDetailsTextFlowable().switchMapSingle(userMediaRepository::getDownloadUrl));
   }
 
   public LiveData<Uri> getUri() {
     return uri;
-  }
-
-  @Override
-  public void setResponse(Optional<Response> response) {
-    super.setResponse(response);
-    updateField(response.isPresent() ? response.get() : null, getField());
-  }
-
-  public void updateField(@Nullable Response response, Field field) {
-    if (field.getType() != Type.PHOTO) {
-      Timber.e("Not a photo type field: %s", field.getType());
-      return;
-    }
-
-    if (response == null) {
-      destinationPath.onNext(EMPTY_PATH);
-    } else {
-      destinationPath.onNext(response.getDetailsText(field));
-    }
   }
 
   public void onShowPhotoSelectorDialog() {
@@ -100,5 +71,9 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   public LiveData<Boolean> isEditable() {
     return editable;
+  }
+
+  public void updateResponse(String value) {
+    setResponse(TextResponse.fromString(value));
   }
 }

@@ -28,11 +28,6 @@ import java8.util.Optional;
 @AutoValue
 public abstract class Project {
 
-  // TODO: Convert role strings to enums.
-  public static final String OWNER = "owner";
-  public static final String MANAGER = "manager";
-  public static final String CONTRIBUTOR = "contributor";
-
   public abstract String getId();
 
   public abstract String getTitle();

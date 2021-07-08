@@ -21,6 +21,8 @@ import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.content.res.Resources;
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -51,6 +53,7 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
@@ -99,11 +102,19 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Integer> iconTint;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
-  // Feature currently selected for repositioning
-  private Optional<Feature> selectedFeature = Optional.empty();
+  /** Feature selected for repositioning. */
+  private Optional<Feature> reposFeature = Optional.empty();
+
+  private final @Dimension int defaultPolygonStrokeWidth;
+  private final @Dimension int selectedPolygonStrokeWidth;
+
+  /** The currently selected feature on the map. */
+  private BehaviorProcessor<Optional<Feature>> selectedFeature =
+      BehaviorProcessor.createDefault(Optional.empty());
 
   @Inject
   MapContainerViewModel(
+      Resources resources,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
@@ -112,7 +123,9 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
-
+    this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
+    this.selectedPolygonStrokeWidth =
+        (int) resources.getDimension(R.dimen.selected_polyline_stroke_width);
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
@@ -132,10 +145,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     // into the repo?
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getActiveProject()
-                .switchMap(this::getFeaturesStream)
-                .map(MapContainerViewModel::toMapFeatures));
+            Flowable.combineLatest(
+                projectRepository
+                    .getActiveProject()
+                    .switchMap(this::getFeaturesStream)
+                    .map(this::toMapFeatures),
+                selectedFeature,
+                this::updateSelectedFeature));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
@@ -151,7 +167,31 @@ public class MapContainerViewModel extends AbstractViewModel {
         .ifPresent(this::panAndZoomCamera);
   }
 
-  private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
+  private ImmutableSet<MapFeature> updateSelectedFeature(
+      ImmutableSet<MapFeature> features, Optional<Feature> selectedFeature) {
+    Timber.v("Updating selected feature style");
+    if (selectedFeature.isEmpty()) {
+      return features;
+    }
+    ImmutableSet.Builder updatedFeatures = ImmutableSet.builder();
+    String selectedFeatureId = selectedFeature.get().getId();
+    for (MapFeature feature : features) {
+      if (feature instanceof MapGeoJson) {
+        MapGeoJson geoJsonFeature = (MapGeoJson) feature;
+        String geoJsonFeatureId = geoJsonFeature.getFeature().getId();
+        if (geoJsonFeatureId.equals(selectedFeatureId)) {
+          Timber.v("Restyling selected GeoJSON feature " + selectedFeatureId);
+          updatedFeatures.add(
+              geoJsonFeature.toBuilder().setStrokeWidth(selectedPolygonStrokeWidth).build());
+          continue;
+        }
+      }
+      updatedFeatures.add(feature);
+    }
+    return updatedFeatures.build();
+  }
+
+  private ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
     ImmutableSet<MapFeature> mapPins =
         stream(features)
             .filter(Feature::isPoint)
@@ -165,7 +205,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         stream(features)
             .filter(Feature::isGeoJson)
             .map(GeoJsonFeature.class::cast)
-            .map(MapContainerViewModel::toMapGeoJson)
+            .map(this::toMapGeoJson)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
@@ -180,7 +220,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
+  private MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
     JSONObject jsonObject;
     try {
       jsonObject = new JSONObject(feature.getGeoJsonString());
@@ -193,6 +233,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
+        .setStrokeWidth(defaultPolygonStrokeWidth)
         .setFeature(feature)
         .build();
   }
@@ -286,7 +327,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
-  public void onMapDrag(Point newCameraPosition) {
+  public void onMapDrag() {
     if (isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
@@ -319,8 +360,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void setViewMode(Mode viewMode) {
-    mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
-    moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
+    moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
@@ -331,12 +372,17 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public Optional<Feature> getSelectedFeature() {
-    return selectedFeature;
+  public Optional<Feature> getReposFeature() {
+    return reposFeature;
   }
 
+  public void setReposFeature(Optional<Feature> reposFeature) {
+    this.reposFeature = reposFeature;
+  }
+
+  /** Called when a feature is (de)selected. */
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
-    this.selectedFeature = selectedFeature;
+    this.selectedFeature.onNext(selectedFeature);
   }
 
   public enum Mode {

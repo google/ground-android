@@ -16,10 +16,15 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.util.Enums.toEnum;
+
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 
@@ -29,16 +34,30 @@ import javax.inject.Inject;
  */
 public class UserRepository {
 
+  private final AuthenticationManager authenticationManager;
   private final LocalDataStore localDataStore;
   private final LocalValueStore localValueStore;
   private final Schedulers schedulers;
 
   @Inject
   UserRepository(
-      LocalDataStore localDataStore, LocalValueStore localValueStore, Schedulers schedulers) {
+      AuthenticationManager authenticationManager,
+      LocalDataStore localDataStore,
+      LocalValueStore localValueStore,
+      Schedulers schedulers) {
+    this.authenticationManager = authenticationManager;
     this.localDataStore = localDataStore;
     this.localValueStore = localValueStore;
     this.schedulers = schedulers;
+  }
+
+  public User getCurrentUser() {
+    return authenticationManager.getCurrentUser();
+  }
+
+  public Role getUserRole(Project project) {
+    String value = project.getAcl().get(getCurrentUser().getEmail());
+    return value == null ? Role.UNKNOWN : toEnum(Role.class, value);
   }
 
   public Completable saveUser(User user) {

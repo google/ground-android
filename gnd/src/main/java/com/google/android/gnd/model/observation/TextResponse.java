@@ -34,12 +34,12 @@ public class TextResponse implements Response {
   }
 
   @Override
-  public String getSummaryText(Field field) {
+  public String getSummaryText() {
     return text;
   }
 
   @Override
-  public String getDetailsText(Field field) {
+  public String getDetailsText() {
     return text;
   }
 

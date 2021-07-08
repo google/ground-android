@@ -137,10 +137,11 @@ public class ObservationConverterTest {
                     ResponseMap.builder()
                         .putResponse("field1", new TextResponse("Text response"))
                         .putResponse(
-                            "field2", new MultipleChoiceResponse(ImmutableList.of("option2")))
+                            "field2", new MultipleChoiceResponse(null, ImmutableList.of("option2")))
                         .putResponse(
                             "field3",
-                            new MultipleChoiceResponse(ImmutableList.of("optionA", "optionB")))
+                            new MultipleChoiceResponse(
+                                null, ImmutableList.of("optionA", "optionB")))
                         .putResponse("field4", new TextResponse("Photo URL"))
                         .build())
                 .setCreated(AUDIT_INFO_1)

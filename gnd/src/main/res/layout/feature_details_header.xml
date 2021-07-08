@@ -57,7 +57,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="center_horizontal"
-          android:text="@{fragment.getFeatureTitle(viewModel.feature)}"
+          android:text="@{viewModel.title}"
           android:textAlignment="center"
           android:textAppearance="@style/TextAppearance.AppCompat.Title"
           tools:text="Feature Sheet Title" />
@@ -66,7 +66,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="center_horizontal"
-          android:text="@{fragment.getFeatureSubtitle(viewModel.feature)}"
+          android:text="@{viewModel.subtitle}"
           android:textAlignment="center"
           android:textColor="@color/colorGrey600"
           android:textSize="12sp"
