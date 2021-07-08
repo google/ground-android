@@ -66,6 +66,11 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "polygon_vertices")
+  public abstract String getNewPolygonVertices();
+
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
@@ -87,7 +92,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
+        .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setType(getType().toMutationType())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
@@ -105,6 +110,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String layerId,
       MutationEntityType type,
       Coordinates newLocation,
+      String newPolygonVertices,
       long retryCount,
       @Nullable String lastError,
       String userId,
@@ -116,6 +122,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setLayerId(layerId)
         .setType(type)
         .setNewLocation(newLocation)
+        .setNewPolygonVertices(newPolygonVertices)
         .setRetryCount(retryCount)
         .setLastError(lastError)
         .setUserId(userId)
@@ -135,6 +142,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
     public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setNewLocation(Coordinates newNewLocation);
+
+    public abstract Builder setNewPolygonVertices(@Nullable String newPolygonVertices);
 
     public abstract FeatureMutationEntity build();
   }

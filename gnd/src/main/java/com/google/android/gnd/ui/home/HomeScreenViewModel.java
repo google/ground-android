@@ -28,6 +28,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
@@ -35,8 +36,8 @@ import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -45,11 +46,11 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
+import java8.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -60,7 +61,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
 
-  private final AuthenticationManager authenticationManager;
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
@@ -97,11 +97,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Inject
   HomeScreenViewModel(
-      AuthenticationManager authenticationManager,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      Navigator navigator) {
-    this.authenticationManager = authenticationManager;
+      Navigator navigator,
+      Schedulers schedulers) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
@@ -112,13 +111,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
-        addFeatureClicks.switchMapSingle(
-            feature ->
-                featureRepository
-                    .createFeature(feature)
-                    .toSingleDefault(feature)
-                    .doOnError(errors::onNext)
-                    .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
+        addFeatureClicks
+            .switchMapSingle(
+                feature ->
+                    featureRepository
+                        .createFeature(feature)
+                        .toSingleDefault(feature)
+                        .doOnError(errors::onNext)
+                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
+            .subscribeOn(schedulers.io());
     deleteFeatureResults =
         deleteFeatureRequests.switchMapSingle(
             feature -> toBooleanSingle(featureRepository.deleteFeature(feature), errors::onNext));
@@ -277,15 +278,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public Observable<ImmutableList<Feature>> getOverlappingFeaturesOnceAndStream() {
-    return overlappingFeaturesSubject;
-  }
-
   public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
     ImmutableList<Feature> features =
         stream(mapFeatures)
             .map(MapFeature::getFeature)
-            .filter(f -> f != null)
+            .filter(Objects::nonNull)
             .collect(toImmutableList());
     overlappingFeaturesSubject.onNext(features);
   }
@@ -294,12 +291,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return Loadable.getValue(getProjectLoadingState());
   }
 
-  public ImmutableList<Layer> getModifiableLayers() {
+  public ImmutableList<Layer> getModifiableLayers(FeatureType featureType) {
     return getActiveProject()
-        .map(
-            project ->
-                projectRepository.getModifiableLayers(
-                    project, authenticationManager.getCurrentUser()))
+        .map(project -> projectRepository.getModifiableLayers(project, featureType))
         .orElse(ImmutableList.of());
   }
 }

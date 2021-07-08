@@ -93,7 +93,11 @@ public class LocalValueStore {
 
   public Optional<CameraPosition> getLastCameraPosition(String projectId) {
     try {
-      String[] values = preferences.getString(LAST_VIEWPORT_PREFIX + projectId, "").split(",");
+      String value = preferences.getString(LAST_VIEWPORT_PREFIX + projectId, "");
+      if (value.isEmpty()) {
+        return Optional.empty();
+      }
+      String[] values = value.split(",");
       return Optional.of(
           new CameraPosition(
               Point.newBuilder()

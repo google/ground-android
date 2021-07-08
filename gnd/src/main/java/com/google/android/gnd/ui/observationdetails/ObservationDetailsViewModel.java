@@ -78,7 +78,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             observationStream
                 .map(ObservationDetailsViewModel::getFeature)
-                .map(featureHelper::getTitle));
+                .map(featureHelper::getLabel));
 
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(

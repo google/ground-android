@@ -16,17 +16,14 @@
 
 package com.google.android.gnd;
 
-import android.app.Application;
-import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.hilt.work.HiltWorkerFactory;
-import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.facebook.stetho.Stetho;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.hilt.android.HiltAndroidApp;
@@ -36,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 @HiltAndroidApp
-public class GndApplication extends Application implements Configuration.Provider {
+public class GndApplication extends MultiDexApplication implements Configuration.Provider {
 
   @Inject HiltWorkerFactory workerFactory;
 
@@ -50,21 +47,10 @@ public class GndApplication extends Application implements Configuration.Provide
   }
 
   @Override
-  protected void attachBaseContext(Context base) {
-    super.attachBaseContext(base);
-    MultiDex.install(this);
-  }
-
-  @Override
   public void onCreate() {
     super.onCreate();
     if (BuildConfig.DEBUG) {
       Timber.d("DEBUG build config active; enabling debug tooling");
-
-      // Debug bridge for Android applications. Enables network and database debugging for the app
-      // accessible under chrome://inspect in Chrome desktop browser. Must be done before calling
-      // setStrictMode().
-      Stetho.initializeWithDefaults(this);
 
       // Log failures when trying to do work in the UI thread.
       setStrictMode();
