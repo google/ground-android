@@ -172,7 +172,7 @@ public class MainViewModel extends AbstractViewModel {
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
-  private Observable<NavDirections> onSignedIn() {
+  public Observable<NavDirections> onSignedIn() {
     return termsOfServiceRepository
         .getTermsOfService()
         .onErrorResumeNext(this::onGetTermsOfServiceError)
