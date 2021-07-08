@@ -26,7 +26,6 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.rx.SchedulersModule;
-import com.google.common.truth.Truth;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
@@ -44,20 +43,19 @@ import org.robolectric.annotation.Config;
 public class ResponseJsonConverterTest {
 
   //Date represented in YYYY-MM-DDTHH:mmZ Format from 1632501600000L milliseconds.
-  private static final String DATE_STRING = "2021-09-24T22:10+0530";
+  private static String DATE_STRING = "2021-09-21T07:00+0000";
   //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-  public static final Date DATE = new Date(1632501600000L);
+  public static final Date DATE = new Date(1632207600000L);
 
   @Test
-  public void testIsoStringToDate() {
+  public void testDateToIsoString() {
     String dateToIsoString = ResponseJsonConverter.dateToIsoString(DATE);
     assertThat(DATE_STRING).isEqualTo(dateToIsoString);
   }
 
   @Test
-  public void testDateToIso() {
+  public void testIsoStringToDate() {
     Date stringToDate = ResponseJsonConverter.isoStringToDate(DATE_STRING);
-
     assertThat(DATE).isEqualTo(stringToDate);
   }
 

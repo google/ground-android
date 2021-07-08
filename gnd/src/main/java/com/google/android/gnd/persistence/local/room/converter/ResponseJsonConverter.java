@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,6 +69,7 @@ class ResponseJsonConverter {
 
   public static String dateToIsoString(Date date) {
     synchronized (ISO_INSTANT_FORMAT) {
+      ISO_INSTANT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
       return ISO_INSTANT_FORMAT.format(date);
     }
   }
@@ -76,6 +78,7 @@ class ResponseJsonConverter {
   public static Date isoStringToDate(String isoString) {
     try {
       synchronized (ISO_INSTANT_FORMAT) {
+        ISO_INSTANT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
         return ISO_INSTANT_FORMAT.parse(isoString);
       }
     } catch (ParseException e) {
