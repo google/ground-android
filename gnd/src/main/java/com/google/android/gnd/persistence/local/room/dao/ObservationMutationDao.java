@@ -20,6 +20,7 @@ import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
+import com.google.android.gnd.rx.annotations.Cold;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
@@ -41,4 +42,10 @@ public interface ObservationMutationDao extends BaseDao<ObservationMutationEntit
           + "WHERE observation_id = :observationId AND state IN (:allowedStates)")
   Single<List<ObservationMutationEntity>> findByObservationId(
       String observationId, MutationEntitySyncStatus... allowedStates);
+
+  @Cold(terminates = false)
+  @Query(
+      "SELECT * FROM observation_mutation WHERE feature_id = :featureId AND state IN (:allowedStates)")
+  Flowable<List<ObservationMutationEntity>> findByFeatureIdOnceAndStream(
+      String featureId, MutationEntitySyncStatus... allowedStates);
 }
