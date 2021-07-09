@@ -26,6 +26,7 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -187,4 +188,11 @@ public interface LocalDataStore {
 
   /** Delete a tile source associated with a given URL from the local data store. */
   Completable deleteTileByUrl(TileSource tile);
+
+  Flowable<ImmutableList<FeatureMutation>> getFeatureMutationsByFeatureIdOnceAndStream(
+      String featureId, MutationEntitySyncStatus... allowedStates);
+
+  Flowable<ImmutableList<ObservationMutation>>
+      getObservationMutationsByFeatureIdOnceAndStream(
+      Project project, String featureId, MutationEntitySyncStatus... allowedStates);
 }
