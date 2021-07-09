@@ -72,6 +72,7 @@
           android:textSize="12sp"
           tools:text="Feature Subtitle" />
       </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
     <FrameLayout
@@ -89,15 +90,29 @@
       android:background="@color/colorBackground"
       android:elevation="3dp" />
 
-    <ImageView
-      android:layout_width="@dimen/feature_details_icon_bg_diameter"
-      android:layout_height="@dimen/feature_details_icon_bg_diameter"
+    <!-- Feature icon and upload overlay. -->
+    <FrameLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
       android:layout_gravity="top|center_horizontal"
-      android:background="@drawable/bg_feature_details_icon"
-      android:elevation="@dimen/feature_details_icon_elevation"
-      android:outlineProvider="none"
-      android:scaleType="center"
-      app:src="@{viewModel.getMarkerBitmap()}" />
+      android:elevation="@dimen/feature_details_icon_elevation">
 
+      <ImageView
+        android:layout_width="@dimen/feature_details_icon_bg_diameter"
+        android:layout_height="@dimen/feature_details_icon_bg_diameter"
+        android:background="@drawable/bg_feature_details_icon"
+        android:outlineProvider="none"
+        android:scaleType="center"
+        app:src="@{viewModel.getMarkerBitmap()}" />
+
+      <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_gravity="bottom|end"
+        app:tint="@color/colorGrey500"
+        app:srcCompat="@drawable/ic_upload_pending"
+        app:visible="@{viewModel.getShowUploadPendingIcon()}">
+      </ImageView>
+    </FrameLayout>
   </FrameLayout>
 </layout>
