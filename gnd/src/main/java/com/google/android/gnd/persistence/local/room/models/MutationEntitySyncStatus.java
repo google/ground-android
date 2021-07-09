@@ -28,6 +28,8 @@ import com.google.android.gnd.persistence.local.room.IntEnum;
  * com.google.android.gnd.persistence.local.room.entity.MutationEntity}.
  */
 public enum MutationEntitySyncStatus implements IntEnum {
+  // TODO(#950): Set IN_PROGRESS and FAILED statuses when necessary. On failure, set retry count and
+  // error and update to PENDING.
   UNKNOWN(0, SyncStatus.UNKNOWN),
   /** Pending includes failed sync attempts pending retry. */
   PENDING(1, SyncStatus.PENDING),
