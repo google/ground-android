@@ -27,19 +27,24 @@ import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.form.Option;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
+import java8.util.Optional;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
 
+  private final FeatureHelper featureHelper;
   private ImmutableList<Pair<Feature, Mutation>> mutations;
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
-  SyncStatusListAdapter(@Nullable Context context) {
+  SyncStatusListAdapter(@Nullable Context context, FeatureHelper featureHelper) {
     this.mutations = ImmutableList.of();
     this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
+    this.featureHelper = featureHelper;
   }
 
   @NonNull
@@ -67,11 +72,15 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
             .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')
             .append(timeFormat.format(mutation.getClientTimestamp()))
+            .append("\n")
+            .append(featureHelper.getLabel(Optional.of(feature)))
+            .append(' ')
+            .append(feature.getId())
+            .append("\n")
+            .append(featureHelper.getSubtitle(Optional.of(feature)))
             .append('\n')
             .append("Sync ")
             .append(mutation.getSyncStatus().toString())
-            .append("\n")
-            .append(feature.getId())
             .toString();
     viewHolder.binding.syncStatusText.setText(text);
     viewHolder.position = position;
