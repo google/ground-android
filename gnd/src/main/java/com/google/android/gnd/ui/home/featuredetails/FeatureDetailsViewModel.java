@@ -22,12 +22,17 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.util.DrawableUtil;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
@@ -41,18 +46,51 @@ public class FeatureDetailsViewModel extends ViewModel {
       BehaviorProcessor.createDefault(Optional.empty());
 
   private final Bitmap markerBitmap;
+  private final FeatureRepository featureRepository;
   private LiveData<String> title;
   private LiveData<String> subtitle;
+  private LiveData<Boolean> showUploadPendingIcon;
 
   @Inject
   public FeatureDetailsViewModel(
-      MarkerIconFactory markerIconFactory, DrawableUtil drawableUtil, FeatureHelper featureHelper) {
+      MarkerIconFactory markerIconFactory,
+      DrawableUtil drawableUtil,
+      FeatureHelper featureHelper,
+      FeatureRepository featureRepository) {
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
     this.title =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
+    this.featureRepository = featureRepository;
+    Flowable<ImmutableList<FeatureMutation>> featureMutations =
+        selectedFeature.switchMap(this::getIncompleteFeatureMutationsOnceAndStream);
+    Flowable<ImmutableList<ObservationMutation>> observationMutations =
+        selectedFeature.switchMap(this::getIncompleteObservationMutationsOnceAndStream);
+    this.showUploadPendingIcon =
+        LiveDataReactiveStreams.fromPublisher(
+            Flowable.combineLatest(
+                featureMutations, observationMutations, (f, o) -> !f.isEmpty() && !o.isEmpty()));
+  }
+
+  private Flowable<ImmutableList<FeatureMutation>> getIncompleteFeatureMutationsOnceAndStream(
+      Optional<Feature> selectedFeature) {
+    return selectedFeature
+        .map(
+            feature ->
+                featureRepository.getIncompleteFeatureMutationsOnceAndStream(feature.getId()))
+        .orElse(Flowable.just(ImmutableList.of()));
+  }
+
+  private Flowable<ImmutableList<ObservationMutation>>
+      getIncompleteObservationMutationsOnceAndStream(Optional<Feature> selectedFeature) {
+    return selectedFeature
+        .map(
+            feature ->
+                featureRepository.getIncompleteObservationMutationsOnceAndStream(
+                    feature.getProject(), feature.getId()))
+        .orElse(Flowable.just(ImmutableList.of()));
   }
 
   /**
@@ -82,5 +120,9 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public LiveData<String> getSubtitle() {
     return subtitle;
+  }
+
+  public LiveData<Boolean> getShowUploadPendingIcon() {
+    return showUploadPendingIcon;
   }
 }
