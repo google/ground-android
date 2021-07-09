@@ -202,19 +202,4 @@ public class FeatureRepository {
         MutationEntitySyncStatus.IN_PROGRESS,
         MutationEntitySyncStatus.FAILED);
   }
-
-  /**
-   * Returns all {@link ObservationMutation} instances for a given feature which have not yet been
-   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations.
-   * A new list is emitted on each subsequent change.
-   */
-  public Flowable<ImmutableList<ObservationMutation>>
-      getIncompleteObservationMutationsOnceAndStream(Project project, String featureId) {
-    return localDataStore.getObservationMutationsByFeatureIdOnceAndStream(
-        project,
-        featureId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED);
-  }
 }

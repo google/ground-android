@@ -25,6 +25,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.FeatureHelper;
@@ -45,8 +46,9 @@ public class FeatureDetailsViewModel extends ViewModel {
   private final FlowableProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
-  private final Bitmap markerBitmap;
   private final FeatureRepository featureRepository;
+  private final ObservationRepository observationRepository;
+  private final Bitmap markerBitmap;
   private LiveData<String> title;
   private LiveData<String> subtitle;
   private LiveData<Boolean> showUploadPendingIcon;
@@ -56,14 +58,16 @@ public class FeatureDetailsViewModel extends ViewModel {
       MarkerIconFactory markerIconFactory,
       DrawableUtil drawableUtil,
       FeatureHelper featureHelper,
-      FeatureRepository featureRepository) {
+      FeatureRepository featureRepository,
+      ObservationRepository observationRepository) {
+    this.featureRepository = featureRepository;
+    this.observationRepository = observationRepository;
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
     this.title =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
-    this.featureRepository = featureRepository;
     Flowable<ImmutableList<FeatureMutation>> featureMutations =
         selectedFeature.switchMap(this::getIncompleteFeatureMutationsOnceAndStream);
     Flowable<ImmutableList<ObservationMutation>> observationMutations =
@@ -88,7 +92,7 @@ public class FeatureDetailsViewModel extends ViewModel {
     return selectedFeature
         .map(
             feature ->
-                featureRepository.getIncompleteObservationMutationsOnceAndStream(
+                observationRepository.getIncompleteObservationMutationsOnceAndStream(
                     feature.getProject(), feature.getId()))
         .orElse(Flowable.just(ImmutableList.of()));
   }
