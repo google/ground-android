@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.TermsOfService;
 import com.google.firebase.firestore.DocumentSnapshot;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -35,39 +36,28 @@ public class TermsOfServiceConverterTest {
   private DocumentSnapshot termsOfServiceDocumentSnapshot;
 
   private TermsOfService termsOfService;
-  private String testTerms = "TERMS";
+  private static final String TEST_TERMS = "TERMS";
+  private static final String TEST_TERMS_ID = "TERMS_ID";
+
+  @Before
+  public void setup() {
+    setUpTestTerms();
+  }
 
   @Test
   public void testTermsOfService() {
-    setUpTestTerms("tos123");
-    mockTermsOfServiceDocumentSnapshot("tos123", new TermsOfServiceDocument(testTerms));
+    mockTermsOfServiceDocumentSnapshot(new TermsOfServiceDocument(TEST_TERMS));
     assertThat(toTermsOfService())
-        .isEqualTo(
-            TermsOfService.builder()
-                .setId("tos123")
-                .setText(testTerms)
-                .build());
+        .isEqualTo(termsOfService);
   }
 
-  @Test
-  public void testTermsOfService_textMismatch() {
-    setUpTestTerms("tos123");
-    mockTermsOfServiceDocumentSnapshot("tos123", new TermsOfServiceDocument("demo_terms"));
-    assertThat(toTermsOfService().getText())
-        .isNotEqualTo(
-            TermsOfService.builder()
-                .setId("tos123")
-                .setText(testTerms)
-                .build().getText());
-  }
-
-  private void setUpTestTerms(String termsId) {
-    termsOfService = newTermsOfService().setId(termsId).setText(testTerms).build();
+  private void setUpTestTerms() {
+    termsOfService = newTermsOfService().setId(TEST_TERMS_ID).setText(TEST_TERMS).build();
   }
 
   /** Mock observation document snapshot to return the specified id and object representation. */
-  private void mockTermsOfServiceDocumentSnapshot(String id, TermsOfServiceDocument doc) {
-    when(termsOfServiceDocumentSnapshot.getId()).thenReturn(id);
+  private void mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument doc) {
+    when(termsOfServiceDocumentSnapshot.getId()).thenReturn(TEST_TERMS_ID);
     when(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument.class)).thenReturn(doc);
   }
 

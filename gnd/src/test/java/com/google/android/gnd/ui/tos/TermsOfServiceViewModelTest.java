@@ -45,34 +45,21 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class TermsOfServiceViewModelTest {
 
-  @Rule
-  public MockitoRule rule = MockitoJUnit.rule();
+  @Rule public MockitoRule rule = MockitoJUnit.rule();
 
-  @Rule
-  public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   public TermsOfServiceViewModel termsOfServiceViewModel;
-
-  @Inject
-  Navigator navigator;
-
-  @Inject
-  LocalValueStore localValueStore;
-
-  @Mock
-  RemoteDataStore mockRemoteDataStore;
-
+  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+  @Inject Navigator navigator;
+  @Inject LocalValueStore localValueStore;
+  @Mock RemoteDataStore mockRemoteDataStore;
   private TermsOfServiceRepository termsOfServiceRepository;
-  @Rule
-  public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Before
   public void before() {
     hiltRule.inject();
-    termsOfServiceRepository =
-        new TermsOfServiceRepository(
-            mockRemoteDataStore,
-            localValueStore);
+    termsOfServiceRepository = new TermsOfServiceRepository(mockRemoteDataStore, localValueStore);
     termsOfServiceViewModel = new TermsOfServiceViewModel(navigator, termsOfServiceRepository);
   }
 
