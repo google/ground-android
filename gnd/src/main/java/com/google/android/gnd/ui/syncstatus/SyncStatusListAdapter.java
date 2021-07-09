@@ -17,23 +17,27 @@
 package com.google.android.gnd.ui.syncstatus;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
 
-  private ImmutableList<Mutation> mutations;
+  private ImmutableList<Pair<Mutation, Feature>> mutations;
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
-  SyncStatusListAdapter(Context context) {
+  SyncStatusListAdapter(@Nullable Context context) {
     this.mutations = ImmutableList.of();
     this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
@@ -52,19 +56,21 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     // TODO: Use data binding.
     // TODO(#876): Improve L&F and layout.
 
-    Mutation mutation = mutations.get(position);
+    Pair<Mutation, Feature> mutation = mutations.get(position);
+
     String text =
         new StringBuilder()
-            .append(mutation.getType().toString())
+            .append(mutation.first.getType().toString())
             .append(' ')
-            .append(mutation instanceof FeatureMutation ? "Feature" : "Observation")
+            .append(mutation.first instanceof FeatureMutation ? "Feature" : "Observation")
             .append(' ')
-            .append(dateFormat.format(mutation.getClientTimestamp()))
+            .append(dateFormat.format(mutation.first.getClientTimestamp()))
             .append(' ')
-            .append(timeFormat.format(mutation.getClientTimestamp()))
+            .append(timeFormat.format(mutation.first.getClientTimestamp()))
             .append('\n')
             .append("Sync ")
-            .append(mutation.getSyncStatus().toString())
+            .append(mutation.first.getSyncStatus().toString())
+            .append(mutation.second.getCaption())
             .toString();
     viewHolder.binding.syncStatusText.setText(text);
     viewHolder.position = position;
@@ -75,8 +81,8 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     return mutations.size();
   }
 
-  void update(ImmutableList<Mutation> offlineBaseMaps) {
-    this.mutations = offlineBaseMaps;
+  void update(ImmutableList<Pair<Mutation, Feature>> mutations) {
+    this.mutations = mutations;
     notifyDataSetChanged();
   }
 }

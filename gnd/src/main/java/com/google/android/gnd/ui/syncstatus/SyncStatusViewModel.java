@@ -16,9 +16,15 @@
 
 package com.google.android.gnd.ui.syncstatus;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
+import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -33,11 +39,14 @@ import javax.inject.Inject;
  */
 public class SyncStatusViewModel extends AbstractViewModel {
 
-  private LiveData<ImmutableList<Mutation>> mutations;
+  private final LiveData<ImmutableList<Pair<Mutation, Feature>>> mutations;
   private final Navigator navigator;
 
   @Inject
-  SyncStatusViewModel(ProjectRepository projectRepository, Navigator navigator) {
+  SyncStatusViewModel(
+      ProjectRepository projectRepository,
+      FeatureRepository featureRepository,
+      Navigator navigator) {
     this.navigator = navigator;
 
     this.mutations =
@@ -48,7 +57,16 @@ public class SyncStatusViewModel extends AbstractViewModel {
                     project ->
                         project
                             .map(projectRepository::getMutationsOnceAndStream)
-                            .orElse(Flowable.just(ImmutableList.of()))));
+                            .orElse(Flowable.just(ImmutableList.of())))
+                .flatMap(Flowable::fromIterable)
+                .flatMapMaybe(
+                    mutation ->
+                        featureRepository
+                            .getFeature(mutation.getProjectId(), mutation.getFeatureId())
+                            .map(feat -> Pair.create(mutation, feat)))
+                .toList()
+                .map(xs -> stream(xs).collect(toImmutableList()))
+                .toFlowable());
   }
 
   public void showOfflineAreaSelector() {
@@ -56,7 +74,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
   }
 
   @Cold(replays = true)
-  LiveData<ImmutableList<Mutation>> getMutations() {
+  LiveData<ImmutableList<Pair<Mutation, Feature>>> getMutations() {
     return mutations;
   }
 }
