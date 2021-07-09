@@ -19,7 +19,8 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
-import io.reactivex.Completable;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
 
@@ -28,10 +29,11 @@ import java.util.List;
  */
 @Dao
 public interface FeatureMutationDao extends BaseDao<FeatureMutationEntity> {
+  @Query("SELECT * FROM feature_mutation")
+  Flowable<List<FeatureMutationEntity>> loadAllOnceAndStream();
 
-  @Query("DELETE FROM feature_mutation WHERE id IN (:ids)")
-  Completable deleteAll(List<Long> ids);
-
-  @Query("SELECT * FROM feature_mutation WHERE feature_id = :featureId")
-  Single<List<FeatureMutationEntity>> findByFeatureId(String featureId);
+  @Query(
+      "SELECT * FROM feature_mutation WHERE feature_id = :featureId AND state IN (:allowedStates)")
+  Single<List<FeatureMutationEntity>> findByFeatureId(
+      String featureId, MutationEntitySyncStatus... allowedStates);
 }
