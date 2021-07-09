@@ -36,8 +36,8 @@ import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorV
 import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
-import com.google.android.gnd.ui.tos.TermsOfServiceViewModel;
 import com.google.android.gnd.ui.syncstatus.SyncStatusViewModel;
+import com.google.android.gnd.ui.tos.TermsOfServiceViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
