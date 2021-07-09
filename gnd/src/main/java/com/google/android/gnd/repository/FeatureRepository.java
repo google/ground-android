@@ -189,6 +189,11 @@ public class FeatureRepository {
     return localTransaction.andThen(remoteSync);
   }
 
+  /**
+   * Emits the list of {@link FeatureMutation} instances for a given feature which have not yet been
+   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations.
+   * A new list is emitted on each subsequent change.
+   */
   public Flowable<ImmutableList<FeatureMutation>> getIncompleteFeatureMutationsOnceAndStream(
       String featureId) {
     return localDataStore.getFeatureMutationsByFeatureIdOnceAndStream(
@@ -198,6 +203,11 @@ public class FeatureRepository {
         MutationEntitySyncStatus.FAILED);
   }
 
+  /**
+   * Returns all {@link ObservationMutation} instances for a given feature which have not yet been
+   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations.
+   * A new list is emitted on each subsequent change.
+   */
   public Flowable<ImmutableList<ObservationMutation>>
       getIncompleteObservationMutationsOnceAndStream(Project project, String featureId) {
     return localDataStore.getObservationMutationsByFeatureIdOnceAndStream(

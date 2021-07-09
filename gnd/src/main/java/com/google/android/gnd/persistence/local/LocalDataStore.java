@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -189,10 +190,17 @@ public interface LocalDataStore {
   /** Delete a tile source associated with a given URL from the local data store. */
   Completable deleteTileByUrl(TileSource tile);
 
+  /**
+   * Emits the list of {@link FeatureMutation} instances for a given feature which match the
+   * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
+   */
   Flowable<ImmutableList<FeatureMutation>> getFeatureMutationsByFeatureIdOnceAndStream(
       String featureId, MutationEntitySyncStatus... allowedStates);
 
-  Flowable<ImmutableList<ObservationMutation>>
-      getObservationMutationsByFeatureIdOnceAndStream(
+  /**
+   * Emits the list of {@link ObservationMutation} instances for a given feature which match the
+   * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
+   */
+  Flowable<ImmutableList<ObservationMutation>> getObservationMutationsByFeatureIdOnceAndStream(
       Project project, String featureId, MutationEntitySyncStatus... allowedStates);
 }
