@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.syncstatus;
 
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Pair;
@@ -32,6 +32,9 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -39,8 +42,10 @@ import javax.inject.Inject;
  */
 public class SyncStatusViewModel extends AbstractViewModel {
 
-  private final LiveData<ImmutableList<Pair<Mutation, Feature>>> mutations;
+  private final LiveData<ImmutableList<Pair<Feature, Mutation>>> mutations;
   private final Navigator navigator;
+  private final ProjectRepository projectRepository;
+  private final FeatureRepository featureRepository;
 
   @Inject
   SyncStatusViewModel(
@@ -48,33 +53,44 @@ public class SyncStatusViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       Navigator navigator) {
     this.navigator = navigator;
+    this.projectRepository = projectRepository;
+    this.featureRepository = featureRepository;
 
     this.mutations =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getActiveProject()
-                .switchMap(
-                    project ->
-                        project
-                            .map(projectRepository::getMutationsOnceAndStream)
-                            .orElse(Flowable.just(ImmutableList.of())))
-                .flatMap(Flowable::fromIterable)
-                .flatMapMaybe(
-                    mutation ->
-                        featureRepository
-                            .getFeature(mutation.getProjectId(), mutation.getFeatureId())
-                            .map(feat -> Pair.create(mutation, feat)))
-                .toList()
-                .map(xs -> stream(xs).collect(toImmutableList()))
-                .toFlowable());
+            getMutationsOnceAndStream().switchMap(this::loadFeaturesAndPair));
+  }
+
+  private Flowable<ImmutableList<Pair<Feature, Mutation>>> loadFeaturesAndPair(
+      ImmutableList<Mutation> mutations) {
+    return Maybe.merge(stream(mutations).map(this::loadFeatureAndPair).collect(toList()))
+        .toList()
+        .map(ImmutableList::copyOf)
+        .toFlowable();
+  }
+
+  private Maybe<Pair<Feature, Mutation>> loadFeatureAndPair(Mutation mutation) {
+    return featureRepository
+        .getFeature(mutation.getProjectId(), mutation.getFeatureId())
+        .map(feature -> Pair.create(feature, mutation));
+  }
+
+  private Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream() {
+    return projectRepository
+        .getActiveProject()
+        .switchMap(
+            project ->
+                project
+                    .map(projectRepository::getMutationsOnceAndStream)
+                    .orElse(Flowable.just(ImmutableList.of())));
   }
 
   public void showOfflineAreaSelector() {
     navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
   }
 
-  @Cold(replays = true)
-  LiveData<ImmutableList<Pair<Mutation, Feature>>> getMutations() {
+  @Cold(replays = true, terminates = false)
+  LiveData<ImmutableList<Pair<Feature, Mutation>>> getMutations() {
     return mutations;
   }
 }

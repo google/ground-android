@@ -22,7 +22,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 import com.google.android.gnd.model.Mutation;
@@ -33,7 +32,7 @@ import java.text.DateFormat;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
 
-  private ImmutableList<Pair<Mutation, Feature>> mutations;
+  private ImmutableList<Pair<Feature, Mutation>> mutations;
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
@@ -56,21 +55,23 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     // TODO: Use data binding.
     // TODO(#876): Improve L&F and layout.
 
-    Pair<Mutation, Feature> mutation = mutations.get(position);
-
+    Pair<Feature, Mutation> pair = mutations.get(position);
+    Feature feature = pair.first;
+    Mutation mutation = pair.second;
     String text =
         new StringBuilder()
-            .append(mutation.first.getType().toString())
+            .append(mutation.getType().toString())
             .append(' ')
-            .append(mutation.first instanceof FeatureMutation ? "Feature" : "Observation")
+            .append(mutation instanceof FeatureMutation ? "Feature" : "Observation")
             .append(' ')
-            .append(dateFormat.format(mutation.first.getClientTimestamp()))
+            .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')
-            .append(timeFormat.format(mutation.first.getClientTimestamp()))
+            .append(timeFormat.format(mutation.getClientTimestamp()))
             .append('\n')
             .append("Sync ")
-            .append(mutation.first.getSyncStatus().toString())
-            .append(mutation.second.getCaption())
+            .append(mutation.getSyncStatus().toString())
+            .append("\n")
+            .append(feature.getId())
             .toString();
     viewHolder.binding.syncStatusText.setText(text);
     viewHolder.position = position;
@@ -81,7 +82,7 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     return mutations.size();
   }
 
-  void update(ImmutableList<Pair<Mutation, Feature>> mutations) {
+  void update(ImmutableList<Pair<Feature, Mutation>> mutations) {
     this.mutations = mutations;
     notifyDataSetChanged();
   }
