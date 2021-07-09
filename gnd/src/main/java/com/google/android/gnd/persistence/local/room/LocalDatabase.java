@@ -55,6 +55,7 @@ import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.FieldEntityType;
 import com.google.android.gnd.persistence.local.room.models.MultipleChoiceEntityType;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.android.gnd.persistence.local.room.models.OfflineBaseMapEntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
@@ -93,6 +94,7 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
   EntityState.class,
   JsonArrayTypeConverter.class,
   JsonObjectTypeConverter.class,
+  MutationEntitySyncStatus.class,
   OfflineBaseMapEntityState.class,
   StyleTypeConverter.class,
   TileEntityState.class
