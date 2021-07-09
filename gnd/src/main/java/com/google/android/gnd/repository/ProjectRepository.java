@@ -56,7 +56,6 @@ public class ProjectRepository {
   private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 15;
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
-  private final InMemoryCache cache;
   private final UserRepository userRepository;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -76,12 +75,10 @@ public class ProjectRepository {
       UserRepository userRepository,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
-      InMemoryCache cache,
       LocalValueStore localValueStore) {
     this.userRepository = userRepository;
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
-    this.cache = cache;
     this.localValueStore = localValueStore;
 
     // Kicks off the loading process whenever a new project id is selected.
@@ -173,7 +170,6 @@ public class ProjectRepository {
 
   /** Clears the currently active project from cache. */
   public void clearActiveProject() {
-    cache.clear();
     selectProjectEvent.onNext(Optional.empty());
   }
 
