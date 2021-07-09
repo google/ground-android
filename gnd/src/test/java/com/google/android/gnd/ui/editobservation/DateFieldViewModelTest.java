@@ -61,14 +61,14 @@ public class DateFieldViewModelTest {
   @Test
   public void testUpdateResponse() {
     dateFieldViewModel.updateResponse(DATE);
-    Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
+    // Observer initialized to read the value of live data.
+    dateFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
           Optional<Response> responseOptional) {
         dateFieldViewModel.getResponse().removeObserver(this);
       }
-    };
-    dateFieldViewModel.getResponse().observeForever(optionalObserver);
+    });
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
     assertThat(response.getDate())
         .isEqualTo(new DateResponse(DATE).getDate());
@@ -77,14 +77,14 @@ public class DateFieldViewModelTest {
   @Test
   public void testUpdateResponse_mismatchDate() {
     dateFieldViewModel.updateResponse(DATE);
-    Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
+    // Observer used to read the value of live data.
+    dateFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
           Optional<Response> responseOptional) {
         dateFieldViewModel.getResponse().removeObserver(this);
       }
-    };
-    dateFieldViewModel.getResponse().observeForever(optionalObserver);
+    });
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
     assertThat(response.getDate()).isNotEqualTo(new DateResponse(new Date()).getDate());
   }

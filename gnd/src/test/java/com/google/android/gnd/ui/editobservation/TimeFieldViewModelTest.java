@@ -61,14 +61,14 @@ public class TimeFieldViewModelTest {
   @Test
   public void testUpdateResponse() {
     timeFieldViewModel.updateResponse(DATE);
-    Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
+    // Observer initialized to read the value of live data.
+    timeFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
           Optional<Response> responseOptional) {
         timeFieldViewModel.getResponse().removeObserver(this);
       }
-    };
-    timeFieldViewModel.getResponse().observeForever(optionalObserver);
+    });
     TimeResponse response = (TimeResponse) timeFieldViewModel.getResponse().getValue().get();
     assertThat(response.getTime())
         .isEqualTo(new TimeResponse(DATE).getTime());
@@ -77,14 +77,14 @@ public class TimeFieldViewModelTest {
   @Test
   public void testUpdateResponse_mismatchTime() {
     timeFieldViewModel.updateResponse(DATE);
-    Observer<Optional<Response>> optionalObserver = new Observer<Optional<Response>>() {
+    // Observer initialized to read the value of live data.
+    timeFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
       @Override
       public void onChanged(
           Optional<Response> responseOptional) {
         timeFieldViewModel.getResponse().removeObserver(this);
       }
-    };
-    timeFieldViewModel.getResponse().observeForever(optionalObserver);
+    });
     TimeResponse response = (TimeResponse) timeFieldViewModel.getResponse().getValue().get();
     assertThat(response.getTime())
         .isNotEqualTo(new TimeResponse(new Date()).getTime());
