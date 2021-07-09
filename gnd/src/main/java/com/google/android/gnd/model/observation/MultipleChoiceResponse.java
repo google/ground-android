@@ -18,41 +18,56 @@ package com.google.android.gnd.model.observation;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 public class MultipleChoiceResponse implements Response {
 
-  private List<String> choices;
+  private final MultipleChoice multipleChoice;
+  private final List<String> selectedOptionIds;
 
-  public MultipleChoiceResponse(List<String> choices) {
-    this.choices = choices;
+  public MultipleChoiceResponse(MultipleChoice multipleChoice, List<String> selectedOptionIds) {
+    this.multipleChoice = multipleChoice;
+    this.selectedOptionIds = selectedOptionIds;
   }
 
-  public List<String> getChoices() {
-    return choices;
+  public static Optional<Response> fromList(MultipleChoice multipleChoice, List<String> codes) {
+    if (codes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(new MultipleChoiceResponse(multipleChoice, codes));
+    }
+  }
+
+  public MultipleChoice getMultipleChoice() {
+    return multipleChoice;
+  }
+
+  public List<String> getSelectedOptionIds() {
+    return selectedOptionIds;
   }
 
   public Optional<String> getFirstId() {
-    return stream(choices).findFirst();
+    return stream(selectedOptionIds).findFirst();
   }
 
   public boolean isSelected(Option option) {
-    return choices.contains(option.getId());
+    return selectedOptionIds.contains(option.getId());
   }
 
-  public String getSummaryText(Field field) {
-    return getDetailsText(field);
+  public String getSummaryText() {
+    return getDetailsText();
   }
 
   // TODO: Make these inner classes non-static and access Form directly.
-  public String getDetailsText(Field field) {
-    return stream(choices)
-        .map(field.getMultipleChoice()::getOptionById)
+  public String getDetailsText() {
+    return stream(selectedOptionIds)
+        .map(getMultipleChoice()::getOptionById)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .map(Option::getLabel)
@@ -62,32 +77,25 @@ public class MultipleChoiceResponse implements Response {
 
   @Override
   public boolean isEmpty() {
-    return choices.isEmpty();
+    return selectedOptionIds.isEmpty();
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof MultipleChoiceResponse) {
-      return choices.equals(((MultipleChoiceResponse) obj).choices);
+      return selectedOptionIds.equals(((MultipleChoiceResponse) obj).selectedOptionIds);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return choices.hashCode();
+    return selectedOptionIds.hashCode();
   }
 
+  @NotNull
   @Override
   public String toString() {
-    return stream(choices).sorted().collect(Collectors.joining(","));
-  }
-
-  public static Optional<Response> fromList(List<String> codes) {
-    if (codes.isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(new MultipleChoiceResponse(codes));
-    }
+    return stream(selectedOptionIds).sorted().collect(Collectors.joining(","));
   }
 }

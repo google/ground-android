@@ -78,7 +78,7 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
     checkNotNull(listAdapter, "listAdapter was null when attempting to show project list");
 
     listAdapter.clear();
-    stream(features).map(this::setFeatureText).forEach(listAdapter::add);
+    stream(features).map(viewModel::getListItemText).forEach(listAdapter::add);
 
     if (features.size() == 1) {
       onItemSelected(0);
@@ -90,17 +90,6 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
     }
 
     binding.featureSelectorListView.setVisibility(View.VISIBLE);
-  }
-
-  private String setFeatureText(Feature feature) {
-    String text = "";
-    if (feature.isGeoJson()) {
-      text = "Area\n";
-    } else if (feature.isPoint()) {
-      text = "Point\n";
-    }
-
-    return text + feature.getLayer().getName();
   }
 
   private void onItemSelected(int index) {
