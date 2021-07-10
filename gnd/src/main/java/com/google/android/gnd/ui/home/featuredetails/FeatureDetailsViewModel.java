@@ -37,12 +37,14 @@ import javax.inject.Inject;
 public class FeatureDetailsViewModel extends ViewModel {
 
   @Hot
-  private final FlowableProcessor<Optional<Feature>> selectedFeature =
+  private final FlowableProcessor<Optional<Feature>> featureFlowable =
       BehaviorProcessor.createDefault(Optional.empty());
 
   private final Bitmap markerBitmap;
-  private LiveData<String> title;
-  private LiveData<String> subtitle;
+  private final LiveData<String> title;
+  private final LiveData<String> subtitle;
+
+  private Optional<Feature> selectedFeature = Optional.empty();
 
   @Inject
   public FeatureDetailsViewModel(
@@ -50,9 +52,9 @@ public class FeatureDetailsViewModel extends ViewModel {
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
     this.title =
-        LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
+        LiveDataReactiveStreams.fromPublisher(featureFlowable.map(featureHelper::getLabel));
     this.subtitle =
-        LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
+        LiveDataReactiveStreams.fromPublisher(featureFlowable.map(featureHelper::getSubtitle));
   }
 
   /**
@@ -60,16 +62,16 @@ public class FeatureDetailsViewModel extends ViewModel {
    * to each new observer.
    */
   public LiveData<Optional<Feature>> getSelectedFeatureOnceAndStream() {
-    return LiveDataReactiveStreams.fromPublisher(selectedFeature);
+    return LiveDataReactiveStreams.fromPublisher(featureFlowable);
+  }
+
+  public Optional<Feature> getSelectedFeature() {
+    return selectedFeature;
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
-    if (!state.isVisible()) {
-      selectedFeature.onNext(Optional.empty());
-      return;
-    }
-
-    selectedFeature.onNext(state.getFeature());
+    selectedFeature = !state.isVisible() ? Optional.empty() : state.getFeature();
+    featureFlowable.onNext(selectedFeature);
   }
 
   public Bitmap getMarkerBitmap() {

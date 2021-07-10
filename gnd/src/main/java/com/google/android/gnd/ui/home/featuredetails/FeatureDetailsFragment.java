@@ -18,8 +18,11 @@ package com.google.android.gnd.ui.home.featuredetails;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.MainViewModel;
@@ -64,10 +67,24 @@ public class FeatureDetailsFragment extends AbstractFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    setHasOptionsMenu(true);
     mainViewModel.getWindowInsets().observe(getViewLifecycleOwner(), this::onApplyWindowInsets);
     homeScreenViewModel
         .getBottomSheetState()
         .observe(getViewLifecycleOwner(), this::onBottomSheetStateChange);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.feature_sheet_menu, menu);
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    // "Move feature" option should only be enabled for PointFeature.
+    viewModel
+        .getSelectedFeature()
+        .ifPresent(feature -> menu.getItem(0).setVisible(feature.isPoint()));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
