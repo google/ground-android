@@ -32,6 +32,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 
 /** Fragment containing the contents of the bottom sheet shown when a feature is selected. */
@@ -81,10 +82,15 @@ public class FeatureDetailsFragment extends AbstractFragment {
 
   @Override
   public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    // "Move feature" option should only be enabled for PointFeature.
-    viewModel
-        .getSelectedFeature()
-        .ifPresent(feature -> menu.getItem(0).setVisible(feature.isPoint()));
+    IntStreams.range(0, menu.size() - 1)
+        .boxed()
+        .map(menu::getItem)
+        .forEach(
+            menuItem -> {
+              if (menuItem.getItemId() == R.id.move_feature_menu_item) {
+                menuItem.setVisible(viewModel.isSelectedFeatureOfTypePoint());
+              }
+            });
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {

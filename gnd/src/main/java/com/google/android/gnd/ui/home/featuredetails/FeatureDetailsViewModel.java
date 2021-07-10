@@ -65,8 +65,8 @@ public class FeatureDetailsViewModel extends ViewModel {
     return LiveDataReactiveStreams.fromPublisher(featureFlowable);
   }
 
-  public Optional<Feature> getSelectedFeature() {
-    return selectedFeature;
+  public boolean isSelectedFeatureOfTypePoint() {
+    return selectedFeature.map(Feature::isPoint).orElse(true);
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
