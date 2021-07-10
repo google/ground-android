@@ -19,6 +19,7 @@ package com.google.android.gnd.repository;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureType;
@@ -55,7 +56,6 @@ public class ProjectRepository {
   private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 15;
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
-  private final InMemoryCache cache;
   private final UserRepository userRepository;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -75,12 +75,10 @@ public class ProjectRepository {
       UserRepository userRepository,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
-      InMemoryCache cache,
       LocalValueStore localValueStore) {
     this.userRepository = userRepository;
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
-    this.cache = cache;
     this.localValueStore = localValueStore;
 
     // Kicks off the loading process whenever a new project id is selected.
@@ -172,7 +170,6 @@ public class ProjectRepository {
 
   /** Clears the currently active project from cache. */
   public void clearActiveProject() {
-    cache.clear();
     selectProjectEvent.onNext(Optional.empty());
   }
 
@@ -191,6 +188,10 @@ public class ProjectRepository {
       default:
         return ImmutableList.of();
     }
+  }
+
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
+    return localDataStore.getMutationsOnceAndStream(project);
   }
 
   public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
