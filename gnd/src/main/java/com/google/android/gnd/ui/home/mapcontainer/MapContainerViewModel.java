@@ -164,12 +164,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                projectRepository
-                    .getActiveProject()
-                    .switchMap(this::getFeaturesStream)
-                    .map(this::toMapFeatures),
-                selectedFeature,
-                this::updateSelectedFeature));
+                    projectRepository
+                        .getActiveProject()
+                        .switchMap(this::getFeaturesStream)
+                        .map(this::toMapFeatures),
+                    selectedFeature,
+                    this::updateSelectedFeature)
+                .distinctUntilChanged());
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
