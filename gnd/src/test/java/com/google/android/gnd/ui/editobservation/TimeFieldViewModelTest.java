@@ -47,14 +47,13 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class TimeFieldViewModelTest {
 
-  private TimeFieldViewModel timeFieldViewModel;
-  //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-  public static final Date DATE = new Date(1632501600000L);
-
+  // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+  private static final Date DATE = new Date(1632501600000L);
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+  private TimeFieldViewModel timeFieldViewModel;
 
   @Before
-  public void setup() {
+  public void setUp() {
     timeFieldViewModel = new TimeFieldViewModel(null);
   }
 
@@ -62,45 +61,44 @@ public class TimeFieldViewModelTest {
   public void testUpdateResponse() {
     timeFieldViewModel.updateResponse(DATE);
     // Observer initialized to read the value of live data.
-    timeFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
-      @Override
-      public void onChanged(
-          Optional<Response> responseOptional) {
-        timeFieldViewModel.getResponse().removeObserver(this);
-      }
-    });
+    timeFieldViewModel
+        .getResponse()
+        .observeForever(
+            new Observer<Optional<Response>>() {
+              @Override
+              public void onChanged(Optional<Response> responseOptional) {
+                timeFieldViewModel.getResponse().removeObserver(this);
+              }
+            });
     TimeResponse response = (TimeResponse) timeFieldViewModel.getResponse().getValue().get();
-    assertThat(response.getTime())
-        .isEqualTo(new TimeResponse(DATE).getTime());
+    assertThat(response.getTime()).isEqualTo(new TimeResponse(DATE).getTime());
   }
 
   @Test
   public void testUpdateResponse_mismatchTime() {
     timeFieldViewModel.updateResponse(DATE);
     // Observer initialized to read the value of live data.
-    timeFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
-      @Override
-      public void onChanged(
-          Optional<Response> responseOptional) {
-        timeFieldViewModel.getResponse().removeObserver(this);
-      }
-    });
+    timeFieldViewModel
+        .getResponse()
+        .observeForever(
+            new Observer<Optional<Response>>() {
+              @Override
+              public void onChanged(Optional<Response> responseOptional) {
+                timeFieldViewModel.getResponse().removeObserver(this);
+              }
+            });
     TimeResponse response = (TimeResponse) timeFieldViewModel.getResponse().getValue().get();
-    assertThat(response.getTime())
-        .isNotEqualTo(new TimeResponse(new Date()).getTime());
+    assertThat(response.getTime()).isNotEqualTo(new TimeResponse(new Date()).getTime());
   }
-
 
   @Test
   public void testDialogClick() {
     timeFieldViewModel = mock(TimeFieldViewModel.class);
     given(timeFieldViewModel.getShowDialogClicks()).willReturn(Observable.just(Nil.NIL));
     Observable<Nil> observable = timeFieldViewModel.getShowDialogClicks();
-    TestObserver<Nil> observer  = new TestObserver();
+    TestObserver<Nil> observer = new TestObserver();
     observable.subscribe(observer);
 
-    observer.assertComplete()
-        .assertNoErrors()
-        .assertValue(Nil.NIL).assertValueCount(1);
+    observer.assertComplete().assertNoErrors().assertValue(Nil.NIL).assertValueCount(1);
   }
 }

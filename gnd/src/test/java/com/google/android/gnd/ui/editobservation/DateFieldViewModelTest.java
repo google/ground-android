@@ -47,14 +47,13 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class DateFieldViewModelTest {
 
-  private DateFieldViewModel dateFieldViewModel;
-  //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-  public static final Date DATE = new Date(1632501600000L);
-
+  // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+  private static final Date DATE = new Date(1632501600000L);
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+  private DateFieldViewModel dateFieldViewModel;
 
   @Before
-  public void setup() {
+  public void setUp() {
     dateFieldViewModel = new DateFieldViewModel(null);
   }
 
@@ -62,44 +61,44 @@ public class DateFieldViewModelTest {
   public void testUpdateResponse() {
     dateFieldViewModel.updateResponse(DATE);
     // Observer initialized to read the value of live data.
-    dateFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
-      @Override
-      public void onChanged(
-          Optional<Response> responseOptional) {
-        dateFieldViewModel.getResponse().removeObserver(this);
-      }
-    });
+    dateFieldViewModel
+        .getResponse()
+        .observeForever(
+            new Observer<Optional<Response>>() {
+              @Override
+              public void onChanged(Optional<Response> responseOptional) {
+                dateFieldViewModel.getResponse().removeObserver(this);
+              }
+            });
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
-    assertThat(response.getDate())
-        .isEqualTo(new DateResponse(DATE).getDate());
+    assertThat(response.getDate()).isEqualTo(new DateResponse(DATE).getDate());
   }
 
   @Test
   public void testUpdateResponse_mismatchDate() {
     dateFieldViewModel.updateResponse(DATE);
     // Observer used to read the value of live data.
-    dateFieldViewModel.getResponse().observeForever(new Observer<Optional<Response>>() {
-      @Override
-      public void onChanged(
-          Optional<Response> responseOptional) {
-        dateFieldViewModel.getResponse().removeObserver(this);
-      }
-    });
+    dateFieldViewModel
+        .getResponse()
+        .observeForever(
+            new Observer<Optional<Response>>() {
+              @Override
+              public void onChanged(Optional<Response> responseOptional) {
+                dateFieldViewModel.getResponse().removeObserver(this);
+              }
+            });
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
     assertThat(response.getDate()).isNotEqualTo(new DateResponse(new Date()).getDate());
   }
-
 
   @Test
   public void testDialogClick() {
     dateFieldViewModel = mock(DateFieldViewModel.class);
     given(dateFieldViewModel.getShowDialogClicks()).willReturn(Observable.just(Nil.NIL));
     Observable<Nil> observable = dateFieldViewModel.getShowDialogClicks();
-    TestObserver<Nil> observer  = new TestObserver();
+    TestObserver<Nil> observer = new TestObserver();
     observable.subscribe(observer);
 
-    observer.assertComplete()
-        .assertNoErrors()
-        .assertValue(Nil.NIL).assertValueCount(1);
+    observer.assertComplete().assertNoErrors().assertValue(Nil.NIL).assertValueCount(1);
   }
 }
