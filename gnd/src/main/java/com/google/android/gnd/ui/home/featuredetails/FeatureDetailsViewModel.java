@@ -70,7 +70,7 @@ public class FeatureDetailsViewModel extends ViewModel {
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
-    selectedFeature = !state.isVisible() ? Optional.empty() : state.getFeature();
+    selectedFeature = state.isVisible() ? state.getFeature() : Optional.empty();
     featureFlowable.onNext(selectedFeature);
   }
 
