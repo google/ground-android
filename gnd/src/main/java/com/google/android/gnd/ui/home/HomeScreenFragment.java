@@ -126,10 +126,6 @@ public class HomeScreenFragment extends AbstractFragment
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
-    viewModel
-        .getShowAddFeatureDialogRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onShowAddFeatureDialogRequest);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
@@ -145,6 +141,9 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureSelections()
         .as(autoDisposable(this))
         .subscribe(this::onFeatureSelection);
+    mapContainerViewModel
+        .getAddFeatureButtonClicks()
+        .observe(this, click -> click.ifUnhandled(this::onShowAddFeatureDialogRequest));
   }
 
   private void onFeatureSelection(Feature feature) {
@@ -459,6 +458,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point point) {
+    // TODO: Pause location updates while dialog is open.
     addFeatureDialogFragment.show(
         viewModel.getModifiableLayers(FeatureType.POINT),
         getChildFragmentManager(),
