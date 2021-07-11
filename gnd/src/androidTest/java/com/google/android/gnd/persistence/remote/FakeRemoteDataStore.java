@@ -21,17 +21,20 @@ import static com.google.android.gnd.system.auth.FakeAuthenticationManager.TEST_
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +57,12 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setDescription(FakeData.PROJECT_DESCRIPTION)
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
           .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
+          .build();
+
+  private final TermsOfService testTermsOfService =
+      TermsOfService.builder()
+          .setId(FakeData.TERMS_OF_SERVICE_ID)
+          .setText(FakeData.TERMS_OF_SERVICE)
           .build();
 
   private final Project testProjectWithNoLayers =
@@ -98,6 +107,11 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Override
   public Single<Project> loadProject(String projectId) {
     return Single.just(getTestProject());
+  }
+
+  @Override
+  public @Cold Maybe<TermsOfService> loadTermsOfService() {
+    return Maybe.just(testTermsOfService);
   }
 
   @Override

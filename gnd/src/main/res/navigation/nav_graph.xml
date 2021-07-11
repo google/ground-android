@@ -34,8 +34,13 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
     <action
-      android:id="@+id/proceedDirectlyToHomeScreen"
+      android:id="@+id/proceedToHomeScreen"
       app:destination="@id/home_screen_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+    <action
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
@@ -160,7 +165,13 @@
     android:id="@+id/sign_in_fragment"
     android:name="com.google.android.gnd.ui.signin.SignInFragment"
     android:label="sign_in_frag"
-    tools:layout="@layout/sign_in_frag"></fragment>
+    tools:layout="@layout/sign_in_frag">
+    <action
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
   <activity
     android:id="@+id/settings_activity"
     android:name="com.google.android.gnd.SettingsActivity"
@@ -174,4 +185,22 @@
     android:id="@+id/showHomeScreen"
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/navGraph" />
+
+  <fragment
+    android:id="@+id/terms_of_service_fragment"
+    android:name="com.google.android.gnd.ui.tos.TermsOfServiceFragment"
+    android:label="@string/tos_title"
+    tools:layout="@layout/fragment_terms_service">
+    <argument
+      android:name="termsOfServiceText"
+      android:defaultValue=""
+      app:nullable="true"
+      app:argType="string" />
+    <action
+      android:id="@+id/proceedToHomeScreen"
+      app:destination="@id/home_screen_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
+
 </navigation>

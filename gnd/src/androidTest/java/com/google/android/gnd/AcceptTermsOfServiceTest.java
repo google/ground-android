@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,12 @@
 
 package com.google.android.gnd;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -40,7 +36,6 @@ import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -51,7 +46,7 @@ import org.junit.Test;
     SchedulersModule.class
 })
 @HiltAndroidTest
-public class AddFeatureTest {
+public class AcceptTermsOfServiceTest {
 
   // Ensures that the Hilt component is initialized before running the ActivityScenarioRule.
   @Rule(order = 0)
@@ -94,58 +89,28 @@ public class AddFeatureTest {
     IdlingRegistry.getInstance().unregister(dataBindingIdlingResource);
   }
 
-  // Given: a logged in user - with an active project with no map markers.
-  // When: they tap on the centre of the map.
-  // Then: nothing happens - the feature fragment is not displayed.
+  // Given: a logged in user - with terms not accepted.
+  // When: they tap on the checkbox of the TermsOfService Screen.
+  // Then: Agree button should be enabled and upon click of that next screen
+  //       should appear.
   @Test
-  public void tappingCrosshairOnEmptyMapDoesNothing() {
+  public void acceptTerms() {
 
     dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
 
-    // Tap on the checkbox
+    // Verify that the agree button is not enabled by default.
+    onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())));
+
+    // Tap on the checkbox.
     onView(withId(R.id.agreeCheckBox)).perform(click());
 
-    // Tap on Submit on Terms Fragment
+    // Verify that the agree button is enabled when checkbox is checked.
+    onView(withId(R.id.agreeButton)).check(matches(isEnabled()));
+
+    // Verify that the terms text matched with fake data.
+    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE)));
+
+    // Tap on the button
     onView(withId(R.id.agreeButton)).perform(click());
-
-    // Tap on the crosshair at the centre of the map.
-    onView(withId(R.id.map_crosshairs)).perform(click());
-
-    // Verify that the title is not displayed.
-    onView(withId(R.id.feature_title)).check(matches(not(isCompletelyDisplayed())));
-  }
-
-  // Given: A logged in user with an active project
-  // When: They tap the "Add feature" FAB and choose a layer which does not contain a form.
-  // Then: The feature map pin is displayed on the map screen. Tapping on the map pin displays the
-  // feature details.
-  @Test
-  @Ignore("flaky behavior on GCB")
-  public void addFeatureWithNoForm() throws InterruptedException {
-
-    dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
-
-    // Tap on the checkbox
-    onView(withId(R.id.agreeCheckBox)).perform(click());
-
-    // Tap on Submit on Terms Fragment
-    onView(withId(R.id.agreeButton)).perform(click());
-
-    // Tap on the "Add feature" button.
-    onView(withId(R.id.add_feature_btn)).perform(click());
-
-    // Tap on the layer type.
-    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER_NO_FORM_NAME))).perform(click());
-
-    // Tap on the crosshair at the centre of the map.
-    onView(withId(R.id.map_crosshairs)).perform(click());
-
-    // TODO: figure out how to remove this.
-    //  See here for more: https://github.com/dturner/ground-android/pull/1
-    Thread.sleep(10);
-
-    // Verify that the feature title matches the layer title and that it is displayed.
-    onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
-    onView(withId(R.id.feature_title)).check(matches(withText(FakeData.LAYER_NO_FORM_NAME)));
   }
 }
