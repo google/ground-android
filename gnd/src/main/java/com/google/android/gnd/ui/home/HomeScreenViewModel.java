@@ -144,7 +144,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     //  Pending feature, https://github.com/google/ground-platform/issues/228
 
     // Project must contain at least one layer that the user can modify.
-    return !getModifiableLayers().isEmpty();
+    return !getModifiableLayers(FeatureType.POINT).isEmpty();
   }
 
   public LiveData<Boolean> isAddFeatureButtonVisible() {
