@@ -16,16 +16,16 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.UserMediaRepository;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import timber.log.Timber;
 
 /** Enqueues photo upload work to be done in the background. */
@@ -36,10 +36,10 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
 
   @Inject
   public PhotoSyncWorkManager(
-      Provider<WorkManager> workManagerProvider,
+      @ApplicationContext Context context,
       LocalValueStore localValueStore,
       UserMediaRepository userMediaRepository) {
-    super(workManagerProvider);
+    super(context);
     this.localValueStore = localValueStore;
     this.userMediaRepository = userMediaRepository;
   }

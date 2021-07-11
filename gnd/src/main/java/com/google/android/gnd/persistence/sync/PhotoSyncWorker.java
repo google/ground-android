@@ -18,13 +18,14 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import androidx.hilt.Assisted;
-import androidx.hilt.work.WorkerInject;
+import androidx.hilt.work.HiltWorker;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.system.NotificationManager;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedInject;
 import java.io.File;
 import timber.log.Timber;
 
@@ -33,6 +34,7 @@ import timber.log.Timber;
  * source file and remote destination path are provided in a {@link Data} object. This worker should
  * only run when the device has a network connection.
  */
+@HiltWorker
 public class PhotoSyncWorker extends BaseWorker {
 
   private static final String SOURCE_FILE_PATH_PARAM_KEY = "sourceFilePath";
@@ -42,7 +44,7 @@ public class PhotoSyncWorker extends BaseWorker {
   private final String localSourcePath;
   private final String remoteDestinationPath;
 
-  @WorkerInject
+  @AssistedInject
   public PhotoSyncWorker(
       @Assisted @NonNull Context context,
       @Assisted @NonNull WorkerParameters workerParams,

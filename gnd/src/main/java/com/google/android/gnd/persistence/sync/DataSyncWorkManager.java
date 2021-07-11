@@ -16,19 +16,19 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import android.content.Context;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.WorkManager;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 /** Enqueues data sync work to be done in the background. */
 public class DataSyncWorkManager extends BaseWorkManager {
 
   @Inject
-  public DataSyncWorkManager(Provider<WorkManager> workManagerProvider) {
-    super(workManagerProvider);
+  public DataSyncWorkManager(@ApplicationContext Context context) {
+    super(context);
   }
 
   @Override

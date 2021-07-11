@@ -16,12 +16,12 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import android.content.Context;
 import androidx.work.NetworkType;
-import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 /** Enqueues file download work to be done in the background. */
 public class TileSourceDownloadWorkManager extends BaseWorkManager {
@@ -30,8 +30,8 @@ public class TileSourceDownloadWorkManager extends BaseWorkManager {
 
   @Inject
   public TileSourceDownloadWorkManager(
-      Provider<WorkManager> workManagerProvider, LocalValueStore localValueStore) {
-    super(workManagerProvider);
+      @ApplicationContext Context context, LocalValueStore localValueStore) {
+    super(context);
     this.localValueStore = localValueStore;
   }
 
