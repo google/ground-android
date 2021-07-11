@@ -184,6 +184,7 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
+  @Inject LocalValueStore localValueStore;
   @Inject ObservationDao observationDao;
   @Inject FeatureDao featureDao;
 
@@ -578,5 +579,16 @@ public class LocalDataStoreTest {
         .getOfflineAreasOnceAndStream()
         .test()
         .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
+  }
+
+  @Test
+  public void testTermsOfServiceAccepted() {
+    localValueStore.setTermsOfServiceAccepted(true);
+    assertThat(localValueStore.isTermsOfServiceAccepted()).isTrue();
+  }
+
+  @Test
+  public void testTermsOfServiceNotAccepted() {
+    assertThat(localValueStore.isTermsOfServiceAccepted()).isFalse();
   }
 }

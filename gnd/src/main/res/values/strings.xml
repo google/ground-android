@@ -159,6 +159,7 @@
   <string name="completed">Completed</string>
   <string name="uploading_data">Uploading data</string>
   <string name="failed">Failed</string>
+  <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
   <string name="offline_base_map_viewer_navgraph_label">Offline Base Map Viewer</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>
@@ -183,6 +184,7 @@
   <string name="agree_checkbox">I agree to the Terms of Service</string>
   <string name="date">Date</string>
   <string name="time">Time</string>
+  <string name="terms_load_error">An error occurred while loading Terms of Service</string>
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
   <string name="sync_status">Sync status</string>
@@ -194,4 +196,5 @@
   <string name="feature_properties">Feature properties</string>
   <!-- Label on button shown to dismiss the feature properties dialog. -->
   <string name="close_feature_properties">OK</string>
+  <string name="config_load_error">Error loading config from remote server</string>
 </resources>
