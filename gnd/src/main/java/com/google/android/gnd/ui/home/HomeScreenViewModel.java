@@ -295,4 +295,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
         .map(project -> projectRepository.getModifiableLayers(project, featureType))
         .orElse(ImmutableList.of());
   }
+
+  public void showSyncStatus() {
+    navigator.navigate(HomeScreenFragmentDirections.showSyncStatus());
+  }
 }
