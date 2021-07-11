@@ -65,13 +65,20 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
     <action
+      android:id="@+id/show_sync_status"
+      app:destination="@id/sync_status_fragment" />
+    <action
       android:id="@+id/showOfflineAreas"
       app:destination="@id/offline_areas_fragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
   </fragment>
-
+  <fragment
+    android:id="@+id/sync_status_fragment"
+    android:name="com.google.android.gnd.ui.syncstatus.SyncStatusFragment"
+    android:label="@string/sync_status"
+    tools:layout="@layout/sync_status_frag"></fragment>
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragment"

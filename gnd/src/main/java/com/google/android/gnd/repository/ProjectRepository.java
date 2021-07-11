@@ -19,6 +19,7 @@ package com.google.android.gnd.repository;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureType;
@@ -187,6 +188,10 @@ public class ProjectRepository {
       default:
         return ImmutableList.of();
     }
+  }
+
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
+    return localDataStore.getMutationsOnceAndStream(project);
   }
 
   public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
