@@ -28,10 +28,4 @@
     <item name="android:windowTranslucentNavigation">true</item>
   </style>
 
-  <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-    <item name="android:windowActionBarOverlay">true</item>
-    <!-- Support library compatibility -->
-    <item name="windowActionBarOverlay">true</item>
-  </style>
-
 </resources>
