@@ -26,20 +26,18 @@ import javax.inject.Inject;
 
 public class FakeAuthenticationManager implements AuthenticationManager {
 
-  private static final String TAG = FakeAuthenticationManager.class.toString();
-
   @Hot(replays = true)
   public Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
-  public static final User TEST_USER = User.builder()
-      .setDisplayName("Test User")
-      .setEmail("test@user.com")
-      .setId("TEST_USER_ID")
-      .build();
+  public static final User TEST_USER =
+      User.builder()
+          .setDisplayName("Test User")
+          .setEmail("test@user.com")
+          .setId("TEST_USER_ID")
+          .build();
 
   @Inject
-  public FakeAuthenticationManager() {
-  }
+  public FakeAuthenticationManager() {}
 
   @Override
   public Observable<SignInState> getSignInState() {

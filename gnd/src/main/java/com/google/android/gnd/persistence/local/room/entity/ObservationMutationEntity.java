@@ -29,6 +29,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -89,6 +90,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
       String formId,
       String observationId,
       MutationEntityType type,
+      MutationEntitySyncStatus syncStatus,
       String responseDeltas,
       long retryCount,
       @Nullable String lastError,
@@ -102,6 +104,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setFormId(formId)
         .setObservationId(observationId)
         .setType(type)
+        .setSyncStatus(syncStatus)
         .setResponseDeltas(responseDeltas)
         .setRetryCount(retryCount)
         .setLastError(lastError)
@@ -119,6 +122,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setFormId(m.getForm().getId())
         .setObservationId(m.getObservationId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
+        .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setResponseDeltas(ResponseDeltasConverter.toString(m.getResponseDeltas()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
@@ -150,6 +154,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setForm(form)
         .setObservationId(getObservationId())
         .setType(getType().toMutationType())
+        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())

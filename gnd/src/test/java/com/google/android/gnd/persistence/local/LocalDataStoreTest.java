@@ -23,6 +23,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -163,6 +164,7 @@ public class LocalDataStoreTest {
           .setId(1L)
           .setObservationId("observation id")
           .setType(Mutation.Type.CREATE)
+          .setSyncStatus(SyncStatus.PENDING)
           .setProjectId("project id")
           .setFeatureId("feature id")
           .setLayerId("layer id")
@@ -217,6 +219,7 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
+  @Inject LocalValueStore localValueStore;
   @Inject ObservationDao observationDao;
   @Inject FeatureDao featureDao;
 
@@ -225,6 +228,7 @@ public class LocalDataStoreTest {
         .setId(1L)
         .setFeatureId("feature id")
         .setType(Mutation.Type.CREATE)
+        .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setProjectId("project id")
         .setLayerId("layer id")
@@ -240,6 +244,7 @@ public class LocalDataStoreTest {
         .setId(1L)
         .setFeatureId("feature id")
         .setType(Mutation.Type.CREATE)
+        .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setProjectId("project id")
         .setLayerId("layer id")
@@ -710,5 +715,16 @@ public class LocalDataStoreTest {
   @Test
   public void testListToString_nullValue() {
     assertThat(FeatureEntity.listToString(null)).isEqualTo(null);
+  }
+
+  @Test
+  public void testTermsOfServiceAccepted() {
+    localValueStore.setTermsOfServiceAccepted(true);
+    assertThat(localValueStore.isTermsOfServiceAccepted()).isTrue();
+  }
+
+  @Test
+  public void testTermsOfServiceNotAccepted() {
+    assertThat(localValueStore.isTermsOfServiceAccepted()).isFalse();
   }
 }

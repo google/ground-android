@@ -31,7 +31,7 @@ public class SignInState extends ValueOrError<User> {
     ERROR
   }
 
-  SignInState(State state) {
+  public SignInState(State state) {
     super(null, null);
     this.state = state;
   }

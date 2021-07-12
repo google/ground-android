@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.google.android.gnd.rx.Nil.NIL;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
@@ -87,7 +85,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
 
   @Hot
   private final PublishSubject<ImmutableList<Feature>> overlappingFeaturesSubject =
@@ -133,23 +131,24 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** Handle state of the UI elements depending upon the active project. */
   private void onProjectLoadingStateChange(Loadable<Project> project) {
-    addFeatureButtonVisibility.postValue(shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
+    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
     if (!project.isLoaded()) {
+      Timber.v("Project not loaded; hiding feature button");
       return false;
     }
 
     // TODO: Also check if the project has user-editable layers.
     //  Pending feature, https://github.com/google/ground-platform/issues/228
 
-    // Project must contain at least 1 layer.
-    return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
+    // Project must contain at least one layer that the user can modify.
+    return !getModifiableLayers(FeatureType.POINT).isEmpty();
   }
 
-  public LiveData<Integer> getAddFeatureButtonVisibility() {
-    return addFeatureButtonVisibility;
+  public LiveData<Boolean> isAddFeatureButtonVisible() {
+    return addFeatureButtonVisible;
   }
 
   public LiveData<ImmutableList<Feature>> getOverlappingFeatures() {
@@ -295,5 +294,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return getActiveProject()
         .map(project -> projectRepository.getModifiableLayers(project, featureType))
         .orElse(ImmutableList.of());
+  }
+
+  public void showSyncStatus() {
+    navigator.navigate(HomeScreenFragmentDirections.showSyncStatus());
   }
 }

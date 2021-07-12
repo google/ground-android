@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.terms;
+package com.google.android.gnd.ui.syncstatus;
 
-import com.google.android.gnd.ui.common.AbstractViewModel;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 
-// TODO: Needs to handle view state and behaviors of the Terms Fragment
-public class TermsOfServiceViewModel extends AbstractViewModel {
+public class SyncStatusViewHolder extends RecyclerView.ViewHolder {
 
+  public SyncStatusListItemBinding binding;
+  public int position;
+
+  SyncStatusViewHolder(SyncStatusListItemBinding binding) {
+    super(binding.getRoot());
+    this.binding = binding;
+  }
 }

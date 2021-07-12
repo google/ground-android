@@ -63,7 +63,9 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
-    return new AutoValue_FeatureMutation.Builder().setRetryCount(0);
+    return new AutoValue_FeatureMutation.Builder()
+        .setRetryCount(0)
+        .setSyncStatus(SyncStatus.UNKNOWN);
   }
 
   @AutoValue.Builder
