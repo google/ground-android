@@ -18,11 +18,14 @@ package com.google.android.gnd.model;
 
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.common.collect.ImmutableList;
+import com.google.firebase.firestore.GeoPoint;
 import java.util.Date;
 
 /**
@@ -47,6 +50,25 @@ public class TestModelBuilders {
     return Point.newBuilder().setLatitude(0).setLongitude(0);
   }
 
+  public static GeoPoint newGeoPoint() {
+    return new GeoPoint(0.0, 0.0);
+  }
+
+  public static ImmutableList<GeoPoint> newGeoPointPolygonVertices() {
+    return ImmutableList.<GeoPoint>builder()
+        .add(newGeoPoint())
+        .add(newGeoPoint())
+        .add(newGeoPoint())
+        .build();
+  }
+
+  public static ImmutableList<Point> newPolygonVertices() {
+    return ImmutableList.<Point>builder()
+        .add(newPoint().build())
+        .add(newPoint().build())
+        .add(newPoint().build()).build();
+  }
+
   public static PointFeature.Builder newPointFeature() {
     return PointFeature.newBuilder()
         .setId("")
@@ -54,6 +76,21 @@ public class TestModelBuilders {
         .setPoint(newPoint().build())
         .setCreated(newAuditInfo().build())
         .setLastModified(newAuditInfo().build());
+  }
+
+  public static PolygonFeature.Builder newPolygonFeature() {
+    return PolygonFeature.builder()
+        .setId("")
+        .setProject(newProject().build())
+        .setVertices(newPolygonVertices())
+        .setCreated(newAuditInfo().build())
+        .setLastModified(newAuditInfo().build());
+  }
+
+  public static TermsOfService.Builder newTermsOfService() {
+    return TermsOfService.builder()
+        .setId("")
+        .setText("");
   }
 
   public static Layer.Builder newLayer() {

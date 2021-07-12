@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room.entity;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -37,6 +38,10 @@ public abstract class MutationEntity {
   @CopyAnnotations
   @ColumnInfo(name = "type")
   public abstract MutationEntityType getType();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "state")
+  public abstract MutationEntitySyncStatus getSyncStatus();
 
   @CopyAnnotations
   @ColumnInfo(name = "retry_count")
@@ -62,6 +67,8 @@ public abstract class MutationEntity {
     public abstract T setProjectId(String newProjectId);
 
     public abstract T setType(MutationEntityType newType);
+
+    public abstract T setSyncStatus(MutationEntitySyncStatus newSyncStatus);
 
     public abstract T setRetryCount(long newRetryCount);
 

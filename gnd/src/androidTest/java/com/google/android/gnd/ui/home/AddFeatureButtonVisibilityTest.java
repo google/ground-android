@@ -99,7 +99,7 @@ public class AddFeatureButtonVisibilityTest {
   }
 
   @Test
-  public void addFeatureButton_shouldBeVisible_whenLayersArePresent() {
+  public void addFeatureButton_shouldBeVisible_whenModifiableLayersArePresent() {
     setActiveProject(FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM);
     try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
 

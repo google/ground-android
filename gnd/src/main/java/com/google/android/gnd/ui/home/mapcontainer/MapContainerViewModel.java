@@ -21,6 +21,8 @@ import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.content.res.Resources;
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -51,6 +53,7 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
@@ -64,9 +67,8 @@ import timber.log.Timber;
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
-  // A note on Zoom levels: The higher the number the more zoomed in the map will be.
-  // 0.0f is fully zoomed out.
-  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 20.0f;
+  // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
+  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
@@ -80,6 +82,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<CameraPosition> cameraPosition =
       new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
 
+  private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
@@ -99,19 +102,30 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Integer> iconTint;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
-  // Feature currently selected for repositioning
-  private Optional<Feature> selectedFeature = Optional.empty();
+  /** Feature selected for repositioning. */
+  private Optional<Feature> reposFeature = Optional.empty();
+
+  private final @Dimension int defaultPolygonStrokeWidth;
+  private final @Dimension int selectedPolygonStrokeWidth;
+
+  /** The currently selected feature on the map. */
+  private BehaviorProcessor<Optional<Feature>> selectedFeature =
+      BehaviorProcessor.createDefault(Optional.empty());
 
   @Inject
   MapContainerViewModel(
+      Resources resources,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
-
+    this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
+    this.selectedPolygonStrokeWidth =
+        (int) resources.getDimension(R.dimen.selected_polyline_stroke_width);
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
@@ -131,18 +145,53 @@ public class MapContainerViewModel extends AbstractViewModel {
     // into the repo?
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getActiveProject()
-                .switchMap(this::getFeaturesStream)
-                .map(MapContainerViewModel::toMapFeatures));
+            Flowable.combineLatest(
+                projectRepository
+                    .getActiveProject()
+                    .switchMap(this::getFeaturesStream)
+                    .map(this::toMapFeatures),
+                selectedFeature,
+                this::updateSelectedFeature));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
+    disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
   }
 
-  private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
+  private void onProjectChange(Optional<Project> project) {
+    project
+        .map(Project::getId)
+        .flatMap(projectRepository::getLastCameraPosition)
+        .ifPresent(this::panAndZoomCamera);
+  }
+
+  private ImmutableSet<MapFeature> updateSelectedFeature(
+      ImmutableSet<MapFeature> features, Optional<Feature> selectedFeature) {
+    Timber.v("Updating selected feature style");
+    if (selectedFeature.isEmpty()) {
+      return features;
+    }
+    ImmutableSet.Builder updatedFeatures = ImmutableSet.builder();
+    String selectedFeatureId = selectedFeature.get().getId();
+    for (MapFeature feature : features) {
+      if (feature instanceof MapGeoJson) {
+        MapGeoJson geoJsonFeature = (MapGeoJson) feature;
+        String geoJsonFeatureId = geoJsonFeature.getFeature().getId();
+        if (geoJsonFeatureId.equals(selectedFeatureId)) {
+          Timber.v("Restyling selected GeoJSON feature " + selectedFeatureId);
+          updatedFeatures.add(
+              geoJsonFeature.toBuilder().setStrokeWidth(selectedPolygonStrokeWidth).build());
+          continue;
+        }
+      }
+      updatedFeatures.add(feature);
+    }
+    return updatedFeatures.build();
+  }
+
+  private ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
     ImmutableSet<MapFeature> mapPins =
         stream(features)
             .filter(Feature::isPoint)
@@ -156,7 +205,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         stream(features)
             .filter(Feature::isGeoJson)
             .map(GeoJsonFeature.class::cast)
-            .map(MapContainerViewModel::toMapGeoJson)
+            .map(this::toMapGeoJson)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
@@ -171,7 +220,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
+  private MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
     JSONObject jsonObject;
     try {
       jsonObject = new JSONObject(feature.getGeoJsonString());
@@ -184,6 +233,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
+        .setStrokeWidth(defaultPolygonStrokeWidth)
         .setFeature(feature)
         .build();
   }
@@ -210,7 +260,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     Flowable<Point> locationUpdates = locationManager.getLocationUpdates();
     return locationUpdates
         .take(1)
-        .map(CameraUpdate::panAndZoom)
+        .map(CameraUpdate::panAndZoomIn)
         .concatWith(locationUpdates.map(CameraUpdate::pan).skip(1));
   }
 
@@ -271,10 +321,13 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
-    this.cameraPosition.setValue(newCameraPosition);
+    cameraPosition.setValue(newCameraPosition);
+    Loadable.getValue(projectLoadingState)
+        .ifPresent(
+            project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
-  public void onMapDrag(Point newCameraPosition) {
+  public void onMapDrag() {
     if (isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
@@ -285,8 +338,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     panAndZoomCamera(pin.getPosition());
   }
 
+  public void panAndZoomCamera(CameraPosition cameraPosition) {
+    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(cameraPosition));
+  }
+
   public void panAndZoomCamera(Point position) {
-    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(position));
+    cameraUpdateSubject.onNext(CameraUpdate.panAndZoomIn(position));
   }
 
   public void onLocationLockClick() {
@@ -303,8 +360,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void setViewMode(Mode viewMode) {
-    mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
-    moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
+    moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
@@ -315,12 +372,17 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public Optional<Feature> getSelectedFeature() {
-    return selectedFeature;
+  public Optional<Feature> getReposFeature() {
+    return reposFeature;
   }
 
+  public void setReposFeature(Optional<Feature> reposFeature) {
+    this.reposFeature = reposFeature;
+  }
+
+  /** Called when a feature is (de)selected. */
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
-    this.selectedFeature = selectedFeature;
+    this.selectedFeature.onNext(selectedFeature);
   }
 
   public enum Mode {
@@ -331,33 +393,44 @@ public class MapContainerViewModel extends AbstractViewModel {
   static class CameraUpdate {
 
     private final Point center;
-    private final Optional<Float> minZoomLevel;
+    private final Optional<Float> zoomLevel;
+    private final boolean allowZoomOut;
 
-    public CameraUpdate(Point center, Optional<Float> minZoomLevel) {
+    public CameraUpdate(Point center, Optional<Float> zoomLevel, boolean allowZoomOut) {
       this.center = center;
-      this.minZoomLevel = minZoomLevel;
+      this.zoomLevel = zoomLevel;
+      this.allowZoomOut = allowZoomOut;
     }
 
     private static CameraUpdate pan(Point center) {
-      return new CameraUpdate(center, Optional.empty());
+      return new CameraUpdate(center, Optional.empty(), false);
     }
 
-    private static CameraUpdate panAndZoom(Point center) {
-      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL));
+    private static CameraUpdate panAndZoomIn(Point center) {
+      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL), false);
+    }
+
+    public static CameraUpdate panAndZoom(CameraPosition cameraPosition) {
+      return new CameraUpdate(
+          cameraPosition.getTarget(), Optional.of(cameraPosition.getZoomLevel()), true);
     }
 
     public Point getCenter() {
       return center;
     }
 
-    public Optional<Float> getMinZoomLevel() {
-      return minZoomLevel;
+    public Optional<Float> getZoomLevel() {
+      return zoomLevel;
+    }
+
+    public boolean isAllowZoomOut() {
+      return allowZoomOut;
     }
 
     @NonNull
     @Override
     public String toString() {
-      if (minZoomLevel.isPresent()) {
+      if (zoomLevel.isPresent()) {
         return "Pan + zoom";
       } else {
         return "Pan";

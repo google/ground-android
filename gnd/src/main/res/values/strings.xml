@@ -182,7 +182,17 @@
   <string name="tos_title">Terms Of Service</string>
   <string name="agree_terms">Agree</string>
   <string name="agree_checkbox">I agree to the Terms of Service</string>
-
+  <string name="terms_load_error">An error occurred while loading Terms of Service</string>
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
+  <string name="sync_status">Sync status</string>
+  <string name="polygon">Polygon</string>
+  <string name="point">Point</string>
+  <string name="layer_label_format">Layer: %s</string>
+
+  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
+  <string name="feature_properties">Feature properties</string>
+  <!-- Label on button shown to dismiss the feature properties dialog. -->
+  <string name="close_feature_properties">OK</string>
+  <string name="config_load_error">Error loading config from remote server</string>
 </resources>

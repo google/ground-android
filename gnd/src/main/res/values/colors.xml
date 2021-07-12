@@ -29,4 +29,5 @@
   <color name="colorGrey800">#424242</color>
   <color name="colorForeground">#212121</color>
   <color name="colorAlert">#d2004d</color>
+  <color name="colorNavMenuItem">#333333</color>
 </resources>

@@ -17,12 +17,21 @@
 package com.google.android.gnd.repository;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import com.google.android.gnd.Config;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.annotations.Cold;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -33,35 +42,69 @@ import timber.log.Timber;
  */
 @Singleton
 public class UserMediaRepository {
-  @Inject RemoteStorageManager remoteStorageManager;
 
-  @Inject @ApplicationContext Context context;
+  private final Context context;
+  private final RemoteStorageManager remoteStorageManager;
+  private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
-  public UserMediaRepository() {}
+  public UserMediaRepository(
+      @ApplicationContext Context context,
+      RemoteStorageManager remoteStorageManager,
+      OfflineUuidGenerator uuidGenerator) {
+    this.context = context;
+    this.remoteStorageManager = remoteStorageManager;
+    this.uuidGenerator = uuidGenerator;
+  }
+
+  private File getRootDir() {
+    return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+  }
+
+  public String createImageFilename(Field field) {
+    return field.getId() + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+  }
+
+  public File createImageFile(Field field) {
+    return new File(getRootDir(), createImageFilename(field));
+  }
 
   /**
-   * Fetch url for the image from Firestore Storage. If the remote image is not available then
-   * search for the file locally and return its uri.
+   * Creates a new file from bitmap and saves under external app directory.
    *
-   * @param path Final destination path of the uploaded photo relative to Firestore
+   * @throws IOException If path is not accessible or error occurs while saving file
+   */
+  public File savePhoto(Bitmap bitmap, Field field) throws IOException {
+    File file = createImageFile(field);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+    }
+    Timber.d("Photo saved %s : %b", file.getPath(), file.exists());
+    return file;
+  }
+
+  public void addImageToGallery(String filePath, String title) throws FileNotFoundException {
+    MediaStore.Images.Media.insertImage(context.getContentResolver(), filePath, title, "");
+  }
+
+  /**
+   * Attempts to load the file from local cache. Else attempts to fetch it from Firestore Storage.
+   * Returns the uri of the file.
+   *
+   * @param path Final destination path of the uploaded file relative to Firestore
    */
   @Cold
   public Single<Uri> getDownloadUrl(String path) {
-    return path.isEmpty()
-        ? Single.just(Uri.EMPTY)
-        : remoteStorageManager
-            .getDownloadUrl(path)
-            .onErrorReturn(__ -> getFileUriFromRemotePath(path));
+    return path.isEmpty() ? Single.just(Uri.EMPTY) : getFileUriFromRemotePath(path);
   }
 
-  private Uri getFileUriFromRemotePath(String destinationPath) {
+  private Single<Uri> getFileUriFromRemotePath(String destinationPath) {
     File file = getLocalFileFromRemotePath(destinationPath);
     if (file.exists()) {
-      return Uri.fromFile(file);
+      return Single.fromCallable(() -> Uri.fromFile(file));
     } else {
       Timber.d("File doesn't exist locally: %s", file.getPath());
-      return Uri.EMPTY;
+      return remoteStorageManager.getDownloadUrl(destinationPath);
     }
   }
 
@@ -72,7 +115,7 @@ public class UserMediaRepository {
   public File getLocalFileFromRemotePath(String destinationPath) {
     String[] splits = destinationPath.split("/");
     String filename = splits[splits.length - 1];
-    File file = new File(context.getFilesDir(), filename);
+    File file = new File(getRootDir(), filename);
     if (!file.exists()) {
       Timber.e("File not found: %s", file.getPath());
     }

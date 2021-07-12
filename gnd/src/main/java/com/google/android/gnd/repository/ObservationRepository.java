@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
@@ -45,7 +46,7 @@ import timber.log.Timber;
  */
 public class ObservationRepository {
 
-  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 15;
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -144,6 +145,7 @@ public class ObservationRepository {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(Type.DELETE)
+            .setSyncStatus(SyncStatus.PENDING)
             .setProjectId(observation.getProject().getId())
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
@@ -161,6 +163,7 @@ public class ObservationRepository {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
+            .setSyncStatus(SyncStatus.PENDING)
             .setProjectId(observation.getProject().getId())
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
