@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-
 import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newForm;
@@ -58,42 +57,40 @@ public class FeatureConverterTest {
 
   @Mock private DocumentSnapshot featureDocumentSnapshot;
 
-  private static AuditInfo AUDIT_INFO_1 =
+  private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
           .setUser(newUser().setId("user1").build())
           .setClientTimestamp(new Date(100))
           .setServerTimestamp(Optional.of(new Date(101)))
           .build();
 
-  private static AuditInfo AUDIT_INFO_2 =
+  private static final AuditInfo AUDIT_INFO_2 =
       newAuditInfo()
           .setUser(newUser().setId("user2").build())
           .setClientTimestamp(new Date(200))
           .setServerTimestamp(Optional.of(new Date(201)))
           .build();
 
-  private static AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
+  private static final AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
       new AuditInfoNestedObject(
           new UserNestedObject("user1", null, null),
           new Timestamp(new Date(100)),
           new Timestamp(new Date(101)));
 
-  private static AuditInfoNestedObject AUDIT_INFO_2_NESTED_OBJECT =
+  private static final AuditInfoNestedObject AUDIT_INFO_2_NESTED_OBJECT =
       new AuditInfoNestedObject(
           new UserNestedObject("user2", null, null),
           new Timestamp(new Date(200)),
           new Timestamp(new Date(201)));
 
-  private Form form;
   private Layer layer;
   private Project project;
   private Feature feature;
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
-
   private void setUpTestProject(String layerId, String formId, Field... fields) {
-    form =
+    Form form =
         newForm()
             .setId(formId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
@@ -101,7 +98,6 @@ public class FeatureConverterTest {
     layer = newLayer().setId(layerId).setForm(form).build();
     project = newProject().putLayer(layerId, layer).build();
   }
-
 
   @Test
   public void testToFeature() {
@@ -221,14 +217,15 @@ public class FeatureConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPolygonFeature()
-        .setCreated(AUDIT_INFO_1)
-        .setLastModified(AUDIT_INFO_2)
-        .setVertices(newPolygonVertices())
-        .setId(featureId)
-        .setProject(project)
-        .setLayer(layer)
-        .build();
+    feature =
+        newPolygonFeature()
+            .setCreated(AUDIT_INFO_1)
+            .setLastModified(AUDIT_INFO_2)
+            .setVertices(newPolygonVertices())
+            .setId(featureId)
+            .setProject(project)
+            .setLayer(layer)
+            .build();
   }
 
   private void setUpTestGeometry() {

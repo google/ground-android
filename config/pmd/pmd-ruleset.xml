@@ -26,8 +26,6 @@
 
   <exclude-pattern>.*/R.java</exclude-pattern>
   <exclude-pattern>.*/gen/.*</exclude-pattern>
-  <exclude-pattern>.*/test/.*</exclude-pattern>
-  <exclude-pattern>.*/androidTest/.*</exclude-pattern>
 
   <rule ref="category/java/bestpractices.xml">
     <exclude name="AbstractClassWithoutAbstractMethod" />
@@ -93,6 +91,10 @@
   <rule ref="category/java/errorprone.xml">
     <exclude name="AssignmentInOperand" />
     <exclude name="AvoidCatchingThrowable" />
+    <exclude name="AvoidDuplicateLiterals">
+      <exclude-pattern>.*/test/.*</exclude-pattern>
+      <exclude-pattern>.*/androidTest/.*</exclude-pattern>
+    </exclude>
     <exclude name="AvoidFieldNameMatchingMethodName" />
     <exclude name="AvoidLiteralsInIfCondition" />
     <exclude name="BeanMembersShouldSerialize" />

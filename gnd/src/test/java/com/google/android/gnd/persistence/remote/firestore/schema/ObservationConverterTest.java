@@ -63,27 +63,27 @@ public class ObservationConverterTest {
   private Project project;
   private Feature feature;
 
-  private static AuditInfo AUDIT_INFO_1 =
+  private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
           .setUser(newUser().setId("user1").build())
           .setClientTimestamp(new Date(100))
           .setServerTimestamp(Optional.of(new Date(101)))
           .build();
 
-  private static AuditInfo AUDIT_INFO_2 =
+  private static final AuditInfo AUDIT_INFO_2 =
       newAuditInfo()
           .setUser(newUser().setId("user2").build())
           .setClientTimestamp(new Date(200))
           .setServerTimestamp(Optional.of(new Date(201)))
           .build();
 
-  private static AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
+  private static final AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
       new AuditInfoNestedObject(
           new UserNestedObject("user1", null, null),
           new Timestamp(new Date(100)),
           new Timestamp(new Date(101)));
 
-  private static AuditInfoNestedObject AUDIT_INFO_2_NESTED_OBJECT =
+  private static final AuditInfoNestedObject AUDIT_INFO_2_NESTED_OBJECT =
       new AuditInfoNestedObject(
           new UserNestedObject("user2", null, null),
           new Timestamp(new Date(200)),
@@ -168,7 +168,7 @@ public class ObservationConverterTest {
             /* responses */
             ImmutableMap.of("field1", "")));
 
-    assertThrows(DataStoreException.class, () -> toObservation());
+    assertThrows(DataStoreException.class, this::toObservation);
   }
 
   @Test
