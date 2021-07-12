@@ -95,30 +95,29 @@ steps:
         gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
         gcloud auth activate-service-account --key-file client-secret.json
 
-  # TODO(#922): Reenable once instrumented test CI is fixed.
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
-#  - name: 'gcr.io/$PROJECT_ID/android:28'
-#    id: &instrumented_tests 'Run instrumented tests'
-#    waitFor:
-#      - *authenticate_gcloud
-#    entrypoint: 'bash'
-#    args:
-#      - '-c'
-#      - |
-#        gcloud --quiet beta firebase test android run \
-#        --type instrumentation --num-uniform-shards=1 \
-#        --app gnd/build/outputs/apk/staging/*.apk \
-#        --test gnd/build/outputs/apk/androidTest/staging/*.apk \
-#        --device model=Pixel2,version=28,locale=en,orientation=portrait \
-#        --results-bucket ${_ARTIFACT_BUCKET} \
-#        --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
-#        --timeout 20m
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: &instrumented_tests 'Run instrumented tests'
+    waitFor:
+      - *authenticate_gcloud
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud --quiet beta firebase test android run \
+        --type instrumentation --num-uniform-shards=1 \
+        --app gnd/build/outputs/apk/staging/*.apk \
+        --test gnd/build/outputs/apk/androidTest/staging/*.apk \
+        --device model=Pixel2,version=28,locale=en,orientation=portrait \
+        --results-bucket ${_ARTIFACT_BUCKET} \
+        --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
+        --timeout 20m
 
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_reports 'Save reports to GCS'
     waitFor:
       - *unit_tests
-#      - *instrumented_tests
+      - *instrumented_tests
     args: [ 'cp', '-r',
             'gnd/build/reports',
             'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports' ]
