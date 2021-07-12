@@ -233,7 +233,7 @@ public class LocalDataStoreTest {
         .setProjectId("project id")
         .setLayerId("layer id")
         .setNewLocation(Optional.ofNullable(point))
-        .setNewPolygonVertices(Optional.empty())
+        .setNewPolygonVertices(null)
         .setClientTimestamp(new Date())
         .build();
   }
@@ -249,7 +249,7 @@ public class LocalDataStoreTest {
         .setProjectId("project id")
         .setLayerId("layer id")
         .setNewLocation(Optional.empty())
-        .setNewPolygonVertices(Optional.of(polygonVertices))
+        .setNewPolygonVertices(polygonVertices)
         .setClientTimestamp(new Date())
         .build();
   }
@@ -697,7 +697,7 @@ public class LocalDataStoreTest {
 
   @Test
   public void testStringToList_nullValue() {
-    assertThat(FeatureEntity.stringToList(null)).isEqualTo(null);
+    assertThat(FeatureEntity.stringToList(null)).isNull();
   }
 
   @Test
@@ -708,13 +708,13 @@ public class LocalDataStoreTest {
 
   @Test
   public void testListToString_emptyList() {
-    assertThat(FeatureEntity.listToString(ImmutableList.<Point>builder().build()))
+    assertThat(FeatureEntity.listToString(ImmutableList.of()))
         .isEqualTo(null);
   }
 
   @Test
   public void testListToString_nullValue() {
-    assertThat(FeatureEntity.listToString(null)).isEqualTo(null);
+    assertThat(FeatureEntity.listToString(null)).isNull();
   }
 
   @Test

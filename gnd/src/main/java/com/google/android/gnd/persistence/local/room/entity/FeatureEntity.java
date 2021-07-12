@@ -43,7 +43,6 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import java.util.ArrayList;
 import java.util.List;
 import java8.util.stream.Collectors;
 import timber.log.Timber;
@@ -116,8 +115,7 @@ public abstract class FeatureEntity {
             .setCreated(authInfo)
             .setLastModified(authInfo);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
-    mutation.getNewPolygonVertices().map(FeatureEntity::listToString)
-        .ifPresent(entity::setPolygonVertices);
+    entity.setPolygonVertices(listToString(mutation.getNewPolygonVertices()));
     return entity.build();
   }
 
@@ -167,7 +165,7 @@ public abstract class FeatureEntity {
   }
 
   @Nullable
-  public static String listToString(ImmutableList<Point> vertices) {
+  public static String listToString(@Nullable ImmutableList<Point> vertices) {
     if (vertices == null || vertices.isEmpty()) {
       Timber.d("vertices are null");
       return null;
@@ -180,14 +178,14 @@ public abstract class FeatureEntity {
   }
 
   @Nullable
-  public static ImmutableList<Point> stringToList(String vertices) {
+  public static ImmutableList<Point> stringToList(@Nullable String vertices) {
     if (vertices == null || vertices.isEmpty()) {
       Timber.d("vertices are null");
       return null;
     }
     Gson gson = new Gson();
-    ArrayList<ArrayList<Double>> verticesArray =
-        gson.fromJson(vertices, new TypeToken<ArrayList<ArrayList<Double>>>(){}.getType());
+    List<List<Double>> verticesArray =
+        gson.fromJson(vertices, new TypeToken<List<List<Double>>>(){}.getType());
 
     return stream(verticesArray).map(vertice -> Point.newBuilder()
         .setLatitude(vertice.get(0))

@@ -19,6 +19,7 @@ package com.google.android.gnd.model.feature;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Mutation;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -37,7 +38,8 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
    */
   public abstract Optional<Point> getNewLocation();
 
-  public abstract Optional<ImmutableList<Point>> getNewPolygonVertices();
+  @Nullable
+  public abstract ImmutableList<Point> getNewPolygonVertices();
 
   @Override
   public abstract Builder toBuilder();
@@ -73,7 +75,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 
-    public abstract Builder setNewPolygonVertices(Optional<ImmutableList<Point>> polygonVertices);
+    public abstract Builder setNewPolygonVertices(@Nullable ImmutableList<Point> polygonVertices);
 
     @Override
     public abstract FeatureMutation build();

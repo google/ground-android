@@ -134,14 +134,12 @@ public class FeatureRepository {
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())
-        .setNewLocation(feature
-            instanceof PointFeature
+        .setNewLocation(
+            feature instanceof PointFeature
             ? Optional.ofNullable(((PointFeature) feature).getPoint())
             : Optional.empty())
-        .setNewPolygonVertices(feature
-            instanceof PolygonFeature
-            ? Optional.ofNullable(((PolygonFeature) feature).getVertices())
-            : Optional.empty())
+        .setNewPolygonVertices(
+            feature instanceof PolygonFeature ? ((PolygonFeature) feature).getVertices() : null)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
         .build();
