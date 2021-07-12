@@ -133,6 +133,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
   <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
+  <string name="terms_load_error">Ocorreu um erro ao carregar os Termos de Serviço</string>
 
   <string name="continue_editing">Continuar editando</string>
   <string name="offline_base_maps">Base de mapas offline</string>
@@ -158,7 +159,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="offline_base_map_viewer_navgraph_label">Visualizador offline de base de mapas</string>
   <string name="offline_base_map_viewer_title">Visualizador offline de Títulos de Base de Mapas</string>
   <string name="offline_base_map_viewer_remove_button">Remover</string>
-  <string name="offline_base_map_viewer_storage">Essa base de mapa ocupará %. Lf MB do espaço no seu dispositivo.</string>
+  <string name="offline_base_map_viewer_storage">Essa base de mapa ocupará %.1f MB do espaço no seu dispositivo.</string>
   <string name="unnamed_area">Area sem nome</string>
   <string name="offline_base_map_download_started">Download iniciado</string>
   <string name="offline_base_map_download_failed">Erro no download da Base de  mapas</string>

@@ -16,13 +16,17 @@
 
 package com.google.android.gnd.ui.home.featureselector;
 
+import android.content.res.Resources;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import java8.util.Optional;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
 
@@ -32,10 +36,14 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
   private ImmutableList<Feature> features = ImmutableList.<Feature>builder().build();
   @Hot private final Subject<Integer> itemClicks = PublishSubject.create();
   @Hot private final Observable<Feature> featureClicks;
+  private final FeatureHelper featureHelper;
+  private final Resources resources;
 
   @Inject
-  FeatureSelectorViewModel() {
+  FeatureSelectorViewModel(FeatureHelper featureHelper, Resources resources) {
     this.featureClicks = itemClicks.filter(i -> i < features.size()).map(i -> features.get(i));
+    this.featureHelper = featureHelper;
+    this.resources = resources;
   }
 
   public void setFeatures(ImmutableList<Feature> features) {
@@ -52,5 +60,12 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
 
   public Observable<Feature> getFeatureClicks() {
     return featureClicks;
+  }
+
+  String getListItemText(Feature feature) {
+    // TODO: Add icons and custom view layout for list items.
+    return featureHelper.getLabel(Optional.of(feature))
+        + "\n"
+        + resources.getString(R.string.layer_label_format, feature.getLayer().getName());
   }
 }

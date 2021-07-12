@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -132,6 +133,7 @@ public class FeatureRepository {
             : Optional.empty();
     return FeatureMutation.builder()
         .setType(type)
+        .setSyncStatus(SyncStatus.PENDING)
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())

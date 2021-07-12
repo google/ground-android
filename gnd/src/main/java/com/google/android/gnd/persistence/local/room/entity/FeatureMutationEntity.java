@@ -27,6 +27,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -66,6 +67,11 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "polygon_vertices")
+  public abstract String getNewPolygonVertices();
+
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
@@ -74,6 +80,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
         .setType(MutationEntityType.fromMutationType(m.getType()))
+        .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
@@ -87,8 +94,9 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
+        .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setType(getType().toMutationType())
+        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
@@ -104,7 +112,9 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String featureId,
       String layerId,
       MutationEntityType type,
+      MutationEntitySyncStatus syncStatus,
       Coordinates newLocation,
+      String newPolygonVertices,
       long retryCount,
       @Nullable String lastError,
       String userId,
@@ -115,7 +125,9 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(featureId)
         .setLayerId(layerId)
         .setType(type)
+        .setSyncStatus(syncStatus)
         .setNewLocation(newLocation)
+        .setNewPolygonVertices(newPolygonVertices)
         .setRetryCount(retryCount)
         .setLastError(lastError)
         .setUserId(userId)
@@ -135,6 +147,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
     public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setNewLocation(Coordinates newNewLocation);
+
+    public abstract Builder setNewPolygonVertices(@Nullable String newPolygonVertices);
 
     public abstract FeatureMutationEntity build();
   }

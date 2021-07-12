@@ -48,9 +48,11 @@
       app:summary="@string/ground_website"
       app:title="Visit website" />
 
+    <!-- TODO(https://github.com/google/ground-android/pull/742): Re-enable once the feature is implemented -->
     <Preference
       app:iconSpaceReserved="false"
       app:key="feedback"
+      app:isPreferenceVisible="false"
       app:summary="Report technical issues or suggest new features"
       app:title="Send feedback" />
 
