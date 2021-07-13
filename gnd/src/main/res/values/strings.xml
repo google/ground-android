@@ -122,7 +122,7 @@
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="add_observation_button_label">Observation</string>
+  <string name="add_observation_button_label">Add observation</string>
   <string name="view_observation_details">View observation details</string>
   <string name="map_view">Map view</string>
   <string name="project_load_error">Project could not be loaded</string>
