@@ -45,7 +45,6 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import java.util.List;
 import java8.util.stream.Collectors;
-import timber.log.Timber;
 
 /**
  * Defines how Room persists features in the local db. By default, Room uses the name of object
@@ -165,9 +164,8 @@ public abstract class FeatureEntity {
   }
 
   @Nullable
-  public static String listToString(@Nullable ImmutableList<Point> vertices) {
-    if (vertices == null || vertices.isEmpty()) {
-      Timber.d("vertices are null");
+  public static String listToString(ImmutableList<Point> vertices) {
+    if (vertices.isEmpty()) {
       return null;
     }
     Gson gson = new Gson();
@@ -177,11 +175,9 @@ public abstract class FeatureEntity {
     return gson.toJson(verticesArray);
   }
 
-  @Nullable
   public static ImmutableList<Point> stringToList(@Nullable String vertices) {
     if (vertices == null || vertices.isEmpty()) {
-      Timber.d("vertices are null");
-      return null;
+      return ImmutableList.of();
     }
     Gson gson = new Gson();
     List<List<Double>> verticesArray =

@@ -35,6 +35,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -136,10 +137,12 @@ public class FeatureRepository {
         .setLayerId(feature.getLayer().getId())
         .setNewLocation(
             feature instanceof PointFeature
-            ? Optional.ofNullable(((PointFeature) feature).getPoint())
-            : Optional.empty())
+                ? Optional.ofNullable(((PointFeature) feature).getPoint())
+                : Optional.empty())
         .setNewPolygonVertices(
-            feature instanceof PolygonFeature ? ((PolygonFeature) feature).getVertices() : null)
+            feature instanceof PolygonFeature
+                ? ((PolygonFeature) feature).getVertices()
+                : ImmutableList.of())
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
         .build();
