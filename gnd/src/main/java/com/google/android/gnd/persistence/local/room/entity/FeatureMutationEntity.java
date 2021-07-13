@@ -69,6 +69,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
+  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
   @CopyAnnotations
   @Nullable
   @ColumnInfo(name = "polygon_vertices")
@@ -117,8 +118,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String layerId,
       MutationEntityType type,
       MutationEntitySyncStatus syncStatus,
-      Coordinates newLocation,
-      String newPolygonVertices,
+      @Nullable Coordinates newLocation,
+      @Nullable String newPolygonVertices,
       long retryCount,
       @Nullable String lastError,
       String userId,
@@ -150,7 +151,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
     public abstract Builder setLayerId(String newLayerId);
 
-    public abstract Builder setNewLocation(Coordinates newNewLocation);
+    public abstract Builder setNewLocation(@Nullable Coordinates newNewLocation);
 
     public abstract Builder setNewPolygonVertices(@Nullable String newPolygonVertices);
 
