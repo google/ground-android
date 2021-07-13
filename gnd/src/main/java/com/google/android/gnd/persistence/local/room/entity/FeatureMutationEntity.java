@@ -17,8 +17,8 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
-import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.listToString;
-import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.stringToList;
+import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.formatVertices;
+import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.parseVertices;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -82,7 +82,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
-        .setNewPolygonVertices(listToString(m.getNewPolygonVertices()))
+        .setNewPolygonVertices(formatVertices(m.getNewPolygonVertices()))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setRetryCount(m.getRetryCount())
@@ -99,7 +99,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
-        .setNewPolygonVertices(stringToList(getNewPolygonVertices()))
+        .setNewPolygonVertices(parseVertices(getNewPolygonVertices()))
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())

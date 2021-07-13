@@ -114,7 +114,7 @@ public abstract class FeatureEntity {
             .setCreated(authInfo)
             .setLastModified(authInfo);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
-    entity.setPolygonVertices(listToString(mutation.getNewPolygonVertices()));
+    entity.setPolygonVertices(formatVertices(mutation.getNewPolygonVertices()));
     return entity.build();
   }
 
@@ -132,7 +132,7 @@ public abstract class FeatureEntity {
     } else if (feature instanceof GeoJsonFeature) {
       entity.setGeoJson(((GeoJsonFeature) feature).getGeoJsonString());
     } else if (feature instanceof PolygonFeature) {
-      entity.setPolygonVertices(listToString(((PolygonFeature) feature).getVertices()));
+      entity.setPolygonVertices(formatVertices(((PolygonFeature) feature).getVertices()));
     }
     return entity.build();
   }
@@ -154,7 +154,7 @@ public abstract class FeatureEntity {
 
     if (featureEntity.getPolygonVertices() != null) {
       PolygonFeature.Builder builder =
-          PolygonFeature.builder().setVertices(stringToList(featureEntity.getPolygonVertices()));
+          PolygonFeature.builder().setVertices(parseVertices(featureEntity.getPolygonVertices()));
       fillFeature(builder, featureEntity, project);
       return builder.build();
     }
@@ -164,9 +164,9 @@ public abstract class FeatureEntity {
   }
 
   @Nullable
-  public static String listToString(ImmutableList<Point> vertices) {
+  public static String formatVertices(ImmutableList<Point> vertices) {
     if (vertices.isEmpty()) {
-      return null;
+      return "";
     }
     Gson gson = new Gson();
     List<List<Double>> verticesArray = stream(vertices)
@@ -175,7 +175,7 @@ public abstract class FeatureEntity {
     return gson.toJson(verticesArray);
   }
 
-  public static ImmutableList<Point> stringToList(@Nullable String vertices) {
+  public static ImmutableList<Point> parseVertices(@Nullable String vertices) {
     if (vertices == null || vertices.isEmpty()) {
       return ImmutableList.of();
     }
@@ -183,9 +183,9 @@ public abstract class FeatureEntity {
     List<List<Double>> verticesArray =
         gson.fromJson(vertices, new TypeToken<List<List<Double>>>(){}.getType());
 
-    return stream(verticesArray).map(vertice -> Point.newBuilder()
-        .setLatitude(vertice.get(0))
-        .setLongitude(vertice.get(1))
+    return stream(verticesArray).map(vertex -> Point.newBuilder()
+        .setLatitude(vertex.get(0))
+        .setLongitude(vertex.get(1))
         .build())
         .collect(toImmutableList());
   }

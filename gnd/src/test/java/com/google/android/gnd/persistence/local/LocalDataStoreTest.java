@@ -233,7 +233,7 @@ public class LocalDataStoreTest {
         .setProjectId("project id")
         .setLayerId("layer id")
         .setNewLocation(Optional.ofNullable(point))
-        .setNewPolygonVertices(null)
+        .setNewPolygonVertices(ImmutableList.of())
         .setClientTimestamp(new Date())
         .build();
   }
@@ -685,36 +685,14 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testStringToList() {
-    assertThat(FeatureEntity.stringToList(POLYGON_VERTICES_STRING))
-        .isEqualTo(POLYGON_VERTICES_LIST);
+  public void testParseVertices_emptyString() {
+    assertThat(FeatureEntity.parseVertices("")).isEqualTo(ImmutableList.of());
   }
 
   @Test
-  public void testStringToList_emptyValue() {
-    assertThat(FeatureEntity.stringToList("")).isEqualTo(null);
-  }
-
-  @Test
-  public void testStringToList_nullValue() {
-    assertThat(FeatureEntity.stringToList(null)).isNull();
-  }
-
-  @Test
-  public void testListToString() {
-    assertThat(FeatureEntity.listToString(POLYGON_VERTICES_LIST))
-        .isEqualTo(POLYGON_VERTICES_STRING);
-  }
-
-  @Test
-  public void testListToString_emptyList() {
-    assertThat(FeatureEntity.listToString(ImmutableList.of()))
-        .isEqualTo(null);
-  }
-
-  @Test
-  public void testListToString_nullValue() {
-    assertThat(FeatureEntity.listToString(null)).isNull();
+  public void testFormatVertices_emptyList() {
+    assertThat(FeatureEntity.formatVertices(ImmutableList.of()))
+        .isEmpty();
   }
 
   @Test

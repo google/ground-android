@@ -35,7 +35,6 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -129,23 +128,21 @@ public class FeatureRepository {
   }
 
   private FeatureMutation fromFeature(Feature feature, Type type) {
-    return FeatureMutation.builder()
+    FeatureMutation.Builder featureMutationBuilder = FeatureMutation.builder()
         .setType(type)
         .setSyncStatus(SyncStatus.PENDING)
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())
-        .setNewLocation(
-            feature instanceof PointFeature
-                ? Optional.ofNullable(((PointFeature) feature).getPoint())
-                : Optional.empty())
-        .setNewPolygonVertices(
-            feature instanceof PolygonFeature
-                ? ((PolygonFeature) feature).getVertices()
-                : ImmutableList.of())
         .setUserId(authManager.getCurrentUser().getId())
-        .setClientTimestamp(new Date())
-        .build();
+        .setClientTimestamp(new Date());
+    if (feature instanceof  PointFeature) {
+      featureMutationBuilder.setNewLocation(
+          Optional.ofNullable(((PointFeature) feature).getPoint()));
+    } else {
+      featureMutationBuilder.setNewPolygonVertices(((PolygonFeature) feature).getVertices());
+    }
+    return featureMutationBuilder.build();
   }
 
   public PointFeature newFeature(Project project, Layer layer, Point point) {
