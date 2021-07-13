@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 /**
- * Life-cycle {@link Observer} helpers used for testing.
+ * Lifecycle {@link Observer} helpers used for testing.
  */
 public class TestObservers {
 
