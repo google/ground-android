@@ -139,8 +139,10 @@ public class FeatureRepository {
     if (feature instanceof  PointFeature) {
       featureMutationBuilder.setNewLocation(
           Optional.ofNullable(((PointFeature) feature).getPoint()));
-    } else {
+    } else if (feature instanceof PolygonFeature) {
       featureMutationBuilder.setNewPolygonVertices(((PolygonFeature) feature).getVertices());
+    } else {
+      Timber.e("Unknown Feature %s", feature.getClass());
     }
     return featureMutationBuilder.build();
   }

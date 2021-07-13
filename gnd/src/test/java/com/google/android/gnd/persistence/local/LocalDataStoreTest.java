@@ -692,7 +692,7 @@ public class LocalDataStoreTest {
   @Test
   public void testFormatVertices_emptyList() {
     assertThat(FeatureEntity.formatVertices(ImmutableList.of()))
-        .isEmpty();
+        .isNull();
   }
 
   @Test

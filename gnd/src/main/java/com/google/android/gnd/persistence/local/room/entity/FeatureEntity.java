@@ -166,7 +166,7 @@ public abstract class FeatureEntity {
   @Nullable
   public static String formatVertices(ImmutableList<Point> vertices) {
     if (vertices.isEmpty()) {
-      return "";
+      return null;
     }
     Gson gson = new Gson();
     List<List<Double>> verticesArray = stream(vertices)
