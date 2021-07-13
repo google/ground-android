@@ -16,14 +16,13 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.TestObservers.observeUntilFirstChange;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.Observer;
 import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.SchedulersModule;
@@ -33,7 +32,6 @@ import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import java.util.Date;
-import java8.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,16 +58,7 @@ public class DateFieldViewModelTest {
   @Test
   public void testUpdateResponse() {
     dateFieldViewModel.updateResponse(DATE);
-    // Observer initialized to read the value of live data.
-    dateFieldViewModel
-        .getResponse()
-        .observeForever(
-            new Observer<Optional<Response>>() {
-              @Override
-              public void onChanged(Optional<Response> responseOptional) {
-                dateFieldViewModel.getResponse().removeObserver(this);
-              }
-            });
+    observeUntilFirstChange(dateFieldViewModel.getResponse());
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
     assertThat(response.getDate()).isEqualTo(new DateResponse(DATE).getDate());
   }
@@ -77,16 +66,7 @@ public class DateFieldViewModelTest {
   @Test
   public void testUpdateResponse_mismatchDate() {
     dateFieldViewModel.updateResponse(DATE);
-    // Observer used to read the value of live data.
-    dateFieldViewModel
-        .getResponse()
-        .observeForever(
-            new Observer<Optional<Response>>() {
-              @Override
-              public void onChanged(Optional<Response> responseOptional) {
-                dateFieldViewModel.getResponse().removeObserver(this);
-              }
-            });
+    observeUntilFirstChange(dateFieldViewModel.getResponse());
     DateResponse response = (DateResponse) dateFieldViewModel.getResponse().getValue().get();
     assertThat(response.getDate()).isNotEqualTo(new DateResponse(new Date()).getDate());
   }
