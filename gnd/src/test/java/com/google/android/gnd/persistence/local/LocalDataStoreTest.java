@@ -78,25 +78,6 @@ public class LocalDataStoreTest {
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
-  private static final String POLYGON_VERTICES_STRING = "[[37.4219739586005,-122.08401426672937],"
-      + "[37.421822184467786,-122.0839988440275],[37.42181286499347,-122.08384495228529],"
-      + "[37.421955053418316,-122.08382986485958],[37.42197688757199,-122.08401359617709],"
-      + "[37.42197688757199,-122.08401359617709]]";
-
-  private static final ImmutableList<Point> POLYGON_VERTICES_LIST =
-      ImmutableList.<Point>builder()
-          .add(Point.newBuilder().setLatitude(37.4219739586005)
-              .setLongitude(-122.08401426672937).build())
-          .add(Point.newBuilder().setLatitude(37.421822184467786)
-              .setLongitude(-122.0839988440275).build())
-          .add(Point.newBuilder().setLatitude(37.42181286499347)
-              .setLongitude(-122.08384495228529).build())
-          .add(Point.newBuilder().setLatitude(37.421955053418316)
-              .setLongitude(-122.08382986485958).build())
-          .add(Point.newBuilder().setLatitude(37.42197688757199)
-              .setLongitude(-122.08401359617709).build())
-          .add(Point.newBuilder().setLatitude(37.42197688757199)
-              .setLongitude(-122.08401359617709).build()).build();
 
   private static final Field TEST_FIELD =
       Field.newBuilder()
@@ -141,8 +122,8 @@ public class LocalDataStoreTest {
           .add(Point.newBuilder().setLatitude(49.874099).setLongitude(8.651173).build())
           .add(Point.newBuilder().setLatitude(49.872919).setLongitude(8.651628).build())
           .add(Point.newBuilder().setLatitude(49.873164).setLongitude(8.653515).build())
-          .add(Point.newBuilder().setLatitude(49.874343).setLongitude(8.653038).build()).build();
-
+          .add(Point.newBuilder().setLatitude(49.874343).setLongitude(8.653038).build())
+          .build();
 
   private static final ImmutableList<Point> TEST_POLYGON_2 =
       ImmutableList.<Point>builder()
@@ -150,14 +131,14 @@ public class LocalDataStoreTest {
           .add(Point.newBuilder().setLatitude(49.864241).setLongitude(8.647286).build())
           .add(Point.newBuilder().setLatitude(49.864664).setLongitude(8.650387).build())
           .add(Point.newBuilder().setLatitude(49.863102).setLongitude(8.650445).build())
-          .add(Point.newBuilder().setLatitude(49.863051).setLongitude(8.647306).build()).build();
+          .add(Point.newBuilder().setLatitude(49.863051).setLongitude(8.647306).build())
+          .build();
 
   private static final FeatureMutation TEST_FEATURE_MUTATION =
       createTestFeatureMutation(TEST_POINT);
 
   private static final FeatureMutation TEST_POLYGON_FEATURE_MUTATION =
       createTestPolygonFeatureMutation(TEST_POLYGON_1);
-
 
   private static final ObservationMutation TEST_OBSERVATION_MUTATION =
       ObservationMutation.builder()
@@ -467,8 +448,8 @@ public class LocalDataStoreTest {
     localDataStore
         .getFeature(TEST_PROJECT, "feature id")
         .test()
-        .assertValue(newFeature -> ((PolygonFeature) newFeature)
-            .getVertices().equals(TEST_POLYGON_2));
+        .assertValue(
+            newFeature -> ((PolygonFeature) newFeature).getVertices().equals(TEST_POLYGON_2));
   }
 
   @Test
@@ -691,8 +672,7 @@ public class LocalDataStoreTest {
 
   @Test
   public void testFormatVertices_emptyList() {
-    assertThat(FeatureEntity.formatVertices(ImmutableList.of()))
-        .isNull();
+    assertThat(FeatureEntity.formatVertices(ImmutableList.of())).isNull();
   }
 
   @Test
