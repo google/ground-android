@@ -55,7 +55,7 @@
       app:layout_constraintBottom_toTopOf="@+id/confirm_button"
       app:layout_constraintEnd_toEndOf="parent"
       app:srcCompat="@drawable/ic_baseline_cancel_24"
-      android:onClick="@{() -> viewModel.cancelButtonClicked()}"
+      android:onClick="@{() -> viewModel.onCancelButtonClick()}"
       app:tint="@color/colorBackground"
       app:useCompatPadding="true" />
 
@@ -67,7 +67,7 @@
       app:fabSize="normal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      android:onClick="@{() -> viewModel.confirmButtonClicked()}"
+      android:onClick="@{() -> viewModel.onConfirmButtonClick()}"
       app:srcCompat="@drawable/ic_baseline_check_24"
       app:tint="@color/colorBackground"
       app:useCompatPadding="true" />

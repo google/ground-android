@@ -39,7 +39,6 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
-import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
@@ -55,6 +54,7 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -98,18 +98,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
-  private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  private final MutableLiveData<Event<Point>> addFeatureButtonClicks = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  private final MutableLiveData<Event<Point>> confirmButtonClicks = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  private final MutableLiveData<Event<Nil>> cancelButtonClicks = new MutableLiveData<>();
-
-  @Hot(replays = true)
   private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
 
   @Hot(replays = true)
@@ -127,8 +115,14 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final @Dimension int selectedPolygonStrokeWidth;
 
   /** The currently selected feature on the map. */
-  private BehaviorProcessor<Optional<Feature>> selectedFeature =
+  private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
+
+  /* UI Clicks */
+  @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
+  @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
+  @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
+  @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
 
   @Inject
   MapContainerViewModel(
@@ -257,10 +251,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  public LiveData<Action> getSelectMapTypeClicks() {
-    return selectMapTypeClicks;
-  }
-
   private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
@@ -299,10 +289,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     return activeProject
         .map(featureRepository::getFeaturesOnceAndStream)
         .orElse(Flowable.just(ImmutableSet.of()));
-  }
-
-  public void onMapTypeButtonClicked() {
-    selectMapTypeClicks.postValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {
@@ -383,27 +369,35 @@ public class MapContainerViewModel extends AbstractViewModel {
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
+  public void onMapTypeButtonClicked() {
+    selectMapTypeClicks.onNext(Nil.NIL);
+  }
+
   public void onAddFeatureBtnClick() {
-    addFeatureButtonClicks.postValue(Event.create(getCameraPosition().getValue().getTarget()));
+    addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
   }
 
-  public void confirmButtonClicked() {
-    confirmButtonClicks.postValue(Event.create(getCameraPosition().getValue().getTarget()));
+  public void onConfirmButtonClick() {
+    confirmButtonClicks.onNext(getCameraPosition().getValue().getTarget());
   }
 
-  public void cancelButtonClicked() {
-    cancelButtonClicks.postValue(Event.create(Nil.NIL));
+  public void onCancelButtonClick() {
+    cancelButtonClicks.onNext(Nil.NIL);
   }
 
-  public LiveData<Event<Point>> getAddFeatureButtonClicks() {
+  public Observable<Nil> getSelectMapTypeClicks() {
+    return selectMapTypeClicks;
+  }
+
+  public Observable<Point> getAddFeatureButtonClicks() {
     return addFeatureButtonClicks;
   }
 
-  public LiveData<Event<Point>> getConfirmButtonClicks() {
+  public Observable<Point> getConfirmButtonClicks() {
     return confirmButtonClicks;
   }
 
-  public LiveData<Event<Nil>> getCancelButtonClicks() {
+  public Observable<Nil> getCancelButtonClicks() {
     return cancelButtonClicks;
   }
 

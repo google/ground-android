@@ -143,7 +143,8 @@ public class HomeScreenFragment extends AbstractFragment
         .subscribe(this::onFeatureSelection);
     mapContainerViewModel
         .getAddFeatureButtonClicks()
-        .observe(this, click -> click.ifUnhandled(this::onShowAddFeatureDialogRequest));
+        .as(autoDisposable(this))
+        .subscribe(this::onShowAddFeatureDialogRequest);
   }
 
   private void onFeatureSelection(Feature feature) {

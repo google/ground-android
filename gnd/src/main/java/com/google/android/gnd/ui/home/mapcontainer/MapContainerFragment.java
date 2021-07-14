@@ -113,10 +113,16 @@ public class MapContainerFragment extends AbstractFragment {
 
     mapContainerViewModel
         .getConfirmButtonClicks()
-        .observe(this, click -> click.ifUnhandled(this::showConfirmationDialog));
+        .as(autoDisposable(this))
+        .subscribe(this::showConfirmationDialog);
     mapContainerViewModel
         .getCancelButtonClicks()
-        .observe(this, click -> click.ifUnhandled(__ -> setDefaultMode()));
+        .as(autoDisposable(this))
+        .subscribe(__ -> setDefaultMode());
+    mapContainerViewModel
+        .getSelectMapTypeClicks()
+        .as(autoDisposable(this))
+        .subscribe(__ -> showMapTypeSelectorDialog());
   }
 
   @Override
@@ -159,10 +165,6 @@ public class MapContainerFragment extends AbstractFragment {
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
-    mapContainerViewModel
-        .getSelectMapTypeClicks()
-        .observe(
-            getViewLifecycleOwner(), action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
 
     // TODO: Do this the RxJava way
     map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
@@ -174,7 +176,7 @@ public class MapContainerFragment extends AbstractFragment {
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.first).collect(toImmutableList());
     int selectedIdx = typeNos.indexOf(mapProvider.getMapType());
     String[] labels = stream(mapTypes).map(p -> p.second).toArray(String[]::new);
-    new AlertDialog.Builder(getContext())
+    new AlertDialog.Builder(requireContext())
         .setTitle(R.string.select_map_type)
         .setSingleChoiceItems(
             labels,
