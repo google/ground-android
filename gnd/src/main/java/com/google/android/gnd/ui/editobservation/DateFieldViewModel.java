@@ -35,8 +35,8 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
     super(resources);
   }
 
-  public void updateResponse(Date dateMs) {
-    setResponse(DateResponse.fromDate(dateMs));
+  public void updateResponse(Date date) {
+    setResponse(DateResponse.fromDate(date));
   }
 
   public void onShowDialogClick() {
