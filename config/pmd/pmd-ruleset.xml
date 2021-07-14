@@ -58,6 +58,10 @@
     <exclude name="ShortMethodName" />
     <exclude name="ShortVariable" />
     <exclude name="TooManyStaticImports" />
+    <exclude name="UseUnderscoresInNumericLiterals">
+      <exclude-pattern>.*/test/.*</exclude-pattern>
+      <exclude-pattern>.*/androidTest/.*</exclude-pattern>
+    </exclude>
   </rule>
 
   <rule ref="category/java/design.xml">
