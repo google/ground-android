@@ -418,6 +418,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void setMapFeatures(ImmutableSet<MapFeature> features) {
+    Timber.d("Set map features called : %s", features.size());
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
     for (Marker marker : markers.getMarkers()) {

@@ -21,6 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+    <import type="androidx.core.content.ContextCompat" />
     <import type="android.view.View" />
     <variable
       name="viewModel"
@@ -64,6 +65,7 @@
       android:id="@+id/location_lock_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:enabled="@{viewModel.getLocationLockEnabled()}"
       android:onClick="@{() -> viewModel.onLocationLockClick()}"
       app:backgroundTint="@color/colorBackground"
       app:fabSize="normal"
@@ -77,12 +79,14 @@
       android:id="@+id/add_feature_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:onClick="@{() -> viewModel.onAddFeatureBtnClick()}"
       android:visibility="@{homeScreenViewModel.isAddFeatureButtonVisible() ? View.VISIBLE : View.GONE}"
       app:fabSize="normal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:srcCompat="@drawable/ic_add"
       app:tint="@color/colorBackground"
+      app:backgroundTintList="@{ContextCompat.getColorStateList(context, viewModel.getFeatureAddButtonBackgroundTint())}"
       app:useCompatPadding="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

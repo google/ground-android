@@ -22,6 +22,7 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -39,10 +40,10 @@ import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
-import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -55,6 +56,7 @@ import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -98,7 +100,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
-  private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
+  private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> featureAddButtonBackgroundTint =
+      new MutableLiveData<>(R.color.colorGrey500);
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
@@ -111,8 +117,14 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final @Dimension int selectedPolygonStrokeWidth;
 
   /** The currently selected feature on the map. */
-  private BehaviorProcessor<Optional<Feature>> selectedFeature =
+  private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
+
+  /* UI Clicks */
+  @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
+  @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
+  @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
+  @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
 
   @Inject
   MapContainerViewModel(
@@ -148,12 +160,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                projectRepository
-                    .getActiveProject()
-                    .switchMap(this::getFeaturesStream)
-                    .map(this::toMapFeatures),
-                selectedFeature,
-                this::updateSelectedFeature));
+                    projectRepository
+                        .getActiveProject()
+                        .switchMap(this::getFeaturesStream)
+                        .map(this::toMapFeatures),
+                    selectedFeature,
+                    this::updateSelectedFeature)
+                .distinctUntilChanged());
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
@@ -260,10 +273,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  public LiveData<Action> getSelectMapTypeClicks() {
-    return selectMapTypeClicks;
-  }
-
   private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
@@ -302,10 +311,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     return activeProject
         .map(featureRepository::getFeaturesOnceAndStream)
         .orElse(Flowable.just(ImmutableSet.of()));
-  }
-
-  public void onMapTypeButtonClicked() {
-    selectMapTypeClicks.postValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {
@@ -386,6 +391,38 @@ public class MapContainerViewModel extends AbstractViewModel {
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
+  public void onMapTypeButtonClicked() {
+    selectMapTypeClicks.onNext(Nil.NIL);
+  }
+
+  public void onAddFeatureBtnClick() {
+    addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
+  }
+
+  public void onConfirmButtonClick() {
+    confirmButtonClicks.onNext(getCameraPosition().getValue().getTarget());
+  }
+
+  public void onCancelButtonClick() {
+    cancelButtonClicks.onNext(Nil.NIL);
+  }
+
+  public Observable<Nil> getSelectMapTypeClicks() {
+    return selectMapTypeClicks;
+  }
+
+  public Observable<Point> getAddFeatureButtonClicks() {
+    return addFeatureButtonClicks;
+  }
+
+  public Observable<Point> getConfirmButtonClicks() {
+    return confirmButtonClicks;
+  }
+
+  public Observable<Nil> getCancelButtonClicks() {
+    return cancelButtonClicks;
+  }
+
   public LiveData<Integer> getMapControlsVisibility() {
     return mapControlsVisibility;
   }
@@ -405,6 +442,22 @@ public class MapContainerViewModel extends AbstractViewModel {
   /** Called when a feature is (de)selected. */
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
     this.selectedFeature.onNext(selectedFeature);
+  }
+
+  public void setLocationLockEnabled(boolean enabled) {
+    locationLockEnabled.postValue(enabled);
+  }
+
+  public void setFeatureButtonBackgroundTint(@ColorRes int colorRes) {
+    featureAddButtonBackgroundTint.postValue(colorRes);
+  }
+
+  public LiveData<Integer> getFeatureAddButtonBackgroundTint() {
+    return featureAddButtonBackgroundTint;
+  }
+
+  public LiveData<Boolean> getLocationLockEnabled() {
+    return locationLockEnabled;
   }
 
   public enum Mode {
