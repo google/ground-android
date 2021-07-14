@@ -18,16 +18,23 @@ package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import androidx.core.content.ContextCompat;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -35,7 +42,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
@@ -137,6 +143,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
   private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
+  private final Map<MapFeature, List<LatLng>> polygons = new HashMap<>();
 
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
@@ -195,6 +202,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
       if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
         candidates.add(json.getKey());
         processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    for (Map.Entry<MapFeature, List<LatLng>> json : polygons.entrySet()) {
+      if (processed.contains(((MapPolygon) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
+        candidates.add(json.getKey());
+        processed.add(((MapPolygon) json.getKey()).getId());
       }
     }
 
@@ -277,28 +295,45 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
-    for (ImmutableSet<Point> vertices : mapPolygon.getVertices()) {
-      PolylineOptions options = new PolylineOptions();
-
-      // Read-only
-      options.clickable(false);
-
-      // Add vertices to PolylineOptions
-      stream(vertices).map(GoogleMapsMapAdapter::toLatLng).forEach(options::add);
-
-      // Add to map
-      Polyline polyline = map.addPolyline(options);
-      polyline.setTag(mapPolygon);
-
-      // Style polyline
-      polyline.setStartCap(new RoundCap());
-      polyline.setEndCap(new RoundCap());
-      polyline.setWidth(getPolylineStrokeWidth());
-      polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
-      polyline.setJointType(JointType.ROUND);
-
-      polylines.add(polyline);
+    PolylineOptions options = new PolylineOptions();
+    // Read-only
+    options.clickable(false);
+    // Add vertices to PolylineOptions
+    ImmutableList<LatLng> vertices = stream(mapPolygon.getVertices())
+        .map(GoogleMapsMapAdapter::toLatLng)
+        .collect(toImmutableList());
+    stream(vertices).forEach(options::add);
+    // Add to map
+    Polyline polyline = map.addPolyline(options);
+    polyline.setTag(mapPolygon);
+    // Style polyline
+    if (!isPolygonCompleted(mapPolygon.getVertices())) {
+      BitmapDescriptor customCap = bitmapDescriptorFromVector();
+      polyline.setStartCap(new CustomCap(customCap));
+      polyline.setEndCap(new CustomCap(customCap));
     }
+    polyline.setWidth(getPolylineStrokeWidth());
+    polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
+    polyline.setJointType(JointType.ROUND);
+
+    polylines.add(polyline);
+    polygons.put(mapPolygon, vertices);
+  }
+
+  private boolean isPolygonCompleted(List<Point> vertices) {
+    return vertices.size() != stream(vertices).distinct().count();
+  }
+
+  private BitmapDescriptor bitmapDescriptorFromVector() {
+    Drawable vectorDrawable = ContextCompat.getDrawable(context, R.drawable.ic_endpoint);
+    vectorDrawable
+        .setBounds(4, 4, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+    Bitmap bitmap = Bitmap
+        .createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(),
+            Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
+    vectorDrawable.draw(canvas);
+    return BitmapDescriptorFactory.fromBitmap(bitmap);
   }
 
   private int getPolylineStrokeWidth() {
