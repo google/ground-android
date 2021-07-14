@@ -201,7 +201,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
-    // TODO: Add support for polylines similar to mapPins
+    // TODO: Add support for polylines similar to mapPins.
 
     ImmutableSet<MapFeature> mapGeoJson =
         stream(features)

@@ -296,13 +296,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMapPolyline(MapPolygon mapPolygon) {
     PolylineOptions options = new PolylineOptions();
-    // Read-only
     options.clickable(false);
-    // Add vertices to PolylineOptions
     ImmutableList<LatLng> vertices = stream(mapPolygon.getVertices())
         .map(GoogleMapsMapAdapter::toLatLng)
         .collect(toImmutableList());
-    stream(vertices).forEach(options::add);
+    // Add vertices to PolylineOptions
+    options.addAll(vertices);
     // Add to map
     Polyline polyline = map.addPolyline(options);
     polyline.setTag(mapPolygon);
@@ -321,13 +320,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private boolean isPolygonCompleted(List<Point> vertices) {
-    return vertices.size() != stream(vertices).distinct().count();
+    return vertices.get(vertices.size() - 1) == vertices.get(0);
   }
 
   private BitmapDescriptor bitmapDescriptorFromVector() {
     Drawable vectorDrawable = ContextCompat.getDrawable(context, R.drawable.ic_endpoint);
+    // Specify a bounding rectangle for the Drawable.
     vectorDrawable
-        .setBounds(4, 4, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        .setBounds((int) context.getResources().getDimension(R.dimen.polyline_endpoint_bound),
+            (int) context.getResources().getDimension(R.dimen.polyline_endpoint_bound),
+            vectorDrawable.getIntrinsicWidth(),
+            vectorDrawable.getIntrinsicHeight());
     Bitmap bitmap = Bitmap
         .createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(),
             Bitmap.Config.ARGB_8888);
