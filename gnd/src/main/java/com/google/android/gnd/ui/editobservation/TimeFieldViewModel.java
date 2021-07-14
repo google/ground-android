@@ -31,8 +31,8 @@ public class TimeFieldViewModel extends AbstractFieldViewModel {
   @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  TimeFieldViewModel(Resources application) {
-    super(application);
+  TimeFieldViewModel(Resources resources) {
+    super(resources);
   }
 
   public void updateResponse(Date dateMs) {

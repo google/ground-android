@@ -67,7 +67,7 @@ class ResponseJsonConverter {
     }
   }
 
-  public static String dateToIsoString(Date date) {
+  protected static String dateToIsoString(Date date) {
     synchronized (ISO_INSTANT_FORMAT) {
       ISO_INSTANT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
       return ISO_INSTANT_FORMAT.format(date);
@@ -75,7 +75,7 @@ class ResponseJsonConverter {
   }
 
   @Nullable
-  public static Date isoStringToDate(String isoString) {
+  protected static Date isoStringToDate(String isoString) {
     try {
       synchronized (ISO_INSTANT_FORMAT) {
         ISO_INSTANT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));

@@ -36,8 +36,8 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  MultipleChoiceFieldViewModel(Resources application) {
-    super(application);
+  MultipleChoiceFieldViewModel(Resources resources) {
+    super(resources);
   }
 
   public void onShowDialog() {

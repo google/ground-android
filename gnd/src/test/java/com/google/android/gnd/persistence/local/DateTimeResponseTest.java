@@ -34,10 +34,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-@HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
 public class DateTimeResponseTest {
 
   @Test

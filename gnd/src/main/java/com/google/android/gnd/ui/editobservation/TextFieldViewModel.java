@@ -23,8 +23,8 @@ import javax.inject.Inject;
 public class TextFieldViewModel extends AbstractFieldViewModel {
 
   @Inject
-  TextFieldViewModel(Resources application) {
-    super(application);
+  TextFieldViewModel(Resources resources) {
+    super(resources);
   }
 
   public void updateResponse(String text) {

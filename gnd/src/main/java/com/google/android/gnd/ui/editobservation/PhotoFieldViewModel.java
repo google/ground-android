@@ -39,8 +39,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Boolean> editable = new MutableLiveData<>(false);
 
   @Inject
-  PhotoFieldViewModel(UserMediaRepository userMediaRepository, Resources application) {
-    super(application);
+  PhotoFieldViewModel(UserMediaRepository userMediaRepository, Resources resources) {
+    super(resources);
     this.photoPresent =
         LiveDataReactiveStreams.fromPublisher(
             getDetailsTextFlowable().map(path -> !path.isEmpty()));

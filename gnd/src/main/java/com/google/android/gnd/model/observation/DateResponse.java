@@ -29,10 +29,10 @@ public class DateResponse implements Response {
   // TODO(#752): Use device localization preferences.
   public static final DateFormat DATE_FORMAT =
       new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-  private Date epochTime;
+  private final Date epochTime;
 
-  public DateResponse(Date time) {
-    this.epochTime = time;
+  public DateResponse(Date date) {
+    this.epochTime = date;
   }
 
   public Date getDate() {

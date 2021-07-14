@@ -31,8 +31,8 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
   @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  DateFieldViewModel(Resources application) {
-    super(application);
+  DateFieldViewModel(Resources resources) {
+    super(resources);
   }
 
   public void updateResponse(Date dateMs) {

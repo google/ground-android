@@ -36,16 +36,12 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-@HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
 public class ResponseJsonConverterTest {
 
   //Date represented in YYYY-MM-DDTHH:mmZ Format from 1632501600000L milliseconds.
-  private static String DATE_STRING = "2021-09-21T07:00+0000";
+  private static final String DATE_STRING = "2021-09-21T07:00+0000";
   //Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-  public static final Date DATE = new Date(1632207600000L);
+  private static final Date DATE = new Date(1632207600000L);
 
   @Test
   public void testDateToIsoString() {

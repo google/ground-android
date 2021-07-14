@@ -28,10 +28,10 @@ import java8.util.Optional;
 public class TimeResponse implements Response {
   // TODO(#752): Use device localization preferences.
   public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm", Locale.getDefault());
-  private Date epochTime;
+  private final Date epochTime;
 
-  public TimeResponse(Date ms) {
-    this.epochTime = ms;
+  public TimeResponse(Date time) {
+    this.epochTime = time;
   }
 
   public Date getTime() {
