@@ -37,17 +37,17 @@ import java.util.UUID;
 public class DataBindingIdlingResource implements IdlingResource {
   // Give it a unique id to work around an Espresso bug where you cannot register/unregister
   // an idling resource with the same name.
-  private static final String id = UUID.randomUUID().toString();
+  private static final String ID = UUID.randomUUID().toString();
   // List of registered callbacks
-  private static final List<IdlingResource.ResourceCallback> idlingCallbacks = new ArrayList<>();
+  private static final List<IdlingResource.ResourceCallback> IDLING_CALLBACKS = new ArrayList<>();
   // Holds whether isIdle was called and the result was false. We track this to avoid calling
   // onTransitionToIdle callbacks if Espresso never thought we were idle in the first place.
-  private boolean wasNotIdle = false;
+  private boolean wasNotIdle;
   private FragmentActivity activity;
 
   @Override
   public String getName() {
-    return String.format("DataBinding %s", id);
+    return String.format("DataBinding %s", ID);
   }
 
   @Override
@@ -65,7 +65,7 @@ public class DataBindingIdlingResource implements IdlingResource {
     if (idle) {
       if (wasNotIdle) {
         // Notify observers to avoid Espresso race detector.
-        for (ResourceCallback cb : idlingCallbacks) {
+        for (ResourceCallback cb : IDLING_CALLBACKS) {
           cb.onTransitionToIdle();
         }
       }
@@ -82,7 +82,7 @@ public class DataBindingIdlingResource implements IdlingResource {
 
   @Override
   public void registerIdleTransitionCallback(ResourceCallback callback) {
-    idlingCallbacks.add(callback);
+    IDLING_CALLBACKS.add(callback);
   }
 
   /** Sets the activity from an [ActivityScenario] to be used from [DataBindingIdlingResource]. */
