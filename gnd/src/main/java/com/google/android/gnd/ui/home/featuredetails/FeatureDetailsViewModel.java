@@ -37,14 +37,13 @@ import javax.inject.Inject;
 public class FeatureDetailsViewModel extends ViewModel {
 
   @Hot
-  private final FlowableProcessor<Optional<Feature>> featureFlowable =
+  private final FlowableProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
   private final Bitmap markerBitmap;
   private final LiveData<String> title;
   private final LiveData<String> subtitle;
-
-  private Optional<Feature> selectedFeature = Optional.empty();
+  private final LiveData<Boolean> moveMenuOptionVisible;
 
   @Inject
   public FeatureDetailsViewModel(
@@ -52,9 +51,12 @@ public class FeatureDetailsViewModel extends ViewModel {
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
     this.title =
-        LiveDataReactiveStreams.fromPublisher(featureFlowable.map(featureHelper::getLabel));
+        LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
-        LiveDataReactiveStreams.fromPublisher(featureFlowable.map(featureHelper::getSubtitle));
+        LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
+    this.moveMenuOptionVisible =
+        LiveDataReactiveStreams.fromPublisher(
+            selectedFeature.map(optional -> optional.map(Feature::isPoint).orElse(true)));
   }
 
   /**
@@ -62,16 +64,11 @@ public class FeatureDetailsViewModel extends ViewModel {
    * to each new observer.
    */
   public LiveData<Optional<Feature>> getSelectedFeatureOnceAndStream() {
-    return LiveDataReactiveStreams.fromPublisher(featureFlowable);
-  }
-
-  public boolean isSelectedFeatureOfTypePoint() {
-    return selectedFeature.map(Feature::isPoint).orElse(true);
+    return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
-    selectedFeature = state.isVisible() ? state.getFeature() : Optional.empty();
-    featureFlowable.onNext(selectedFeature);
+    selectedFeature.onNext(state.isVisible() ? state.getFeature() : Optional.empty());
   }
 
   public Bitmap getMarkerBitmap() {
@@ -84,5 +81,9 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public LiveData<String> getSubtitle() {
     return subtitle;
+  }
+
+  public LiveData<Boolean> getMoveMenuOptionVisible() {
+    return moveMenuOptionVisible;
   }
 }

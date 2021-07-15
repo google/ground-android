@@ -88,7 +88,7 @@ public class FeatureDetailsFragment extends AbstractFragment {
         .forEach(
             menuItem -> {
               if (menuItem.getItemId() == R.id.move_feature_menu_item) {
-                menuItem.setVisible(viewModel.isSelectedFeatureOfTypePoint());
+                viewModel.getMoveMenuOptionVisible().observe(this, menuItem::setVisible);
               }
             });
   }
