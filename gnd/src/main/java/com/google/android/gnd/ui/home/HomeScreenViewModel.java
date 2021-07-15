@@ -66,8 +66,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> projectLoadingState;
 
-  // TODO(#719): Move into MapContainersViewModel
-  @Hot private final FlowableProcessor<Point> addFeatureDialogRequests = PublishProcessor.create();
   // TODO(#719): Move into FeatureDetailsViewModel.
   @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
@@ -202,10 +200,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return projectLoadingState;
   }
 
-  public Flowable<Point> getShowAddFeatureDialogRequests() {
-    return addFeatureDialogRequests;
-  }
-
   public LiveData<BottomSheetState> getBottomSheetState() {
     return bottomSheetState;
   }
@@ -223,11 +217,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Timber.d("showing bottom sheet");
     isObservationButtonVisible.setValue(true);
     bottomSheetState.setValue(BottomSheetState.visible(feature));
-  }
-
-  public void onAddFeatureBtnClick(Point location) {
-    // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.onNext(location);
   }
 
   public void onBottomSheetHidden() {
