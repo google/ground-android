@@ -41,8 +41,9 @@ public class FeatureDetailsViewModel extends ViewModel {
       BehaviorProcessor.createDefault(Optional.empty());
 
   private final Bitmap markerBitmap;
-  private LiveData<String> title;
-  private LiveData<String> subtitle;
+  private final LiveData<String> title;
+  private final LiveData<String> subtitle;
+  private final LiveData<Boolean> moveMenuOptionVisible;
 
   @Inject
   public FeatureDetailsViewModel(
@@ -53,6 +54,9 @@ public class FeatureDetailsViewModel extends ViewModel {
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
+    this.moveMenuOptionVisible =
+        LiveDataReactiveStreams.fromPublisher(
+            selectedFeature.map(optional -> optional.map(Feature::isPoint).orElse(true)));
   }
 
   /**
@@ -64,12 +68,7 @@ public class FeatureDetailsViewModel extends ViewModel {
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
-    if (!state.isVisible()) {
-      selectedFeature.onNext(Optional.empty());
-      return;
-    }
-
-    selectedFeature.onNext(state.getFeature());
+    selectedFeature.onNext(state.isVisible() ? state.getFeature() : Optional.empty());
   }
 
   public Bitmap getMarkerBitmap() {
@@ -82,5 +81,9 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public LiveData<String> getSubtitle() {
     return subtitle;
+  }
+
+  public LiveData<Boolean> getMoveMenuOptionVisible() {
+    return moveMenuOptionVisible;
   }
 }

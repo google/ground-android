@@ -27,7 +27,6 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
@@ -300,24 +299,6 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void closeDrawer() {
     binding.drawerLayout.closeDrawer(GravityCompat.START);
-  }
-
-  @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.feature_sheet_menu, menu);
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    BottomSheetState state = viewModel.getBottomSheetState().getValue();
-    if (state == null) {
-      Timber.e("BottomSheetState is null");
-      return;
-    }
-
-    // "Move feature" option should only be enabled for PointFeature.
-    boolean isPointFeature = state.isPointFeature();
-    menu.getItem(0).setVisible(isPointFeature);
   }
 
   @Override
