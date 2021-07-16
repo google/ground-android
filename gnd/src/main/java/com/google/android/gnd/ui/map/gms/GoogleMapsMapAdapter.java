@@ -125,6 +125,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final MarkerManager.Collection markers;
 
+  /**
+   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
+   * start and end of polygon.
+   */
   private final CustomCap customCap;
 
   /**
@@ -206,14 +210,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
       }
     }
 
-    for (Map.Entry<MapFeature, List<LatLng>> json : polygons.entrySet()) {
-      if (processed.contains(((MapPolygon) json.getKey()).getId())) {
+    for (Map.Entry<MapFeature, List<LatLng>> entry : polygons.entrySet()) {
+      List<LatLng> vertices = entry.getValue();
+      MapFeature mapFeature = entry.getKey();
+      if (processed.contains(((MapPolygon) mapFeature).getId())) {
         continue;
       }
 
-      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
-        candidates.add(json.getKey());
-        processed.add(((MapPolygon) json.getKey()).getId());
+      if (PolyUtil.containsLocation(latLng, vertices, false)) {
+        candidates.add(mapFeature);
+        processed.add(((MapPolygon) mapFeature).getId());
       }
     }
 
