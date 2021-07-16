@@ -23,17 +23,12 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
@@ -54,6 +49,7 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
@@ -129,6 +125,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final MarkerManager.Collection markers;
 
+  private final CustomCap customCap;
+
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
    * with current view and data state.
@@ -147,10 +145,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
-  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
+  public GoogleMapsMapAdapter(GoogleMap map, Context context,
+      MarkerIconFactory markerIconFactory,
+      BitmapUtil bitmapUtil) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
+    this.customCap = new CustomCap(bitmapUtil.bitmapDescriptorFromVector());
 
     // init markers
     markerManager = new MarkerManager(map);
@@ -300,16 +301,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
     ImmutableList<LatLng> vertices = stream(mapPolygon.getVertices())
         .map(GoogleMapsMapAdapter::toLatLng)
         .collect(toImmutableList());
-    // Add vertices to PolylineOptions
     options.addAll(vertices);
     // Add to map
     Polyline polyline = map.addPolyline(options);
     polyline.setTag(mapPolygon);
     // Style polyline
     if (!isPolygonCompleted(mapPolygon.getVertices())) {
-      BitmapDescriptor customCap = bitmapDescriptorFromVector();
-      polyline.setStartCap(new CustomCap(customCap));
-      polyline.setEndCap(new CustomCap(customCap));
+      polyline.setStartCap(customCap);
+      polyline.setEndCap(customCap);
     }
     polyline.setWidth(getPolylineStrokeWidth());
     polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
@@ -320,23 +319,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private boolean isPolygonCompleted(List<Point> vertices) {
+    if (vertices.size() < 3) {
+      return  false;
+    }
     return vertices.get(vertices.size() - 1) == vertices.get(0);
-  }
-
-  private BitmapDescriptor bitmapDescriptorFromVector() {
-    Drawable vectorDrawable = ContextCompat.getDrawable(context, R.drawable.ic_endpoint);
-    // Specify a bounding rectangle for the Drawable.
-    vectorDrawable
-        .setBounds((int) context.getResources().getDimension(R.dimen.polyline_endpoint_bound),
-            (int) context.getResources().getDimension(R.dimen.polyline_endpoint_bound),
-            vectorDrawable.getIntrinsicWidth(),
-            vectorDrawable.getIntrinsicHeight());
-    Bitmap bitmap = Bitmap
-        .createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(),
-            Bitmap.Config.ARGB_8888);
-    Canvas canvas = new Canvas(bitmap);
-    vectorDrawable.draw(canvas);
-    return BitmapDescriptorFactory.fromBitmap(bitmap);
   }
 
   private int getPolylineStrokeWidth() {

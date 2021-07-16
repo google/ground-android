@@ -23,6 +23,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
@@ -32,14 +33,16 @@ import javax.inject.Inject;
 public class GoogleMapsMapProvider implements MapProvider {
 
   private final MarkerIconFactory markerIconFactory;
+  private final BitmapUtil bitmapUtil;
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
 
   @Inject
-  public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory) {
+  public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory, BitmapUtil bitmapUtil) {
     this.markerIconFactory = markerIconFactory;
+    this.bitmapUtil = bitmapUtil;
   }
 
   @Override
@@ -60,7 +63,9 @@ public class GoogleMapsMapProvider implements MapProvider {
         .getMapAsync(
             googleMap ->
                 map.onSuccess(
-                    new GoogleMapsMapAdapter(googleMap, fragment.getContext(), markerIconFactory)));
+                    new GoogleMapsMapAdapter(googleMap,
+                        fragment.getContext(),
+                        markerIconFactory, bitmapUtil)));
   }
 
   @Override
