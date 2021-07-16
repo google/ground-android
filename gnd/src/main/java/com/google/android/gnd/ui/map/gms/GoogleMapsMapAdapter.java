@@ -137,25 +137,23 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final Set<Polyline> polylines = new HashSet<>();
 
+  private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
+  private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
+  private final Map<MapFeature, List<LatLng>> polygons = new HashMap<>();
   /**
    * References to Google Maps SDK GeoJSON layers present on the map, keyed by MapGeoJson features.
    * Used to sync and update GeoJSON with current data and UI state.
    */
   private Map<MapGeoJson, GeoJsonLayer> geoJsonLayersByFeature = new HashMap<>();
 
-  private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
-  private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
-  private final Map<MapFeature, List<LatLng>> polygons = new HashMap<>();
-
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
-  public GoogleMapsMapAdapter(GoogleMap map, Context context,
-      MarkerIconFactory markerIconFactory,
-      BitmapUtil bitmapUtil) {
+  public GoogleMapsMapAdapter(
+      GoogleMap map, Context context, MarkerIconFactory markerIconFactory, BitmapUtil bitmapUtil) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
-    this.customCap = new CustomCap(bitmapUtil.bitmapDescriptorFromVector());
+    this.customCap = new CustomCap(bitmapUtil.bitmapDescriptorFromVector(R.drawable.ic_endpoint));
 
     // init markers
     markerManager = new MarkerManager(map);
@@ -304,14 +302,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void addMapPolyline(MapPolygon mapPolygon) {
     PolylineOptions options = new PolylineOptions();
     options.clickable(false);
-    ImmutableList<LatLng> vertices = stream(mapPolygon.getVertices())
-        .map(GoogleMapsMapAdapter::toLatLng)
-        .collect(toImmutableList());
+    ImmutableList<LatLng> vertices =
+        stream(mapPolygon.getVertices())
+            .map(GoogleMapsMapAdapter::toLatLng)
+            .collect(toImmutableList());
     options.addAll(vertices);
-    // Add to map
+
     Polyline polyline = map.addPolyline(options);
     polyline.setTag(mapPolygon);
-    // Style polyline
     if (!isPolygonCompleted(mapPolygon.getVertices())) {
       polyline.setStartCap(customCap);
       polyline.setEndCap(customCap);
@@ -325,10 +323,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private boolean isPolygonCompleted(List<Point> vertices) {
-    if (vertices.size() < 3) {
-      return  false;
-    }
-    return vertices.get(vertices.size() - 1) == vertices.get(0);
+    return vertices.size() > 2 && vertices.get(vertices.size() - 1) == vertices.get(0);
   }
 
   private int getPolylineStrokeWidth() {

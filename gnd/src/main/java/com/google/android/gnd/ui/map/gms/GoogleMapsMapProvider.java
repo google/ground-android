@@ -63,9 +63,8 @@ public class GoogleMapsMapProvider implements MapProvider {
         .getMapAsync(
             googleMap ->
                 map.onSuccess(
-                    new GoogleMapsMapAdapter(googleMap,
-                        fragment.getContext(),
-                        markerIconFactory, bitmapUtil)));
+                    new GoogleMapsMapAdapter(
+                        googleMap, fragment.getContext(), markerIconFactory, bitmapUtil)));
   }
 
   @Override

@@ -25,7 +25,6 @@ import android.provider.MediaStore.Images.Media;
 import androidx.core.content.ContextCompat;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gnd.R;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -39,23 +38,21 @@ public class BitmapUtil {
     this.context = context;
   }
 
-  /**
-   * Retrieves an image for the given url as a {@link Bitmap}.
-   */
+  /** Retrieves an image for the given url as a {@link Bitmap}. */
   public Bitmap fromUri(Uri url) throws IOException {
     return Media.getBitmap(context.getContentResolver(), url);
   }
 
-  public BitmapDescriptor bitmapDescriptorFromVector() {
-    Drawable vectorDrawable = ContextCompat.getDrawable(context, R.drawable.ic_endpoint);
+  public BitmapDescriptor bitmapDescriptorFromVector(int resId) {
+    Drawable vectorDrawable = ContextCompat.getDrawable(context, resId);
 
     // Specify a bounding rectangle for the Drawable.
-    vectorDrawable
-        .setBounds(0, 0,
+    vectorDrawable.setBounds(
+        0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+    Bitmap bitmap =
+        Bitmap.createBitmap(
             vectorDrawable.getIntrinsicWidth(),
-            vectorDrawable.getIntrinsicHeight());
-    Bitmap bitmap = Bitmap
-        .createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(),
+            vectorDrawable.getIntrinsicHeight(),
             Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(bitmap);
     vectorDrawable.draw(canvas);
