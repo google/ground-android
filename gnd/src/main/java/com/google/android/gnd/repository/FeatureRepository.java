@@ -123,20 +123,21 @@ public class FeatureRepository {
         .compose(Loadable::values)
         .firstElement()
         .filter(project -> project.getId().equals(projectId))
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found: " + projectId)))
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
   private FeatureMutation fromFeature(Feature feature, Type type) {
-    FeatureMutation.Builder featureMutationBuilder = FeatureMutation.builder()
-        .setType(type)
-        .setSyncStatus(SyncStatus.PENDING)
-        .setProjectId(feature.getProject().getId())
-        .setFeatureId(feature.getId())
-        .setLayerId(feature.getLayer().getId())
-        .setUserId(authManager.getCurrentUser().getId())
-        .setClientTimestamp(new Date());
-    if (feature instanceof  PointFeature) {
+    FeatureMutation.Builder featureMutationBuilder =
+        FeatureMutation.builder()
+            .setType(type)
+            .setSyncStatus(SyncStatus.PENDING)
+            .setProjectId(feature.getProject().getId())
+            .setFeatureId(feature.getId())
+            .setLayerId(feature.getLayer().getId())
+            .setUserId(authManager.getCurrentUser().getId())
+            .setClientTimestamp(new Date());
+    if (feature instanceof PointFeature) {
       featureMutationBuilder.setNewLocation(
           Optional.ofNullable(((PointFeature) feature).getPoint()));
     } else if (feature instanceof PolygonFeature) {
