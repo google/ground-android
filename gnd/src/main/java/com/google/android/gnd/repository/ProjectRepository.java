@@ -96,23 +96,19 @@ public class ProjectRepository {
       return Flowable.just(Loadable.notLoaded());
     }
     String id = projectId.get();
-    return getProject(id)
+    return syncProjectWithRemote(id)
+        .onErrorResumeNext(__ -> getProject(id))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
 
   @Cold
-  private Single<Project> getProject(String id) {
-    return syncProjectWithRemote(id)
-        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
-        .doOnError(err -> Timber.d(err, "Error loading project from remote"))
-        .onErrorResumeNext(
-            __ ->
-                localDataStore
-                    .getProjectById(id)
-                    .toSingle()
-                    .doOnError(err -> Timber.e(err, "Error loading project from local db")));
+  public Single<Project> getProject(String projectId) {
+    return localDataStore
+        .getProjectById(projectId)
+        .toSingle()
+        .doOnError(err -> Timber.e(err, "Error loading project from local db"));
   }
 
   @Cold
@@ -120,7 +116,9 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
+        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p))
+        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
+        .doOnError(err -> Timber.d(err, "Error loading project from remote"));
   }
 
   public Optional<String> getLastActiveProjectId() {

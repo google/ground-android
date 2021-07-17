@@ -23,7 +23,6 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
@@ -114,15 +113,10 @@ public class FeatureRepository {
     return getFeature(featureMutation.getProjectId(), featureMutation.getFeatureId());
   }
 
-  // TODO: Don't require projectId to be the active project.
   @Cold
   public Single<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
-        .getProjectLoadingState()
-        .compose(Loadable::values)
-        .firstElement()
-        .filter(project -> project.getId().equals(projectId))
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found: " + projectId)))
+        .getProject(projectId)
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
         .toSingle();
   }

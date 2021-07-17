@@ -41,19 +41,19 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.Date;
+import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -271,20 +271,18 @@ public class FeatureRepositoryTest {
 
   @Test
   public void testGetFeature_projectNotPresent() {
-    when(mockProjectRepository.getProjectLoadingState())
-        .thenReturn(Flowable.just(Loadable.loaded(TEST_PROJECT)));
+    when(mockProjectRepository.getProject(anyString()))
+        .thenReturn(Single.error(new NoSuchElementException()));
 
     featureRepository
         .getFeature("non_existent_project_id", "feature_id")
         .test()
-        .assertError(NotFoundException.class)
-        .assertErrorMessage("Project not found: non_existent_project_id");
+        .assertFailure(NoSuchElementException.class);
   }
 
   @Test
   public void testGetFeature_projectPresent() {
-    when(mockProjectRepository.getProjectLoadingState())
-        .thenReturn(Flowable.just(Loadable.loaded(TEST_PROJECT)));
+    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(TEST_PROJECT));
     when(mockLocalDataStore.getFeature(TEST_PROJECT, TEST_FEATURE.getId()))
         .thenReturn(Maybe.just(TEST_FEATURE));
 
