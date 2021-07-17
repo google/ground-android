@@ -123,7 +123,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 featureRepository
                     .applyAndEnqueue(mutation)
                     .andThen(featureRepository.getFeature(mutation))
-                    .toSingle()
                     .doOnError(errors::onNext)
                     .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
     deleteFeatureResults =

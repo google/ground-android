@@ -34,7 +34,6 @@ import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Date;
 import java8.util.Optional;
@@ -111,21 +110,21 @@ public class FeatureRepository {
   }
 
   @Cold
-  public Maybe<Feature> getFeature(FeatureMutation featureMutation) {
+  public Single<Feature> getFeature(FeatureMutation featureMutation) {
     return getFeature(featureMutation.getProjectId(), featureMutation.getFeatureId());
   }
 
-  // TODO: Replace with Single and treat missing feature as error.
   // TODO: Don't require projectId to be the active project.
   @Cold
-  public Maybe<Feature> getFeature(String projectId, String featureId) {
+  public Single<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
         .getProjectLoadingState()
         .compose(Loadable::values)
         .firstElement()
         .filter(project -> project.getId().equals(projectId))
         .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found: " + projectId)))
-        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
+        .toSingle();
   }
 
   public FeatureMutation newMutation(String projectId, String layerId, Point point) {
