@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
@@ -97,6 +98,12 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
   @Hot(replays = true)
+  private final MutableLiveData<Integer> polygonDrawingCompleted = new MutableLiveData<>(INVISIBLE);
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
@@ -109,22 +116,18 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
-
-  /** Feature selected for repositioning. */
-  private Optional<Feature> reposFeature = Optional.empty();
-
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
-
   /** The currently selected feature on the map. */
   private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
-
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
   @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
   @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
+  /** Feature selected for repositioning. */
+  private Optional<Feature> reposFeature = Optional.empty();
 
   @Inject
   MapContainerViewModel(
@@ -173,6 +176,24 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
+  }
+
+  private static MapFeature toMapPin(PointFeature feature) {
+    return MapPin.newBuilder()
+        .setId(feature.getId())
+        .setPosition(feature.getPoint())
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
+  }
+
+  private static MapFeature toMapPolygon(PolygonFeature feature) {
+    return MapPolygon.newBuilder()
+        .setId(feature.getId())
+        .setVertices(feature.getVertices())
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
   }
 
   private void onProjectChange(Optional<Project> project) {
@@ -237,15 +258,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapFeature toMapPin(PointFeature feature) {
-    return MapPin.newBuilder()
-        .setId(feature.getId())
-        .setPosition(feature.getPoint())
-        .setStyle(feature.getLayer().getDefaultStyle())
-        .setFeature(feature)
-        .build();
-  }
-
   private MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
     JSONObject jsonObject;
     try {
@@ -260,15 +272,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
         .setStrokeWidth(defaultPolygonStrokeWidth)
-        .setFeature(feature)
-        .build();
-  }
-
-  private static MapFeature toMapPolygon(PolygonFeature feature) {
-    return MapPolygon.newBuilder()
-        .setId(feature.getId())
-        .setVertices(feature.getVertices())
-        .setStyle(feature.getLayer().getDefaultStyle())
         .setFeature(feature)
         .build();
   }
@@ -431,6 +434,14 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
+  public LiveData<Integer> getAddPolygonVisibility() {
+    return addPolygonVisibility;
+  }
+
+  public LiveData<Integer> getPolygonDrawingCompletedVisibility() {
+    return polygonDrawingCompleted;
+  }
+
   public Optional<Feature> getReposFeature() {
     return reposFeature;
   }
@@ -444,10 +455,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.selectedFeature.onNext(selectedFeature);
   }
 
-  public void setLocationLockEnabled(boolean enabled) {
-    locationLockEnabled.postValue(enabled);
-  }
-
   public void setFeatureButtonBackgroundTint(@ColorRes int colorRes) {
     featureAddButtonBackgroundTint.postValue(colorRes);
   }
@@ -458,6 +465,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<Boolean> getLocationLockEnabled() {
     return locationLockEnabled;
+  }
+
+  public void setLocationLockEnabled(boolean enabled) {
+    locationLockEnabled.postValue(enabled);
   }
 
   public enum Mode {

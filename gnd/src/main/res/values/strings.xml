@@ -195,4 +195,11 @@
   <!-- Label on button shown to dismiss the feature properties dialog. -->
   <string name="close_feature_properties">OK</string>
   <string name="config_load_error">Error loading config from remote server</string>
+
+  <string name="add_point">Add Point</string>
+  <string name="save_polygon">Save Polygon</string>
+  <string name="select_data_type">Choose a data type</string>
+  <string name="get_started_dialog">Get Started</string>
+  <string name="polygon_dialog_text">Use the center cursor to add points to your polygon. To finish, return to the original point.</string>
+
 </resources>
