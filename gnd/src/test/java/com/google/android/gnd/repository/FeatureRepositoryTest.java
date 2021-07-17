@@ -36,35 +36,21 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.Completable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-@SuppressWarnings("unchecked")
-@HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
 public class FeatureRepositoryTest {
 
   private static final User TEST_USER =
@@ -118,8 +104,6 @@ public class FeatureRepositoryTest {
 
   @Rule public MockitoRule rule = MockitoJUnit.rule();
 
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
-
   @Mock LocalDataStore mockLocalDataStore;
   @Mock RemoteDataStore mockRemoteDataStore;
   @Mock ProjectRepository mockProjectRepository;
@@ -147,7 +131,6 @@ public class FeatureRepositoryTest {
 
   @Before
   public void setUp() {
-    hiltRule.inject();
     featureRepository =
         new FeatureRepository(
             mockLocalDataStore,
