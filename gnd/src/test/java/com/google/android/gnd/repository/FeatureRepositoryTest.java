@@ -27,6 +27,8 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -66,7 +68,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 // TODO: Include a test for Polygon feature
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AuditInfo.class) // Needed for mocking "new Date()"
+@PrepareForTest(FeatureRepository.class) // Needed for mocking "new Date()"
 public class FeatureRepositoryTest {
 
   private static final User TEST_USER =
@@ -120,9 +122,6 @@ public class FeatureRepositoryTest {
 
   private static final Date FAKE_NOW = new Date();
 
-  private static final AuditInfo FAKE_AUDIT_INFO =
-      AuditInfo.builder().setUser(TEST_USER).setClientTimestamp(FAKE_NOW).build();
-
   @Rule public MockitoRule rule = MockitoJUnit.rule();
 
   @Mock LocalDataStore mockLocalDataStore;
@@ -168,47 +167,19 @@ public class FeatureRepositoryTest {
   }
 
   @Test
-  public void testCreateFeature() {
-    mockAuthUser();
+  public void testApplyAndEnqueue() {
     mockApplyAndEnqueue();
     mockEnqueueSyncWorker();
 
-    featureRepository.createFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
+    featureRepository
+        .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
+        .test()
+        .assertNoErrors()
+        .assertComplete();
 
     FeatureMutation actual = captorFeatureMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.CREATE);
-    assertThat(actual.getFeatureId()).isEqualTo(TEST_FEATURE.getId());
-
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
-  }
-
-  @Test
-  public void testUpdateFeature() {
-    mockAuthUser();
-    mockApplyAndEnqueue();
-    mockEnqueueSyncWorker();
-
-    featureRepository.updateFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
-
-    FeatureMutation actual = captorFeatureMutation.getValue();
-    assertThat(actual.getType()).isEqualTo(Mutation.Type.UPDATE);
-    assertThat(actual.getFeatureId()).isEqualTo(TEST_FEATURE.getId());
-
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
-  }
-
-  @Test
-  public void testDeleteFeature() {
-    mockAuthUser();
-    mockApplyAndEnqueue();
-    mockEnqueueSyncWorker();
-
-    featureRepository.deleteFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
-
-    FeatureMutation actual = captorFeatureMutation.getValue();
-    assertThat(actual.getType()).isEqualTo(Mutation.Type.DELETE);
+    assertThat(actual.getSyncStatus()).isEqualTo(SyncStatus.PENDING);
     assertThat(actual.getFeatureId()).isEqualTo(TEST_FEATURE.getId());
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
@@ -217,7 +188,6 @@ public class FeatureRepositoryTest {
 
   @Test
   public void testApplyAndEnqueue_returnsError() {
-    mockAuthUser();
     mockEnqueueSyncWorker();
 
     doReturn(Completable.error(new NullPointerException()))
@@ -225,7 +195,7 @@ public class FeatureRepositoryTest {
         .applyAndEnqueue(any(FeatureMutation.class));
 
     featureRepository
-        .createFeature(TEST_FEATURE)
+        .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
         .test()
         .assertError(NullPointerException.class)
         .assertNotComplete();
@@ -236,7 +206,6 @@ public class FeatureRepositoryTest {
 
   @Test
   public void testEnqueueSyncWorker_returnsError() {
-    mockAuthUser();
     mockApplyAndEnqueue();
 
     doReturn(Completable.error(new NullPointerException()))
@@ -244,7 +213,7 @@ public class FeatureRepositoryTest {
         .enqueueSyncWorker(anyString());
 
     featureRepository
-        .createFeature(TEST_FEATURE)
+        .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
         .test()
         .assertError(NullPointerException.class)
         .assertNotComplete();
@@ -323,20 +292,28 @@ public class FeatureRepositoryTest {
         .getFeature(TEST_PROJECT.getId(), TEST_FEATURE.getId())
         .test()
         .assertResult(TEST_FEATURE);
+
+    featureRepository
+        .getFeature(TEST_FEATURE.toMutation(Type.UPDATE, "user_id"))
+        .test()
+        .assertResult(TEST_FEATURE);
   }
 
   @Test
   public void testNewFeature() throws Exception {
     mockAuthUser();
-    when(mockUuidGenerator.generateUuid()).thenReturn("brand_new_id");
+    when(mockUuidGenerator.generateUuid()).thenReturn("new_uuid");
     whenNew(Date.class).withNoArguments().thenReturn(FAKE_NOW);
 
-    PointFeature newFeature = featureRepository.newFeature(TEST_PROJECT, TEST_LAYER, TEST_POINT);
-    assertThat(newFeature.getId()).isEqualTo("brand_new_id");
-    assertThat(newFeature.getProject()).isEqualTo(TEST_PROJECT);
-    assertThat(newFeature.getLayer()).isEqualTo(TEST_LAYER);
-    assertThat(newFeature.getPoint()).isEqualTo(TEST_POINT);
-    assertThat(newFeature.getCreated()).isEqualTo(FAKE_AUDIT_INFO);
-    assertThat(newFeature.getLastModified()).isEqualTo(FAKE_AUDIT_INFO);
+    FeatureMutation newMutation =
+        featureRepository.newMutation("foo_project_id", "foo_layer_id", TEST_POINT);
+
+    assertThat(newMutation.getId()).isNull();
+    assertThat(newMutation.getFeatureId()).isEqualTo("new_uuid");
+    assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getNewLocation().get()).isEqualTo(TEST_POINT);
+    assertThat(newMutation.getUserId()).isEqualTo(TEST_USER.getId());
+    assertThat(newMutation.getClientTimestamp()).isEqualTo(FAKE_NOW);
   }
 }

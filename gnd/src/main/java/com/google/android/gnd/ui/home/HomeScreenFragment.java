@@ -444,7 +444,7 @@ public class HomeScreenFragment extends AbstractFragment
     addFeatureDialogFragment.show(
         viewModel.getModifiableLayers(FeatureType.POINT),
         getChildFragmentManager(),
-        layer -> viewModel.addFeature(layer, point));
+        layer -> viewModel.addFeature(layer.getId(), point));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {

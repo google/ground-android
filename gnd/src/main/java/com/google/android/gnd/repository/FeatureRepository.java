@@ -16,16 +16,12 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -114,6 +110,11 @@ public class FeatureRepository {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
 
+  @Cold
+  public Maybe<Feature> getFeature(FeatureMutation featureMutation) {
+    return getFeature(featureMutation.getProjectId(), featureMutation.getFeatureId());
+  }
+
   // TODO: Replace with Single and treat missing feature as error.
   // TODO: Don't require projectId to be the active project.
   @Cold
@@ -127,67 +128,30 @@ public class FeatureRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  private FeatureMutation fromFeature(Feature feature, Type type) {
-    FeatureMutation.Builder featureMutationBuilder =
-        FeatureMutation.builder()
-            .setType(type)
-            .setSyncStatus(SyncStatus.PENDING)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setLayerId(feature.getLayer().getId())
-            .setUserId(authManager.getCurrentUser().getId())
-            .setClientTimestamp(new Date());
-    if (feature instanceof PointFeature) {
-      featureMutationBuilder.setNewLocation(
-          Optional.ofNullable(((PointFeature) feature).getPoint()));
-    } else if (feature instanceof PolygonFeature) {
-      featureMutationBuilder.setNewPolygonVertices(((PolygonFeature) feature).getVertices());
-    } else {
-      Timber.e("Unknown Feature %s", feature.getClass());
-    }
-    return featureMutationBuilder.build();
-  }
-
-  public PointFeature newFeature(Project project, Layer layer, Point point) {
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return PointFeature.newBuilder()
-        .setId(uuidGenerator.generateUuid())
-        .setProject(project)
-        .setLayer(layer)
-        .setPoint(point)
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
+  public FeatureMutation newMutation(String projectId, String layerId, Point point) {
+    return FeatureMutation.builder()
+        .setType(Type.CREATE)
+        .setSyncStatus(SyncStatus.PENDING)
+        .setFeatureId(uuidGenerator.generateUuid())
+        .setProjectId(projectId)
+        .setLayerId(layerId)
+        .setNewLocation(Optional.of(point))
+        .setUserId(authManager.getCurrentUser().getId())
+        .setClientTimestamp(new Date())
         .build();
-  }
-
-  // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-  @Cold
-  public Completable createFeature(Feature feature) {
-    return applyAndEnqueue(feature, Type.CREATE);
-  }
-
-  @Cold
-  public Completable updateFeature(Feature feature) {
-    return applyAndEnqueue(feature, Type.UPDATE);
-  }
-
-  @Cold
-  public Completable deleteFeature(Feature feature) {
-    return applyAndEnqueue(feature, Type.DELETE);
   }
 
   /**
    * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
    * task for remote sync if the local transaction is successful.
    *
-   * @param feature Input {@link Feature}
-   * @param type Determines the {@link Type} of operation to be performed in the databases.
+   * @param mutation Input {@link FeatureMutation}
    * @return If successful, returns the provided feature wrapped as {@link Loadable}
    */
   @Cold
-  private Completable applyAndEnqueue(Feature feature, Type type) {
-    Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
-    Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
+  public Completable applyAndEnqueue(FeatureMutation mutation) {
+    Completable localTransaction = localDataStore.applyAndEnqueue(mutation);
+    Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId());
     return localTransaction.andThen(remoteSync);
   }
 }
