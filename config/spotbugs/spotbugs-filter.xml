@@ -19,69 +19,50 @@
 <!-- Excludes classes or bugs from the spotbugs check -->
 <FindBugsFilter>
 
-  <!-- Auto-generated resources classes -->
   <Match>
-    <Class name="~.*\.R\$.*" />
+    <Or>
+      <!-- Auto-generated data binding classes -->
+      <Class name="~.*databinding.*Binding.*" />
+
+      <!-- Auto-generated room classes -->
+      <Class name="~.*_Impl\$*.*" />
+
+      <!-- Auto-generated AutoValue classes -->
+      <Class name="~.*AutoValue_.*" />
+
+      <!-- Auto-generated NavDirections classes -->
+      <Class name="~.*Args.*" />
+      <Class name="~.*Directions\$.*" />
+    </Or>
   </Match>
 
-  <!-- Auto-generated manifest classes -->
   <Match>
-    <Class name="~.*\.Manifest\$.*" />
+    <Or>
+      <!-- Globally excluded rules -->
+      <Bug pattern="BC_UNCONFIRMED_CAST" />
+      <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
+      <Bug pattern="BX_UNBOXING_IMMEDIATELY_REBOXED" />
+      <Bug pattern="DM_BOXED_PRIMITIVE_FOR_PARSING" />
+      <Bug pattern="DM_DEFAULT_ENCODING" />
+      <Bug pattern="EI_EXPOSE_REP" />
+      <Bug pattern="EI_EXPOSE_REP2" />
+      <Bug pattern="MS_PKGPROTECT" />
+      <Bug pattern="MS_EXPOSE_REP" />
+      <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE" />
+      <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE" />
+      <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+      <Bug pattern="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE" />
+      <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
+      <Bug pattern="OS_OPEN_STREAM" />
+      <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
+      <Bug pattern="SF_SWITCH_NO_DEFAULT" />
+      <Bug pattern="SIC_INNER_SHOULD_BE_STATIC" />
+      <Bug pattern="WMI_WRONG_MAP_ITERATOR" />
+      <Bug pattern="UCF_USELESS_CONTROL_FLOW" />
+      <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
+      <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+      <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD" />
+    </Or>
   </Match>
 
-  <!-- Auto-generated data binding classes -->
-  <Match>
-    <Class name="~.*databinding.*Binding.*" />
-  </Match>
-
-  <!-- Auto-generated ButterKnife classes -->
-  <Match>
-    <Class name="~.*_ViewBinding$*" />
-  </Match>
-
-  <!-- Auto-generated room classes -->
-  <Match>
-    <Class name="~.*_Impl\$*.*" />
-  </Match>
-
-  <!-- Internationalization -->
-  <Match>
-    <Bug pattern="DM_DEFAULT_ENCODING" />
-  </Match>
-
-  <!-- Bad practice -->
-  <Match>
-    <Bug pattern="OS_OPEN_STREAM" />
-  </Match>
-  <Match>
-    <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE" />
-  </Match>
-
-  <!-- Performance Warnings -->
-  <Match>
-    <Bug pattern="WMI_WRONG_MAP_ITERATOR" />
-  </Match>
-  <Match>
-    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC" />
-  </Match>
-
-  <!-- Dodgy code Warnings -->
-  <Match>
-    <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE" />
-  </Match>
-  <Match>
-    <Bug pattern="UCF_USELESS_CONTROL_FLOW" />
-  </Match>
-  <Match>
-    <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD" />
-  </Match>
-  <Match>
-    <Bug pattern="SF_SWITCH_NO_DEFAULT" />
-  </Match>
-  <Match>
-    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
-  </Match>
-  <Match>
-    <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
-  </Match>
 </FindBugsFilter>
