@@ -27,6 +27,7 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -35,6 +36,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -188,5 +190,19 @@ public class FeatureRepository {
     Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
     Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
     return localTransaction.andThen(remoteSync);
+  }
+
+  /**
+   * Emits the list of {@link FeatureMutation} instances for a given feature which have not yet been
+   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations.
+   * A new list is emitted on each subsequent change.
+   */
+  public Flowable<ImmutableList<FeatureMutation>> getIncompleteFeatureMutationsOnceAndStream(
+      String featureId) {
+    return localDataStore.getFeatureMutationsByFeatureIdOnceAndStream(
+        featureId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED);
   }
 }

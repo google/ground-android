@@ -89,4 +89,9 @@ public class BindingAdapters {
     int tint = ContextCompat.getColor(imageView.getContext(), colorId);
     ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tint));
   }
+
+  @BindingAdapter("visible")
+  public static void bindVisible(View view, boolean visible) {
+    view.setVisibility(visible ? View.VISIBLE : View.GONE);
+  }
 }
