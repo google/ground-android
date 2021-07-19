@@ -45,7 +45,8 @@ public interface ObservationMutationDao extends BaseDao<ObservationMutationEntit
 
   @Cold(terminates = false)
   @Query(
-      "SELECT * FROM observation_mutation WHERE feature_id = :featureId AND state IN (:allowedStates)")
+      "SELECT * FROM observation_mutation "
+          + "WHERE feature_id = :featureId AND state IN (:allowedStates)")
   Flowable<List<ObservationMutationEntity>> findByFeatureIdOnceAndStream(
       String featureId, MutationEntitySyncStatus... allowedStates);
 }
