@@ -254,9 +254,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
-    FrameLayout toolbarWrapper = binding.featureDetailsChrome.toolbarWrapper;
     FrameLayout bottomSheetHeader = binding.getRoot().findViewById(R.id.bottom_sheet_header);
-    if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
+    if (bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);

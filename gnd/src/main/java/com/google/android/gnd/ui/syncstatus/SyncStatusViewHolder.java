@@ -22,7 +22,6 @@ import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 public class SyncStatusViewHolder extends RecyclerView.ViewHolder {
 
   public SyncStatusListItemBinding binding;
-  public int position;
 
   SyncStatusViewHolder(SyncStatusListItemBinding binding) {
     super(binding.getRoot());
