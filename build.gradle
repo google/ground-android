@@ -68,7 +68,7 @@ allprojects {
 }
 
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'pmd']
+    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugsDebug']
 }
 
 task clean(type: Delete) {
