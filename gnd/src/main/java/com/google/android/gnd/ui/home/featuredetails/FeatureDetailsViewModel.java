@@ -125,7 +125,7 @@ public class FeatureDetailsViewModel extends ViewModel {
     return subtitle;
   }
 
-  public LiveData<Boolean> getShowUploadPendingIcon() {
+  public LiveData<Boolean> isUploadPendingIconVisible() {
     return showUploadPendingIcon;
   }
 

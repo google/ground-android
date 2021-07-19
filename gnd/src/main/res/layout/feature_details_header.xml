@@ -111,7 +111,7 @@
         android:layout_gravity="bottom|end"
         app:tint="@color/colorGrey500"
         app:srcCompat="@drawable/ic_upload_pending"
-        app:visible="@{viewModel.getShowUploadPendingIcon()}">
+        app:visible="@{viewModel.isUploadPendingIconVisible()}">
       </ImageView>
     </FrameLayout>
   </FrameLayout>
