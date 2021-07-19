@@ -17,6 +17,8 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
+import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.formatVertices;
+import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.parseVertices;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -67,6 +69,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
+  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
   @CopyAnnotations
   @Nullable
   @ColumnInfo(name = "polygon_vertices")
@@ -79,6 +82,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
+        .setNewPolygonVertices(formatVertices(m.getNewPolygonVertices()))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setRetryCount(m.getRetryCount())
@@ -95,6 +99,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
+        .setNewPolygonVertices(parseVertices(getNewPolygonVertices()))
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
@@ -113,8 +118,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String layerId,
       MutationEntityType type,
       MutationEntitySyncStatus syncStatus,
-      Coordinates newLocation,
-      String newPolygonVertices,
+      @Nullable Coordinates newLocation,
+      @Nullable String newPolygonVertices,
       long retryCount,
       @Nullable String lastError,
       String userId,
@@ -146,7 +151,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
     public abstract Builder setLayerId(String newLayerId);
 
-    public abstract Builder setNewLocation(Coordinates newNewLocation);
+    public abstract Builder setNewLocation(@Nullable Coordinates newNewLocation);
 
     public abstract Builder setNewPolygonVertices(@Nullable String newPolygonVertices);
 

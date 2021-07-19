@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.persistence.local.room.entity;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -28,13 +31,20 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import java.util.List;
+import java8.util.stream.Collectors;
 
 /**
  * Defines how Room persists features in the local db. By default, Room uses the name of object
@@ -104,6 +114,7 @@ public abstract class FeatureEntity {
             .setCreated(authInfo)
             .setLastModified(authInfo);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
+    entity.setPolygonVertices(formatVertices(mutation.getNewPolygonVertices()));
     return entity.build();
   }
 
@@ -120,6 +131,8 @@ public abstract class FeatureEntity {
       entity.setLocation(Coordinates.fromPoint(((PointFeature) feature).getPoint()));
     } else if (feature instanceof GeoJsonFeature) {
       entity.setGeoJson(((GeoJsonFeature) feature).getGeoJsonString());
+    } else if (feature instanceof PolygonFeature) {
+      entity.setPolygonVertices(formatVertices(((PolygonFeature) feature).getVertices()));
     }
     return entity.build();
   }
@@ -140,12 +153,43 @@ public abstract class FeatureEntity {
     }
 
     if (featureEntity.getPolygonVertices() != null) {
-      // TODO : Implement save to local db;
+      PolygonFeature.Builder builder =
+          PolygonFeature.builder().setVertices(parseVertices(featureEntity.getPolygonVertices()));
+      fillFeature(builder, featureEntity, project);
+      return builder.build();
     }
 
     throw new LocalDataConsistencyException(
         "No geometry data found in feature " + featureEntity.getId());
   }
+
+  @Nullable
+  public static String formatVertices(ImmutableList<Point> vertices) {
+    if (vertices.isEmpty()) {
+      return null;
+    }
+    Gson gson = new Gson();
+    List<List<Double>> verticesArray = stream(vertices)
+        .map(point -> ImmutableList.of(point.getLatitude(),
+            point.getLongitude())).collect(Collectors.toList());
+    return gson.toJson(verticesArray);
+  }
+
+  public static ImmutableList<Point> parseVertices(@Nullable String vertices) {
+    if (vertices == null || vertices.isEmpty()) {
+      return ImmutableList.of();
+    }
+    Gson gson = new Gson();
+    List<List<Double>> verticesArray =
+        gson.fromJson(vertices, new TypeToken<List<List<Double>>>(){}.getType());
+
+    return stream(verticesArray).map(vertex -> Point.newBuilder()
+        .setLatitude(vertex.get(0))
+        .setLongitude(vertex.get(1))
+        .build())
+        .collect(toImmutableList());
+  }
+
 
   public static void fillFeature(
       Feature.Builder builder, FeatureEntity featureEntity, Project project) {
