@@ -26,8 +26,8 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import java8.util.Optional;
 import io.reactivex.subjects.Subject;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 @SharedViewModel
