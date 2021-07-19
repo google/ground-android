@@ -23,6 +23,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
@@ -92,22 +93,30 @@ public abstract class LayerEntity {
       layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
     }
 
-    layerBuilder.setContributorsCanAdd(toList(layerEntity.getContributorsCanAdd()));
+    layerBuilder.setContributorsCanAdd(toFeatureTypes(layerEntity.getContributorsCanAdd()));
 
     return layerBuilder.build();
   }
 
-  private static ImmutableList<String> toList(JSONArray jsonArray) {
-    ImmutableList.Builder builder = ImmutableList.builder();
+  private static ImmutableList<FeatureType> toFeatureTypes(JSONArray jsonArray) {
+    ImmutableList.Builder<FeatureType> builder = ImmutableList.builder();
     for (int i = 0; i < jsonArray.length(); i++) {
       String value = jsonArray.optString(i, null);
       if (value != null) {
-        builder.add(value);
+        builder.add(toFeatureType(value));
       }
     }
     return builder.build();
   }
 
+  private static FeatureType toFeatureType(String stringValue) {
+    switch (stringValue) {
+      case "points":
+        return FeatureType.POINT;
+      default:
+        return FeatureType.UNKNOWN;
+    }
+  }
   public static LayerEntity create(
       String id, String name, Style defaultStyle, String projectId, JSONArray contributorsCanAdd) {
     return builder()
