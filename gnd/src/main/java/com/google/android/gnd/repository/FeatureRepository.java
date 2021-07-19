@@ -24,6 +24,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -130,20 +131,23 @@ public class FeatureRepository {
   }
 
   private FeatureMutation fromFeature(Feature feature, Type type) {
-    Optional<Point> newLocation =
-        feature instanceof PointFeature
-            ? Optional.of(((PointFeature) feature).getPoint())
-            : Optional.empty();
-    return FeatureMutation.builder()
+    FeatureMutation.Builder featureMutationBuilder = FeatureMutation.builder()
         .setType(type)
         .setSyncStatus(SyncStatus.PENDING)
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())
-        .setNewLocation(newLocation)
         .setUserId(authManager.getCurrentUser().getId())
-        .setClientTimestamp(new Date())
-        .build();
+        .setClientTimestamp(new Date());
+    if (feature instanceof  PointFeature) {
+      featureMutationBuilder.setNewLocation(
+          Optional.ofNullable(((PointFeature) feature).getPoint()));
+    } else if (feature instanceof PolygonFeature) {
+      featureMutationBuilder.setNewPolygonVertices(((PolygonFeature) feature).getVertices());
+    } else {
+      Timber.e("Unknown Feature %s", feature.getClass());
+    }
+    return featureMutationBuilder.build();
   }
 
   public PointFeature newFeature(Project project, Layer layer, Point point) {

@@ -27,7 +27,6 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
@@ -126,10 +125,6 @@ public class HomeScreenFragment extends AbstractFragment
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
-    viewModel
-        .getShowAddFeatureDialogRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onShowAddFeatureDialogRequest);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
@@ -145,6 +140,10 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureSelections()
         .as(autoDisposable(this))
         .subscribe(this::onFeatureSelection);
+    mapContainerViewModel
+        .getAddFeatureButtonClicks()
+        .as(autoDisposable(this))
+        .subscribe(this::onShowAddFeatureDialogRequest);
   }
 
   private void onFeatureSelection(Feature feature) {
@@ -303,24 +302,6 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.feature_sheet_menu, menu);
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    BottomSheetState state = viewModel.getBottomSheetState().getValue();
-    if (state == null) {
-      Timber.e("BottomSheetState is null");
-      return;
-    }
-
-    // "Move feature" option should only be enabled for PointFeature.
-    boolean isPointFeature = state.isPointFeature();
-    menu.getItem(0).setVisible(isPointFeature);
-  }
-
-  @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     BottomSheetState state = viewModel.getBottomSheetState().getValue();
     if (state == null) {
@@ -459,6 +440,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point point) {
+    // TODO: Pause location updates while dialog is open.
     addFeatureDialogFragment.show(
         viewModel.getModifiableLayers(FeatureType.POINT),
         getChildFragmentManager(),

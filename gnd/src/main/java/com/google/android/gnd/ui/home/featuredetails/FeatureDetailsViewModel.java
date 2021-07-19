@@ -49,9 +49,10 @@ public class FeatureDetailsViewModel extends ViewModel {
   private final FeatureRepository featureRepository;
   private final ObservationRepository observationRepository;
   private final Bitmap markerBitmap;
-  private LiveData<String> title;
-  private LiveData<String> subtitle;
-  private LiveData<Boolean> showUploadPendingIcon;
+  private final LiveData<String> title;
+  private final LiveData<String> subtitle;
+  private final LiveData<Boolean> showUploadPendingIcon;
+  private final LiveData<Boolean> moveMenuOptionVisible;
 
   @Inject
   public FeatureDetailsViewModel(
@@ -68,6 +69,9 @@ public class FeatureDetailsViewModel extends ViewModel {
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
+    this.moveMenuOptionVisible =
+        LiveDataReactiveStreams.fromPublisher(
+            selectedFeature.map(optional -> optional.map(Feature::isPoint).orElse(true)));
     Flowable<ImmutableList<FeatureMutation>> featureMutations =
         selectedFeature.switchMap(this::getIncompleteFeatureMutationsOnceAndStream);
     Flowable<ImmutableList<ObservationMutation>> observationMutations =
@@ -106,12 +110,7 @@ public class FeatureDetailsViewModel extends ViewModel {
   }
 
   public void onBottomSheetStateChange(BottomSheetState state) {
-    if (!state.isVisible()) {
-      selectedFeature.onNext(Optional.empty());
-      return;
-    }
-
-    selectedFeature.onNext(state.getFeature());
+    selectedFeature.onNext(state.isVisible() ? state.getFeature() : Optional.empty());
   }
 
   public Bitmap getMarkerBitmap() {
@@ -128,5 +127,9 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public LiveData<Boolean> getShowUploadPendingIcon() {
     return showUploadPendingIcon;
+  }
+
+  public LiveData<Boolean> getMoveMenuOptionVisible() {
+    return moveMenuOptionVisible;
   }
 }

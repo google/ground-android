@@ -41,6 +41,7 @@ public class LocalValueStore {
   public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
   public static final String MAP_TYPE = "map_type";
   public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
+  public static final String TOS_ACCEPTED = "tos_accepted";
 
   private final SharedPreferences preferences;
 
@@ -109,5 +110,15 @@ public class LocalValueStore {
       Timber.e(e, "Invalid camera pos in prefs");
       return Optional.empty();
     }
+  }
+
+  /** Returns whether the currently logged in user has accepted the terms or not. */
+  public boolean isTermsOfServiceAccepted() {
+    return preferences.getBoolean(TOS_ACCEPTED, false);
+  }
+
+  /** Updates the terms of service acceptance state for the currently signed in user. */
+  public void setTermsOfServiceAccepted(boolean value) {
+    preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
   }
 }

@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -35,7 +37,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
@@ -48,6 +49,7 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
@@ -124,26 +126,34 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final MarkerManager.Collection markers;
 
   /**
+   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
+   * start and end of polygon.
+   */
+  private final CustomCap customCap;
+
+  /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
    * with current view and data state.
    */
   private final Set<Polyline> polylines = new HashSet<>();
 
+  private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
+  private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
+  private final Map<MapFeature, List<LatLng>> polygons = new HashMap<>();
   /**
    * References to Google Maps SDK GeoJSON layers present on the map, keyed by MapGeoJson features.
    * Used to sync and update GeoJSON with current data and UI state.
    */
   private Map<MapGeoJson, GeoJsonLayer> geoJsonLayersByFeature = new HashMap<>();
 
-  private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
-  private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
-
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
-  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
+  public GoogleMapsMapAdapter(
+      GoogleMap map, Context context, MarkerIconFactory markerIconFactory, BitmapUtil bitmapUtil) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
+    this.customCap = new CustomCap(bitmapUtil.bitmapDescriptorFromVector(R.drawable.ic_endpoint));
 
     // init markers
     markerManager = new MarkerManager(map);
@@ -195,6 +205,19 @@ class GoogleMapsMapAdapter implements MapAdapter {
       if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
         candidates.add(json.getKey());
         processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    for (Map.Entry<MapFeature, List<LatLng>> entry : polygons.entrySet()) {
+      List<LatLng> vertices = entry.getValue();
+      MapFeature mapFeature = entry.getKey();
+      if (processed.contains(((MapPolygon) mapFeature).getId())) {
+        continue;
+      }
+
+      if (PolyUtil.containsLocation(latLng, vertices, false)) {
+        candidates.add(mapFeature);
+        processed.add(((MapPolygon) mapFeature).getId());
       }
     }
 
@@ -277,28 +300,30 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
-    for (ImmutableSet<Point> vertices : mapPolygon.getVertices()) {
-      PolylineOptions options = new PolylineOptions();
+    PolylineOptions options = new PolylineOptions();
+    options.clickable(false);
+    ImmutableList<LatLng> vertices =
+        stream(mapPolygon.getVertices())
+            .map(GoogleMapsMapAdapter::toLatLng)
+            .collect(toImmutableList());
+    options.addAll(vertices);
 
-      // Read-only
-      options.clickable(false);
-
-      // Add vertices to PolylineOptions
-      stream(vertices).map(GoogleMapsMapAdapter::toLatLng).forEach(options::add);
-
-      // Add to map
-      Polyline polyline = map.addPolyline(options);
-      polyline.setTag(mapPolygon);
-
-      // Style polyline
-      polyline.setStartCap(new RoundCap());
-      polyline.setEndCap(new RoundCap());
-      polyline.setWidth(getPolylineStrokeWidth());
-      polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
-      polyline.setJointType(JointType.ROUND);
-
-      polylines.add(polyline);
+    Polyline polyline = map.addPolyline(options);
+    polyline.setTag(mapPolygon);
+    if (!isPolygonCompleted(mapPolygon.getVertices())) {
+      polyline.setStartCap(customCap);
+      polyline.setEndCap(customCap);
     }
+    polyline.setWidth(getPolylineStrokeWidth());
+    polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
+    polyline.setJointType(JointType.ROUND);
+
+    polylines.add(polyline);
+    polygons.put(mapPolygon, vertices);
+  }
+
+  private boolean isPolygonCompleted(List<Point> vertices) {
+    return vertices.size() > 2 && vertices.get(vertices.size() - 1) == vertices.get(0);
   }
 
   private int getPolylineStrokeWidth() {
@@ -380,6 +405,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void setMapFeatures(ImmutableSet<MapFeature> features) {
+    Timber.d("Set map features called : %s", features.size());
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
     for (Marker marker : markers.getMarkers()) {

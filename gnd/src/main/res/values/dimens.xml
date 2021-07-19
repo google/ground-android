@@ -18,7 +18,7 @@
 
 <resources>
   <!-- Map -->
-  <dimen name="polyline_stroke_width">2dp</dimen>
+  <dimen name="polyline_stroke_width">4dp</dimen>
   <dimen name="selected_polyline_stroke_width">7dp</dimen>
 
   <!-- Forms -->

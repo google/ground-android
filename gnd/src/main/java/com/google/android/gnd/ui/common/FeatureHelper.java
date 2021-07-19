@@ -49,7 +49,7 @@ public class FeatureHelper {
   }
 
   public String getFeatureType(Feature feature) {
-    if (feature.isGeoJson()) {
+    if (feature.isGeoJson() || feature.isPolygon()) {
       return resources.getString(R.string.polygon);
     } else {
       return resources.getString(R.string.point);
