@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.terms;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
+import com.google.firebase.firestore.CollectionReference;
 
-// TODO: Needs to handle view state and behaviors of the Terms Fragment
-public class TermsOfServiceViewModel extends AbstractViewModel {
+public class TermsOfServiceCollectionReference extends FluentCollectionReference {
 
+  private static final String TOS = "tos";
+
+  TermsOfServiceCollectionReference(CollectionReference ref) {
+    super(ref);
+  }
+
+  public TermsOfServiceDocumentReference getTerm() {
+    return new TermsOfServiceDocumentReference(reference().document(TOS));
+  }
 }

@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.google.android.gnd.rx.Nil.NIL;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
@@ -68,8 +66,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> projectLoadingState;
 
-  // TODO(#719): Move into MapContainersViewModel
-  @Hot private final FlowableProcessor<Point> addFeatureDialogRequests = PublishProcessor.create();
   // TODO(#719): Move into FeatureDetailsViewModel.
   @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
@@ -87,7 +83,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
 
   @Hot
   private final PublishSubject<ImmutableList<Feature>> overlappingFeaturesSubject =
@@ -133,23 +129,24 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** Handle state of the UI elements depending upon the active project. */
   private void onProjectLoadingStateChange(Loadable<Project> project) {
-    addFeatureButtonVisibility.postValue(shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
+    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
     if (!project.isLoaded()) {
+      Timber.v("Project not loaded; hiding feature button");
       return false;
     }
 
     // TODO: Also check if the project has user-editable layers.
     //  Pending feature, https://github.com/google/ground-platform/issues/228
 
-    // Project must contain at least 1 layer.
-    return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
+    // Project must contain at least one layer that the user can modify.
+    return !getModifiableLayers(FeatureType.POINT).isEmpty();
   }
 
-  public LiveData<Integer> getAddFeatureButtonVisibility() {
-    return addFeatureButtonVisibility;
+  public LiveData<Boolean> isAddFeatureButtonVisible() {
+    return addFeatureButtonVisible;
   }
 
   public LiveData<ImmutableList<Feature>> getOverlappingFeatures() {
@@ -203,10 +200,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return projectLoadingState;
   }
 
-  public Flowable<Point> getShowAddFeatureDialogRequests() {
-    return addFeatureDialogRequests;
-  }
-
   public LiveData<BottomSheetState> getBottomSheetState() {
     return bottomSheetState;
   }
@@ -224,11 +217,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Timber.d("showing bottom sheet");
     isObservationButtonVisible.setValue(true);
     bottomSheetState.setValue(BottomSheetState.visible(feature));
-  }
-
-  public void onAddFeatureBtnClick(Point location) {
-    // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.onNext(location);
   }
 
   public void onBottomSheetHidden() {

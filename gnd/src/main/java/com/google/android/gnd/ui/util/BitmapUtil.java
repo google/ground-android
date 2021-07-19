@@ -18,8 +18,13 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
+import androidx.core.content.ContextCompat;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -36,5 +41,21 @@ public class BitmapUtil {
   /** Retrieves an image for the given url as a {@link Bitmap}. */
   public Bitmap fromUri(Uri url) throws IOException {
     return Media.getBitmap(context.getContentResolver(), url);
+  }
+
+  public BitmapDescriptor bitmapDescriptorFromVector(int resId) {
+    Drawable vectorDrawable = ContextCompat.getDrawable(context, resId);
+
+    // Specify a bounding rectangle for the Drawable.
+    vectorDrawable.setBounds(
+        0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+    Bitmap bitmap =
+        Bitmap.createBitmap(
+            vectorDrawable.getIntrinsicWidth(),
+            vectorDrawable.getIntrinsicHeight(),
+            Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
+    vectorDrawable.draw(canvas);
+    return BitmapDescriptorFactory.fromBitmap(bitmap);
   }
 }

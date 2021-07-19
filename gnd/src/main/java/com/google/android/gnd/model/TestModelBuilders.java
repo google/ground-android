@@ -87,6 +87,12 @@ public class TestModelBuilders {
         .setLastModified(newAuditInfo().build());
   }
 
+  public static TermsOfService.Builder newTermsOfService() {
+    return TermsOfService.builder()
+        .setId("")
+        .setText("");
+  }
+
   public static Layer.Builder newLayer() {
     return Layer.newBuilder().setId("").setName("").setDefaultStyle(newStyle().build());
   }
