@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.model.Mutation;
-import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
