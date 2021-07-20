@@ -80,7 +80,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:onClick="@{() -> viewModel.onAddFeatureBtnClick()}"
-      android:visibility="@{homeScreenViewModel.isAddFeatureButtonVisible() ? View.VISIBLE : View.GONE}"
+      app:visible="@{homeScreenViewModel.isAddFeatureButtonVisible()}"
       app:fabSize="normal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
