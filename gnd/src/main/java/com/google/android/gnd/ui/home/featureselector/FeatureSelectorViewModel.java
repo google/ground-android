@@ -19,44 +19,47 @@ package com.google.android.gnd.ui.home.featureselector;
 import android.content.res.Resources;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.FeatureHelper;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 
+@SharedViewModel
 public class FeatureSelectorViewModel extends AbstractViewModel {
 
   private ImmutableList<Feature> features = ImmutableList.<Feature>builder().build();
-  private final PublishSubject<Integer> selections = PublishSubject.create();
-  private final Observable<Feature> selectedFeatures;
+  @Hot private final Subject<Integer> itemClicks = PublishSubject.create();
+  @Hot private final Observable<Feature> featureClicks;
   private final FeatureHelper featureHelper;
   private final Resources resources;
 
   @Inject
   FeatureSelectorViewModel(FeatureHelper featureHelper, Resources resources) {
-    this.selectedFeatures = selections.map(i -> this.features.get(i));
+    this.featureClicks = itemClicks.filter(i -> i < features.size()).map(i -> features.get(i));
     this.featureHelper = featureHelper;
     this.resources = resources;
   }
 
-  public void onFeatures(ImmutableList<Feature> features) {
+  public void setFeatures(ImmutableList<Feature> features) {
     this.features = features;
   }
 
-  public void selectFeature(int index) {
-    selections.onNext(index);
+  public void onItemClick(int index) {
+    itemClicks.onNext(index);
   }
 
-  public Observable<ImmutableList<Feature>> getFeatures() {
-    return Single.just(features).toObservable();
+  public ImmutableList<Feature> getFeatures() {
+    return features;
   }
 
-  public Observable<Feature> getFeatureSelections() {
-    return selectedFeatures;
+  public Observable<Feature> getFeatureClicks() {
+    return featureClicks;
   }
 
   String getListItemText(Feature feature) {

@@ -716,4 +716,22 @@ public class RoomLocalDataStore implements LocalDataStore {
       return Completable.complete().subscribeOn(schedulers.io());
     }
   }
+
+  @Override
+  public Flowable<ImmutableList<FeatureMutation>> getFeatureMutationsByFeatureIdOnceAndStream(
+      String featureId, MutationEntitySyncStatus... allowedStates) {
+    return featureMutationDao
+        .findByFeatureIdOnceAndStream(featureId, allowedStates)
+        .map(
+            list -> stream(list).map(FeatureMutationEntity::toMutation).collect(toImmutableList()));
+  }
+
+  @Override
+  public Flowable<ImmutableList<ObservationMutation>>
+      getObservationMutationsByFeatureIdOnceAndStream(
+          Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
+    return observationMutationDao
+        .findByFeatureIdOnceAndStream(featureId, allowedStates)
+        .map(list -> stream(list).map(e -> e.toMutation(project)).collect(toImmutableList()));
+  }
 }
