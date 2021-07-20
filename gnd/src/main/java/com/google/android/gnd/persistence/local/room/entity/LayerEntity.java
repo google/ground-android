@@ -117,6 +117,7 @@ public abstract class LayerEntity {
         return FeatureType.UNKNOWN;
     }
   }
+
   public static LayerEntity create(
       String id, String name, Style defaultStyle, String projectId, JSONArray contributorsCanAdd) {
     return builder()
