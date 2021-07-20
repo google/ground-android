@@ -25,6 +25,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,7 +49,9 @@ import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -139,6 +142,22 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onFeatureSelected);
+    mapContainerViewModel
+        .getAddFeatureButtonClicks()
+        .as(autoDisposable(this))
+        .subscribe(viewModel::onAddFeatureButtonClick);
+    viewModel.getShowAddFeatureDialogRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::showAddFeatureDialog);
+  }
+
+  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
+    ImmutableList<Layer> layers = args.first;
+    Point point = args.second;
+    addFeatureDialogFragment.show(layers,
+        getChildFragmentManager(),
+        layer -> viewModel.addFeature(layer, point));
+    
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {

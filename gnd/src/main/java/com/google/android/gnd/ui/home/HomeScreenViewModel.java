@@ -21,6 +21,7 @@ import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -90,6 +91,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final Subject<ImmutableList<Feature>> showFeatureSelectorRequests =
       PublishSubject.create();
 
+  private Subject<Pair<ImmutableList<Layer>, Point>> showAddFeatureDialogRequests =
+      PublishSubject.create();
+
   @Inject
   HomeScreenViewModel(
       ProjectRepository projectRepository,
@@ -129,8 +133,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
-    // Project must contain at least one layer that the user can modify.
-    return !projectRepository.getModifiableLayers(project.value(), FeatureType.POINT).isEmpty();
+    // Project must contain at least one layer that the user can modify for add feature button to be
+    // shown.
+    ImmutableList<Layer> modifiableLayers =
+        projectRepository.getModifiableLayers(project.value(), FeatureType.POINT);
+    return !modifiableLayers.isEmpty();
   }
 
   public LiveData<Boolean> isAddFeatureButtonVisible() {
@@ -140,6 +147,21 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot
   public Observable<ImmutableList<Feature>> getShowFeatureSelectorRequests() {
     return showFeatureSelectorRequests;
+  }
+
+  public void onAddFeatureButtonClick(Point point) {
+    ImmutableList<Layer> layers =
+        projectRepository.getModifiableLayers(getActiveProject(), FeatureType.POINT);
+    // TODO: Pause location updates while dialog is open.
+    if (layers.size() == 1) {
+      addFeature(layers.get(0), point);
+    } else {
+      showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
+    }
+  }
+
+  public Observable<Pair<ImmutableList<Layer>, Point>> getShowAddFeatureDialogRequests() {
+    return showAddFeatureDialogRequests;
   }
 
   public Flowable<Feature> getAddFeatureResults() {
