@@ -23,7 +23,6 @@ import static java8.util.stream.StreamSupport.stream;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
-import com.google.android.gnd.util.ImmutableListCollector;
 import com.google.common.collect.ImmutableList;
 import java8.util.Objects;
 import java8.util.Optional;
