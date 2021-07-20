@@ -434,7 +434,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public LiveData<Integer> getAddPolygonVisibility() {
+  public LiveData<Integer> isAddPolygonButtonVisible() {
     return addPolygonVisibility;
   }
 
