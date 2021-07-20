@@ -96,9 +96,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
-  private final MutableLiveData<Boolean> polygonDrawingCompleted = new MutableLiveData<>(false);
+  private final MutableLiveData<Boolean> completeButtonVisible = new MutableLiveData<>(false);
 
-  private final MutableLiveData<Boolean> addPolygonVisibility = new MutableLiveData<>(false);
+  private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -432,11 +432,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public LiveData<Boolean> isAddPolygonButtonVisible() {
-    return addPolygonVisibility;
+    return addPolygonVisible;
   }
 
   public LiveData<Boolean> getPolygonDrawingCompletedVisibility() {
-    return polygonDrawingCompleted;
+    return completeButtonVisible;
   }
 
   public Optional<Feature> getReposFeature() {

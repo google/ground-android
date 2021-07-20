@@ -73,7 +73,7 @@
       />
 
     <Button
-      android:id="@+id/save_polygon_button"
+      android:id="@+id/complete_polygon_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:background="@android:color/white"
@@ -82,7 +82,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       android:layout_marginBottom="32dp"
       app:visible="@{viewModel.getPolygonDrawingCompletedVisibility()}"
-      android:text="@string/save_polygon"
+      android:text="@string/complete_polygon"
       android:textColor="@color/colorAccent"
       />
 
