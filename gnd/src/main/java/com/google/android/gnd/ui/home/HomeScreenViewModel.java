@@ -129,16 +129,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
-    if (!project.isLoaded()) {
-      Timber.v("Project not loaded; hiding feature button");
-      return false;
-    }
-
-    // TODO: Also check if the project has user-editable layers.
-    //  Pending feature, https://github.com/google/ground-platform/issues/228
-
     // Project must contain at least one layer that the user can modify.
-    return !getModifiableLayers(FeatureType.POINT).isEmpty();
+    return !projectRepository.getModifiableLayers(project.value(), FeatureType.POINT).isEmpty();
   }
 
   public LiveData<Boolean> isAddFeatureButtonVisible() {
@@ -284,12 +276,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private Optional<Project> getActiveProject() {
     return Loadable.getValue(getProjectLoadingState());
-  }
-
-  public ImmutableList<Layer> getModifiableLayers(FeatureType featureType) {
-    return getActiveProject()
-        .map(project -> projectRepository.getModifiableLayers(project, featureType))
-        .orElse(ImmutableList.of());
   }
 
   public void showSyncStatus() {

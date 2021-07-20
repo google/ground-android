@@ -38,7 +38,6 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -171,6 +170,11 @@ public class ProjectRepository {
   /** Clears the currently active project from cache. */
   public void clearActiveProject() {
     selectProjectEvent.onNext(Optional.empty());
+  }
+
+  public ImmutableList<Layer> getModifiableLayers(
+      Optional<Project> project, FeatureType featureType) {
+    return project.map(p -> getModifiableLayers(p, featureType)).orElse(ImmutableList.of());
   }
 
   public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
