@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
@@ -97,11 +96,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
-  @Hot(replays = true)
-  private final MutableLiveData<Integer> polygonDrawingCompleted = new MutableLiveData<>(INVISIBLE);
+  private final MutableLiveData<Boolean> polygonDrawingCompleted = new MutableLiveData<>(false);
 
-  @Hot(replays = true)
-  private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Boolean> addPolygonVisibility = new MutableLiveData<>(false);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -434,11 +431,11 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public LiveData<Integer> isAddPolygonButtonVisible() {
+  public LiveData<Boolean> isAddPolygonButtonVisible() {
     return addPolygonVisibility;
   }
 
-  public LiveData<Integer> getPolygonDrawingCompletedVisibility() {
+  public LiveData<Boolean> getPolygonDrawingCompletedVisibility() {
     return polygonDrawingCompleted;
   }
 

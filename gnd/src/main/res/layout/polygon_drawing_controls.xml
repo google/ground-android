@@ -81,7 +81,7 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       android:layout_marginBottom="32dp"
-      android:visibility="@{viewModel.polygonDrawingCompletedVisibility}"
+      app:visible="@{viewModel.getPolygonDrawingCompletedVisibility()}"
       android:text="@string/save_polygon"
       android:textColor="@color/colorAccent"
       />
