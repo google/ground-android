@@ -52,6 +52,7 @@ import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.util.List;
 import java8.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -79,6 +80,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Hot
   private final FlowableProcessor<FeatureMutation> addFeatureRequests = PublishProcessor.create();
+
+  @Hot(replays = true)
+  private final FlowableProcessor<FeatureMutation> addPolygonFeatureRequests =
+      PublishProcessor.create();
 
   @Hot
   private final FlowableProcessor<FeatureMutation> updateFeatureRequests =
@@ -314,7 +319,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showFeatureSelectorRequests.onNext(features);
   }
 
-  private Optional<Project> getActiveProject() {
+  public Optional<Project> getActiveProject() {
     return Loadable.getValue(getProjectLoadingState());
   }
 

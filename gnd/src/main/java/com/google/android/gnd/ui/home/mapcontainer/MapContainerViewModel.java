@@ -22,6 +22,7 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import android.location.Location;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -53,14 +55,17 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -90,8 +95,15 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
+  private final List<Point> vertices = new ArrayList<>();
+
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
+
+  /** Polyline drawn by the user but not yet saved as polygon. */
+  @Hot
+  private final PublishProcessor<ImmutableList<Point>> drawnPolylineVertices =
+      PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
@@ -99,6 +111,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Boolean> completeButtonVisible = new MutableLiveData<>(false);
 
   private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
+
+  @Hot(replays = true)
+  private final MutableLiveData<Boolean> addPolygonPoints = new MutableLiveData<>(false);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -118,11 +133,23 @@ public class MapContainerViewModel extends AbstractViewModel {
   /** The currently selected feature on the map. */
   private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
+
+  /** The currently selected layer for the polygon drawing. */
+  private final BehaviorProcessor<Optional<Layer>> selectedLayer =
+      BehaviorProcessor.createDefault(Optional.empty());
+
+  private final BehaviorProcessor<Optional<Project>> selectedProject =
+      BehaviorProcessor.createDefault(Optional.empty());
+
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
+  @Hot private final Subject<Point> addPolygonPointButtonClicks = PublishSubject.create();
   @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
   @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
+  private final Subject<Nil> savePolygonRequest = PublishSubject.create();
+
+  private final Subject<Nil> undoPolygonPoints = PublishSubject.create();
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
@@ -157,22 +184,41 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
+    // Features that are persisted to the local and remote dbs.
+    Flowable<ImmutableSet<MapFeature>> persistentFeatures =
+        projectRepository
+            .getActiveProject()
+            .switchMap(this::getFeaturesStream)
+            .map(this::toMapFeatures);
+    Flowable<ImmutableSet<MapFeature>> transientFeatures =
+        drawnPolylineVertices.map(
+            vertices ->
+                ImmutableSet.of(
+                    toMapPolygon(
+                        featureRepository.newPolygonFeature(
+                            selectedProject.getValue().get(),
+                            selectedLayer.getValue().get(),
+                            vertices))));
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                    projectRepository
-                        .getActiveProject()
-                        .switchMap(this::getFeaturesStream)
-                        .map(this::toMapFeatures),
-                    selectedFeature,
-                    this::updateSelectedFeature)
-                .distinctUntilChanged());
+                Arrays.asList(
+                    persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
+                    transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
+                MapContainerViewModel::concatFeatureSets));
+
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
+  }
+
+  private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
+    return stream(Arrays.asList(objects))
+        .flatMap(set -> stream((ImmutableSet<MapFeature>) set))
+        .collect(toImmutableSet());
   }
 
   private static MapFeature toMapPin(PointFeature feature) {
@@ -198,6 +244,18 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Project::getId)
         .flatMap(projectRepository::getLastCameraPosition)
         .ifPresent(this::panAndZoomCamera);
+  }
+
+  public void onAddPolygonPointButtonClick(Point point) {
+    if (vertices.contains(point)) {
+      updatePolygonDrawing(PolygonDrawing.COMPLETED);
+    }
+    vertices.add(point);
+    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+  }
+
+  private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
+    drawnPolylineVertices.onNext(vertices);
   }
 
   private ImmutableSet<MapFeature> updateSelectedFeature(
@@ -330,8 +388,36 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public LiveData<CameraPosition> getCameraPosition() {
+    checkPointNearVertex(cameraPosition.getValue());
     Timber.d("Current position is %s", cameraPosition.getValue().toString());
     return cameraPosition;
+  }
+
+  private void checkPointNearVertex(CameraPosition position) {
+    if (vertices.isEmpty() || vertices.size() < 3) {
+      return;
+    }
+    //  Experimentation with isPointNearFirstVertex() if does not work
+    //  replace vertices.contains(point)
+    if (vertices.get(0) == position.getTarget() || isPointNearFirstVertex(position.getTarget())) {
+      updatePolygonDrawing(PolygonDrawing.COMPLETED);
+      vertices.add(vertices.get(0));
+
+      updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+    } else {
+      updatePolygonDrawing(PolygonDrawing.DEFAULT);
+    }
+  }
+
+  private boolean isPointNearFirstVertex(Point point) {
+    float[] distance = new float[1];
+    Location.distanceBetween(
+        point.getLatitude(),
+        point.getLongitude(),
+        vertices.get(0).getLatitude(),
+        vertices.get(0).getLongitude(),
+        distance);
+    return distance[0] < 10;
   }
 
   public LiveData<BooleanOrError> getLocationLockState() {
@@ -354,6 +440,26 @@ public class MapContainerViewModel extends AbstractViewModel {
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
+  public void onSavePolygonFeatureButtonClick(Nil nil) {
+    updatePolygonDrawing(PolygonDrawing.DEFAULT);
+    setViewMode(Mode.DEFAULT);
+    featureRepository.newPolygonFeature(
+        selectedProject.getValue().get(),
+        selectedLayer.getValue().get(),
+        ImmutableList.<Point>builder().addAll(vertices).build());
+    vertices.clear();
+  }
+
+  public void removeLastVertex(Nil nil) {
+    if (vertices.isEmpty()) {
+      setViewMode(Mode.DEFAULT);
+      return;
+    }
+    vertices.remove(vertices.size() - 1);
+    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+    updatePolygonDrawing(PolygonDrawing.DEFAULT);
+  }
+
   public void onMapDrag() {
     if (isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock");
@@ -373,6 +479,22 @@ public class MapContainerViewModel extends AbstractViewModel {
     cameraUpdateSubject.onNext(CameraUpdate.panAndZoomIn(position));
   }
 
+  public void savePolygon() {
+    savePolygonRequest.onNext(Nil.NIL);
+  }
+
+  public void undoPoint() {
+    undoPolygonPoints.onNext(Nil.NIL);
+  }
+
+  public Subject<Nil> getSavePolygonRequest() {
+    return savePolygonRequest;
+  }
+
+  public Subject<Nil> getRemoveLastVertexRequests() {
+    return undoPolygonPoints;
+  }
+
   public void onLocationLockClick() {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
@@ -389,6 +511,12 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    addPolygonVisible.postValue(viewMode == Mode.ADD_POLYGON);
+  }
+
+  private void updatePolygonDrawing(PolygonDrawing polygonDrawing) {
+    addPolygonPoints.postValue(polygonDrawing == PolygonDrawing.DEFAULT);
+    completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED);
   }
 
   public void onMapTypeButtonClicked() {
@@ -397,6 +525,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick() {
     addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
+  }
+
+  public void onAddPolygonBtnClick() {
+    addPolygonPointButtonClicks.onNext(getCameraPosition().getValue().getTarget());
   }
 
   public void onConfirmButtonClick() {
@@ -413,6 +545,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public Observable<Point> getAddFeatureButtonClicks() {
     return addFeatureButtonClicks;
+  }
+
+  public Observable<Point> getAddPolygonPointButtonClicks() {
+    return addPolygonPointButtonClicks;
   }
 
   public Observable<Point> getConfirmButtonClicks() {
@@ -460,6 +596,14 @@ public class MapContainerViewModel extends AbstractViewModel {
     return featureAddButtonBackgroundTint;
   }
 
+  public void setSelectedLayer(Optional<Layer> selectedLayer) {
+    this.selectedLayer.onNext(selectedLayer);
+  }
+
+  public void setSelectedProject(Optional<Project> selectedProject) {
+    this.selectedProject.onNext(selectedProject);
+  }
+
   public LiveData<Boolean> getLocationLockEnabled() {
     return locationLockEnabled;
   }
@@ -470,7 +614,13 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public enum Mode {
     DEFAULT,
-    REPOSITION
+    REPOSITION,
+    ADD_POLYGON
+  }
+
+  public enum PolygonDrawing {
+    DEFAULT,
+    COMPLETED
   }
 
   static class CameraUpdate {

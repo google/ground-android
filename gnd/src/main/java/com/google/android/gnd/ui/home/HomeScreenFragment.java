@@ -67,6 +67,7 @@ import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -149,6 +150,18 @@ public class HomeScreenFragment extends AbstractFragment
         .getAddFeatureButtonClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onAddFeatureButtonClick);
+    mapContainerViewModel
+        .getAddPolygonPointButtonClicks()
+        .as(autoDisposable(this))
+        .subscribe(mapContainerViewModel::onAddPolygonPointButtonClick);
+    mapContainerViewModel
+        .getSavePolygonRequest()
+        .as(autoDisposable(this))
+        .subscribe(mapContainerViewModel::onSavePolygonFeatureButtonClick);
+    mapContainerViewModel
+        .getRemoveLastVertexRequests()
+        .as(autoDisposable(this))
+        .subscribe(mapContainerViewModel::removeLastVertex);
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
@@ -159,7 +172,7 @@ public class HomeScreenFragment extends AbstractFragment
     ImmutableList<Layer> layers = args.first;
     Point point = args.second;
     addFeatureDialogFragment.show(
-        layers, getChildFragmentManager(), layer -> viewModel.addFeature(layer, point));
+        layers, getChildFragmentManager(), layer -> showFeatureTypeDialog(layer, point));
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
@@ -480,7 +493,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  public void showFeatureTypeDialog(Layer layer, Point point) {
+  private void showFeatureTypeDialog(Layer layer, Point point) {
     ArrayAdapter<String> arrayAdapter =
         new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     arrayAdapter.add(getString(R.string.point));
@@ -493,7 +506,7 @@ public class HomeScreenFragment extends AbstractFragment
               if (position == 0) {
                 viewModel.addFeature(layer, point);
               } else {
-                showPolygonInfoDialog();
+                showPolygonInfoDialog(layer);
               }
             })
         .setCancelable(true)
@@ -501,7 +514,7 @@ public class HomeScreenFragment extends AbstractFragment
         .show();
   }
 
-  public void showPolygonInfoDialog() {
+  private void showPolygonInfoDialog(Layer layer) {
     AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
     LayoutInflater inflater = requireActivity().getLayoutInflater();
     View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
@@ -511,7 +524,18 @@ public class HomeScreenFragment extends AbstractFragment
     AlertDialog alertDialog = builder.create();
     getStartedBtn.setOnClickListener(
         v -> {
-          alertDialog.dismiss();
+          viewModel
+              .getActiveProject()
+              .ifPresentOrElse(
+                  project -> {
+                    alertDialog.dismiss();
+                    mapContainerViewModel.setSelectedProject(Optional.of(project));
+                    mapContainerViewModel.setSelectedLayer(Optional.of(layer));
+                    mapContainerViewModel.setViewMode(Mode.ADD_POLYGON);
+                  },
+                  () -> {
+                    throw new IllegalStateException("Empty project");
+                  });
         });
     cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
     alertDialog.show();
@@ -575,20 +599,6 @@ public class HomeScreenFragment extends AbstractFragment
     showProjectSelector();
   }
 
-  private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
-    @Override
-    public void onStateChanged(@NonNull View bottomSheet, int newState) {
-      if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-        viewModel.onBottomSheetHidden();
-      }
-    }
-
-    @Override
-    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-      // no-op.
-    }
-  }
-
   private void showFeatureProperties() {
     // TODO(#841): Move business logic into view model.
     BottomSheetState state = viewModel.getBottomSheetState().getValue();
@@ -639,6 +649,20 @@ public class HomeScreenFragment extends AbstractFragment
     } catch (JSONException e) {
       Timber.d("Encountered invalid feature GeoJSON in feature %s", feature.getId());
       return ImmutableList.of();
+    }
+  }
+
+  private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+    @Override
+    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+      if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+        viewModel.onBottomSheetHidden();
+      }
+    }
+
+    @Override
+    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+      // no-op.
     }
   }
 }

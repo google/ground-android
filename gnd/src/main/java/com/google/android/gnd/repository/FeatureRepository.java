@@ -16,12 +16,15 @@
 
 package com.google.android.gnd.repository;
 
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
@@ -135,6 +138,19 @@ public class FeatureRepository {
         .setNewLocation(Optional.of(point))
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
+        .build();
+  }
+
+  public PolygonFeature newPolygonFeature(
+      Project project, Layer layer, ImmutableList<Point> point) {
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
+    return PolygonFeature.builder()
+        .setId(uuidGenerator.generateUuid())
+        .setProject(project)
+        .setLayer(layer)
+        .setVertices(point)
+        .setCreated(auditInfo)
+        .setLastModified(auditInfo)
         .build();
   }
 
