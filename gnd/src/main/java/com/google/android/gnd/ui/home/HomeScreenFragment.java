@@ -66,6 +66,7 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -100,6 +101,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
+  MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
@@ -119,6 +121,7 @@ public class HomeScreenFragment extends AbstractFragment
 
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
+    mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
@@ -146,7 +149,8 @@ public class HomeScreenFragment extends AbstractFragment
         .getAddFeatureButtonClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onAddFeatureButtonClick);
-    viewModel.getShowAddFeatureDialogRequests()
+    viewModel
+        .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
         .subscribe(this::showAddFeatureDialog);
   }
@@ -154,10 +158,8 @@ public class HomeScreenFragment extends AbstractFragment
   private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
     ImmutableList<Layer> layers = args.first;
     Point point = args.second;
-    addFeatureDialogFragment.show(layers,
-        getChildFragmentManager(),
-        layer -> viewModel.addFeature(layer, point));
-    
+    addFeatureDialogFragment.show(
+        layers, getChildFragmentManager(), layer -> viewModel.addFeature(layer, point));
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
