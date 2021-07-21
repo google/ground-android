@@ -34,6 +34,7 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java8.util.Objects;
 import javax.annotation.Nullable;
 import timber.log.Timber;
@@ -71,12 +72,12 @@ class ObservationConverter {
     if (docResponses == null) {
       return responses.build();
     }
-    for (String fieldId : docResponses.keySet()) {
+    for (Entry<String, Object> entry : docResponses.entrySet()) {
+      String fieldId = entry.getKey();
       try {
-        Object obj = docResponses.get(fieldId);
-        putResponse(fieldId, form, obj, responses);
+        putResponse(fieldId, form, entry.getValue(), responses);
       } catch (DataStoreException e) {
-        Timber.d("Field " + fieldId + "in remote db in observation " + observationId + ": " + e);
+        Timber.e(e, "Field " + fieldId + "in remote db in observation " + observationId);
       }
     }
     return responses.build();

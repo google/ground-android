@@ -88,22 +88,22 @@ public class LocalValueStore {
       cameraPosition.getTarget().getLongitude(),
       (double) cameraPosition.getZoomLevel()
     };
-    String value = stream(values).map(d -> String.valueOf(d)).collect(Collectors.joining(","));
+    String value = stream(values).map(String::valueOf).collect(Collectors.joining(","));
     preferences.edit().putString(LAST_VIEWPORT_PREFIX + projectId, value).apply();
   }
 
   public Optional<CameraPosition> getLastCameraPosition(String projectId) {
     try {
       String value = preferences.getString(LAST_VIEWPORT_PREFIX + projectId, "");
-      if (value.isEmpty()) {
+      if (value == null || value.isEmpty()) {
         return Optional.empty();
       }
       String[] values = value.split(",");
       return Optional.of(
           new CameraPosition(
               Point.newBuilder()
-                  .setLatitude(Double.valueOf(values[0]))
-                  .setLongitude(Double.valueOf(values[1]))
+                  .setLatitude(Double.parseDouble(values[0]))
+                  .setLongitude(Double.parseDouble(values[1]))
                   .build(),
               Float.valueOf(values[2])));
     } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {

@@ -25,7 +25,7 @@ apply plugin: 'net.ltgt.errorprone'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
-//apply from: '../config/spotbugs/spotbugs.gradle'
+apply from: '../config/spotbugs/spotbugs.gradle'
 
 project.ext {
     autoDisposeVersion = "1.4.0"

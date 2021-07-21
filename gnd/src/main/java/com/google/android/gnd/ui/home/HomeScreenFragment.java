@@ -149,7 +149,8 @@ public class HomeScreenFragment extends AbstractFragment
         .getAddFeatureButtonClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onAddFeatureButtonClick);
-    viewModel.getShowAddFeatureDialogRequests()
+    viewModel
+        .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
         .subscribe(this::showAddFeatureDialog);
   }
@@ -157,10 +158,8 @@ public class HomeScreenFragment extends AbstractFragment
   private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
     ImmutableList<Layer> layers = args.first;
     Point point = args.second;
-    addFeatureDialogFragment.show(layers,
-        getChildFragmentManager(),
-        layer -> viewModel.addFeature(layer, point));
-    
+    addFeatureDialogFragment.show(
+        layers, getChildFragmentManager(), layer -> viewModel.addFeature(layer, point));
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
@@ -276,9 +275,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
-    FrameLayout toolbarWrapper = binding.featureDetailsChrome.toolbarWrapper;
     FrameLayout bottomSheetHeader = binding.getRoot().findViewById(R.id.bottom_sheet_header);
-    if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
+    if (bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);
