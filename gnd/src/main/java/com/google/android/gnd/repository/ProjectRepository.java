@@ -26,6 +26,7 @@ import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -95,23 +96,19 @@ public class ProjectRepository {
       return Flowable.just(Loadable.notLoaded());
     }
     String id = projectId.get();
-    return getProject(id)
+    return syncProjectWithRemote(id)
+        .onErrorResumeNext(__ -> getProject(id))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  /** This only works if the project is already cached to local db. */
   @Cold
-  private Single<Project> getProject(String id) {
-    return syncProjectWithRemote(id)
-        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
-        .doOnError(err -> Timber.d(err, "Error loading project from remote"))
-        .onErrorResumeNext(
-            __ ->
-                localDataStore
-                    .getProjectById(id)
-                    .toSingle()
-                    .doOnError(err -> Timber.e(err, "Error loading project from local db")));
+  public Single<Project> getProject(String projectId) {
+    return localDataStore
+        .getProjectById(projectId)
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found " + projectId)));
   }
 
   @Cold
@@ -119,7 +116,9 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
+        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p))
+        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
+        .doOnError(err -> Timber.d(err, "Error loading project from remote"));
   }
 
   public Optional<String> getLastActiveProjectId() {

@@ -89,7 +89,6 @@ public class ObservationRepository {
     // TODO: Only fetch first n fields.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(feature -> getObservations(feature, formId));
   }
 
@@ -117,7 +116,6 @@ public class ObservationRepository {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(
             feature ->
                 localDataStore
@@ -131,7 +129,6 @@ public class ObservationRepository {
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .map(
             feature ->
                 Observation.newBuilder()

@@ -25,17 +25,19 @@ import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
@@ -64,6 +66,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
+  private final UserRepository userRepository;
 
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> projectLoadingState;
@@ -74,9 +77,16 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
-  @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
-  @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
-  @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
+  @Hot
+  private final FlowableProcessor<FeatureMutation> addFeatureRequests = PublishProcessor.create();
+
+  @Hot
+  private final FlowableProcessor<FeatureMutation> updateFeatureRequests =
+      PublishProcessor.create();
+
+  @Hot
+  private final FlowableProcessor<FeatureMutation> deleteFeatureRequests =
+      PublishProcessor.create();
 
   @Hot private final Flowable<Feature> addFeatureResults;
   @Hot private final Flowable<Boolean> updateFeatureResults;
@@ -99,10 +109,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       Navigator navigator,
-      Schedulers schedulers) {
+      UserRepository userRepository) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
+    this.userRepository = userRepository;
 
     projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(
@@ -110,21 +121,21 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
-        addFeatureClicks
-            .switchMapSingle(
-                feature ->
-                    featureRepository
-                        .createFeature(feature)
-                        .toSingleDefault(feature)
-                        .doOnError(errors::onNext)
-                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
-            .subscribeOn(schedulers.io());
+        addFeatureRequests.switchMapSingle(
+            mutation ->
+                featureRepository
+                    .applyAndEnqueue(mutation)
+                    .andThen(featureRepository.getFeature(mutation))
+                    .doOnError(errors::onNext)
+                    .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
     deleteFeatureResults =
         deleteFeatureRequests.switchMapSingle(
-            feature -> toBooleanSingle(featureRepository.deleteFeature(feature), errors::onNext));
+            mutation ->
+                toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
     updateFeatureResults =
         updateFeatureRequests.switchMapSingle(
-            feature -> toBooleanSingle(featureRepository.updateFeature(feature), errors::onNext));
+            mutation ->
+                toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -182,17 +193,24 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addFeature(Layer layer, Point point) {
     getActiveProject()
-        .ifPresent(
-            project ->
-                addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point)));
+        .map(Project::getId)
+        .ifPresentOrElse(
+            projectId ->
+                addFeatureRequests.onNext(
+                    featureRepository.newMutation(projectId, layer.getId(), point)),
+            () -> {
+              throw new IllegalStateException("Empty project");
+            });
   }
 
   public void updateFeature(Feature feature) {
-    updateFeatureRequests.onNext(feature);
+    updateFeatureRequests.onNext(
+        feature.toMutation(Type.UPDATE, userRepository.getCurrentUser().getId()));
   }
 
   public void deleteFeature(Feature feature) {
-    deleteFeatureRequests.onNext(feature);
+    deleteFeatureRequests.onNext(
+        feature.toMutation(Type.DELETE, userRepository.getCurrentUser().getId()));
   }
 
   public boolean shouldShowProjectSelectorOnStart() {

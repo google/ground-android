@@ -33,10 +33,13 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -473,6 +476,43 @@ public class HomeScreenFragment extends AbstractFragment
           ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
       progressDialog.show();
     }
+  }
+
+  public void showFeatureTypeDialog(Layer layer, Point point) {
+    ArrayAdapter<String> arrayAdapter =
+        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
+    arrayAdapter.add(getString(R.string.point));
+    arrayAdapter.add(getString(R.string.polygon));
+    new Builder(getContext())
+        .setTitle(R.string.select_feature_type)
+        .setAdapter(
+            arrayAdapter,
+            (dialog, position) -> {
+              if (position == 0) {
+                viewModel.addFeature(layer, point);
+              } else {
+                showPolygonInfoDialog();
+              }
+            })
+        .setCancelable(true)
+        .create()
+        .show();
+  }
+
+  public void showPolygonInfoDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+    LayoutInflater inflater = requireActivity().getLayoutInflater();
+    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
+    builder.setView(dialogView);
+    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
+    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
+    AlertDialog alertDialog = builder.create();
+    getStartedBtn.setOnClickListener(
+        v -> {
+          alertDialog.dismiss();
+        });
+    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
+    alertDialog.show();
   }
 
   public void dismissLoadingDialog() {
