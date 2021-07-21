@@ -191,12 +191,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(String layerId, Point point) {
+  public void addFeature(Layer layer, Point point) {
     getActiveProject()
         .map(Project::getId)
         .ifPresentOrElse(
             projectId ->
-                addFeatureRequests.onNext(featureRepository.newMutation(projectId, layerId, point)),
+                addFeatureRequests.onNext(
+                    featureRepository.newMutation(projectId, layer.getId(), point)),
             () -> {
               throw new IllegalStateException("Empty project");
             });
