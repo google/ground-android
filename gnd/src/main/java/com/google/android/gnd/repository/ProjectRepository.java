@@ -26,6 +26,7 @@ import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -103,12 +104,12 @@ public class ProjectRepository {
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  /** This only works if the project is already cached to local db. */
   @Cold
   public Single<Project> getProject(String projectId) {
     return localDataStore
         .getProjectById(projectId)
-        .toSingle()
-        .doOnError(err -> Timber.e(err, "Error loading project from local db"));
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found " + projectId)));
   }
 
   @Cold

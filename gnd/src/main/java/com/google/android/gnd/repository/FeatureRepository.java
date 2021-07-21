@@ -24,6 +24,7 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
@@ -115,12 +116,13 @@ public class FeatureRepository {
     return getFeature(featureMutation.getProjectId(), featureMutation.getFeatureId());
   }
 
+  /** This only works if the project and feature are already cached to local db. */
   @Cold
   public Single<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
         .getProject(projectId)
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
-        .toSingle();
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature not found " + featureId)));
   }
 
   public FeatureMutation newMutation(String projectId, String layerId, Point point) {
