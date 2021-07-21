@@ -61,33 +61,38 @@
       app:srcCompat="@drawable/map_layers"
       app:useCompatPadding="true" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/location_lock_btn"
+    <LinearLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:enabled="@{viewModel.getLocationLockEnabled()}"
-      android:onClick="@{() -> viewModel.onLocationLockClick()}"
-      app:backgroundTint="@color/colorBackground"
-      app:fabSize="normal"
-      app:layout_constraintBottom_toTopOf="@id/add_feature_btn"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:srcCompat="@drawable/ic_gps_lock"
-      app:tint="@{viewModel.getIconTint()}"
-      app:useCompatPadding="true" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/add_feature_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:onClick="@{() -> viewModel.onAddFeatureBtnClick()}"
-      android:visibility="@{homeScreenViewModel.isAddFeatureButtonVisible() ? View.VISIBLE : View.GONE}"
-      app:fabSize="normal"
+      android:orientation="vertical"
+      android:gravity="center_horizontal"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:srcCompat="@drawable/ic_add"
-      app:tint="@color/colorBackground"
-      app:backgroundTintList="@{ContextCompat.getColorStateList(context, viewModel.getFeatureAddButtonBackgroundTint())}"
-      app:useCompatPadding="true" />
+      app:layout_constraintEnd_toEndOf="parent">
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/location_lock_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="@{viewModel.getLocationLockEnabled()}"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_gps_lock"
+        app:tint="@{viewModel.getIconTint()}"
+        app:useCompatPadding="true" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_feature_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> viewModel.onAddFeatureBtnClick()}"
+        app:backgroundTintList="@{ContextCompat.getColorStateList(context, viewModel.getFeatureAddButtonBackgroundTint())}"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/colorBackground"
+        app:useCompatPadding="true"
+        app:visible="@{homeScreenViewModel.isAddFeatureButtonVisible()}" />
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/hamburger_btn"
@@ -95,11 +100,11 @@
       android:layout_height="wrap_content"
       android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
       android:src="@drawable/ic_menu_black_24dp"
-      app:tint="@{viewModel.getIconTint()}"
       app:backgroundTint="@color/colorBackground"
-      app:layout_constraintStart_toStartOf="parent"
       app:fabSize="mini"
+      app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      app:tint="@{viewModel.getIconTint()}"
       app:useCompatPadding="true" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

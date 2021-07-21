@@ -220,8 +220,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
         processed.add(((MapPolygon) mapFeature).getId());
       }
     }
-
-    featureClicks.onNext(candidates.build());
+    ImmutableList<MapFeature> result = candidates.build();
+    if (!result.isEmpty()) {
+      featureClicks.onNext(result);
+    }
   }
 
   private boolean onMarkerClick(Marker marker) {
