@@ -20,6 +20,7 @@ import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
+import com.google.android.gnd.rx.annotations.Cold;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
@@ -35,5 +36,11 @@ public interface FeatureMutationDao extends BaseDao<FeatureMutationEntity> {
   @Query(
       "SELECT * FROM feature_mutation WHERE feature_id = :featureId AND state IN (:allowedStates)")
   Single<List<FeatureMutationEntity>> findByFeatureId(
+      String featureId, MutationEntitySyncStatus... allowedStates);
+
+  @Cold(terminates = false)
+  @Query(
+      "SELECT * FROM feature_mutation WHERE feature_id = :featureId AND state IN (:allowedStates)")
+  Flowable<List<FeatureMutationEntity>> findByFeatureIdOnceAndStream(
       String featureId, MutationEntitySyncStatus... allowedStates);
 }

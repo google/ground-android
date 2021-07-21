@@ -22,12 +22,18 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.util.DrawableUtil;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
@@ -40,14 +46,23 @@ public class FeatureDetailsViewModel extends ViewModel {
   private final FlowableProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
+  private final FeatureRepository featureRepository;
+  private final ObservationRepository observationRepository;
   private final Bitmap markerBitmap;
   private final LiveData<String> title;
   private final LiveData<String> subtitle;
+  private final LiveData<Boolean> showUploadPendingIcon;
   private final LiveData<Boolean> moveMenuOptionVisible;
 
   @Inject
   public FeatureDetailsViewModel(
-      MarkerIconFactory markerIconFactory, DrawableUtil drawableUtil, FeatureHelper featureHelper) {
+      MarkerIconFactory markerIconFactory,
+      DrawableUtil drawableUtil,
+      FeatureHelper featureHelper,
+      FeatureRepository featureRepository,
+      ObservationRepository observationRepository) {
+    this.featureRepository = featureRepository;
+    this.observationRepository = observationRepository;
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
     this.title =
@@ -57,6 +72,33 @@ public class FeatureDetailsViewModel extends ViewModel {
     this.moveMenuOptionVisible =
         LiveDataReactiveStreams.fromPublisher(
             selectedFeature.map(optional -> optional.map(Feature::isPoint).orElse(true)));
+    Flowable<ImmutableList<FeatureMutation>> featureMutations =
+        selectedFeature.switchMap(this::getIncompleteFeatureMutationsOnceAndStream);
+    Flowable<ImmutableList<ObservationMutation>> observationMutations =
+        selectedFeature.switchMap(this::getIncompleteObservationMutationsOnceAndStream);
+    this.showUploadPendingIcon =
+        LiveDataReactiveStreams.fromPublisher(
+            Flowable.combineLatest(
+                featureMutations, observationMutations, (f, o) -> !f.isEmpty() && !o.isEmpty()));
+  }
+
+  private Flowable<ImmutableList<FeatureMutation>> getIncompleteFeatureMutationsOnceAndStream(
+      Optional<Feature> selectedFeature) {
+    return selectedFeature
+        .map(
+            feature ->
+                featureRepository.getIncompleteFeatureMutationsOnceAndStream(feature.getId()))
+        .orElse(Flowable.just(ImmutableList.of()));
+  }
+
+  private Flowable<ImmutableList<ObservationMutation>>
+      getIncompleteObservationMutationsOnceAndStream(Optional<Feature> selectedFeature) {
+    return selectedFeature
+        .map(
+            feature ->
+                observationRepository.getIncompleteObservationMutationsOnceAndStream(
+                    feature.getProject(), feature.getId()))
+        .orElse(Flowable.just(ImmutableList.of()));
   }
 
   /**
@@ -81,6 +123,10 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public LiveData<String> getSubtitle() {
     return subtitle;
+  }
+
+  public LiveData<Boolean> isUploadPendingIconVisible() {
+    return showUploadPendingIcon;
   }
 
   public LiveData<Boolean> getMoveMenuOptionVisible() {
