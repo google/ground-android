@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FeatureSelectorDialogBinding;
 import com.google.android.gnd.model.feature.Feature;
@@ -34,8 +35,8 @@ import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 
 @AndroidEntryPoint
 public class FeatureSelectorFragment extends AbstractDialogFragment {
@@ -54,10 +55,10 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     viewModel = getViewModel(FeatureSelectorViewModel.class);
   }
 
+  @NotNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
