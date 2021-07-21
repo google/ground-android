@@ -25,6 +25,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -144,6 +145,22 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onFeatureSelected);
+    mapContainerViewModel
+        .getAddFeatureButtonClicks()
+        .as(autoDisposable(this))
+        .subscribe(viewModel::onAddFeatureButtonClick);
+    viewModel.getShowAddFeatureDialogRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::showAddFeatureDialog);
+  }
+
+  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
+    ImmutableList<Layer> layers = args.first;
+    Point point = args.second;
+    addFeatureDialogFragment.show(layers,
+        getChildFragmentManager(),
+        layer -> viewModel.addFeature(layer, point));
+    
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
