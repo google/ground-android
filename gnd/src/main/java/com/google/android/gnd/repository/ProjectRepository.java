@@ -39,7 +39,6 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -172,16 +171,19 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
+  public ImmutableList<Layer> getModifiableLayers(
+      Optional<Project> project, FeatureType featureType) {
+    return project.map(p -> getModifiableLayers(p, featureType)).orElse(ImmutableList.of());
+  }
+
   public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
     switch (userRepository.getUserRole(project)) {
       case OWNER:
       case MANAGER:
         return project.getLayers();
       case CONTRIBUTOR:
-        // TODO: Use enums instead of string values
-        String featureTypeValue = featureType.name().toLowerCase(Locale.getDefault());
         return stream(project.getLayers())
-            .filter(layer -> layer.getContributorsCanAdd().contains(featureTypeValue))
+            .filter(layer -> layer.getContributorsCanAdd().contains(featureType))
             .collect(toImmutableList());
       case UNKNOWN:
       default:
