@@ -89,6 +89,8 @@ public class FeatureDetailsFragment extends AbstractFragment {
             menuItem -> {
               if (menuItem.getItemId() == R.id.move_feature_menu_item) {
                 viewModel.getMoveMenuOptionVisible().observe(this, menuItem::setVisible);
+              } else if (menuItem.getItemId() == R.id.delete_feature_menu_item) {
+                viewModel.getDeleteMenuOptionVisible().observe(this, menuItem::setVisible);
               }
             });
   }
