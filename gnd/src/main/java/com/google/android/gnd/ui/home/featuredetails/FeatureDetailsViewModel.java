@@ -33,7 +33,6 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.util.DrawableUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
@@ -140,8 +139,8 @@ public class FeatureDetailsViewModel extends ViewModel {
     return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
-  public void onBottomSheetStateChange(BottomSheetState state) {
-    selectedFeature.onNext(state.isVisible() ? state.getFeature() : Optional.empty());
+  public void onSelectedFeature(Optional<Feature> feature) {
+    selectedFeature.onNext(feature);
   }
 
   public Bitmap getMarkerBitmap() {

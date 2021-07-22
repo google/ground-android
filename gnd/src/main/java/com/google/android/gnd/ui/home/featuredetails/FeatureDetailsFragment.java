@@ -32,6 +32,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java8.util.Optional;
 import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 
@@ -96,7 +97,7 @@ public class FeatureDetailsFragment extends AbstractFragment {
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    viewModel.onBottomSheetStateChange(state);
+    viewModel.onSelectedFeature(state.isVisible() ? state.getFeature() : Optional.empty());
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
