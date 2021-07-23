@@ -65,7 +65,7 @@ public class MoveMenuVisibilityTest extends FeatureDetailsViewModelTest {
     mockCurrentUserRole(userRole);
     setSelectedFeature(featureType);
 
-    TestObservers.observeUntilFirstChange(viewModel.getMoveMenuOptionVisible());
-    assertThat(viewModel.getMoveMenuOptionVisible().getValue()).isEqualTo(result);
+    TestObservers.observeUntilFirstChange(viewModel.isMoveMenuOptionVisible());
+    assertThat(viewModel.isMoveMenuOptionVisible().getValue()).isEqualTo(result);
   }
 }

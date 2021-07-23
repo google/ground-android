@@ -120,6 +120,6 @@ public class FeatureDetailsViewModelTest {
 
   void setSelectedFeature(FeatureType featureType) {
     Feature feature = featureType == POINT ? TEST_POINT_FEATURE : TEST_POLYGON_FEATURE;
-    viewModel.onSelectedFeature(Optional.of(feature));
+    viewModel.onFeatureSelected(Optional.of(feature));
   }
 }

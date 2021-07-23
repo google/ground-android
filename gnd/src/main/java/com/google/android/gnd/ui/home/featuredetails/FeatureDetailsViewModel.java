@@ -78,11 +78,11 @@ public class FeatureDetailsViewModel extends ViewModel {
     this.moveMenuOptionVisible =
         LiveDataReactiveStreams.fromPublisher(
             selectedFeature.map(
-                feature -> feature.map(this::shouldMoveMenuOptionBeVisible).orElse(true)));
+                feature -> feature.map(this::isMoveMenuOptionVisible).orElse(true)));
     this.deleteMenuOptionVisible =
         LiveDataReactiveStreams.fromPublisher(
             selectedFeature.map(
-                feature -> feature.map(this::shouldDeleteMenuOptionBeVisible).orElse(true)));
+                feature -> feature.map(this::isDeleteMenuOptionVisible).orElse(true)));
     Flowable<ImmutableList<FeatureMutation>> featureMutations =
         selectedFeature.switchMap(this::getIncompleteFeatureMutationsOnceAndStream);
     Flowable<ImmutableList<ObservationMutation>> observationMutations =
@@ -94,7 +94,7 @@ public class FeatureDetailsViewModel extends ViewModel {
   }
 
   /** Returns true if the user is {@link Role#OWNER} or {@link Role#MANAGER} of the project. */
-  private boolean isActiveUserAuthorizedToModifyFeature(Feature feature) {
+  private boolean isUserAuthorizedToModifyFeature(Feature feature) {
     Role role = userRepository.getUserRole(feature.getProject());
     return role == Role.OWNER || role == Role.MANAGER;
   }
@@ -103,13 +103,13 @@ public class FeatureDetailsViewModel extends ViewModel {
    * Returns true if the selected feature is of type {@link FeatureType#POINT} and the user has
    * permissions to modify the feature.
    */
-  private boolean shouldMoveMenuOptionBeVisible(Feature feature) {
-    return isActiveUserAuthorizedToModifyFeature(feature) && feature.isPoint();
+  private boolean isMoveMenuOptionVisible(Feature feature) {
+    return isUserAuthorizedToModifyFeature(feature) && feature.isPoint();
   }
 
   /** Returns true if the user has permissions to modify the feature. */
-  private boolean shouldDeleteMenuOptionBeVisible(Feature feature) {
-    return isActiveUserAuthorizedToModifyFeature(feature);
+  private boolean isDeleteMenuOptionVisible(Feature feature) {
+    return isUserAuthorizedToModifyFeature(feature);
   }
 
   private Flowable<ImmutableList<FeatureMutation>> getIncompleteFeatureMutationsOnceAndStream(
@@ -139,7 +139,7 @@ public class FeatureDetailsViewModel extends ViewModel {
     return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
-  public void onSelectedFeature(Optional<Feature> feature) {
+  public void onFeatureSelected(Optional<Feature> feature) {
     selectedFeature.onNext(feature);
   }
 
@@ -159,11 +159,11 @@ public class FeatureDetailsViewModel extends ViewModel {
     return showUploadPendingIcon;
   }
 
-  public LiveData<Boolean> getMoveMenuOptionVisible() {
+  public LiveData<Boolean> isMoveMenuOptionVisible() {
     return moveMenuOptionVisible;
   }
 
-  public LiveData<Boolean> getDeleteMenuOptionVisible() {
+  public LiveData<Boolean> isDeleteMenuOptionVisible() {
     return deleteMenuOptionVisible;
   }
 }

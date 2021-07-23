@@ -65,7 +65,7 @@ public class DeleteMenuVisibilityTest extends FeatureDetailsViewModelTest {
     mockCurrentUserRole(userRole);
     setSelectedFeature(featureType);
 
-    TestObservers.observeUntilFirstChange(viewModel.getDeleteMenuOptionVisible());
-    assertThat(viewModel.getDeleteMenuOptionVisible().getValue()).isEqualTo(result);
+    TestObservers.observeUntilFirstChange(viewModel.isDeleteMenuOptionVisible());
+    assertThat(viewModel.isDeleteMenuOptionVisible().getValue()).isEqualTo(result);
   }
 }

@@ -89,15 +89,15 @@ public class FeatureDetailsFragment extends AbstractFragment {
         .forEach(
             menuItem -> {
               if (menuItem.getItemId() == R.id.move_feature_menu_item) {
-                viewModel.getMoveMenuOptionVisible().observe(this, menuItem::setVisible);
+                viewModel.isMoveMenuOptionVisible().observe(this, menuItem::setVisible);
               } else if (menuItem.getItemId() == R.id.delete_feature_menu_item) {
-                viewModel.getDeleteMenuOptionVisible().observe(this, menuItem::setVisible);
+                viewModel.isDeleteMenuOptionVisible().observe(this, menuItem::setVisible);
               }
             });
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    viewModel.onSelectedFeature(state.isVisible() ? state.getFeature() : Optional.empty());
+    viewModel.onFeatureSelected(state.isVisible() ? state.getFeature() : Optional.empty());
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
