@@ -8,6 +8,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
@@ -48,7 +49,7 @@ public class FeatureDetailsViewModelTest {
           .putLayer("layer id", TEST_LAYER)
           .build();
 
-  static final PointFeature TEST_POINT_FEATURE =
+  private static final PointFeature TEST_POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
           .setProject(TEST_PROJECT)
@@ -58,7 +59,7 @@ public class FeatureDetailsViewModelTest {
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();
 
-  static final PolygonFeature TEST_POLYGON_FEATURE =
+  private static final PolygonFeature TEST_POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
           .setProject(TEST_PROJECT)
@@ -96,12 +97,12 @@ public class FeatureDetailsViewModelTest {
             mockUserRepository);
   }
 
-  private void mockCurrentUserRole(Role role) {
+  void mockCurrentUserRole(Role role) {
     when(mockUserRepository.getUserRole(TEST_PROJECT)).thenReturn(role);
   }
 
-  void setUserAclAndSelectedFeature(Role role, Feature feature) {
-    mockCurrentUserRole(role);
+  void setSelectedFeature(FeatureType featureType) {
+    Feature feature = featureType == FeatureType.POINT ? TEST_POINT_FEATURE : TEST_POLYGON_FEATURE;
     viewModel.onSelectedFeature(Optional.of(feature));
   }
 }
