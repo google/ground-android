@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Role;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.FeatureType;
@@ -96,7 +97,13 @@ public class FeatureDetailsViewModel extends ViewModel {
   /** Returns true if the user is {@link Role#OWNER} or {@link Role#MANAGER} of the project. */
   private boolean isUserAuthorizedToModifyFeature(Feature feature) {
     Role role = userRepository.getUserRole(feature.getProject());
-    return role == Role.OWNER || role == Role.MANAGER;
+    return role == Role.OWNER || role == Role.MANAGER || isFeatureCreatedByUser(feature);
+  }
+
+  /** Returns true if the {@link User} created the given {@link Feature}. */
+  private boolean isFeatureCreatedByUser(Feature feature) {
+    User user = userRepository.getCurrentUser();
+    return feature.getCreated().getUser().getEmail().equals(user.getEmail());
   }
 
   /**

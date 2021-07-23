@@ -16,28 +16,24 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import static com.google.android.gnd.model.feature.FeatureType.POINT;
 import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureType;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.repository.UserRepository;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.util.DrawableUtil;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,47 +43,26 @@ import org.mockito.junit.MockitoRule;
 
 public class FeatureDetailsViewModelTest {
 
-  private static final User TEST_USER =
-      User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
+  static final User TEST_USER_OWNER =
+      FakeData.TEST_USER.toBuilder().setEmail("user1@gmail.com").build();
 
-  private static final Layer TEST_LAYER =
-      Layer.newBuilder()
-          .setId("layer id")
-          .setName("heading title")
-          .setDefaultStyle(Style.builder().setColor("000").build())
-          .setForm(Optional.empty())
-          .build();
+  static final User TEST_USER_MANAGER =
+      FakeData.TEST_USER.toBuilder().setEmail("user2@gmail.com").build();
+
+  static final User TEST_USER_CONTRIBUTOR =
+      FakeData.TEST_USER.toBuilder().setEmail("user3@gmail.com").build();
+
+  static final User TEST_USER_UNKNOWN =
+      FakeData.TEST_USER.toBuilder().setEmail("user4@gmail.com").build();
 
   private static final Project TEST_PROJECT =
-      Project.newBuilder()
-          .setId("project id")
-          .setTitle("project 1")
-          .setDescription("foo description")
-          .putLayer("layer id", TEST_LAYER)
-          .build();
-
-  private static final PointFeature TEST_POINT_FEATURE =
-      PointFeature.newBuilder()
-          .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
-          .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
-          .build();
-
-  private static final PolygonFeature TEST_POLYGON_FEATURE =
-      PolygonFeature.builder()
-          .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
-          .setVertices(
-              ImmutableList.of(
-                  Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
-                  Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
-                  Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build()))
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+      FakeData.TEST_PROJECT.toBuilder()
+          .setAcl(
+              ImmutableMap.<String, String>builder()
+                  .put(TEST_USER_OWNER.getEmail(), "owner")
+                  .put(TEST_USER_MANAGER.getEmail(), "manager")
+                  .put(TEST_USER_CONTRIBUTOR.getEmail(), "contributor")
+                  .build())
           .build();
 
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -98,12 +73,27 @@ public class FeatureDetailsViewModelTest {
   @Mock FeatureHelper mockFeatureHelper;
   @Mock FeatureRepository mockFeatureRepository;
   @Mock ObservationRepository mockObservationRepository;
-  @Mock UserRepository mockUserRepository;
+  @Mock AuthenticationManager mockAuthManager;
 
   FeatureDetailsViewModel viewModel;
 
+  static PointFeature createPointFeature(User user) {
+    return FakeData.TEST_POINT_FEATURE.toBuilder()
+        .setProject(TEST_PROJECT)
+        .setCreated(AuditInfo.now(user))
+        .build();
+  }
+
+  static PolygonFeature createPolygonFeature(User user) {
+    return FakeData.TEST_POLYGON_FEATURE.toBuilder()
+        .setProject(TEST_PROJECT)
+        .setCreated(AuditInfo.now(user))
+        .build();
+  }
+
   @Before
   public void setUp() {
+    UserRepository userRepository = new UserRepository(mockAuthManager, null, null, null);
     viewModel =
         new FeatureDetailsViewModel(
             mockMarkerIconFactory,
@@ -111,15 +101,14 @@ public class FeatureDetailsViewModelTest {
             mockFeatureHelper,
             mockFeatureRepository,
             mockObservationRepository,
-            mockUserRepository);
+            userRepository);
   }
 
-  void mockCurrentUserRole(Role role) {
-    when(mockUserRepository.getUserRole(TEST_PROJECT)).thenReturn(role);
+  void mockCurrentUser(User user) {
+    when(mockAuthManager.getCurrentUser()).thenReturn(user);
   }
 
-  void setSelectedFeature(FeatureType featureType) {
-    Feature feature = featureType == POINT ? TEST_POINT_FEATURE : TEST_POLYGON_FEATURE;
+  void setSelectedFeature(Feature feature) {
     viewModel.onFeatureSelected(Optional.of(feature));
   }
 }

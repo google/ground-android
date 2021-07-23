@@ -16,17 +16,11 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import static com.google.android.gnd.model.Role.CONTRIBUTOR;
-import static com.google.android.gnd.model.Role.MANAGER;
-import static com.google.android.gnd.model.Role.OWNER;
-import static com.google.android.gnd.model.Role.UNKNOWN;
-import static com.google.android.gnd.model.feature.FeatureType.POINT;
-import static com.google.android.gnd.model.feature.FeatureType.POLYGON;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.TestObservers;
-import com.google.android.gnd.model.Role;
-import com.google.android.gnd.model.feature.FeatureType;
+import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.Feature;
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.Test;
@@ -36,36 +30,35 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class DeleteMenuVisibilityTest extends FeatureDetailsViewModelTest {
 
-  @Parameterized.Parameter()
-  public Role userRole;
+  @Parameterized.Parameter() public User user;
 
   @Parameterized.Parameter(1)
-  public FeatureType featureType;
+  public Feature feature;
 
   @Parameterized.Parameter(2)
-  public boolean result;
+  public boolean visible;
 
-  @Parameterized.Parameters(name = "{index}: Test with role={0}, featureType={1}, result={2}")
+  @Parameterized.Parameters
   public static Collection<Object[]> data() {
     Object[][] data = {
-      {OWNER, POINT, true},
-      {MANAGER, POINT, true},
-      {CONTRIBUTOR, POINT, false},
-      {UNKNOWN, POINT, false},
-      {OWNER, POLYGON, true},
-      {MANAGER, POLYGON, true},
-      {CONTRIBUTOR, POLYGON, false},
-      {UNKNOWN, POLYGON, false},
+      {TEST_USER_OWNER, createPointFeature(TEST_USER_UNKNOWN), true},
+      {TEST_USER_MANAGER, createPointFeature(TEST_USER_UNKNOWN), true},
+      {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_UNKNOWN), false},
+      {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_CONTRIBUTOR), true},
+      {TEST_USER_OWNER, createPolygonFeature(TEST_USER_UNKNOWN), true},
+      {TEST_USER_MANAGER, createPolygonFeature(TEST_USER_UNKNOWN), true},
+      {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_UNKNOWN), false},
+      {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_CONTRIBUTOR), true},
     };
     return Arrays.asList(data);
   }
 
   @Test
   public void testDeleteMenuVisible() {
-    mockCurrentUserRole(userRole);
-    setSelectedFeature(featureType);
+    mockCurrentUser(user);
+    setSelectedFeature(feature);
 
     TestObservers.observeUntilFirstChange(viewModel.isDeleteMenuOptionVisible());
-    assertThat(viewModel.isDeleteMenuOptionVisible().getValue()).isEqualTo(result);
+    assertThat(viewModel.isDeleteMenuOptionVisible().getValue()).isEqualTo(visible);
   }
 }
