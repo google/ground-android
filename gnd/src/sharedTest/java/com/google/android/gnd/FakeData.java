@@ -29,6 +29,16 @@ import java8.util.Optional;
 
 public class FakeData {
 
+  public static final String PROJECT_ID_WITH_LAYER_AND_NO_FORM = "FAKE_PROJECT_ID";
+  public static final String PROJECT_ID_WITH_NO_LAYERS = "FAKE_PROJECT_ID with no layers";
+  public static final String PROJECT_TITLE = "Fake project title";
+  public static final String PROJECT_DESCRIPTION = "Fake project description";
+  public static final String TERMS_OF_SERVICE_ID = "TERMS_ID";
+  public static final String TERMS_OF_SERVICE = "Fake Terms of Service";
+  public static final String LAYER_NO_FORM_ID = "LAYER_NO_FORM_ID";
+  public static final String LAYER_NO_FORM_NAME = "Fake name for layer with no form";
+  public static final String LAYER_NO_FORM_COLOR = "#00ff00";
+
   public static final User TEST_USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
 
