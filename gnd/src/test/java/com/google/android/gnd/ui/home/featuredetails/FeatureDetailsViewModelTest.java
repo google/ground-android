@@ -77,11 +77,19 @@ public class FeatureDetailsViewModelTest {
 
   FeatureDetailsViewModel viewModel;
 
+  static PointFeature createPointFeature() {
+    return createPointFeature(FakeData.TEST_USER);
+  }
+
   static PointFeature createPointFeature(User user) {
     return FakeData.TEST_POINT_FEATURE.toBuilder()
         .setProject(TEST_PROJECT)
         .setCreated(AuditInfo.now(user))
         .build();
+  }
+
+  static PolygonFeature createPolygonFeature() {
+    return createPolygonFeature(FakeData.TEST_USER);
   }
 
   static PolygonFeature createPolygonFeature(User user) {

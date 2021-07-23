@@ -41,13 +41,19 @@ public class DeleteMenuVisibilityTest extends FeatureDetailsViewModelTest {
   @Parameterized.Parameters
   public static Collection<Object[]> data() {
     Object[][] data = {
+
+      // Point feature created by some other user
       {TEST_USER_OWNER, createPointFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_MANAGER, createPointFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_UNKNOWN), false},
-      {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_CONTRIBUTOR), true},
+
+      // Polygon feature created by some other user
       {TEST_USER_OWNER, createPolygonFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_MANAGER, createPolygonFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_UNKNOWN), false},
+
+      // Current user created the selected feature
+      {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_CONTRIBUTOR), true},
       {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_CONTRIBUTOR), true},
     };
     return Arrays.asList(data);
