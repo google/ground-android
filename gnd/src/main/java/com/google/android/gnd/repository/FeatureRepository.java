@@ -142,13 +142,13 @@ public class FeatureRepository {
   }
 
   public PolygonFeature newPolygonFeature(
-      Project project, Layer layer, ImmutableList<Point> point) {
+      Project project, Layer layer, ImmutableList<Point> vertices) {
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return PolygonFeature.builder()
         .setId(uuidGenerator.generateUuid())
         .setProject(project)
         .setLayer(layer)
-        .setVertices(point)
+        .setVertices(vertices)
         .setCreated(auditInfo)
         .setLastModified(auditInfo)
         .build();

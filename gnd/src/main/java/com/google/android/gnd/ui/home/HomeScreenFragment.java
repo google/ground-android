@@ -150,18 +150,6 @@ public class HomeScreenFragment extends AbstractFragment
         .getAddFeatureButtonClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onAddFeatureButtonClick);
-    mapContainerViewModel
-        .getAddPolygonPointButtonClicks()
-        .as(autoDisposable(this))
-        .subscribe(mapContainerViewModel::onAddPolygonPointButtonClick);
-    mapContainerViewModel
-        .getSavePolygonRequest()
-        .as(autoDisposable(this))
-        .subscribe(mapContainerViewModel::onSavePolygonFeatureButtonClick);
-    mapContainerViewModel
-        .getRemoveLastVertexRequests()
-        .as(autoDisposable(this))
-        .subscribe(mapContainerViewModel::removeLastVertex);
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
@@ -531,7 +519,7 @@ public class HomeScreenFragment extends AbstractFragment
                     alertDialog.dismiss();
                     mapContainerViewModel.setSelectedProject(Optional.of(project));
                     mapContainerViewModel.setSelectedLayer(Optional.of(layer));
-                    mapContainerViewModel.setViewMode(Mode.ADD_POLYGON);
+                    mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
                   },
                   () -> {
                     throw new IllegalStateException("Empty project");
