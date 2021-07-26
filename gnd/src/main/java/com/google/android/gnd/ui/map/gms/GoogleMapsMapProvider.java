@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.map.gms;
 import android.util.Pair;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -28,8 +29,10 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /** Ground map adapter implementation for Google Maps API. */
+@Singleton
 public class GoogleMapsMapProvider implements MapProvider {
 
   private final MarkerIconFactory markerIconFactory;
@@ -78,6 +81,11 @@ public class GoogleMapsMapProvider implements MapProvider {
   @Override
   public Single<MapAdapter> getMapAdapter() {
     return map;
+  }
+
+  @Override
+  public Point getCameraTarget() {
+    return map.getValue().getCameraTarget();
   }
 
   @Override
