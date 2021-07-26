@@ -70,12 +70,14 @@ public class MapContainerFragment extends AbstractFragment {
 
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
+  private FeatureRepositionViewModel featureRepositionViewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
+    featureRepositionViewModel = getViewModel(FeatureRepositionViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
@@ -111,11 +113,11 @@ public class MapContainerFragment extends AbstractFragment {
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
 
-    mapContainerViewModel
+    featureRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))
         .subscribe(this::showConfirmationDialog);
-    mapContainerViewModel
+    featureRepositionViewModel
         .getCancelButtonClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> setDefaultMode());
@@ -131,6 +133,7 @@ public class MapContainerFragment extends AbstractFragment {
     MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
+    binding.setFeatureRepositionViewModel(featureRepositionViewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
   }

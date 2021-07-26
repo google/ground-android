@@ -26,6 +26,9 @@
     <variable
       name="homeScreenViewModel"
       type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+    <variable
+      name="featureRepositionViewModel"
+      type="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel" />
   </data>
 
   <FrameLayout
@@ -49,12 +52,13 @@
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
 
-      <include
+      <view
         android:id="@+id/move_feature"
-        layout="@layout/map_move_feature_layout"
+        class="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionView"
         android:visibility="@{viewModel.moveFeatureVisibility}"
-        app:homeScreenViewModel="@{homeScreenViewModel}"
-        app:viewModel="@{viewModel}" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:viewModel="@{featureRepositionViewModel}" />
 
       <include
         android:id="@+id/polygon_drawing_controls"
