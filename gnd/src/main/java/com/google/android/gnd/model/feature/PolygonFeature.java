@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.feature;
 
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +30,11 @@ public abstract class PolygonFeature extends Feature<PolygonFeature.Builder> {
   }
 
   public abstract ImmutableList<Point> getVertices();
+
+  @Override
+  public FeatureMutation toMutation(Type type, String userId) {
+    return super.toMutation(type, userId).toBuilder().setNewPolygonVertices(getVertices()).build();
+  }
 
   @Memoized
   @Override

@@ -16,8 +16,10 @@
 
 package com.google.android.gnd.model.feature;
 
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import java8.util.Optional;
 
 /** User-defined map feature consisting of a single point. */
 @AutoValue
@@ -28,6 +30,13 @@ public abstract class PointFeature extends Feature<PointFeature.Builder> {
   }
 
   public abstract Point getPoint();
+
+  @Override
+  public FeatureMutation toMutation(Type type, String userId) {
+    return super.toMutation(type, userId).toBuilder()
+        .setNewLocation(Optional.of(getPoint()))
+        .build();
+  }
 
   @Memoized
   @Override

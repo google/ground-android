@@ -24,6 +24,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.observation.Observation;
@@ -47,7 +48,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setId(FakeData.LAYER_NO_FORM_ID)
           .setName(FakeData.LAYER_NO_FORM_NAME)
           .setDefaultStyle(Style.builder().setColor(FakeData.LAYER_NO_FORM_COLOR).build())
-          .setContributorsCanAdd(ImmutableList.of("points"))
+          .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
           .build();
 
   private final Project testProjectWithLayerAndNoForm =

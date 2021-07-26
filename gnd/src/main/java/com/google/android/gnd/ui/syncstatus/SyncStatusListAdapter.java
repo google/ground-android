@@ -83,7 +83,6 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
             .append(mutation.getSyncStatus().toString())
             .toString();
     viewHolder.binding.syncStatusText.setText(text);
-    viewHolder.position = position;
   }
 
   @Override

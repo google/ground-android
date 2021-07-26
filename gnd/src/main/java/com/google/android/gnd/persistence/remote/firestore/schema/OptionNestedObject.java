@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.util.Map;
 
@@ -37,8 +36,7 @@ class OptionNestedObject {
     this.label = label;
   }
 
-  @NonNull
-  public Integer getIndex() {
+  public int getIndex() {
     // Degrade gracefully if Options missing index in remote db.
     return index == null ? -1 : index;
   }

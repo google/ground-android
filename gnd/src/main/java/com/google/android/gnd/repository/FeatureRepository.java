@@ -16,16 +16,14 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -34,10 +32,10 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Date;
 import java8.util.Optional;
@@ -113,76 +111,58 @@ public class FeatureRepository {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
 
-  // TODO: Replace with Single and treat missing feature as error.
-  // TODO: Don't require projectId to be the active project.
   @Cold
-  public Maybe<Feature> getFeature(String projectId, String featureId) {
-    return projectRepository
-        .getProjectLoadingState()
-        .compose(Loadable::values)
-        .firstElement()
-        .filter(project -> project.getId().equals(projectId))
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
-        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
+  public Single<Feature> getFeature(FeatureMutation featureMutation) {
+    return getFeature(featureMutation.getProjectId(), featureMutation.getFeatureId());
   }
 
-  private FeatureMutation fromFeature(Feature feature, Type type) {
-    Optional<Point> newLocation =
-        feature instanceof PointFeature
-            ? Optional.of(((PointFeature) feature).getPoint())
-            : Optional.empty();
+  /** This only works if the project and feature are already cached to local db. */
+  @Cold
+  public Single<Feature> getFeature(String projectId, String featureId) {
+    return projectRepository
+        .getProject(projectId)
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature not found " + featureId)));
+  }
+
+  public FeatureMutation newMutation(String projectId, String layerId, Point point) {
     return FeatureMutation.builder()
-        .setType(type)
+        .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
-        .setProjectId(feature.getProject().getId())
-        .setFeatureId(feature.getId())
-        .setLayerId(feature.getLayer().getId())
-        .setNewLocation(newLocation)
+        .setFeatureId(uuidGenerator.generateUuid())
+        .setProjectId(projectId)
+        .setLayerId(layerId)
+        .setNewLocation(Optional.of(point))
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
         .build();
-  }
-
-  public PointFeature newFeature(Project project, Layer layer, Point point) {
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return PointFeature.newBuilder()
-        .setId(uuidGenerator.generateUuid())
-        .setProject(project)
-        .setLayer(layer)
-        .setPoint(point)
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
-        .build();
-  }
-
-  // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-  @Cold
-  public Completable createFeature(Feature feature) {
-    return applyAndEnqueue(feature, Type.CREATE);
-  }
-
-  @Cold
-  public Completable updateFeature(Feature feature) {
-    return applyAndEnqueue(feature, Type.UPDATE);
-  }
-
-  @Cold
-  public Completable deleteFeature(Feature feature) {
-    return applyAndEnqueue(feature, Type.DELETE);
   }
 
   /**
    * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
    * task for remote sync if the local transaction is successful.
    *
-   * @param feature Input {@link Feature}
-   * @param type Determines the {@link Type} of operation to be performed in the databases.
+   * @param mutation Input {@link FeatureMutation}
    * @return If successful, returns the provided feature wrapped as {@link Loadable}
    */
   @Cold
-  private Completable applyAndEnqueue(Feature feature, Type type) {
-    Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
-    Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
+  public Completable applyAndEnqueue(FeatureMutation mutation) {
+    Completable localTransaction = localDataStore.applyAndEnqueue(mutation);
+    Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId());
     return localTransaction.andThen(remoteSync);
+  }
+
+  /**
+   * Emits the list of {@link FeatureMutation} instances for a given feature which have not yet been
+   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations. A
+   * new list is emitted on each subsequent change.
+   */
+  public Flowable<ImmutableList<FeatureMutation>> getIncompleteFeatureMutationsOnceAndStream(
+      String featureId) {
+    return localDataStore.getFeatureMutationsByFeatureIdOnceAndStream(
+        featureId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED);
   }
 }

@@ -37,6 +37,8 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
    */
   public abstract Optional<Point> getNewLocation();
 
+  public abstract ImmutableList<Point> getNewPolygonVertices();
+
   @Override
   public abstract Builder toBuilder();
 
@@ -58,18 +60,20 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
         .collect(toImmutableList());
   }
 
-  // Boilerplate generated using Android Studio AutoValue plugin:
-
   public static Builder builder() {
     return new AutoValue_FeatureMutation.Builder()
         .setRetryCount(0)
-        .setSyncStatus(SyncStatus.UNKNOWN);
+        .setSyncStatus(SyncStatus.UNKNOWN)
+        .setNewLocation(Optional.empty())
+        .setNewPolygonVertices(ImmutableList.of());
   }
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
+
+    public abstract Builder setNewPolygonVertices(ImmutableList<Point> polygonVertices);
 
     @Override
     public abstract FeatureMutation build();

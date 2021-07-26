@@ -28,53 +28,39 @@
  *
  * HTML report is stored under: gnd/build/reports/spotbugs/
  */
-
-import com.github.spotbugs.SpotBugsTask
-
 buildscript {
     repositories {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.7.1'
+        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.7.2"
     }
 }
 
 apply plugin: 'com.github.spotbugs'
 
-
-spotbugs {
-    toolVersion = '4.3.0'
-}
-
 def configDir = "${project.rootDir}/config/spotbugs"
 def reportsDir = "${project.buildDir}/reports"
 
-tasks.register("spotbugs", SpotBugsTask) {
-    ignoreFailures false // Fail early
-    effort = 'max'
-
+spotbugs {
+    ignoreFailures = false // Fail early
     reportLevel = 'low'
+    effort = 'max'
+    excludeFilter = file("$configDir/spotbugs-filter.xml")
+    maxHeapSize = '512m'
+}
 
-    excludeFilter = new File("$configDir/spotbugs-filter.xml")
-    classes = fileTree("build/intermediates/javac/")
-
-    source = 'src'
-
-    classpath = files()
-    pluginClasspath = project.configurations.spotbugsPlugins
-    spotbugsClasspath = buildscript.configurations.classpath
-
-    setMaxHeapSize('256m')
-
-    reports {
-        html {
-            enabled true
-            setDestination new File("$reportsDir/spotbugs/spotbugs.html")
-        }
-        xml {
-            enabled false
-            setDestination new File("$reportsDir/spotbugs/spotbugs.xml")
+gradle.taskGraph.beforeTask { task ->
+    if (task.name.toLowerCase().contains('spotbugs')) {
+        task.reports {
+            html {
+                enabled true
+                setDestination new File("$reportsDir/spotbugs/spotbugs.html")
+            }
+            xml {
+                enabled false
+                setDestination new File("$reportsDir/spotbugs/spotbugs.xml")
+            }
         }
     }
 }
