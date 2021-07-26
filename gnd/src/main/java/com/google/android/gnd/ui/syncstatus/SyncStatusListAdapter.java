@@ -27,7 +27,6 @@ import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
@@ -72,11 +71,11 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
             .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')
             .append(timeFormat.format(mutation.getClientTimestamp()))
-            .append("\n")
+            .append('\n')
             .append(featureHelper.getLabel(Optional.of(feature)))
             .append(' ')
             .append(feature.getId())
-            .append("\n")
+            .append('\n')
             .append(featureHelper.getSubtitle(Optional.of(feature)))
             .append('\n')
             .append("Sync ")

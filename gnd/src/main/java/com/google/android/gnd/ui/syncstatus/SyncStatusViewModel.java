@@ -32,9 +32,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -63,13 +61,13 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private Flowable<ImmutableList<Pair<Feature, Mutation>>> loadFeaturesAndPair(
       ImmutableList<Mutation> mutations) {
-    return Maybe.merge(stream(mutations).map(this::loadFeatureAndPair).collect(toList()))
+    return Single.merge(stream(mutations).map(this::loadFeatureAndPair).collect(toList()))
         .toList()
         .map(ImmutableList::copyOf)
         .toFlowable();
   }
 
-  private Maybe<Pair<Feature, Mutation>> loadFeatureAndPair(Mutation mutation) {
+  private Single<Pair<Feature, Mutation>> loadFeatureAndPair(Mutation mutation) {
     return featureRepository
         .getFeature(mutation.getProjectId(), mutation.getFeatureId())
         .map(feature -> Pair.create(feature, mutation));
