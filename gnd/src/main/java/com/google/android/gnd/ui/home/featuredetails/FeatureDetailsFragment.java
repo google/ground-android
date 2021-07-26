@@ -32,6 +32,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java8.util.Optional;
 import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 
@@ -88,13 +89,15 @@ public class FeatureDetailsFragment extends AbstractFragment {
         .forEach(
             menuItem -> {
               if (menuItem.getItemId() == R.id.move_feature_menu_item) {
-                viewModel.getMoveMenuOptionVisible().observe(this, menuItem::setVisible);
+                viewModel.isMoveMenuOptionVisible().observe(this, menuItem::setVisible);
+              } else if (menuItem.getItemId() == R.id.delete_feature_menu_item) {
+                viewModel.isDeleteMenuOptionVisible().observe(this, menuItem::setVisible);
               }
             });
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    viewModel.onBottomSheetStateChange(state);
+    viewModel.onFeatureSelected(state.isVisible() ? state.getFeature() : Optional.empty());
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
