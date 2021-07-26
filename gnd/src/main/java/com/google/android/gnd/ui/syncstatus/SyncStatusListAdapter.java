@@ -73,8 +73,6 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
             .append(timeFormat.format(mutation.getClientTimestamp()))
             .append('\n')
             .append(featureHelper.getLabel(Optional.of(feature)))
-            .append(' ')
-            .append(feature.getId())
             .append('\n')
             .append(featureHelper.getSubtitle(Optional.of(feature)))
             .append('\n')
