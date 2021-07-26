@@ -30,8 +30,9 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.qualifiers.ApplicationContext;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.subjects.SingleSubject;
+import io.reactivex.subjects.PublishSubject;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
@@ -46,10 +47,10 @@ import timber.log.Timber;
 public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
-  private final SingleSubject<OfflineBaseMapViewerFragmentArgs> fragmentArgs =
-      SingleSubject.create();
+  private final PublishSubject<OfflineBaseMapViewerFragmentArgs> fragmentArgs =
+      PublishSubject.create();
 
-  @Hot private final SingleSubject<Nil> removeAreaClicks = SingleSubject.create();
+  @Hot private final PublishSubject<Nil> removeAreaClicks = PublishSubject.create();
 
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
@@ -71,9 +72,9 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     Flowable<OfflineBaseMap> offlineAreaItemAsFlowable =
         this.fragmentArgs
             .map(OfflineBaseMapViewerFragmentArgs::getOfflineAreaId)
-            .flatMap(offlineBaseMapRepository::getOfflineArea)
+            .flatMapSingle(offlineBaseMapRepository::getOfflineArea)
             .doOnError(throwable -> Timber.e(throwable, "Couldn't render area %s", offlineAreaId))
-            .toFlowable();
+            .toFlowable(BackpressureStrategy.LATEST);
     this.areaName =
         LiveDataReactiveStreams.fromPublisher(
             offlineAreaItemAsFlowable.map(OfflineBaseMap::getName));
@@ -113,13 +114,13 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
   /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
   public void loadOfflineArea(OfflineBaseMapViewerFragmentArgs args) {
-    this.fragmentArgs.onSuccess(args);
+    this.fragmentArgs.onNext(args);
     this.offlineAreaId = args.getOfflineAreaId();
   }
 
   /** Deletes the area associated with this viewmodel. */
   public void removeArea() {
     Timber.d("Removing offline area %s", this.offlineArea.getValue());
-    this.removeAreaClicks.onSuccess(Nil.NIL);
+    this.removeAreaClicks.onNext(Nil.NIL);
   }
 }
