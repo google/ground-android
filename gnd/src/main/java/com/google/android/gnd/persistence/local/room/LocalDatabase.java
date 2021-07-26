@@ -20,6 +20,8 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import com.google.android.gnd.Config;
+import com.google.android.gnd.persistence.local.room.converter.JsonArrayTypeConverter;
+import com.google.android.gnd.persistence.local.room.converter.JsonObjectTypeConverter;
 import com.google.android.gnd.persistence.local.room.converter.StyleTypeConverter;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
@@ -53,6 +55,7 @@ import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.FieldEntityType;
 import com.google.android.gnd.persistence.local.room.models.MultipleChoiceEntityType;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.android.gnd.persistence.local.room.models.OfflineBaseMapEntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
@@ -89,6 +92,9 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
   MultipleChoiceEntityType.class,
   MutationEntityType.class,
   EntityState.class,
+  JsonArrayTypeConverter.class,
+  JsonObjectTypeConverter.class,
+  MutationEntitySyncStatus.class,
   OfflineBaseMapEntityState.class,
   StyleTypeConverter.class,
   TileEntityState.class

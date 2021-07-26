@@ -22,7 +22,7 @@
 #
 #  Copy cache --> Extract tar -->                      -------> Code quality -------> Unit tests ------------------------>
 #                                \                   /                                                                     \
-#  Copy .git dir ------------------> Build debug apks                                                                       Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
+#                                 > Build debug apks                                                                       Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
 #                                /                   \                                                                     /
 #  Fetch google-services.json -->                      --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
 #
@@ -30,36 +30,19 @@
 steps:
 
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: &copy_gradle_cache 'Copying gradle cache'
+    id: &copy_build_cache 'Copying build cache'
     waitFor: [ '-' ]
     # we use rsync and not cp so that this step doesn't fail the first time it's run
     args: [ 'rsync', 'gs://${_CACHE_BUCKET}/', './' ]
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: &restore_gradle_cache 'Extracting tar'
+    id: &extract_build_cache 'Extracting tar'
     waitFor:
-      - *copy_gradle_cache
+      - *copy_build_cache
     args:
       - '-c'
       - |
-        tar zxf cache.tgz || echo "No cache found"
-
-  # Copy .git directory to workspace.
-  # This is needed by gitVersioner plugin for auto-generating version code and version name.
-  #
-  # TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
-  # https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
-  - name: 'gcr.io/cloud-builders/git'
-    id: &create_git_dir 'Copy .git dir'
-    waitFor: [ '-' ]
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        git clone --branch master $_HEAD_REPO_URL tmp
-        rm -rf .git
-        mv tmp/.git .
-        rm -rf tmp
+        tar zxf cache.tgz || echo "No cache found."
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &config_google_services 'Load debug google-services.json'
@@ -73,13 +56,12 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &assemble_debug 'Assemble debug apks'
     waitFor:
-      - *restore_gradle_cache
-      - *create_git_dir
+      - *extract_build_cache
       - *config_google_services
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon assembleStaging assembleStagingUnitTest assembleStagingAndroidTest
+        ./gradlew -PdisablePreDex assembleStaging assembleStagingUnitTest assembleStagingAndroidTest -PtestBuildType=staging
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -89,7 +71,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon checkCode 2> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -99,7 +81,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -155,6 +137,9 @@ steps:
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
 
+          # Check for updates
+          ./gradlew -PdisablePreDex dependencyUpdates
+
           # Gradle Dependencies Status
           if [[ -f gnd/build/reports/dependencyUpdates/report.json ]]; then
             python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
@@ -187,23 +172,25 @@ steps:
         fi
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: &build_cache 'Compress gradle build cache'
+    id: &compress_cache 'Compress gradle build cache'
     waitFor:
       - *update_status
     args:
       - '-c'
       - |
-        tar zcf cache.tgz .gradle
+        tar zcf cache.tgz .gradle/caches .gradle/wrapper
 
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_cache 'Save gradle cache to GCS'
     waitFor:
-      - *build_cache
+      - *compress_cache
     args: [ 'cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz' ]
 
 options:
   env:
+    - 'TERM=dumb'
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
+  machineType: 'N1_HIGHCPU_8'
 
 timeout: 1800s

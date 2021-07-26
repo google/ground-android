@@ -46,7 +46,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     this.binding = binding;
   }
 
-  public void bind(ObservationViewModel viewModel, Observation observation) {
+  public void bind(ObservationListItemViewModel viewModel, Observation observation) {
     binding.setViewModel(viewModel);
     binding.executePendingBindings();
 
@@ -70,7 +70,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
             newFieldTextView(field.getLabel(), R.style.ObservationListText_FieldLabel));
         binding.fieldValueRow.addView(
             newFieldTextView(
-                response.map(r -> r.getSummaryText(field)).orElse(""),
+                response.map(Response::getSummaryText).orElse(""),
                 R.style.ObservationListText_Field));
       } else {
         Timber.e("Unhandled element type: %s", elem.getType());

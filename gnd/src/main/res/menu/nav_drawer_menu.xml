@@ -36,6 +36,10 @@
     android:id="@+id/group_other"
     android:checkableBehavior="none">
     <item
+      android:id="@+id/sync_status"
+      android:icon="@drawable/ic_sync"
+      android:title="@string/sync_status" />
+    <item
       android:id="@+id/nav_offline_areas"
       android:icon="@drawable/ic_cloud_offline"
       android:title="@string/offline_base_maps" />

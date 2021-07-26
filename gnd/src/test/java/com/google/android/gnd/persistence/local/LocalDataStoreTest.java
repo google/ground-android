@@ -23,6 +23,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -32,6 +33,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
@@ -44,6 +46,7 @@ import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
+import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
@@ -113,14 +116,36 @@ public class LocalDataStoreTest {
   private static final Point TEST_POINT_2 =
       Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
 
+  private static final ImmutableList<Point> TEST_POLYGON_1 =
+      ImmutableList.<Point>builder()
+          .add(Point.newBuilder().setLatitude(49.874502).setLongitude(8.655993).build())
+          .add(Point.newBuilder().setLatitude(49.874099).setLongitude(8.651173).build())
+          .add(Point.newBuilder().setLatitude(49.872919).setLongitude(8.651628).build())
+          .add(Point.newBuilder().setLatitude(49.873164).setLongitude(8.653515).build())
+          .add(Point.newBuilder().setLatitude(49.874343).setLongitude(8.653038).build())
+          .build();
+
+  private static final ImmutableList<Point> TEST_POLYGON_2 =
+      ImmutableList.<Point>builder()
+          .add(Point.newBuilder().setLatitude(49.865374).setLongitude(8.646920).build())
+          .add(Point.newBuilder().setLatitude(49.864241).setLongitude(8.647286).build())
+          .add(Point.newBuilder().setLatitude(49.864664).setLongitude(8.650387).build())
+          .add(Point.newBuilder().setLatitude(49.863102).setLongitude(8.650445).build())
+          .add(Point.newBuilder().setLatitude(49.863051).setLongitude(8.647306).build())
+          .build();
+
   private static final FeatureMutation TEST_FEATURE_MUTATION =
       createTestFeatureMutation(TEST_POINT);
+
+  private static final FeatureMutation TEST_POLYGON_FEATURE_MUTATION =
+      createTestPolygonFeatureMutation(TEST_POLYGON_1);
 
   private static final ObservationMutation TEST_OBSERVATION_MUTATION =
       ObservationMutation.builder()
           .setId(1L)
           .setObservationId("observation id")
           .setType(Mutation.Type.CREATE)
+          .setSyncStatus(SyncStatus.PENDING)
           .setProjectId("project id")
           .setFeatureId("feature id")
           .setLayerId("layer id")
@@ -131,7 +156,7 @@ public class LocalDataStoreTest {
                   ResponseDelta.builder()
                       .setFieldId("field id")
                       .setFieldType(Field.Type.TEXT_FIELD)
-                      .setNewResponse(TextResponse.fromString("response for field id"))
+                      .setNewResponse(TextResponse.fromString("updated response"))
                       .build()))
           .setClientTimestamp(new Date())
           .build();
@@ -175,6 +200,7 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
+  @Inject LocalValueStore localValueStore;
   @Inject ObservationDao observationDao;
   @Inject FeatureDao featureDao;
 
@@ -183,10 +209,28 @@ public class LocalDataStoreTest {
         .setId(1L)
         .setFeatureId("feature id")
         .setType(Mutation.Type.CREATE)
+        .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setProjectId("project id")
         .setLayerId("layer id")
         .setNewLocation(Optional.ofNullable(point))
+        .setNewPolygonVertices(ImmutableList.of())
+        .setClientTimestamp(new Date())
+        .build();
+  }
+
+  private static FeatureMutation createTestPolygonFeatureMutation(
+      ImmutableList<Point> polygonVertices) {
+    return FeatureMutation.builder()
+        .setId(1L)
+        .setFeatureId("feature id")
+        .setType(Mutation.Type.CREATE)
+        .setSyncStatus(SyncStatus.PENDING)
+        .setUserId("user id")
+        .setProjectId("project id")
+        .setLayerId("layer id")
+        .setNewLocation(Optional.empty())
+        .setNewPolygonVertices(polygonVertices)
         .setClientTimestamp(new Date())
         .build();
   }
@@ -292,6 +336,25 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testApplyAndEnqueue_polygonFeatureMutation() {
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+
+    localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).test().assertComplete();
+
+    // assert that mutation is saved to local database
+    localDataStore
+        .getPendingMutations("feature id")
+        .test()
+        .assertValue(ImmutableList.of(TEST_POLYGON_FEATURE_MUTATION));
+
+    localDataStore
+        .getFeature(TEST_PROJECT, "feature id")
+        .test()
+        .assertValue(feature -> ((PolygonFeature) feature).getVertices().equals(TEST_POLYGON_1));
+  }
+
+  @Test
   public void testGetFeaturesOnceAndStream() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
@@ -319,6 +382,20 @@ public class LocalDataStoreTest {
     localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete();
     localDataStore
         .getPendingMutations(TEST_FEATURE_MUTATION.getFeatureId())
+        .test()
+        .assertValue(ImmutableList.of(mutation));
+  }
+
+  @Test
+  public void testPolygonUpdateMutations() {
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).blockingAwait();
+
+    FeatureMutation mutation = createTestPolygonFeatureMutation(TEST_POLYGON_2);
+    localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete();
+    localDataStore
+        .getPendingMutations(TEST_POLYGON_FEATURE_MUTATION.getFeatureId())
         .test()
         .assertValue(ImmutableList.of(mutation));
   }
@@ -355,6 +432,24 @@ public class LocalDataStoreTest {
         .getFeature(TEST_PROJECT, "feature id")
         .test()
         .assertValue(newFeature -> ((PointFeature) newFeature).getPoint().equals(TEST_POINT_2));
+  }
+
+  @Test
+  public void testMergePolygonFeature() {
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).blockingAwait();
+
+    PolygonFeature feature =
+        (PolygonFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    feature = feature.toBuilder().setVertices(TEST_POLYGON_2).build();
+    localDataStore.mergeFeature(feature).test().assertComplete();
+
+    localDataStore
+        .getFeature(TEST_PROJECT, "feature id")
+        .test()
+        .assertValue(
+            newFeature -> ((PolygonFeature) newFeature).getVertices().equals(TEST_POLYGON_2));
   }
 
   @Test
@@ -437,7 +532,7 @@ public class LocalDataStoreTest {
             .values()
             .get(0)
             .getResponses();
-    assertThat("foo value").isEqualTo(responses.getResponse("field id").get().toString());
+    assertThat("updated response").isEqualTo(responses.getResponse("field id").get().toString());
   }
 
   @Test
@@ -568,5 +663,26 @@ public class LocalDataStoreTest {
         .getOfflineAreasOnceAndStream()
         .test()
         .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
+  }
+
+  @Test
+  public void testParseVertices_emptyString() {
+    assertThat(FeatureEntity.parseVertices("")).isEqualTo(ImmutableList.of());
+  }
+
+  @Test
+  public void testFormatVertices_emptyList() {
+    assertThat(FeatureEntity.formatVertices(ImmutableList.of())).isNull();
+  }
+
+  @Test
+  public void testTermsOfServiceAccepted() {
+    localValueStore.setTermsOfServiceAccepted(true);
+    assertThat(localValueStore.isTermsOfServiceAccepted()).isTrue();
+  }
+
+  @Test
+  public void testTermsOfServiceNotAccepted() {
+    assertThat(localValueStore.isTermsOfServiceAccepted()).isFalse();
   }
 }

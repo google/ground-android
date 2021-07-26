@@ -50,7 +50,7 @@ abstract class SingleSelectDialogFactory extends SelectDialogFactory {
   @Override
   protected void initSelectedState() {
     checkedItem =
-        getCurrentValue()
+        getCurrentResponse()
             .flatMap(MultipleChoiceResponse::getFirstId)
             .flatMap(getMultipleChoice()::getIndex)
             .orElse(-1);

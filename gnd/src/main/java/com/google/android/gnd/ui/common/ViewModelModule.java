@@ -26,8 +26,9 @@ import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import com.google.android.gnd.ui.editobservation.TextFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
+import com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
-import com.google.android.gnd.ui.home.featuredetails.ObservationViewModel;
+import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel;
@@ -35,6 +36,8 @@ import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorV
 import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
+import com.google.android.gnd.ui.syncstatus.SyncStatusViewModel;
+import com.google.android.gnd.ui.tos.TermsOfServiceViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
@@ -53,6 +56,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(OfflineBaseMapSelectorViewModel.class)
   abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineBaseMapSelectorViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(SyncStatusViewModel.class)
+  abstract ViewModel bindSyncStatusViewModel(SyncStatusViewModel viewModel);
 
   @Binds
   @IntoMap
@@ -76,6 +84,11 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
+  @ViewModelKey(TermsOfServiceViewModel.class)
+  abstract ViewModel bindTermsViewModel(TermsOfServiceViewModel viewModel);
+
+  @Binds
+  @IntoMap
   @ViewModelKey(HomeScreenViewModel.class)
   abstract ViewModel bindHomeScreenViewModel(HomeScreenViewModel viewModel);
 
@@ -91,8 +104,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(ObservationViewModel.class)
-  abstract ViewModel bindObservationViewModel(ObservationViewModel viewModel);
+  @ViewModelKey(ObservationListItemViewModel.class)
+  abstract ViewModel bindObservationListItemViewModel(ObservationListItemViewModel viewModel);
 
   @Binds
   @IntoMap
@@ -128,6 +141,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(NumberFieldViewModel.class)
   abstract ViewModel bindNumberFieldViewModel(NumberFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(FeatureSelectorViewModel.class)
+  abstract ViewModel bindFeatureSelectorViewModel(FeatureSelectorViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

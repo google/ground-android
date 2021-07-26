@@ -34,7 +34,6 @@ import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -47,7 +46,6 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   @Inject EphemeralPopups popups;
 
   private OfflineBaseMapSelectorViewModel viewModel;
-  @Nullable private MapAdapter map;
 
   public static OfflineBaseMapSelectorFragment newInstance() {
     return new OfflineBaseMapSelectorFragment();
@@ -57,15 +55,24 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(OfflineBaseMapSelectorViewModel.class);
+    // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
-    viewModel
-        .getDownloadMessages()
-        // Since we pop a toast, we need to observe on the main (UI) thread.
-        // Otherwise this subscription handler will trigger before Looper.prepare() has been called.
-        .observeOn(AndroidSchedulers.mainThread())
-        .as(autoDisposable(this))
-        .subscribe(this::onDownloadMessage);
+    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
+  }
+
+  private void onDownloadMessage(DownloadMessage message) {
+    switch (message) {
+      case STARTED:
+        popups.showSuccess(R.string.offline_base_map_download_started);
+        navigator.navigateUp();
+        break;
+      case FAILURE:
+      default:
+        popups.showError(R.string.offline_base_map_download_failed);
+        navigator.navigateUp();
+        break;
+    }
   }
 
   @Override
@@ -76,7 +83,6 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
         OfflineBaseMapSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    binding.downloadButton.setOnClickListener(__ -> onDownloadClick());
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaSelectorToolbar, true);
     return binding.getRoot();
   }
@@ -91,31 +97,11 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
     }
   }
 
-  /** Prepare the map once it's ready. */
   private void onMapReady(MapAdapter map) {
-    this.map = map;
-  }
-
-  /** Handle a download button click and queue a basemap download. */
-  public void onDownloadClick() {
-    if (map == null) {
-      return;
-    }
-
-    viewModel.downloadBaseMap(map.getViewport());
-  }
-
-  /** Handle the download message response after attempting to download a basemap. */
-  private void onDownloadMessage(DownloadMessage message) {
-    switch (message) {
-      case STARTED:
-        popups.showSuccess(R.string.offline_base_map_download_started);
-        break;
-      case FAILURE:
-      default:
-        popups.showError(R.string.offline_base_map_download_failed);
-        break;
-    }
-    navigator.navigateUp();
+    map.getCameraMovedEvents()
+        .map(__ -> map.getViewport())
+        .startWith(map.getViewport())
+        .as(autoDisposable(this))
+        .subscribe(viewModel::setViewport);
   }
 }

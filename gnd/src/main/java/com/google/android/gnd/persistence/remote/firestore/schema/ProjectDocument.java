@@ -30,6 +30,8 @@ class ProjectDocument {
 
   @Nullable private Map<String, LayerNestedObject> layers;
 
+  @Nullable private Map<String, String> acl;
+
   @Nullable private List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources;
 
   @SuppressWarnings("unused")
@@ -40,10 +42,12 @@ class ProjectDocument {
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
       @Nullable Map<String, LayerNestedObject> layers,
+      @Nullable Map<String, String> acl,
       @Nullable List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources) {
     this.title = title;
     this.description = description;
     this.layers = layers;
+    this.acl = acl;
     this.offlineBaseMapSources = offlineBaseMapSources;
   }
 
@@ -60,6 +64,11 @@ class ProjectDocument {
   @Nullable
   public Map<String, LayerNestedObject> getLayers() {
     return layers;
+  }
+
+  @Nullable
+  public Map<String, String> getAcl() {
+    return acl;
   }
 
   @Nullable

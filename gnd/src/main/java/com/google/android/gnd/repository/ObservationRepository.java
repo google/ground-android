@@ -17,12 +17,15 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
+import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
@@ -32,6 +35,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.util.Date;
@@ -46,7 +50,7 @@ import timber.log.Timber;
  */
 public class ObservationRepository {
 
-  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 15;
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -87,7 +91,6 @@ public class ObservationRepository {
     // TODO: Only fetch first n fields.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(feature -> getObservations(feature, formId));
   }
 
@@ -118,7 +121,6 @@ public class ObservationRepository {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(
             feature ->
                 localDataStore
@@ -133,7 +135,6 @@ public class ObservationRepository {
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .map(
             feature ->
                 Observation.newBuilder()
@@ -151,6 +152,7 @@ public class ObservationRepository {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(Type.DELETE)
+            .setSyncStatus(SyncStatus.PENDING)
             .setProjectId(observation.getProject().getId())
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
@@ -164,11 +166,12 @@ public class ObservationRepository {
   }
 
   @Cold
-  public Completable addObservationMutation(
+  public Completable createOrUpdateObservation(
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
+            .setSyncStatus(SyncStatus.PENDING)
             .setProjectId(observation.getProject().getId())
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
@@ -186,5 +189,20 @@ public class ObservationRepository {
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
+  }
+
+  /**
+   * Returns all {@link ObservationMutation} instances for a given feature which have not yet been
+   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations. A
+   * new list is emitted on each subsequent change.
+   */
+  public Flowable<ImmutableList<ObservationMutation>>
+      getIncompleteObservationMutationsOnceAndStream(Project project, String featureId) {
+    return localDataStore.getObservationMutationsByFeatureIdOnceAndStream(
+        project,
+        featureId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED);
   }
 }

@@ -16,75 +16,80 @@
 
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
-import android.content.Context;
 import android.content.res.Resources;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import io.reactivex.Single;
-import io.reactivex.subjects.SingleSubject;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
-
-  private final Resources resources;
 
   enum DownloadMessage {
     STARTED,
     FAILURE
   }
 
-  @Hot private final SingleSubject<OfflineBaseMap> baseMapDownloads = SingleSubject.create();
-
-  @Hot(terminates = true, errors = false)
-  private final Single<DownloadMessage> downloadMessage;
-
+  @Hot private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
+  private final LiveData<Event<DownloadMessage>> messages;
   private final OfflineUuidGenerator offlineUuidGenerator;
+  @Nullable private LatLngBounds viewport;
+  private final Resources resources;
 
   @Inject
   OfflineBaseMapSelectorViewModel(
       OfflineBaseMapRepository offlineBaseMapRepository,
       OfflineUuidGenerator offlineUuidGenerator,
-      @ApplicationContext Context context) {
-    this.downloadMessage =
-        baseMapDownloads
-            .flatMapCompletable(offlineBaseMapRepository::addAreaAndEnqueue)
-            .toSingleDefault(DownloadMessage.STARTED)
-            .onErrorReturn(this::onEnqueueError);
+      Resources resources) {
+    this.messages =
+        LiveDataReactiveStreams.fromPublisher(
+            downloadClicks.switchMapSingle(
+                baseMap ->
+                    offlineBaseMapRepository
+                        .addAreaAndEnqueue(baseMap)
+                        .toSingleDefault(DownloadMessage.STARTED)
+                        .onErrorReturn(this::onEnqueueError)
+                        .map(Event::create)));
     this.offlineUuidGenerator = offlineUuidGenerator;
-    this.resources = context.getResources();
+    this.resources = resources;
   }
 
-  /** Returns a failure message if the basemap download enqueued by this viewmodel fails. */
   private DownloadMessage onEnqueueError(Throwable e) {
     Timber.e("Failed to add area and queue downloads: %s", e.getMessage());
     return DownloadMessage.FAILURE;
   }
 
-  /** The result of attempting to download a basemap; completes with the latest value. */
-  @Hot(terminates = true, errors = false)
-  public Single<DownloadMessage> getDownloadMessages() {
-    return this.downloadMessage;
+  public LiveData<Event<DownloadMessage>> getDownloadMessages() {
+    return this.messages;
   }
 
-  // TODO: Use an abstraction over LatLngBounds
-  /** Queues a basemap captured in the current map viewport for download. */
-  public void downloadBaseMap(LatLngBounds viewport) {
-    OfflineBaseMap offlineBaseMap =
+  void setViewport(LatLngBounds viewport) {
+    this.viewport = viewport;
+  }
+
+  public void onDownloadClick() {
+    Timber.d("viewport:%s", viewport);
+    if (viewport == null) {
+      return;
+    }
+
+    downloadClicks.onNext(
         OfflineBaseMap.newBuilder()
             .setBounds(viewport)
             .setId(offlineUuidGenerator.generateUuid())
             .setState(State.PENDING)
             .setName(resources.getString(R.string.unnamed_area))
-            .build();
-
-    baseMapDownloads.onSuccess(offlineBaseMap);
+            .build());
   }
 }

@@ -23,12 +23,15 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
+import org.json.JSONArray;
 
 @AutoValue
 @Entity(
@@ -62,12 +65,18 @@ public abstract class LayerEntity {
   @ColumnInfo(name = "project_id")
   public abstract String getProjectId();
 
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "contributors_can_add")
+  public abstract JSONArray getContributorsCanAdd();
+
   public static LayerEntity fromLayer(String projectId, Layer layer) {
     return LayerEntity.builder()
         .setId(layer.getId())
         .setProjectId(projectId)
         .setName(layer.getName())
         .setDefaultStyle(layer.getDefaultStyle())
+        .setContributorsCanAdd(new JSONArray(layer.getContributorsCanAdd()))
         .build();
   }
 
@@ -84,15 +93,39 @@ public abstract class LayerEntity {
       layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
     }
 
+    layerBuilder.setContributorsCanAdd(toFeatureTypes(layerEntity.getContributorsCanAdd()));
+
     return layerBuilder.build();
   }
 
-  public static LayerEntity create(String id, String name, Style defaultStyle, String projectId) {
+  private static ImmutableList<FeatureType> toFeatureTypes(JSONArray jsonArray) {
+    ImmutableList.Builder<FeatureType> builder = ImmutableList.builder();
+    for (int i = 0; i < jsonArray.length(); i++) {
+      String value = jsonArray.optString(i, null);
+      if (value != null) {
+        builder.add(toFeatureType(value));
+      }
+    }
+    return builder.build();
+  }
+
+  private static FeatureType toFeatureType(String stringValue) {
+    switch (stringValue) {
+      case "points":
+        return FeatureType.POINT;
+      default:
+        return FeatureType.UNKNOWN;
+    }
+  }
+
+  public static LayerEntity create(
+      String id, String name, Style defaultStyle, String projectId, JSONArray contributorsCanAdd) {
     return builder()
         .setId(id)
         .setName(name)
         .setDefaultStyle(defaultStyle)
         .setProjectId(projectId)
+        .setContributorsCanAdd(contributorsCanAdd)
         .build();
   }
 
@@ -110,6 +143,8 @@ public abstract class LayerEntity {
     public abstract Builder setDefaultStyle(Style defaultStyle);
 
     public abstract Builder setProjectId(String projectId);
+
+    public abstract Builder setContributorsCanAdd(JSONArray contributorsCanAdd);
 
     public abstract LayerEntity build();
   }

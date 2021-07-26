@@ -56,7 +56,8 @@ class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemVie
 
   @Override
   public void onBindViewHolder(@NonNull ObservationListItemViewHolder holder, int position) {
-    ObservationViewModel viewModel = viewModelFactory.create(ObservationViewModel.class);
+    ObservationListItemViewModel viewModel =
+        viewModelFactory.create(ObservationListItemViewModel.class);
     viewModel.setObservation(observationList.get(position));
     viewModel.setObservationCallback(observation -> itemClicks.postValue(observation));
     holder.bind(viewModel, observationList.get(position));

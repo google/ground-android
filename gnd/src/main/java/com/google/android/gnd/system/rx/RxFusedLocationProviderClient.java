@@ -43,7 +43,7 @@ public class RxFusedLocationProviderClient {
 
   @SuppressLint("MissingPermission")
   public Maybe<Location> getLastLocation() {
-    return RxTask.toMaybe(() -> fusedLocationProviderClient.getLastLocation());
+    return RxTask.toMaybe(fusedLocationProviderClient::getLastLocation);
   }
 
   @SuppressLint("MissingPermission")

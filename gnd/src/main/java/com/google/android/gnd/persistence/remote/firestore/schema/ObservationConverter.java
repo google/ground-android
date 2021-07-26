@@ -23,6 +23,7 @@ import static java8.util.stream.StreamSupport.stream;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Observation;
@@ -33,6 +34,7 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java8.util.Objects;
 import javax.annotation.Nullable;
 import timber.log.Timber;
@@ -70,12 +72,12 @@ class ObservationConverter {
     if (docResponses == null) {
       return responses.build();
     }
-    for (String fieldId : docResponses.keySet()) {
+    for (Entry<String, Object> entry : docResponses.entrySet()) {
+      String fieldId = entry.getKey();
       try {
-        Object obj = docResponses.get(fieldId);
-        putResponse(fieldId, form, obj, responses);
+        putResponse(fieldId, form, entry.getValue(), responses);
       } catch (DataStoreException e) {
-        Timber.d("Field " + fieldId + "in remote db in observation " + observationId + ": " + e);
+        Timber.e(e, "Field " + fieldId + "in remote db in observation " + observationId);
       }
     }
     return responses.build();
@@ -93,7 +95,7 @@ class ObservationConverter {
         putTextResponse(fieldId, obj, responses);
         break;
       case MULTIPLE_CHOICE:
-        putMultipleChoiceResponse(fieldId, obj, responses);
+        putMultipleChoiceResponse(fieldId, field.getMultipleChoice(), obj, responses);
         break;
       case NUMBER:
         putNumberResponse(fieldId, obj, responses);
@@ -117,10 +119,10 @@ class ObservationConverter {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static void putMultipleChoiceResponse(
-      String fieldId, Object obj, ResponseMap.Builder responses) {
+      String fieldId, MultipleChoice multipleChoice, Object obj, Builder responses) {
     List values = (List) DataStoreException.checkType(List.class, obj);
     stream(values).forEach(v -> DataStoreException.checkType(String.class, v));
-    MultipleChoiceResponse.fromList((List<String>) values)
+    MultipleChoiceResponse.fromList(multipleChoice, (List<String>) values)
         .ifPresent(r -> responses.putResponse(fieldId, r));
   }
 }

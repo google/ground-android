@@ -33,8 +33,8 @@ public class RemoteDataEvent<T> extends ValueOrError<T> {
     ERROR
   }
 
-  private String entityId;
-  private EventType eventType;
+  private final String entityId;
+  private final EventType eventType;
 
   private RemoteDataEvent(
       String entityId, EventType eventType, @Nullable T entity, @Nullable Throwable error) {

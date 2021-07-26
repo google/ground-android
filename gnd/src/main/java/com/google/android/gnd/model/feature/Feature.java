@@ -18,9 +18,13 @@ package com.google.android.gnd.model.feature;
 
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation.SyncStatus;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.layer.Layer;
+import java.util.Date;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /** Base class for user-defined features shown on map. */
 public abstract class Feature<B extends Feature.Builder> {
@@ -30,6 +34,10 @@ public abstract class Feature<B extends Feature.Builder> {
 
   public boolean isGeoJson() {
     return this instanceof GeoJsonFeature;
+  }
+
+  public boolean isPolygon() {
+    return this instanceof PolygonFeature;
   }
 
   @NonNull
@@ -50,6 +58,19 @@ public abstract class Feature<B extends Feature.Builder> {
 
   /** Returns the user and time audit info pertaining to the last modification of this feature. */
   public abstract AuditInfo getLastModified();
+
+  @OverridingMethodsMustInvokeSuper
+  public FeatureMutation toMutation(Type type, String userId) {
+    return FeatureMutation.builder()
+        .setType(type)
+        .setSyncStatus(SyncStatus.PENDING)
+        .setProjectId(getProject().getId())
+        .setFeatureId(getId())
+        .setLayerId(getLayer().getId())
+        .setUserId(userId)
+        .setClientTimestamp(new Date())
+        .build();
+  }
 
   public abstract static class Builder<T extends Feature.Builder> {
     // TODO: Use newFoo or foo consistently.

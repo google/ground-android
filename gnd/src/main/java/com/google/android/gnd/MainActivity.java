@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -33,6 +34,7 @@ import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
+import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.ViewModelFactory;
@@ -51,7 +53,7 @@ public class MainActivity extends AbstractActivity {
   @Inject SettingsManager settingsManager;
   @Inject Navigator navigator;
   @Inject UserRepository userRepository;
-
+  @Inject EphemeralPopups popups;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
 
@@ -80,6 +82,15 @@ public class MainActivity extends AbstractActivity {
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
     viewModel.getSignInProgressDialogVisibility().observe(this, this::onSignInProgress);
+    viewModel
+        .getUnrecoverableErrors()
+        .as(autoDisposable(this))
+        .subscribe(this::onUnrecoverableError);
+  }
+
+  public void onUnrecoverableError(@StringRes int messageId) {
+    popups.showError(messageId);
+    finish();
   }
 
   @Override
@@ -163,7 +174,7 @@ public class MainActivity extends AbstractActivity {
 
   private void showSignInDialog() {
     if (signInProgressDialog == null) {
-      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.please_wait_logging_in);
+      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in);
     }
     signInProgressDialog.show();
   }

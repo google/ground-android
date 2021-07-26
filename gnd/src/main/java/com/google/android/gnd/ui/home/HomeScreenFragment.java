@@ -22,20 +22,24 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -47,8 +51,10 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -57,17 +63,24 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
+import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
+import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import timber.log.Timber;
 
 /**
@@ -87,6 +100,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
+  @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
@@ -95,6 +109,7 @@ public class HomeScreenFragment extends AbstractFragment
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
+  private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
 
@@ -108,18 +123,51 @@ public class HomeScreenFragment extends AbstractFragment
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+    featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
+    viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
+    viewModel
+        .getShowFeatureSelectorRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::showFeatureSelector);
+    viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
+    viewModel
+        .getAddFeatureResults()
+        .observeOn(schedulers.ui())
+        .as(autoDisposable(this))
+        .subscribe(this::onFeatureAdded);
+    viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
+    viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
+    viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
+    featureSelectorViewModel
+        .getFeatureClicks()
+        .as(autoDisposable(this))
+        .subscribe(viewModel::onFeatureSelected);
+    mapContainerViewModel
+        .getAddFeatureButtonClicks()
+        .as(autoDisposable(this))
+        .subscribe(viewModel::onAddFeatureButtonClick);
     viewModel
         .getShowAddFeatureDialogRequests()
-        .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
-    viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
-    viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
-    viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
-    viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
-    viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
-    viewModel.getErrors().observe(this, this::onError);
+        .as(autoDisposable(this))
+        .subscribe(this::showAddFeatureDialog);
+  }
+
+  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
+    ImmutableList<Layer> layers = args.first;
+    Point point = args.second;
+    addFeatureDialogFragment.show(
+        layers, getChildFragmentManager(), layer -> viewModel.addFeature(layer, point));
+  }
+
+  private void showFeatureSelector(ImmutableList<Feature> features) {
+    featureSelectorViewModel.setFeatures(features);
+    if (!featureSelectorDialogFragment.isVisible()) {
+      featureSelectorDialogFragment.show(
+          getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
+    }
   }
 
   private void onFeatureAdded(Feature feature) {
@@ -227,9 +275,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
-    FrameLayout toolbarWrapper = binding.featureDetailsChrome.toolbarWrapper;
     FrameLayout bottomSheetHeader = binding.getRoot().findViewById(R.id.bottom_sheet_header);
-    if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
+    if (bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);
@@ -266,11 +313,6 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.feature_sheet_menu, menu);
-  }
-
-  @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     BottomSheetState state = viewModel.getBottomSheetState().getValue();
     if (state == null) {
@@ -291,6 +333,9 @@ public class HomeScreenFragment extends AbstractFragment
         } else {
           Timber.e("Attempted to delete non-existent feature");
         }
+        return true;
+      case R.id.feature_properties_menu_item:
+        showFeatureProperties();
         return true;
       default:
         return false;
@@ -405,20 +450,6 @@ public class HomeScreenFragment extends AbstractFragment
     return -1;
   }
 
-  private void onShowAddFeatureDialogRequest(Point point) {
-    Loadable.getValue(viewModel.getProjectLoadingState())
-        .ifPresentOrElse(
-            project -> {
-              // TODO: Pause location updates while dialog is open.
-              // TODO: Show spinner?
-              addFeatureDialogFragment.show(
-                  project.getLayers(),
-                  getChildFragmentManager(),
-                  (layer) -> viewModel.addFeature(project, layer, point));
-            },
-            () -> Timber.e("Attempting to add feature while no project loaded"));
-  }
-
   private void onBottomSheetStateChange(BottomSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
@@ -449,6 +480,43 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
+  public void showFeatureTypeDialog(Layer layer, Point point) {
+    ArrayAdapter<String> arrayAdapter =
+        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
+    arrayAdapter.add(getString(R.string.point));
+    arrayAdapter.add(getString(R.string.polygon));
+    new Builder(getContext())
+        .setTitle(R.string.select_feature_type)
+        .setAdapter(
+            arrayAdapter,
+            (dialog, position) -> {
+              if (position == 0) {
+                viewModel.addFeature(layer, point);
+              } else {
+                showPolygonInfoDialog();
+              }
+            })
+        .setCancelable(true)
+        .create()
+        .show();
+  }
+
+  public void showPolygonInfoDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+    LayoutInflater inflater = requireActivity().getLayoutInflater();
+    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
+    builder.setView(dialogView);
+    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
+    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
+    AlertDialog alertDialog = builder.create();
+    getStartedBtn.setOnClickListener(
+        v -> {
+          alertDialog.dismiss();
+        });
+    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
+    alertDialog.show();
+  }
+
   public void dismissLoadingDialog() {
     if (progressDialog != null) {
       progressDialog.dismiss();
@@ -477,6 +545,9 @@ public class HomeScreenFragment extends AbstractFragment
         case R.id.nav_join_project:
           showProjectSelector();
           closeDrawer();
+          break;
+        case R.id.sync_status:
+          viewModel.showSyncStatus();
           break;
         case R.id.nav_offline_areas:
           showOfflineAreas();
@@ -515,6 +586,59 @@ public class HomeScreenFragment extends AbstractFragment
     @Override
     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
       // no-op.
+    }
+  }
+
+  private void showFeatureProperties() {
+    // TODO(#841): Move business logic into view model.
+    BottomSheetState state = viewModel.getBottomSheetState().getValue();
+    if (state == null) {
+      Timber.e("BottomSheetState is null");
+      return;
+    }
+    if (state.getFeature().isEmpty()) {
+      Timber.e("No feature selected");
+      return;
+    }
+    Feature feature = state.getFeature().get();
+    List<String> items = new ArrayList<>();
+    // TODO(#843): Let properties apply to other feature types as well.
+    if (feature instanceof GeoJsonFeature) {
+      items = getFeatureProperties((GeoJsonFeature) feature);
+    }
+    if (items.isEmpty()) {
+      items.add("No properties defined for this feature");
+    }
+    new AlertDialog.Builder(requireContext())
+        .setCancelable(true)
+        .setTitle(R.string.feature_properties)
+        // TODO(#842): Use custom view to format feature properties as table.
+        .setItems(items.toArray(new String[] {}), (a, b) -> {})
+        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {})
+        .create()
+        .show();
+  }
+
+  private ImmutableList<String> getFeatureProperties(GeoJsonFeature feature) {
+    String jsonString = feature.getGeoJsonString();
+    try {
+      JSONObject jsonObject = new JSONObject(jsonString);
+      JSONObject properties = jsonObject.optJSONObject("properties");
+      if (properties == null) {
+        return ImmutableList.of();
+      }
+      ImmutableList.Builder items = new ImmutableList.Builder();
+      Iterator<String> keyIter = properties.keys();
+      while (keyIter.hasNext()) {
+        String key = keyIter.next();
+        Object value = properties.opt(key);
+        // TODO(#842): Use custom view to format feature properties as table.
+        items.add(key + ": " + value);
+      }
+      return items.build();
+    } catch (JSONException e) {
+      Timber.d("Encountered invalid feature GeoJSON in feature %s", feature.getId());
+      return ImmutableList.of();
     }
   }
 }

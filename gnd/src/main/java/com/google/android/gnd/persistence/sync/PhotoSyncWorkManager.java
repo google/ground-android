@@ -22,7 +22,7 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.local.LocalValueStore;
-import com.google.android.gnd.ui.util.FileUtil;
+import com.google.android.gnd.repository.UserMediaRepository;
 import java.io.File;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -32,16 +32,16 @@ import timber.log.Timber;
 public class PhotoSyncWorkManager extends BaseWorkManager {
 
   private final LocalValueStore localValueStore;
-  private final FileUtil fileUtil;
+  private final UserMediaRepository userMediaRepository;
 
   @Inject
   public PhotoSyncWorkManager(
       Provider<WorkManager> workManagerProvider,
       LocalValueStore localValueStore,
-      FileUtil fileUtil) {
+      UserMediaRepository userMediaRepository) {
     super(workManagerProvider);
     this.localValueStore = localValueStore;
-    this.fileUtil = fileUtil;
+    this.userMediaRepository = userMediaRepository;
   }
 
   @Override
@@ -62,7 +62,7 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
    * as the worker is added to the work queue (not once the sync job completes).
    */
   public void enqueueSyncWorker(@NonNull String remotePath) {
-    File localFile = fileUtil.getLocalFileFromRemotePath(remotePath);
+    File localFile = userMediaRepository.getLocalFileFromRemotePath(remotePath);
 
     if (!localFile.exists()) {
       Timber.e("Local file not found: %s", localFile.getPath());

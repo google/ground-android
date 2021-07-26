@@ -27,5 +27,5 @@ public final class Keys {
   public static final String VISIT_WEBSITE = "visit_website";
   public static final String FEEDBACK = "feedback";
 
-  public static final String[] ALL_KEYS = {UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK};
+  static final String[] ALL_KEYS = {UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK};
 }

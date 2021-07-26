@@ -16,8 +16,10 @@
 
 package com.google.android.gnd.model.layer;
 
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 
 @AutoValue
@@ -34,8 +36,12 @@ public abstract class Layer {
     return getForm().filter(form -> form.getId().equals(formId));
   }
 
+  public abstract ImmutableList<FeatureType> getContributorsCanAdd();
+
   public static Builder newBuilder() {
-    return new AutoValue_Layer.Builder().setForm(Optional.empty());
+    return new AutoValue_Layer.Builder()
+        .setForm(Optional.empty())
+        .setContributorsCanAdd(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -47,6 +53,8 @@ public abstract class Layer {
     public abstract Builder setDefaultStyle(Style newDefaultStyle);
 
     public abstract Builder setForm(Optional<Form> form);
+
+    public abstract Builder setContributorsCanAdd(ImmutableList<FeatureType> contributorsCanAdd);
 
     public Builder setForm(Form form) {
       return setForm(Optional.of(form));

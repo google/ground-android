@@ -36,7 +36,15 @@
   <string name="add_feature_data_toolbar_title">Add feature data</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Save changes before closing?</string>
+  <!--
+    Shown when the user attempts to close the form without saving. If tapped, unsaved
+    changes will be saved.
+  -->
   <string name="continue_editing">Continue editing</string>
+  <!--
+    Shown when the user attempts to close the form without saving. If tapped, unsaved
+    changes will be lost.
+  -->
   <string name="close_without_saving">Close without saving</string>
   <!-- Shown on save when connection was not available. -->
   <string name="save_queued">Saved locally, queued for sync.</string>
@@ -114,7 +122,7 @@
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="add_observation_button_label">Observation</string>
+  <string name="add_observation_button_label">Add observation</string>
   <string name="view_observation_details">View observation details</string>
   <string name="map_view">Map view</string>
   <string name="project_load_error">Project could not be loaded</string>
@@ -128,6 +136,10 @@
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
+  <string name="cancel">Cancel</string>
+  <string name="join_project">Join project</string>
+
+  <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>
   <string name="unknown_user">Unknown user</string>
   <string name="add_observation_toolbar_title">Add observation</string>
@@ -137,34 +149,57 @@
   <string name="add_photo">Add photo</string>
   <string name="action_camera">Camera</string>
   <string name="action_storage">Storage</string>
-  <string name="cancel">Cancel</string>
-  <string name="join_project">Join project</string>
-  <string name="photo_preview">Photo preview</string>
-  <string name="select_map_type">Select map type</string>
-  <string name="failed">Failed</string>
-  <string name="paused">Paused</string>
-  <string name="completed">Completed</string>
-  <string name="in_progress">In progress</string>
+  <string name="photo_preview">Preview</string>
+  <string name="select_map_type">Select base map</string>
   <string name="uploading_photos">Uploading photos</string>
   <string name="starting">Starting</string>
-  <string name="downloading_tiles">Downloading tile sources</string>
+  <string name="downloading_tiles">Downloading base map</string>
+  <string name="in_progress">In progress</string>
+  <string name="paused">Paused</string>
+  <string name="completed">Completed</string>
   <string name="uploading_data">Uploading data</string>
+  <string name="failed">Failed</string>
   <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
   <string name="offline_base_map_viewer_navgraph_label">Offline Base Map Viewer</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>
   <string name="offline_base_map_viewer_remove_button">Remove</string>
   <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
-  <string name="offline_base_map_name">%s</string>
   <string name="unnamed_area">Unnamed area</string>
-  <string name="offline_base_map_download_started">Download started.</string>
-  <string name="offline_base_map_download_failed">Couldn\'t download base map.</string>
+  <string name="offline_base_map_download_started">Download started</string>
+  <string name="offline_base_map_download_failed">Base map download failed</string>
   <string name="added_by">Added by %s</string>
-  <string name="move_point_confirmation">Do you want to move to this point?</string>
-  <string name="move_point_hint">Drag to the new location</string>
+  <string name="move_point_confirmation">Move point to new location?</string>
+  <string name="move_point_hint">Drag to pan map to new location</string>
   <string name="error_occurred">An error occurred</string>
+  <!-- Label of button used enter the offline area selector. -->
   <string name="offline_base_map_selector_select">Select and download</string>
   <string name="no_basemaps_downloaded">No base maps downloaded.</string>
-  <string name="please_wait_logging_in">Logging in…</string>
+  <string name="signing_in">Signing in</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
+
+  <string name="tos_title">Terms Of Service</string>
+  <string name="agree_terms">Agree</string>
+  <string name="agree_checkbox">I agree to the Terms of Service</string>
+  <string name="terms_load_error">An error occurred while loading Terms of Service</string>
+  <!-- Other strings (to be organized) -->
+  <string name="offline_base_map_name" translatable="false">%s</string>
+  <string name="sync_status">Sync status</string>
+  <string name="polygon">Polygon</string>
+  <string name="point">Point</string>
+  <string name="layer_label_format">Layer: %s</string>
+
+  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
+  <string name="feature_properties">Feature properties</string>
+  <!-- Label on button shown to dismiss the feature properties dialog. -->
+  <string name="close_feature_properties">OK</string>
+  <string name="config_load_error">Error loading config from remote server</string>
+
+  <string name="add_point">Add point</string>
+  <string name="complete_polygon">Completa</string>
+  <string name="select_feature_type">Choose a feature type</string>
+  <string name="get_started_button_text">Get started</string>
+  <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
+
 </resources>

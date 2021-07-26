@@ -16,14 +16,22 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
+import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -45,10 +53,10 @@ import timber.log.Timber;
 @Singleton
 public class ProjectRepository {
 
-  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 15;
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
-  private final InMemoryCache cache;
+  private final UserRepository userRepository;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final LocalValueStore localValueStore;
@@ -64,13 +72,13 @@ public class ProjectRepository {
 
   @Inject
   public ProjectRepository(
+      UserRepository userRepository,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
-      InMemoryCache cache,
       LocalValueStore localValueStore) {
+    this.userRepository = userRepository;
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
-    this.cache = cache;
     this.localValueStore = localValueStore;
 
     // Kicks off the loading process whenever a new project id is selected.
@@ -88,23 +96,19 @@ public class ProjectRepository {
       return Flowable.just(Loadable.notLoaded());
     }
     String id = projectId.get();
-    return getProject(id)
+    return syncProjectWithRemote(id)
+        .onErrorResumeNext(__ -> getProject(id))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  /** This only works if the project is already cached to local db. */
   @Cold
-  private Single<Project> getProject(String id) {
-    return syncProjectWithRemote(id)
-        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
-        .doOnError(err -> Timber.d(err, "Error loading project from remote"))
-        .onErrorResumeNext(
-            __ ->
-                localDataStore
-                    .getProjectById(id)
-                    .toSingle()
-                    .doOnError(err -> Timber.e(err, "Error loading project from local db")));
+  public Single<Project> getProject(String projectId) {
+    return localDataStore
+        .getProjectById(projectId)
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found " + projectId)));
   }
 
   @Cold
@@ -112,7 +116,9 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
+        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p))
+        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
+        .doOnError(err -> Timber.d(err, "Error loading project from remote"));
   }
 
   public Optional<String> getLastActiveProjectId() {
@@ -142,7 +148,7 @@ public class ProjectRepository {
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return loadProjectSummariesFromRemote(user)
         .doOnSubscribe(__ -> Timber.d("Loading project list from remote"))
-        .doOnError(err -> Timber.e(err, "Failed to load project list from remote"))
+        .doOnError(err -> Timber.d(err, "Failed to load project list from remote"))
         .onErrorResumeNext(__ -> localDataStore.getProjects())
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
@@ -160,10 +166,40 @@ public class ProjectRepository {
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
-  /** Clears the currently active project from cache and from local localValueStore. */
+  /** Clears the currently active project from cache. */
   public void clearActiveProject() {
-    cache.clear();
-    localValueStore.clearLastActiveProjectId();
     selectProjectEvent.onNext(Optional.empty());
+  }
+
+  public ImmutableList<Layer> getModifiableLayers(
+      Optional<Project> project, FeatureType featureType) {
+    return project.map(p -> getModifiableLayers(p, featureType)).orElse(ImmutableList.of());
+  }
+
+  public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
+    switch (userRepository.getUserRole(project)) {
+      case OWNER:
+      case MANAGER:
+        return project.getLayers();
+      case CONTRIBUTOR:
+        return stream(project.getLayers())
+            .filter(layer -> layer.getContributorsCanAdd().contains(featureType))
+            .collect(toImmutableList());
+      case UNKNOWN:
+      default:
+        return ImmutableList.of();
+    }
+  }
+
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
+    return localDataStore.getMutationsOnceAndStream(project);
+  }
+
+  public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
+    localValueStore.setLastCameraPosition(projectId, cameraPosition);
+  }
+
+  public Optional<CameraPosition> getLastCameraPosition(String projectId) {
+    return localValueStore.getLastCameraPosition(projectId);
   }
 }

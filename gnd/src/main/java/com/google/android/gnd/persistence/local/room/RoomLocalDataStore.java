@@ -22,10 +22,10 @@ import static com.google.android.gnd.util.StreamUtil.logErrorsAndSkip;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
-import androidx.annotation.Nullable;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -42,6 +42,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.model.observation.ResponseMap.Builder;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
@@ -75,9 +76,11 @@ import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -86,6 +89,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -308,16 +312,55 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @Cold(terminates = false)
+  @Override
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
+    // TODO: Show mutations for all projects, not just current one.
+    Flowable<ImmutableList<FeatureMutation>> featureMutations =
+        featureMutationDao
+            .loadAllOnceAndStream()
+            .map(
+                list ->
+                    stream(list)
+                        .filter(entity -> entity.getProjectId().equals(project.getId()))
+                        .map(FeatureMutationEntity::toMutation)
+                        .collect(toImmutableList()))
+            .subscribeOn(schedulers.io());
+    Flowable<ImmutableList<ObservationMutation>> observationMutations =
+        observationMutationDao
+            .loadAllOnceAndStream()
+            .map(
+                list ->
+                    stream(list)
+                        .filter(entity -> entity.getProjectId().equals(project.getId()))
+                        .map(entity -> entity.toMutation(project))
+                        .collect(toImmutableList()))
+            .subscribeOn(schedulers.io());
+    return Flowable.combineLatest(
+        featureMutations, observationMutations, this::combineAndSortMutations);
+  }
+
+  private ImmutableList<Mutation> combineAndSortMutations(
+      ImmutableList<FeatureMutation> featureMutations,
+      ImmutableList<ObservationMutation> observationMutations) {
+    return ImmutableList.sortedCopyOf(
+        Mutation.byDescendingClientTimestamp(),
+        ImmutableList.<Mutation>builder()
+            .addAll(featureMutations)
+            .addAll(observationMutations)
+            .build());
+  }
+
   @Override
   public Single<ImmutableList<Mutation>> getPendingMutations(String featureId) {
     return featureMutationDao
-        .findByFeatureId(featureId)
+        .findByFeatureId(featureId, MutationEntitySyncStatus.PENDING)
         .flattenAsObservable(fms -> fms)
         .map(FeatureMutationEntity::toMutation)
         .cast(Mutation.class)
         .mergeWith(
             observationMutationDao
-                .findByFeatureId(featureId)
+                .findByFeatureId(featureId, MutationEntitySyncStatus.PENDING)
                 .flattenAsObservable(oms -> oms)
                 .flatMap(
                     ome ->
@@ -360,12 +403,11 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable finalizePendingMutations(@Nullable ImmutableList<Mutation> mutations) {
-    checkNotNull(mutations, "List of mutations can not be null");
-    return finalizeDeletions(mutations).andThen(removePending(mutations));
+  public Completable finalizePendingMutations(ImmutableList<Mutation> mutations) {
+    return finalizeDeletions(mutations).andThen(markComplete(mutations));
   }
 
-  private Completable finalizeDeletions(@Nullable ImmutableList<Mutation> mutations) {
+  private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
         .flatMapCompletable(
@@ -380,13 +422,21 @@ public class RoomLocalDataStore implements LocalDataStore {
             });
   }
 
-  private Completable removePending(ImmutableList<Mutation> mutations) {
+  private Completable markComplete(ImmutableList<Mutation> mutations) {
+    ImmutableList<FeatureMutationEntity> featureMutations =
+        stream(FeatureMutation.filter(mutations))
+            .map(mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
+            .map(FeatureMutationEntity::fromMutation)
+            .collect(toImmutableList());
+    ImmutableList<ObservationMutationEntity> observationMutations =
+        stream(ObservationMutation.filter(mutations))
+            .map(mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
+            .map(ObservationMutationEntity::fromMutation)
+            .collect(toImmutableList());
     return featureMutationDao
-        .deleteAll(FeatureMutation.ids(mutations))
+        .updateAll(featureMutations)
         .andThen(
-            observationMutationDao
-                .deleteAll(ObservationMutation.ids(mutations))
-                .subscribeOn(schedulers.io()))
+            observationMutationDao.updateAll(observationMutations).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
 
@@ -404,7 +454,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable mergeObservation(Observation observation) {
     ObservationEntity observationEntity = ObservationEntity.fromObservation(observation);
     return observationMutationDao
-        .findByObservationId(observation.getId())
+        .findByObservationId(
+            observation.getId(),
+            MutationEntitySyncStatus.PENDING,
+            MutationEntitySyncStatus.IN_PROGRESS)
         .flatMapCompletable(
             mutations -> mergeObservation(observation.getForm(), observationEntity, mutations))
         .subscribeOn(schedulers.io());
@@ -431,13 +484,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging observation " + this + " with mutations " + mutations);
     ObservationEntity.Builder builder = observation.toBuilder();
-    ResponseMap.Builder responseMap =
-        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
-    for (ObservationMutationEntity mutation : mutations) {
-      // Merge changes to responses.
-      responseMap.applyDeltas(
-          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
-    }
+    builder.setResponses(
+        ResponseMapConverter.toString(applyMutations(form, observation, mutations)));
     // Update modified user and time.
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
@@ -447,6 +495,18 @@ public class RoomLocalDataStore implements LocalDataStore {
     builder.setLastModified(lastModified);
     Timber.v("Merged observation %s", builder.build());
     return builder.build();
+  }
+
+  private ResponseMap applyMutations(
+      Form form, ObservationEntity observation, List<ObservationMutationEntity> mutations) {
+    Builder responseMap =
+        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
+    for (ObservationMutationEntity mutation : mutations) {
+      // Merge changes to responses.
+      responseMap.applyDeltas(
+          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
+    }
+    return responseMap.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
@@ -539,11 +599,21 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .findById(mutation.getObservationId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
-        // Emit NoSuchElementException if not found.
-        .toSingle()
+        .switchIfEmpty(fallbackObservation(mutation))
         .map(obs -> applyMutations(mutation.getForm(), obs, ImmutableList.of(mutationEntity), user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
+  }
+
+  /**
+   * Returns a source which creates an observation based on the provided mutation. Used in rare
+   * cases when the observation is no longer in the local db, but the user is updating rather than
+   * creating a new observation. In these cases creation metadata is unknown, so empty audit info is
+   * used.
+   */
+  private SingleSource<ObservationEntity> fallbackObservation(ObservationMutation mutation) {
+    return em ->
+        em.onSuccess(ObservationEntity.fromMutation(mutation, AuditInfo.builder().build()));
   }
 
   private Completable markObservationForDeletion(
@@ -643,5 +713,23 @@ public class RoomLocalDataStore implements LocalDataStore {
     } else {
       return Completable.complete().subscribeOn(schedulers.io());
     }
+  }
+
+  @Override
+  public Flowable<ImmutableList<FeatureMutation>> getFeatureMutationsByFeatureIdOnceAndStream(
+      String featureId, MutationEntitySyncStatus... allowedStates) {
+    return featureMutationDao
+        .findByFeatureIdOnceAndStream(featureId, allowedStates)
+        .map(
+            list -> stream(list).map(FeatureMutationEntity::toMutation).collect(toImmutableList()));
+  }
+
+  @Override
+  public Flowable<ImmutableList<ObservationMutation>>
+      getObservationMutationsByFeatureIdOnceAndStream(
+          Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
+    return observationMutationDao
+        .findByFeatureIdOnceAndStream(featureId, allowedStates)
+        .map(list -> stream(list).map(e -> e.toMutation(project)).collect(toImmutableList()));
   }
 }

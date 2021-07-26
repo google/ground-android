@@ -19,20 +19,34 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
-import io.reactivex.Completable;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
+import com.google.android.gnd.rx.annotations.Cold;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
 
 /** Data access object for database operations related to {@link ObservationMutationEntity}. */
 @Dao
 public interface ObservationMutationDao extends BaseDao<ObservationMutationEntity> {
+  @Query("SELECT * FROM observation_mutation")
+  Flowable<List<ObservationMutationEntity>> loadAllOnceAndStream();
 
-  @Query("DELETE FROM observation_mutation WHERE id IN (:ids)")
-  Completable deleteAll(List<Long> ids);
+  @Query(
+      "SELECT * FROM observation_mutation "
+          + "WHERE feature_id = :featureId AND state IN (:allowedStates)")
+  Single<List<ObservationMutationEntity>> findByFeatureId(
+      String featureId, MutationEntitySyncStatus... allowedStates);
 
-  @Query("SELECT * FROM observation_mutation WHERE feature_id = :featureId")
-  Single<List<ObservationMutationEntity>> findByFeatureId(String featureId);
+  @Query(
+      "SELECT * FROM observation_mutation "
+          + "WHERE observation_id = :observationId AND state IN (:allowedStates)")
+  Single<List<ObservationMutationEntity>> findByObservationId(
+      String observationId, MutationEntitySyncStatus... allowedStates);
 
-  @Query("SELECT * FROM observation_mutation WHERE observation_id = :observationId")
-  Single<List<ObservationMutationEntity>> findByObservationId(String observationId);
+  @Cold(terminates = false)
+  @Query(
+      "SELECT * FROM observation_mutation "
+          + "WHERE feature_id = :featureId AND state IN (:allowedStates)")
+  Flowable<List<ObservationMutationEntity>> findByFeatureIdOnceAndStream(
+      String featureId, MutationEntitySyncStatus... allowedStates);
 }

@@ -55,6 +55,13 @@
         android:visibility="@{viewModel.moveFeatureVisibility}"
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
+
+      <include
+        android:id="@+id/polygon_drawing_controls"
+        layout="@layout/polygon_drawing_controls"
+        app:visible="@{viewModel.isAddPolygonButtonVisible()}"
+        app:homeScreenViewModel="@{homeScreenViewModel}"
+        app:viewModel="@{viewModel}" />
     </FrameLayout>
   </FrameLayout>
 </layout>
