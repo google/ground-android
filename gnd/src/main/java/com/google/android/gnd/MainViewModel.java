@@ -69,8 +69,6 @@ public class MainViewModel extends AbstractViewModel {
   private final TermsOfServiceRepository termsOfServiceRepository;
   private final EphemeralPopups popups;
 
-  public Optional<TermsOfService> termsOfService = Optional.empty();
-
   @Inject
   public MainViewModel(
       ProjectRepository projectRepository,
@@ -173,17 +171,18 @@ public class MainViewModel extends AbstractViewModel {
     if (termsOfServiceRepository.isTermsOfServiceAccepted()) {
       return Observable.just(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      return termsOfServiceRepository
-          .getTermsOfService()
-          .onErrorResumeNext(this::onGetTermsOfServiceError)
+      return getRemoteTermsOfService()
           .map(TermsOfService::getText)
-          .map(this::onGetTermsOfServiceComplete)
+          .map(text -> SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(text))
+          .cast(NavDirections.class)
           .toObservable();
     }
   }
 
-  private NavDirections onGetTermsOfServiceComplete(String termsOfServiceText) {
-    return SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(termsOfServiceText);
+  private Maybe<TermsOfService> getRemoteTermsOfService() {
+    return termsOfServiceRepository
+        .getTermsOfService()
+        .onErrorResumeNext(this::onGetTermsOfServiceError);
   }
 
   /**

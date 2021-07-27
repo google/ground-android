@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui;
+package com.google.android.gnd;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,10 +24,6 @@ import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.navigation.NavDirections;
-import com.google.android.gnd.FakeData;
-import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.R;
-import com.google.android.gnd.TestObservers;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
@@ -93,6 +89,7 @@ public class MainViewModelTest {
 
   @Inject Schedulers schedulers;
 
+  // TODO: Inject this dependency instead of instantiating manually.
   private FakeAuthenticationManager authenticationManager;
   private MainViewModel viewModel;
 
