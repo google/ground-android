@@ -76,13 +76,9 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class MainViewModelTest {
 
-  private static final TermsOfService TEST_TERMS_OF_SERVICE =
-      TermsOfService.builder().setId("1").setText("Test Terms").build();
-
+  private static final TermsOfService TEST_TERMS_OF_SERVICE = FakeData.TEST_TERMS_OF_SERVICE;
+  private static final Optional<Project> TEST_ACTIVE_PROJECT = Optional.of(FakeData.TEST_PROJECT);
   private static final User TEST_USER = FakeData.TEST_USER;
-
-  private static final Flowable<Optional<Project>> TEST_ACTIVE_PROJECT =
-      Flowable.just(Optional.of(FakeData.TEST_PROJECT));
 
   @Rule public MockitoRule rule = MockitoJUnit.rule();
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
@@ -105,7 +101,7 @@ public class MainViewModelTest {
     hiltRule.inject();
 
     // TODO: Add a test for syncFeatures
-    when(mockProjectRepository.getActiveProject()).thenReturn(TEST_ACTIVE_PROJECT);
+    when(mockProjectRepository.getActiveProject()).thenReturn(Flowable.just(TEST_ACTIVE_PROJECT));
 
     authenticationManager = new FakeAuthenticationManager();
     viewModel =
