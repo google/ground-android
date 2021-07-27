@@ -173,23 +173,21 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   public Observable<NavDirections> onSignedIn() {
-    return termsOfServiceRepository
-        .getTermsOfService()
-        .onErrorResumeNext(this::onGetTermsOfServiceError)
-        .map(Optional::of)
-        .defaultIfEmpty(Optional.empty())
-        .map(this::onGetTermsOfServiceComplete)
-        .toObservable();
+    hideProgressDialog();
+    if (termsOfServiceRepository.isTermsOfServiceAccepted()) {
+      return Observable.just(HomeScreenFragmentDirections.showHomeScreen());
+    } else {
+      return termsOfServiceRepository
+          .getTermsOfService()
+          .onErrorResumeNext(this::onGetTermsOfServiceError)
+          .map(TermsOfService::getText)
+          .map(this::onGetTermsOfServiceComplete)
+          .toObservable();
+    }
   }
 
-  private NavDirections onGetTermsOfServiceComplete(Optional<TermsOfService> termsOfService) {
-    hideProgressDialog();
-    if (termsOfService.isEmpty() || termsOfServiceRepository.isTermsOfServiceAccepted()) {
-      return HomeScreenFragmentDirections.showHomeScreen();
-    } else {
-      return SignInFragmentDirections.showTermsOfService()
-          .setTermsOfServiceText(termsOfService.get().getText());
-    }
+  private NavDirections onGetTermsOfServiceComplete(String termsOfServiceText) {
+    return SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(termsOfServiceText);
   }
 
   /**
