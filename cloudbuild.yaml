@@ -74,6 +74,10 @@ steps:
         ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          ./gradlew -PdisablePreDex dependencyUpdates
+        fi
+
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &unit_tests 'Run unit tests'
     waitFor:
@@ -136,9 +140,6 @@ steps:
 
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-
-          # Check for updates
-          ./gradlew -PdisablePreDex dependencyUpdates
 
           # Gradle Dependencies Status
           if [[ -f gnd/build/reports/dependencyUpdates/report.json ]]; then
