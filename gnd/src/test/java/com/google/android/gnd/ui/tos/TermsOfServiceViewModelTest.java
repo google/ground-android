@@ -16,68 +16,43 @@
 
 package com.google.android.gnd.ui.tos;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import com.google.android.gnd.persistence.local.LocalDatabaseModule;
-import com.google.android.gnd.persistence.local.LocalValueStore;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
-import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.common.truth.Truth;
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
-import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-@HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
 public class TermsOfServiceViewModelTest {
 
   @Rule public MockitoRule rule = MockitoJUnit.rule();
 
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Mock Navigator mockNavigator;
+  @Mock TermsOfServiceRepository mockRepository;
 
-  public TermsOfServiceViewModel termsOfServiceViewModel;
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-  @Inject Navigator navigator;
-  @Inject LocalValueStore localValueStore;
-  @Mock RemoteDataStore mockRemoteDataStore;
-  private TermsOfServiceRepository termsOfServiceRepository;
+  private TermsOfServiceViewModel viewModel;
 
   @Before
   public void before() {
-    hiltRule.inject();
-    termsOfServiceRepository = new TermsOfServiceRepository(mockRemoteDataStore, localValueStore);
-    termsOfServiceViewModel = new TermsOfServiceViewModel(navigator, termsOfServiceRepository);
+    viewModel = new TermsOfServiceViewModel(mockNavigator, mockRepository);
   }
 
   @Test
-  public void testButtonClick() {
-    termsOfServiceViewModel.onButtonClicked();
-    Truth.assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
+  public void testOnButtonClicked() {
+    viewModel.onButtonClicked();
+    Mockito.verify(mockRepository, Mockito.times(1)).setTermsOfServiceAccepted(true);
+    Mockito.verify(mockNavigator, Mockito.times(1))
+        .navigate(HomeScreenFragmentDirections.showHomeScreen());
   }
 
   @Test
   public void testTermsOfServiceText() {
-    termsOfServiceViewModel.setTermsOfServiceText("Terms Text");
-    Truth.assertThat(termsOfServiceViewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
-  }
-
-  @Test
-  public void testTermsOfServiceText_mismatch() {
-    termsOfServiceViewModel.setTermsOfServiceText("Terms");
-    Truth.assertThat(termsOfServiceViewModel.getTermsOfServiceText()).isNotEqualTo("Terms Text");
+    viewModel.setTermsOfServiceText("Terms Text");
+    Truth.assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
   }
 }

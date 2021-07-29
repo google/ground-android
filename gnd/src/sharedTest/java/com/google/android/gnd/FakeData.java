@@ -18,6 +18,7 @@ package com.google.android.gnd;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -38,6 +39,9 @@ public class FakeData {
   public static final String LAYER_NO_FORM_ID = "LAYER_NO_FORM_ID";
   public static final String LAYER_NO_FORM_NAME = "Fake name for layer with no form";
   public static final String LAYER_NO_FORM_COLOR = "#00ff00";
+
+  public static final TermsOfService TEST_TERMS_OF_SERVICE =
+      TermsOfService.builder().setId("1").setText("Test Terms").build();
 
   public static final User TEST_USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
