@@ -16,17 +16,14 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static org.mockito.Mockito.when;
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.CameraPosition;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -38,18 +35,16 @@ public class FeatureRepositionViewModelTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  @Mock MapProvider mockMapProvider;
-
   private FeatureRepositionViewModel viewModel;
 
   @Before
   public void setUp() {
-    viewModel = new FeatureRepositionViewModel(mockMapProvider);
+    viewModel = new FeatureRepositionViewModel();
   }
 
   @Test
   public void testConfirmButtonClicks_notReplayed() {
-    when(mockMapProvider.getCameraTarget()).thenReturn(TEST_POINT);
+    viewModel.onCameraMoved(new CameraPosition(TEST_POINT, 0.0f));
 
     viewModel.onConfirmButtonClick();
 
@@ -58,7 +53,7 @@ public class FeatureRepositionViewModelTest {
 
   @Test
   public void testConfirmButtonClicks() {
-    when(mockMapProvider.getCameraTarget()).thenReturn(TEST_POINT);
+    viewModel.onCameraMoved(new CameraPosition(TEST_POINT, 0.0f));
     TestObserver<Point> testObserver = viewModel.getConfirmButtonClicks().test();
 
     viewModel.onConfirmButtonClick();

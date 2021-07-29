@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.map.gms;
 import android.util.Pair;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -81,11 +80,6 @@ public class GoogleMapsMapProvider implements MapProvider {
   @Override
   public Single<MapAdapter> getMapAdapter() {
     return map;
-  }
-
-  @Override
-  public Point getCameraTarget() {
-    return map.getValue().getCameraTarget();
   }
 
   @Override

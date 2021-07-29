@@ -28,7 +28,6 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
-import java.util.Objects;
 import javax.inject.Inject;
 
 public abstract class AbstractView extends FrameLayout {
@@ -39,8 +38,7 @@ public abstract class AbstractView extends FrameLayout {
     super(context, attrs);
   }
 
-  @Nullable
-  private FragmentActivity getActivity() {
+  protected FragmentActivity getActivity() {
     Context context = getContext();
     while (context instanceof ContextWrapper) {
       if (context instanceof FragmentActivity) {
@@ -48,11 +46,11 @@ public abstract class AbstractView extends FrameLayout {
       }
       context = ((ContextWrapper) context).getBaseContext();
     }
-    return null;
+    throw new NullPointerException("Activity is null");
   }
 
   protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
-    return viewModelFactory.get(Objects.requireNonNull(getActivity()), modelClass);
+    return viewModelFactory.get(getActivity(), modelClass);
   }
 
   protected ViewDataBinding inflate(@LayoutRes int layoutId) {

@@ -16,25 +16,45 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapMoveFeatureLayoutBinding;
 import com.google.android.gnd.ui.common.AbstractView;
+import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import dagger.hilt.android.WithFragmentBindings;
+import javax.inject.Inject;
 
 @WithFragmentBindings
 @AndroidEntryPoint
 public class FeatureRepositionView extends AbstractView {
 
+  private final FeatureRepositionViewModel viewModel;
+  @Inject MapProvider mapProvider;
+
   public FeatureRepositionView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
 
-    FeatureRepositionViewModel viewModel = getViewModel(FeatureRepositionViewModel.class);
+    viewModel = getViewModel(FeatureRepositionViewModel.class);
     MapMoveFeatureLayoutBinding binding =
         (MapMoveFeatureLayoutBinding) inflate(R.layout.map_move_feature_layout);
     binding.setViewModel(viewModel);
+  }
+
+  @Override
+  protected void onFinishInflate() {
+    super.onFinishInflate();
+    mapProvider
+        .getMapAdapter()
+        .toFlowable()
+        .flatMap(MapAdapter::getCameraMovedEvents)
+        .onBackpressureLatest()
+        .as(disposeOnDestroy(getActivity()))
+        .subscribe(viewModel::onCameraMoved);
   }
 }

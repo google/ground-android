@@ -21,27 +21,27 @@ import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.CameraPosition;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SharedViewModel
 public class FeatureRepositionViewModel extends AbstractViewModel {
 
-  private final MapProvider mapProvider;
-
   @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
   @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
 
+  @Nullable private CameraPosition lastCameraPosition = null;
+
   @Inject
-  FeatureRepositionViewModel(MapProvider mapProvider) {
-    this.mapProvider = mapProvider;
-  }
+  FeatureRepositionViewModel() {}
 
   public void onConfirmButtonClick() {
-    confirmButtonClicks.onNext(mapProvider.getCameraTarget());
+    confirmButtonClicks.onNext(Objects.requireNonNull(lastCameraPosition).getTarget());
   }
 
   public void onCancelButtonClick() {
@@ -56,5 +56,9 @@ public class FeatureRepositionViewModel extends AbstractViewModel {
   @Hot
   public Observable<Nil> getCancelButtonClicks() {
     return cancelButtonClicks;
+  }
+
+  public void onCameraMoved(CameraPosition cameraPosition) {
+    lastCameraPosition = cameraPosition;
   }
 }
