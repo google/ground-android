@@ -28,10 +28,8 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /** Ground map adapter implementation for Google Maps API. */
-@Singleton
 public class GoogleMapsMapProvider implements MapProvider {
 
   private final MarkerIconFactory markerIconFactory;
