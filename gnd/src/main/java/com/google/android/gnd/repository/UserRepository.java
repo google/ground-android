@@ -40,7 +40,7 @@ public class UserRepository {
   private final Schedulers schedulers;
 
   @Inject
-  UserRepository(
+  public UserRepository(
       AuthenticationManager authenticationManager,
       LocalDataStore localDataStore,
       LocalValueStore localValueStore,

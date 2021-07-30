@@ -50,6 +50,8 @@ public abstract class Project {
 
   public abstract ImmutableMap<String, String> getAcl();
 
+  public abstract Builder toBuilder();
+
   public static Builder newBuilder() {
     return new AutoValue_Project.Builder().setAcl(ImmutableMap.of());
   }
