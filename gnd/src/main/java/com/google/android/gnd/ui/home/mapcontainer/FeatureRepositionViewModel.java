@@ -33,7 +33,7 @@ public class FeatureRepositionViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
   @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
-  @Nullable private Point lastKnownCameraTarget = null;
+  @Nullable private Point lastKnownCameraTarget;
 
   @Inject
   FeatureRepositionViewModel() {}
