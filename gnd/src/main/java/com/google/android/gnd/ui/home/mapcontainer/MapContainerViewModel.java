@@ -76,17 +76,16 @@ import timber.log.Timber;
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
+  /**
+   * DISTANCE_THRESHOLD check if the first vertex of polygon is within 10 meters of distance from
+   * the current pointing location.
+   */
+  public static final int DISTANCE_THRESHOLD = 10;
   // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
   private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
-  /**
-   * DISTANCE_THRESHOLD check if the first vertex of polygon is within 10 meters
-   * of distance from the current pointing location.
-   */
-  public static final int DISTANCE_THRESHOLD = 10;
-
   private final LiveData<Loadable<Project>> projectLoadingState;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
@@ -118,7 +117,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
 
   @Hot(replays = true)
-  private final MutableLiveData<Boolean> addPolygonPoints = new MutableLiveData<>(false);
+  private final MutableLiveData<Boolean> addPolygonPoints = new MutableLiveData<>(true);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -382,26 +381,27 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public LiveData<CameraPosition> getCameraPosition() {
-    checkPointNearVertex(cameraPosition.getValue());
     Timber.d("Current position is %s", cameraPosition.getValue().toString());
     return cameraPosition;
   }
 
   private void checkPointNearVertex(CameraPosition position) {
-    if (vertices.isEmpty() || vertices.size() < 3) {
-      return;
-    }
-    if (vertices.get(0) == position.getTarget() || isPointNearFirstVertex(position.getTarget())) {
+    if (isPointNearFirstVertex(position.getTarget())) {
       updatePolygonDrawing(PolygonDrawing.COMPLETED);
       vertices.add(vertices.get(0));
-
       updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
     } else {
-      updatePolygonDrawing(PolygonDrawing.STARTED);
+      if (vertices.get(0) != vertices.get(vertices.size() - 1)) {
+        vertices.add(position.getTarget());
+        updatePolygonDrawing(PolygonDrawing.STARTED);
+      }
     }
   }
 
   private boolean isPointNearFirstVertex(Point point) {
+    if (vertices.get(0) == vertices.get(vertices.size() - 1)) {
+      return false;
+    }
     float[] distance = new float[1];
     Location.distanceBetween(
         point.getLatitude(),
@@ -427,13 +427,15 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
     cameraPosition.setValue(newCameraPosition);
+    if (vertices.size() >= 3) {
+      checkPointNearVertex(newCameraPosition);
+    }
     Loadable.getValue(projectLoadingState)
         .ifPresent(
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
   public void onCompletePolygonButtonClick() {
-    updatePolygonDrawing(PolygonDrawing.STARTED);
     setViewMode(Mode.DEFAULT);
     featureRepository.newPolygonFeature(
         selectedProject.getValue().get(),
@@ -504,10 +506,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void onAddPolygonBtnClick() {
-    if (vertices.contains(getCameraPosition().getValue().getTarget())) {
-      updatePolygonDrawing(PolygonDrawing.COMPLETED);
+    if (vertices.size() >= 3) {
+      checkPointNearVertex(getCameraPosition().getValue());
+    } else {
+      vertices.add(getCameraPosition().getValue().getTarget());
     }
-    vertices.add(getCameraPosition().getValue().getTarget());
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
@@ -549,6 +552,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<Boolean> getPolygonDrawingCompletedVisibility() {
     return completeButtonVisible;
+  }
+
+  public LiveData<Boolean> getAddPolygonPointsStartedVisibility() {
+    return addPolygonPoints;
   }
 
   public Optional<Feature> getReposFeature() {
