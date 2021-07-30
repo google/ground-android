@@ -17,26 +17,33 @@
 package com.google.android.gnd.ui.syncstatus;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
+import java8.util.Optional;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
 
-  private ImmutableList<Mutation> mutations;
+  private final FeatureHelper featureHelper;
+  private ImmutableList<Pair<Feature, Mutation>> mutations;
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
-  SyncStatusListAdapter(Context context) {
+  SyncStatusListAdapter(@Nullable Context context, FeatureHelper featureHelper) {
     this.mutations = ImmutableList.of();
     this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
+    this.featureHelper = featureHelper;
   }
 
   @NonNull
@@ -52,7 +59,9 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     // TODO: Use data binding.
     // TODO(#876): Improve L&F and layout.
 
-    Mutation mutation = mutations.get(position);
+    Pair<Feature, Mutation> pair = mutations.get(position);
+    Feature feature = pair.first;
+    Mutation mutation = pair.second;
     String text =
         new StringBuilder()
             .append(mutation.getType().toString())
@@ -62,6 +71,10 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
             .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')
             .append(timeFormat.format(mutation.getClientTimestamp()))
+            .append('\n')
+            .append(featureHelper.getLabel(Optional.of(feature)))
+            .append('\n')
+            .append(featureHelper.getSubtitle(Optional.of(feature)))
             .append('\n')
             .append("Sync ")
             .append(mutation.getSyncStatus().toString())
@@ -74,8 +87,8 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     return mutations.size();
   }
 
-  void update(ImmutableList<Mutation> offlineBaseMaps) {
-    this.mutations = offlineBaseMaps;
+  void update(ImmutableList<Pair<Feature, Mutation>> mutations) {
+    this.mutations = mutations;
     notifyDataSetChanged();
   }
 }

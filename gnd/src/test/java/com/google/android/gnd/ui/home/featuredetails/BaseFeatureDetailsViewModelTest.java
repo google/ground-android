@@ -41,7 +41,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class FeatureDetailsViewModelTest {
+/** Base test class for FeatureDetailsViewModel. */
+public class BaseFeatureDetailsViewModelTest {
 
   static final User TEST_USER_OWNER =
       FakeData.TEST_USER.toBuilder().setEmail("user1@gmail.com").build();
@@ -77,19 +78,11 @@ public class FeatureDetailsViewModelTest {
 
   FeatureDetailsViewModel viewModel;
 
-  static PointFeature createPointFeature() {
-    return createPointFeature(FakeData.TEST_USER);
-  }
-
   static PointFeature createPointFeature(User user) {
     return FakeData.TEST_POINT_FEATURE.toBuilder()
         .setProject(TEST_PROJECT)
         .setCreated(AuditInfo.now(user))
         .build();
-  }
-
-  static PolygonFeature createPolygonFeature() {
-    return createPolygonFeature(FakeData.TEST_USER);
   }
 
   static PolygonFeature createPolygonFeature(User user) {
