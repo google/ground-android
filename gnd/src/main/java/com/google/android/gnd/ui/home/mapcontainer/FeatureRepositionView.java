@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapMoveFeatureLayoutBinding;
 import com.google.android.gnd.ui.common.AbstractView;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -53,6 +54,7 @@ public class FeatureRepositionView extends AbstractView {
         .getMapAdapter()
         .toFlowable()
         .flatMap(MapAdapter::getCameraMovedEvents)
+        .map(CameraPosition::getTarget)
         .onBackpressureLatest()
         .as(disposeOnDestroy(getActivity()))
         .subscribe(viewModel::onCameraMoved);

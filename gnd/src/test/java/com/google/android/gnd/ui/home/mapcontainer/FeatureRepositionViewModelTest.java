@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.ui.map.CameraPosition;
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,7 +43,7 @@ public class FeatureRepositionViewModelTest {
 
   @Test
   public void testConfirmButtonClicks_notReplayed() {
-    viewModel.onCameraMoved(new CameraPosition(TEST_POINT, 0.0f));
+    viewModel.onCameraMoved(TEST_POINT);
 
     viewModel.onConfirmButtonClick();
 
@@ -53,7 +52,7 @@ public class FeatureRepositionViewModelTest {
 
   @Test
   public void testConfirmButtonClicks() {
-    viewModel.onCameraMoved(new CameraPosition(TEST_POINT, 0.0f));
+    viewModel.onCameraMoved(TEST_POINT);
     TestObserver<Point> testObserver = viewModel.getConfirmButtonClicks().test();
 
     viewModel.onConfirmButtonClick();
