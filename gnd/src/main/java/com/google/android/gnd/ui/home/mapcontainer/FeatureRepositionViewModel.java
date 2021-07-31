@@ -24,7 +24,6 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -33,14 +32,16 @@ public class FeatureRepositionViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
   @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
-  @Nullable private Point lastKnownCameraTarget;
+  @Nullable private Point cameraTarget;
 
   @Inject
   FeatureRepositionViewModel() {}
 
   // TODO: Disable the confirm button until the map has not been moved
   public void onConfirmButtonClick() {
-    confirmButtonClicks.onNext(Objects.requireNonNull(lastKnownCameraTarget));
+    if (cameraTarget != null) {
+      confirmButtonClicks.onNext(cameraTarget);
+    }
   }
 
   public void onCancelButtonClick() {
@@ -58,6 +59,6 @@ public class FeatureRepositionViewModel extends AbstractViewModel {
   }
 
   public void onCameraMoved(Point newTarget) {
-    lastKnownCameraTarget = newTarget;
+    cameraTarget = newTarget;
   }
 }

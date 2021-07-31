@@ -46,7 +46,7 @@ public abstract class AbstractView extends FrameLayout {
       }
       context = ((ContextWrapper) context).getBaseContext();
     }
-    throw new NullPointerException("Activity is null");
+    throw new IllegalStateException("View is not contained in FragmentActivity");
   }
 
   protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
