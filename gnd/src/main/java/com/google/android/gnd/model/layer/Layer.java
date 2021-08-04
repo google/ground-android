@@ -38,6 +38,8 @@ public abstract class Layer {
 
   public abstract ImmutableList<FeatureType> getContributorsCanAdd();
 
+  public abstract Builder toBuilder();
+
   public static Builder newBuilder() {
     return new AutoValue_Layer.Builder()
         .setForm(Optional.empty())
