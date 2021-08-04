@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class DeleteMenuVisibilityTest extends FeatureDetailsViewModelTest {
+public class DeleteMenuVisibilityTest extends BaseFeatureDetailsViewModelTest {
 
   @Parameterized.Parameter() public User user;
 
