@@ -20,6 +20,7 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
@@ -82,6 +83,16 @@ public class FakeData {
                   Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
                   Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
                   Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build()))
+          .setCreated(AuditInfo.now(TEST_USER))
+          .setLastModified(AuditInfo.now(TEST_USER))
+          .build();
+
+  public static final GeoJsonFeature TEST_GEO_JSON_FEATURE =
+      GeoJsonFeature.newBuilder()
+          .setId("feature id")
+          .setProject(TEST_PROJECT)
+          .setLayer(TEST_LAYER)
+          .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(TEST_USER))
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();
