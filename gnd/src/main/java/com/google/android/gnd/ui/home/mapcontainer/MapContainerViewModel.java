@@ -150,7 +150,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
   @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
   @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
-
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
