@@ -390,13 +390,13 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private void checkPointNearVertex(CameraPosition position) {
     if (isPointNearFirstVertex(position.getTarget())) {
-      updatePolygonDrawing(PolygonDrawing.COMPLETED);
+      updatePolygonDrawingState(PolygonDrawing.COMPLETED);
       vertices.add(vertices.get(0));
       updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
     } else {
       if (vertices.get(0) != vertices.get(vertices.size() - 1)) {
         vertices.add(position.getTarget());
-        updatePolygonDrawing(PolygonDrawing.STARTED);
+        updatePolygonDrawingState(PolygonDrawing.STARTED);
       }
     }
   }
@@ -454,7 +454,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
     vertices.remove(vertices.size() - 1);
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    updatePolygonDrawing(PolygonDrawing.STARTED);
+    updatePolygonDrawingState(PolygonDrawing.STARTED);
   }
 
   public void onMapDrag() {
@@ -495,7 +495,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON);
   }
 
-  private void updatePolygonDrawing(PolygonDrawing polygonDrawing) {
+  private void updatePolygonDrawingState(PolygonDrawing polygonDrawing) {
     addVertexButtonVisible.postValue(polygonDrawing == PolygonDrawing.STARTED);
     completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED);
   }
