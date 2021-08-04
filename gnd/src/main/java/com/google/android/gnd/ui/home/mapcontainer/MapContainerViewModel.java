@@ -117,7 +117,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
 
   @Hot(replays = true)
-  private final MutableLiveData<Boolean> addPolygonPoints = new MutableLiveData<>(true);
+  private final MutableLiveData<Boolean> addVertexButtonVisible = new MutableLiveData<>(true);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -187,10 +187,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     // into the repo?
     // Features that are persisted to the local and remote dbs.
     Flowable<ImmutableSet<MapFeature>> persistentFeatures =
-        projectRepository
-            .getActiveProject()
-            .switchMap(this::getFeaturesStream)
-            .map(this::toMapFeatures);
+        Flowable.combineLatest(
+            projectRepository
+                .getActiveProject()
+                .switchMap(this::getFeaturesStream)
+                .map(this::toMapFeatures),
+            selectedFeature,
+            this::updateSelectedFeature);
     Flowable<ImmutableSet<MapFeature>> transientFeatures =
         drawnPolylineVertices.map(
             vertices ->
@@ -203,10 +206,11 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                Arrays.asList(
-                    persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
-                    transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
-                MapContainerViewModel::concatFeatureSets));
+                    Arrays.asList(
+                        persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
+                        transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
+                    MapContainerViewModel::concatFeatureSets)
+                .distinctUntilChanged());
 
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
@@ -493,7 +497,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private void updatePolygonDrawing(PolygonDrawing polygonDrawing) {
-    addPolygonPoints.postValue(polygonDrawing == PolygonDrawing.STARTED);
+    addVertexButtonVisible.postValue(polygonDrawing == PolygonDrawing.STARTED);
     completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED);
   }
 
@@ -555,7 +559,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public LiveData<Boolean> getAddPolygonPointsStartedVisibility() {
-    return addPolygonPoints;
+    return addVertexButtonVisible;
   }
 
   public Optional<Feature> getReposFeature() {
