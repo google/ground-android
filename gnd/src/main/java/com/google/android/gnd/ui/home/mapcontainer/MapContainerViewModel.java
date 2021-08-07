@@ -113,6 +113,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
   private final LiveData<Boolean> locationUpdatesEnabled;
+  private final LiveData<String> locationAccuracy;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
@@ -151,6 +152,9 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationUpdatesEnabled =
         LiveDataReactiveStreams.fromPublisher(
             locationLockStateFlowable.map(BooleanOrError::isTrue).startWith(false));
+    this.locationAccuracy =
+        LiveDataReactiveStreams.fromPublisher(
+            createLocationAccuracyFlowable(locationLockStateFlowable));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -275,6 +279,19 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
+  private Flowable<String> createLocationAccuracyFlowable(Flowable<BooleanOrError> lockState) {
+    return lockState.switchMap(
+        booleanOrError -> {
+          if (!booleanOrError.isTrue()) {
+            return Flowable.empty();
+          }
+          return locationManager
+              .getLocationUpdates()
+              .map(location -> "Accuracy : " + location.getAccuracy())
+              .startWith("");
+        });
+  }
+
   private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
@@ -290,7 +307,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
-    Flowable<Point> locationUpdates = locationManager.getLocationUpdates();
+    Flowable<Point> locationUpdates =
+        locationManager.getLocationUpdates().map(LocationManager::toPoint);
     return locationUpdates
         .take(1)
         .map(CameraUpdate::panAndZoomIn)
@@ -342,6 +360,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<Boolean> isLocationUpdatesEnabled() {
     return locationUpdatesEnabled;
+  }
+
+  public LiveData<String> getLocationAccuracy() {
+    return locationAccuracy;
   }
 
   public LiveData<Integer> getIconTint() {
