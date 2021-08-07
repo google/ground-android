@@ -44,6 +44,14 @@
       android:layout_height="match_parent"
       android:fitsSystemWindows="true">
 
+      <TextView
+        android:id="@+id/location_accuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="accuracy text"
+        app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
+
       <include
         android:id="@+id/map_controls"
         layout="@layout/map_home_layout"

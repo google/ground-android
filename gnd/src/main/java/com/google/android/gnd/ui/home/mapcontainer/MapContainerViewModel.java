@@ -112,6 +112,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
+  private final LiveData<Boolean> locationUpdatesEnabled;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
@@ -147,6 +148,9 @@ public class MapContainerViewModel extends AbstractViewModel {
             locationLockStateFlowable
                 .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
                 .startWith(R.color.colorGrey800));
+    this.locationUpdatesEnabled =
+        LiveDataReactiveStreams.fromPublisher(
+            locationLockStateFlowable.map(BooleanOrError::isTrue).startWith(false));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -334,6 +338,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<BooleanOrError> getLocationLockState() {
     return locationLockState;
+  }
+
+  public LiveData<Boolean> isLocationUpdatesEnabled() {
+    return locationUpdatesEnabled;
   }
 
   public LiveData<Integer> getIconTint() {
