@@ -22,6 +22,7 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import android.location.Location;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -86,6 +87,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<CameraPosition> cameraPosition =
       new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
 
+  private final Resources resources;
   private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
@@ -134,6 +136,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    this.resources = resources;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
@@ -281,15 +284,13 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private Flowable<String> createLocationAccuracyFlowable(Flowable<BooleanOrError> lockState) {
     return lockState.switchMap(
-        booleanOrError -> {
-          if (!booleanOrError.isTrue()) {
-            return Flowable.empty();
-          }
-          return locationManager
-              .getLocationUpdates()
-              .map(location -> "Accuracy : " + location.getAccuracy())
-              .startWith("");
-        });
+        booleanOrError ->
+            booleanOrError.isTrue()
+                ? locationManager
+                    .getLocationUpdates()
+                    .map(Location::getAccuracy)
+                    .map(accuracy -> resources.getString(R.string.location_accuracy, accuracy))
+                : Flowable.empty());
   }
 
   private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
