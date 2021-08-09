@@ -26,6 +26,10 @@
 #                                /                   \                                                                     /
 #  Fetch google-services.json -->                      --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
 #
+# Notes:
+# ------
+# ${_PUSH_TO_MASTER} is true when the commit is pushed to master branch
+# i.e. it happens after Github merges an approved PR with master.
 
 steps:
 
