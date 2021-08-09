@@ -39,12 +39,16 @@ import javax.inject.Inject;
 public class OfflineBaseMapsFragment extends AbstractFragment {
   @Inject Navigator navigator;
 
+  private OfflineBaseMapListAdapter offlineBaseMapListAdapter;
   private OfflineBaseMapsViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(OfflineBaseMapsViewModel.class);
+    offlineBaseMapListAdapter = new OfflineBaseMapListAdapter(navigator);
+
+    viewModel.getOfflineAreas().observe(this, offlineBaseMapListAdapter::update);
   }
 
   @Override
@@ -59,13 +63,10 @@ public class OfflineBaseMapsFragment extends AbstractFragment {
 
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
 
-    OfflineBaseMapListAdapter offlineBaseMapListAdapter = new OfflineBaseMapListAdapter(navigator);
     RecyclerView recyclerView = binding.offlineAreasList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(offlineBaseMapListAdapter);
-
-    viewModel.getOfflineAreas().observe(getViewLifecycleOwner(), offlineBaseMapListAdapter::update);
 
     return binding.getRoot();
   }

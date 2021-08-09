@@ -26,6 +26,7 @@ import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -38,7 +39,6 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -96,23 +96,19 @@ public class ProjectRepository {
       return Flowable.just(Loadable.notLoaded());
     }
     String id = projectId.get();
-    return getProject(id)
+    return syncProjectWithRemote(id)
+        .onErrorResumeNext(__ -> getProject(id))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  /** This only works if the project is already cached to local db. */
   @Cold
-  private Single<Project> getProject(String id) {
-    return syncProjectWithRemote(id)
-        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
-        .doOnError(err -> Timber.d(err, "Error loading project from remote"))
-        .onErrorResumeNext(
-            __ ->
-                localDataStore
-                    .getProjectById(id)
-                    .toSingle()
-                    .doOnError(err -> Timber.e(err, "Error loading project from local db")));
+  public Single<Project> getProject(String projectId) {
+    return localDataStore
+        .getProjectById(projectId)
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project not found " + projectId)));
   }
 
   @Cold
@@ -120,7 +116,9 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
+        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p))
+        .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
+        .doOnError(err -> Timber.d(err, "Error loading project from remote"));
   }
 
   public Optional<String> getLastActiveProjectId() {
@@ -173,16 +171,19 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
+  public ImmutableList<Layer> getModifiableLayers(
+      Optional<Project> project, FeatureType featureType) {
+    return project.map(p -> getModifiableLayers(p, featureType)).orElse(ImmutableList.of());
+  }
+
   public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
     switch (userRepository.getUserRole(project)) {
       case OWNER:
       case MANAGER:
         return project.getLayers();
       case CONTRIBUTOR:
-        // TODO: Use enums instead of string values
-        String featureTypeValue = featureType.name().toLowerCase(Locale.getDefault());
         return stream(project.getLayers())
-            .filter(layer -> layer.getContributorsCanAdd().contains(featureTypeValue))
+            .filter(layer -> layer.getContributorsCanAdd().contains(featureType))
             .collect(toImmutableList());
       case UNKNOWN:
       default:

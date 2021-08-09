@@ -39,9 +39,11 @@
       android:layout_height="match_parent" />
 
     <FrameLayout
+      android:id="@+id/map_overlay"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:fitsSystemWindows="true">
+
       <include
         android:id="@+id/map_controls"
         layout="@layout/map_home_layout"
@@ -49,10 +51,17 @@
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
 
-      <include
+      <view
         android:id="@+id/move_feature"
-        layout="@layout/map_move_feature_layout"
+        class="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionView"
         android:visibility="@{viewModel.moveFeatureVisibility}"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+      <include
+        android:id="@+id/polygon_drawing_controls"
+        layout="@layout/polygon_drawing_controls"
+        app:visible="@{viewModel.isAddPolygonButtonVisible()}"
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
     </FrameLayout>

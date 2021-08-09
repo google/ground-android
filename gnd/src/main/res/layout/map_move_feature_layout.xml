@@ -23,10 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
-    <variable
-      name="homeScreenViewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+      type="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -55,6 +52,7 @@
       app:layout_constraintBottom_toTopOf="@+id/confirm_button"
       app:layout_constraintEnd_toEndOf="parent"
       app:srcCompat="@drawable/ic_baseline_cancel_24"
+      android:onClick="@{() -> viewModel.onCancelButtonClick()}"
       app:tint="@color/colorBackground"
       app:useCompatPadding="true" />
 
@@ -66,6 +64,7 @@
       app:fabSize="normal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
+      android:onClick="@{() -> viewModel.onConfirmButtonClick()}"
       app:srcCompat="@drawable/ic_baseline_check_24"
       app:tint="@color/colorBackground"
       app:useCompatPadding="true" />

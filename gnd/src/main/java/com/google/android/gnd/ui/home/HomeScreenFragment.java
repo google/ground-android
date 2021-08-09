@@ -25,18 +25,21 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -48,10 +51,10 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -97,6 +100,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
+  @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
@@ -108,7 +112,6 @@ public class HomeScreenFragment extends AbstractFragment
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
-  private FeatureSelectorFragment featureSelectorDialogFragment;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,16 +125,13 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
-    featureSelectorDialogFragment = new FeatureSelectorFragment(featureSelectorViewModel);
-
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
-    viewModel
-        .getShowAddFeatureDialogRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onShowAddFeatureDialogRequest);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
-    viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
+    viewModel
+        .getShowFeatureSelectorRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
     viewModel
         .getAddFeatureResults()
@@ -142,21 +142,32 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     featureSelectorViewModel
-        .getFeatureSelections()
+        .getFeatureClicks()
         .as(autoDisposable(this))
-        .subscribe(this::onFeatureSelection);
+        .subscribe(viewModel::onFeatureSelected);
+    mapContainerViewModel
+        .getAddFeatureButtonClicks()
+        .as(autoDisposable(this))
+        .subscribe(viewModel::onAddFeatureButtonClick);
+    viewModel
+        .getShowAddFeatureDialogRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::showAddFeatureDialog);
   }
 
-  private void onFeatureSelection(Feature feature) {
-    viewModel.onFeatureSelection(feature);
+  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
+    ImmutableList<Layer> layers = args.first;
+    Point point = args.second;
+    addFeatureDialogFragment.show(
+        layers, getChildFragmentManager(), layer -> viewModel.addFeature(layer, point));
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
+    featureSelectorViewModel.setFeatures(features);
     if (!featureSelectorDialogFragment.isVisible()) {
       featureSelectorDialogFragment.show(
           getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
     }
-    featureSelectorViewModel.onFeatures(features);
   }
 
   private void onFeatureAdded(Feature feature) {
@@ -264,9 +275,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
-    FrameLayout toolbarWrapper = binding.featureDetailsChrome.toolbarWrapper;
     FrameLayout bottomSheetHeader = binding.getRoot().findViewById(R.id.bottom_sheet_header);
-    if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
+    if (bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);
@@ -300,24 +310,6 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void closeDrawer() {
     binding.drawerLayout.closeDrawer(GravityCompat.START);
-  }
-
-  @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.feature_sheet_menu, menu);
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    BottomSheetState state = viewModel.getBottomSheetState().getValue();
-    if (state == null) {
-      Timber.e("BottomSheetState is null");
-      return;
-    }
-
-    // "Move feature" option should only be enabled for PointFeature.
-    boolean isPointFeature = state.isPointFeature();
-    menu.getItem(0).setVisible(isPointFeature);
   }
 
   @Override
@@ -458,13 +450,6 @@ public class HomeScreenFragment extends AbstractFragment
     return -1;
   }
 
-  private void onShowAddFeatureDialogRequest(Point point) {
-    addFeatureDialogFragment.show(
-        viewModel.getModifiableLayers(FeatureType.POINT),
-        getChildFragmentManager(),
-        layer -> viewModel.addFeature(layer, point));
-  }
-
   private void onBottomSheetStateChange(BottomSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
@@ -493,6 +478,43 @@ public class HomeScreenFragment extends AbstractFragment
           ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
       progressDialog.show();
     }
+  }
+
+  public void showFeatureTypeDialog(Layer layer, Point point) {
+    ArrayAdapter<String> arrayAdapter =
+        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
+    arrayAdapter.add(getString(R.string.point));
+    arrayAdapter.add(getString(R.string.polygon));
+    new Builder(getContext())
+        .setTitle(R.string.select_feature_type)
+        .setAdapter(
+            arrayAdapter,
+            (dialog, position) -> {
+              if (position == 0) {
+                viewModel.addFeature(layer, point);
+              } else {
+                showPolygonInfoDialog();
+              }
+            })
+        .setCancelable(true)
+        .create()
+        .show();
+  }
+
+  public void showPolygonInfoDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+    LayoutInflater inflater = requireActivity().getLayoutInflater();
+    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
+    builder.setView(dialogView);
+    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
+    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
+    AlertDialog alertDialog = builder.create();
+    getStartedBtn.setOnClickListener(
+        v -> {
+          alertDialog.dismiss();
+        });
+    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
+    alertDialog.show();
   }
 
   public void dismissLoadingDialog() {

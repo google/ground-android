@@ -22,7 +22,6 @@ import static com.google.android.gnd.util.StreamUtil.logErrorsAndSkip;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
-import androidx.annotation.Nullable;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
@@ -404,12 +403,11 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable finalizePendingMutations(@Nullable ImmutableList<Mutation> mutations) {
-    checkNotNull(mutations, "List of mutations can not be null");
+  public Completable finalizePendingMutations(ImmutableList<Mutation> mutations) {
     return finalizeDeletions(mutations).andThen(markComplete(mutations));
   }
 
-  private Completable finalizeDeletions(@Nullable ImmutableList<Mutation> mutations) {
+  private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
         .flatMapCompletable(
@@ -715,5 +713,23 @@ public class RoomLocalDataStore implements LocalDataStore {
     } else {
       return Completable.complete().subscribeOn(schedulers.io());
     }
+  }
+
+  @Override
+  public Flowable<ImmutableList<FeatureMutation>> getFeatureMutationsByFeatureIdOnceAndStream(
+      String featureId, MutationEntitySyncStatus... allowedStates) {
+    return featureMutationDao
+        .findByFeatureIdOnceAndStream(featureId, allowedStates)
+        .map(
+            list -> stream(list).map(FeatureMutationEntity::toMutation).collect(toImmutableList()));
+  }
+
+  @Override
+  public Flowable<ImmutableList<ObservationMutation>>
+      getObservationMutationsByFeatureIdOnceAndStream(
+          Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
+    return observationMutationDao
+        .findByFeatureIdOnceAndStream(featureId, allowedStates)
+        .map(list -> stream(list).map(e -> e.toMutation(project)).collect(toImmutableList()));
   }
 }

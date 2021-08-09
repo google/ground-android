@@ -25,7 +25,7 @@ apply plugin: 'net.ltgt.errorprone'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
-//apply from: '../config/spotbugs/spotbugs.gradle'
+apply from: '../config/spotbugs/spotbugs.gradle'
 
 project.ext {
     autoDisposeVersion = "1.4.0"
@@ -152,9 +152,6 @@ android {
                 // Specify the packages which NullAway should analyze.
                 option("NullAway:AnnotatedPackages", "com.google.android.gnd")
 
-                // Treat generated classes from Hilt and SafeArgs as unannotated.
-                option("NullAway:TreatGeneratedAsUnannotated", true)
-
                 // Ignore generated classes from databinding, as well as Room and Firebase classes.
                 option("NullAway:UnannotatedSubPackages",
                     "com.google.android.gnd.databinding," +
@@ -162,17 +159,7 @@ android {
                         "com.google.android.gnd.persistence.remote.firestore," +
                         "com.google.android.gnd.persistence.remote.firestore.schema")
 
-                // TODO(#718): Make this list dynamic somehow.
-                option("NullAway:ExcludedClasses",
-                    "com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentArgs," +
-                        "com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections," +
-                        "com.google.android.gnd.ui.editobservation.EditObservationFragmentArgs," +
-                        "com.google.android.gnd.ui.home.HomeScreenFragmentArgs," +
-                        "com.google.android.gnd.ui.home.HomeScreenFragmentDirections," +
-                        "com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapsFragmentArgs," +
-                        "com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections," +
-                        "com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerFragmentArgs"
-                )
+                excludedPaths = ".*/build/generated/.*"
             }
         }
     }
@@ -284,7 +271,15 @@ dependencies {
     testImplementation 'androidx.test:core:1.3.0'
     testImplementation 'org.robolectric:robolectric:4.5.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'
-    testImplementation 'org.mockito:mockito-core:3.11.0'
+
+    // Mockito
+    testImplementation 'org.mockito:mockito-core:3.11.2'
+    androidTestImplementation 'org.mockito:mockito-core:3.11.2'
+
+    // PowerMock
+    testImplementation 'org.powermock:powermock-core:2.0.2'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
         exclude group: 'com.android.support', module: 'support-annotations'

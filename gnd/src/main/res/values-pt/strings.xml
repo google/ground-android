@@ -176,4 +176,11 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Construir %s</string>
 
+  <string name="add_point">Adicionar ponto</string>
+  <string name="complete_polygon">Salvar polígono</string>
+  <string name="point">Ponto</string>
+  <string name="polygon">Polígono</string>
+  <string name="select_feature_type">Escolha um tipo de recurso</string>
+  <string name="get_started_button_text">Iniciar</string>
+  <string name="add_polygon_instructions">Arraste o mapa e toque em “Adicionar ponto“ para adicionar pontos ao seu polígono. Para terminar, volte ao ponto original e toque em “Concluir“.</string>
 </resources>
