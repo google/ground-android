@@ -33,13 +33,10 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -65,9 +62,11 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -109,6 +108,8 @@ public class HomeScreenFragment extends AbstractFragment
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
+  @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
+  @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
@@ -361,6 +362,15 @@ public class HomeScreenFragment extends AbstractFragment
     if (projectSelectorDialogFragment.isVisible()) {
       dismissProjectSelector();
     }
+
+    if (featureDataTypeSelectorDialogFragment != null
+        && featureDataTypeSelectorDialogFragment.isVisible()) {
+      featureDataTypeSelectorDialogFragment.dismiss();
+    }
+
+    if (polygonDrawingInfoDialogFragment != null && polygonDrawingInfoDialogFragment.isVisible()) {
+      polygonDrawingInfoDialogFragment.dismiss();
+    }
   }
 
   private void showProjectSelector() {
@@ -482,51 +492,78 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showFeatureTypeDialog(Layer layer, Point point) {
-    ArrayAdapter<String> arrayAdapter =
-        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
-    arrayAdapter.add(getString(R.string.point));
-    arrayAdapter.add(getString(R.string.polygon));
-    new Builder(getContext())
-        .setTitle(R.string.select_feature_type)
-        .setAdapter(
-            arrayAdapter,
-            (dialog, position) -> {
-              if (position == 0) {
+    featureDataTypeSelectorDialogFragment =
+        new FeatureDataTypeSelectorDialogFragment(
+            featureSelected -> {
+              if (featureSelected == 0) {
                 viewModel.addFeature(layer, point);
               } else {
                 showPolygonInfoDialog(layer);
               }
-            })
-        .setCancelable(true)
-        .create()
-        .show();
+            });
+    featureDataTypeSelectorDialogFragment.show(
+        getChildFragmentManager(), FeatureDataTypeSelectorDialogFragment.class.getSimpleName());
+    //    ArrayAdapter<String> arrayAdapter =
+    //        new ArrayAdapter(getContext(), R.layout.project_selector_list_item,
+    // R.id.project_name);
+    //    arrayAdapter.add(getString(R.string.point));
+    //    arrayAdapter.add(getString(R.string.polygon));
+    //    new Builder(getContext())
+    //        .setTitle(R.string.select_feature_type)
+    //        .setAdapter(
+    //            arrayAdapter,
+    //            (dialog, position) -> {
+    //              if (position == 0) {
+    //                viewModel.addFeature(layer, point);
+    //              } else {
+    //                showPolygonInfoDialog(layer);
+    //              }
+    //            })
+    //        .setCancelable(true)
+    //        .create()
+    //        .show();
   }
 
   private void showPolygonInfoDialog(Layer layer) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-    LayoutInflater inflater = requireActivity().getLayoutInflater();
-    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
-    builder.setView(dialogView);
-    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
-    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
-    AlertDialog alertDialog = builder.create();
-    getStartedBtn.setOnClickListener(
-        v -> {
-          viewModel
-              .getActiveProject()
-              .ifPresentOrElse(
-                  project -> {
-                    alertDialog.dismiss();
-                    mapContainerViewModel.setSelectedProject(Optional.of(project));
-                    mapContainerViewModel.setSelectedLayer(Optional.of(layer));
-                    mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-                  },
-                  () -> {
-                    throw new IllegalStateException("Empty project");
-                  });
-        });
-    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
-    alertDialog.show();
+    polygonDrawingInfoDialogFragment =
+        new PolygonDrawingInfoDialogFragment(
+            __ -> viewModel
+                .getActiveProject()
+                .ifPresentOrElse(
+                    project -> {
+                      mapContainerViewModel.setSelectedProject(Optional.of(project));
+                      mapContainerViewModel.setSelectedLayer(Optional.of(layer));
+                      mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+                    },
+                    () -> {
+                      throw new IllegalStateException("Empty project");
+                    }));
+    polygonDrawingInfoDialogFragment.show(
+        getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
+    //    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+    //    LayoutInflater inflater = requireActivity().getLayoutInflater();
+    //    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
+    //    builder.setView(dialogView);
+    //    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
+    //    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
+    //    AlertDialog alertDialog = builder.create();
+    //    getStartedBtn.setOnClickListener(
+    //        v -> {
+    //          viewModel
+    //              .getActiveProject()
+    //              .ifPresentOrElse(
+    //                  project -> {
+    //                    alertDialog.dismiss();
+    //                    mapContainerViewModel.setSelectedProject(Optional.of(project));
+    //                    mapContainerViewModel.setSelectedLayer(Optional.of(layer));
+    //                    mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+    //                  },
+    //                  () -> {
+    //                    throw new IllegalStateException("Empty project");
+    //                  });
+    //        });
+    //    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
+    //    alertDialog.show();
   }
 
   public void dismissLoadingDialog() {
