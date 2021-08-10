@@ -35,7 +35,7 @@ project.ext {
     navigationVersion = "2.3.2"
     roomVersion = "2.3.0"
     rxBindingVersion = "2.2.0"
-    workVersion = "2.4.0"
+    workVersion = "2.5.0"
 }
 
 // Load secrets.properties
