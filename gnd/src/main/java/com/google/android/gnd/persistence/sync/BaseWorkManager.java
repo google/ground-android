@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.sync;
 
-import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -24,7 +23,6 @@ import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.OneTimeWorkRequest.Builder;
-import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import java.util.concurrent.TimeUnit;
 
@@ -49,16 +47,6 @@ public abstract class BaseWorkManager {
 
   /** Any working network connection is required for this work. */
   private static final NetworkType DEFAULT_NETWORK_TYPE = NetworkType.CONNECTED;
-
-  private final WorkManager workManager;
-
-  public BaseWorkManager(Context context) {
-    workManager = WorkManager.getInstance(context);
-  }
-
-  protected WorkManager getWorkManager() {
-    return workManager;
-  }
 
   /** A set of constraints that must be satisfied in order to start the scheduled job. */
   protected Constraints getWorkerConstraints() {

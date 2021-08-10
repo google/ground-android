@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Geocoder;
-import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import dagger.Module;
@@ -39,12 +38,6 @@ abstract class GndApplicationModule {
   @Singleton
   static GoogleApiAvailability googleApiAvailability() {
     return GoogleApiAvailability.getInstance();
-  }
-
-  @Provides
-  @Singleton
-  static WorkManager workManager() {
-    return WorkManager.getInstance();
   }
 
   @Provides

@@ -16,19 +16,20 @@
 
 package com.google.android.gnd.persistence.sync;
 
-import android.content.Context;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
-import dagger.hilt.android.qualifiers.ApplicationContext;
+import androidx.work.WorkManager;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 
 /** Enqueues data sync work to be done in the background. */
 public class DataSyncWorkManager extends BaseWorkManager {
 
+  private final WorkManager workManager;
+
   @Inject
-  public DataSyncWorkManager(@ApplicationContext Context context) {
-    super(context);
+  public DataSyncWorkManager(WorkManager workManager) {
+    this.workManager = workManager;
   }
 
   @Override
@@ -51,10 +52,9 @@ public class DataSyncWorkManager extends BaseWorkManager {
     // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
     Data inputData = LocalMutationSyncWorker.createInputData(featureId);
-    getWorkManager()
-        .enqueueUniqueWork(
-            LocalMutationSyncWorker.class.getName(),
-            ExistingWorkPolicy.APPEND,
-            buildWorkerRequest(inputData));
+    workManager.enqueueUniqueWork(
+        LocalMutationSyncWorker.class.getName(),
+        ExistingWorkPolicy.APPEND,
+        buildWorkerRequest(inputData));
   }
 }
