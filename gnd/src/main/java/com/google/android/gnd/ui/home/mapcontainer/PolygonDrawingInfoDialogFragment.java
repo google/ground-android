@@ -20,9 +20,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.DialogPolygonInfoBinding;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -33,6 +31,9 @@ import org.jetbrains.annotations.NotNull;
 public class PolygonDrawingInfoDialogFragment extends AbstractDialogFragment {
 
   private final Consumer<Nil> polygonDrawingAcceptedConsumer;
+
+  @SuppressWarnings("NullAway")
+  DialogPolygonInfoBinding binding;
 
   public PolygonDrawingInfoDialogFragment(Consumer<Nil> polygonDrawingAcceptedConsumer) {
     this.polygonDrawingAcceptedConsumer = polygonDrawingAcceptedConsumer;
@@ -45,15 +46,14 @@ public class PolygonDrawingInfoDialogFragment extends AbstractDialogFragment {
 
     AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
     LayoutInflater inflater = requireActivity().getLayoutInflater();
-    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
-    builder.setView(dialogView);
-    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
-    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
-    getStartedBtn.setOnClickListener(v -> {
-      dismiss();
-      polygonDrawingAcceptedConsumer.accept(Nil.NIL);
-    });
-    cancelBtn.setOnClickListener(v -> dismiss());
+    binding = DialogPolygonInfoBinding.inflate(inflater);
+    binding.getStartedButton.setOnClickListener(
+        v -> {
+          dismiss();
+          polygonDrawingAcceptedConsumer.accept(Nil.NIL);
+        });
+    builder.setView(binding.getRoot());
+    binding.cancelButton.setOnClickListener(v -> dismiss());
     return builder.create();
   }
 }
