@@ -74,11 +74,12 @@
         <TextView
           android:id="@+id/location_accuracy"
           android:layout_width="match_parent"
+          android:background="@android:color/white"
           android:layout_height="wrap_content"
-          android:background="@color/colorAccent"
+          android:gravity="center"
           android:padding="5dp"
           android:text="@{viewModel.getLocationAccuracy()}"
-          android:textColor="@android:color/white"
+          android:textColor="@color/colorPrimary"
           app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
       </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
