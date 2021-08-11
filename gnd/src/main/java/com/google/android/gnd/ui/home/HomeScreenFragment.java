@@ -503,25 +503,6 @@ public class HomeScreenFragment extends AbstractFragment
             });
     featureDataTypeSelectorDialogFragment.show(
         getChildFragmentManager(), FeatureDataTypeSelectorDialogFragment.class.getSimpleName());
-    //    ArrayAdapter<String> arrayAdapter =
-    //        new ArrayAdapter(getContext(), R.layout.project_selector_list_item,
-    // R.id.project_name);
-    //    arrayAdapter.add(getString(R.string.point));
-    //    arrayAdapter.add(getString(R.string.polygon));
-    //    new Builder(getContext())
-    //        .setTitle(R.string.select_feature_type)
-    //        .setAdapter(
-    //            arrayAdapter,
-    //            (dialog, position) -> {
-    //              if (position == 0) {
-    //                viewModel.addFeature(layer, point);
-    //              } else {
-    //                showPolygonInfoDialog(layer);
-    //              }
-    //            })
-    //        .setCancelable(true)
-    //        .create()
-    //        .show();
   }
 
   private void showPolygonInfoDialog(Layer layer) {
@@ -540,30 +521,6 @@ public class HomeScreenFragment extends AbstractFragment
                     }));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
-    //    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-    //    LayoutInflater inflater = requireActivity().getLayoutInflater();
-    //    View dialogView = inflater.inflate(R.layout.dialog_polygon_info, null);
-    //    builder.setView(dialogView);
-    //    Button getStartedBtn = dialogView.findViewById(R.id.get_started_button);
-    //    Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
-    //    AlertDialog alertDialog = builder.create();
-    //    getStartedBtn.setOnClickListener(
-    //        v -> {
-    //          viewModel
-    //              .getActiveProject()
-    //              .ifPresentOrElse(
-    //                  project -> {
-    //                    alertDialog.dismiss();
-    //                    mapContainerViewModel.setSelectedProject(Optional.of(project));
-    //                    mapContainerViewModel.setSelectedLayer(Optional.of(layer));
-    //                    mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-    //                  },
-    //                  () -> {
-    //                    throw new IllegalStateException("Empty project");
-    //                  });
-    //        });
-    //    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
-    //    alertDialog.show();
   }
 
   public void dismissLoadingDialog() {
