@@ -56,7 +56,7 @@ android {
         // fix before increasing this value.
         targetSdkVersion 26
         versionCode gitVersioner.versionCode
-        versionName gitVersioner.versionName
+        versionName gitVersioner.versionName + " " + gitVersioner.currentSha1
         testInstrumentationRunner "com.google.android.gnd.CustomTestRunner"
         multiDexEnabled true
         // For rendering vector map markers.
