@@ -16,23 +16,34 @@
 
 package com.google.android.gnd;
 
+import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.persistence.remote.FakeRemoteStorageManager;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.persistence.sync.FakeWorkManager;
 import com.google.android.gnd.persistence.uuid.FakeUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import org.mockito.Mockito;
 
 @Module
 @InstallIn(SingletonComponent.class)
 abstract class TestDependenciesModule {
+
+  @Provides
+  @Singleton
+  static WorkManager provideWorkManager() {
+    return new FakeWorkManager();
+  }
 
   @Binds
   @Singleton
