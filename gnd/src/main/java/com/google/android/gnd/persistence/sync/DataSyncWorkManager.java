@@ -21,14 +21,15 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.WorkManager;
 import io.reactivex.Completable;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 /** Enqueues data sync work to be done in the background. */
 public class DataSyncWorkManager extends BaseWorkManager {
 
+  private final WorkManager workManager;
+
   @Inject
-  public DataSyncWorkManager(Provider<WorkManager> workManagerProvider) {
-    super(workManagerProvider);
+  public DataSyncWorkManager(WorkManager workManager) {
+    this.workManager = workManager;
   }
 
   @Override
@@ -51,10 +52,9 @@ public class DataSyncWorkManager extends BaseWorkManager {
     // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
     Data inputData = LocalMutationSyncWorker.createInputData(featureId);
-    getWorkManager()
-        .enqueueUniqueWork(
-            LocalMutationSyncWorker.class.getName(),
-            ExistingWorkPolicy.APPEND,
-            buildWorkerRequest(inputData));
+    workManager.enqueueUniqueWork(
+        LocalMutationSyncWorker.class.getName(),
+        ExistingWorkPolicy.APPEND,
+        buildWorkerRequest(inputData));
   }
 }

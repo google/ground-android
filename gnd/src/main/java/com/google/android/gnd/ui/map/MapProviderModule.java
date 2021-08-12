@@ -20,9 +20,9 @@ import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.components.SingletonComponent;
 
-@InstallIn(ApplicationComponent.class)
+@InstallIn(SingletonComponent.class)
 @Module
 public abstract class MapProviderModule {
 
