@@ -30,12 +30,12 @@ apply from: '../config/spotbugs/spotbugs.gradle'
 project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.7.4"
-    hiltJetpackVersion = "1.0.0-alpha02"
+    hiltJetpackVersion = "1.0.0"
     lifecycleVersion = "2.2.0"
     navigationVersion = "2.3.2"
     roomVersion = "2.3.0"
     rxBindingVersion = "2.2.0"
-    workVersion = "2.4.0"
+    workVersion = "2.5.0"
 }
 
 // Load secrets.properties
@@ -205,7 +205,7 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$project.hiltJetpackVersion"
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
     implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
     annotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"

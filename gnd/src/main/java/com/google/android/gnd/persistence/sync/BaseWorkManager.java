@@ -23,10 +23,8 @@ import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.OneTimeWorkRequest.Builder;
-import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import java.util.concurrent.TimeUnit;
-import javax.inject.Provider;
 
 /**
  * Base class for creating a work manager for scheduling background tasks.
@@ -49,20 +47,6 @@ public abstract class BaseWorkManager {
 
   /** Any working network connection is required for this work. */
   private static final NetworkType DEFAULT_NETWORK_TYPE = NetworkType.CONNECTED;
-
-  /**
-   * WorkManager is injected via {@code Provider} rather than directly to ensure the {@code
-   * Application} has a change to initialize it before {@code WorkManager.getInstance()} is called.
-   */
-  private final Provider<WorkManager> workManagerProvider;
-
-  public BaseWorkManager(Provider<WorkManager> workManagerProvider) {
-    this.workManagerProvider = workManagerProvider;
-  }
-
-  protected WorkManager getWorkManager() {
-    return workManagerProvider.get().getInstance();
-  }
 
   /** A set of constraints that must be satisfied in order to start the scheduled job. */
   protected Constraints getWorkerConstraints() {
