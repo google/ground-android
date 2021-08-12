@@ -78,6 +78,7 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
+    PolygonDrawingViewModel polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
@@ -113,6 +114,13 @@ public class MapContainerFragment extends AbstractFragment {
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
 
+    polygonDrawingViewModel
+        .getDefaultState()
+        .as(autoDisposable(this))
+        .subscribe(__ -> setDefaultMode());
+    polygonDrawingViewModel
+        .getPolygonFeature()
+        .observe(this, feature -> mapContainerViewModel.updateDrawnPolygonFeature(feature));
     featureRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))
@@ -189,6 +197,16 @@ public class MapContainerFragment extends AbstractFragment {
               mapsRepository.saveMapType(mapType);
               dialog.dismiss();
             })
+        .setCancelable(true)
+        .create()
+        .show();
+  }
+
+  private void addPolygonVertex(Point point) {
+    new AlertDialog.Builder(requireContext())
+        .setTitle(R.string.move_point_confirmation)
+        .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
         .setCancelable(true)
         .create()
         .show();

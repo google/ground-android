@@ -109,6 +109,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final PublishProcessor<ImmutableList<Point>> drawnPolylineVertices =
       PublishProcessor.create();
 
+  @Hot
+  private final PublishProcessor<PolygonFeature> drawnPolylineFeature =
+      PublishProcessor.create();
+
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
@@ -193,15 +197,19 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(this::toMapFeatures),
             selectedFeature,
             this::updateSelectedFeature);
+//    Flowable<ImmutableSet<MapFeature>> transientFeatures =
+//        drawnPolylineVertices.map(
+//            vertices ->
+//                ImmutableSet.of(
+//                    toMapPolygon(
+//                        featureRepository.newPolygonFeature(
+//                            selectedProject.getValue().get(),
+//                            selectedLayer.getValue().get(),
+//                            vertices))));
+
     Flowable<ImmutableSet<MapFeature>> transientFeatures =
-        drawnPolylineVertices.map(
-            vertices ->
-                ImmutableSet.of(
-                    toMapPolygon(
-                        featureRepository.newPolygonFeature(
-                            selectedProject.getValue().get(),
-                            selectedLayer.getValue().get(),
-                            vertices))));
+        drawnPolylineFeature.map(feature-> ImmutableSet.of(
+            toMapPolygon(feature)));
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
@@ -252,6 +260,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
     drawnPolylineVertices.onNext(vertices);
+  }
+
+  public void updateDrawnPolygonFeature(PolygonFeature feature) {
+    drawnPolylineFeature.onNext(feature);
   }
 
   private ImmutableSet<MapFeature> updateSelectedFeature(

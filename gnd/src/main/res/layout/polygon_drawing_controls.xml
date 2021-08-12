@@ -23,10 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
-    <variable
-      name="homeScreenViewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+      type="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -51,11 +48,11 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_margin="16dp"
+      android:onClick="@{() -> viewModel.removeLastVertex()}"
       app:backgroundTint="@android:color/white"
       app:fabSize="normal"
-      app:layout_constraintStart_toStartOf="parent"
-      android:onClick="@{() -> viewModel.removeLastVertex()}"
       app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
       app:srcCompat="@drawable/ic_undo_black"
       app:tint="@android:color/black"
       app:useCompatPadding="true" />
@@ -64,44 +61,42 @@
       android:id="@+id/add_polygon_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:onClick="@{() -> viewModel.onAddPolygonBtnClick()}"
-      android:background="@android:color/white"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
       android:layout_marginBottom="32dp"
+      android:background="@android:color/white"
+      android:onClick="@{() -> viewModel.onAddPolygonBtnClick()}"
       android:text="@string/add_point"
-      app:visible="@{viewModel.getAddPolygonPointsStartedVisibility()}"
       android:textColor="@color/colorAccent"
-      />
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:visible="@{viewModel.getAddPolygonPointsStartedVisibility()}" />
 
     <Button
       android:id="@+id/complete_polygon_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
-      android:background="@android:color/white"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
       android:layout_marginBottom="32dp"
-      app:visible="@{viewModel.getPolygonDrawingCompletedVisibility()}"
+      android:background="@android:color/white"
+      android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
       android:text="@string/complete_polygon"
       android:textColor="@color/colorAccent"
-      />
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:visible="@{viewModel.getPolygonDrawingCompletedVisibility()}" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/current_location_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_margin="16dp"
+      android:onClick="@{() -> viewModel.onLocationLockClick()}"
       app:backgroundTint="@android:color/white"
       app:fabSize="normal"
+      app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      android:onClick="@{() -> viewModel.onLocationLockClick()}"
       app:srcCompat="@drawable/ic_gps_lock"
       app:tint="@{viewModel.getIconTint()}"
-      app:layout_constraintBottom_toBottomOf="parent"
       app:useCompatPadding="true" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

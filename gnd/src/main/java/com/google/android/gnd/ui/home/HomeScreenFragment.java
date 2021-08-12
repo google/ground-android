@@ -66,7 +66,9 @@ import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialog
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.PolygonDrawing;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -102,6 +104,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   MapContainerViewModel mapContainerViewModel;
+  PolygonDrawingViewModel polygonDrawingViewModel;
 
   @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
@@ -124,6 +127,7 @@ public class HomeScreenFragment extends AbstractFragment
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
+    polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
@@ -512,8 +516,8 @@ public class HomeScreenFragment extends AbstractFragment
                 .getActiveProject()
                 .ifPresentOrElse(
                     project -> {
-                      mapContainerViewModel.setSelectedProject(Optional.of(project));
-                      mapContainerViewModel.setSelectedLayer(Optional.of(layer));
+                      polygonDrawingViewModel.setSelectedProject(Optional.of(project));
+                      polygonDrawingViewModel.setSelectedLayer(Optional.of(layer));
                       mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
                     },
                     () -> {
