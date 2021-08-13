@@ -29,10 +29,10 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.components.SingletonComponent;
 import javax.inject.Singleton;
 
-@InstallIn(ApplicationComponent.class)
+@InstallIn(SingletonComponent.class)
 @Module
 public abstract class RemoteStorageModule {
 
@@ -52,32 +52,24 @@ public abstract class RemoteStorageModule {
     return firestore;
   }
 
-  /**
-   * Returns a reference to the default Storage bucket.
-   */
+  /** Returns a reference to the default Storage bucket. */
   @Provides
   @Singleton
   static StorageReference firebaseStorageReference() {
     return FirebaseStorage.getInstance().getReference();
   }
 
-  /**
-   * Provides the Firestore implementation of remote data store.
-   */
+  /** Provides the Firestore implementation of remote data store. */
   @Binds
   @Singleton
   abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
 
-  /**
-   * Provides the Firestore implementation of offline unique id generation.
-   */
+  /** Provides the Firestore implementation of offline unique id generation. */
   @Binds
   @Singleton
   abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreUuidGenerator uuidGenerator);
 
-  /**
-   * Provides the Firestore implementation of remote storage manager.
-   */
+  /** Provides the Firestore implementation of remote storage manager. */
   @Binds
   @Singleton
   abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);

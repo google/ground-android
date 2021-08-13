@@ -29,6 +29,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteStorageModule;
+import com.google.android.gnd.persistence.sync.WorkManagerModule;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.auth.AuthenticationModule;
 import dagger.hilt.android.testing.HiltAndroidRule;
@@ -43,7 +44,8 @@ import org.junit.Test;
     AuthenticationModule.class,
     RemoteStorageModule.class,
     LocalDatabaseModule.class,
-    SchedulersModule.class
+    SchedulersModule.class,
+    WorkManagerModule.class,
 })
 @HiltAndroidTest
 public class AcceptTermsOfServiceTest {

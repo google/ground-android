@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local;
+package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
-import androidx.room.Room;
-import com.google.android.gnd.Config;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
+import androidx.work.WorkManager;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -29,14 +27,11 @@ import javax.inject.Singleton;
 
 @InstallIn(SingletonComponent.class)
 @Module
-public abstract class LocalDatabaseModule {
+public abstract class WorkManagerModule {
 
   @Provides
   @Singleton
-  static LocalDatabase localDatabase(@ApplicationContext Context context) {
-    return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
-      // TODO(#128): Disable before official release.
-      .fallbackToDestructiveMigration()
-      .build();
+  static WorkManager provideWorkManager(@ApplicationContext Context context) {
+    return WorkManager.getInstance(context);
   }
 }

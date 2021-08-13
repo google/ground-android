@@ -25,21 +25,21 @@ import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.UserMediaRepository;
 import java.io.File;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import timber.log.Timber;
 
 /** Enqueues photo upload work to be done in the background. */
 public class PhotoSyncWorkManager extends BaseWorkManager {
 
+  private final WorkManager workManager;
   private final LocalValueStore localValueStore;
   private final UserMediaRepository userMediaRepository;
 
   @Inject
   public PhotoSyncWorkManager(
-      Provider<WorkManager> workManagerProvider,
+      WorkManager workManager,
       LocalValueStore localValueStore,
       UserMediaRepository userMediaRepository) {
-    super(workManagerProvider);
+    this.workManager = workManager;
     this.localValueStore = localValueStore;
     this.userMediaRepository = userMediaRepository;
   }
@@ -71,6 +71,6 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
 
     Data inputData = PhotoSyncWorker.createInputData(localFile.getPath(), remotePath);
     OneTimeWorkRequest request = buildWorkerRequest(inputData);
-    getWorkManager().enqueue(request);
+    workManager.enqueue(request);
   }
 }
