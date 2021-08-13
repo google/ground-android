@@ -22,8 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.hilt.Assisted;
-import androidx.hilt.work.WorkerInject;
+import androidx.hilt.work.HiltWorker;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
@@ -35,6 +34,8 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedInject;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.util.Map;
@@ -47,6 +48,7 @@ import timber.log.Timber;
  * specific map feature, whose id is provided in the {@link Data} object built by {@link
  * #createInputData} and provided to the worker request while being enqueued.
  */
+@HiltWorker
 public class LocalMutationSyncWorker extends BaseWorker {
 
   private static final String FEATURE_ID_PARAM_KEY = "featureId";
@@ -56,7 +58,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private final String featureId;
   private final PhotoSyncWorkManager photoSyncWorkManager;
 
-  @WorkerInject
+  @AssistedInject
   public LocalMutationSyncWorker(
       @Assisted @NonNull Context context,
       @Assisted @NonNull WorkerParameters params,
