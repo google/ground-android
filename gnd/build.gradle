@@ -56,12 +56,12 @@ def getCommitSha1 = { ->
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 30
 
         // TODO(https://github.com/google/ground-android/pull/985): Calculate version code manually
         versionCode gitVersioner.versionCode
