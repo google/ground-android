@@ -76,6 +76,8 @@ public class MapContainerFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
+    FeatureRepositionViewModel featureRepositionViewModel =
+        getViewModel(FeatureRepositionViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
@@ -111,11 +113,11 @@ public class MapContainerFragment extends AbstractFragment {
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
 
-    mapContainerViewModel
+    featureRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))
         .subscribe(this::showConfirmationDialog);
-    mapContainerViewModel
+    featureRepositionViewModel
         .getCancelButtonClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> setDefaultMode());

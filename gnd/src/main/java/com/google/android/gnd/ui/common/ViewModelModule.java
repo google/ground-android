@@ -29,6 +29,7 @@ import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel;
@@ -41,12 +42,18 @@ import com.google.android.gnd.ui.tos.TermsOfServiceViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.components.SingletonComponent;
 import dagger.multibindings.IntoMap;
 
-@InstallIn(ApplicationComponent.class)
+@InstallIn(SingletonComponent.class)
 @Module
 public abstract class ViewModelModule {
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(FeatureRepositionViewModel.class)
+  abstract ViewModel bindFeatureRepositionViewModel(FeatureRepositionViewModel viewModel);
+
   @Binds
   @IntoMap
   @ViewModelKey(MapContainerViewModel.class)

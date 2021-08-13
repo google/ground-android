@@ -23,7 +23,7 @@ import androidx.test.core.app.ApplicationProvider;
 import dagger.hilt.EntryPoint;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.EntryPointAccessors;
-import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.components.SingletonComponent;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
@@ -33,7 +33,7 @@ import org.junit.runner.Description;
  */
 class SetPreferencesRule extends TestWatcher {
 
-  @InstallIn(ApplicationComponent.class)
+  @InstallIn(SingletonComponent.class)
   @EntryPoint
   interface SetPreferencesRuleEntryPoint {
 

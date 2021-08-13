@@ -61,6 +61,7 @@ import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
@@ -101,6 +102,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
+  @Inject FeatureHelper featureHelper;
   MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
@@ -326,15 +328,18 @@ public class HomeScreenFragment extends AbstractFragment
         mapContainerFragment.setRepositionMode(state.getFeature());
         return false;
       case R.id.delete_feature_menu_item:
-        hideBottomSheet();
         Optional<Feature> featureToDelete = state.getFeature();
         if (featureToDelete.isPresent()) {
           new Builder(requireActivity())
-              .setTitle(R.string.feature_delete_confirmation_dialog_title)
+              .setTitle(
+                  getString(
+                      R.string.feature_delete_confirmation_dialog_title,
+                      featureHelper.getLabel(featureToDelete)))
               .setMessage(R.string.feature_delete_confirmation_dialog_message)
               .setPositiveButton(
                   R.string.delete_button_label,
                   (dialog, id) -> {
+                    hideBottomSheet();
                     viewModel.deleteFeature(featureToDelete.get());
                   })
               .setNegativeButton(
@@ -344,8 +349,8 @@ public class HomeScreenFragment extends AbstractFragment
                   })
               .create()
               .show();
-
         } else {
+          hideBottomSheet();
           Timber.e("Attempted to delete non-existent feature");
         }
         return true;

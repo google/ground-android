@@ -18,7 +18,9 @@ package com.google.android.gnd;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
@@ -38,6 +40,9 @@ public class FakeData {
   public static final String LAYER_NO_FORM_ID = "LAYER_NO_FORM_ID";
   public static final String LAYER_NO_FORM_NAME = "Fake name for layer with no form";
   public static final String LAYER_NO_FORM_COLOR = "#00ff00";
+
+  public static final TermsOfService TEST_TERMS_OF_SERVICE =
+      TermsOfService.builder().setId("1").setText("Test Terms").build();
 
   public static final User TEST_USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
@@ -78,6 +83,16 @@ public class FakeData {
                   Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
                   Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
                   Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build()))
+          .setCreated(AuditInfo.now(TEST_USER))
+          .setLastModified(AuditInfo.now(TEST_USER))
+          .build();
+
+  public static final GeoJsonFeature TEST_GEO_JSON_FEATURE =
+      GeoJsonFeature.newBuilder()
+          .setId("feature id")
+          .setProject(TEST_PROJECT)
+          .setLayer(TEST_LAYER)
+          .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(TEST_USER))
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();

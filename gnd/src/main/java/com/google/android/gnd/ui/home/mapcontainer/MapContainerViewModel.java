@@ -22,6 +22,7 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import android.location.Location;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -86,6 +87,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<CameraPosition> cameraPosition =
       new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
 
+  private final Resources resources;
   private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
@@ -112,6 +114,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
+  private final LiveData<Boolean> locationUpdatesEnabled;
+  private final LiveData<String> locationAccuracy;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
@@ -121,8 +125,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
-  @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
-  @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
@@ -134,6 +136,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    this.resources = resources;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
@@ -149,6 +152,12 @@ public class MapContainerViewModel extends AbstractViewModel {
             locationLockStateFlowable
                 .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
                 .startWith(R.color.colorGrey800));
+    this.locationUpdatesEnabled =
+        LiveDataReactiveStreams.fromPublisher(
+            locationLockStateFlowable.map(BooleanOrError::isTrue).startWith(false));
+    this.locationAccuracy =
+        LiveDataReactiveStreams.fromPublisher(
+            createLocationAccuracyFlowable(locationLockStateFlowable));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -273,6 +282,17 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
+  private Flowable<String> createLocationAccuracyFlowable(Flowable<BooleanOrError> lockState) {
+    return lockState.switchMap(
+        booleanOrError ->
+            booleanOrError.isTrue()
+                ? locationManager
+                    .getLocationUpdates()
+                    .map(Location::getAccuracy)
+                    .map(accuracy -> resources.getString(R.string.location_accuracy, accuracy))
+                : Flowable.empty());
+  }
+
   private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
@@ -288,7 +308,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
-    Flowable<Point> locationUpdates = locationManager.getLocationUpdates();
+    Flowable<Point> locationUpdates =
+        locationManager.getLocationUpdates().map(LocationManager::toPoint);
     return locationUpdates
         .take(1)
         .map(CameraUpdate::panAndZoomIn)
@@ -336,6 +357,14 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<BooleanOrError> getLocationLockState() {
     return locationLockState;
+  }
+
+  public LiveData<Boolean> isLocationUpdatesEnabled() {
+    return locationUpdatesEnabled;
+  }
+
+  public LiveData<String> getLocationAccuracy() {
+    return locationAccuracy;
   }
 
   public LiveData<Integer> getIconTint() {
@@ -399,28 +428,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
   }
 
-  public void onConfirmButtonClick() {
-    confirmButtonClicks.onNext(getCameraPosition().getValue().getTarget());
-  }
-
-  public void onCancelButtonClick() {
-    cancelButtonClicks.onNext(Nil.NIL);
-  }
-
   public Observable<Nil> getSelectMapTypeClicks() {
     return selectMapTypeClicks;
   }
 
   public Observable<Point> getAddFeatureButtonClicks() {
     return addFeatureButtonClicks;
-  }
-
-  public Observable<Point> getConfirmButtonClicks() {
-    return confirmButtonClicks;
-  }
-
-  public Observable<Nil> getCancelButtonClicks() {
-    return cancelButtonClicks;
   }
 
   public LiveData<Integer> getMapControlsVisibility() {

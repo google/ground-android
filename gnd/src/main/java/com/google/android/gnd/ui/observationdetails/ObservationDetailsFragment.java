@@ -44,7 +44,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
-import java.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;

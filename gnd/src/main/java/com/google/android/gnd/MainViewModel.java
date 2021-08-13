@@ -67,10 +67,7 @@ public class MainViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
   private final TermsOfServiceRepository termsOfServiceRepository;
-  private final Navigator navigator;
   private final EphemeralPopups popups;
-
-  public Optional<TermsOfService> termsOfService = Optional.empty();
 
   @Inject
   public MainViewModel(
@@ -86,7 +83,6 @@ public class MainViewModel extends AbstractViewModel {
     this.featureRepository = featureRepository;
     this.termsOfServiceRepository = termsOfServiceRepository;
     this.userRepository = userRepository;
-    this.navigator = navigator;
     this.popups = popups;
 
     // TODO: Move to background service.
@@ -134,16 +130,15 @@ public class MainViewModel extends AbstractViewModel {
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
-        onSignedOut();
-        break;
+        return onSignedOut();
       case SIGNING_IN:
         showProgressDialog();
         break;
       case SIGNED_IN:
         return onSignedIn();
       case ERROR:
-        onSignInError(signInState);
-        break;
+        Timber.d("Authentication error : %s", signInState.error());
+        return onSignInError();
       default:
         Timber.e("Unhandled state: %s", signInState.state());
         break;
@@ -159,37 +154,35 @@ public class MainViewModel extends AbstractViewModel {
     signInProgressDialogVisibility.postValue(false);
   }
 
-  private void onSignInError(SignInState signInState) {
-    Timber.d("Authentication error : %s", signInState.error());
+  private Observable<NavDirections> onSignInError() {
     popups.showError(R.string.sign_in_unsuccessful);
-    onSignedOut();
+    return onSignedOut();
   }
 
-  void onSignedOut() {
+  private Observable<NavDirections> onSignedOut() {
     hideProgressDialog();
     projectRepository.clearActiveProject();
     userRepository.clearUserPreferences();
-    navigator.navigate(SignInFragmentDirections.showSignInScreen());
+    return Observable.just(SignInFragmentDirections.showSignInScreen());
   }
 
-  public Observable<NavDirections> onSignedIn() {
+  private Observable<NavDirections> onSignedIn() {
+    hideProgressDialog();
+    if (termsOfServiceRepository.isTermsOfServiceAccepted()) {
+      return Observable.just(HomeScreenFragmentDirections.showHomeScreen());
+    } else {
+      return getRemoteTermsOfService()
+          .map(TermsOfService::getText)
+          .map(text -> SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(text))
+          .cast(NavDirections.class)
+          .toObservable();
+    }
+  }
+
+  private Maybe<TermsOfService> getRemoteTermsOfService() {
     return termsOfServiceRepository
         .getTermsOfService()
-        .onErrorResumeNext(this::onGetTermsOfServiceError)
-        .map(Optional::of)
-        .defaultIfEmpty(Optional.empty())
-        .map(this::onGetTermsOfServiceComplete)
-        .toObservable();
-  }
-
-  private NavDirections onGetTermsOfServiceComplete(Optional<TermsOfService> termsOfService) {
-    hideProgressDialog();
-    if (termsOfService.isEmpty() || termsOfServiceRepository.isTermsOfServiceAccepted()) {
-      return HomeScreenFragmentDirections.showHomeScreen();
-    } else {
-      return SignInFragmentDirections.showTermsOfService()
-          .setTermsOfServiceText(termsOfService.get().getText());
-    }
+        .onErrorResumeNext(this::onGetTermsOfServiceError);
   }
 
   /**
