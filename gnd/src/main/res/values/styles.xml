@@ -158,4 +158,8 @@
     <item name="android:layout_marginRight">@dimen/field_horizontal_margin</item>
   </style>
 
+  <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+    <item name="cornerSize">50%</item>
+  </style>
+
 </resources>
