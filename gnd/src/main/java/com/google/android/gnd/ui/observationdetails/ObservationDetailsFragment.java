@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog.Builder;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
@@ -43,6 +44,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -164,10 +166,24 @@ public class ObservationDetailsFragment extends AbstractFragment {
                 projectId, featureId, observationId));
         return true;
       case R.id.delete_observation_menu_item:
-        viewModel
-            .deleteCurrentObservation(projectId, featureId, observationId)
-            .as(autoDisposable(this))
-            .subscribe(() -> navigator.navigateUp());
+        new Builder(requireActivity())
+            .setTitle(R.string.observation_delete_confirmation_dialog_title)
+            .setMessage(R.string.observation_delete_confirmation_dialog_message)
+            .setPositiveButton(
+                R.string.delete_button_label,
+                (dialog, id) -> {
+                  viewModel
+                      .deleteCurrentObservation(projectId, featureId, observationId)
+                      .as(autoDisposable(this))
+                      .subscribe(() -> navigator.navigateUp());
+                })
+            .setNegativeButton(
+                R.string.cancel_button_label,
+                (dialog, id) -> {
+                  // Do nothing.
+                })
+            .create()
+            .show();
         return true;
       default:
         return false;

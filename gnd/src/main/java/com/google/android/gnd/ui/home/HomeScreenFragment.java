@@ -329,7 +329,22 @@ public class HomeScreenFragment extends AbstractFragment
         hideBottomSheet();
         Optional<Feature> featureToDelete = state.getFeature();
         if (featureToDelete.isPresent()) {
-          viewModel.deleteFeature(featureToDelete.get());
+          new Builder(requireActivity())
+              .setTitle(R.string.feature_delete_confirmation_dialog_title)
+              .setMessage(R.string.feature_delete_confirmation_dialog_message)
+              .setPositiveButton(
+                  R.string.delete_button_label,
+                  (dialog, id) -> {
+                    viewModel.deleteFeature(featureToDelete.get());
+                  })
+              .setNegativeButton(
+                  R.string.cancel_button_label,
+                  (dialog, id) -> {
+                    // Do nothing.
+                  })
+              .create()
+              .show();
+
         } else {
           Timber.e("Attempted to delete non-existent feature");
         }
