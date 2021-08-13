@@ -75,6 +75,7 @@ public abstract class UserEntity {
         .setPhotoUrl(photoUrl)
         .build();
   }
+
   public static Builder builder() {
     return new AutoValue_UserEntity.Builder();
   }
