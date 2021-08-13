@@ -16,16 +16,29 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="128dp"
-  android:background="@color/colorGrey300">
+  android:layout_height="wrap_content"
+  android:fitsSystemWindows="true"
+  android:orientation="vertical">
 
-  <ImageView
+  <androidx.constraintlayout.utils.widget.ImageFilterView
+    android:id="@+id/user_image"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:src="@mipmap/ic_launcher_round"
-    android:layout_gravity="center"/>
+    tools:background="@drawable/ground_logo" />
 
-</FrameLayout>
+  <TextView
+    android:id="@+id/user_display_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:text="User name" />
+
+  <TextView
+    android:id="@+id/user_email"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:text="User email" />
+
+</LinearLayout>
