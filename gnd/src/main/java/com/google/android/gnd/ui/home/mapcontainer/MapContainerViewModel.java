@@ -121,8 +121,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
-  @Hot private final Subject<Point> confirmButtonClicks = PublishSubject.create();
-  @Hot private final Subject<Nil> cancelButtonClicks = PublishSubject.create();
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
@@ -399,28 +397,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
   }
 
-  public void onConfirmButtonClick() {
-    confirmButtonClicks.onNext(getCameraPosition().getValue().getTarget());
-  }
-
-  public void onCancelButtonClick() {
-    cancelButtonClicks.onNext(Nil.NIL);
-  }
-
   public Observable<Nil> getSelectMapTypeClicks() {
     return selectMapTypeClicks;
   }
 
   public Observable<Point> getAddFeatureButtonClicks() {
     return addFeatureButtonClicks;
-  }
-
-  public Observable<Point> getConfirmButtonClicks() {
-    return confirmButtonClicks;
-  }
-
-  public Observable<Nil> getCancelButtonClicks() {
-    return cancelButtonClicks;
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
