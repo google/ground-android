@@ -61,8 +61,6 @@ android {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
         minSdkVersion 16
-        // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
-        // fix before increasing this value.
         targetSdkVersion 26
 
         // TODO(https://github.com/google/ground-android/pull/985): Calculate version code manually
@@ -198,7 +196,7 @@ dependencies {
 
     // Google Play Services.
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
 
     // GeoJSON support
