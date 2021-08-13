@@ -44,11 +44,17 @@ public abstract class UserEntity {
   @ColumnInfo(name = "display_name")
   public abstract String getDisplayName();
 
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "photo_url")
+  public abstract String getPhotoUrl();
+
   public static UserEntity fromUser(User user) {
     return UserEntity.builder()
         .setId(user.getId())
         .setEmail(user.getEmail())
         .setDisplayName(user.getDisplayName())
+        .setPhotoUrl(user.getPhotoUrl())
         .build();
   }
 
@@ -57,13 +63,18 @@ public abstract class UserEntity {
         .setId(u.getId())
         .setEmail(u.getEmail())
         .setDisplayName(u.getDisplayName())
+        .setPhotoUrl(u.getPhotoUrl())
         .build();
   }
 
-  public static UserEntity create(String id, String email, String displayName) {
-    return builder().setId(id).setEmail(email).setDisplayName(displayName).build();
+  public static UserEntity create(String id, String email, String displayName, String photoUrl) {
+    return builder()
+        .setId(id)
+        .setEmail(email)
+        .setDisplayName(displayName)
+        .setPhotoUrl(photoUrl)
+        .build();
   }
-
   public static Builder builder() {
     return new AutoValue_UserEntity.Builder();
   }
@@ -76,6 +87,8 @@ public abstract class UserEntity {
     public abstract Builder setEmail(String email);
 
     public abstract Builder setDisplayName(String displayName);
+
+    public abstract Builder setPhotoUrl(String photoUrl);
 
     public abstract UserEntity build();
   }
