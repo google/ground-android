@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model;
 
+import androidx.annotation.Nullable;
 import com.google.auto.value.AutoValue;
 
 /** Represents a single application user. */
@@ -28,6 +29,7 @@ public abstract class User {
 
   public abstract String getDisplayName();
 
+  @Nullable
   public abstract String getPhotoUrl();
 
   public abstract Builder toBuilder();
@@ -47,7 +49,7 @@ public abstract class User {
 
     public abstract Builder setDisplayName(String newDisplayName);
 
-    public abstract Builder setPhotoUrl(String newPhotoUrl);
+    public abstract Builder setPhotoUrl(@Nullable String newPhotoUrl);
 
     public abstract User build();
   }

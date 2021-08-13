@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -44,8 +45,9 @@ public abstract class UserEntity {
   @ColumnInfo(name = "display_name")
   public abstract String getDisplayName();
 
+  // TODO(https://github.com/google/ground-android/issues/964): Save to remote db
   @CopyAnnotations
-  @NonNull
+  @Nullable
   @ColumnInfo(name = "photo_url")
   public abstract String getPhotoUrl();
 
@@ -89,7 +91,7 @@ public abstract class UserEntity {
 
     public abstract Builder setDisplayName(String displayName);
 
-    public abstract Builder setPhotoUrl(String photoUrl);
+    public abstract Builder setPhotoUrl(@Nullable String photoUrl);
 
     public abstract UserEntity build();
   }
