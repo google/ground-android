@@ -26,52 +26,31 @@
       type="com.google.android.gnd.model.User" />
   </data>
 
-  <RelativeLayout
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorGrey300"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
     <com.google.android.material.imageview.ShapeableImageView
       android:id="@+id/user_image"
-      android:layout_width="@dimen/nav_drawer_profile_image_size"
-      android:layout_height="@dimen/nav_drawer_profile_image_size"
-      android:layout_alignParentStart="true"
-      android:layout_alignParentLeft="true"
-      android:layout_alignParentTop="true"
-      android:layout_marginStart="24dp"
-      android:layout_marginLeft="24dp"
-      android:layout_marginTop="24dp"
+      style="@style/Header.Image"
       app:imageUri="@{user.photoUri}"
       app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
       tools:background="@drawable/ground_logo" />
 
     <TextView
       android:id="@+id/user_display_name"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_below="@id/user_image"
-      android:layout_alignStart="@+id/user_image"
-      android:layout_alignLeft="@+id/user_image"
-      android:layout_marginTop="24dp"
+      style="@style/Header.PrimaryText"
       android:text="@{user.displayName}"
-      android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-      android:textColor="@color/colorForeground"
-      android:textStyle="bold"
       tools:text="User name" />
 
     <TextView
       android:id="@+id/user_email"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_below="@id/user_display_name"
-      android:layout_alignStart="@+id/user_image"
-      android:layout_alignLeft="@+id/user_image"
-      android:layout_marginBottom="24dp"
+      style="@style/Header.SecondaryText"
       android:text="@{user.email}"
-      android:textAppearance="@style/TextAppearance.AppCompat.Small"
-      android:textColor="@color/colorGrey800"
       tools:text="User email" />
 
-  </RelativeLayout>
+  </LinearLayout>
 </layout>

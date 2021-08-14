@@ -158,8 +158,37 @@
     <item name="android:layout_marginRight">@dimen/field_horizontal_margin</item>
   </style>
 
+  <!-- NavDrawer Header -->
   <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
     <item name="cornerSize">50%</item>
+  </style>
+
+  <style name="Header">
+    <item name="android:layout_marginStart">24dp</item>
+    <item name="android:layout_marginLeft">24dp</item>
+  </style>
+
+  <style name="Header.Image">
+    <item name="android:layout_width">@dimen/nav_drawer_profile_image_size</item>
+    <item name="android:layout_height">@dimen/nav_drawer_profile_image_size</item>
+    <item name="android:layout_marginTop">24dp</item>
+  </style>
+
+  <style name="Header.PrimaryText">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_marginTop">24dp</item>
+    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Headline</item>
+    <item name="android:textColor">@color/colorForeground</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="Header.SecondaryText">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_marginBottom">24dp</item>
+    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
+    <item name="android:textColor">@color/colorGrey800</item>
   </style>
 
 </resources>
