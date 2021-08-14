@@ -16,50 +16,62 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:background="@color/colorGrey300"
-  android:fitsSystemWindows="true">
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <com.google.android.material.imageview.ShapeableImageView
-    android:id="@+id/user_image"
-    android:layout_width="@dimen/nav_drawer_profile_image_size"
-    android:layout_height="@dimen/nav_drawer_profile_image_size"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentTop="true"
-    android:layout_marginStart="24dp"
-    android:layout_marginLeft="24dp"
-    android:layout_marginTop="24dp"
-    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-    tools:background="@drawable/ground_logo" />
+  <data>
+    <variable
+      name="user"
+      type="com.google.android.gnd.model.User" />
+  </data>
 
-  <TextView
-    android:id="@+id/user_display_name"
-    android:layout_width="wrap_content"
+  <RelativeLayout
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@id/user_image"
-    android:layout_alignStart="@+id/user_image"
-    android:layout_alignLeft="@+id/user_image"
-    android:layout_marginTop="24dp"
-    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-    android:textColor="@color/colorForeground"
-    android:textStyle="bold"
-    tools:text="User name" />
+    android:background="@color/colorGrey300"
+    android:fitsSystemWindows="true">
 
-  <TextView
-    android:id="@+id/user_email"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@id/user_display_name"
-    android:layout_alignStart="@+id/user_image"
-    android:layout_alignLeft="@+id/user_image"
-    android:layout_marginBottom="24dp"
-    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-    android:textColor="@color/colorGrey800"
-    tools:text="User email" />
+    <com.google.android.material.imageview.ShapeableImageView
+      android:id="@+id/user_image"
+      android:layout_width="@dimen/nav_drawer_profile_image_size"
+      android:layout_height="@dimen/nav_drawer_profile_image_size"
+      android:layout_alignParentStart="true"
+      android:layout_alignParentLeft="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginStart="24dp"
+      android:layout_marginLeft="24dp"
+      android:layout_marginTop="24dp"
+      app:imageUri="@{user.photoUri}"
+      app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+      tools:background="@drawable/ground_logo" />
 
-</RelativeLayout>
+    <TextView
+      android:id="@+id/user_display_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/user_image"
+      android:layout_alignStart="@+id/user_image"
+      android:layout_alignLeft="@+id/user_image"
+      android:layout_marginTop="24dp"
+      android:text="@{user.displayName}"
+      android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+      android:textColor="@color/colorForeground"
+      android:textStyle="bold"
+      tools:text="User name" />
+
+    <TextView
+      android:id="@+id/user_email"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/user_display_name"
+      android:layout_alignStart="@+id/user_image"
+      android:layout_alignLeft="@+id/user_image"
+      android:layout_marginBottom="24dp"
+      android:text="@{user.email}"
+      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+      android:textColor="@color/colorGrey800"
+      tools:text="User email" />
+
+  </RelativeLayout>
+</layout>
