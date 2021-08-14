@@ -36,8 +36,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,6 +49,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
+import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -241,15 +240,16 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void updateNavHeader() {
     View navHeader = binding.navView.getHeaderView(0);
+    NavDrawerHeaderBinding headerBinding = NavDrawerHeaderBinding.bind(navHeader);
     User user = authenticationManager.getCurrentUser();
 
-    TextView userDisplayNameTv = navHeader.findViewById(R.id.user_display_name);
-    TextView userEmailTv = navHeader.findViewById(R.id.user_email);
-    ImageView userPhotoIv = navHeader.findViewById(R.id.user_image);
+    headerBinding.userDisplayName.setText(user.getDisplayName());
+    headerBinding.userEmail.setText(user.getEmail());
 
-    userDisplayNameTv.setText(user.getDisplayName());
-    userEmailTv.setText(user.getEmail());
-    Picasso.get().load(user.getPhotoUrl()).placeholder(R.drawable.ground_logo).into(userPhotoIv);
+    Picasso.get()
+        .load(user.getPhotoUrl())
+        .placeholder(R.drawable.ground_logo)
+        .into(headerBinding.userImage);
   }
 
   @Override
