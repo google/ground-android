@@ -172,6 +172,7 @@
     <item name="android:layout_width">@dimen/nav_drawer_profile_image_size</item>
     <item name="android:layout_height">@dimen/nav_drawer_profile_image_size</item>
     <item name="android:layout_marginTop">24dp</item>
+    <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
   </style>
 
   <style name="Header.PrimaryText">

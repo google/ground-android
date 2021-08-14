@@ -37,7 +37,6 @@
       android:id="@+id/user_image"
       style="@style/Header.Image"
       app:imageUri="@{user.photoUri}"
-      app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
       tools:background="@drawable/ground_logo" />
 
     <TextView
