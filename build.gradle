@@ -101,3 +101,9 @@ tasks.dependencyUpdates {
     outputFormatter = "json,plain"
     outputDir = "gnd/build/reports/dependencyUpdates"
 }
+
+ext {
+    androidCompileSdk = 30
+    androidMinSdk = 16
+    androidTargetSdk = 30
+}
