@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.model;
 
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.auto.value.AutoValue;
 
@@ -32,10 +31,6 @@ public abstract class User {
 
   @Nullable
   public abstract String getPhotoUrl();
-
-  public Uri getPhotoUri() {
-    return Uri.parse(getPhotoUrl());
-  }
 
   public abstract Builder toBuilder();
 

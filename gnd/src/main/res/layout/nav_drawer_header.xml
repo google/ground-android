@@ -36,7 +36,7 @@
     <com.google.android.material.imageview.ShapeableImageView
       android:id="@+id/user_image"
       style="@style/NavDrawerHeader.Image"
-      app:imageUri="@{user.photoUri}"
+      app:imageUrl="@{user.photoUrl}"
       tools:background="@drawable/ground_logo" />
 
     <TextView
