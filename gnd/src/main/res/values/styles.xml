@@ -163,19 +163,19 @@
     <item name="cornerSize">50%</item>
   </style>
 
-  <style name="Header">
+  <style name="NavDrawerHeader">
     <item name="android:layout_marginStart">24dp</item>
     <item name="android:layout_marginLeft">24dp</item>
   </style>
 
-  <style name="Header.Image">
+  <style name="NavDrawerHeader.Image">
     <item name="android:layout_width">@dimen/nav_drawer_profile_image_size</item>
     <item name="android:layout_height">@dimen/nav_drawer_profile_image_size</item>
     <item name="android:layout_marginTop">24dp</item>
     <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
   </style>
 
-  <style name="Header.PrimaryText">
+  <style name="NavDrawerHeader.PrimaryText">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:layout_marginTop">24dp</item>
@@ -184,7 +184,7 @@
     <item name="android:textStyle">bold</item>
   </style>
 
-  <style name="Header.SecondaryText">
+  <style name="NavDrawerHeader.SecondaryText">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:layout_marginBottom">24dp</item>

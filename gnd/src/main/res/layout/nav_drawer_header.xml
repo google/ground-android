@@ -35,19 +35,19 @@
 
     <com.google.android.material.imageview.ShapeableImageView
       android:id="@+id/user_image"
-      style="@style/Header.Image"
+      style="@style/NavDrawerHeader.Image"
       app:imageUri="@{user.photoUri}"
       tools:background="@drawable/ground_logo" />
 
     <TextView
       android:id="@+id/user_display_name"
-      style="@style/Header.PrimaryText"
+      style="@style/NavDrawerHeader.PrimaryText"
       android:text="@{user.displayName}"
       tools:text="User name" />
 
     <TextView
       android:id="@+id/user_email"
-      style="@style/Header.SecondaryText"
+      style="@style/NavDrawerHeader.SecondaryText"
       android:text="@{user.email}"
       tools:text="User email" />
 
