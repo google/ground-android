@@ -67,7 +67,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Inject MbtilesFootprintParser mbtilesFootprintParser;
   @Inject MapProvider mapProvider;
   @Inject MapsRepository mapsRepository;
-
+  PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
@@ -78,7 +78,7 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
-    PolygonDrawingViewModel polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
+    polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
@@ -161,6 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
   private void onMapReady(MapAdapter map) {
     Timber.d("MapAdapter ready. Updating subscriptions");
     mapContainerViewModel.setLocationLockEnabled(true);
+    polygonDrawingViewModel.setLocationLockEnabled(true);
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
@@ -197,16 +198,6 @@ public class MapContainerFragment extends AbstractFragment {
               mapsRepository.saveMapType(mapType);
               dialog.dismiss();
             })
-        .setCancelable(true)
-        .create()
-        .show();
-  }
-
-  private void addPolygonVertex(Point point) {
-    new AlertDialog.Builder(requireContext())
-        .setTitle(R.string.move_point_confirmation)
-        .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
-        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
         .setCancelable(true)
         .create()
         .show();

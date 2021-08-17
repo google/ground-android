@@ -22,7 +22,6 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
-import android.location.Location;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -38,7 +37,6 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -55,7 +53,6 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -76,11 +73,6 @@ import timber.log.Timber;
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
-  /**
-   * DISTANCE_THRESHOLD check if the first vertex of polygon is within 10 meters of distance from
-   * the current pointing location.
-   */
-  public static final int DISTANCE_THRESHOLD = 10;
   // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
   private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
@@ -99,16 +91,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
-  private final List<Point> vertices = new ArrayList<>();
-
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
   /** Polyline drawn by the user but not yet saved as polygon. */
-  @Hot
-  private final PublishProcessor<ImmutableList<Point>> drawnPolylineVertices =
-      PublishProcessor.create();
-
   @Hot
   private final PublishProcessor<PolygonFeature> drawnPolylineFeature =
       PublishProcessor.create();
@@ -116,12 +102,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
-  private final MutableLiveData<Boolean> completeButtonVisible = new MutableLiveData<>(false);
-
-  private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
-
-  @Hot(replays = true)
-  private final MutableLiveData<Boolean> addVertexButtonVisible = new MutableLiveData<>(true);
+  private final MutableLiveData<Integer> addPolygonVisible = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -140,13 +121,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final @Dimension int selectedPolygonStrokeWidth;
   /** The currently selected feature on the map. */
   private final BehaviorProcessor<Optional<Feature>> selectedFeature =
-      BehaviorProcessor.createDefault(Optional.empty());
-
-  /** The currently selected layer for the polygon drawing. */
-  private final BehaviorProcessor<Optional<Layer>> selectedLayer =
-      BehaviorProcessor.createDefault(Optional.empty());
-
-  private final BehaviorProcessor<Optional<Project>> selectedProject =
       BehaviorProcessor.createDefault(Optional.empty());
 
   /* UI Clicks */
@@ -197,18 +171,9 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(this::toMapFeatures),
             selectedFeature,
             this::updateSelectedFeature);
-//    Flowable<ImmutableSet<MapFeature>> transientFeatures =
-//        drawnPolylineVertices.map(
-//            vertices ->
-//                ImmutableSet.of(
-//                    toMapPolygon(
-//                        featureRepository.newPolygonFeature(
-//                            selectedProject.getValue().get(),
-//                            selectedLayer.getValue().get(),
-//                            vertices))));
 
     Flowable<ImmutableSet<MapFeature>> transientFeatures =
-        drawnPolylineFeature.map(feature-> ImmutableSet.of(
+        drawnPolylineFeature.map(feature -> ImmutableSet.of(
             toMapPolygon(feature)));
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
@@ -256,10 +221,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Project::getId)
         .flatMap(projectRepository::getLastCameraPosition)
         .ifPresent(this::panAndZoomCamera);
-  }
-
-  private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
-    drawnPolylineVertices.onNext(vertices);
   }
 
   public void updateDrawnPolygonFeature(PolygonFeature feature) {
@@ -400,33 +361,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraPosition;
   }
 
-  private void checkPointNearVertex(CameraPosition position) {
-    if (isPointNearFirstVertex(position.getTarget())) {
-      updatePolygonDrawingState(PolygonDrawing.COMPLETED);
-      vertices.add(vertices.get(0));
-      updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    } else {
-      if (vertices.get(0) != vertices.get(vertices.size() - 1)) {
-        vertices.add(position.getTarget());
-        updatePolygonDrawingState(PolygonDrawing.STARTED);
-      }
-    }
-  }
-
-  private boolean isPointNearFirstVertex(Point point) {
-    if (vertices.get(0) == vertices.get(vertices.size() - 1)) {
-      return false;
-    }
-    float[] distance = new float[1];
-    Location.distanceBetween(
-        point.getLatitude(),
-        point.getLongitude(),
-        vertices.get(0).getLatitude(),
-        vertices.get(0).getLongitude(),
-        distance);
-    return distance[0] < DISTANCE_THRESHOLD;
-  }
-
   public LiveData<BooleanOrError> getLocationLockState() {
     return locationLockState;
   }
@@ -442,31 +376,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
     cameraPosition.setValue(newCameraPosition);
-    if (vertices.size() >= 3) {
-      checkPointNearVertex(newCameraPosition);
-    }
     Loadable.getValue(projectLoadingState)
         .ifPresent(
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
-  }
-
-  public void onCompletePolygonButtonClick() {
-    setViewMode(Mode.DEFAULT);
-    featureRepository.newPolygonFeature(
-        selectedProject.getValue().get(),
-        selectedLayer.getValue().get(),
-        ImmutableList.<Point>builder().addAll(vertices).build());
-    vertices.clear();
-  }
-
-  public void removeLastVertex() {
-    if (vertices.isEmpty()) {
-      setViewMode(Mode.DEFAULT);
-      return;
-    }
-    vertices.remove(vertices.size() - 1);
-    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    updatePolygonDrawingState(PolygonDrawing.STARTED);
   }
 
   public void onMapDrag() {
@@ -504,12 +416,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
-    addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON);
-  }
-
-  private void updatePolygonDrawingState(PolygonDrawing polygonDrawing) {
-    addVertexButtonVisible.postValue(polygonDrawing == PolygonDrawing.STARTED);
-    completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED);
+    addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON ? VISIBLE : GONE);
   }
 
   public void onMapTypeButtonClicked() {
@@ -518,15 +425,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick() {
     addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
-  }
-
-  public void onAddPolygonBtnClick() {
-    if (vertices.size() >= 3) {
-      checkPointNearVertex(getCameraPosition().getValue());
-    } else {
-      vertices.add(getCameraPosition().getValue().getTarget());
-    }
-    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
   public void onConfirmButtonClick() {
@@ -561,16 +459,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public LiveData<Boolean> isAddPolygonButtonVisible() {
+  public LiveData<Integer> isAddPolygonButtonVisible() {
     return addPolygonVisible;
-  }
-
-  public LiveData<Boolean> getPolygonDrawingCompletedVisibility() {
-    return completeButtonVisible;
-  }
-
-  public LiveData<Boolean> getAddPolygonPointsStartedVisibility() {
-    return addVertexButtonVisible;
   }
 
   public Optional<Feature> getReposFeature() {
@@ -594,14 +484,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     return featureAddButtonBackgroundTint;
   }
 
-  public void setSelectedLayer(Optional<Layer> selectedLayer) {
-    this.selectedLayer.onNext(selectedLayer);
-  }
-
-  public void setSelectedProject(Optional<Project> selectedProject) {
-    this.selectedProject.onNext(selectedProject);
-  }
-
   public LiveData<Boolean> getLocationLockEnabled() {
     return locationLockEnabled;
   }
@@ -614,11 +496,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     DEFAULT,
     REPOSITION,
     DRAW_POLYGON
-  }
-
-  public enum PolygonDrawing {
-    STARTED,
-    COMPLETED
   }
 
   static class CameraUpdate {

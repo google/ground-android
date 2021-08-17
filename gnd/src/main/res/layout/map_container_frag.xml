@@ -67,7 +67,7 @@
         android:layout_height="match_parent"
         android:id="@+id/polygon_drawing_controls"
         class="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingView"
-        app:visible="@{viewModel.isAddPolygonButtonVisible()}" />
+        android:visibility="@{viewModel.isAddPolygonButtonVisible()}" />
     </FrameLayout>
   </FrameLayout>
 </layout>

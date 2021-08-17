@@ -66,7 +66,6 @@ import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialog
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
-import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.PolygonDrawing;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;

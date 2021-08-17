@@ -69,7 +69,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:visible="@{viewModel.getAddPolygonPointsStartedVisibility()}" />
+      android:visibility="@{viewModel.getAddPolygonPointsStartedVisibility()}" />
 
     <Button
       android:id="@+id/complete_polygon_button"
@@ -83,13 +83,14 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:visible="@{viewModel.getPolygonDrawingCompletedVisibility()}" />
+      android:visibility="@{viewModel.getPolygonDrawingCompletedVisibility()}" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/current_location_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_margin="16dp"
+      android:enabled="@{viewModel.getLocationLockEnabled()}"
       android:onClick="@{() -> viewModel.onLocationLockClick()}"
       app:backgroundTint="@android:color/white"
       app:fabSize="normal"
