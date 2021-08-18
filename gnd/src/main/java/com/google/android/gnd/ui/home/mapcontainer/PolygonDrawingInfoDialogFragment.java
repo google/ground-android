@@ -30,13 +30,13 @@ import org.jetbrains.annotations.NotNull;
 @AndroidEntryPoint
 public class PolygonDrawingInfoDialogFragment extends AbstractDialogFragment {
 
-  private final Consumer<Nil> polygonDrawingAcceptedConsumer;
+  private final Consumer<Nil> onGetStartedButtonClick;
 
   @SuppressWarnings("NullAway")
   DialogPolygonInfoBinding binding;
 
-  public PolygonDrawingInfoDialogFragment(Consumer<Nil> polygonDrawingAcceptedConsumer) {
-    this.polygonDrawingAcceptedConsumer = polygonDrawingAcceptedConsumer;
+  public PolygonDrawingInfoDialogFragment(Consumer<Nil> onGetStartedButtonClick) {
+    this.onGetStartedButtonClick = onGetStartedButtonClick;
   }
 
   @NotNull
@@ -50,7 +50,7 @@ public class PolygonDrawingInfoDialogFragment extends AbstractDialogFragment {
     binding.getStartedButton.setOnClickListener(
         v -> {
           dismiss();
-          polygonDrawingAcceptedConsumer.accept(Nil.NIL);
+          onGetStartedButtonClick.accept(Nil.NIL);
         });
     builder.setView(binding.getRoot());
     binding.cancelButton.setOnClickListener(v -> dismiss());

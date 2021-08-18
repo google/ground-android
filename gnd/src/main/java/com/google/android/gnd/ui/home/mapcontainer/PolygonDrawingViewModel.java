@@ -55,13 +55,10 @@ import timber.log.Timber;
 @SharedViewModel
 public class PolygonDrawingViewModel extends AbstractViewModel {
 
-  /**
-   * DISTANCE_THRESHOLD check if the first vertex of polygon is within 10 meters of distance from
-   * the current pointing location.
-   */
+  /** Minimum distance (in metres) between points to be considered as non-overlapping. */
   public static final int DISTANCE_THRESHOLD = 10;
 
-  @Hot private final Subject<Nil> defaultState = PublishSubject.create();
+  @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
   private final MutableLiveData<Integer> addVertexButtonVisible = new MutableLiveData<>(VISIBLE);
@@ -118,8 +115,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   @Hot
-  public Observable<Nil> getDefaultState() {
-    return defaultState;
+  public Observable<Nil> getDefaultMapMode() {
+    return defaultMapMode;
   }
 
   public void onCameraMoved(Point newTarget) {
@@ -135,7 +132,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public void removeLastVertex() {
     if (vertices.isEmpty()) {
-      defaultState.onNext(Nil.NIL);
+      defaultMapMode.onNext(Nil.NIL);
       return;
     }
     vertices.remove(vertices.size() - 1);
@@ -202,7 +199,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   public void onCompletePolygonButtonClick() {
-    defaultState.onNext(Nil.NIL);
+    defaultMapMode.onNext(Nil.NIL);
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
     vertices.clear();
   }

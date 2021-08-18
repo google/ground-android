@@ -115,7 +115,7 @@ public class MapContainerFragment extends AbstractFragment {
         .subscribe(mapContainerViewModel::queueTileProvider);
 
     polygonDrawingViewModel
-        .getDefaultState()
+        .getDefaultMapMode()
         .as(autoDisposable(this))
         .subscribe(__ -> setDefaultMode());
     polygonDrawingViewModel
