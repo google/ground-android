@@ -46,6 +46,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
+import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureType;
@@ -246,7 +247,14 @@ public class HomeScreenFragment extends AbstractFragment
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
 
+    updateNavHeader();
     setUpBottomSheetBehavior();
+  }
+
+  private void updateNavHeader() {
+    View navHeader = binding.navView.getHeaderView(0);
+    NavDrawerHeaderBinding headerBinding = NavDrawerHeaderBinding.bind(navHeader);
+    headerBinding.setUser(authenticationManager.getCurrentUser());
   }
 
   @Override
