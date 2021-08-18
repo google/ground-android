@@ -48,6 +48,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
@@ -164,7 +165,16 @@ public class HomeScreenFragment extends AbstractFragment
     ImmutableList<Layer> layers = args.first;
     Point point = args.second;
     addFeatureDialogFragment.show(
-        layers, getChildFragmentManager(), layer -> showFeatureTypeDialog(layer, point));
+        layers,
+        getChildFragmentManager(),
+        layer -> {
+          if (layer.getContributorsCanAdd().contains(FeatureType.POINT)
+              && layer.getContributorsCanAdd().contains(FeatureType.POLYGON)) {
+            showFeatureTypeDialog(layer, point);
+          } else {
+            viewModel.addFeature(layer, point);
+          }
+        });
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
@@ -495,8 +505,8 @@ public class HomeScreenFragment extends AbstractFragment
   private void showFeatureTypeDialog(Layer layer, Point point) {
     featureDataTypeSelectorDialogFragment =
         new FeatureDataTypeSelectorDialogFragment(
-            featureSelected -> {
-              if (featureSelected == 0) {
+            featureType -> {
+              if (featureType == 0) {
                 viewModel.addFeature(layer, point);
               } else {
                 showPolygonInfoDialog(layer);
@@ -509,17 +519,18 @@ public class HomeScreenFragment extends AbstractFragment
   private void showPolygonInfoDialog(Layer layer) {
     polygonDrawingInfoDialogFragment =
         new PolygonDrawingInfoDialogFragment(
-            __ -> viewModel
-                .getActiveProject()
-                .ifPresentOrElse(
-                    project -> {
-                      polygonDrawingViewModel.setSelectedProject(Optional.of(project));
-                      polygonDrawingViewModel.setSelectedLayer(Optional.of(layer));
-                      mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-                    },
-                    () -> {
-                      throw new IllegalStateException("Empty project");
-                    }));
+            __ ->
+                viewModel
+                    .getActiveProject()
+                    .ifPresentOrElse(
+                        project -> {
+                          polygonDrawingViewModel.setSelectedProject(Optional.of(project));
+                          polygonDrawingViewModel.setSelectedLayer(Optional.of(layer));
+                          mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+                        },
+                        () -> {
+                          throw new IllegalStateException("Empty project");
+                        }));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }

@@ -57,6 +57,8 @@ class LayerConverter {
     switch (stringValue) {
       case "points":
         return FeatureType.POINT;
+      case "polygon":
+        return FeatureType.POLYGON;
       default:
         return FeatureType.UNKNOWN;
     }
