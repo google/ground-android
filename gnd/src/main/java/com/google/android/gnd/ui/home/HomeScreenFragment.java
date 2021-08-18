@@ -325,26 +325,24 @@ public class HomeScreenFragment extends AbstractFragment
       return false;
     }
 
-    switch (item.getItemId()) {
-      case R.id.move_feature_menu_item:
-        hideBottomSheet();
-        mapContainerFragment.setRepositionMode(state.getFeature());
-        return false;
-      case R.id.delete_feature_menu_item:
-        hideBottomSheet();
-        Optional<Feature> featureToDelete = state.getFeature();
-        if (featureToDelete.isPresent()) {
-          viewModel.deleteFeature(featureToDelete.get());
-        } else {
-          Timber.e("Attempted to delete non-existent feature");
-        }
-        return true;
-      case R.id.feature_properties_menu_item:
-        showFeatureProperties();
-        return true;
-      default:
-        return false;
+    if (item.getItemId() == R.id.move_feature_menu_item) {
+      hideBottomSheet();
+      mapContainerFragment.setRepositionMode(state.getFeature());
+    } else if (item.getItemId() == R.id.delete_feature_menu_item) {
+      hideBottomSheet();
+      Optional<Feature> featureToDelete = state.getFeature();
+      if (featureToDelete.isPresent()) {
+        viewModel.deleteFeature(featureToDelete.get());
+      } else {
+        Timber.e("Attempted to delete non-existent feature");
+      }
+    } else if (item.getItemId() == R.id.feature_properties_menu_item) {
+      showFeatureProperties();
+    } else {
+      return false;
     }
+
+    return true;
   }
 
   @Override
@@ -548,33 +546,19 @@ public class HomeScreenFragment extends AbstractFragment
     if (item.getGroupId() == R.id.group_join_project) {
       Project selectedProject = projects.get(item.getOrder());
       projectSelectorViewModel.activateOfflineProject(selectedProject.getId());
-      closeDrawer();
-    } else {
-      switch (item.getItemId()) {
-        case R.id.nav_join_project:
-          showProjectSelector();
-          closeDrawer();
-          break;
-        case R.id.sync_status:
-          viewModel.showSyncStatus();
-          break;
-        case R.id.nav_offline_areas:
-          showOfflineAreas();
-          closeDrawer();
-          break;
-        case R.id.nav_settings:
-          viewModel.showSettings();
-          closeDrawer();
-          break;
-        case R.id.nav_sign_out:
-          authenticationManager.signOut();
-          break;
-        default:
-          Timber.e("Unhandled id: %s", item.getItemId());
-          break;
-      }
+    } else if (item.getItemId() == R.id.nav_join_project) {
+      showProjectSelector();
+    } else if (item.getItemId() == R.id.sync_status) {
+      viewModel.showSyncStatus();
+    } else if (item.getItemId() == R.id.nav_offline_areas) {
+      showOfflineAreas();
+    } else if (item.getItemId() == R.id.nav_settings) {
+      viewModel.showSettings();
+    } else if (item.getItemId() == R.id.nav_sign_out) {
+      authenticationManager.signOut();
     }
-    return false;
+    closeDrawer();
+    return true;
   }
 
   private void onActivateProjectFailure(Throwable throwable) {

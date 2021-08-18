@@ -18,7 +18,6 @@ package com.google.android.gnd.system;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-import android.annotation.SuppressLint;
 import android.location.Location;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gnd.model.feature.Point;
@@ -29,7 +28,6 @@ import com.google.android.gnd.system.rx.RxLocationCallback;
 import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
@@ -49,9 +47,10 @@ public class LocationManager {
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
   private final RxFusedLocationProviderClient locationClient;
+  private final RxLocationCallback locationUpdateCallback;
+
   @Hot(replays = true)
   private final Subject<Location> locationUpdates = BehaviorSubject.create();
-  private final RxLocationCallback locationUpdateCallback;
 
   @Inject
   public LocationManager(
@@ -64,7 +63,7 @@ public class LocationManager {
     this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
   }
 
-  private static Point toPoint(Location location) {
+  public static Point toPoint(Location location) {
     return Point.newBuilder()
         .setLatitude(location.getLatitude())
         .setLongitude(location.getLongitude())
@@ -75,13 +74,12 @@ public class LocationManager {
    * Returns the location update stream. New subscribers and downstream subscribers that can't keep
    * up will only see the latest location.
    */
-  public Flowable<Point> getLocationUpdates() {
+  public Flowable<Location> getLocationUpdates() {
     // There sometimes noticeable latency between when location update request succeeds and when
     // the first location update is received. Requesting the last know location is usually
     // immediate, so we merge into the stream to reduce perceived latency.
-    return getLastLocation()
-        .toObservable()
-        .mergeWith(locationUpdates.map(LocationManager::toPoint))
+    return locationUpdates
+        .startWith(locationClient.getLastLocation().toObservable())
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
@@ -110,10 +108,5 @@ public class LocationManager {
         .toSingle(BooleanOrError::falseValue)
         .doOnError(t -> Timber.e(t, "disableLocationUpdates"))
         .onErrorReturn(__ -> BooleanOrError.falseValue());
-  }
-
-  @SuppressLint("MissingPermission")
-  private Maybe<Point> getLastLocation() {
-    return locationClient.getLastLocation().map(LocationManager::toPoint);
   }
 }
