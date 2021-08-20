@@ -69,6 +69,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawing;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -526,6 +527,7 @@ public class HomeScreenFragment extends AbstractFragment
                         project -> {
                           polygonDrawingViewModel.setSelectedProject(Optional.of(project));
                           polygonDrawingViewModel.setSelectedLayer(Optional.of(layer));
+                          polygonDrawingViewModel.updateDrawingState(PolygonDrawing.STARTED);
                           mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
                         },
                         () -> {

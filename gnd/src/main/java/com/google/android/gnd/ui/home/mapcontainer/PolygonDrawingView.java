@@ -36,14 +36,14 @@ import javax.inject.Inject;
 public class PolygonDrawingView extends AbstractView {
 
   private final PolygonDrawingViewModel viewModel;
+  private final PolygonDrawingControlsBinding binding;
   @Inject MapProvider mapProvider;
 
   public PolygonDrawingView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
 
     viewModel = getViewModel(PolygonDrawingViewModel.class);
-    PolygonDrawingControlsBinding binding =
-        (PolygonDrawingControlsBinding) inflate(R.layout.polygon_drawing_controls);
+    binding = (PolygonDrawingControlsBinding) inflate(R.layout.polygon_drawing_controls);
     binding.setViewModel(viewModel);
   }
 
@@ -58,5 +58,15 @@ public class PolygonDrawingView extends AbstractView {
         .onBackpressureLatest()
         .as(disposeOnDestroy(getActivity()))
         .subscribe(viewModel::onCameraMoved);
+
+    // Using this approach as data binding approach did not work with view.
+    viewModel
+        .getPolygonDrawingCompletedVisibility()
+        .observe(
+            getActivity(),
+            visible -> {
+              binding.completePolygonButton.setVisibility(visible == 4 ? INVISIBLE : VISIBLE);
+              binding.addPolygonButton.setVisibility(visible == 4 ? VISIBLE : INVISIBLE);
+            });
   }
 }

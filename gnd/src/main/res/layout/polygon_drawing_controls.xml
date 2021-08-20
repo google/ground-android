@@ -68,8 +68,7 @@
       android:textColor="@color/colorAccent"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      android:visibility="@{viewModel.getAddPolygonPointsStartedVisibility()}" />
+      app:layout_constraintStart_toStartOf="parent" />
 
     <Button
       android:id="@+id/complete_polygon_button"
@@ -82,8 +81,7 @@
       android:textColor="@color/colorAccent"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      android:visibility="@{viewModel.getPolygonDrawingCompletedVisibility()}" />
+      app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/current_location_button"

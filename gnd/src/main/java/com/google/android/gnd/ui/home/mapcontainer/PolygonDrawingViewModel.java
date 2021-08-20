@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
@@ -61,7 +60,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
-  private final MutableLiveData<Integer> addVertexButtonVisible = new MutableLiveData<>(VISIBLE);
   /** Polyline drawn by the user but not yet saved as polygon. */
   @Hot
   private final MutableLiveData<PolygonFeature> drawnPolylineVertices = new MutableLiveData<>();
@@ -212,9 +210,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return completeButtonVisible;
   }
 
-  private void updateDrawingState(PolygonDrawing polygonDrawing) {
-    addVertexButtonVisible.postValue(polygonDrawing == PolygonDrawing.STARTED ? VISIBLE : GONE);
-    completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED ? VISIBLE : GONE);
+  public void updateDrawingState(PolygonDrawing polygonDrawing) {
+    completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED
+        ? VISIBLE : INVISIBLE);
   }
 
   private boolean isLocationLockEnabled() {
@@ -222,11 +220,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   public LiveData<Boolean> getLocationLockEnabled() {
+    // TODO : current location is not working value is always false.
     return locationLockEnabled;
-  }
-
-  public LiveData<Integer> getAddPolygonPointsStartedVisibility() {
-    return addVertexButtonVisible;
   }
 
   public LiveData<Integer> getIconTint() {
