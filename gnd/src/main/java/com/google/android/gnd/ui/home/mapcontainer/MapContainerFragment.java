@@ -166,7 +166,7 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
-    mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
+    mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addLocalTileOverlays);
 
     // TODO: Do this the RxJava way
     map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
