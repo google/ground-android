@@ -29,6 +29,7 @@ import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
 import com.google.android.gnd.persistence.sync.TileSourceDownloadWorkManager;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -58,6 +59,8 @@ public class OfflineBaseMapRepository {
   private final Schedulers schedulers;
   private final GeocodingManager geocodingManager;
 
+  private final OfflineUuidGenerator offlineUuidGenerator;
+
   @Inject
   public OfflineBaseMapRepository(
       TileSourceDownloadWorkManager tileSourceDownloadWorkManager,
@@ -66,7 +69,8 @@ public class OfflineBaseMapRepository {
       MbtilesFootprintParser geoJsonParser,
       FileUtil fileUtil,
       Schedulers schedulers,
-      GeocodingManager geocodingManager) {
+      GeocodingManager geocodingManager,
+      OfflineUuidGenerator offlineUuidGenerator) {
     this.tileSourceDownloadWorkManager = tileSourceDownloadWorkManager;
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
@@ -74,6 +78,7 @@ public class OfflineBaseMapRepository {
     this.fileUtil = fileUtil;
     this.schedulers = schedulers;
     this.geocodingManager = geocodingManager;
+    this.offlineUuidGenerator = offlineUuidGenerator;
   }
 
   /**
@@ -158,20 +163,18 @@ public class OfflineBaseMapRepository {
   }
 
   /**
-   * Retrieves all offline areas from the local store and continually streams the list as the
-   * local store is updated.
-   * Triggers `onError` only if there is a problem accessing the local store.
-   * */
+   * Retrieves all offline areas from the local store and continually streams the list as the local
+   * store is updated. Triggers `onError` only if there is a problem accessing the local store.
+   */
   @Cold(terminates = false)
   public Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream() {
     return localDataStore.getOfflineAreasOnceAndStream();
   }
 
   /**
-   * Fetches a single offline area by ID.
-   * Triggers `onError` when the area is not found.
-   * Triggers `onSuccess` when the area is found.
-   * */
+   * Fetches a single offline area by ID. Triggers `onError` when the area is not found. Triggers
+   * `onSuccess` when the area is found.
+   */
   @Cold
   public Single<OfflineBaseMap> getOfflineArea(String offlineAreaId) {
     return localDataStore.getOfflineAreaById(offlineAreaId);
@@ -194,9 +197,9 @@ public class OfflineBaseMapRepository {
 
   /**
    * Retrieves a the set of downloaded tiles that intersect with {@param offlineBaseMap} and
-   * continually streams the set as the local store is updated.
-   * Triggers `onError` only if there is a problem accessing the local store.
-   * */
+   * continually streams the set as the local store is updated. Triggers `onError` only if there is
+   * a problem accessing the local store.
+   */
   @Cold(terminates = false)
   public Flowable<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnceAndStream(
       OfflineBaseMap offlineBaseMap) {
@@ -212,9 +215,9 @@ public class OfflineBaseMapRepository {
   }
 
   /**
-   * Retrieves a set of downloaded tiles that intersect with {@param offlineBaseMap}.
-   * Triggers `onError` only if there is a problem accessing the local store.
-   * */
+   * Retrieves a set of downloaded tiles that intersect with {@param offlineBaseMap}. Triggers
+   * `onError` only if there is a problem accessing the local store.
+   */
   @Cold
   public Maybe<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnce(
       OfflineBaseMap offlineBaseMap) {
@@ -222,10 +225,9 @@ public class OfflineBaseMapRepository {
   }
 
   /**
-   * Retrieves all downloaded tile sources from the local store.
-   * Triggers `onError` only if there is a problem accessing the local store;
-   * does not trigger an error on empty rows.
-   * */
+   * Retrieves all downloaded tile sources from the local store. Triggers `onError` only if there is
+   * a problem accessing the local store; does not trigger an error on empty rows.
+   */
   @Cold(terminates = false)
   public Flowable<ImmutableSet<TileSource>> getDownloadedTileSourcesOnceAndStream() {
     return localDataStore
@@ -255,5 +257,56 @@ public class OfflineBaseMapRepository {
                         tile.getBasemapReferenceCount(), tile.getUrl())
                     .andThen(localDataStore.deleteTileByUrl(tile)))
         .andThen(localDataStore.deleteOfflineArea(offlineAreaId));
+  }
+
+  /**
+   * Retrieve all tile sources from a GeoJSON basemap specification, regardless of their
+   * coordinates.
+   */
+  public Single<ImmutableList<TileSource>> getAllActiveTileSources() {
+    // TODO: Only load tiles for basemap sources that are "active" (we will implement support for
+    // turing sources on and off).
+    return projectRepository
+        .getProjectLoadingState()
+        .compose(Loadable::values)
+        .map(Project::getOfflineBaseMapSources)
+        .doOnError(
+            throwable -> Timber.e(throwable, "No basemap sources specified for the active project"))
+        .map(ImmutableList::asList)
+        .flatMap(Flowable::fromIterable)
+        .firstOrError()
+        .map(this::identifyAndHandleSource)
+        .doOnError(
+            throwable ->
+                Timber.e(throwable, "Couldn't retrieve basemap sources for the active project"));
+  }
+
+  private ImmutableList<TileSource> identifyAndHandleSource(
+      OfflineBaseMapSource offlineBaseMapSource) throws java.io.IOException {
+    switch (offlineBaseMapSource.getType()) {
+      case GEOJSON:
+        File tileFile = downloadOfflineBaseMapSource(offlineBaseMapSource);
+        return geoJsonParser.allTiles(tileFile);
+      case IMAGE:
+        return ImmutableList.of(
+            TileSource.newBuilder()
+                .setId(offlineUuidGenerator.generateUuid())
+                .setPath(offlineBaseMapSource.getUrl().toString())
+                .setUrl(offlineBaseMapSource.getUrl().toString())
+                .setBasemapReferenceCount(1)
+                .setState(TileSource.State.PENDING)
+                .build());
+      default:
+        Timber.d("Unknown basemap source type");
+        // Try to read a tile from the URL anyway.
+        return ImmutableList.of(
+            TileSource.newBuilder()
+                .setId(offlineUuidGenerator.generateUuid())
+                .setPath(offlineBaseMapSource.getUrl().toString())
+                .setUrl(offlineBaseMapSource.getUrl().toString())
+                .setBasemapReferenceCount(1)
+                .setState(TileSource.State.PENDING)
+                .build());
+    }
   }
 }
