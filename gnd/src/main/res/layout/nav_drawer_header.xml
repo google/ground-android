@@ -16,16 +16,40 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="128dp"
-  android:background="@color/colorGrey300">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <ImageView
-    android:layout_width="wrap_content"
+  <data>
+    <variable
+      name="user"
+      type="com.google.android.gnd.model.User" />
+  </data>
+
+  <LinearLayout
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:src="@mipmap/ic_launcher_round"
-    android:layout_gravity="center"/>
+    android:background="@color/colorGrey300"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
-</FrameLayout>
+    <com.google.android.material.imageview.ShapeableImageView
+      android:id="@+id/user_image"
+      style="@style/NavDrawerHeader.Image"
+      app:imageUrl="@{user.photoUrl}"
+      tools:background="@drawable/ground_logo" />
+
+    <TextView
+      android:id="@+id/user_display_name"
+      style="@style/NavDrawerHeader.PrimaryText"
+      android:text="@{user.displayName}"
+      tools:text="User name" />
+
+    <TextView
+      android:id="@+id/user_email"
+      style="@style/NavDrawerHeader.SecondaryText"
+      android:text="@{user.email}"
+      tools:text="User email" />
+
+  </LinearLayout>
+</layout>

@@ -156,6 +156,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
         .setId(firebaseUser.getUid())
         .setEmail(firebaseUser.getEmail())
         .setDisplayName(firebaseUser.getDisplayName())
+        .setPhotoUrl(firebaseUser.getPhotoUrl().toString())
         .build();
   }
 
