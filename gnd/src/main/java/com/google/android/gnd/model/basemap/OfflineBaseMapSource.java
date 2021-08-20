@@ -24,8 +24,30 @@ import java.net.URL;
 @AutoValue
 public abstract class OfflineBaseMapSource {
 
+  public enum OfflineBaseMapSourceType {
+    GEOJSON,
+    IMAGE,
+    UNKNOWN
+  }
+
+  public static OfflineBaseMapSourceType typeFromExtension(String url) {
+    int extPos = url.lastIndexOf(".");
+
+    switch (extPos == -1 ? "" : url.substring(extPos+1)) {
+      case "geojson":
+        return OfflineBaseMapSourceType.GEOJSON;
+      case "png":
+        return OfflineBaseMapSourceType.IMAGE;
+      default:
+        return OfflineBaseMapSourceType.UNKNOWN;
+    }
+
+  }
+
   @NonNull
   public abstract URL getUrl();
+
+  public abstract OfflineBaseMapSourceType getType();
 
   public static Builder builder() {
     return new AutoValue_OfflineBaseMapSource.Builder();
@@ -35,6 +57,8 @@ public abstract class OfflineBaseMapSource {
   public abstract static class Builder {
 
     public abstract Builder setUrl(@NonNull URL newUrl);
+
+    public abstract Builder setType(OfflineBaseMapSourceType type);
 
     public abstract OfflineBaseMapSource build();
   }

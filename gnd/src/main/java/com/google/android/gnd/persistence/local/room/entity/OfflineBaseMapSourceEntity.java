@@ -24,6 +24,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
+import com.google.android.gnd.model.basemap.OfflineBaseMapSource.OfflineBaseMapSourceType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import java.net.MalformedURLException;
@@ -43,7 +44,10 @@ public abstract class OfflineBaseMapSourceEntity {
 
   public static OfflineBaseMapSource toModel(OfflineBaseMapSourceEntity source)
       throws MalformedURLException {
-    return OfflineBaseMapSource.builder().setUrl(new URL(source.getUrl())).build();
+    return OfflineBaseMapSource.builder()
+        .setUrl(new URL(source.getUrl()))
+        .setType(entityToModelType(source))
+        .build();
   }
 
   @CopyAnnotations
@@ -62,17 +66,52 @@ public abstract class OfflineBaseMapSourceEntity {
   @ColumnInfo(name = "url")
   public abstract String getUrl();
 
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "type")
+  public abstract OfflineBaseMapSourceEntityType getType();
+
+  public enum OfflineBaseMapSourceEntityType {
+    GEOJSON,
+    IMAGE,
+    UNKNOWN
+  }
+
+  private static OfflineBaseMapSourceEntityType modelToEntityType(OfflineBaseMapSource source) {
+    switch (source.getType()) {
+      case IMAGE:
+        return OfflineBaseMapSourceEntityType.IMAGE;
+      case GEOJSON:
+        return OfflineBaseMapSourceEntityType.GEOJSON;
+      default:
+        return OfflineBaseMapSourceEntityType.UNKNOWN;
+    }
+  }
+
+  private static OfflineBaseMapSourceType entityToModelType(OfflineBaseMapSourceEntity source) {
+    switch (source.getType()) {
+      case IMAGE:
+        return OfflineBaseMapSourceType.IMAGE;
+      case GEOJSON:
+        return OfflineBaseMapSourceType.GEOJSON;
+      default:
+        return OfflineBaseMapSourceType.UNKNOWN;
+    }
+  }
+
   public static OfflineBaseMapSourceEntity fromModel(
       String projectId, OfflineBaseMapSource source) {
+
     return OfflineBaseMapSourceEntity.builder()
         .setProjectId(projectId)
         .setUrl(source.getUrl().toString())
+        .setType(modelToEntityType(source))
         .build();
   }
 
   public static OfflineBaseMapSourceEntity create(
-      @Nullable Integer id, String projectId, String url) {
-    return builder().setId(id).setProjectId(projectId).setUrl(url).build();
+      @Nullable Integer id, String projectId, String url, OfflineBaseMapSourceEntityType type) {
+    return builder().setId(id).setProjectId(projectId).setUrl(url).setType(type).build();
   }
 
   public static Builder builder() {
@@ -87,6 +126,8 @@ public abstract class OfflineBaseMapSourceEntity {
     public abstract Builder setProjectId(@NonNull String newProjectId);
 
     public abstract Builder setUrl(@NonNull String newUrl);
+
+    public abstract Builder setType(OfflineBaseMapSourceEntityType type);
 
     public abstract OfflineBaseMapSourceEntity build();
   }
