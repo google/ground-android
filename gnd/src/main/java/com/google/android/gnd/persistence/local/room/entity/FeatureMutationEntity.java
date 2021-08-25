@@ -33,6 +33,7 @@ import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncSt
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 import java.util.Date;
 import java8.util.Optional;
 
@@ -82,7 +83,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
-        .setNewPolygonVertices(formatVertices(m.getNewPolygonVertices()))
+        .setNewPolygonVertices(formatVertices(m.getNewPolygonVertices().orElse(ImmutableList.of())))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setRetryCount(m.getRetryCount())
@@ -99,7 +100,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
-        .setNewPolygonVertices(parseVertices(getNewPolygonVertices()))
+        .setNewPolygonVertices(Optional.ofNullable(parseVertices(getNewPolygonVertices())))
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())

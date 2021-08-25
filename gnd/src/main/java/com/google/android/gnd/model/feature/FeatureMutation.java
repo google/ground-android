@@ -37,7 +37,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
    */
   public abstract Optional<Point> getNewLocation();
 
-  public abstract ImmutableList<Point> getNewPolygonVertices();
+  public abstract Optional<ImmutableList<Point>> getNewPolygonVertices();
 
   @Override
   public abstract Builder toBuilder();
@@ -65,7 +65,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
         .setRetryCount(0)
         .setSyncStatus(SyncStatus.UNKNOWN)
         .setNewLocation(Optional.empty())
-        .setNewPolygonVertices(ImmutableList.of());
+        .setNewPolygonVertices(Optional.empty());
   }
 
   @AutoValue.Builder
@@ -73,7 +73,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 
-    public abstract Builder setNewPolygonVertices(ImmutableList<Point> polygonVertices);
+    public abstract Builder setNewPolygonVertices(Optional<ImmutableList<Point>> polygonVertices);
 
     @Override
     public abstract FeatureMutation build();
