@@ -282,7 +282,7 @@ public class OfflineBaseMapRepository {
   }
 
   private ImmutableList<TileSource> identifyAndHandleSource(
-      OfflineBaseMapSource offlineBaseMapSource) throws java.io.IOException {
+      OfflineBaseMapSource offlineBaseMapSource) throws IOException {
     switch (offlineBaseMapSource.getType()) {
       case GEOJSON:
         File tileFile = downloadOfflineBaseMapSource(offlineBaseMapSource);

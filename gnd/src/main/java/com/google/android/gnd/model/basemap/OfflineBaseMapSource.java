@@ -31,9 +31,9 @@ public abstract class OfflineBaseMapSource {
   }
 
   public static OfflineBaseMapSourceType typeFromExtension(String url) {
-    int extPos = url.lastIndexOf(".");
+    int extPos = url.lastIndexOf('.');
 
-    switch (extPos == -1 ? "" : url.substring(extPos+1)) {
+    switch (extPos == -1 ? "" : url.substring(extPos + 1)) {
       case "geojson":
         return OfflineBaseMapSourceType.GEOJSON;
       case "png":
@@ -41,7 +41,6 @@ public abstract class OfflineBaseMapSource {
       default:
         return OfflineBaseMapSourceType.UNKNOWN;
     }
-
   }
 
   @NonNull
