@@ -16,15 +16,12 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
@@ -141,16 +138,17 @@ public class FeatureRepository {
         .build();
   }
 
-  public PolygonFeature newPolygonFeature(
-      Project project, Layer layer, ImmutableList<Point> vertices) {
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return PolygonFeature.builder()
-        .setId(uuidGenerator.generateUuid())
-        .setProject(project)
-        .setLayer(layer)
-        .setVertices(vertices)
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
+  public FeatureMutation newPolygonFeatureMutation(String projectId,
+      String layerId, ImmutableList<Point> vertices) {
+    return FeatureMutation.builder()
+        .setType(Type.CREATE)
+        .setSyncStatus(SyncStatus.PENDING)
+        .setFeatureId(uuidGenerator.generateUuid())
+        .setProjectId(projectId)
+        .setLayerId(layerId)
+        .setNewPolygonVertices(vertices)
+        .setUserId(authManager.getCurrentUser().getId())
+        .setClientTimestamp(new Date())
         .build();
   }
 

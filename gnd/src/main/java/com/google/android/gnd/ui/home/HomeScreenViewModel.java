@@ -31,6 +31,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
@@ -198,6 +199,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
             projectId ->
                 addFeatureRequests.onNext(
                     featureRepository.newMutation(projectId, layer.getId(), point)),
+            () -> {
+              throw new IllegalStateException("Empty project");
+            });
+  }
+
+  public void addPolygonFeature(PolygonFeature feature) {
+    getActiveProject()
+        .map(Project::getId)
+        .ifPresentOrElse(
+            projectId ->
+                addFeatureRequests.onNext(
+                    featureRepository
+                        .newPolygonFeatureMutation(projectId,
+                            feature.getLayer().getId(), feature.getVertices())),
             () -> {
               throw new IllegalStateException("Empty project");
             });

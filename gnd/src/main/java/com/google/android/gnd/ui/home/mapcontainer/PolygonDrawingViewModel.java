@@ -59,6 +59,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
+  @Hot private final Subject<Nil> drawingCompleted = PublishSubject.create();
+
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
   /** Polyline drawn by the user but not yet saved as polygon. */
   @Hot
@@ -115,6 +117,11 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   @Hot
   public Observable<Nil> getDefaultMapMode() {
     return defaultMapMode;
+  }
+
+  @Hot
+  public Observable<Nil> getDrawingCompleted() {
+    return drawingCompleted;
   }
 
   public void onCameraMoved(Point newTarget) {
@@ -199,6 +206,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   public void onCompletePolygonButtonClick() {
     defaultMapMode.onNext(Nil.NIL);
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+    drawingCompleted.onNext(Nil.NIL);
     vertices.clear();
   }
 

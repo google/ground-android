@@ -149,6 +149,11 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
+    polygonDrawingViewModel.getDrawingCompleted()
+        .as(autoDisposable(this))
+        .subscribe(__ -> viewModel
+            .addPolygonFeature(polygonDrawingViewModel
+                .getPolygonFeature().getValue()));
     featureSelectorViewModel
         .getFeatureClicks()
         .as(autoDisposable(this))
