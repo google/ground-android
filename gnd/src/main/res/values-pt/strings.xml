@@ -145,12 +145,12 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="offline_base_map_selector_prompt">Selecionar o mapa de base para uso offline</string>
   <string name="offline_base_map_selector_download">Download</string>
   <string name="add_photo">Adicionar foto</string>
-  <string name="action_camera">Camera</string>
+  <string name="action_camera">Câmera</string>
   <string name="action_storage">Armazenamento</string>
   <string name="photo_preview">Prévia</string>
   <string name="select_map_type">Selecionar o mapa base</string>
   <string name="uploading_photos">Carregamento de fotos</string>
-  <string name="starting">Inicio</string>
+  <string name="starting">Início</string>
   <string name="in_progress">Em progresso</string>
   <string name="paused">Pausado</string>
   <string name="completed">Concluído</string>

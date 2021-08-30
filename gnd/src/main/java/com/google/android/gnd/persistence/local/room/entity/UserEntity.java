@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -44,11 +45,18 @@ public abstract class UserEntity {
   @ColumnInfo(name = "display_name")
   public abstract String getDisplayName();
 
+  // TODO(https://github.com/google/ground-android/issues/964): Save to remote db
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "photo_url")
+  public abstract String getPhotoUrl();
+
   public static UserEntity fromUser(User user) {
     return UserEntity.builder()
         .setId(user.getId())
         .setEmail(user.getEmail())
         .setDisplayName(user.getDisplayName())
+        .setPhotoUrl(user.getPhotoUrl())
         .build();
   }
 
@@ -57,11 +65,17 @@ public abstract class UserEntity {
         .setId(u.getId())
         .setEmail(u.getEmail())
         .setDisplayName(u.getDisplayName())
+        .setPhotoUrl(u.getPhotoUrl())
         .build();
   }
 
-  public static UserEntity create(String id, String email, String displayName) {
-    return builder().setId(id).setEmail(email).setDisplayName(displayName).build();
+  public static UserEntity create(String id, String email, String displayName, String photoUrl) {
+    return builder()
+        .setId(id)
+        .setEmail(email)
+        .setDisplayName(displayName)
+        .setPhotoUrl(photoUrl)
+        .build();
   }
 
   public static Builder builder() {
@@ -76,6 +90,8 @@ public abstract class UserEntity {
     public abstract Builder setEmail(String email);
 
     public abstract Builder setDisplayName(String displayName);
+
+    public abstract Builder setPhotoUrl(@Nullable String photoUrl);
 
     public abstract UserEntity build();
   }

@@ -75,6 +75,11 @@ public class BindingAdapters {
     view.setOnShowDialogListener(listener);
   }
 
+  @BindingAdapter("imageUrl")
+  public static void bindUri(ImageView view, String url) {
+    Picasso.get().load(url).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
+  }
+
   @BindingAdapter("imageUri")
   public static void bindUri(ImageView view, Uri uri) {
     Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);

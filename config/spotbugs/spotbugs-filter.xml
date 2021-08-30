@@ -35,6 +35,9 @@
       <!-- Auto-generated NavDirections classes -->
       <Class name="~.*Args.*" />
       <Class name="~.*Directions\$.*" />
+
+      <!-- Auto-generated Hilt classes -->
+      <Class name="~.*_HiltComponents_SingletonC\$.*" />
     </Or>
   </Match>
 

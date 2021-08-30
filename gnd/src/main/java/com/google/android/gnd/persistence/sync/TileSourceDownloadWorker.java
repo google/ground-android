@@ -18,8 +18,7 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import androidx.hilt.Assisted;
-import androidx.hilt.work.WorkerInject;
+import androidx.hilt.work.HiltWorker;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
@@ -29,6 +28,8 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedInject;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.io.File;
@@ -46,13 +47,14 @@ import timber.log.Timber;
  * provided in a {@link Data} object. This worker should only run when the device has a network
  * connection.
  */
+@HiltWorker
 public class TileSourceDownloadWorker extends BaseWorker {
   private static final int BUFFER_SIZE = 4096;
 
   private final Context context;
   private final LocalDataStore localDataStore;
 
-  @WorkerInject
+  @AssistedInject
   public TileSourceDownloadWorker(
       @Assisted @NonNull Context context,
       @Assisted @NonNull WorkerParameters params,
