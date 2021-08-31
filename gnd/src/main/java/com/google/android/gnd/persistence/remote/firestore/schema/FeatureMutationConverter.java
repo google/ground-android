@@ -44,15 +44,11 @@ class FeatureMutationConverter {
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
         .ifPresent(point -> map.put(FeatureConverter.LOCATION, point));
-    mutation
-        .getNewPolygonVertices()
-        .map(FeatureMutationConverter::toGeoPointList)
-        .ifPresent(point -> {
-          Map<String, Object> geometry = new HashMap<>();
-          geometry.put(FeatureConverter.GEOMETRY_COORDINATES, point);
-          geometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
-          map.put(FeatureConverter.GEOMETRY, geometry);
-        });
+    Map<String, Object> geometry = new HashMap<>();
+    geometry.put(FeatureConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getNewPolygonVertices()));
+    geometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
+    map.put(FeatureConverter.GEOMETRY, geometry);
+
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:

@@ -20,7 +20,6 @@ import com.google.android.gnd.model.Mutation.Type;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
 
 /** User-defined map feature consisting of a polygon. */
 @AutoValue
@@ -36,7 +35,7 @@ public abstract class PolygonFeature extends Feature<PolygonFeature.Builder> {
   public FeatureMutation toMutation(Type type, String userId) {
     return super.toMutation(type, userId)
         .toBuilder()
-        .setNewPolygonVertices(Optional.of(getVertices())).build();
+        .setNewPolygonVertices(getVertices()).build();
   }
 
   @Memoized

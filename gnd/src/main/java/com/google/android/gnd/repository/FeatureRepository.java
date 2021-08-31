@@ -146,7 +146,7 @@ public class FeatureRepository {
         .setFeatureId(uuidGenerator.generateUuid())
         .setProjectId(projectId)
         .setLayerId(layerId)
-        .setNewPolygonVertices(Optional.of(vertices))
+        .setNewPolygonVertices(vertices)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
         .build();
