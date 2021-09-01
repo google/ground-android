@@ -65,7 +65,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
         .setRetryCount(0)
         .setSyncStatus(SyncStatus.UNKNOWN)
         .setNewLocation(Optional.empty())
-        .setNewPolygonVertices(ImmutableList.<Point>builder().build());
+        .setNewPolygonVertices(ImmutableList.of());
   }
 
   @AutoValue.Builder

@@ -533,7 +533,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void showPolygonInfoDialog(Layer layer) {
     polygonDrawingInfoDialogFragment =
         new PolygonDrawingInfoDialogFragment(
-            __ ->
+            () ->
                 viewModel
                     .getActiveProject()
                     .ifPresentOrElse(

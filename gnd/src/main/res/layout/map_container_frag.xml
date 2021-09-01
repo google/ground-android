@@ -67,7 +67,7 @@
         android:layout_height="match_parent"
         class="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingView"
         android:id="@+id/polygon_drawing_controls"
-        android:visibility="@{viewModel.isAddPolygonButtonVisible()}" />
+        app:visible="@{viewModel.isAddPolygonButtonVisible()}" />
 
       <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
