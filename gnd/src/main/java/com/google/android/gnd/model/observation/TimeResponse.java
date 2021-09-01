@@ -28,14 +28,14 @@ import java8.util.Optional;
 public class TimeResponse implements Response {
   // TODO(#752): Use device localization preferences.
   public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm", Locale.getDefault());
-  private final Date epochTime;
+  private final Date time;
 
   public TimeResponse(Date time) {
-    this.epochTime = time;
+    this.time = time;
   }
 
   public Date getTime() {
-    return epochTime;
+    return time;
   }
 
   @Override
@@ -46,32 +46,32 @@ public class TimeResponse implements Response {
   @Override
   public String getDetailsText() {
     synchronized (TIME_FORMAT) {
-      return TIME_FORMAT.format(epochTime);
+      return TIME_FORMAT.format(time);
     }
   }
 
   @Override
   public boolean isEmpty() {
-    return epochTime.getTime() == 0L;
+    return time.getTime() == 0L;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof TimeResponse) {
-      return epochTime == ((TimeResponse) obj).epochTime;
+      return time == ((TimeResponse) obj).time;
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return String.valueOf(epochTime).hashCode();
+    return String.valueOf(time).hashCode();
   }
 
   @NonNull
   @Override
   public String toString() {
-    return String.valueOf(epochTime);
+    return String.valueOf(time);
   }
 
   public static Optional<Response> fromDate(Date time) {

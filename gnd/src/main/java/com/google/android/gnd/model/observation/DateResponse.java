@@ -29,14 +29,14 @@ public class DateResponse implements Response {
   // TODO(#752): Use device localization preferences.
   public static final DateFormat DATE_FORMAT =
       new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-  private final Date epochTime;
+  private final Date date;
 
   public DateResponse(Date date) {
-    this.epochTime = date;
+    this.date = date;
   }
 
   public Date getDate() {
-    return epochTime;
+    return date;
   }
 
   @Override
@@ -47,32 +47,32 @@ public class DateResponse implements Response {
   @Override
   public String getDetailsText() {
     synchronized (DATE_FORMAT) {
-      return DATE_FORMAT.format(epochTime);
+      return DATE_FORMAT.format(date);
     }
   }
 
   @Override
   public boolean isEmpty() {
-    return epochTime.getTime() == 0L;
+    return date.getTime() == 0L;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof DateResponse) {
-      return epochTime == ((DateResponse) obj).epochTime;
+      return date == ((DateResponse) obj).date;
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return String.valueOf(epochTime).hashCode();
+    return String.valueOf(date).hashCode();
   }
 
   @NonNull
   @Override
   public String toString() {
-    return String.valueOf(epochTime);
+    return String.valueOf(date);
   }
 
   public static Optional<Response> fromDate(Date date) {
