@@ -49,7 +49,6 @@ import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
@@ -171,18 +170,33 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
     ImmutableList<Layer> layers = args.first;
+
     Point point = args.second;
     addFeatureDialogFragment.show(
         layers,
         getChildFragmentManager(),
+
         layer -> {
-          if (layer.getContributorsCanAdd().contains(FeatureType.POINT)
-              && layer.getContributorsCanAdd().contains(FeatureType.POLYGON)) {
+          if (layer.getContributorsCanAdd().isEmpty()) {
+            Timber.e("No permissions set on layer %s%", layer.getId());
+          }
+
+          if (layer.getContributorsCanAdd().size() > 1) {
             showFeatureTypeDialog(layer, point);
-          } else if (layer.getContributorsCanAdd().contains(FeatureType.POINT)) {
-            viewModel.addFeature(layer, point);
-          } else {
-            showPolygonInfoDialog(layer);
+            return;
+          }
+
+          switch (layer.getContributorsCanAdd().get(0)) {
+            case POINT:
+              viewModel.addFeature(layer, point);
+              break;
+            case POLYGON:
+              showPolygonInfoDialog(layer);
+              break;
+            default:
+              Timber.w("Unsupported feature type defined in layer: %s",
+                  layer.getContributorsCanAdd().get(0));
+              break;
           }
         });
   }

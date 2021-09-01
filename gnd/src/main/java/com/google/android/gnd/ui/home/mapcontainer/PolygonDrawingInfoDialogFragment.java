@@ -21,10 +21,8 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import com.google.android.gnd.databinding.DialogPolygonInfoBinding;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import dagger.hilt.android.AndroidEntryPoint;
-import java8.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 @AndroidEntryPoint
