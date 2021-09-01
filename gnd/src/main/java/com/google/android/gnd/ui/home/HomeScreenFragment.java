@@ -538,9 +538,7 @@ public class HomeScreenFragment extends AbstractFragment
                     .getActiveProject()
                     .ifPresentOrElse(
                         project -> {
-                          polygonDrawingViewModel.setSelectedProject(Optional.of(project));
-                          polygonDrawingViewModel.setSelectedLayer(Optional.of(layer));
-                          polygonDrawingViewModel.updateDrawingState(PolygonDrawing.STARTED);
+                          polygonDrawingViewModel.startDrawingFlow(project , layer);
                           mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
                         },
                         () -> {

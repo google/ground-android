@@ -75,11 +75,11 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   private final LiveData<BooleanOrError> locationLockState;
   private final List<Point> vertices = new ArrayList<>();
   /** The currently selected layer and project for the polygon drawing. */
-  private final BehaviorProcessor<Optional<Layer>> selectedLayer =
-      BehaviorProcessor.createDefault(Optional.empty());
+  private final BehaviorProcessor<Layer> selectedLayer =
+      BehaviorProcessor.create();
 
-  private final BehaviorProcessor<Optional<Project>> selectedProject =
-      BehaviorProcessor.createDefault(Optional.empty());
+  private final BehaviorProcessor<Project> selectedProject =
+      BehaviorProcessor.create();
 
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
@@ -181,8 +181,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
         PolygonFeature.builder()
             .setVertices(vertices)
             .setId(uuidGenerator.generateUuid())
-            .setProject(selectedProject.getValue().get())
-            .setLayer(selectedLayer.getValue().get())
+            .setProject(selectedProject.getValue())
+            .setLayer(selectedLayer.getValue())
             .setCreated(auditInfo)
             .setLastModified(auditInfo)
             .build();
@@ -218,7 +218,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return completeButtonVisible;
   }
 
-  public void updateDrawingState(PolygonDrawing polygonDrawing) {
+  private void updateDrawingState(PolygonDrawing polygonDrawing) {
     completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED
         ? VISIBLE : INVISIBLE);
   }
@@ -232,20 +232,18 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return locationLockEnabled;
   }
 
+  public void startDrawingFlow(Project selectedProject,Layer selectedLayer){
+    this.selectedLayer.onNext(selectedLayer);
+    this.selectedProject.onNext(selectedProject);
+    updateDrawingState(PolygonDrawing.STARTED);
+  }
+
   public LiveData<Integer> getIconTint() {
     return iconTint;
   }
 
   public LiveData<PolygonFeature> getPolygonFeature() {
     return drawnPolylineVertices;
-  }
-
-  public void setSelectedLayer(Optional<Layer> selectedLayer) {
-    this.selectedLayer.onNext(selectedLayer);
-  }
-
-  public void setSelectedProject(Optional<Project> selectedProject) {
-    this.selectedProject.onNext(selectedProject);
   }
 
   public enum PolygonDrawing {
