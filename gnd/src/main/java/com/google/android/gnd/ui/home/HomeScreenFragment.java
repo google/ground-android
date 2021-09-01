@@ -70,7 +70,6 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
-import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawing;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -149,11 +148,13 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
-    polygonDrawingViewModel.getDrawingCompleted()
+    polygonDrawingViewModel
+        .getDrawingCompleted()
         .as(autoDisposable(this))
-        .subscribe(__ -> viewModel
-            .addPolygonFeature(polygonDrawingViewModel
-                .getPolygonFeature().getValue()));
+        .subscribe(
+            __ ->
+                viewModel.addPolygonFeature(
+                    polygonDrawingViewModel.getPolygonFeature().getValue()));
     featureSelectorViewModel
         .getFeatureClicks()
         .as(autoDisposable(this))
@@ -178,8 +179,10 @@ public class HomeScreenFragment extends AbstractFragment
           if (layer.getContributorsCanAdd().contains(FeatureType.POINT)
               && layer.getContributorsCanAdd().contains(FeatureType.POLYGON)) {
             showFeatureTypeDialog(layer, point);
-          } else {
+          } else if (layer.getContributorsCanAdd().contains(FeatureType.POINT)) {
             viewModel.addFeature(layer, point);
+          } else {
+            showPolygonInfoDialog(layer);
           }
         });
   }
@@ -538,7 +541,7 @@ public class HomeScreenFragment extends AbstractFragment
                     .getActiveProject()
                     .ifPresentOrElse(
                         project -> {
-                          polygonDrawingViewModel.startDrawingFlow(project , layer);
+                          polygonDrawingViewModel.startDrawingFlow(project, layer);
                           mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
                         },
                         () -> {

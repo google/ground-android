@@ -45,7 +45,8 @@ class FeatureMutationConverter {
         .map(FeatureMutationConverter::toGeoPoint)
         .ifPresent(point -> map.put(FeatureConverter.LOCATION, point));
     Map<String, Object> geometry = new HashMap<>();
-    geometry.put(FeatureConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getNewPolygonVertices()));
+    geometry.put(
+        FeatureConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getNewPolygonVertices()));
     geometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
     map.put(FeatureConverter.GEOMETRY, geometry);
 

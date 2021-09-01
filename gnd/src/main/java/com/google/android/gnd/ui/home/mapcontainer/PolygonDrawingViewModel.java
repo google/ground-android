@@ -46,7 +46,6 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.List;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -75,11 +74,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   private final LiveData<BooleanOrError> locationLockState;
   private final List<Point> vertices = new ArrayList<>();
   /** The currently selected layer and project for the polygon drawing. */
-  private final BehaviorProcessor<Layer> selectedLayer =
-      BehaviorProcessor.create();
+  private final BehaviorProcessor<Layer> selectedLayer = BehaviorProcessor.create();
 
-  private final BehaviorProcessor<Project> selectedProject =
-      BehaviorProcessor.create();
+  private final BehaviorProcessor<Project> selectedProject = BehaviorProcessor.create();
 
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
@@ -219,8 +216,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   private void updateDrawingState(PolygonDrawing polygonDrawing) {
-    completeButtonVisible.postValue(polygonDrawing == PolygonDrawing.COMPLETED
-        ? VISIBLE : INVISIBLE);
+    completeButtonVisible.postValue(
+        polygonDrawing == PolygonDrawing.COMPLETED ? VISIBLE : INVISIBLE);
   }
 
   private boolean isLocationLockEnabled() {
@@ -232,7 +229,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return locationLockEnabled;
   }
 
-  public void startDrawingFlow(Project selectedProject,Layer selectedLayer){
+  public void startDrawingFlow(Project selectedProject, Layer selectedLayer) {
     this.selectedLayer.onNext(selectedLayer);
     this.selectedProject.onNext(selectedProject);
     updateDrawingState(PolygonDrawing.STARTED);
