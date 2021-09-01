@@ -23,21 +23,13 @@ import static org.mockito.Mockito.mock;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.rx.SchedulersModule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 public class DateFieldViewModelTest {
 

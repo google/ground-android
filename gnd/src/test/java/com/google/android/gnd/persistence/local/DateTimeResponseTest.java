@@ -19,20 +19,13 @@ package com.google.android.gnd.persistence.local;
 import static com.google.android.gnd.model.observation.DateResponse.DATE_FORMAT;
 import static com.google.android.gnd.model.observation.TimeResponse.TIME_FORMAT;
 
-import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.truth.Truth;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 public class DateTimeResponseTest {
 
