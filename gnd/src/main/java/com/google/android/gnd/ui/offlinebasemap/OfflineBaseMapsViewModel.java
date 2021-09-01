@@ -24,38 +24,55 @@ import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Flowable;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
 public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
-  private LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
-  private LiveData<Integer> noAreasMessageVisibility;
+  private final LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
+  private final LiveData<Integer> noAreasMessageVisibility;
+
   private final Navigator navigator;
 
   @Inject
   OfflineBaseMapsViewModel(Navigator navigator, OfflineBaseMapRepository offlineBaseMapRepository) {
     this.navigator = navigator;
-    this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository.getOfflineAreasOnceAndStream());
+    Flowable<ImmutableList<OfflineBaseMap>> offlineAreas =
+        offlineBaseMapRepository
+            .getOfflineAreasOnceAndStream()
+            .doOnError(
+                throwable ->
+                    Timber.e(
+                        throwable,
+                        "Unexpected error accessing offline basemaps in the local store."))
+            .onErrorReturnItem(ImmutableList.of());
+    this.offlineAreas = LiveDataReactiveStreams.fromPublisher(offlineAreas);
     this.noAreasMessageVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository
-                .getOfflineAreasOnceAndStream()
-                .map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE));
+            offlineAreas.map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE));
   }
 
+  /** Navigate to the offline area selector UI from the offline basemaps UI. */
   public void showOfflineAreaSelector() {
     navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
   }
 
+  /**
+   * Returns the current list of downloaded offline basemaps available for viewing. If an unexpected
+   * error accessing the local store is encountered, emits an empty list, circumventing the error.
+   */
   LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
     return offlineAreas;
   }
 
+  /**
+   * Returns the visibility of a "no area" message based on the current number of available offline
+   * basemaps.
+   */
   public LiveData<Integer> getNoAreasMessageVisibility() {
     return noAreasMessageVisibility;
   }

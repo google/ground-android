@@ -31,6 +31,7 @@ import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
 import com.google.android.gnd.persistence.sync.TileSourceDownloadWorkManager;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.GeocodingManager;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
@@ -93,6 +94,7 @@ public class OfflineBaseMapRepository {
   }
 
   /** Enqueue a single area and its tile sources for download. */
+  @Cold
   private Completable enqueueDownload(OfflineBaseMap area, ImmutableList<TileSource> tileSources) {
     return Flowable.fromIterable(tileSources)
         .flatMapCompletable(
@@ -113,6 +115,7 @@ public class OfflineBaseMapRepository {
    * Determine the tile sources that need to be downloaded for a given area, then enqueue tile
    * source downloads.
    */
+  @Cold
   private Completable enqueueTileSourceDownloads(OfflineBaseMap area) {
     return getBaseMapTileSources(area)
         .flatMapCompletable(tileSources -> enqueueDownload(area, tileSources))
@@ -125,6 +128,7 @@ public class OfflineBaseMapRepository {
    * Get a list of tile sources specified in the first basemap source of the active project that
    * intersect a given area.
    */
+  @Cold
   private Single<ImmutableList<TileSource>> getBaseMapTileSources(OfflineBaseMap offlineBaseMap) {
     LatLngBounds bounds = offlineBaseMap.getBounds();
 
@@ -145,6 +149,7 @@ public class OfflineBaseMapRepository {
                 Timber.e(throwable, "couldn't retrieve basemap sources for the active project"));
   }
 
+  @Cold
   public Completable addAreaAndEnqueue(OfflineBaseMap baseMap) {
     return geocodingManager
         .getAreaName(baseMap.getBounds())
@@ -152,10 +157,22 @@ public class OfflineBaseMapRepository {
         .flatMapCompletable(this::enqueueTileSourceDownloads);
   }
 
+  /**
+   * Retrieves all offline areas from the local store and continually streams the list as the
+   * local store is updated.
+   * Triggers `onError` only if there is a problem accessing the local store.
+   * */
+  @Cold(terminates = false)
   public Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream() {
     return localDataStore.getOfflineAreasOnceAndStream();
   }
 
+  /**
+   * Fetches a single offline area by ID.
+   * Triggers `onError` when the area is not found.
+   * Triggers `onSuccess` when the area is found.
+   * */
+  @Cold
   public Single<OfflineBaseMap> getOfflineArea(String offlineAreaId) {
     return localDataStore.getOfflineAreaById(offlineAreaId);
   }
@@ -175,6 +192,12 @@ public class OfflineBaseMapRepository {
         .collect(toImmutableSet());
   }
 
+  /**
+   * Retrieves a the set of downloaded tiles that intersect with {@param offlineBaseMap} and
+   * continually streams the set as the local store is updated.
+   * Triggers `onError` only if there is a problem accessing the local store.
+   * */
+  @Cold(terminates = false)
   public Flowable<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnceAndStream(
       OfflineBaseMap offlineBaseMap) {
     return getBaseMapTileSources(offlineBaseMap)
@@ -188,11 +211,22 @@ public class OfflineBaseMapRepository {
         .onErrorReturn(__ -> ImmutableSet.of());
   }
 
+  /**
+   * Retrieves a set of downloaded tiles that intersect with {@param offlineBaseMap}.
+   * Triggers `onError` only if there is a problem accessing the local store.
+   * */
+  @Cold
   public Maybe<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnce(
       OfflineBaseMap offlineBaseMap) {
     return getIntersectingDownloadedTileSourcesOnceAndStream(offlineBaseMap).firstElement();
   }
 
+  /**
+   * Retrieves all downloaded tile sources from the local store.
+   * Triggers `onError` only if there is a problem accessing the local store;
+   * does not trigger an error on empty rows.
+   * */
+  @Cold(terminates = false)
   public Flowable<ImmutableSet<TileSource>> getDownloadedTileSourcesOnceAndStream() {
     return localDataStore
         .getTileSourcesOnceAndStream()
@@ -207,6 +241,7 @@ public class OfflineBaseMapRepository {
    * Delete an offline base map and any tile sources associated with it that do not overlap with
    * other offline base maps .
    */
+  @Cold
   public Completable deleteArea(String offlineAreaId) {
     return localDataStore
         .getOfflineAreaById(offlineAreaId)

@@ -18,7 +18,7 @@
 
 <resources>
   <!-- Map -->
-  <dimen name="polyline_stroke_width">2dp</dimen>
+  <dimen name="polyline_stroke_width">4dp</dimen>
   <dimen name="selected_polyline_stroke_width">7dp</dimen>
 
   <!-- Forms -->
@@ -108,4 +108,9 @@
   <dimen name="selector_dialog_list_item_padding">26dp</dimen>
   <dimen name="selector_dialog_list_item_text_size">16sp</dimen>
   <dimen name="selector_dialog_progress_bar_padding">48dp</dimen>
+  <dimen name="upload_pending_icon_margin_bottom">2dp</dimen>
+  <dimen name="upload_pending_icon_margin_end">2dp</dimen>
+
+  <!-- Navigation drawer -->
+  <dimen name="nav_drawer_profile_image_size">64dp</dimen>
 </resources>

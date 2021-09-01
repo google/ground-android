@@ -19,19 +19,23 @@ package com.google.android.gnd.repository;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
+import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.util.Date;
@@ -81,15 +85,16 @@ public class ObservationRepository {
    *   <li>Relevant observations are returned directly from the local data store.
    * </ol>
    */
+  @Cold
   public Single<ImmutableList<Observation>> getObservations(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(feature -> getObservations(feature, formId));
   }
 
+  @Cold
   private Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
@@ -101,6 +106,7 @@ public class ObservationRepository {
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
   }
 
+  @Cold
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
@@ -109,12 +115,12 @@ public class ObservationRepository {
         .flatMapCompletable(localDataStore::mergeObservation);
   }
 
+  @Cold
   public Single<Observation> getObservation(
       String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(
             feature ->
                 localDataStore
@@ -123,12 +129,12 @@ public class ObservationRepository {
                         Single.error(() -> new NotFoundException("Observation " + observationId))));
   }
 
+  @Cold
   public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .map(
             feature ->
                 Observation.newBuilder()
@@ -141,6 +147,7 @@ public class ObservationRepository {
                     .build());
   }
 
+  @Cold
   public Completable deleteObservation(Observation observation) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
@@ -158,6 +165,7 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
+  @Cold
   public Completable createOrUpdateObservation(
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
@@ -176,9 +184,25 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
+  @Cold
   private Completable applyAndEnqueue(ObservationMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
+  }
+
+  /**
+   * Returns all {@link ObservationMutation} instances for a given feature which have not yet been
+   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations. A
+   * new list is emitted on each subsequent change.
+   */
+  public Flowable<ImmutableList<ObservationMutation>>
+      getIncompleteObservationMutationsOnceAndStream(Project project, String featureId) {
+    return localDataStore.getObservationMutationsByFeatureIdOnceAndStream(
+        project,
+        featureId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED);
   }
 }

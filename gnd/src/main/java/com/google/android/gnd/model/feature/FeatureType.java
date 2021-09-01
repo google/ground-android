@@ -18,5 +18,6 @@ package com.google.android.gnd.model.feature;
 
 public enum FeatureType {
   UNKNOWN,
-  POINT
+  POINT,
+  POLYGON
 }

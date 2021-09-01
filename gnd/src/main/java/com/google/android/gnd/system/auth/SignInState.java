@@ -36,12 +36,12 @@ public class SignInState extends ValueOrError<User> {
     this.state = state;
   }
 
-  SignInState(User user) {
+  public SignInState(User user) {
     super(user, null);
     this.state = State.SIGNED_IN;
   }
 
-  SignInState(Throwable error) {
+  public SignInState(Throwable error) {
     super(null, error);
     this.state = State.ERROR;
   }

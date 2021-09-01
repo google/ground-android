@@ -39,9 +39,11 @@
       android:layout_height="match_parent" />
 
     <FrameLayout
+      android:id="@+id/map_overlay"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:fitsSystemWindows="true">
+
       <include
         android:id="@+id/map_controls"
         layout="@layout/map_home_layout"
@@ -49,12 +51,37 @@
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
 
-      <include
+      <view
         android:id="@+id/move_feature"
-        layout="@layout/map_move_feature_layout"
+        class="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionView"
         android:visibility="@{viewModel.moveFeatureVisibility}"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+      <include
+        android:id="@+id/polygon_drawing_controls"
+        layout="@layout/polygon_drawing_controls"
+        app:visible="@{viewModel.isAddPolygonButtonVisible()}"
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
+
+      <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_margin="10dp">
+
+        <TextView
+          android:id="@+id/location_accuracy"
+          android:layout_width="match_parent"
+          android:background="@android:color/white"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:padding="5dp"
+          android:text="@{viewModel.getLocationAccuracy()}"
+          android:textColor="@color/colorPrimary"
+          app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
+      </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
   </FrameLayout>
 </layout>

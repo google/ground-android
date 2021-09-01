@@ -18,7 +18,7 @@
 
 buildscript {
     ext {
-        hiltVersion = "2.29.1-alpha"
+        hiltVersion = "2.38"
     }
     repositories {
         google()
@@ -51,9 +51,7 @@ buildscript {
 
 plugins {
     id "com.github.ben-manes.versions" version "0.36.0"
-    // Spotbugs has been disabled due to incompatibility with Gradle 6
-    // See history here: https://github.com/google/ground-android/pull/501
-    //id 'com.github.spotbugs' version '4.3.0'
+    id "com.github.spotbugs" version "4.7.2" apply false
 }
 
 allprojects {
@@ -68,7 +66,7 @@ allprojects {
 }
 
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'pmd', 'dependencyUpdates']
+    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugsDebug']
 }
 
 task clean(type: Delete) {
@@ -102,4 +100,12 @@ tasks.dependencyUpdates {
     gradleReleaseChannel = "current"
     outputFormatter = "json,plain"
     outputDir = "gnd/build/reports/dependencyUpdates"
+}
+
+ext {
+    androidCompileSdk = 30
+    androidMinSdk = 16
+    androidTargetSdk = 30
+
+    gmsMapsVersion = '17.0.1'
 }

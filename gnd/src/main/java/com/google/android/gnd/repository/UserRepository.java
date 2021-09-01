@@ -24,6 +24,7 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import io.reactivex.Completable;
 import javax.inject.Inject;
@@ -40,7 +41,7 @@ public class UserRepository {
   private final Schedulers schedulers;
 
   @Inject
-  UserRepository(
+  public UserRepository(
       AuthenticationManager authenticationManager,
       LocalDataStore localDataStore,
       LocalValueStore localValueStore,
@@ -60,6 +61,7 @@ public class UserRepository {
     return value == null ? Role.UNKNOWN : toEnum(Role.class, value);
   }
 
+  @Cold
   public Completable saveUser(User user) {
     return localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io());
   }

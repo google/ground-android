@@ -22,11 +22,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -36,18 +41,19 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.LocalDatabaseModule;
+import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.util.Date;
+import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,14 +63,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-@SuppressWarnings("unchecked")
-@HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
+// TODO: Include a test for Polygon feature
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(FeatureRepository.class) // Needed for mocking "new Date()"
 public class FeatureRepositoryTest {
 
   private static final User TEST_USER =
@@ -116,9 +120,9 @@ public class FeatureRepositoryTest {
           .setLastModified(TEST_AUDIT_INFO)
           .build();
 
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
+  private static final Date FAKE_NOW = new Date();
 
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Rule public MockitoRule rule = MockitoJUnit.rule();
 
   @Mock LocalDataStore mockLocalDataStore;
   @Mock RemoteDataStore mockRemoteDataStore;
@@ -145,9 +149,13 @@ public class FeatureRepositoryTest {
     doReturn(Completable.complete()).when(mockWorkManager).enqueueSyncWorker(anyString());
   }
 
+  private void mockRemoteFeatureStream(RemoteDataEvent<Feature> event) {
+    when(mockRemoteDataStore.loadFeaturesOnceAndStreamChanges(TEST_PROJECT))
+        .thenReturn(Flowable.just(event));
+  }
+
   @Before
   public void setUp() {
-    hiltRule.inject();
     featureRepository =
         new FeatureRepository(
             mockLocalDataStore,
@@ -156,49 +164,22 @@ public class FeatureRepositoryTest {
             mockWorkManager,
             mockAuthManager,
             mockUuidGenerator);
-
-    mockAuthUser();
   }
 
   @Test
-  public void testCreateFeature() {
+  public void testApplyAndEnqueue() {
     mockApplyAndEnqueue();
     mockEnqueueSyncWorker();
 
-    featureRepository.createFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
+    featureRepository
+        .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
+        .test()
+        .assertNoErrors()
+        .assertComplete();
 
     FeatureMutation actual = captorFeatureMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.CREATE);
-    assertThat(actual.getFeatureId()).isEqualTo(TEST_FEATURE.getId());
-
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
-  }
-
-  @Test
-  public void testUpdateFeature() {
-    mockApplyAndEnqueue();
-    mockEnqueueSyncWorker();
-
-    featureRepository.updateFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
-
-    FeatureMutation actual = captorFeatureMutation.getValue();
-    assertThat(actual.getType()).isEqualTo(Mutation.Type.UPDATE);
-    assertThat(actual.getFeatureId()).isEqualTo(TEST_FEATURE.getId());
-
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
-  }
-
-  @Test
-  public void testDeleteFeature() {
-    mockApplyAndEnqueue();
-    mockEnqueueSyncWorker();
-
-    featureRepository.deleteFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
-
-    FeatureMutation actual = captorFeatureMutation.getValue();
-    assertThat(actual.getType()).isEqualTo(Mutation.Type.DELETE);
+    assertThat(actual.getSyncStatus()).isEqualTo(SyncStatus.PENDING);
     assertThat(actual.getFeatureId()).isEqualTo(TEST_FEATURE.getId());
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
@@ -214,7 +195,7 @@ public class FeatureRepositoryTest {
         .applyAndEnqueue(any(FeatureMutation.class));
 
     featureRepository
-        .createFeature(TEST_FEATURE)
+        .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
         .test()
         .assertError(NullPointerException.class)
         .assertNotComplete();
@@ -232,12 +213,105 @@ public class FeatureRepositoryTest {
         .enqueueSyncWorker(anyString());
 
     featureRepository
-        .createFeature(TEST_FEATURE)
+        .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
         .test()
         .assertError(NullPointerException.class)
         .assertNotComplete();
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
     verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
+  }
+
+  @Test
+  public void testSyncFeatures_loaded() {
+    mockRemoteFeatureStream(RemoteDataEvent.loaded("entityId", TEST_FEATURE));
+    when(mockLocalDataStore.mergeFeature(TEST_FEATURE)).thenReturn(Completable.complete());
+
+    featureRepository.syncFeatures(TEST_PROJECT).test().assertNoErrors().assertComplete();
+
+    verify(mockLocalDataStore, times(1)).mergeFeature(TEST_FEATURE);
+  }
+
+  @Test
+  public void testSyncFeatures_modified() {
+    mockRemoteFeatureStream(RemoteDataEvent.modified("entityId", TEST_FEATURE));
+    when(mockLocalDataStore.mergeFeature(TEST_FEATURE)).thenReturn(Completable.complete());
+
+    featureRepository.syncFeatures(TEST_PROJECT).test().assertNoErrors().assertComplete();
+
+    verify(mockLocalDataStore, times(1)).mergeFeature(TEST_FEATURE);
+  }
+
+  @Test
+  public void testSyncFeatures_removed() {
+    mockRemoteFeatureStream(RemoteDataEvent.removed("entityId"));
+    when(mockLocalDataStore.deleteFeature(anyString())).thenReturn(Completable.complete());
+
+    featureRepository.syncFeatures(TEST_PROJECT).test().assertComplete();
+
+    verify(mockLocalDataStore, times(1)).deleteFeature("entityId");
+  }
+
+  @Test
+  public void testSyncFeatures_error() {
+    mockRemoteFeatureStream(RemoteDataEvent.error(new Throwable("Foo error")));
+    featureRepository.syncFeatures(TEST_PROJECT).test().assertNoErrors().assertComplete();
+  }
+
+  @Test
+  public void testGetFeaturesOnceAndStream() {
+    when(mockLocalDataStore.getFeaturesOnceAndStream(TEST_PROJECT))
+        .thenReturn(Flowable.just(ImmutableSet.of(TEST_FEATURE)));
+
+    featureRepository
+        .getFeaturesOnceAndStream(TEST_PROJECT)
+        .test()
+        .assertValue(ImmutableSet.of(TEST_FEATURE));
+  }
+
+  @Test
+  public void testGetFeature_projectNotPresent() {
+    when(mockProjectRepository.getProject(anyString()))
+        .thenReturn(Single.error(new NoSuchElementException()));
+
+    featureRepository
+        .getFeature("non_existent_project_id", "feature_id")
+        .test()
+        .assertFailure(NoSuchElementException.class);
+  }
+
+  @Test
+  public void testGetFeature_projectPresent() {
+    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(TEST_PROJECT));
+    when(mockLocalDataStore.getFeature(TEST_PROJECT, TEST_FEATURE.getId()))
+        .thenReturn(Maybe.just(TEST_FEATURE));
+
+    featureRepository
+        .getFeature(TEST_PROJECT.getId(), TEST_FEATURE.getId())
+        .test()
+        .assertResult(TEST_FEATURE);
+
+    featureRepository
+        .getFeature(TEST_FEATURE.toMutation(Type.UPDATE, "user_id"))
+        .test()
+        .assertResult(TEST_FEATURE);
+  }
+
+  @Test
+  public void testNewFeature() throws Exception {
+    mockAuthUser();
+    when(mockUuidGenerator.generateUuid()).thenReturn("new_uuid");
+    whenNew(Date.class).withNoArguments().thenReturn(FAKE_NOW);
+
+    FeatureMutation newMutation =
+        featureRepository.newMutation("foo_project_id", "foo_layer_id", TEST_POINT);
+
+    assertThat(newMutation.getId()).isNull();
+    assertThat(newMutation.getFeatureId()).isEqualTo("new_uuid");
+    assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getNewLocation().get()).isEqualTo(TEST_POINT);
+    assertThat(newMutation.getUserId()).isEqualTo(TEST_USER.getId());
+    assertThat(newMutation.getClientTimestamp()).isEqualTo(FAKE_NOW);
   }
 }

@@ -26,6 +26,10 @@
 #                                /                   \                                                                     /
 #  Fetch google-services.json -->                      --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
 #
+# Notes:
+# ------
+# ${_PUSH_TO_MASTER} is true when the commit is pushed to master branch
+# i.e. it happens after GitHub merges an approved PR with master.
 
 steps:
 
@@ -73,6 +77,10 @@ steps:
       - |
         ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
+
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          ./gradlew -PdisablePreDex dependencyUpdates
+        fi
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &unit_tests 'Run unit tests'

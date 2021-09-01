@@ -155,23 +155,20 @@ public class ObservationDetailsFragment extends AbstractFragment {
     String featureId = args.getFeatureId();
     String observationId = args.getObservationId();
 
-    switch (item.getItemId()) {
-      case R.id.edit_observation_menu_item:
-        // This is required to prevent menu from reappearing on back.
-        getActivity().closeOptionsMenu();
-        navigator.navigate(
-            ObservationDetailsFragmentDirections.editObservation(
-                projectId, featureId, observationId));
-        return true;
-      case R.id.delete_observation_menu_item:
-        viewModel
-            .deleteCurrentObservation(projectId, featureId, observationId)
-            .as(autoDisposable(this))
-            .subscribe(() -> navigator.navigateUp());
-        return true;
-      default:
-        return false;
+    if (item.getItemId() == R.id.edit_observation_menu_item) {
+      navigator.navigate(
+          ObservationDetailsFragmentDirections.editObservation(
+              projectId, featureId, observationId));
+    } else if (item.getItemId() == R.id.delete_observation_menu_item) {
+      viewModel
+          .deleteCurrentObservation(projectId, featureId, observationId)
+          .as(autoDisposable(this))
+          .subscribe(() -> navigator.navigateUp());
+    } else {
+      return false;
     }
+
+    return true;
   }
 
   private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {

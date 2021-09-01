@@ -75,6 +75,7 @@ class OfflineBaseMapListAdapter extends RecyclerView.Adapter<OfflineBaseMapListA
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+    viewHolder.areas = offlineBaseMaps;
     viewHolder.binding.offlineAreaName.setText(offlineBaseMaps.get(position).getName());
     viewHolder.position = position;
   }
