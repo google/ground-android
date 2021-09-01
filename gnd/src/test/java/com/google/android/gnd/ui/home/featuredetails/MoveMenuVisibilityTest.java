@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home.featuredetails;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.gnd.TestObservers;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import java.util.Arrays;
