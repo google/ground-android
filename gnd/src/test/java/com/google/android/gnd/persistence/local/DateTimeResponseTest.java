@@ -16,10 +16,9 @@
 
 package com.google.android.gnd.persistence.local;
 
-import static com.google.android.gnd.model.observation.DateResponse.DATE_FORMAT;
-import static com.google.android.gnd.model.observation.TimeResponse.TIME_FORMAT;
-
 import com.google.common.truth.Truth;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -29,10 +28,14 @@ import org.junit.Test;
 
 public class DateTimeResponseTest {
 
+  public final DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+  public final DateFormat dateFormat =
+      new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
   @Test
   public void testTimeFormat() {
     Date originalDate = new Date();
-    String timeString = TIME_FORMAT.format(originalDate);
+    String timeString = timeFormat.format(originalDate);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
     LocalTime lt = LocalTime.parse(timeString, formatter);
     String formattedTime = lt.format(formatter);
@@ -42,7 +45,7 @@ public class DateTimeResponseTest {
   @Test
   public void testDateFormat() {
     Date originalDate = new Date();
-    String dateString = DATE_FORMAT.format(originalDate);
+    String dateString = dateFormat.format(originalDate);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault());
     LocalDate ld = LocalDate.parse(dateString, formatter);
     String formattedDate = ld.format(formatter);

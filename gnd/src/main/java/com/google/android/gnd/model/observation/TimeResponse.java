@@ -27,7 +27,7 @@ import java8.util.Optional;
 /** A user-provided time {@link Field} response. */
 public class TimeResponse implements Response {
   // TODO(#752): Use device localization preferences.
-  public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm", Locale.getDefault());
+  public final DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
   private final Date time;
 
   public TimeResponse(Date time) {
@@ -45,8 +45,8 @@ public class TimeResponse implements Response {
 
   @Override
   public String getDetailsText() {
-    synchronized (TIME_FORMAT) {
-      return TIME_FORMAT.format(time);
+    synchronized (timeFormat) {
+      return timeFormat.format(time);
     }
   }
 

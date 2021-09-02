@@ -27,7 +27,7 @@ import java8.util.Optional;
 /** A user-provided date {@link Field} response. */
 public class DateResponse implements Response {
   // TODO(#752): Use device localization preferences.
-  public static final DateFormat DATE_FORMAT =
+  public final DateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
   private final Date date;
 
@@ -46,8 +46,8 @@ public class DateResponse implements Response {
 
   @Override
   public String getDetailsText() {
-    synchronized (DATE_FORMAT) {
-      return DATE_FORMAT.format(date);
+    synchronized (dateFormat) {
+      return dateFormat.format(date);
     }
   }
 
