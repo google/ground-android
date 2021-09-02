@@ -17,17 +17,33 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.content.res.Resources;
-import com.google.android.gnd.model.observation.NumberResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
+import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.annotations.Hot;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+import java.util.Date;
 import javax.inject.Inject;
 
-public class NumberFieldViewModel extends AbstractFieldViewModel {
+public class TimeFieldViewModel extends AbstractFieldViewModel {
+
+  @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  NumberFieldViewModel(Resources resources) {
+  TimeFieldViewModel(Resources resources) {
     super(resources);
   }
 
-  public void updateResponse(String number) {
-    setResponse(NumberResponse.fromNumber(number));
+  public void updateResponse(Date date) {
+    setResponse(TimeResponse.fromDate(date));
+  }
+
+  public void onShowDialogClick() {
+    showDialogClicks.onNext(Nil.NIL);
+  }
+
+  Observable<Nil> getShowDialogClicks() {
+    return showDialogClicks;
   }
 }

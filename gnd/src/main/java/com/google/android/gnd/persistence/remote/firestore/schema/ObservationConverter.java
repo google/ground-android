@@ -24,13 +24,16 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.ResponseMap.Builder;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +103,12 @@ class ObservationConverter {
       case NUMBER:
         putNumberResponse(fieldId, obj, responses);
         break;
-        // TODO(#748): Add support for date and time fields.
+      case DATE:
+        putDateResponse(fieldId, obj, responses);
+        break;
+      case TIME:
+        putTimeResponse(fieldId, obj, responses);
+        break;
       default:
         throw new DataStoreException("Unknown type " + field.getType());
     }
@@ -115,6 +123,16 @@ class ObservationConverter {
   private static void putTextResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
     String value = (String) DataStoreException.checkType(String.class, obj);
     TextResponse.fromString(value.trim()).ifPresent(r -> responses.putResponse(fieldId, r));
+  }
+
+  private static void putDateResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+    Timestamp value = (Timestamp) DataStoreException.checkType(Timestamp.class, obj);
+    DateResponse.fromDate(value.toDate()).ifPresent(r -> responses.putResponse(fieldId, r));
+  }
+
+  private static void putTimeResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+    Timestamp value = (Timestamp) DataStoreException.checkType(Timestamp.class, obj);
+    TimeResponse.fromDate(value.toDate()).ifPresent(r -> responses.putResponse(fieldId, r));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
