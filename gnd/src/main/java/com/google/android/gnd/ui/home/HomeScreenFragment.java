@@ -53,6 +53,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -103,6 +104,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
+  @Inject LocalValueStore localValueStore;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -191,7 +193,20 @@ public class HomeScreenFragment extends AbstractFragment
               viewModel.addFeature(layer, point);
               break;
             case POLYGON:
-              showPolygonInfoDialog(layer);
+              if (localValueStore.isPolygonDialogInfoShown()) {
+                viewModel
+                    .getActiveProject()
+                    .ifPresentOrElse(
+                        project -> {
+                          polygonDrawingViewModel.startDrawingFlow(project, layer);
+                          mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+                        },
+                        () -> {
+                          throw new IllegalStateException("Empty project");
+                        });
+              } else {
+                showPolygonInfoDialog(layer);
+              }
               break;
             default:
               Timber.w("Unsupported feature type defined in layer: %s",
@@ -540,7 +555,20 @@ public class HomeScreenFragment extends AbstractFragment
               if (featureType == 0) {
                 viewModel.addFeature(layer, point);
               } else {
-                showPolygonInfoDialog(layer);
+                if (localValueStore.isPolygonDialogInfoShown()) {
+                  viewModel
+                      .getActiveProject()
+                      .ifPresentOrElse(
+                          project -> {
+                            polygonDrawingViewModel.startDrawingFlow(project, layer);
+                            mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+                          },
+                          () -> {
+                            throw new IllegalStateException("Empty project");
+                          });
+                } else {
+                  showPolygonInfoDialog(layer);
+                }
               }
             });
     featureDataTypeSelectorDialogFragment.show(
@@ -555,6 +583,7 @@ public class HomeScreenFragment extends AbstractFragment
                     .getActiveProject()
                     .ifPresentOrElse(
                         project -> {
+                          localValueStore.setPolygonInfoDialogShown(true);
                           polygonDrawingViewModel.startDrawingFlow(project, layer);
                           mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
                         },
