@@ -33,6 +33,7 @@ import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel;
 import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel;
@@ -55,6 +56,12 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(FeatureRepositionViewModel.class)
   abstract ViewModel bindFeatureRepositionViewModel(FeatureRepositionViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(PolygonDrawingViewModel.class)
+  abstract ViewModel bindPolygonDrawingViewModel(PolygonDrawingViewModel viewModel);
+
 
   @Binds
   @IntoMap

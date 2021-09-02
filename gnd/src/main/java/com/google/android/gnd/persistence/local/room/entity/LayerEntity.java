@@ -113,6 +113,8 @@ public abstract class LayerEntity {
     switch (stringValue) {
       case "points":
         return FeatureType.POINT;
+      case "polygons":
+        return FeatureType.POLYGON;
       default:
         return FeatureType.UNKNOWN;
     }
