@@ -103,9 +103,9 @@ tasks.dependencyUpdates {
 }
 
 ext {
-    androidCompileSdk = 30
+    androidCompileSdk = 28
     androidMinSdk = 16
-    androidTargetSdk = 30
+    androidTargetSdk = 26
 
     gmsMapsVersion = '17.0.1'
 }
