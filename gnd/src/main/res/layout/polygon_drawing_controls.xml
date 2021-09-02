@@ -56,8 +56,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:srcCompat="@drawable/ic_undo_black"
       app:tint="@android:color/black"
-      app:layout_constraintEnd_toStartOf="@id/add_polygon_button"
-       />
+      app:layout_constraintEnd_toStartOf="@id/add_polygon_button" />
 
     <Button
       android:id="@+id/add_polygon_button"
