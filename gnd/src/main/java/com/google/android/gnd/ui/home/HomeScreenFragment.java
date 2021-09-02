@@ -53,7 +53,6 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -104,7 +103,6 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
-  @Inject LocalValueStore localValueStore;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -177,7 +175,6 @@ public class HomeScreenFragment extends AbstractFragment
     addFeatureDialogFragment.show(
         layers,
         getChildFragmentManager(),
-
         layer -> {
           if (layer.getContributorsCanAdd().isEmpty()) {
             Timber.e("No permissions set on layer %s%", layer.getId());
@@ -193,23 +190,15 @@ public class HomeScreenFragment extends AbstractFragment
               viewModel.addFeature(layer, point);
               break;
             case POLYGON:
-              if (localValueStore.isPolygonDialogInfoShown()) {
-                viewModel
-                    .getActiveProject()
-                    .ifPresentOrElse(
-                        project -> {
-                          polygonDrawingViewModel.startDrawingFlow(project, layer);
-                          mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-                        },
-                        () -> {
-                          throw new IllegalStateException("Empty project");
-                        });
+              if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+                startPolygonDrawing(layer);
               } else {
                 showPolygonInfoDialog(layer);
               }
               break;
             default:
-              Timber.w("Unsupported feature type defined in layer: %s",
+              Timber.w(
+                  "Unsupported feature type defined in layer: %s",
                   layer.getContributorsCanAdd().get(0));
               break;
           }
@@ -554,18 +543,9 @@ public class HomeScreenFragment extends AbstractFragment
             featureType -> {
               if (featureType == 0) {
                 viewModel.addFeature(layer, point);
-              } else {
-                if (localValueStore.isPolygonDialogInfoShown()) {
-                  viewModel
-                      .getActiveProject()
-                      .ifPresentOrElse(
-                          project -> {
-                            polygonDrawingViewModel.startDrawingFlow(project, layer);
-                            mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-                          },
-                          () -> {
-                            throw new IllegalStateException("Empty project");
-                          });
+              } else if (featureType == 1) {
+                if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+                  startPolygonDrawing(layer);
                 } else {
                   showPolygonInfoDialog(layer);
                 }
@@ -575,21 +555,24 @@ public class HomeScreenFragment extends AbstractFragment
         getChildFragmentManager(), FeatureDataTypeSelectorDialogFragment.class.getSimpleName());
   }
 
+  private void startPolygonDrawing(Layer layer) {
+    viewModel
+        .getActiveProject()
+        .ifPresentOrElse(
+            project -> {
+              polygonDrawingViewModel.startDrawingFlow(project, layer);
+              mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+            },
+            () -> {
+              Timber.e("Empty project");
+            });
+  }
+
   private void showPolygonInfoDialog(Layer layer) {
+    polygonDrawingViewModel.updatePolygonInfoDialogShown();
     polygonDrawingInfoDialogFragment =
         new PolygonDrawingInfoDialogFragment(
-            () ->
-                viewModel
-                    .getActiveProject()
-                    .ifPresentOrElse(
-                        project -> {
-                          localValueStore.setPolygonInfoDialogShown(true);
-                          polygonDrawingViewModel.startDrawingFlow(project, layer);
-                          mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-                        },
-                        () -> {
-                          throw new IllegalStateException("Empty project");
-                        }));
+            () -> startPolygonDrawing(layer));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }

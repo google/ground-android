@@ -25,6 +25,7 @@ import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.PolygonDialogInfoRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -67,6 +68,7 @@ public class MainViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
   private final TermsOfServiceRepository termsOfServiceRepository;
+  private final PolygonDialogInfoRepository polygonDialogInfoRepository;
   private final EphemeralPopups popups;
 
   @Inject
@@ -75,6 +77,7 @@ public class MainViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       UserRepository userRepository,
       TermsOfServiceRepository termsOfServiceRepository,
+      PolygonDialogInfoRepository polygonDialogInfoRepository,
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
@@ -82,6 +85,7 @@ public class MainViewModel extends AbstractViewModel {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.termsOfServiceRepository = termsOfServiceRepository;
+    this.polygonDialogInfoRepository = polygonDialogInfoRepository;
     this.userRepository = userRepository;
     this.popups = popups;
 
@@ -125,6 +129,7 @@ public class MainViewModel extends AbstractViewModel {
   private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
       termsOfServiceRepository.setTermsOfServiceAccepted(false);
+      polygonDialogInfoRepository.setPolygonDialogInfoShown(false);
     }
 
     switch (signInState.state()) {
