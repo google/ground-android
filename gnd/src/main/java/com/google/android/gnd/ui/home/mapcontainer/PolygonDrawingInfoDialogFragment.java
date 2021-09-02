@@ -51,7 +51,7 @@ public class PolygonDrawingInfoDialogFragment extends AbstractDialogFragment {
           onGetStartedButtonClick.run();
         });
     builder.setView(binding.getRoot());
-    binding.cancelButton.setOnClickListener(v -> dismiss());
+    binding.cancelTextView.setOnClickListener(v -> dismiss());
     return builder.create();
   }
 }

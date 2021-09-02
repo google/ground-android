@@ -59,7 +59,7 @@
 
   <TextView
     android:text="@string/cancel"
-    android:id="@+id/cancel_button"
+    android:id="@+id/cancel_text_view"
     app:layout_constraintStart_toStartOf="@id/info_polygon_text"
     app:layout_constraintEnd_toEndOf="@id/info_polygon_text"
     android:textColor="@color/colorAccent"
