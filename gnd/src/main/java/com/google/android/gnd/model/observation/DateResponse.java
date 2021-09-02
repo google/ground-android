@@ -27,7 +27,7 @@ import java8.util.Optional;
 /** A user-provided date {@link Field} response. */
 public class DateResponse implements Response {
   // TODO(#752): Use device localization preferences.
-  public final DateFormat dateFormat =
+  private final DateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
   private final Date date;
 
