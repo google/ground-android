@@ -33,7 +33,9 @@ public abstract class PolygonFeature extends Feature<PolygonFeature.Builder> {
 
   @Override
   public FeatureMutation toMutation(Type type, String userId) {
-    return super.toMutation(type, userId).toBuilder().setNewPolygonVertices(getVertices()).build();
+    return super.toMutation(type, userId)
+        .toBuilder()
+        .setNewPolygonVertices(getVertices()).build();
   }
 
   @Memoized

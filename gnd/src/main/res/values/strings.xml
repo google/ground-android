@@ -197,7 +197,7 @@
   <string name="config_load_error">Error loading config from remote server</string>
 
   <string name="add_point">Add point</string>
-  <string name="complete_polygon">Completa</string>
+  <string name="complete_polygon">Complete</string>
   <string name="select_feature_type">Choose a feature type</string>
   <string name="get_started_button_text">Get started</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>

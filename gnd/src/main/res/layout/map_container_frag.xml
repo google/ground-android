@@ -26,6 +26,10 @@
     <variable
       name="homeScreenViewModel"
       type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+
+    <variable
+      name="polygonDrawingViewModel"
+      type="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel" />
   </data>
 
   <FrameLayout
@@ -58,12 +62,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-      <include
+      <view
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        class="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingView"
         android:id="@+id/polygon_drawing_controls"
-        layout="@layout/polygon_drawing_controls"
-        app:visible="@{viewModel.isAddPolygonButtonVisible()}"
-        app:homeScreenViewModel="@{homeScreenViewModel}"
-        app:viewModel="@{viewModel}" />
+        app:visible="@{viewModel.isAddPolygonButtonVisible()}" />
 
       <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"

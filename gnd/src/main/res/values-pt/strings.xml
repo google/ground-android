@@ -175,7 +175,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="build">Construir %s</string>
 
   <string name="add_point">Adicionar ponto</string>
-  <string name="complete_polygon">Salvar polígono</string>
+  <string name="complete_polygon">Completa</string>
   <string name="point">Ponto</string>
   <string name="polygon">Polígono</string>
   <string name="select_feature_type">Escolha um tipo de recurso</string>
