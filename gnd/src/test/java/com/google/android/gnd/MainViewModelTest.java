@@ -84,7 +84,6 @@ public class MainViewModelTest {
   @Mock FeatureRepository mockFeatureRepository;
   @Mock UserRepository mockUserRepository;
   @Mock TermsOfServiceRepository mockTosRepository;
-  @Mock PolygonDialogInfoRepository polygonDialogInfoRepository;
   @Mock EphemeralPopups mockPopups;
   @Mock Navigator mockNavigator;
 
@@ -108,7 +107,6 @@ public class MainViewModelTest {
             mockFeatureRepository,
             mockUserRepository,
             mockTosRepository,
-            polygonDialogInfoRepository,
             mockNavigator,
             authenticationManager,
             mockPopups,
