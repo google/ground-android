@@ -125,6 +125,7 @@ public class MainViewModel extends AbstractViewModel {
   private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
       termsOfServiceRepository.setTermsOfServiceAccepted(false);
+      featureRepository.setPolygonDialogInfoShown(false);
     }
 
     switch (signInState.state()) {

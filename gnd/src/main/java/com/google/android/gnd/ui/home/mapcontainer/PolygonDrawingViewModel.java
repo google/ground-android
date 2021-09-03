@@ -30,6 +30,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -80,15 +81,18 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
+  private final FeatureRepository featureRepository;
   @Nullable private Point cameraTarget;
 
   @Inject
   PolygonDrawingViewModel(
       LocationManager locationManager,
+      FeatureRepository featureRepository,
       AuthenticationManager authManager,
       OfflineUuidGenerator uuidGenerator) {
     this.locationManager = locationManager;
     this.authManager = authManager;
+    this.featureRepository = featureRepository;
     this.uuidGenerator = uuidGenerator;
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
@@ -246,5 +250,13 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   public enum PolygonDrawing {
     STARTED,
     COMPLETED
+  }
+
+  public boolean isPolygonInfoDialogShown() {
+    return featureRepository.isPolygonDialogInfoShown();
+  }
+
+  public void updatePolygonInfoDialogShown() {
+    featureRepository.setPolygonDialogInfoShown(true);
   }
 }
