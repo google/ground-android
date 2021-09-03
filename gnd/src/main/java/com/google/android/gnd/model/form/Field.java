@@ -29,7 +29,9 @@ public abstract class Field {
     TEXT_FIELD,
     MULTIPLE_CHOICE,
     PHOTO,
-    NUMBER
+    NUMBER,
+    DATE,
+    TIME
   }
 
   public abstract String getId();
