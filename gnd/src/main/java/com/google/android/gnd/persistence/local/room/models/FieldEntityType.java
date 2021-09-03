@@ -29,16 +29,20 @@ public enum FieldEntityType implements IntEnum {
   TEXT(1),
   MULTIPLE_CHOICE(2),
   PHOTO(3),
-  NUMBER(4);
+  NUMBER(4),
+  DATE(5),
+  TIME(6);
 
   private final int intValue;
 
   private static final ImmutableBiMap<FieldEntityType, Type> FIELD_TYPES =
-      ImmutableBiMap.of(
-          TEXT, Field.Type.TEXT_FIELD,
-          MULTIPLE_CHOICE, Field.Type.MULTIPLE_CHOICE,
-          PHOTO, Field.Type.PHOTO,
-          NUMBER, Field.Type.NUMBER);
+      ImmutableBiMap.<FieldEntityType, Type>builder()
+          .put(TEXT, Type.TEXT_FIELD)
+          .put(MULTIPLE_CHOICE, Type.MULTIPLE_CHOICE)
+          .put(PHOTO, Type.PHOTO)
+          .put(NUMBER, Type.NUMBER)
+          .put(DATE, Type.DATE)
+          .put(TIME, Type.TIME).build();
 
   FieldEntityType(int intValue) {
     this.intValue = intValue;

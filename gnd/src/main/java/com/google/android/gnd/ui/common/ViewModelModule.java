@@ -19,11 +19,13 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
+import com.google.android.gnd.ui.editobservation.DateFieldViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel;
 import com.google.android.gnd.ui.editobservation.NumberFieldViewModel;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import com.google.android.gnd.ui.editobservation.TextFieldViewModel;
+import com.google.android.gnd.ui.editobservation.TimeFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel;
@@ -155,6 +157,16 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(NumberFieldViewModel.class)
   abstract ViewModel bindNumberFieldViewModel(NumberFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(DateFieldViewModel.class)
+  abstract ViewModel bindDateFieldViewModel(DateFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(TimeFieldViewModel.class)
+  abstract ViewModel bindTimeFieldViewModel(TimeFieldViewModel viewModel);
 
   @Binds
   @IntoMap

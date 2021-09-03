@@ -135,6 +135,8 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
   <string name="terms_load_error">Ocorreu um erro ao carregar os Termos de Serviço</string>
 
+  <string name="date">Data</string>
+  <string name="time">Hora</string>
   <string name="continue_editing">Continuar editando</string>
   <string name="offline_base_maps">Base de mapas offline</string>
   <string name="unknown_user"> Usuário desconhecido</string>
