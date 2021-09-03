@@ -29,7 +29,6 @@ import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.PolygonDialogInfoRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;

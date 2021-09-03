@@ -564,7 +564,7 @@ public class HomeScreenFragment extends AbstractFragment
               mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
             },
             () -> {
-              Timber.e("Empty project");
+              Timber.e("No active project");
             });
   }
 

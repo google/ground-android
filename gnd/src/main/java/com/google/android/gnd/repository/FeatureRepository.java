@@ -23,6 +23,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -52,6 +53,7 @@ import timber.log.Timber;
 public class FeatureRepository {
 
   private final LocalDataStore localDataStore;
+  private final LocalValueStore localValueStore;
   private final RemoteDataStore remoteDataStore;
   private final ProjectRepository projectRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
@@ -61,12 +63,14 @@ public class FeatureRepository {
   @Inject
   public FeatureRepository(
       LocalDataStore localDataStore,
+      LocalValueStore localValueStore,
       RemoteDataStore remoteDataStore,
       ProjectRepository projectRepository,
       DataSyncWorkManager dataSyncWorkManager,
       AuthenticationManager authManager,
       OfflineUuidGenerator uuidGenerator) {
     this.localDataStore = localDataStore;
+    this.localValueStore = localValueStore;
     this.remoteDataStore = remoteDataStore;
     this.projectRepository = projectRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
@@ -138,8 +142,8 @@ public class FeatureRepository {
         .build();
   }
 
-  public FeatureMutation newPolygonFeatureMutation(String projectId,
-      String layerId, ImmutableList<Point> vertices) {
+  public FeatureMutation newPolygonFeatureMutation(
+      String projectId, String layerId, ImmutableList<Point> vertices) {
     return FeatureMutation.builder()
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
@@ -178,5 +182,13 @@ public class FeatureRepository {
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS,
         MutationEntitySyncStatus.FAILED);
+  }
+
+  public boolean isPolygonDialogInfoShown() {
+    return localValueStore.isPolygonDialogInfoShown();
+  }
+
+  public void setPolygonDialogInfoShown(boolean value) {
+    localValueStore.setPolygonInfoDialogShown(value);
   }
 }
