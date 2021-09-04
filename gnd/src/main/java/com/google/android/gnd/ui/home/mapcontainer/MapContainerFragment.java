@@ -27,7 +27,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
@@ -60,8 +59,6 @@ import timber.log.Timber;
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
 public class MapContainerFragment extends AbstractFragment {
-
-  private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject FileUtil fileUtil;
   @Inject MbtilesFootprintParser mbtilesFootprintParser;
@@ -151,11 +148,9 @@ public class MapContainerFragment extends AbstractFragment {
 
     disableAddFeatureBtn();
 
-    if (savedInstanceState == null) {
-      replaceFragment(R.id.map, mapProvider.getFragment());
-    } else {
-      mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
-    }
+    mapProvider
+        .createFragment()
+        .attachToFragment(this, R.id.map, adapter -> mapProvider.setMapAdapter(adapter));
   }
 
   private void onMapReady(MapAdapter map) {
@@ -306,12 +301,6 @@ public class MapContainerFragment extends AbstractFragment {
     } else {
       map.moveCamera(update.getCenter());
     }
-  }
-
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
   }
 
   @Override

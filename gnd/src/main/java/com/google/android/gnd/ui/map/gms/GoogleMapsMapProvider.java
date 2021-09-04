@@ -17,13 +17,11 @@
 package com.google.android.gnd.ui.map.gms;
 
 import android.util.Pair;
-import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
@@ -32,47 +30,19 @@ import javax.inject.Inject;
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
 
-  private final MarkerIconFactory markerIconFactory;
-  private final BitmapUtil bitmapUtil;
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
-  @SuppressWarnings("NullAway.Init")
-  private GoogleMapsFragment fragment;
-
   @Inject
-  public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory, BitmapUtil bitmapUtil) {
-    this.markerIconFactory = markerIconFactory;
-    this.bitmapUtil = bitmapUtil;
+  public GoogleMapsMapProvider() {}
+
+  @Override
+  public MapFragment createFragment() {
+    return new GoogleMapsFragment();
   }
 
   @Override
-  public void restore(Fragment fragment) {
-    init((GoogleMapsFragment) fragment);
-  }
-
-  private void init(GoogleMapsFragment fragment) {
-    if (this.fragment != null) {
-      throw new IllegalStateException("Map fragment already initialized");
-    }
-    this.fragment = fragment;
-    createMapAsync();
-  }
-
-  private void createMapAsync() {
-    ((GoogleMapsFragment) getFragment())
-        .getMapAsync(
-            googleMap ->
-                map.onSuccess(
-                    new GoogleMapsMapAdapter(
-                        googleMap, fragment.getContext(), markerIconFactory, bitmapUtil)));
-  }
-
-  @Override
-  public Fragment getFragment() {
-    if (fragment == null) {
-      init(new GoogleMapsFragment());
-    }
-    return fragment;
+  public void setMapAdapter(MapAdapter adapter) {
+    map.onSuccess(adapter);
   }
 
   @Override

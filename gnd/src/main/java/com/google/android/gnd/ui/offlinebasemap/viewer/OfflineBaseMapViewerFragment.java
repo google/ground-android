@@ -41,8 +41,6 @@ import javax.inject.Inject;
 @AndroidEntryPoint
 public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
-  private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
-
   @Inject Navigator navigator;
   @Inject MapProvider mapProvider;
 
@@ -79,11 +77,9 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    if (savedInstanceState == null) {
-      replaceFragment(R.id.map, mapProvider.getFragment());
-    } else {
-      mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT));
-    }
+    mapProvider
+        .createFragment()
+        .attachToFragment(this, R.id.map, adapter -> mapProvider.setMapAdapter(adapter));
   }
 
   private void onMapReady(MapAdapter map) {

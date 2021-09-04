@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.map;
 
 import android.util.Pair;
-import androidx.fragment.app.Fragment;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 
@@ -28,9 +27,10 @@ import io.reactivex.Single;
  * called "map styles" in Mapbox and "basemaps" in Leaflet.
  */
 public interface MapProvider {
-  void restore(Fragment fragment);
 
-  Fragment getFragment();
+  MapFragment createFragment();
+
+  void setMapAdapter(MapAdapter adapter);
 
   Single<MapAdapter> getMapAdapter();
 

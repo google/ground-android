@@ -16,9 +16,21 @@ package com.google.android.gnd.ui.map;
  * limitations under the License.
  */
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import java8.util.function.Consumer;
+
 /**
  * Interface for a Fragment that renders a map view.
  *
  * <p>Interactions with the actual map are done via the {@link MapAdapter}.
  */
-public interface MapFragment {}
+public interface MapFragment {
+
+  /** Adds the {@link MapFragment} to a fragment. */
+  void attachToFragment(
+      @NonNull AbstractFragment containerFragment,
+      @IdRes int containerId,
+      @NonNull Consumer<MapAdapter> mapAdapter);
+}

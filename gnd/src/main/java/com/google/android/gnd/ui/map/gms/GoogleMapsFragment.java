@@ -22,18 +22,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gnd.ui.MarkerIconFactory;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFragment;
+import com.google.android.gnd.ui.util.BitmapUtil;
+import dagger.hilt.android.AndroidEntryPoint;
+import java8.util.function.Consumer;
+import javax.inject.Inject;
 
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-public class GoogleMapsFragment extends SupportMapFragment implements MapFragment {
+@AndroidEntryPoint
+public class GoogleMapsFragment extends SupportMapFragment
+    implements MapFragment, OnMapReadyCallback {
+
+  @Inject BitmapUtil bitmapUtil;
+  @Inject MarkerIconFactory markerIconFactory;
+
+  private Consumer<MapAdapter> adapterConsumer;
+
+  @NonNull
   @Override
-  public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
+  public View onCreateView(
+      @NonNull LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
     View view = super.onCreateView(layoutInflater, viewGroup, bundle);
     ViewCompat.setOnApplyWindowInsetsListener(view, this::onApplyWindowInsets);
     return view;
@@ -58,5 +79,21 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) watermark.getLayoutParams();
     params.setMargins(left, top, right, bottom);
     watermark.setLayoutParams(params);
+  }
+
+  @Override
+  public void attachToFragment(
+      @NonNull AbstractFragment containerFragment,
+      @IdRes int containerId,
+      @NonNull Consumer<MapAdapter> adapterConsumer) {
+    this.adapterConsumer = adapterConsumer;
+    containerFragment.replaceFragment(containerId, this);
+    getMapAsync(this);
+  }
+
+  @Override
+  public void onMapReady(@NonNull GoogleMap googleMap) {
+    adapterConsumer.accept(
+        new GoogleMapsMapAdapter(googleMap, getContext(), markerIconFactory, bitmapUtil));
   }
 }
