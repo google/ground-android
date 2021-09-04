@@ -25,12 +25,13 @@ import android.widget.RelativeLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gnd.ui.map.MapFragment;
 
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-public class GoogleMapsFragment extends SupportMapFragment {
+public class GoogleMapsFragment extends SupportMapFragment implements MapFragment {
   @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
     View view = super.onCreateView(layoutInflater, viewGroup, bundle);
