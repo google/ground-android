@@ -17,27 +17,56 @@
 package com.google.android.gnd.ui.map;
 
 import android.util.Pair;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.map.gms.GoogleMapsFragment;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
+import javax.inject.Inject;
 
 /**
- * Common interface for various map provider libraries.
+ * Creates a new {@link MapFragment}. Currently only {@link GoogleMapsFragment} is present, but the
+ * goal is to choose it based on user's preference.
  *
  * <p>Map Type refers to the basemap shown below map features and offline satellite imagery. It's
  * called "map styles" in Mapbox and "basemaps" in Leaflet.
  */
-public interface MapProvider {
+public class MapProvider {
 
-  MapFragment createFragment();
+  @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
-  void setMapAdapter(MapAdapter adapter);
+  @Inject
+  public MapProvider() {}
 
-  Single<MapAdapter> getMapAdapter();
+  public MapFragment createFragment() {
+    return new GoogleMapsFragment();
+  }
 
-  int getMapType();
+  public void setMapAdapter(MapAdapter adapter) {
+    map.onSuccess(adapter);
+  }
+
+  public Single<MapAdapter> getMapAdapter() {
+    return map;
+  }
+
+  public int getMapType() {
+    return map.getValue().getMapType();
+  }
 
   // TODO(#714): Use enum instead of int to represent basemap types.
-  void setMapType(int mapType);
+  public void setMapType(int mapType) {
+    map.getValue().setMapType(mapType);
+  }
 
-  ImmutableList<Pair<Integer, String>> getMapTypes();
+  public ImmutableList<Pair<Integer, String>> getMapTypes() {
+    // TODO(#711): Allow user to select language and use here.
+    return ImmutableList.<Pair<Integer, String>>builder()
+        .add(new Pair<>(GoogleMap.MAP_TYPE_NORMAL, "Normal"))
+        .add(new Pair<>(GoogleMap.MAP_TYPE_SATELLITE, "Satellite"))
+        .add(new Pair<>(GoogleMap.MAP_TYPE_TERRAIN, "Terrain"))
+        .add(new Pair<>(GoogleMap.MAP_TYPE_HYBRID, "Hybrid"))
+        .build();
+  }
 }
