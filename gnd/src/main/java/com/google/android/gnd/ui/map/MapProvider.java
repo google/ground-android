@@ -38,6 +38,11 @@ public class MapProvider {
 
   private static final BasemapSource[] BASEMAP_SOURCES = initSources();
 
+  @Hot private final FlowableProcessor<MapAdapter> map = PublishProcessor.create();
+
+  @Inject
+  public MapProvider() {}
+
   private static BasemapSource[] initSources() {
     return new BasemapSource[] {
       new BasemapSource(
@@ -56,13 +61,12 @@ public class MapProvider {
     return BASEMAP_SOURCES[0];
   }
 
-  @Hot private final FlowableProcessor<MapAdapter> map = PublishProcessor.create();
-
-  @Inject
-  public MapProvider() {}
-
   public MapFragment createFragment() {
     return getSource().supplier.get();
+  }
+
+  public ImmutableList<MapType> getMapTypes() {
+    return getSource().mapTypes;
   }
 
   @Hot
@@ -72,10 +76,6 @@ public class MapProvider {
 
   public void setMapAdapter(MapAdapter adapter) {
     map.onNext(adapter);
-  }
-
-  public ImmutableList<MapType> getMapTypes() {
-    return getSource().mapTypes;
   }
 
   private static class BasemapSource {
