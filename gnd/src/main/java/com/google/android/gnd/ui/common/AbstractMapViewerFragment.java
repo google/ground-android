@@ -20,12 +20,13 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapType;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Single;
+import io.reactivex.Flowable;
 import javax.inject.Inject;
 
 /** Injects a {@link MapFragment} in the container with id "map". */
@@ -41,7 +42,8 @@ public class AbstractMapViewerFragment extends AbstractFragment {
         .attachToFragment(this, R.id.map, adapter -> mapProvider.setMapAdapter(adapter));
   }
 
-  protected Single<MapAdapter> getMapAdapter() {
+  @Hot
+  protected Flowable<MapAdapter> getMapAdapter() {
     return mapProvider.getMapAdapter();
   }
 

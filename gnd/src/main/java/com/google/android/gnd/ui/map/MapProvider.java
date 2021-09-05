@@ -22,21 +22,23 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.map.gms.GoogleMapsFragment;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Single;
-import io.reactivex.subjects.SingleSubject;
+import io.reactivex.Flowable;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
 import java8.util.function.Supplier;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Creates a new {@link MapFragment}. Currently only {@link GoogleMapsFragment} is present, but the
  * goal is to choose it based on user's preference.
  */
+@Singleton
 public class MapProvider {
 
   private static final BasemapSource[] BASEMAP_SOURCES = initSources();
 
   private static BasemapSource[] initSources() {
-    // TODO(#711): Allow user to select language and use here.
     return new BasemapSource[] {
       new BasemapSource(
           GoogleMapsFragment::new,
@@ -54,7 +56,7 @@ public class MapProvider {
     return BASEMAP_SOURCES[0];
   }
 
-  @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
+  @Hot private final FlowableProcessor<MapAdapter> map = PublishProcessor.create();
 
   @Inject
   public MapProvider() {}
@@ -63,21 +65,22 @@ public class MapProvider {
     return getSource().supplier.get();
   }
 
-  public void setMapAdapter(MapAdapter adapter) {
-    map.onSuccess(adapter);
-  }
-
-  public Single<MapAdapter> getMapAdapter() {
+  @Hot
+  public Flowable<MapAdapter> getMapAdapter() {
     return map;
   }
 
+  public void setMapAdapter(MapAdapter adapter) {
+    map.onNext(adapter);
+  }
+
   public int getMapType() {
-    return map.getValue().getMapType();
+    return map.blockingLast().getMapType();
   }
 
   // TODO(#714): Use enum instead of int to represent basemap types.
   public void setMapType(int mapType) {
-    map.getValue().setMapType(mapType);
+    map.blockingLast().setMapType(mapType);
   }
 
   public ImmutableList<MapType> getMapTypes() {

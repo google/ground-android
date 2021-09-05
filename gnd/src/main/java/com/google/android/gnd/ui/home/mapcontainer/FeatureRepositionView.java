@@ -52,7 +52,6 @@ public class FeatureRepositionView extends AbstractView {
     super.onFinishInflate();
     mapProvider
         .getMapAdapter()
-        .toFlowable()
         .flatMap(MapAdapter::getCameraMovedEvents)
         .map(CameraPosition::getTarget)
         .onBackpressureLatest()

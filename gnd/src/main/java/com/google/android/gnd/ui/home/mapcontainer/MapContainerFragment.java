@@ -50,7 +50,7 @@ import com.google.android.gnd.ui.map.MapProvider.MapType;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Single;
+import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -74,7 +74,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
-    Single<MapAdapter> mapAdapter = getMapAdapter();
+    Flowable<MapAdapter> mapAdapter = getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
         .toObservable()
@@ -92,13 +92,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onFeatureClick);
     mapAdapter
-        .toFlowable()
         .flatMap(MapAdapter::getStartDragEvents)
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
         .subscribe(__ -> mapContainerViewModel.onMapDrag());
     mapAdapter
-        .toFlowable()
         .flatMap(MapAdapter::getCameraMovedEvents)
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
