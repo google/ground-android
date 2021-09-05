@@ -16,7 +16,9 @@
 
 package com.google.android.gnd.ui.map;
 
+import androidx.annotation.StringRes;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gnd.R;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.map.gms.GoogleMapsFragment;
 import com.google.common.collect.ImmutableList;
@@ -39,10 +41,10 @@ public class MapProvider {
       new BasemapSource(
           GoogleMapsFragment::new,
           ImmutableList.<MapType>builder()
-              .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, "Normal"))
-              .add(new MapType(GoogleMap.MAP_TYPE_SATELLITE, "Satellite"))
-              .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, "Terrain"))
-              .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, "Hybrid"))
+              .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.normal))
+              .add(new MapType(GoogleMap.MAP_TYPE_SATELLITE, R.string.satellite))
+              .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain))
+              .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.hybrid))
               .build())
     };
   }
@@ -100,11 +102,11 @@ public class MapProvider {
    */
   public static class MapType {
     public final int type;
-    public final String label;
+    public final @StringRes int labelId;
 
-    MapType(int type, String label) {
+    MapType(int type, @StringRes int labelId) {
       this.type = type;
-      this.label = label;
+      this.labelId = labelId;
     }
   }
 }

@@ -205,4 +205,9 @@
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
   <string name="location_accuracy">Accuracy: %.2f m</string>
 
+  <string name="normal">Normal</string>
+  <string name="satellite">Satellite</string>
+  <string name="terrain">Terrain</string>
+  <string name="hybrid">Hybrid</string>
+
 </resources>

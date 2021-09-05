@@ -22,7 +22,6 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -182,7 +181,7 @@ public class MapContainerFragment extends AbstractFragment {
     ImmutableList<MapType> mapTypes = mapProvider.getMapTypes();
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
     int selectedIdx = typeNos.indexOf(mapProvider.getMapType());
-    String[] labels = stream(mapTypes).map(p -> p.label).toArray(String[]::new);
+    String[] labels = stream(mapTypes).map(p -> getString(p.labelId)).toArray(String[]::new);
     new AlertDialog.Builder(requireContext())
         .setTitle(R.string.select_map_type)
         .setSingleChoiceItems(
