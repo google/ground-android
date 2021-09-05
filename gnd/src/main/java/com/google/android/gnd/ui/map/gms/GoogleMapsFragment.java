@@ -24,11 +24,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -44,13 +42,10 @@ import javax.inject.Inject;
  * on window insets.
  */
 @AndroidEntryPoint
-public class GoogleMapsFragment extends SupportMapFragment
-    implements MapFragment, OnMapReadyCallback {
+public class GoogleMapsFragment extends SupportMapFragment implements MapFragment {
 
   @Inject BitmapUtil bitmapUtil;
   @Inject MarkerIconFactory markerIconFactory;
-
-  @Nullable private Consumer<MapAdapter> adapterConsumer;
 
   @NonNull
   @Override
@@ -82,21 +77,16 @@ public class GoogleMapsFragment extends SupportMapFragment
     watermark.setLayoutParams(params);
   }
 
+  private GoogleMapsMapAdapter createAdapter(GoogleMap map) {
+    return new GoogleMapsMapAdapter(map, getContext(), markerIconFactory, bitmapUtil);
+  }
+
   @Override
   public void attachToFragment(
       @NonNull AbstractFragment containerFragment,
       @IdRes int containerId,
       @NonNull Consumer<MapAdapter> adapterConsumer) {
-    this.adapterConsumer = adapterConsumer;
     containerFragment.replaceFragment(containerId, this);
-    getMapAsync(this);
-  }
-
-  @Override
-  public void onMapReady(@NonNull GoogleMap googleMap) {
-    if (adapterConsumer != null) {
-      adapterConsumer.accept(
-          new GoogleMapsMapAdapter(googleMap, getContext(), markerIconFactory, bitmapUtil));
-    }
+    getMapAsync(googleMap -> adapterConsumer.accept(createAdapter(googleMap)));
   }
 }
