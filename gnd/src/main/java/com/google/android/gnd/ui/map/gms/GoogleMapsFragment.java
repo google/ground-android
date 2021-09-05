@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,7 +50,7 @@ public class GoogleMapsFragment extends SupportMapFragment
   @Inject BitmapUtil bitmapUtil;
   @Inject MarkerIconFactory markerIconFactory;
 
-  private Consumer<MapAdapter> adapterConsumer;
+  @Nullable private Consumer<MapAdapter> adapterConsumer;
 
   @NonNull
   @Override
@@ -93,7 +94,9 @@ public class GoogleMapsFragment extends SupportMapFragment
 
   @Override
   public void onMapReady(@NonNull GoogleMap googleMap) {
-    adapterConsumer.accept(
-        new GoogleMapsMapAdapter(googleMap, getContext(), markerIconFactory, bitmapUtil));
+    if (adapterConsumer != null) {
+      adapterConsumer.accept(
+          new GoogleMapsMapAdapter(googleMap, getContext(), markerIconFactory, bitmapUtil));
+    }
   }
 }
