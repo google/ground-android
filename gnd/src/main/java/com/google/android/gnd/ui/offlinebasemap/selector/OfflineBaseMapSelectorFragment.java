@@ -50,8 +50,6 @@ public class OfflineBaseMapSelectorFragment extends AbstractMapViewerFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(OfflineBaseMapSelectorViewModel.class);
-    // TODO: use the viewmodel
-    getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
     viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
   }
 
@@ -81,7 +79,8 @@ public class OfflineBaseMapSelectorFragment extends AbstractMapViewerFragment {
     return binding.getRoot();
   }
 
-  private void onMapReady(MapAdapter map) {
+  @Override
+  protected void onMapReady(MapAdapter map) {
     map.getCameraMovedEvents()
         .map(__ -> map.getViewport())
         .startWith(map.getViewport())

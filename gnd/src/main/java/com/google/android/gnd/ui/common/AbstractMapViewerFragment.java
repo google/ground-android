@@ -30,7 +30,7 @@ import io.reactivex.Flowable;
 import javax.inject.Inject;
 
 /** Injects a {@link MapFragment} in the container with id "map". */
-public class AbstractMapViewerFragment extends AbstractFragment {
+public abstract class AbstractMapViewerFragment extends AbstractFragment {
 
   @Inject MapProvider mapProvider;
 
@@ -39,8 +39,16 @@ public class AbstractMapViewerFragment extends AbstractFragment {
     super.onViewCreated(view, savedInstanceState);
     mapProvider
         .createFragment()
-        .attachToFragment(this, R.id.map, adapter -> mapProvider.setMapAdapter(adapter));
+        .attachToFragment(
+            this,
+            R.id.map,
+            adapter -> {
+              mapProvider.setMapAdapter(adapter);
+              onMapReady(adapter);
+            });
   }
+
+  protected abstract void onMapReady(MapAdapter adapter);
 
   @Hot
   protected Flowable<MapAdapter> getMapAdapter() {

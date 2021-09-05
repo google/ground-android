@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.offlinebasemap.viewer;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,7 +53,6 @@ public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
     viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
     viewModel.loadOfflineArea(args);
     viewModel.getOfflineArea().observe(this, this::panMap);
-    getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
   @Override
@@ -71,7 +68,8 @@ public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
     return binding.getRoot();
   }
 
-  private void onMapReady(MapAdapter map) {
+  @Override
+  protected void onMapReady(MapAdapter map) {
     this.map = map;
     map.disable();
   }

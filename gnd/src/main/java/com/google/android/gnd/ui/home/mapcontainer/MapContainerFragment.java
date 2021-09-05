@@ -39,7 +39,6 @@ import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
 import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
@@ -52,7 +51,6 @@ import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -68,6 +66,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
+  @Nullable private MapAdapter adapter;
+
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -77,7 +77,6 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         getViewModel(FeatureRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     Flowable<MapAdapter> mapAdapter = getMapAdapter();
-    mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
         .toObservable()
         .flatMap(MapAdapter::getMapPinClicks)
@@ -108,11 +107,6 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .flatMap(MapAdapter::getTileProviders)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
-    mapAdapter
-        .toObservable()
-        .switchMap(this::subscribeToMapTypeClicks)
-        .as(autoDisposable(this))
-        .subscribe();
 
     polygonDrawingViewModel
         .getDefaultMapMode()
@@ -129,12 +123,10 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getCancelButtonClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> setDefaultMode());
-  }
-
-  private Observable<Nil> subscribeToMapTypeClicks(MapAdapter adapter) {
-    return mapContainerViewModel
+    mapContainerViewModel
         .getSelectMapTypeClicks()
-        .doOnNext(__ -> showMapTypeSelectorDialog(adapter));
+        .as(autoDisposable(this))
+        .subscribe(__ -> showMapTypeSelectorDialog());
   }
 
   @Override
@@ -154,8 +146,10 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     disableAddFeatureBtn();
   }
 
-  private void onMapReady(MapAdapter map) {
+  @Override
+  protected void onMapReady(MapAdapter map) {
     Timber.d("MapAdapter ready. Updating subscriptions");
+    this.adapter = map;
     mapContainerViewModel.setLocationLockEnabled(true);
     polygonDrawingViewModel.setLocationLockEnabled(true);
 
@@ -178,7 +172,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     map.setMapType(mapsRepository.getSavedMapType());
   }
 
-  private void showMapTypeSelectorDialog(MapAdapter adapter) {
+  private void showMapTypeSelectorDialog() {
+    if (adapter == null) {
+      return;
+    }
+
     ImmutableList<MapType> mapTypes = getMapTypes();
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
     int selectedIdx = typeNos.indexOf(adapter.getMapType());
