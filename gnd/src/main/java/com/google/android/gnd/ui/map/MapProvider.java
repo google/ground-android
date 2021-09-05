@@ -16,23 +16,41 @@
 
 package com.google.android.gnd.ui.map;
 
-import android.util.Pair;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.map.gms.GoogleMapsFragment;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import java8.util.function.Supplier;
 import javax.inject.Inject;
 
 /**
  * Creates a new {@link MapFragment}. Currently only {@link GoogleMapsFragment} is present, but the
  * goal is to choose it based on user's preference.
- *
- * <p>Map Type refers to the basemap shown below map features and offline satellite imagery. It's
- * called "map styles" in Mapbox and "basemaps" in Leaflet.
  */
 public class MapProvider {
+
+  private static final BasemapSource[] BASEMAP_SOURCES = initSources();
+
+  private static BasemapSource[] initSources() {
+    // TODO(#711): Allow user to select language and use here.
+    return new BasemapSource[] {
+      new BasemapSource(
+          GoogleMapsFragment::new,
+          ImmutableList.<MapType>builder()
+              .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, "Normal"))
+              .add(new MapType(GoogleMap.MAP_TYPE_SATELLITE, "Satellite"))
+              .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, "Terrain"))
+              .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, "Hybrid"))
+              .build())
+    };
+  }
+
+  public static BasemapSource getSource() {
+    // TODO: Select based on user preference.
+    return BASEMAP_SOURCES[0];
+  }
 
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
@@ -40,7 +58,7 @@ public class MapProvider {
   public MapProvider() {}
 
   public MapFragment createFragment() {
-    return new GoogleMapsFragment();
+    return getSource().supplier.get();
   }
 
   public void setMapAdapter(MapAdapter adapter) {
@@ -60,13 +78,33 @@ public class MapProvider {
     map.getValue().setMapType(mapType);
   }
 
-  public ImmutableList<Pair<Integer, String>> getMapTypes() {
-    // TODO(#711): Allow user to select language and use here.
-    return ImmutableList.<Pair<Integer, String>>builder()
-        .add(new Pair<>(GoogleMap.MAP_TYPE_NORMAL, "Normal"))
-        .add(new Pair<>(GoogleMap.MAP_TYPE_SATELLITE, "Satellite"))
-        .add(new Pair<>(GoogleMap.MAP_TYPE_TERRAIN, "Terrain"))
-        .add(new Pair<>(GoogleMap.MAP_TYPE_HYBRID, "Hybrid"))
-        .build();
+  public ImmutableList<MapType> getMapTypes() {
+    return getSource().mapTypes;
+  }
+
+  private static class BasemapSource {
+
+    private final Supplier<? extends MapFragment> supplier;
+    private final ImmutableList<MapType> mapTypes;
+
+    private BasemapSource(
+        Supplier<? extends MapFragment> supplier, ImmutableList<MapType> mapTypes) {
+      this.supplier = supplier;
+      this.mapTypes = mapTypes;
+    }
+  }
+
+  /**
+   * MapType refers to the basemap shown below map features and offline satellite imagery. It's
+   * called "map styles" in Mapbox and "basemaps" in Leaflet.
+   */
+  public static class MapType {
+    public final int type;
+    public final String label;
+
+    MapType(int type, String label) {
+      this.type = type;
+      this.label = label;
+    }
   }
 }

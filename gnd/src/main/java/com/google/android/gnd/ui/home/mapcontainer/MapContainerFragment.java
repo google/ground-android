@@ -48,6 +48,7 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.MapProvider.MapType;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -178,10 +179,10 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showMapTypeSelectorDialog() {
-    ImmutableList<Pair<Integer, String>> mapTypes = mapProvider.getMapTypes();
-    ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.first).collect(toImmutableList());
+    ImmutableList<MapType> mapTypes = mapProvider.getMapTypes();
+    ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
     int selectedIdx = typeNos.indexOf(mapProvider.getMapType());
-    String[] labels = stream(mapTypes).map(p -> p.second).toArray(String[]::new);
+    String[] labels = stream(mapTypes).map(p -> p.label).toArray(String[]::new);
     new AlertDialog.Builder(requireContext())
         .setTitle(R.string.select_map_type)
         .setSingleChoiceItems(
