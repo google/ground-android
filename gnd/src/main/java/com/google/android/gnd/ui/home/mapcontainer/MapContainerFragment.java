@@ -41,12 +41,11 @@ import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
-import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapType;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
@@ -58,11 +57,10 @@ import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-public class MapContainerFragment extends AbstractFragment {
+public class MapContainerFragment extends AbstractMapViewerFragment {
 
   @Inject FileUtil fileUtil;
   @Inject MbtilesFootprintParser mbtilesFootprintParser;
-  @Inject MapProvider mapProvider;
   @Inject MapsRepository mapsRepository;
   PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
@@ -76,7 +74,7 @@ public class MapContainerFragment extends AbstractFragment {
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
-    Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
+    Single<MapAdapter> mapAdapter = getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
         .toObservable()
@@ -147,10 +145,6 @@ public class MapContainerFragment extends AbstractFragment {
     super.onViewCreated(view, savedInstanceState);
 
     disableAddFeatureBtn();
-
-    mapProvider
-        .createFragment()
-        .attachToFragment(this, R.id.map, adapter -> mapProvider.setMapAdapter(adapter));
   }
 
   private void onMapReady(MapAdapter map) {
@@ -178,9 +172,9 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showMapTypeSelectorDialog() {
-    ImmutableList<MapType> mapTypes = mapProvider.getMapTypes();
+    ImmutableList<MapType> mapTypes = getMapTypes();
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
-    int selectedIdx = typeNos.indexOf(mapProvider.getMapType());
+    int selectedIdx = typeNos.indexOf(getSelectedMapType());
     String[] labels = stream(mapTypes).map(p -> getString(p.labelId)).toArray(String[]::new);
     new AlertDialog.Builder(requireContext())
         .setTitle(R.string.select_map_type)
@@ -189,8 +183,8 @@ public class MapContainerFragment extends AbstractFragment {
             selectedIdx,
             (dialog, which) -> {
               int mapType = typeNos.get(which);
-              mapProvider.setMapType(mapType);
               mapsRepository.saveMapType(mapType);
+              selectMapType(mapType);
               dialog.dismiss();
             })
         .setCancelable(true)

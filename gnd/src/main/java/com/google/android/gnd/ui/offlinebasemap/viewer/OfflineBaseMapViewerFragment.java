@@ -24,13 +24,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
-import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
@@ -39,10 +37,9 @@ import javax.inject.Inject;
  * device.
  */
 @AndroidEntryPoint
-public class OfflineBaseMapViewerFragment extends AbstractFragment {
+public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
 
   @Inject Navigator navigator;
-  @Inject MapProvider mapProvider;
 
   private OfflineBaseMapViewerViewModel viewModel;
   @Nullable private MapAdapter map;
@@ -57,8 +54,8 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
         OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
     viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
     viewModel.loadOfflineArea(args);
-    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
     viewModel.getOfflineArea().observe(this, this::panMap);
+    getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
   @Override
@@ -72,14 +69,6 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
     binding.removeButton.setOnClickListener(__ -> onRemoveClick());
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaViewerToolbar, true);
     return binding.getRoot();
-  }
-
-  @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    mapProvider
-        .createFragment()
-        .attachToFragment(this, R.id.map, adapter -> mapProvider.setMapAdapter(adapter));
   }
 
   private void onMapReady(MapAdapter map) {
