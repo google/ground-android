@@ -189,7 +189,9 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
             (dialog, which) -> {
               int mapType = typeNos.get(which);
               mapsRepository.saveMapType(mapType);
-              adapter.setMapType(mapType);
+              if (adapter != null) {
+                adapter.setMapType(mapType);
+              }
               dialog.dismiss();
             })
         .setCancelable(true)
