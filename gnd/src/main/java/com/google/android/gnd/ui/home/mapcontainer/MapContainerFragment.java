@@ -39,6 +39,7 @@ import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
 import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
@@ -51,6 +52,7 @@ import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -106,6 +108,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .flatMap(MapAdapter::getTileProviders)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
+    mapAdapter
+        .toObservable()
+        .switchMap(this::subscribeToMapTypeClicks)
+        .as(autoDisposable(this))
+        .subscribe();
 
     polygonDrawingViewModel
         .getDefaultMapMode()
@@ -122,10 +129,12 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getCancelButtonClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> setDefaultMode());
-    mapContainerViewModel
+  }
+
+  private Observable<Nil> subscribeToMapTypeClicks(MapAdapter adapter) {
+    return mapContainerViewModel
         .getSelectMapTypeClicks()
-        .as(autoDisposable(this))
-        .subscribe(__ -> showMapTypeSelectorDialog());
+        .doOnNext(__ -> showMapTypeSelectorDialog(adapter));
   }
 
   @Override
@@ -169,14 +178,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     map.setMapType(mapsRepository.getSavedMapType());
   }
 
-  private void showMapTypeSelectorDialog() {
-    MapAdapter adapter = getActiveMapAdapter();
-
-    if (adapter == null) {
-      Timber.e("MapAdapter is not ready");
-      return;
-    }
-
+  private void showMapTypeSelectorDialog(MapAdapter adapter) {
     ImmutableList<MapType> mapTypes = getMapTypes();
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
     int selectedIdx = typeNos.indexOf(adapter.getMapType());
