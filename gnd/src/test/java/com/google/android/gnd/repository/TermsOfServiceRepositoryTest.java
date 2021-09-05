@@ -18,14 +18,11 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.rx.SchedulersModule;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,30 +35,23 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
 @Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
 public class TermsOfServiceRepositoryTest {
 
-  @Rule
-  public MockitoRule rule = MockitoJUnit.rule();
+  @Rule public MockitoRule rule = MockitoJUnit.rule();
 
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
-  @Inject
-  LocalValueStore localValueStore;
-  @Mock
-  RemoteDataStore mockRemoteDataStore;
+  @Inject LocalValueStore localValueStore;
+  @Mock RemoteDataStore mockRemoteDataStore;
 
   private TermsOfServiceRepository termsOfServiceRepository;
 
   @Before
   public void setUp() {
     hiltRule.inject();
-    termsOfServiceRepository =
-        new TermsOfServiceRepository(
-            mockRemoteDataStore,
-            localValueStore);
+    termsOfServiceRepository = new TermsOfServiceRepository(mockRemoteDataStore, localValueStore);
   }
 
   @Test
@@ -75,4 +65,3 @@ public class TermsOfServiceRepositoryTest {
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isFalse();
   }
 }
-
