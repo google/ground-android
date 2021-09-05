@@ -1,5 +1,3 @@
-package com.google.android.gnd.ui.map;
-
 /*
  * Copyright 2021 Google LLC
  *
@@ -15,6 +13,8 @@ package com.google.android.gnd.ui.map;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.google.android.gnd.ui.map;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
