@@ -74,15 +74,6 @@ public class MapProvider {
     map.onNext(adapter);
   }
 
-  public int getMapType() {
-    return map.blockingLast().getMapType();
-  }
-
-  // TODO(#714): Use enum instead of int to represent basemap types.
-  public void setMapType(int mapType) {
-    map.blockingLast().setMapType(mapType);
-  }
-
   public ImmutableList<MapType> getMapTypes() {
     return getSource().mapTypes;
   }

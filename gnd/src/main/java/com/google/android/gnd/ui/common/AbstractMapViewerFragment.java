@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.common;
 
+import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
@@ -32,7 +34,18 @@ import javax.inject.Inject;
 /** Injects a {@link MapFragment} in the container with id "map". */
 public class AbstractMapViewerFragment extends AbstractFragment {
 
+  @Nullable private MapAdapter mapAdapter;
+
   @Inject MapProvider mapProvider;
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    getMapAdapter()
+        .toObservable()
+        .as(disposeOnDestroy(this))
+        .subscribe(mapAdapter -> this.mapAdapter = mapAdapter);
+  }
 
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -47,15 +60,12 @@ public class AbstractMapViewerFragment extends AbstractFragment {
     return mapProvider.getMapAdapter();
   }
 
+  @Nullable
+  protected MapAdapter getActiveMapAdapter() {
+    return mapAdapter;
+  }
+
   protected ImmutableList<MapType> getMapTypes() {
     return mapProvider.getMapTypes();
-  }
-
-  protected int getSelectedMapType() {
-    return mapProvider.getMapType();
-  }
-
-  protected void selectMapType(int mapType) {
-    mapProvider.setMapType(mapType);
   }
 }

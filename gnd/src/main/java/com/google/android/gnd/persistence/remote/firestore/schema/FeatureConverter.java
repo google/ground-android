@@ -50,9 +50,6 @@ public class FeatureConverter {
 
   static Feature toFeature(Project project, DocumentSnapshot doc) throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
-    if (f.getGeometry() != null) {
-      return toFeatureFromGeometry(project, doc, f);
-    }
 
     if (f.getGeoJson() != null) {
       GeoJsonFeature.Builder builder = GeoJsonFeature.newBuilder().setGeoJsonString(f.getGeoJson());
@@ -64,6 +61,10 @@ public class FeatureConverter {
       PointFeature.Builder builder = PointFeature.newBuilder().setPoint(toPoint(f.getLocation()));
       fillFeature(builder, project, doc.getId(), f);
       return builder.build();
+    }
+
+    if (f.getGeometry() != null) {
+      return toFeatureFromGeometry(project, doc, f);
     }
 
     throw new DataStoreException("No geometry in remote feature " + doc.getId());

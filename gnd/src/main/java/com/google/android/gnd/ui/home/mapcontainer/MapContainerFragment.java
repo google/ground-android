@@ -170,9 +170,16 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void showMapTypeSelectorDialog() {
+    MapAdapter adapter = getActiveMapAdapter();
+
+    if (adapter == null) {
+      Timber.e("MapAdapter is not ready");
+      return;
+    }
+
     ImmutableList<MapType> mapTypes = getMapTypes();
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
-    int selectedIdx = typeNos.indexOf(getSelectedMapType());
+    int selectedIdx = typeNos.indexOf(adapter.getMapType());
     String[] labels = stream(mapTypes).map(p -> getString(p.labelId)).toArray(String[]::new);
     new AlertDialog.Builder(requireContext())
         .setTitle(R.string.select_map_type)
@@ -182,7 +189,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
             (dialog, which) -> {
               int mapType = typeNos.get(which);
               mapsRepository.saveMapType(mapType);
-              selectMapType(mapType);
+              adapter.setMapType(mapType);
               dialog.dismiss();
             })
         .setCancelable(true)
