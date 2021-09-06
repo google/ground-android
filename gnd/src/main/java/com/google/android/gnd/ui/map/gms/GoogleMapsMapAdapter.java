@@ -127,8 +127,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final Set<Marker> markers = new HashSet<>();
 
-  private final Map<MapFeature, GeoJsonFeatureGeometryCollection> geoJsonGeometries =
-      new HashMap<>();
+  private final Map<MapFeature, GeometryCollection> geoJsonGeometries = new HashMap<>();
   private final Map<MapFeature, Polyline> polygons = new HashMap<>();
 
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
@@ -167,10 +166,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
     Builder<MapFeature> candidates = ImmutableList.builder();
     ArrayList<String> processed = new ArrayList<>();
 
-    for (Entry<MapFeature, GeoJsonFeatureGeometryCollection> geoJsonEntry :
+    for (Entry<MapFeature, GeometryCollection> geoJsonEntry :
         geoJsonGeometries.entrySet()) {
       MapGeoJson geoJsonFeature = (MapGeoJson) geoJsonEntry.getKey();
-      GeoJsonFeatureGeometryCollection geoJsonGeometry = geoJsonEntry.getValue();
+      GeometryCollection geoJsonGeometry = geoJsonEntry.getValue();
       if (processed.contains(geoJsonFeature.getId())) {
         continue;
       }
@@ -369,12 +368,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
 
     // Iterate over all existing GeoJSON on the map.
-    Iterator<Entry<MapFeature, GeoJsonFeatureGeometryCollection>> geoJsonIterator =
+    Iterator<Entry<MapFeature, GeometryCollection>> geoJsonIterator =
         geoJsonGeometries.entrySet().iterator();
     while (geoJsonIterator.hasNext()) {
-      Entry<MapFeature, GeoJsonFeatureGeometryCollection> entry = geoJsonIterator.next();
+      Entry<MapFeature, GeometryCollection> entry = geoJsonIterator.next();
       MapFeature mapFeature = entry.getKey();
-      GeoJsonFeatureGeometryCollection featureGeometries = entry.getValue();
+      GeometryCollection featureGeometries = entry.getValue();
       if (features.contains(mapFeature)) {
         // If existing GeoJSON is present and up-to-date, don't update it.
         featuresToUpdate.remove(mapFeature);
@@ -475,7 +474,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     stream(mbtilesFiles).forEach(this::addTileOverlay);
   }
 
-<<<<<<< HEAD
   private void addRemoteTileOverlay(String url) {
     WebTileProvider webTileProvider = new WebTileProvider(url);
     map.addTileOverlay(new TileOverlayOptions().tileProvider(webTileProvider));
@@ -484,11 +482,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public void addRemoteTileOverlays(ImmutableList<String> urls) {
     stream(urls).forEach(this::addRemoteTileOverlay);
-=======
+  }
+
   /**
    * A collection of geometries in a GeoJson feature.
    */
-  private class GeoJsonFeatureGeometryCollection {
+  private class GeometryCollection {
     List<Marker> markers = new ArrayList<>();
     List<Polyline> polylines = new ArrayList<>();
     List<Polygon> polygons = new ArrayList<>();
@@ -582,11 +581,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMapGeoJson(MapGeoJson mapFeature) {
     GeoJsonParser geoJsonParser = new GeoJsonParser(mapFeature.getGeoJson());
-    GeoJsonFeatureGeometryCollection featureGeometries = new GeoJsonFeatureGeometryCollection();
+    GeometryCollection featureGeometries = new GeometryCollection();
     geoJsonGeometries.put(mapFeature, featureGeometries);
     for (GeoJsonFeature geoJsonFeature: geoJsonParser.getFeatures()) {
       featureGeometries.addGeometry(mapFeature, geoJsonFeature.getGeometry());
     }
->>>>>>> 87a93a20 (Refactor GoogleMaps adapter to use GoogleMap directly for rendering geo json geometries.)
   }
 }
