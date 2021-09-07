@@ -263,22 +263,17 @@ public class OfflineBaseMapRepository {
    * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their
    * coordinates.
    */
-  public Single<ImmutableList<TileSource>> getAllActiveTileSources() {
-    // TODO: Only load tiles for basemap sources that are "active" (we will implement support for
-    // turing sources on and off).
+  public Single<ImmutableList<TileSource>> getTileSources() {
     return projectRepository
         .getProjectLoadingState()
         .compose(Loadable::values)
         .map(Project::getOfflineBaseMapSources)
-        .doOnError(
-            throwable -> Timber.e(throwable, "No basemap sources specified for the active project"))
+        .doOnError(t -> Timber.e(t, "No basemap sources specified for the active project"))
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)
         .firstOrError()
         .map(this::identifyAndHandleSource)
-        .doOnError(
-            throwable ->
-                Timber.e(throwable, "Couldn't retrieve basemap sources for the active project"));
+        .doOnError(t -> Timber.e(t, "Couldn't retrieve basemap sources for the active project"));
   }
 
   private ImmutableList<TileSource> identifyAndHandleSource(

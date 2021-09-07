@@ -71,7 +71,7 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
     this.resources = resources;
     this.remoteTileSources =
             remoteTileRequests.switchMapSingle(
-                __ -> offlineBaseMapRepository.getAllActiveTileSources());
+                __ -> offlineBaseMapRepository.getTileSources());
   }
 
   private DownloadMessage onEnqueueError(Throwable e) {
