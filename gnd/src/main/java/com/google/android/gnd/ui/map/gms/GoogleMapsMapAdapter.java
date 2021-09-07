@@ -544,8 +544,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addRemoteTileOverlay(String url) {
-    RemoteTileProvider remoteTileProvider = new RemoteTileProvider(url);
-    map.addTileOverlay(new TileOverlayOptions().tileProvider(remoteTileProvider));
+    WebTileProvider webTileProvider = new WebTileProvider(url);
+    map.addTileOverlay(new TileOverlayOptions().tileProvider(webTileProvider));
   }
 
   @Override

@@ -27,10 +27,10 @@ import timber.log.Timber;
  *
  * <p>Tile URLs should have the format: host/z/x/y</p>
  */
-public class RemoteTileProvider extends UrlTileProvider {
+public class WebTileProvider extends UrlTileProvider {
   private final String formatUrl;
 
-  public RemoteTileProvider(String url) {
+  public WebTileProvider(String url) {
     super(256, 256);
     this.formatUrl = url;
   }
