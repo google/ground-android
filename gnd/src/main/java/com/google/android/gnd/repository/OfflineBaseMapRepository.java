@@ -284,10 +284,10 @@ public class OfflineBaseMapRepository {
   private ImmutableList<TileSource> identifyAndHandleSource(
       OfflineBaseMapSource offlineBaseMapSource) throws IOException {
     switch (offlineBaseMapSource.getType()) {
-      case GEOJSON:
+      case MBTILES_FOOTPRINTS:
         File tileFile = downloadOfflineBaseMapSource(offlineBaseMapSource);
         return geoJsonParser.allTiles(tileFile);
-      case IMAGE:
+      case TILED_WEB_MAP:
         return ImmutableList.of(
             TileSource.newBuilder()
                 .setId(offlineUuidGenerator.generateUuid())

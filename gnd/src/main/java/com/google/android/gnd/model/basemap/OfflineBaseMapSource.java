@@ -25,8 +25,8 @@ import java.net.URL;
 public abstract class OfflineBaseMapSource {
 
   public enum OfflineBaseMapSourceType {
-    GEOJSON,
-    IMAGE,
+    MBTILES_FOOTPRINTS,
+    TILED_WEB_MAP,
     UNKNOWN
   }
 
@@ -35,9 +35,9 @@ public abstract class OfflineBaseMapSource {
 
     switch (extPos == -1 ? "" : url.substring(extPos + 1)) {
       case "geojson":
-        return OfflineBaseMapSourceType.GEOJSON;
+        return OfflineBaseMapSourceType.MBTILES_FOOTPRINTS;
       case "png":
-        return OfflineBaseMapSourceType.IMAGE;
+        return OfflineBaseMapSourceType.TILED_WEB_MAP;
       default:
         return OfflineBaseMapSourceType.UNKNOWN;
     }

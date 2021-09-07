@@ -79,9 +79,9 @@ public abstract class OfflineBaseMapSourceEntity {
 
   private static OfflineBaseMapSourceEntityType modelToEntityType(OfflineBaseMapSource source) {
     switch (source.getType()) {
-      case IMAGE:
+      case TILED_WEB_MAP:
         return OfflineBaseMapSourceEntityType.IMAGE;
-      case GEOJSON:
+      case MBTILES_FOOTPRINTS:
         return OfflineBaseMapSourceEntityType.GEOJSON;
       default:
         return OfflineBaseMapSourceEntityType.UNKNOWN;
@@ -91,9 +91,9 @@ public abstract class OfflineBaseMapSourceEntity {
   private static OfflineBaseMapSourceType entityToModelType(OfflineBaseMapSourceEntity source) {
     switch (source.getType()) {
       case IMAGE:
-        return OfflineBaseMapSourceType.IMAGE;
+        return OfflineBaseMapSourceType.TILED_WEB_MAP;
       case GEOJSON:
-        return OfflineBaseMapSourceType.GEOJSON;
+        return OfflineBaseMapSourceType.MBTILES_FOOTPRINTS;
       default:
         return OfflineBaseMapSourceType.UNKNOWN;
     }
