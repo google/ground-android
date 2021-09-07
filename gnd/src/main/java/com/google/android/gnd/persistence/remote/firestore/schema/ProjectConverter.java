@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import static com.google.android.gnd.model.basemap.OfflineBaseMapSource.typeFromExtension;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.Project;
@@ -57,7 +58,11 @@ class ProjectConverter {
       }
       try {
         URL url = new URL(src.getUrl());
-        project.addOfflineBaseMapSource(OfflineBaseMapSource.builder().setUrl(url).build());
+        project.addOfflineBaseMapSource(
+            OfflineBaseMapSource.builder()
+                .setUrl(url)
+                .setType(typeFromExtension(src.getUrl()))
+                .build());
       } catch (MalformedURLException e) {
         Timber.d("Skipping base map source in project with malformed URL");
       }

@@ -539,7 +539,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void addTileOverlays(ImmutableSet<String> mbtilesFiles) {
+  public void addLocalTileOverlays(ImmutableSet<String> mbtilesFiles) {
     stream(mbtilesFiles).forEach(this::addTileOverlay);
+  }
+
+  private void addRemoteTileOverlay(String url) {
+    WebTileProvider webTileProvider = new WebTileProvider(url);
+    map.addTileOverlay(new TileOverlayOptions().tileProvider(webTileProvider));
+  }
+
+  @Override
+  public void addRemoteTileOverlays(ImmutableList<String> urls) {
+    stream(urls).forEach(this::addRemoteTileOverlay);
   }
 }
