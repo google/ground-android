@@ -41,6 +41,7 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
@@ -125,6 +126,7 @@ public class FeatureRepositoryTest {
   @Rule public MockitoRule rule = MockitoJUnit.rule();
 
   @Mock LocalDataStore mockLocalDataStore;
+  @Mock LocalValueStore mockLocalValueStore;
   @Mock RemoteDataStore mockRemoteDataStore;
   @Mock ProjectRepository mockProjectRepository;
   @Mock DataSyncWorkManager mockWorkManager;
@@ -159,6 +161,7 @@ public class FeatureRepositoryTest {
     featureRepository =
         new FeatureRepository(
             mockLocalDataStore,
+            mockLocalValueStore,
             mockRemoteDataStore,
             mockProjectRepository,
             mockWorkManager,

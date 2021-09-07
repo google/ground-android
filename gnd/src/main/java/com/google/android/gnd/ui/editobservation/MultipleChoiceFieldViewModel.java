@@ -20,7 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.Objects.requireNonNull;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.app.Application;
+import android.content.res.Resources;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
@@ -36,8 +36,8 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  MultipleChoiceFieldViewModel(Application application) {
-    super(application);
+  MultipleChoiceFieldViewModel(Resources resources) {
+    super(resources);
   }
 
   public void onShowDialog() {

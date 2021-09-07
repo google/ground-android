@@ -42,6 +42,7 @@ public class LocalValueStore {
   public static final String MAP_TYPE = "map_type";
   public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
   public static final String TOS_ACCEPTED = "tos_accepted";
+  public static final String POLYGON_INFO_DIALOG = "polygon_info_dialog";
 
   private final SharedPreferences preferences;
 
@@ -120,5 +121,15 @@ public class LocalValueStore {
   /** Updates the terms of service acceptance state for the currently signed in user. */
   public void setTermsOfServiceAccepted(boolean value) {
     preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
+  }
+
+  /** Returns whether the polygon info dialog was previously shown to the user or not. */
+  public boolean isPolygonDialogInfoShown() {
+    return preferences.getBoolean(POLYGON_INFO_DIALOG, false);
+  }
+
+  /** Updates the polygon info dialog value to stop showing the dialog everytime. */
+  public void setPolygonInfoDialogShown(boolean value) {
+    preferences.edit().putBoolean(POLYGON_INFO_DIALOG, value).apply();
   }
 }

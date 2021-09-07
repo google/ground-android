@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.app.Application;
 import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -52,8 +51,8 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   @SuppressWarnings("NullAway.Init")
   private Field field;
 
-  AbstractFieldViewModel(Application application) {
-    resources = application.getResources();
+  AbstractFieldViewModel(Resources resources) {
+    this.resources = resources;
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
     responseText = LiveDataReactiveStreams.fromPublisher(getDetailsTextFlowable());
   }

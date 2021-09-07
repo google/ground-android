@@ -67,7 +67,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Inject MbtilesFootprintParser mbtilesFootprintParser;
   @Inject MapProvider mapProvider;
   @Inject MapsRepository mapsRepository;
-
+  PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
@@ -78,6 +78,7 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
+    polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
@@ -113,6 +114,13 @@ public class MapContainerFragment extends AbstractFragment {
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
 
+    polygonDrawingViewModel
+        .getDefaultMapMode()
+        .as(autoDisposable(this))
+        .subscribe(__ -> setDefaultMode());
+    polygonDrawingViewModel
+        .getPolygonFeature()
+        .observe(this, feature -> mapContainerViewModel.updateDrawnPolygonFeature(feature));
     featureRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))
@@ -153,6 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
   private void onMapReady(MapAdapter map) {
     Timber.d("MapAdapter ready. Updating subscriptions");
     mapContainerViewModel.setLocationLockEnabled(true);
+    polygonDrawingViewModel.setLocationLockEnabled(true);
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
