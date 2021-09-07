@@ -260,7 +260,7 @@ public class OfflineBaseMapRepository {
   }
 
   /**
-   * Retrieve all tile sources from a GeoJSON basemap specification, regardless of their
+   * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their
    * coordinates.
    */
   public Single<ImmutableList<TileSource>> getAllActiveTileSources() {
