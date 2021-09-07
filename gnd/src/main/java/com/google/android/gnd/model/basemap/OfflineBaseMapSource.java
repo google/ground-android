@@ -19,6 +19,7 @@ package com.google.android.gnd.model.basemap;
 import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import java.net.URL;
+import org.apache.commons.io.FilenameUtils;
 
 /** Represents a possible source for offline base map data. */
 @AutoValue
@@ -31,9 +32,7 @@ public abstract class OfflineBaseMapSource {
   }
 
   public static OfflineBaseMapSourceType typeFromExtension(String url) {
-    int extPos = url.lastIndexOf('.');
-
-    switch (extPos == -1 ? "" : url.substring(extPos + 1)) {
+    switch (FilenameUtils.getExtension(url)) {
       case "geojson":
         return OfflineBaseMapSourceType.MBTILES_FOOTPRINTS;
       case "png":
