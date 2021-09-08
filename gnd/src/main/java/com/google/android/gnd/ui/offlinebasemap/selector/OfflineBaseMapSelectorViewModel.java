@@ -24,11 +24,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
+import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.Event;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Flowable;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
@@ -42,7 +46,9 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
   }
 
   @Hot private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Nil> remoteTileRequests = PublishProcessor.create();
   private final LiveData<Event<DownloadMessage>> messages;
+  private final Flowable<ImmutableList<TileSource>> remoteTileSources;
   private final OfflineUuidGenerator offlineUuidGenerator;
   @Nullable private LatLngBounds viewport;
   private final Resources resources;
@@ -63,6 +69,9 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
                         .map(Event::create)));
     this.offlineUuidGenerator = offlineUuidGenerator;
     this.resources = resources;
+    this.remoteTileSources =
+            remoteTileRequests.switchMapSingle(
+                __ -> offlineBaseMapRepository.getTileSources());
   }
 
   private DownloadMessage onEnqueueError(Throwable e) {
@@ -91,5 +100,13 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
             .setState(State.PENDING)
             .setName(resources.getString(R.string.unnamed_area))
             .build());
+  }
+
+  public Flowable<ImmutableList<TileSource>> getRemoteTileSources() {
+    return this.remoteTileSources;
+  }
+
+  public void requestRemoteTileSources() {
+    remoteTileRequests.onNext(Nil.NIL);
   }
 }
