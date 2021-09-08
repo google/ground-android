@@ -107,7 +107,10 @@ public interface MapAdapter {
   void setBounds(LatLngBounds bounds);
 
   /** Renders a tile overlay on the map. */
-  void addTileOverlays(ImmutableSet<String> mbtilesFiles);
+  void addLocalTileOverlays(ImmutableSet<String> mbtilesFiles);
+
+  /** Renders a remote tile overlays on the map. */
+  void addRemoteTileOverlays(ImmutableList<String> urls);
 
   // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
   /** Returns TileProviders associated with this map adapter. */
