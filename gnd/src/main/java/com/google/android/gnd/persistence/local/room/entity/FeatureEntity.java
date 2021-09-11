@@ -114,7 +114,8 @@ public abstract class FeatureEntity {
             .setCreated(authInfo)
             .setLastModified(authInfo);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
-    entity.setPolygonVertices(formatVertices(mutation.getNewPolygonVertices()));
+    entity.setPolygonVertices(formatVertices(
+        mutation.getNewPolygonVertices()));
     return entity.build();
   }
 

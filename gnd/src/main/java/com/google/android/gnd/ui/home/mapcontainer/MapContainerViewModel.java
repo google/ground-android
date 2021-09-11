@@ -59,9 +59,11 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -77,7 +79,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
-
   private final LiveData<Loadable<Project>> projectLoadingState;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
@@ -95,10 +96,13 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
+  /** Polyline drawn by the user but not yet saved as polygon. */
+  @Hot
+  private final PublishProcessor<PolygonFeature> drawnPolylineFeature =
+      PublishProcessor.create();
+
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
-
-  private final MutableLiveData<Boolean> completeButtonVisible = new MutableLiveData<>(false);
 
   private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
 
@@ -122,6 +126,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   /** The currently selected feature on the map. */
   private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
+
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
@@ -166,22 +171,40 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
+    // Features that are persisted to the local and remote dbs.
+    Flowable<ImmutableSet<MapFeature>> persistentFeatures =
+        Flowable.combineLatest(
+            projectRepository
+                .getActiveProject()
+                .switchMap(this::getFeaturesStream)
+                .map(this::toMapFeatures),
+            selectedFeature,
+            this::updateSelectedFeature);
+
+    Flowable<ImmutableSet<MapFeature>> transientFeatures =
+        drawnPolylineFeature.map(feature -> ImmutableSet.of(
+            toMapPolygon(feature)));
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                    projectRepository
-                        .getActiveProject()
-                        .switchMap(this::getFeaturesStream)
-                        .map(this::toMapFeatures),
-                    selectedFeature,
-                    this::updateSelectedFeature)
+                    Arrays.asList(
+                        persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
+                        transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
+                    MapContainerViewModel::concatFeatureSets)
                 .distinctUntilChanged());
+
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
+  }
+
+  private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
+    return stream(Arrays.asList(objects))
+        .flatMap(set -> stream((ImmutableSet<MapFeature>) set))
+        .collect(toImmutableSet());
   }
 
   private static MapFeature toMapPin(PointFeature feature) {
@@ -207,6 +230,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Project::getId)
         .flatMap(projectRepository::getLastCameraPosition)
         .ifPresent(this::panAndZoomCamera);
+  }
+
+  public void updateDrawnPolygonFeature(PolygonFeature feature) {
+    drawnPolylineFeature.onNext(feature);
   }
 
   private ImmutableSet<MapFeature> updateSelectedFeature(
@@ -418,6 +445,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON);
   }
 
   public void onMapTypeButtonClicked() {
@@ -446,10 +474,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<Boolean> isAddPolygonButtonVisible() {
     return addPolygonVisible;
-  }
-
-  public LiveData<Boolean> getPolygonDrawingCompletedVisibility() {
-    return completeButtonVisible;
   }
 
   public Optional<Feature> getReposFeature() {
@@ -483,7 +507,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public enum Mode {
     DEFAULT,
-    REPOSITION
+    REPOSITION,
+    DRAW_POLYGON
   }
 
   static class CameraUpdate {

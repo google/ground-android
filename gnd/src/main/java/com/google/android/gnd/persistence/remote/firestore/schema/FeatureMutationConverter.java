@@ -16,11 +16,18 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import timber.log.Timber;
 
 /** Converts between Firestore maps used to merge updates and {@link FeatureMutation} instances. */
@@ -37,6 +44,12 @@ class FeatureMutationConverter {
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
         .ifPresent(point -> map.put(FeatureConverter.LOCATION, point));
+    Map<String, Object> geometry = new HashMap<>();
+    geometry.put(
+        FeatureConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getNewPolygonVertices()));
+    geometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
+    map.put(FeatureConverter.GEOMETRY, geometry);
+
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
@@ -59,5 +72,9 @@ class FeatureMutationConverter {
 
   private static GeoPoint toGeoPoint(Point point) {
     return new GeoPoint(point.getLatitude(), point.getLongitude());
+  }
+
+  private static List<GeoPoint> toGeoPointList(ImmutableList<Point> point) {
+    return stream(point).map(FeatureMutationConverter::toGeoPoint).collect(toImmutableList());
   }
 }

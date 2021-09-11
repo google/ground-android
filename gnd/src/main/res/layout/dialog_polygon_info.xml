@@ -19,7 +19,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   app:layout_constraintCircleRadius="32dp"
-  android:layout_height="match_parent">
+  android:layout_height="wrap_content">
 
   <ImageView
     android:contentDescription="@string/add_polygon_instructions"
@@ -54,22 +54,23 @@
     app:backgroundTint="@color/colorAccent"
     app:layout_constraintTop_toBottomOf="@id/info_polygon_text"
     android:layout_width="0dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
+    android:layout_marginTop="28dp"
     android:layout_height="wrap_content"/>
 
-  <Button
+  <TextView
     android:text="@string/cancel"
-    android:id="@+id/cancel_button"
+    android:id="@+id/cancel_text_view"
     app:layout_constraintStart_toStartOf="@id/info_polygon_text"
     app:layout_constraintEnd_toEndOf="@id/info_polygon_text"
     android:textColor="@color/colorAccent"
     app:backgroundTint="@android:color/white"
+    android:textAlignment="center"
+    android:gravity="center_horizontal"
     app:layout_constraintTop_toBottomOf="@id/get_started_button"
     android:layout_width="0dp"
-    android:layout_marginTop="8dp"
     app:layout_constraintBottom_toBottomOf="parent"
-    android:layout_marginBottom="8dp"
+    android:layout_marginTop="30dp"
+    android:layout_marginBottom="58dp"
     android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

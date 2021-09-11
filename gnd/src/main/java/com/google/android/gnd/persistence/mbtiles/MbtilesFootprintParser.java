@@ -48,6 +48,24 @@ public class MbtilesFootprintParser {
     this.uuidGenerator = uuidGenerator;
   }
 
+  public ImmutableList<TileSource> allTiles(File file) {
+    try {
+      String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
+      JSONObject geoJson = new JSONObject(fileContents);
+      JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
+
+      return stream(toArrayList(features))
+          .map(TileSetSource::new)
+          .map(this::jsonToTileSource)
+          .collect(toImmutableList());
+
+    } catch (JSONException | IOException e) {
+      Timber.e(e, "Unable to parse JSON");
+    }
+
+    return ImmutableList.of();
+  }
+
   /**
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.

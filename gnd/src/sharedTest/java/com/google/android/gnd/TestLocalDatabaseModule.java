@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local;
+package com.google.android.gnd;
 
 import android.content.Context;
 import androidx.room.Room;
+import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import dagger.Module;
 import dagger.Provides;
-import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
+import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
-@InstallIn(SingletonComponent.class)
 @Module
-public class TestLocalDatabaseModule {
+@TestInstallIn(components = SingletonComponent.class, replaces = LocalDatabaseModule.class)
+abstract class TestLocalDatabaseModule {
 
   @Provides
   @Singleton
-  LocalDatabase localDatabase(@ApplicationContext Context context) {
+  static LocalDatabase localDatabaseProvider(@ApplicationContext Context context) {
     return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
         .allowMainThreadQueries()
         .build();

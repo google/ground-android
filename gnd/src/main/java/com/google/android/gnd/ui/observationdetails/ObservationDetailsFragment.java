@@ -156,37 +156,34 @@ public class ObservationDetailsFragment extends AbstractFragment {
     String featureId = args.getFeatureId();
     String observationId = args.getObservationId();
 
-    switch (item.getItemId()) {
-      case R.id.edit_observation_menu_item:
-        // This is required to prevent menu from reappearing on back.
-        getActivity().closeOptionsMenu();
-        navigator.navigate(
-            ObservationDetailsFragmentDirections.editObservation(
-                projectId, featureId, observationId));
-        return true;
-      case R.id.delete_observation_menu_item:
-        new Builder(requireActivity())
-            .setTitle(R.string.observation_delete_confirmation_dialog_title)
-            .setMessage(R.string.observation_delete_confirmation_dialog_message)
-            .setPositiveButton(
-                R.string.delete_button_label,
-                (dialog, id) -> {
-                  viewModel
-                      .deleteCurrentObservation(projectId, featureId, observationId)
-                      .as(autoDisposable(this))
-                      .subscribe(() -> navigator.navigateUp());
-                })
-            .setNegativeButton(
-                R.string.cancel_button_label,
-                (dialog, id) -> {
-                  // Do nothing.
-                })
-            .create()
-            .show();
-        return true;
-      default:
-        return false;
+    if (item.getItemId() == R.id.edit_observation_menu_item) {
+      navigator.navigate(
+          ObservationDetailsFragmentDirections.editObservation(
+              projectId, featureId, observationId));
+    } else if (item.getItemId() == R.id.delete_observation_menu_item) {
+      new Builder(requireActivity())
+          .setTitle(R.string.observation_delete_confirmation_dialog_title)
+          .setMessage(R.string.observation_delete_confirmation_dialog_message)
+          .setPositiveButton(
+              R.string.delete_button_label,
+              (dialog, id) -> {
+                viewModel
+                    .deleteCurrentObservation(projectId, featureId, observationId)
+                    .as(autoDisposable(this))
+                    .subscribe(() -> navigator.navigateUp());
+              })
+          .setNegativeButton(
+              R.string.cancel_button_label,
+              (dialog, id) -> {
+                // Do nothing.
+              })
+          .create()
+          .show();
+    } else {
+      return false;
     }
+
+    return true;
   }
 
   private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {
