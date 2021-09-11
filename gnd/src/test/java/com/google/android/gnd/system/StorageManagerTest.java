@@ -23,14 +23,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import com.google.android.gnd.persistence.local.LocalDatabaseModule;
-import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.ui.util.BitmapUtil;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import java.io.IOException;
@@ -48,9 +45,7 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-@SuppressWarnings("unchecked")
 @HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
 @Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
 public class StorageManagerTest {
