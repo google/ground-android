@@ -48,13 +48,11 @@ import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
-import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
-import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.AbstractCollection;
 import java.util.Date;
@@ -69,7 +67,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
 @Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest {

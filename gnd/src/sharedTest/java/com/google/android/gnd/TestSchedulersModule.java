@@ -17,14 +17,15 @@
 package com.google.android.gnd;
 
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.rx.SchedulersModule;
 import dagger.Binds;
 import dagger.Module;
-import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
+import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
-@InstallIn(SingletonComponent.class)
 @Module
+@TestInstallIn(components = SingletonComponent.class, replaces = SchedulersModule.class)
 abstract class TestSchedulersModule {
 
   @Binds
