@@ -23,6 +23,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Pair;
@@ -59,6 +60,7 @@ import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
@@ -103,6 +105,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
+  @Inject FeatureHelper featureHelper;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -374,10 +377,27 @@ public class HomeScreenFragment extends AbstractFragment
       hideBottomSheet();
       mapContainerFragment.setRepositionMode(state.getFeature());
     } else if (item.getItemId() == R.id.delete_feature_menu_item) {
-      hideBottomSheet();
       Optional<Feature> featureToDelete = state.getFeature();
       if (featureToDelete.isPresent()) {
-        viewModel.deleteFeature(featureToDelete.get());
+        new Builder(requireActivity())
+            .setTitle(
+                getString(
+                    R.string.feature_delete_confirmation_dialog_title,
+                    featureHelper.getLabel(featureToDelete)))
+            .setMessage(R.string.feature_delete_confirmation_dialog_message)
+            .setPositiveButton(
+                R.string.delete_button_label,
+                (dialog, id) -> {
+                  hideBottomSheet();
+                  viewModel.deleteFeature(featureToDelete.get());
+                })
+            .setNegativeButton(
+                R.string.cancel_button_label,
+                (dialog, id) -> {
+                  // Do nothing.
+                })
+            .create()
+            .show();
       } else {
         Timber.e("Attempted to delete non-existent feature");
       }
