@@ -24,6 +24,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -66,12 +67,7 @@ import com.google.maps.android.data.geojson.GeoJsonMultiPolygon;
 import com.google.maps.android.data.geojson.GeoJsonParser;
 import com.google.maps.android.data.geojson.GeoJsonPoint;
 import com.google.maps.android.data.geojson.GeoJsonPolygon;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,7 +78,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+
 import javax.annotation.Nullable;
+
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import timber.log.Timber;
 
 /**
@@ -166,8 +170,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     Builder<MapFeature> candidates = ImmutableList.builder();
     ArrayList<String> processed = new ArrayList<>();
 
-    for (Entry<MapFeature, GeometryCollection> geoJsonEntry :
-        geoJsonGeometries.entrySet()) {
+    for (Entry<MapFeature, GeometryCollection> geoJsonEntry : geoJsonGeometries.entrySet()) {
       MapGeoJson geoJsonFeature = (MapGeoJson) geoJsonEntry.getKey();
       GeometryCollection geoJsonGeometry = geoJsonEntry.getValue();
       if (processed.contains(geoJsonFeature.getId())) {
@@ -279,8 +282,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     LatLng position = toLatLng(mapPin.getPosition());
     String color = mapPin.getStyle().getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
-    Marker marker =
-        map.addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
+    Marker marker = map.addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
     markers.add(marker);
     marker.setTag(mapPin);
   }
@@ -355,8 +357,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     Iterator<Entry<MapFeature, Polyline>> polylineIterator = polygons.entrySet().iterator();
     while (polylineIterator.hasNext()) {
-      MapFeature mapFeature = polylineIterator.next().getKey();
-      Polyline polyline = polylineIterator.next().getValue();
+      Entry<MapFeature, Polyline> entry = polylineIterator.next();
+      MapFeature mapFeature = entry.getKey();
+      Polyline polyline = entry.getValue();
       if (features.contains(mapFeature)) {
         // If polygon already exists on map, don't add it.
         featuresToUpdate.remove(mapFeature);
@@ -484,9 +487,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     stream(urls).forEach(this::addRemoteTileOverlay);
   }
 
-  /**
-   * A collection of geometries in a GeoJson feature.
-   */
+  /** A collection of geometries in a GeoJson feature. */
   private class GeometryCollection {
     List<Marker> markers = new ArrayList<>();
     List<Polyline> polylines = new ArrayList<>();
@@ -549,10 +550,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
 
     private Marker addMarker(GeoJsonPoint point) {
-      return map.addMarker(
-          new MarkerOptions()
-              .zIndex(1)
-              .position(point.getCoordinates()));
+      return map.addMarker(new MarkerOptions().zIndex(1).position(point.getCoordinates()));
     }
 
     private Polyline addPolyline(GeoJsonLineString lineString, float width, int color) {
@@ -565,12 +563,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
 
     private Polygon addPolygon(GeoJsonPolygon dataPolygon, float width, int color) {
-      PolygonOptions polygonOptions = new PolygonOptions()
-          .addAll(dataPolygon.getOuterBoundaryCoordinates())
-          .strokeWidth(width)
-          .strokeColor(color)
-          .clickable(false)
-          .zIndex(1);
+      PolygonOptions polygonOptions =
+          new PolygonOptions()
+              .addAll(dataPolygon.getOuterBoundaryCoordinates())
+              .strokeWidth(width)
+              .strokeColor(color)
+              .clickable(false)
+              .zIndex(1);
       for (List<LatLng> innerBoundary : dataPolygon.getInnerBoundaryCoordinates()) {
         polygonOptions.addHole(innerBoundary);
       }
@@ -583,7 +582,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonParser geoJsonParser = new GeoJsonParser(mapFeature.getGeoJson());
     GeometryCollection featureGeometries = new GeometryCollection();
     geoJsonGeometries.put(mapFeature, featureGeometries);
-    for (GeoJsonFeature geoJsonFeature: geoJsonParser.getFeatures()) {
+    for (GeoJsonFeature geoJsonFeature : geoJsonParser.getFeatures()) {
       featureGeometries.addGeometry(mapFeature, geoJsonFeature.getGeometry());
     }
   }
