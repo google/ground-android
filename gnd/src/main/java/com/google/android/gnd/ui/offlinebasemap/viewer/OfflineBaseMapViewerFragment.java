@@ -26,7 +26,7 @@ import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapFragment;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
@@ -40,7 +40,6 @@ public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
   @Inject Navigator navigator;
 
   private OfflineBaseMapViewerViewModel viewModel;
-  @Nullable private MapAdapter map;
 
   @Inject
   public OfflineBaseMapViewerFragment() {}
@@ -69,17 +68,12 @@ public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
   }
 
   @Override
-  protected void onMapReady(MapAdapter map) {
-    this.map = map;
+  protected void onMapReady(MapFragment map) {
     map.disable();
   }
 
   private void panMap(OfflineBaseMap offlineBaseMap) {
-    if (map == null) {
-      return;
-    }
-
-    map.setBounds(offlineBaseMap.getBounds());
+    getMapFragment().setBounds(offlineBaseMap.getBounds());
   }
 
   /** Removes the area associated with this fragment from the user's device. */

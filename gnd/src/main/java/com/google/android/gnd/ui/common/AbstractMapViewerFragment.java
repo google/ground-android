@@ -19,43 +19,34 @@ package com.google.android.gnd.ui.common;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import com.google.android.gnd.R;
-import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFragment;
-import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.map.MapProvider.MapType;
-import com.google.common.collect.ImmutableList;
-import io.reactivex.Flowable;
+import com.google.android.gnd.ui.map.MapFragmentFactory;
 import javax.inject.Inject;
 
 /** Injects a {@link MapFragment} in the container with id "map". */
 public abstract class AbstractMapViewerFragment extends AbstractFragment {
 
-  @Inject MapProvider mapProvider;
+  @Inject protected MapFragmentFactory mapFragmentFactory;
+
+  private Fragment mapFragment;
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mapFragment = mapFragmentFactory.createFragment();
+  }
 
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    mapProvider
-        .createFragment()
-        .attachToFragment(
-            this,
-            R.id.map,
-            adapter -> {
-              mapProvider.setMapAdapter(adapter);
-              onMapReady(adapter);
-            });
+    getMapFragment().attachToFragment(this, R.id.map, this::onMapReady);
   }
 
-  protected abstract void onMapReady(MapAdapter adapter);
-
-  @Hot
-  protected Flowable<MapAdapter> getMapAdapter() {
-    return mapProvider.getMapAdapter();
+  protected MapFragment getMapFragment() {
+    return (MapFragment) mapFragment;
   }
 
-  protected ImmutableList<MapType> getMapTypes() {
-    return mapProvider.getMapTypes();
-  }
+  protected abstract void onMapReady(MapFragment mapFragment);
 }

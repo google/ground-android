@@ -25,18 +25,15 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapMoveFeatureLayoutBinding;
 import com.google.android.gnd.ui.common.AbstractView;
 import com.google.android.gnd.ui.map.CameraPosition;
-import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.MapFragment;
 import dagger.hilt.android.AndroidEntryPoint;
 import dagger.hilt.android.WithFragmentBindings;
-import javax.inject.Inject;
 
 @WithFragmentBindings
 @AndroidEntryPoint
 public class FeatureRepositionView extends AbstractView {
 
   private final FeatureRepositionViewModel viewModel;
-  @Inject MapProvider mapProvider;
 
   public FeatureRepositionView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
@@ -47,12 +44,9 @@ public class FeatureRepositionView extends AbstractView {
     binding.setViewModel(viewModel);
   }
 
-  @Override
-  protected void onFinishInflate() {
-    super.onFinishInflate();
-    mapProvider
-        .getMapAdapter()
-        .flatMap(MapAdapter::getCameraMovedEvents)
+  public void init(MapFragment mapFragment) {
+    mapFragment
+        .getCameraMovedEvents()
         .map(CameraPosition::getTarget)
         .onBackpressureLatest()
         .as(disposeOnDestroy(getActivity()))

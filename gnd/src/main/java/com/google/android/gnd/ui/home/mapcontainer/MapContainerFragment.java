@@ -44,13 +44,13 @@ import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCancel
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.CameraUpdate;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
-import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapProvider.MapType;
+import com.google.android.gnd.ui.map.MapFragment;
+import com.google.android.gnd.ui.map.MapType;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -65,8 +65,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
-
-  @Nullable private MapAdapter adapter;
+  private MapContainerFragBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,35 +75,31 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
-    Flowable<MapAdapter> mapAdapter = getMapAdapter();
-    mapAdapter
-        .toObservable()
-        .flatMap(MapAdapter::getMapPinClicks)
+
+    getMapFragment()
+        .getMapPinClicks()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onMarkerClick);
-    mapAdapter
-        .toObservable()
-        .flatMap(MapAdapter::getMapPinClicks)
+    getMapFragment()
+        .getMapPinClicks()
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onMarkerClick);
-    mapAdapter
-        .toObservable()
-        .flatMap(MapAdapter::getFeatureClicks)
+    getMapFragment()
+        .getFeatureClicks()
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onFeatureClick);
-    mapAdapter
-        .flatMap(MapAdapter::getStartDragEvents)
+    getMapFragment()
+        .getStartDragEvents()
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
         .subscribe(__ -> mapContainerViewModel.onMapDrag());
-    mapAdapter
-        .flatMap(MapAdapter::getCameraMovedEvents)
+    getMapFragment()
+        .getCameraMovedEvents()
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onCameraMove);
-    mapAdapter
-        .toObservable()
-        .flatMap(MapAdapter::getTileProviders)
+    getMapFragment()
+        .getTileProviders()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::queueTileProvider);
 
@@ -132,7 +127,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
+    binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
     binding.setLifecycleOwner(this);
@@ -142,14 +137,17 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
     disableAddFeatureBtn();
   }
 
   @Override
-  protected void onMapReady(MapAdapter map) {
-    Timber.d("MapAdapter ready. Updating subscriptions");
-    this.adapter = map;
+  protected void onMapReady(MapFragment map) {
+    Timber.d("MapFragment ready. Updating subscriptions");
+
+    // TODO: This is ugly. Fix it!
+    ((FeatureRepositionView) binding.mapOverlay.findViewById(R.id.move_feature)).init(map);
+    ((PolygonDrawingView) binding.mapOverlay.findViewById(R.id.polygon_drawing_controls)).init(map);
+
     mapContainerViewModel.setLocationLockEnabled(true);
     polygonDrawingViewModel.setLocationLockEnabled(true);
 
@@ -173,13 +171,9 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void showMapTypeSelectorDialog() {
-    if (adapter == null) {
-      return;
-    }
-
-    ImmutableList<MapType> mapTypes = getMapTypes();
+    ImmutableList<MapType> mapTypes = mapFragmentFactory.getMapTypes();
     ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.type).collect(toImmutableList());
-    int selectedIdx = typeNos.indexOf(adapter.getMapType());
+    int selectedIdx = typeNos.indexOf(getMapFragment().getMapType());
     String[] labels = stream(mapTypes).map(p -> getString(p.labelId)).toArray(String[]::new);
     new AlertDialog.Builder(requireContext())
         .setTitle(R.string.select_map_type)
@@ -189,9 +183,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
             (dialog, which) -> {
               int mapType = typeNos.get(which);
               mapsRepository.saveMapType(mapType);
-              if (adapter != null) {
-                adapter.setMapType(mapType);
-              }
+              getMapFragment().setMapType(mapType);
               dialog.dismiss();
             })
         .setCancelable(true)
@@ -223,7 +215,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     homeScreenViewModel.updateFeature(newFeature);
   }
 
-  private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
+  private void onBottomSheetStateChange(BottomSheetState state, MapFragment map) {
     mapContainerViewModel.setSelectedFeature(state.getFeature());
     switch (state.getVisibility()) {
       case VISIBLE:
@@ -267,7 +259,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     mapContainerViewModel.setFeatureButtonBackgroundTint(R.color.colorGrey500);
   }
 
-  private void onLocationLockStateChange(BooleanOrError result, MapAdapter map) {
+  private void onLocationLockStateChange(BooleanOrError result, MapFragment map) {
     result.error().ifPresent(this::onLocationLockError);
     if (result.isTrue()) {
       Timber.d("Location lock enabled");
@@ -291,7 +283,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     Toast.makeText(getContext(), resId, Toast.LENGTH_LONG).show();
   }
 
-  private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
+  private void onCameraUpdate(CameraUpdate update, MapFragment map) {
     Timber.v("Update camera: %s", update);
     if (update.getZoomLevel().isPresent()) {
       float zoomLevel = update.getZoomLevel().get();

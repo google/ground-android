@@ -23,6 +23,9 @@ import android.content.res.Resources;
 import android.location.Geocoder;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.ui.common.ViewModelModule;
+import com.google.android.gnd.ui.map.MapFragmentFactory;
+import com.google.android.gnd.ui.map.gms.GoogleMapsMapFragmentFactory;
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -58,4 +61,7 @@ abstract class GndApplicationModule {
   static Resources provideResources(@ApplicationContext Context context) {
     return context.getResources();
   }
+
+  @Binds
+  abstract MapFragmentFactory provideMapFragmentFactory(GoogleMapsMapFragmentFactory gmsFactory);
 }

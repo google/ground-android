@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -32,7 +33,7 @@ import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
@@ -83,19 +84,20 @@ public class OfflineBaseMapSelectorFragment extends AbstractMapViewerFragment {
   }
 
   @Override
-  protected void onMapReady(MapAdapter map) {
+  protected void onMapReady(MapFragment mapFragment) {
     viewModel
         .getRemoteTileSources()
         .map(tileSources -> stream(tileSources).map(TileSource::getUrl).collect(toImmutableList()))
         .as(autoDisposable(this))
-        .subscribe(map::addRemoteTileOverlays);
+        .subscribe(mapFragment::addRemoteTileOverlays);
 
     viewModel.requestRemoteTileSources();
 
-    map.getCameraMovedEvents()
-        .map(__ -> map.getViewport())
-        .startWith(map.getViewport())
-        .as(autoDisposable(this))
+    mapFragment
+        .getCameraMovedEvents()
+        .map(__ -> mapFragment.getViewport())
+        .startWith(mapFragment.getViewport())
+        .as(disposeOnDestroy(this))
         .subscribe(viewModel::setViewport);
   }
 }
