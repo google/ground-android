@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2021 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
   -->
 
   <!-- Title shown above list of layers when (+) is clicked on map. -->
-  <string name="add_feature_select_type_dialog_title">Que le gustaria agregar?</string>
+  <string name="add_feature_select_type_dialog_title">Que le gustaría agregar?</string>
 
   <!-- Shown in toolbar when adding a new feature and form instance. -->
   <string name="add_feature_toolbar_title">Agregar una característica</string>
@@ -117,8 +117,8 @@
   <string name="location_disabled_in_settings">Habilite la ubicación en la configuración del sistema</string>
 
   <!-- Shown when saving a form that contains missing or invalid data -->
-  <string name="invalid_data_warning">El formulario contiene datos incompletos o no válidos. por favor, compruebe
-  tus respuestas y vuelve a intentarlo.</string>
+  <string name="invalid_data_warning">El formulario contiene datos incompletos o no válidos. Por favor, compruebe
+  sus respuestas y vuelve a intentarlo.</string>
   <string name="invalid_data_confirm">OK</string>
 
   <string name="add_observation_button_label">Agregar registro</string>
@@ -146,9 +146,9 @@
   <string name="offline_base_map_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
   <string name="offline_base_map_selector_download">Descargar</string>
   <string name="add_photo">Agregar imagen</string>
-  <string name="action_camera">Camara</string>
+  <string name="action_camera">Cámara</string>
   <string name="action_storage">Almacenamiento</string>
-  <string name="photo_preview">vista previa</string>
+  <string name="photo_preview">Vista previa</string>
   <string name="select_map_type">Seleccionar mapa base</string>
   <string name="uploading_photos">Subiendo imagenes</string>
   <string name="starting">Iniciando</string>
@@ -206,8 +206,8 @@
 
   <string name="delete_button_label">Borrar</string>
   <string name="cancel_button_label">Cancelar</string>
-  <string name="observation_delete_confirmation_dialog_title">Eliminar esta observación?"</string>
+  <string name="observation_delete_confirmation_dialog_title">Eliminar este registro?"</string>
   <string name="observation_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
   <string name="feature_delete_confirmation_dialog_title">Borrar %1$s ?"</string>
-  <string name="feature_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todas las observaciones asociadas. Este cambio no se puede deshacer. ¿Está seguro?</string>
+  <string name="feature_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todos los registros asociados. Este cambio no se puede deshacer. ¿Está seguro?</string>
 </resources>
