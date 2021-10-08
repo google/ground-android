@@ -150,7 +150,7 @@
   <string name="action_storage">Almacenamiento</string>
   <string name="photo_preview">Vista previa</string>
   <string name="select_map_type">Seleccionar mapa base</string>
-  <string name="uploading_photos">Subiendo imagenes</string>
+  <string name="uploading_photos">Subiendo imágenes</string>
   <string name="starting">Iniciando</string>
   <string name="downloading_tiles">Descargando mapa base</string>
   <string name="in_progress">En curso</string>
@@ -201,7 +201,7 @@
   <string name="complete_polygon">Completo</string>
   <string name="select_feature_type">Elija un tipo de característica</string>
   <string name="get_started_button_text">Empezar</string>
-  <string name="add_polygon_instructions">Arrastra el mapa y toca "Agregar punto" para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque "Completar".</string>
+  <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
   <string name="location_accuracy">Precisión: %.2f m</string>
 
   <string name="delete_button_label">Borrar</string>
