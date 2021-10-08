@@ -78,7 +78,7 @@ public class FeatureConverter {
       return false;
     }
 
-    List<?> coordinates = ((List<?>) geometry.get(GEOMETRY_COORDINATES));
+    List<?> coordinates = (List<?>) geometry.get(GEOMETRY_COORDINATES);
     return !coordinates.isEmpty();
   }
 
