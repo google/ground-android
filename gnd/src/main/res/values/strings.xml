@@ -205,4 +205,11 @@
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
   <string name="location_accuracy">Accuracy: %.2f m</string>
 
+  <string name="delete_button_label">Delete</string>
+  <string name="cancel_button_label">Cancel</string>
+  <string name="observation_delete_confirmation_dialog_title">Delete this observation?"</string>
+  <string name="observation_delete_confirmation_dialog_message">This observation will disappear from the map. This change cannot be undone. Are you sure?</string>
+  <string name="feature_delete_confirmation_dialog_title">Delete %1$s feature?"</string>
+  <string name="feature_delete_confirmation_dialog_message">This feature will disappear from the map along with all associated observations. This change cannot be undone. Are you sure?</string>
+
 </resources>
