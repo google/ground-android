@@ -24,7 +24,6 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -67,7 +66,12 @@ import com.google.maps.android.data.geojson.GeoJsonMultiPolygon;
 import com.google.maps.android.data.geojson.GeoJsonParser;
 import com.google.maps.android.data.geojson.GeoJsonPoint;
 import com.google.maps.android.data.geojson.GeoJsonPolygon;
-
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,15 +82,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-
 import javax.annotation.Nullable;
-
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 import timber.log.Timber;
 
 /**
