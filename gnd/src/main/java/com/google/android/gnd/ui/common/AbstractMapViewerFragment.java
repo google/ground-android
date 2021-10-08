@@ -21,21 +21,12 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.map.MapFragment;
-import com.google.android.gnd.ui.map.MapFragmentFactory;
 import javax.inject.Inject;
 
 /** Injects a {@link MapFragment} in the container with id "map". */
 public abstract class AbstractMapViewerFragment extends AbstractFragment {
 
-  @Inject protected MapFragmentFactory mapFragmentFactory;
-
-  private MapFragment mapFragment;
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    mapFragment = mapFragmentFactory.createFragment();
-  }
+  @Inject MapFragment mapFragment;
 
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -44,7 +35,7 @@ public abstract class AbstractMapViewerFragment extends AbstractFragment {
   }
 
   protected MapFragment getMapFragment() {
-    return (MapFragment) mapFragment;
+    return mapFragment;
   }
 
   protected abstract void onMapReady(MapFragment mapFragment);

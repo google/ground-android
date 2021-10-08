@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import com.google.android.gnd.ui.map.gms.GoogleMapsFragment;
 import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
 import dagger.Binds;
 import dagger.Module;
@@ -26,6 +27,9 @@ import javax.inject.Singleton;
 @InstallIn(SingletonComponent.class)
 @Module
 public abstract class MapProviderModule {
+
+  @Binds
+  abstract MapFragment providesGoogleMapFragment(GoogleMapsFragment googleMapsFragment);
 
   @Binds
   @Singleton

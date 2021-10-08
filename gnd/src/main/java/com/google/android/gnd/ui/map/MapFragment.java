@@ -19,10 +19,14 @@ package com.google.android.gnd.ui.map;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.common.collect.ImmutableList;
 import java8.util.function.Consumer;
 
 /** Interface for a Fragment that renders a map view. */
 public interface MapFragment {
+
+  /** Returns a list of supported basemap types. */
+  ImmutableList<MapType> getAvailableMapTypes();
 
   /** Adds the {@link MapFragment} to a fragment. */
   void attachToFragment(
