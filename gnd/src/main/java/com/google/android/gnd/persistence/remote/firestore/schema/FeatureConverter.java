@@ -50,7 +50,7 @@ public class FeatureConverter {
 
   static Feature toFeature(Project project, DocumentSnapshot doc) throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
-    if (f.getGeometry() != null) {
+    if (f.getGeometry() != null && hasNonEmptyVertices(f)) {
       return toFeatureFromGeometry(project, doc, f);
     }
 
@@ -67,6 +67,19 @@ public class FeatureConverter {
     }
 
     throw new DataStoreException("No geometry in remote feature " + doc.getId());
+  }
+
+  private static boolean hasNonEmptyVertices(FeatureDocument featureDocument) {
+    Map<String, Object> geometry = featureDocument.getGeometry();
+
+    if (geometry == null
+        || geometry.get(GEOMETRY_COORDINATES) == null
+        || !(geometry.get(GEOMETRY_COORDINATES) instanceof List)) {
+      return false;
+    }
+
+    List<?> coordinates = ((List<?>) geometry.get(GEOMETRY_COORDINATES));
+    return !coordinates.isEmpty();
   }
 
   private static PolygonFeature toFeatureFromGeometry(
