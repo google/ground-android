@@ -109,6 +109,7 @@ android {
             FirebasePerformance {
                 instrumentationEnabled false
             }
+            testCoverageEnabled true
         }
     }
 

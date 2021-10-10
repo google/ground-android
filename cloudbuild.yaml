@@ -93,7 +93,7 @@ steps:
         cat unit-test-logs.txt
 
         # TODO: Add a check for _PUSH_TO_MASTER
-        ./gradlew jacocoTestDebugUnitTestReport
+        ./gradlew jacocoTestStagingUnitTestReport
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &authenticate_gcloud 'Authorize gcloud'
