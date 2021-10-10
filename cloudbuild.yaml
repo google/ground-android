@@ -123,6 +123,7 @@ steps:
         --results-bucket ${_ARTIFACT_BUCKET} \
         --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
         --environment-variables coverage=true,coverageFile=/sdcard/coverage.ec \
+        --directories-to-pull /sdcard \
         --timeout 20m
 
   - name: 'gcr.io/cloud-builders/gsutil'
