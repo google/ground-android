@@ -40,5 +40,5 @@ jacocoAndroidUnitTestReport {
 jacocoAndroidUnitTestReport {
     csv.enabled false
     html.enabled true
-    xml.enabled false
+    xml.enabled true
 }

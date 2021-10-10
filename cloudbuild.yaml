@@ -92,6 +92,9 @@ steps:
         ./gradlew -PdisablePreDex testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
+        # TODO: Add a check for _PUSH_TO_MASTER
+        ./gradlew jacocoTestDebugUnitTestReport
+
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &authenticate_gcloud 'Authorize gcloud'
     waitFor:
@@ -175,6 +178,18 @@ steps:
           cat unit-test-logs.txt
           exit 1
         fi
+
+  - name: 'gcr.io/$PROJECT_ID/android:base'
+    id: &upload_code_coverage 'Upload code coverage stats'
+    waitFor:
+      - *update_status
+    args:
+      - '-c'
+      - |
+        # TODO: Add a check for _PUSH_TO_MASTER
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov -t ${_CODECOV_TOKEN} -R gnd/build/jacoco
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'
