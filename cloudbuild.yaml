@@ -122,6 +122,7 @@ steps:
         --device model=Pixel2,version=28,locale=en,orientation=portrait \
         --results-bucket ${_ARTIFACT_BUCKET} \
         --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
+        --environment-variables coverage=true,coverageFile=/sdcard/coverage.ec \
         --timeout 20m
 
   - name: 'gcr.io/cloud-builders/gsutil'

@@ -99,6 +99,7 @@ android {
             FirebasePerformance {
                 instrumentationEnabled false
             }
+            testCoverageEnabled true
         }
         staging {
             ext.enableCrashlytics = false
