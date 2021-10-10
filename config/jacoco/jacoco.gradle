@@ -26,8 +26,15 @@ tasks.withType(Test) {
 }
 
 jacocoAndroidUnitTestReport {
-//    excludes += ['**/AutoValue_*.*',
-//                 '**/*JavascriptBridge.class']
+    excludes += [
+        '**/databinding/*',
+        '**/generated/callback/*',
+        '**/_com_google_android_gnd_*',
+        '**/hilt_aggregated_deps',
+        '**/*Hilt*',
+        '**/AutoValue_*',
+        '**/DataBind*',
+    ]
 }
 
 jacocoAndroidUnitTestReport {
