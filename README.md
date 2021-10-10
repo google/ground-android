@@ -1,5 +1,6 @@
 # Ground for Android
 [![cloud build status](https://storage.googleapis.com/gradle_cache_bucket/status.svg)](https://console.cloud.google.com/cloud-build/dashboard?project=ground-android-gcb)
+[![codecov.io](https://codecov.io/github/google/ground-android/branch/master/graph/badge.svg)](https://codecov.io/github/google/ground-android)
 [![dependency health](https://storage.googleapis.com/gradle_cache_bucket/dependency.svg)](https://storage.googleapis.com/gradle_cache_bucket/dependency.txt)
 [![Open Source Helpers](https://www.codetriage.com/google/ground-android/badges/users.svg)](https://www.codetriage.com/google/ground-android)
 
