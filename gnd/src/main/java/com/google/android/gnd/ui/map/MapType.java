@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,27 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.ui.map.gms.GoogleMapsFragment;
-import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
-import javax.inject.Singleton;
+import androidx.annotation.StringRes;
 
-@InstallIn(SingletonComponent.class)
-@Module
-public abstract class MapProviderModule {
+/**
+ * MapType refers to the basemap shown below map features and offline satellite imagery. It's called
+ * "map styles" in Mapbox and "basemaps" in Leaflet.
+ */
+public class MapType {
 
-  @Binds
-  abstract MapFragment providesGoogleMapFragment(GoogleMapsFragment googleMapsFragment);
+  private final int type;
+  private final @StringRes int labelId;
 
-  @Binds
-  @Singleton
-  abstract MapProvider googleMapsProvider(GoogleMapsMapProvider mapsMapProvider);
+  public MapType(int type, @StringRes int labelId) {
+    this.type = type;
+    this.labelId = labelId;
+  }
+
+  public int getLabelId() {
+    return labelId;
+  }
+
+  public int getType() {
+    return type;
+  }
 }

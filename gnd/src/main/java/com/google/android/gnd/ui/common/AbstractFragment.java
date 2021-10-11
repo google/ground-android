@@ -126,7 +126,7 @@ public abstract class AbstractFragment extends Fragment {
     super.onDetach();
   }
 
-  protected final void replaceFragment(@IdRes int containerViewId, Fragment fragment) {
+  public final void replaceFragment(@IdRes int containerViewId, Fragment fragment) {
     getChildFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
   }
 
