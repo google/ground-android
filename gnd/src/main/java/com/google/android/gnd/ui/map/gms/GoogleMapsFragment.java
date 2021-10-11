@@ -22,15 +22,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gnd.R;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.map.MapFragment;
+import com.google.android.gnd.ui.map.MapType;
+import com.google.common.collect.ImmutableList;
+import java8.util.function.Consumer;
 
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-public class GoogleMapsFragment extends SupportMapFragment {
+public class GoogleMapsFragment extends SupportMapFragment implements MapFragment {
+
+  private static final ImmutableList<MapType> MAP_TYPES =
+      ImmutableList.<MapType>builder()
+          .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.normal))
+          .add(new MapType(GoogleMap.MAP_TYPE_SATELLITE, R.string.satellite))
+          .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain))
+          .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.hybrid))
+          .build();
+
   @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
     View view = super.onCreateView(layoutInflater, viewGroup, bundle);
@@ -57,5 +75,22 @@ public class GoogleMapsFragment extends SupportMapFragment {
     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) watermark.getLayoutParams();
     params.setMargins(left, top, right, bottom);
     watermark.setLayoutParams(params);
+  }
+
+  @Override
+  public ImmutableList<MapType> getAvailableMapTypes() {
+    return MAP_TYPES;
+  }
+
+  @Override
+  public void attachToFragment(
+      @NonNull AbstractFragment containerFragment,
+      @IdRes int containerId,
+      @NonNull Consumer<MapFragment> mapReadyAction) {
+    containerFragment.replaceFragment(containerId, this);
+    getMapAsync(
+        googleMap -> {
+          mapReadyAction.accept(this);
+        });
   }
 }
