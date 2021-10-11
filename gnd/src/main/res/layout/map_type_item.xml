@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  <CheckedTextView
+    android:id="@+id/map_type_text_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:checked="false"
+    android:checkMark="?android:attr/listChoiceIndicatorSingle"
+    android:textSize="@dimen/map_layer_popup_body_text_size"
+    android:gravity="center_vertical"/>
+</LinearLayout>

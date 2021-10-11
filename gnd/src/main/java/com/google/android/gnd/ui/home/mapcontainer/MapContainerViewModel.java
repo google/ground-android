@@ -18,11 +18,13 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.location.Location;
+import android.util.Pair;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -34,11 +36,14 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -54,6 +59,8 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.android.gnd.ui.map.MapProvider;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -92,6 +99,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
+  private final MapProvider mapProvider;
+  private final MapsRepository mapsRepository;
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
@@ -120,6 +129,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Integer> iconTint;
   private final LiveData<Boolean> locationUpdatesEnabled;
   private final LiveData<String> locationAccuracy;
+  private final LiveData<List<Layer>> layers;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
@@ -139,7 +149,9 @@ public class MapContainerViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineBaseMapRepository offlineBaseMapRepository) {
+      OfflineBaseMapRepository offlineBaseMapRepository,
+      MapProvider mapProvider,
+      MapsRepository mapsRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.resources = resources;
     this.projectRepository = projectRepository;
@@ -168,6 +180,15 @@ public class MapContainerViewModel extends AbstractViewModel {
             createCameraUpdateFlowable(locationLockStateFlowable));
     this.projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
+    this.layers =
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository
+                .getProjectLoadingState()
+                .map(
+                    loadableProject ->
+                        projectRepository.getModifiableLayers(
+                            loadableProject.value(), FeatureType.POINT)));
+
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
@@ -199,6 +220,9 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
+
+    this.mapProvider = mapProvider;
+    this.mapsRepository = mapsRepository;
   }
 
   private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
@@ -476,6 +500,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return addPolygonVisible;
   }
 
+  public LiveData<List<Layer>> getLayers() { return layers; }
+
   public Optional<Feature> getReposFeature() {
     return reposFeature;
   }
@@ -503,6 +529,17 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void setLocationLockEnabled(boolean enabled) {
     locationLockEnabled.postValue(enabled);
+  }
+
+  public void updateMapType(int mapType) {
+    mapProvider.setMapType(mapType);
+    mapsRepository.saveMapType(mapType);
+  }
+
+  public ImmutableList<MapTypeItem> getMapTypes() {
+    return stream(mapProvider.getMapTypes())
+        .map(mapType -> new MapTypeItem(mapType.first, mapType.second, mapProvider))
+        .collect(toImmutableList());
   }
 
   public enum Mode {
@@ -556,6 +593,30 @@ public class MapContainerViewModel extends AbstractViewModel {
       } else {
         return "Pan";
       }
+    }
+  }
+
+  static class MapTypeItem {
+    private final int type;
+    private final String label;
+    private final MapProvider mapProvider;
+
+    MapTypeItem(int type, String label, MapProvider mapProvider) {
+      this.type = type;
+      this.label = label;
+      this.mapProvider = mapProvider;
+    }
+
+    public int getType() {
+      return type;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public boolean isSelected() {
+      return mapProvider.getMapType() == type;
     }
   }
 }

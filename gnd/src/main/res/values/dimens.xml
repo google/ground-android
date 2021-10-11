@@ -113,4 +113,10 @@
 
   <!-- Navigation drawer -->
   <dimen name="nav_drawer_profile_image_size">64dp</dimen>
+
+  <!--  Map layers popup window-->
+  <dimen name="map_layer_popup_header_text_size">20sp</dimen>
+  <dimen name="map_layer_popup_body_text_size">16sp</dimen>
+  <dimen name="map_layer_popup_padding">16dp</dimen>
+
 </resources>

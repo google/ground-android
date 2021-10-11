@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="200dp"
+    android:paddingTop="@dimen/map_layer_popup_padding"
+    android:paddingBottom="@dimen/map_layer_popup_padding"
+    android:orientation="vertical">
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical">
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/map_type"
+        android:textSize="@dimen/map_layer_popup_header_text_size"/>
+      <ListView
+        android:id="@+id/map_type_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <android.widget.Space
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/map_layer_popup_padding" />
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical">
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/data_layer"
+        android:textSize="@dimen/map_layer_popup_header_text_size"/>
+      <ListView
+        android:id="@+id/data_layer_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+  </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

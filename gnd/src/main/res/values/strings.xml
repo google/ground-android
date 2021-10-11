@@ -212,4 +212,6 @@
   <string name="feature_delete_confirmation_dialog_title">Delete %1$s feature?"</string>
   <string name="feature_delete_confirmation_dialog_message">This feature will disappear from the map along with all associated observations. This change cannot be undone. Are you sure?</string>
 
+  <string name="map_type">Map type</string>
+  <string name="data_layer">Data layer</string>
 </resources>

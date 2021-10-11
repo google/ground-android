@@ -21,11 +21,17 @@ import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.app.ActionBar.LayoutParams;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,10 +39,13 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
+import com.google.android.gnd.databinding.MapLayersPopupWindowBinding;
+import com.google.android.gnd.databinding.MapTypeItemBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
 import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -55,6 +64,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -70,6 +80,8 @@ public class MapContainerFragment extends AbstractFragment {
   PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
+  private MapContainerFragBinding binding;
+  @Nullable private PopupWindow layersPopupWindow;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,13 +144,13 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel
         .getSelectMapTypeClicks()
         .as(autoDisposable(this))
-        .subscribe(__ -> showMapTypeSelectorDialog());
+        .subscribe(__ -> showMapLayersPopupWindow());
   }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
+    binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
     binding.setLifecycleOwner(this);
@@ -182,25 +194,44 @@ public class MapContainerFragment extends AbstractFragment {
     map.setMapType(mapsRepository.getSavedMapType());
   }
 
-  private void showMapTypeSelectorDialog() {
-    ImmutableList<Pair<Integer, String>> mapTypes = mapProvider.getMapTypes();
-    ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.first).collect(toImmutableList());
-    int selectedIdx = typeNos.indexOf(mapProvider.getMapType());
-    String[] labels = stream(mapTypes).map(p -> p.second).toArray(String[]::new);
-    new AlertDialog.Builder(requireContext())
-        .setTitle(R.string.select_map_type)
-        .setSingleChoiceItems(
-            labels,
-            selectedIdx,
-            (dialog, which) -> {
-              int mapType = typeNos.get(which);
-              mapProvider.setMapType(mapType);
-              mapsRepository.saveMapType(mapType);
-              dialog.dismiss();
-            })
-        .setCancelable(true)
-        .create()
-        .show();
+  private void showMapLayersPopupWindow() {
+    if (layersPopupWindow == null) {
+      layersPopupWindow = createLayersPopupWindow();
+    }
+    layersPopupWindow.showAsDropDown(binding.mapControls.mapTypeBtn);
+  }
+
+  private PopupWindow createLayersPopupWindow() {
+    MapLayersPopupWindowBinding popupWindowBinding = MapLayersPopupWindowBinding
+        .inflate(getLayoutInflater());
+    PopupWindow popupWindow = new PopupWindow(
+        popupWindowBinding.getRoot(),
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.WRAP_CONTENT,
+        /* focusable= */ true);
+
+    MapTypesAdapter mapTypeAdapter = new MapTypesAdapter(mapContainerViewModel.getMapTypes());
+    popupWindowBinding.mapTypeListView.setAdapter(mapTypeAdapter);
+    popupWindowBinding.mapTypeListView.setOnItemClickListener((adapterView, view, position, id) -> {
+      int mapType = (int) mapTypeAdapter.getItem(position);
+      mapContainerViewModel.updateMapType(mapType);
+      popupWindow.dismiss();
+    });
+
+    ArrayAdapter<String> dataLayerAdapter =
+        new ArrayAdapter<>(requireActivity(), R.layout.data_layer_item, R.id.data_layer_text_view);
+    popupWindowBinding.dataLayerListView.setAdapter(dataLayerAdapter);
+    mapContainerViewModel
+        .getLayers()
+        .observe(
+            this,
+            layers -> {
+              dataLayerAdapter.clear();
+              dataLayerAdapter.addAll(
+                  stream(layers).map(Layer::getName).collect(toImmutableList()));
+            });
+
+    return popupWindow;
   }
 
   private void showConfirmationDialog(Point point) {
