@@ -34,8 +34,8 @@ public abstract class AbstractView extends FrameLayout {
 
   @Inject protected ViewModelFactory viewModelFactory;
 
-  public AbstractView(@NonNull Context context, @Nullable AttributeSet attrs) {
-    super(context, attrs);
+  public AbstractView(@NonNull Context context) {
+    super(context);
   }
 
   protected FragmentActivity getActivity() {
