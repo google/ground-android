@@ -104,7 +104,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
-  private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
+  private final MutableLiveData<Integer> addPolygonVisible = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -445,7 +445,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
-    addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON);
+    addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON ? VISIBLE : GONE);
   }
 
   public void onMapTypeButtonClicked() {
@@ -472,7 +472,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public LiveData<Boolean> isAddPolygonButtonVisible() {
+  public LiveData<Integer> isAddPolygonButtonVisible() {
     return addPolygonVisible;
   }
 
