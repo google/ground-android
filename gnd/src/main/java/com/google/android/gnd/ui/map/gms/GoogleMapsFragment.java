@@ -326,21 +326,13 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   @Override
-  public void enable() {
+  public void enableGestures() {
     getMap().getUiSettings().setAllGesturesEnabled(true);
   }
 
   @Override
-  public void disable() {
+  public void disableGestures() {
     getMap().getUiSettings().setAllGesturesEnabled(false);
-  }
-
-  @Override
-  public void moveCamera(CameraPosition position) {
-    getMap()
-        .moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                toLatLng(position.getTarget()), position.getZoomLevel()));
   }
 
   @Override
@@ -522,7 +514,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   @Override
-  public void setBounds(LatLngBounds bounds) {
+  public void setViewport(LatLngBounds bounds) {
     getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
   }
 

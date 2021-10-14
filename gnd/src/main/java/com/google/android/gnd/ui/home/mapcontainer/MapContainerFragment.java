@@ -44,6 +44,7 @@ import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapType;
 import com.google.common.collect.ImmutableList;
@@ -160,7 +161,10 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addLocalTileOverlays);
 
     // TODO: Do this the RxJava way
-    map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
+    CameraPosition cameraPosition = mapContainerViewModel.getCameraPosition().getValue();
+    if (cameraPosition != null) {
+      map.moveCamera(cameraPosition.getTarget(), cameraPosition.getZoomLevel());
+    }
     map.setMapType(mapsRepository.getSavedMapType());
   }
 
@@ -171,7 +175,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
 
     PolygonDrawingView polygonDrawingView = new PolygonDrawingView(getContext(), map);
     mapContainerViewModel
-        .isAddPolygonButtonVisible()
+        .getAddPolygonVisibility()
         .observe(this, polygonDrawingView::setVisibility);
     binding.mapOverlay.addView(polygonDrawingView);
   }
@@ -226,7 +230,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     mapContainerViewModel.setSelectedFeature(state.getFeature());
     switch (state.getVisibility()) {
       case VISIBLE:
-        map.disable();
+        map.disableGestures();
         // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
         // selected. This will involve calculating centroid and possibly zoom level based on
         // vertices.
@@ -240,7 +244,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
                 });
         break;
       case HIDDEN:
-        map.enable();
+        map.enableGestures();
         break;
       default:
         Timber.e("Unhandled visibility: %s", state.getVisibility());

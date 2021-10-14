@@ -67,17 +67,10 @@ public interface MapFragment {
   Flowable<CameraPosition> getCameraMovedEvents();
 
   /** Enables map gestures like pan and zoom. */
-  void enable();
+  void enableGestures();
 
   /** Disables all map gestures like pan and zoom. */
-  void disable();
-
-  /**
-   * Repositions the camera.
-   *
-   * @param position the new position
-   */
-  void moveCamera(CameraPosition position);
+  void disableGestures();
 
   /**
    * Repositions the viewport centered around the specified point without changing the current zoom
@@ -107,11 +100,11 @@ public interface MapFragment {
   /** Update map type. */
   void setMapType(int mapType);
 
-  /** Returns the bounds of the currently visibly viewport. */
+  /** Returns the bounds of the currently visible viewport. */
   LatLngBounds getViewport();
 
   /** Set the map viewport to the given bounds. */
-  void setBounds(LatLngBounds bounds);
+  void setViewport(LatLngBounds bounds);
 
   /** Renders a tile overlay on the map. */
   void addLocalTileOverlays(ImmutableSet<String> mbtilesFiles);

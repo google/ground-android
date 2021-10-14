@@ -69,11 +69,11 @@ public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
 
   @Override
   protected void onMapReady(MapFragment map) {
-    map.disable();
+    map.disableGestures();
   }
 
   private void panMap(OfflineBaseMap offlineBaseMap) {
-    getMapFragment().setBounds(offlineBaseMap.getBounds());
+    getMapFragment().setViewport(offlineBaseMap.getBounds());
   }
 
   /** Removes the area associated with this fragment from the user's device. */
