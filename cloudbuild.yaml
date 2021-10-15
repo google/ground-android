@@ -132,7 +132,7 @@ steps:
       - *unit_tests
       - *instrumented_tests
     args: [ 'cp', '-r',
-            'gnd/build/reports',
+            'gnd/build/reports', 'gnd/build/jacoco',
             'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports' ]
 
   # Update status badge and fail build if errors were found in "build" step
