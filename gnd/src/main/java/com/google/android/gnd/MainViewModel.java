@@ -24,6 +24,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
+import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
@@ -41,10 +42,8 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -61,8 +60,7 @@ public class MainViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
-  @Hot private final Subject<Integer> unrecoverableErrors = PublishSubject.create();
-
+  private final RemoteDataStore remoteDataStore;
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
@@ -71,6 +69,7 @@ public class MainViewModel extends AbstractViewModel {
 
   @Inject
   public MainViewModel(
+      RemoteDataStore remoteDataStore,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       UserRepository userRepository,
@@ -79,6 +78,7 @@ public class MainViewModel extends AbstractViewModel {
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
       Schedulers schedulers) {
+    this.remoteDataStore = remoteDataStore;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.termsOfServiceRepository = termsOfServiceRepository;
@@ -172,7 +172,8 @@ public class MainViewModel extends AbstractViewModel {
     if (termsOfServiceRepository.isTermsOfServiceAccepted()) {
       return Observable.just(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      return getRemoteTermsOfService()
+      return termsOfServiceRepository
+          .getTermsOfService()
           .map(TermsOfService::getText)
           .map(text -> SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(text))
           .cast(NavDirections.class)
@@ -180,29 +181,25 @@ public class MainViewModel extends AbstractViewModel {
     }
   }
 
-  private Maybe<TermsOfService> getRemoteTermsOfService() {
-    return termsOfServiceRepository
-        .getTermsOfService()
-        .onErrorResumeNext(this::onGetTermsOfServiceError);
-  }
-
-  /**
-   * Handle error loading terms of service from remote config. This could happen if the network
-   * connection was lost immediately after signing in, but before the terms of service could be
-   * loaded or if permission to the remote config is denied (e.g., user not in passlist).
-   */
-  private Maybe<TermsOfService> onGetTermsOfServiceError(Throwable err) {
-    Timber.e(err, "Error loading terms of service from remote db");
-    unrecoverableErrors.onNext(R.string.config_load_error);
-    return Maybe.never();
-  }
-
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
     return signInProgressDialogVisibility;
   }
 
-  @Hot
-  public Observable<Integer> getUnrecoverableErrors() {
-    return unrecoverableErrors;
+  @Cold(terminates = false)
+  public Flowable<Integer> getUnrecoverableErrors() {
+    return remoteDataStore
+        .getExceptions()
+        .map(
+            code -> {
+              Timber.e("Exception in RemoteDataStore: %s", code);
+              switch (code) {
+                case PERMISSION_DENIED:
+                  return R.string.permission_denied_error;
+                case UNAVAILABLE:
+                  return R.string.config_load_error;
+                default:
+                  return R.string.unhandled_exception;
+              }
+            });
   }
 }
