@@ -33,10 +33,13 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.firebase.firestore.FirebaseFirestoreException.Code;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -74,6 +77,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
           .build();
 
+  private final FlowableProcessor<Code> errorProcessor = BehaviorProcessor.create();
+
   private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
 
   @Inject
@@ -98,6 +103,11 @@ public class FakeRemoteDataStore implements RemoteDataStore {
       default:
         return null;
     }
+  }
+
+  @Override
+  public @Cold Flowable<Code> getExceptions() {
+    return errorProcessor;
   }
 
   @Override

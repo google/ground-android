@@ -27,6 +27,7 @@ import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.firebase.firestore.FirebaseFirestoreException.Code;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -38,6 +39,10 @@ import java.util.List;
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 public interface RemoteDataStore {
+
+  @Cold
+  Flowable<Code> getExceptions();
+
   @Cold
   Single<List<Project>> loadProjectSummaries(User user);
 

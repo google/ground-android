@@ -36,11 +36,15 @@ import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreException.Code;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,6 +54,7 @@ import timber.log.Timber;
 public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
+  private final FlowableProcessor<Code> firebaseExceptionProcessor = BehaviorProcessor.create();
 
   @Inject GroundFirestore db;
   @Inject Schedulers schedulers;
@@ -57,12 +62,42 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Inject
   FirestoreDataStore() {}
 
+  /**
+   * Prevents known {@link FirebaseFirestoreException} from propagating downstream. Also, notifies
+   * the event to a processor that should be handled commonly.
+   */
+  private boolean shouldInterceptException(Throwable throwable) {
+    if (throwable instanceof FirebaseFirestoreException) {
+      FirebaseFirestoreException exception = (FirebaseFirestoreException) throwable;
+      switch (exception.getCode()) {
+        case PERMISSION_DENIED:
+        case UNAVAILABLE:
+          firebaseExceptionProcessor.onNext(exception.getCode());
+          return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Flowable<Code> getExceptions() {
+    return firebaseExceptionProcessor;
+  }
+
   @Cold
   @Override
   public Single<Project> loadProject(String projectId) {
     return db.projects()
         .project(projectId)
         .get()
+        .onErrorResumeNext(
+            throwable -> {
+              if (shouldInterceptException(throwable)) {
+                return Maybe.never();
+              } else {
+                return Maybe.error(throwable);
+              }
+            })
         .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
         .subscribeOn(schedulers.io());
   }
@@ -74,19 +109,48 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(feature.getProject().getId())
         .observations()
         .observationsByFeatureId(feature)
+        .onErrorResumeNext(
+            throwable -> {
+              if (shouldInterceptException(throwable)) {
+                return Single.never();
+              } else {
+                return Single.error(throwable);
+              }
+            })
         .subscribeOn(schedulers.io());
   }
 
   @Cold
   @Override
   public Maybe<TermsOfService> loadTermsOfService() {
-    return db.termsOfService().getTerm().get().subscribeOn(schedulers.io());
+    return db.termsOfService()
+        .getTerm()
+        .get()
+        .onErrorResumeNext(
+            throwable -> {
+              if (shouldInterceptException(throwable)) {
+                return Maybe.never();
+              } else {
+                return Maybe.error(throwable);
+              }
+            })
+        .subscribeOn(schedulers.io());
   }
 
   @Cold
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return db.projects().getReadable(user).subscribeOn(schedulers.io());
+    return db.projects()
+        .getReadable(user)
+        .onErrorResumeNext(
+            throwable -> {
+              if (shouldInterceptException(throwable)) {
+                return Single.never();
+              } else {
+                return Single.error(throwable);
+              }
+            })
+        .subscribeOn(schedulers.io());
   }
 
   @Cold(stateful = true, terminates = false)
@@ -96,6 +160,14 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(project.getId())
         .features()
         .loadOnceAndStreamChanges(project)
+        .onErrorResumeNext(
+            throwable -> {
+              if (shouldInterceptException(throwable)) {
+                return Flowable.never();
+              } else {
+                return Flowable.error(throwable);
+              }
+            })
         .subscribeOn(schedulers.io());
   }
 
@@ -103,6 +175,14 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))
+        .onErrorResumeNext(
+            throwable -> {
+              if (shouldInterceptException(throwable)) {
+                return Completable.never();
+              } else {
+                return Completable.error(throwable);
+              }
+            })
         .subscribeOn(schedulers.io());
   }
 
