@@ -92,14 +92,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     return db.projects()
         .project(projectId)
         .get()
-        .onErrorResumeNext(
-            throwable -> {
-              if (shouldInterceptException(throwable)) {
-                return Maybe.never();
-              } else {
-                return Maybe.error(throwable);
-              }
-            })
+        .onErrorResumeNext(e -> shouldInterceptException(e) ? Maybe.never() : Maybe.error(e))
         .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
         .subscribeOn(schedulers.io());
   }
@@ -111,14 +104,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(feature.getProject().getId())
         .observations()
         .observationsByFeatureId(feature)
-        .onErrorResumeNext(
-            throwable -> {
-              if (shouldInterceptException(throwable)) {
-                return Single.never();
-              } else {
-                return Single.error(throwable);
-              }
-            })
+        .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
         .subscribeOn(schedulers.io());
   }
 
@@ -128,14 +114,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     return db.termsOfService()
         .getTerm()
         .get()
-        .onErrorResumeNext(
-            throwable -> {
-              if (shouldInterceptException(throwable)) {
-                return Maybe.never();
-              } else {
-                return Maybe.error(throwable);
-              }
-            })
+        .onErrorResumeNext(e -> shouldInterceptException(e) ? Maybe.never() : Maybe.error(e))
         .subscribeOn(schedulers.io());
   }
 
@@ -144,14 +123,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   public Single<List<Project>> loadProjectSummaries(User user) {
     return db.projects()
         .getReadable(user)
-        .onErrorResumeNext(
-            throwable -> {
-              if (shouldInterceptException(throwable)) {
-                return Single.never();
-              } else {
-                return Single.error(throwable);
-              }
-            })
+        .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
         .subscribeOn(schedulers.io());
   }
 
@@ -162,14 +134,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(project.getId())
         .features()
         .loadOnceAndStreamChanges(project)
-        .onErrorResumeNext(
-            throwable -> {
-              if (shouldInterceptException(throwable)) {
-                return Flowable.never();
-              } else {
-                return Flowable.error(throwable);
-              }
-            })
+        .onErrorResumeNext(e -> shouldInterceptException(e) ? Flowable.never() : Flowable.error(e))
         .subscribeOn(schedulers.io());
   }
 
@@ -178,13 +143,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))
         .onErrorResumeNext(
-            throwable -> {
-              if (shouldInterceptException(throwable)) {
-                return Completable.never();
-              } else {
-                return Completable.error(throwable);
-              }
-            })
+            e -> shouldInterceptException(e) ? Completable.never() : Completable.error(e))
         .subscribeOn(schedulers.io());
   }
 
