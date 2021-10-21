@@ -27,6 +27,7 @@ import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
@@ -40,6 +41,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
+import com.google.firebase.firestore.FirebaseFirestoreException.Code;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
@@ -47,7 +49,6 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
@@ -76,6 +77,7 @@ public class MainViewModelTest {
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
+  @Mock RemoteDataStore mockRemoteDataStore;
   @Mock ProjectRepository mockProjectRepository;
   @Mock FeatureRepository mockFeatureRepository;
   @Mock UserRepository mockUserRepository;
@@ -99,6 +101,7 @@ public class MainViewModelTest {
     authenticationManager = new FakeAuthenticationManager();
     viewModel =
         new MainViewModel(
+            mockRemoteDataStore,
             mockProjectRepository,
             mockFeatureRepository,
             mockUserRepository,
@@ -168,22 +171,6 @@ public class MainViewModelTest {
   }
 
   @Test
-  public void testSignInStateChanged_onSignedIn_whenTosNotAcceptedAndFailedToGetRemoteTos() {
-    when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(false);
-    when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
-    when(mockTosRepository.getTermsOfService()).thenReturn(Maybe.error(new Exception("foo_error")));
-    TestObserver<Integer> testErrorObserver = viewModel.getUnrecoverableErrors().test();
-
-    authenticationManager.signIn();
-
-    assertProgressDialogVisible(false);
-    Mockito.verify(mockNavigator, times(0)).navigate(any());
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    testErrorObserver.assertValue(R.string.config_load_error);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
-  }
-
-  @Test
   public void testSignInStateChanged_onSignInError() {
     authenticationManager.error();
 
@@ -193,6 +180,21 @@ public class MainViewModelTest {
     Mockito.verify(mockProjectRepository, times(1)).clearActiveProject();
     Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
     Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+  }
+
+  @Test
+  public void testUnrecoverableErrors_shouldBeConvertedToStringRes() {
+    when(mockRemoteDataStore.getExceptions())
+        .thenReturn(Flowable.just(Code.PERMISSION_DENIED, Code.UNAVAILABLE, Code.UNKNOWN));
+
+    viewModel
+        .getUnrecoverableErrors()
+        .test()
+        .assertValues(
+            R.string.permission_denied_error,
+            R.string.config_load_error,
+            R.string.unhandled_exception)
+        .assertNoErrors();
   }
 
   private static class FakeAuthenticationManager implements AuthenticationManager {

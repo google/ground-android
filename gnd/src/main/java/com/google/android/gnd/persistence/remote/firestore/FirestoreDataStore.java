@@ -74,6 +74,8 @@ public class FirestoreDataStore implements RemoteDataStore {
         case UNAVAILABLE:
           firebaseExceptionProcessor.onNext(exception.getCode());
           return true;
+        default:
+          return false;
       }
     }
     return false;
