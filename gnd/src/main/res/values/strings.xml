@@ -196,9 +196,8 @@
   <string name="feature_properties">Feature properties</string>
   <!-- Label on button shown to dismiss the feature properties dialog. -->
   <string name="close_feature_properties">OK</string>
-  <string name="config_load_error">Error loading config from remote server</string>
-  <string name="permission_denied_error">Permission denied. Check user pass-list.</string>
-  <string name="unhandled_exception">Something went wrong.</string>
+  <string name="config_load_error">Error loading config from remote server.</string>
+  <string name="permission_denied_error">Permission denied! Check user pass-list.</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>

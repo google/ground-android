@@ -34,17 +34,15 @@ import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
+import com.google.android.gnd.system.ApplicationErrorManager;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.FirebaseFirestoreException.Code;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.FlowableProcessor;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -54,8 +52,8 @@ import timber.log.Timber;
 public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
-  private final FlowableProcessor<Code> firebaseExceptionProcessor = BehaviorProcessor.create();
 
+  @Inject ApplicationErrorManager errorManager;
   @Inject GroundFirestore db;
   @Inject Schedulers schedulers;
 
@@ -67,23 +65,7 @@ public class FirestoreDataStore implements RemoteDataStore {
    * the event to a processor that should be handled commonly.
    */
   private boolean shouldInterceptException(Throwable throwable) {
-    if (throwable instanceof FirebaseFirestoreException) {
-      FirebaseFirestoreException exception = (FirebaseFirestoreException) throwable;
-      switch (exception.getCode()) {
-        case PERMISSION_DENIED:
-        case UNAVAILABLE:
-          firebaseExceptionProcessor.onNext(exception.getCode());
-          return true;
-        default:
-          return false;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public Flowable<Code> getExceptions() {
-    return firebaseExceptionProcessor;
+    return errorManager.handleException(throwable);
   }
 
   @Cold

@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -32,6 +31,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
+import com.google.android.gnd.system.ApplicationErrorManager;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -49,6 +49,7 @@ import timber.log.Timber;
 public class MainActivity extends AbstractActivity {
 
   @Inject ActivityStreams activityStreams;
+  @Inject ApplicationErrorManager errorManager;
   @Inject ViewModelFactory viewModelFactory;
   @Inject SettingsManager settingsManager;
   @Inject Navigator navigator;
@@ -82,14 +83,11 @@ public class MainActivity extends AbstractActivity {
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
     viewModel.getSignInProgressDialogVisibility().observe(this, this::onSignInProgress);
-    viewModel
-        .getUnrecoverableErrors()
-        .as(autoDisposable(this))
-        .subscribe(this::onUnrecoverableError);
+    errorManager.getExceptions().as(autoDisposable(this)).subscribe(this::onUnrecoverableError);
   }
 
-  public void onUnrecoverableError(@StringRes int messageId) {
-    popups.showError(messageId);
+  public void onUnrecoverableError(String message) {
+    popups.showError(message);
     finish();
   }
 
