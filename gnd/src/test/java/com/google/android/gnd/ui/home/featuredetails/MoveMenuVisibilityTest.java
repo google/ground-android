@@ -21,24 +21,21 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.gnd.TestObservers;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.Arrays;
 import java.util.Collection;
+import java8.util.Optional;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
-@RunWith(Parameterized.class)
-public class MoveMenuVisibilityTest extends BaseFeatureDetailsViewModelTest {
+@HiltAndroidTest
+public class MoveMenuVisibilityTest extends BaseMenuVisibilityTest {
 
-  @Parameterized.Parameter() public User user;
+  public MoveMenuVisibilityTest(User user, Feature feature, boolean visible) {
+    super(user, feature, visible);
+  }
 
-  @Parameterized.Parameter(1)
-  public Feature feature;
-
-  @Parameterized.Parameter(2)
-  public boolean visible;
-
-  @Parameterized.Parameters
+  @Parameters
   public static Collection<Object[]> data() {
     Object[][] data = {
 
@@ -61,8 +58,8 @@ public class MoveMenuVisibilityTest extends BaseFeatureDetailsViewModelTest {
 
   @Test
   public void testMoveMenuVisible() {
-    mockCurrentUser(user);
-    setSelectedFeature(feature);
+    fakeAuthenticationManager.setUser(user);
+    viewModel.onFeatureSelected(Optional.of(feature));
 
     TestObservers.observeUntilFirstChange(viewModel.isMoveMenuOptionVisible());
     assertThat(viewModel.isMoveMenuOptionVisible().getValue()).isEqualTo(visible);

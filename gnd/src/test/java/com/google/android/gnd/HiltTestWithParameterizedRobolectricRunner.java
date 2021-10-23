@@ -17,11 +17,12 @@
 package com.google.android.gnd;
 
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.RobolectricTestRunner;
 
 /**
- * Injects Hilt dependencies during setUp and uses {@link
- * org.robolectric.ParameterizedRobolectricTestRunner} for instrumentation.
+ * Injects Hilt dependencies during setUp and uses {@link RobolectricTestRunner} for
+ * instrumentation.
  */
-@RunWith(RobolectricTestRunner.class)
-public abstract class HiltTestWithRobolectricRunner extends BaseHiltTest {}
+@RunWith(ParameterizedRobolectricTestRunner.class)
+public abstract class HiltTestWithParameterizedRobolectricRunner extends BaseHiltTest {}
