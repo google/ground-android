@@ -16,39 +16,36 @@
 
 package com.google.android.gnd.persistence.local;
 
+import com.google.android.gnd.model.observation.DateResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.common.truth.Truth;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Month;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.Locale;
 import org.junit.Test;
 
 public class DateTimeResponseTest {
 
-  public final DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-  public final DateFormat dateFormat =
-      new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+  // Sat, 23 Oct 2021 07:30:45 (Local Time)
+  private static final Instant EXPECTED_INSTANT =
+      LocalDate.of(2021, Month.OCTOBER, 23)
+          .atTime(7, 30, 45)
+          .atZone(ZoneId.systemDefault())
+          .toInstant();
 
-  @Test
-  public void testTimeFormat() {
-    Date originalDate = new Date();
-    String timeString = timeFormat.format(originalDate);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
-    LocalTime lt = LocalTime.parse(timeString, formatter);
-    String formattedTime = lt.format(formatter);
-    Truth.assertThat(timeString).isEqualTo(formattedTime);
+  private Date getExpectedDate() {
+    return Date.from(EXPECTED_INSTANT);
   }
 
   @Test
-  public void testDateFormat() {
-    Date originalDate = new Date();
-    String dateString = dateFormat.format(originalDate);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault());
-    LocalDate ld = LocalDate.parse(dateString, formatter);
-    String formattedDate = ld.format(formatter);
-    Truth.assertThat(dateString).isEqualTo(formattedDate);
+  public void testTimeResponse_textDetails() {
+    Truth.assertThat(new TimeResponse(getExpectedDate()).getDetailsText()).isEqualTo("07:30");
+  }
+
+  @Test
+  public void testDateResponse_textDetails() {
+    Truth.assertThat(new DateResponse(getExpectedDate()).getDetailsText()).isEqualTo("2021-10-23");
   }
 }
