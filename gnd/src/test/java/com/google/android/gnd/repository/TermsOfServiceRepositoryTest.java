@@ -18,30 +18,17 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
 import javax.inject.Inject;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
-public class TermsOfServiceRepositoryTest {
-
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
-
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+public class TermsOfServiceRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Inject LocalValueStore localValueStore;
   @Mock RemoteDataStore mockRemoteDataStore;
@@ -50,7 +37,7 @@ public class TermsOfServiceRepositoryTest {
 
   @Before
   public void setUp() {
-    hiltRule.inject();
+    super.setUp();
     termsOfServiceRepository = new TermsOfServiceRepository(mockRemoteDataStore, localValueStore);
   }
 

@@ -24,28 +24,26 @@ import static com.google.android.gnd.FakeData.TEST_USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
-public class FeatureHelperTest {
+@HiltAndroidTest
+public class FeatureHelperTest extends HiltTestWithRobolectricRunner {
 
   private FeatureHelper featureHelper;
 
   @Before
   public void setUp() {
+    super.setUp();
     featureHelper = new FeatureHelper(ApplicationProvider.getApplicationContext().getResources());
   }
 

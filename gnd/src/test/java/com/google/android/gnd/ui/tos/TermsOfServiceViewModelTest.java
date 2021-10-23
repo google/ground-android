@@ -16,21 +16,19 @@
 
 package com.google.android.gnd.ui.tos;
 
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.common.truth.Truth;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
-public class TermsOfServiceViewModelTest {
-
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
+@HiltAndroidTest
+public class TermsOfServiceViewModelTest extends HiltTestWithRobolectricRunner {
 
   @Mock Navigator mockNavigator;
   @Mock TermsOfServiceRepository mockRepository;

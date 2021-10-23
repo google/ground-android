@@ -18,37 +18,24 @@ package com.google.android.gnd.system;
 
 import android.Manifest.permission;
 import android.app.Activity;
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
-import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import java.io.File;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
-public class CameraManagerTest {
+public class CameraManagerTest extends HiltTestWithRobolectricRunner {
 
   private static final int REQUEST_CODE = CameraManager.CAPTURE_PHOTO_REQUEST_CODE;
-
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
-
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   @Mock PermissionsManager mockPermissionsManager;
   @Inject ActivityStreams activityStreams;
@@ -58,7 +45,7 @@ public class CameraManagerTest {
 
   @Before
   public void setUp() {
-    hiltRule.inject();
+    super.setUp();
     cameraManager = new CameraManager(null, mockPermissionsManager, activityStreams);
     testFile = new File("foo_path");
   }

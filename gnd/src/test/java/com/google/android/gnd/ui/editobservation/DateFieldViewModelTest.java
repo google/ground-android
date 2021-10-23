@@ -21,25 +21,26 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.rx.Nil;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import java.util.Date;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
-public class DateFieldViewModelTest {
+@HiltAndroidTest
+public class DateFieldViewModelTest extends HiltTestWithRobolectricRunner {
 
   // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
   private static final Date DATE = new Date(1632501600000L);
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
   private DateFieldViewModel dateFieldViewModel;
 
   @Before
   public void setUp() {
+    super.setUp();
     dateFieldViewModel = new DateFieldViewModel(null);
   }
 

@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
@@ -40,9 +39,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -52,28 +49,16 @@ import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
-public class MainViewModelTest {
+public class MainViewModelTest extends HiltTestWithRobolectricRunner {
 
   private static final TermsOfService TEST_TERMS_OF_SERVICE = FakeData.TEST_TERMS_OF_SERVICE;
   private static final Optional<Project> TEST_ACTIVE_PROJECT = Optional.of(FakeData.TEST_PROJECT);
   private static final User TEST_USER = FakeData.TEST_USER;
-
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Mock ProjectRepository mockProjectRepository;
   @Mock FeatureRepository mockFeatureRepository;
@@ -89,8 +74,8 @@ public class MainViewModelTest {
   private MainViewModel viewModel;
 
   @Before
-  public void setup() {
-    hiltRule.inject();
+  public void setUp() {
+    super.setUp();
 
     // TODO: Add a test for syncFeatures
     when(mockProjectRepository.getActiveProject()).thenReturn(Flowable.just(TEST_ACTIVE_PROJECT));

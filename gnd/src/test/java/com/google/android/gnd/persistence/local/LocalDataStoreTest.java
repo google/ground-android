@@ -19,9 +19,9 @@ package com.google.android.gnd.persistence.local;
 import static com.google.common.truth.Truth.assertThat;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
@@ -50,28 +50,17 @@ import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.AbstractCollection;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@Config(application = HiltTestApplication.class)
-@RunWith(RobolectricTestRunner.class)
-public class LocalDataStoreTest {
-
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+public class LocalDataStoreTest extends HiltTestWithRobolectricRunner {
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
@@ -193,9 +182,6 @@ public class LocalDataStoreTest {
           .setName("Test Area")
           .build();
 
-  // This rule makes sure that Room executes all the database operations instantly.
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-
   @Inject LocalDataStore localDataStore;
   @Inject LocalValueStore localValueStore;
   @Inject ObservationDao observationDao;
@@ -242,11 +228,6 @@ public class LocalDataStoreTest {
     MatcherAssert.assertThat(
         ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
         samePropertyValuesAs(observation.getResponses()));
-  }
-
-  @Before
-  public void setUp() {
-    hiltRule.inject();
   }
 
   @Test
