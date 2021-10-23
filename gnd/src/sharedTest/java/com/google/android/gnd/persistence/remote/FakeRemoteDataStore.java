@@ -118,7 +118,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
-    return featureEvent != null ? Flowable.just(featureEvent) : Flowable.empty();
+    return featureEvent == null ? Flowable.empty() : Flowable.just(featureEvent);
   }
 
   @Override
