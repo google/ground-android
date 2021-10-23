@@ -31,8 +31,7 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -43,9 +42,6 @@ import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.junit.Before;
@@ -70,7 +66,7 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
   @Inject Schedulers schedulers;
 
   // TODO: Inject this dependency instead of instantiating manually.
-  private FakeAuthenticationManager authenticationManager;
+  private FakeAuthenticationManager fakeAuthenticationManager;
   private MainViewModel viewModel;
 
   @Before
@@ -80,7 +76,7 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
     // TODO: Add a test for syncFeatures
     when(mockProjectRepository.getActiveProject()).thenReturn(Flowable.just(TEST_ACTIVE_PROJECT));
 
-    authenticationManager = new FakeAuthenticationManager();
+    fakeAuthenticationManager = new FakeAuthenticationManager();
     viewModel =
         new MainViewModel(
             mockProjectRepository,
@@ -88,7 +84,7 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
             mockUserRepository,
             mockTosRepository,
             mockNavigator,
-            authenticationManager,
+            fakeAuthenticationManager,
             mockPopups,
             schedulers);
   }
@@ -104,7 +100,7 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSignInStateChanged_onSignedOut() {
-    authenticationManager.signOut();
+    fakeAuthenticationManager.signOut();
 
     assertProgressDialogVisible(false);
     assertNavigate(SignInFragmentDirections.showSignInScreen());
@@ -115,7 +111,7 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSignInStateChanged_onSigningIn() {
-    authenticationManager.signingIn();
+    fakeAuthenticationManager.setState(new SignInState(State.SIGNING_IN));
 
     assertProgressDialogVisible(true);
     Mockito.verify(mockNavigator, times(0)).navigate(any());
@@ -127,7 +123,8 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
     when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(true);
     when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
 
-    authenticationManager.signIn();
+    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.signIn();
 
     assertProgressDialogVisible(false);
     assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
@@ -141,7 +138,8 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
     when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
     when(mockTosRepository.getTermsOfService()).thenReturn(Maybe.just(TEST_TERMS_OF_SERVICE));
 
-    authenticationManager.signIn();
+    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.signIn();
 
     assertProgressDialogVisible(false);
     assertNavigate(
@@ -153,7 +151,7 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSignInStateChanged_onSignInError() {
-    authenticationManager.error();
+    fakeAuthenticationManager.setState(new SignInState(new Exception()));
 
     Mockito.verify(mockPopups, times(1)).showError(R.string.sign_in_unsuccessful);
     assertProgressDialogVisible(false);
@@ -161,44 +159,5 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
     Mockito.verify(mockProjectRepository, times(1)).clearActiveProject();
     Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
     Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
-  }
-
-  private static class FakeAuthenticationManager implements AuthenticationManager {
-
-    @Hot(replays = true)
-    private final Subject<SignInState> behaviourSubject = BehaviorSubject.create();
-
-    @Override
-    public Observable<SignInState> getSignInState() {
-      return behaviourSubject;
-    }
-
-    @Override
-    public User getCurrentUser() {
-      return TEST_USER;
-    }
-
-    @Override
-    public void init() {
-      // do nothing
-    }
-
-    public void error() {
-      behaviourSubject.onNext(new SignInState(new Exception("sign-in error")));
-    }
-
-    public void signingIn() {
-      behaviourSubject.onNext(new SignInState(State.SIGNING_IN));
-    }
-
-    @Override
-    public void signIn() {
-      behaviourSubject.onNext(new SignInState(TEST_USER));
-    }
-
-    @Override
-    public void signOut() {
-      behaviourSubject.onNext(new SignInState(State.SIGNED_OUT));
-    }
   }
 }

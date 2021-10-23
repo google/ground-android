@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import static com.google.android.gnd.system.auth.FakeAuthenticationManager.TEST_USER;
-
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -57,7 +55,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
-          .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
+          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
           .build();
 
   private final TermsOfService testTermsOfService =
@@ -71,7 +69,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setId(FakeData.PROJECT_ID_WITH_NO_LAYERS)
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
-          .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
+          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
           .build();
 
   private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
