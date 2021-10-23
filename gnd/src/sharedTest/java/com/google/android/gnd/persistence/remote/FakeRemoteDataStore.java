@@ -38,7 +38,9 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
 
   private final Layer layerWithNoForm =
@@ -73,6 +75,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .build();
 
   private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
+  private RemoteDataEvent<Feature> featureEvent;
 
   @Inject
   FakeRemoteDataStore() {}
@@ -115,7 +118,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
-    return Flowable.empty();
+    return featureEvent != null ? Flowable.just(featureEvent) : Flowable.empty();
   }
 
   @Override
@@ -126,5 +129,9 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return null;
+  }
+
+  public void streamFeatureOnce(RemoteDataEvent<Feature> featureEvent) {
+    this.featureEvent = featureEvent;
   }
 }

@@ -26,6 +26,7 @@ import android.net.Uri;
 import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.ui.util.BitmapUtil;
+import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -43,18 +43,11 @@ public class StorageManagerTest extends HiltTestWithRobolectricRunner {
 
   private static final int REQUEST_CODE = StorageManager.PICK_PHOTO_REQUEST_CODE;
 
+  @BindValue @Mock BitmapUtil mockBitmapUtil;
+  @BindValue @Mock PermissionsManager mockPermissionsManager;
+
   @Inject ActivityStreams activityStreams;
-
-  @Mock BitmapUtil mockBitmapUtil;
-  @Mock PermissionsManager mockPermissionsManager;
-
-  private StorageManager storageManager;
-
-  @Before
-  public void setUp() {
-    super.setUp();
-    storageManager = new StorageManager(mockPermissionsManager, activityStreams, mockBitmapUtil);
-  }
+  @Inject StorageManager storageManager;
 
   private Bitmap mockBitmap() throws IOException {
     Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ALPHA_8);

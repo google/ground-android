@@ -21,7 +21,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Nil;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Before;
+import javax.inject.Inject;
 import org.junit.Test;
 
 @HiltAndroidTest
@@ -30,13 +30,7 @@ public class FeatureRepositionViewModelTest extends HiltTestWithRobolectricRunne
   private static final Point TEST_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
 
-  private FeatureRepositionViewModel viewModel;
-
-  @Before
-  public void setUp() {
-    super.setUp();
-    viewModel = new FeatureRepositionViewModel();
-  }
+  @Inject FeatureRepositionViewModel viewModel;
 
   @Test
   public void testConfirmButtonClicks_notReplayed() {

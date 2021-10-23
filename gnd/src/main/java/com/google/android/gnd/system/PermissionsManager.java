@@ -16,13 +16,13 @@
 
 package com.google.android.gnd.system;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.android.gnd.rx.RxCompletable;
 import com.google.android.gnd.rx.annotations.Cold;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,8 +37,8 @@ public class PermissionsManager {
   private final ActivityStreams activityStreams;
 
   @Inject
-  public PermissionsManager(Application app, ActivityStreams activityStreams) {
-    this.context = app.getApplicationContext();
+  public PermissionsManager(@ApplicationContext Context context, ActivityStreams activityStreams) {
+    this.context = context;
     this.activityStreams = activityStreams;
   }
 

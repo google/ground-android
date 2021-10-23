@@ -21,8 +21,9 @@ import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.common.truth.Truth;
+import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import org.junit.Before;
+import javax.inject.Inject;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,15 +31,10 @@ import org.mockito.Mockito;
 @HiltAndroidTest
 public class TermsOfServiceViewModelTest extends HiltTestWithRobolectricRunner {
 
-  @Mock Navigator mockNavigator;
-  @Mock TermsOfServiceRepository mockRepository;
+  @BindValue @Mock Navigator mockNavigator;
+  @BindValue @Mock TermsOfServiceRepository mockRepository;
 
-  private TermsOfServiceViewModel viewModel;
-
-  @Before
-  public void before() {
-    viewModel = new TermsOfServiceViewModel(mockNavigator, mockRepository);
-  }
+  @Inject TermsOfServiceViewModel viewModel;
 
   @Test
   public void testOnButtonClicked() {

@@ -19,27 +19,14 @@ package com.google.android.gnd.repository;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.HiltTestWithRobolectricRunner;
-import com.google.android.gnd.persistence.local.LocalValueStore;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 @HiltAndroidTest
 public class TermsOfServiceRepositoryTest extends HiltTestWithRobolectricRunner {
 
-  @Inject LocalValueStore localValueStore;
-  @Mock RemoteDataStore mockRemoteDataStore;
-
-  private TermsOfServiceRepository termsOfServiceRepository;
-
-  @Before
-  public void setUp() {
-    super.setUp();
-    termsOfServiceRepository = new TermsOfServiceRepository(mockRemoteDataStore, localValueStore);
-  }
+  @Inject TermsOfServiceRepository termsOfServiceRepository;
 
   @Test
   public void testTermsOfServiceAccepted() {

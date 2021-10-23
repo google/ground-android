@@ -31,7 +31,6 @@ import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -41,22 +40,23 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.persistence.local.LocalDataStoreModule;
+import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Date;
 import java.util.NoSuchElementException;
-import org.junit.Before;
+import javax.inject.Inject;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -64,6 +64,7 @@ import org.mockito.Mock;
 
 // TODO: Include a test for Polygon feature
 @HiltAndroidTest
+@UninstallModules({LocalDataStoreModule.class})
 public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   private static final User TEST_USER =
@@ -115,21 +116,15 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
           .setLastModified(TEST_AUDIT_INFO)
           .build();
 
-  @Mock LocalDataStore mockLocalDataStore;
-  @Mock LocalValueStore mockLocalValueStore;
-  @Mock RemoteDataStore mockRemoteDataStore;
-  @Mock ProjectRepository mockProjectRepository;
-  @Mock DataSyncWorkManager mockWorkManager;
-  @Mock AuthenticationManager mockAuthManager;
-  @Mock OfflineUuidGenerator mockUuidGenerator;
+  @BindValue @Mock LocalDataStore mockLocalDataStore;
+  @BindValue @Mock ProjectRepository mockProjectRepository;
+  @BindValue @Mock DataSyncWorkManager mockWorkManager;
 
   @Captor ArgumentCaptor<FeatureMutation> captorFeatureMutation;
 
-  private FeatureRepository featureRepository;
-
-  private void mockAuthUser() {
-    doReturn(TEST_USER).when(mockAuthManager).getCurrentUser();
-  }
+  @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject FakeRemoteDataStore fakeRemoteDataStore;
+  @Inject FeatureRepository featureRepository;
 
   private void mockApplyAndEnqueue() {
     doReturn(Completable.complete())
@@ -138,26 +133,7 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
   }
 
   private void mockEnqueueSyncWorker() {
-    doReturn(Completable.complete()).when(mockWorkManager).enqueueSyncWorker(anyString());
-  }
-
-  private void mockRemoteFeatureStream(RemoteDataEvent<Feature> event) {
-    when(mockRemoteDataStore.loadFeaturesOnceAndStreamChanges(TEST_PROJECT))
-        .thenReturn(Flowable.just(event));
-  }
-
-  @Before
-  public void setUp() {
-    super.setUp();
-    featureRepository =
-        new FeatureRepository(
-            mockLocalDataStore,
-            mockLocalValueStore,
-            mockRemoteDataStore,
-            mockProjectRepository,
-            mockWorkManager,
-            mockAuthManager,
-            mockUuidGenerator);
+    when(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.complete());
   }
 
   @Test
@@ -202,9 +178,8 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
   public void testEnqueueSyncWorker_returnsError() {
     mockApplyAndEnqueue();
 
-    doReturn(Completable.error(new NullPointerException()))
-        .when(mockWorkManager)
-        .enqueueSyncWorker(anyString());
+    when(mockWorkManager.enqueueSyncWorker(anyString()))
+        .thenReturn(Completable.error(new NullPointerException()));
 
     featureRepository
         .applyAndEnqueue(TEST_FEATURE.toMutation(Type.CREATE, TEST_USER.getId()))
@@ -218,7 +193,7 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSyncFeatures_loaded() {
-    mockRemoteFeatureStream(RemoteDataEvent.loaded("entityId", TEST_FEATURE));
+    fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.loaded("entityId", TEST_FEATURE));
     when(mockLocalDataStore.mergeFeature(TEST_FEATURE)).thenReturn(Completable.complete());
 
     featureRepository.syncFeatures(TEST_PROJECT).test().assertNoErrors().assertComplete();
@@ -228,7 +203,7 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSyncFeatures_modified() {
-    mockRemoteFeatureStream(RemoteDataEvent.modified("entityId", TEST_FEATURE));
+    fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.modified("entityId", TEST_FEATURE));
     when(mockLocalDataStore.mergeFeature(TEST_FEATURE)).thenReturn(Completable.complete());
 
     featureRepository.syncFeatures(TEST_PROJECT).test().assertNoErrors().assertComplete();
@@ -238,7 +213,7 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSyncFeatures_removed() {
-    mockRemoteFeatureStream(RemoteDataEvent.removed("entityId"));
+    fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.removed("entityId"));
     when(mockLocalDataStore.deleteFeature(anyString())).thenReturn(Completable.complete());
 
     featureRepository.syncFeatures(TEST_PROJECT).test().assertComplete();
@@ -248,7 +223,7 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testSyncFeatures_error() {
-    mockRemoteFeatureStream(RemoteDataEvent.error(new Throwable("Foo error")));
+    fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.error(new Throwable("Foo error")));
     featureRepository.syncFeatures(TEST_PROJECT).test().assertNoErrors().assertComplete();
   }
 
@@ -293,15 +268,14 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Test
   public void testNewFeature() {
-    mockAuthUser();
-    when(mockUuidGenerator.generateUuid()).thenReturn("new_uuid");
+    fakeAuthenticationManager.setUser(TEST_USER);
     Date testDate = new Date();
 
     FeatureMutation newMutation =
         featureRepository.newMutation("foo_project_id", "foo_layer_id", TEST_POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
-    assertThat(newMutation.getFeatureId()).isEqualTo("new_uuid");
+    assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getNewLocation().get()).isEqualTo(TEST_POINT);

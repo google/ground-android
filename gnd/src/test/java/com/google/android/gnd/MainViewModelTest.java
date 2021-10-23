@@ -26,11 +26,9 @@ import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.system.auth.SignInState.State;
@@ -38,6 +36,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
+import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -56,37 +55,21 @@ public class MainViewModelTest extends HiltTestWithRobolectricRunner {
   private static final Optional<Project> TEST_ACTIVE_PROJECT = Optional.of(FakeData.TEST_PROJECT);
   private static final User TEST_USER = FakeData.TEST_USER;
 
-  @Mock ProjectRepository mockProjectRepository;
-  @Mock FeatureRepository mockFeatureRepository;
-  @Mock UserRepository mockUserRepository;
-  @Mock TermsOfServiceRepository mockTosRepository;
-  @Mock EphemeralPopups mockPopups;
-  @Mock Navigator mockNavigator;
+  @BindValue @Mock EphemeralPopups mockPopups;
+  @BindValue @Mock Navigator mockNavigator;
+  @BindValue @Mock ProjectRepository mockProjectRepository;
+  @BindValue @Mock TermsOfServiceRepository mockTosRepository;
+  @BindValue @Mock UserRepository mockUserRepository;
 
-  @Inject Schedulers schedulers;
-
-  // TODO: Inject this dependency instead of instantiating manually.
-  private FakeAuthenticationManager fakeAuthenticationManager;
-  private MainViewModel viewModel;
+  @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject MainViewModel viewModel;
 
   @Before
   public void setUp() {
-    super.setUp();
-
     // TODO: Add a test for syncFeatures
     when(mockProjectRepository.getActiveProject()).thenReturn(Flowable.just(TEST_ACTIVE_PROJECT));
 
-    fakeAuthenticationManager = new FakeAuthenticationManager();
-    viewModel =
-        new MainViewModel(
-            mockProjectRepository,
-            mockFeatureRepository,
-            mockUserRepository,
-            mockTosRepository,
-            mockNavigator,
-            fakeAuthenticationManager,
-            mockPopups,
-            schedulers);
+    super.setUp();
   }
 
   private void assertProgressDialogVisible(boolean visible) {

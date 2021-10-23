@@ -23,7 +23,6 @@ import static com.google.android.gnd.FakeData.TEST_POLYGON_FEATURE;
 import static com.google.android.gnd.FakeData.TEST_USER;
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.core.app.ApplicationProvider;
 import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
@@ -31,21 +30,15 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
+import javax.inject.Inject;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
 
 @HiltAndroidTest
 public class FeatureHelperTest extends HiltTestWithRobolectricRunner {
 
-  private FeatureHelper featureHelper;
-
-  @Before
-  public void setUp() {
-    super.setUp();
-    featureHelper = new FeatureHelper(ApplicationProvider.getApplicationContext().getResources());
-  }
+  @Inject FeatureHelper featureHelper;
 
   @Test
   public void testGetCreatedBy() {
