@@ -23,8 +23,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 
+import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Mutation.SyncStatus;
@@ -49,6 +49,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -56,21 +57,14 @@ import io.reactivex.Single;
 import java.util.Date;
 import java.util.NoSuchElementException;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 // TODO: Include a test for Polygon feature
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(FeatureRepository.class) // Needed for mocking "new Date()"
-public class FeatureRepositoryTest {
+@HiltAndroidTest
+public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
@@ -121,10 +115,6 @@ public class FeatureRepositoryTest {
           .setLastModified(TEST_AUDIT_INFO)
           .build();
 
-  private static final Date FAKE_NOW = new Date();
-
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
-
   @Mock LocalDataStore mockLocalDataStore;
   @Mock LocalValueStore mockLocalValueStore;
   @Mock RemoteDataStore mockRemoteDataStore;
@@ -158,6 +148,7 @@ public class FeatureRepositoryTest {
 
   @Before
   public void setUp() {
+    super.setUp();
     featureRepository =
         new FeatureRepository(
             mockLocalDataStore,
@@ -301,13 +292,13 @@ public class FeatureRepositoryTest {
   }
 
   @Test
-  public void testNewFeature() throws Exception {
+  public void testNewFeature() {
     mockAuthUser();
     when(mockUuidGenerator.generateUuid()).thenReturn("new_uuid");
-    whenNew(Date.class).withNoArguments().thenReturn(FAKE_NOW);
+    Date testDate = new Date();
 
     FeatureMutation newMutation =
-        featureRepository.newMutation("foo_project_id", "foo_layer_id", TEST_POINT);
+        featureRepository.newMutation("foo_project_id", "foo_layer_id", TEST_POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("new_uuid");
@@ -315,6 +306,6 @@ public class FeatureRepositoryTest {
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getNewLocation().get()).isEqualTo(TEST_POINT);
     assertThat(newMutation.getUserId()).isEqualTo(TEST_USER.getId());
-    assertThat(newMutation.getClientTimestamp()).isEqualTo(FAKE_NOW);
+    assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
   }
 }
