@@ -47,6 +47,9 @@ public class FakeData {
   public static final User TEST_USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
 
+  public static final User TEST_USER_2 =
+      User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
+
   public static final Layer TEST_LAYER =
       Layer.newBuilder()
           .setId("layer id")
