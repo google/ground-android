@@ -18,7 +18,9 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.gnd.FakeData;
 import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.model.TermsOfService;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
@@ -27,6 +29,18 @@ import org.junit.Test;
 public class TermsOfServiceRepositoryTest extends HiltTestWithRobolectricRunner {
 
   @Inject TermsOfServiceRepository termsOfServiceRepository;
+
+  @Test
+  public void testGetTermsOfService() {
+    termsOfServiceRepository
+        .getTermsOfService()
+        .test()
+        .assertResult(
+            TermsOfService.builder()
+                .setId(FakeData.TERMS_OF_SERVICE_ID)
+                .setText(FakeData.TERMS_OF_SERVICE)
+                .build());
+  }
 
   @Test
   public void testTermsOfServiceAccepted() {
