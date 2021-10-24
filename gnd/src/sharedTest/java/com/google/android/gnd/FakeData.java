@@ -73,16 +73,18 @@ public class FakeData {
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();
 
+  public static final ImmutableList<Point> TEST_POLYGON =
+      ImmutableList.of(
+          Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
+          Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
+          Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
+
   public static final PolygonFeature TEST_POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
           .setProject(TEST_PROJECT)
           .setLayer(TEST_LAYER)
-          .setVertices(
-              ImmutableList.of(
-                  Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
-                  Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
-                  Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build()))
+          .setVertices(TEST_POLYGON)
           .setCreated(AuditInfo.now(TEST_USER))
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();

@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.android.gnd.FakeData;
 import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
@@ -41,7 +42,9 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
@@ -267,6 +270,18 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
   }
 
   @Test
+  public void testGetFeature_whenFeatureIsNotPresent() {
+    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(TEST_PROJECT));
+    when(mockLocalDataStore.getFeature(TEST_PROJECT, TEST_FEATURE.getId()))
+        .thenReturn(Maybe.empty());
+
+    featureRepository
+        .getFeature(TEST_PROJECT.getId(), TEST_FEATURE.getId())
+        .test()
+        .assertFailureAndMessage(NotFoundException.class, "Feature not found feature id");
+  }
+
+  @Test
   public void testNewFeature() {
     fakeAuthenticationManager.setUser(TEST_USER);
     Date testDate = new Date();
@@ -281,5 +296,46 @@ public class FeatureRepositoryTest extends HiltTestWithRobolectricRunner {
     assertThat(newMutation.getNewLocation().get()).isEqualTo(TEST_POINT);
     assertThat(newMutation.getUserId()).isEqualTo(TEST_USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
+  }
+
+  @Test
+  public void testNewPolygonFeature() {
+    fakeAuthenticationManager.setUser(TEST_USER);
+    Date testDate = new Date();
+
+    FeatureMutation newMutation =
+        featureRepository.newPolygonFeatureMutation(
+            "foo_project_id", "foo_layer_id", FakeData.TEST_POLYGON, testDate);
+
+    assertThat(newMutation.getId()).isNull();
+    assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
+    assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getNewPolygonVertices()).isEqualTo(FakeData.TEST_POLYGON);
+    assertThat(newMutation.getUserId()).isEqualTo(TEST_USER.getId());
+    assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
+  }
+
+  @Test
+  public void testGetIncompleteFeatureMutationsOnceAndStream() {
+    featureRepository.getIncompleteFeatureMutationsOnceAndStream("feature_id_1");
+
+    verify(mockLocalDataStore, times(1))
+        .getFeatureMutationsByFeatureIdOnceAndStream(
+            "feature_id_1",
+            MutationEntitySyncStatus.PENDING,
+            MutationEntitySyncStatus.IN_PROGRESS,
+            MutationEntitySyncStatus.FAILED);
+  }
+
+  @Test
+  public void testPolygonInfoShown() {
+    assertThat(featureRepository.isPolygonDialogInfoShown()).isFalse();
+
+    featureRepository.setPolygonDialogInfoShown(true);
+    assertThat(featureRepository.isPolygonDialogInfoShown()).isTrue();
+
+    featureRepository.setPolygonDialogInfoShown(false);
+    assertThat(featureRepository.isPolygonDialogInfoShown()).isFalse();
   }
 }
