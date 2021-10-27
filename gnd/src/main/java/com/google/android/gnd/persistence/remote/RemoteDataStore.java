@@ -38,6 +38,7 @@ import java.util.List;
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 public interface RemoteDataStore {
+
   @Cold
   Single<List<Project>> loadProjectSummaries(User user);
 
