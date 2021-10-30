@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
@@ -58,9 +58,12 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class LocalDataStoreTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class LocalDataStoreTest extends BaseHiltTest {
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();

@@ -45,11 +45,14 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class MainViewModelTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class MainViewModelTest extends BaseHiltTest {
 
   private static final TermsOfService TEST_TERMS_OF_SERVICE = FakeData.TEST_TERMS_OF_SERVICE;
   private static final Optional<Project> TEST_ACTIVE_PROJECT = Optional.of(FakeData.TEST_PROJECT);

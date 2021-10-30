@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.tos;
 
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
@@ -25,11 +25,14 @@ import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class TermsOfServiceViewModelTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class TermsOfServiceViewModelTest extends BaseHiltTest {
 
   @BindValue @Mock Navigator mockNavigator;
   @BindValue @Mock TermsOfServiceRepository mockRepository;

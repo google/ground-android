@@ -18,15 +18,18 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
 import com.google.android.gnd.model.TermsOfService;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class TermsOfServiceRepositoryTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class TermsOfServiceRepositoryTest extends BaseHiltTest {
 
   @Inject TermsOfServiceRepository termsOfServiceRepository;
 

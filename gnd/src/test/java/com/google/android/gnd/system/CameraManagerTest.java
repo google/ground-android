@@ -18,7 +18,7 @@ package com.google.android.gnd.system;
 
 import android.Manifest.permission;
 import android.app.Activity;
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import dagger.hilt.android.testing.BindValue;
@@ -29,11 +29,14 @@ import java.io.File;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class CameraManagerTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class CameraManagerTest extends BaseHiltTest {
 
   private static final int REQUEST_CODE = CameraManager.CAPTURE_PHOTO_REQUEST_CODE;
   private static final File TEST_FILE = new File("foo/dir");

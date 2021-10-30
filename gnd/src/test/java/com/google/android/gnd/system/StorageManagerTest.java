@@ -23,7 +23,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.ui.util.BitmapUtil;
 import dagger.hilt.android.testing.BindValue;
@@ -35,11 +35,14 @@ import java.util.NoSuchElementException;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class StorageManagerTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class StorageManagerTest extends BaseHiltTest {
 
   private static final int REQUEST_CODE = StorageManager.PICK_PHOTO_REQUEST_CODE;
 

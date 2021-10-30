@@ -19,13 +19,16 @@ package com.google.android.gnd.repository;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class MapsRepositoryTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class MapsRepositoryTest extends BaseHiltTest {
 
   @Inject MapsRepository mapsRepository;
 

@@ -23,7 +23,7 @@ import static com.google.android.gnd.FakeData.TEST_POLYGON_FEATURE;
 import static com.google.android.gnd.FakeData.TEST_USER;
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -34,9 +34,12 @@ import javax.inject.Inject;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class FeatureHelperTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class FeatureHelperTest extends BaseHiltTest {
 
   @Inject FeatureHelper featureHelper;
 

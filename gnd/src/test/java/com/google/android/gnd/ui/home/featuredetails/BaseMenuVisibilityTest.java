@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.HiltTestWithParameterizedRobolectricRunner;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -28,7 +28,7 @@ import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 
-public abstract class BaseMenuVisibilityTest extends HiltTestWithParameterizedRobolectricRunner {
+public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
   static final User TEST_USER_OWNER =
       FakeData.TEST_USER.toBuilder().setEmail("user1@gmail.com").build();

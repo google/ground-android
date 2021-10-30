@@ -26,9 +26,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java8.util.Optional;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 @HiltAndroidTest
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public class DeleteMenuVisibilityTest extends BaseMenuVisibilityTest {
 
   public DeleteMenuVisibilityTest(User user, Feature feature, boolean visible) {

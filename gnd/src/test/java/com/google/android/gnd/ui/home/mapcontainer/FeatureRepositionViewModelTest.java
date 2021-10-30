@@ -16,16 +16,19 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import com.google.android.gnd.HiltTestWithRobolectricRunner;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Nil;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
 import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
-public class FeatureRepositionViewModelTest extends HiltTestWithRobolectricRunner {
+@RunWith(RobolectricTestRunner.class)
+public class FeatureRepositionViewModelTest extends BaseHiltTest {
 
   private static final Point TEST_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
