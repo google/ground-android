@@ -16,9 +16,10 @@
 
 package com.google.android.gnd.persistence.local;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.TimeResponse;
-import com.google.common.truth.Truth;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
@@ -41,11 +42,11 @@ public class DateTimeResponseTest {
 
   @Test
   public void testTimeResponse_textDetails() {
-    Truth.assertThat(new TimeResponse(getExpectedDate()).getDetailsText()).isEqualTo("07:30");
+    assertThat(new TimeResponse(getExpectedDate()).getDetailsText()).isEqualTo("07:30");
   }
 
   @Test
   public void testDateResponse_textDetails() {
-    Truth.assertThat(new DateResponse(getExpectedDate()).getDetailsText()).isEqualTo("2021-10-23");
+    assertThat(new DateResponse(getExpectedDate()).getDetailsText()).isEqualTo("2021-10-23");
   }
 }

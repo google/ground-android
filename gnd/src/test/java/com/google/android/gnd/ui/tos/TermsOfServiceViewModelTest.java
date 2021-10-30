@@ -16,11 +16,12 @@
 
 package com.google.android.gnd.ui.tos;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
-import com.google.common.truth.Truth;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
@@ -50,6 +51,6 @@ public class TermsOfServiceViewModelTest extends BaseHiltTest {
   @Test
   public void testTermsOfServiceText() {
     viewModel.setTermsOfServiceText("Terms Text");
-    Truth.assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
+    assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
   }
 }
