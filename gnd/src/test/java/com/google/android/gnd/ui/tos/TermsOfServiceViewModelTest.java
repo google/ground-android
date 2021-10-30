@@ -18,34 +18,37 @@ package com.google.android.gnd.ui.tos;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.navigation.NavDirections;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
-import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
+import io.reactivex.observers.TestObserver;
 import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 public class TermsOfServiceViewModelTest extends BaseHiltTest {
 
-  @BindValue @Mock Navigator mockNavigator;
-  @BindValue @Mock TermsOfServiceRepository mockRepository;
-
+  @Inject Navigator navigator;
+  @Inject TermsOfServiceRepository termsOfServiceRepository;
   @Inject TermsOfServiceViewModel viewModel;
 
   @Test
   public void testOnButtonClicked() {
+    TestObserver<NavDirections> testObserver = navigator.getNavigateRequests().test();
+
     viewModel.onButtonClicked();
-    Mockito.verify(mockRepository, Mockito.times(1)).setTermsOfServiceAccepted(true);
-    Mockito.verify(mockNavigator, Mockito.times(1))
-        .navigate(HomeScreenFragmentDirections.showHomeScreen());
+
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
+    testObserver
+        .assertNoErrors()
+        .assertNotComplete()
+        .assertValue(HomeScreenFragmentDirections.showHomeScreen());
   }
 
   @Test
