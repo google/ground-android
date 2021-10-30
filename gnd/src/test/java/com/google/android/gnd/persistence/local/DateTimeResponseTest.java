@@ -29,24 +29,19 @@ import org.junit.Test;
 
 public class DateTimeResponseTest {
 
-  // Sat, 23 Oct 2021 07:30:45 (Local Time)
-  private static final Instant EXPECTED_INSTANT =
-      LocalDate.of(2021, Month.OCTOBER, 23)
-          .atTime(7, 30, 45)
-          .atZone(ZoneId.systemDefault())
-          .toInstant();
-
-  private Date getExpectedDate() {
-    return Date.from(EXPECTED_INSTANT);
-  }
-
   @Test
   public void testTimeResponse_textDetails() {
-    assertThat(new TimeResponse(getExpectedDate()).getDetailsText()).isEqualTo("07:30");
+    Instant instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant();
+    assertThat(new TimeResponse(Date.from(instant)).getDetailsText()).isEqualTo("07:30");
   }
 
   @Test
   public void testDateResponse_textDetails() {
-    assertThat(new DateResponse(getExpectedDate()).getDetailsText()).isEqualTo("2021-10-23");
+    Instant instant =
+        LocalDate.of(2021, Month.OCTOBER, 23)
+            .atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant();
+    assertThat(new DateResponse(Date.from(instant)).getDetailsText()).isEqualTo("2021-10-23");
   }
 }
