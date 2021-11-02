@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,31 @@
 package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import java8.util.function.Consumer;
 
-/**
- * Interface defining map interactions and events. This a separate class from {@link MapProvider} so
- * that it can be returned asynchronously by {@link MapProvider#getMapAdapter()} if necessary.
- */
-public interface MapAdapter {
+/** Interface for a Fragment that renders a map view. */
+public interface MapFragment {
+
+  /** Returns a list of supported basemap types. */
+  ImmutableList<MapType> getAvailableMapTypes();
+
+  /** Adds the {@link MapFragment} to a fragment. */
+  void attachToFragment(
+      @NonNull AbstractFragment containerFragment,
+      @IdRes int containerId,
+      @NonNull Consumer<MapFragment> mapAdapter);
 
   /** Returns marker click events. */
   @Hot
@@ -57,17 +67,10 @@ public interface MapAdapter {
   Flowable<CameraPosition> getCameraMovedEvents();
 
   /** Enables map gestures like pan and zoom. */
-  void enable();
+  void enableGestures();
 
   /** Disables all map gestures like pan and zoom. */
-  void disable();
-
-  /**
-   * Repositions the camera.
-   *
-   * @param position the new position
-   */
-  void moveCamera(CameraPosition position);
+  void disableGestures();
 
   /**
    * Repositions the viewport centered around the specified point without changing the current zoom
@@ -80,9 +83,6 @@ public interface MapAdapter {
    * zoom level.
    */
   void moveCamera(Point point, float zoomLevel);
-
-  /** Returns the current center of the viewport. */
-  Point getCameraTarget();
 
   /** Returns the current map zoom level. */
   float getCurrentZoomLevel();
@@ -100,11 +100,11 @@ public interface MapAdapter {
   /** Update map type. */
   void setMapType(int mapType);
 
-  /** Returns the bounds of the currently visibly viewport. */
+  /** Returns the bounds of the currently visible viewport. */
   LatLngBounds getViewport();
 
   /** Set the map viewport to the given bounds. */
-  void setBounds(LatLngBounds bounds);
+  void setViewport(LatLngBounds bounds);
 
   /** Renders a tile overlay on the map. */
   void addLocalTileOverlays(ImmutableSet<String> mbtilesFiles);

@@ -24,7 +24,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.location.Location;
-import android.util.Pair;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -56,10 +55,10 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
-import com.google.android.gnd.ui.map.MapProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
@@ -99,7 +98,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
-  private final MapProvider mapProvider;
   private final MapsRepository mapsRepository;
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
@@ -113,7 +111,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
-  private final MutableLiveData<Boolean> addPolygonVisible = new MutableLiveData<>(false);
+  private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -150,7 +148,6 @@ public class MapContainerViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository,
-      MapProvider mapProvider,
       MapsRepository mapsRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.resources = resources;
@@ -221,7 +218,6 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
 
-    this.mapProvider = mapProvider;
     this.mapsRepository = mapsRepository;
   }
 
@@ -469,7 +465,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
-    addPolygonVisible.postValue(viewMode == Mode.DRAW_POLYGON);
+    addPolygonVisibility.postValue(viewMode == Mode.DRAW_POLYGON ? VISIBLE : GONE);
   }
 
   public void onMapTypeButtonClicked() {
@@ -496,8 +492,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public LiveData<Boolean> isAddPolygonButtonVisible() {
-    return addPolygonVisible;
+  public LiveData<Integer> getAddPolygonVisibility() {
+    return addPolygonVisibility;
   }
 
   public LiveData<List<Layer>> getLayers() { return layers; }
@@ -529,17 +525,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void setLocationLockEnabled(boolean enabled) {
     locationLockEnabled.postValue(enabled);
-  }
-
-  public void updateMapType(int mapType) {
-    mapProvider.setMapType(mapType);
-    mapsRepository.saveMapType(mapType);
-  }
-
-  public ImmutableList<MapTypeItem> getMapTypes() {
-    return stream(mapProvider.getMapTypes())
-        .map(mapType -> new MapTypeItem(mapType.first, mapType.second, mapProvider))
-        .collect(toImmutableList());
   }
 
   public enum Mode {
@@ -593,30 +578,6 @@ public class MapContainerViewModel extends AbstractViewModel {
       } else {
         return "Pan";
       }
-    }
-  }
-
-  static class MapTypeItem {
-    private final int type;
-    private final String label;
-    private final MapProvider mapProvider;
-
-    MapTypeItem(int type, String label, MapProvider mapProvider) {
-      this.type = type;
-      this.label = label;
-      this.mapProvider = mapProvider;
-    }
-
-    public int getType() {
-      return type;
-    }
-
-    public String getLabel() {
-      return label;
-    }
-
-    public boolean isSelected() {
-      return mapProvider.getMapType() == type;
     }
   }
 }

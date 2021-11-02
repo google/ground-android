@@ -55,20 +55,6 @@
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
 
-      <view
-        android:id="@+id/move_feature"
-        class="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionView"
-        android:visibility="@{viewModel.moveFeatureVisibility}"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-      <view
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingView"
-        android:id="@+id/polygon_drawing_controls"
-        app:visible="@{viewModel.isAddPolygonButtonVisible()}" />
-
       <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

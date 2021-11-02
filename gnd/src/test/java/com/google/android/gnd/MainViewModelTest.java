@@ -47,7 +47,6 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
@@ -164,22 +163,6 @@ public class MainViewModelTest {
         SignInFragmentDirections.showTermsOfService()
             .setTermsOfServiceText(TEST_TERMS_OF_SERVICE.getText()));
     Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
-  }
-
-  @Test
-  public void testSignInStateChanged_onSignedIn_whenTosNotAcceptedAndFailedToGetRemoteTos() {
-    when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(false);
-    when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
-    when(mockTosRepository.getTermsOfService()).thenReturn(Maybe.error(new Exception("foo_error")));
-    TestObserver<Integer> testErrorObserver = viewModel.getUnrecoverableErrors().test();
-
-    authenticationManager.signIn();
-
-    assertProgressDialogVisible(false);
-    Mockito.verify(mockNavigator, times(0)).navigate(any());
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    testErrorObserver.assertValue(R.string.config_load_error);
     Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
   }
 

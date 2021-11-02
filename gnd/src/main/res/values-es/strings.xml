@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2021 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+  <!-- Message shown while project is loading. -->
+  <string name="project_loading_please_wait">Cargando proyecto, porfavor espere &#8230;</string>
+
+  <!--
+    ADD/EDIT FEATURE DATA
+  -->
+
+  <!-- Title shown above list of layers when (+) is clicked on map. -->
+  <string name="add_feature_select_type_dialog_title">Que le gustaría agregar?</string>
+
+  <!-- Shown in toolbar when adding a new feature and form instance. -->
+  <string name="add_feature_toolbar_title">Agregar una característica</string>
+  <!-- Shown in toolbar when editing an existing observation (form instance). -->
+  <string name="edit_feature_data_toolbar_title">Editar datos de características</string>
+  <!-- Shown in toolbar when adding a new observation (form instance) to a feature. -->
+  <string name="add_feature_data_toolbar_title">Agregar datos de características</string>
+  <!-- Shown when leaving edit mode without saving changes. -->
+  <string name="unsaved_changes">Guardar cambios antes de cerrar?</string>
+  <!--
+    Shown when the user attempts to close the form without saving. If tapped, unsaved
+    changes will be saved.
+  -->
+  <string name="continue_editing">Continuar editando</string>
+  <!--
+    Shown when the user attempts to close the form without saving. If tapped, unsaved
+    changes will be lost.
+  -->
+  <string name="close_without_saving">Cerrar sin guardar</string>
+  <!-- Shown on save when connection was not available. -->
+  <string name="save_queued">Guardado localmente, en cola para sincronizar.</string>
+  <!-- Shown on save when connection is available (TBD). -->
+  <string name="saved">Cambios guardados</string>
+
+  <!--
+    FEATURE DATA FORMS
+  -->
+
+  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to form -->
+  <string name="apply_multiple_choice_changes">Aplicar</string>
+  <!-- Shown below fields that are required but left empty (TBD). -->
+  <string name="required_field">Este campo es obligatorio</string>
+
+  <!--
+    VIEW FEATURE DATA
+  -->
+
+  <!-- Shown in observation overflow menu to open popup dialog to edit feature metadata. -->
+  <string name="edit_observation">Editar registro</string>
+  <!-- Shown in observation overflow menu to delete a observation. -->
+  <string name="delete_observation">Eliminar registro</string>
+  <!-- Confirmation shown when deleting a observation (TBD). -->
+  <string name="delete_observation_confirmation">
+    Esto eliminará permanentemente el registro seleccionado. Esto no se puede deshacer. Está seguro?
+  </string>
+  <!--
+    Shown above saved observations (forms) that have been submitted. %1$s placeholder will already be
+    translated, and it will contain the "time ago" that the observation was received by the server
+    (e.g., "Submitted 2 min ago").
+   -->
+  <string name="submitted_status">Enviado %1$s</string>
+  <!--
+    Shown above saved observations (forms) that have been submitted and subsequently modified. %1$s
+    placeholder will already be translated, and it will contain the "time ago" that the changes were
+    last received by the server (e.g., "Updated 1 min ago").
+   -->
+  <string name="updated_status">Actualizado %1$s</string>
+
+  <!--
+    IN BOTH ADD/EDIT AND VIEW FEATURE SCREENS
+  -->
+
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a feature. -->
+  <string name="move_feature">Mover característica</string>
+  <!-- Shown in toolbar overflow menu to open popup dialog to edit feature metadata. -->
+  <string name="edit_feature_id_and_caption">Editar ID &amp; caption</string>
+  <!-- Shown in edit id/caption popup (TBD) above feature ID. -->
+  <string name="feature_id">ID</string>
+  <!-- Shown in edit id/caption popup (TBD) above feature caption. -->
+  <string name="feature_caption">Subtítulo</string>
+  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
+  <string name="delete_feature">Eliminar característica</string>
+  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
+  <string name="delete_feature_confirmation">
+    Esto eliminará la función seleccionada actualmente y todos los datos relacionados. Esto no se puede deshacer.
+    ¿Está seguro?
+  </string>
+
+  <!--
+    LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
+  -->
+
+  <!-- Shown when user has refused to grant app fine grained location permission. -->
+  <string name="no_fine_location_permissions">No se puede mostrar la ubicación actual sin permiso</string>
+  <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
+  <string name="location_updates_unknown_error">No se pudieron habilitar las actualizaciones de ubicación</string>
+  <!-- Shown when user has refused to enable location services in settings.-->
+  <string name="location_disabled_in_settings">Habilite la ubicación en la configuración del sistema</string>
+
+  <!-- Shown when saving a form that contains missing or invalid data -->
+  <string name="invalid_data_warning">El formulario contiene datos incompletos o no válidos. Por favor, compruebe
+  sus respuestas y vuelve a intentarlo.</string>
+  <string name="invalid_data_confirm">OK</string>
+
+  <string name="add_observation_button_label">Agregar registro</string>
+  <string name="view_observation_details">Ver detalles del registro</string>
+  <string name="map_view">Vista del mapa</string>
+  <string name="project_load_error">No se pudo cargar el proyecto</string>
+  <string name="project_list_load_error">Lista de proyectos no disponible</string>
+  <string name="unexpected_error">Ha ocurrido un error inesperado</string>
+  <string name="edit_observation_button_label">Editar</string>
+  <string name="save_observation_button_label">Guardar</string>
+  <string name="saving">Guardando&#8230;</string>
+  <string name="no_changes_to_save">Sin cambios para guardar</string>
+  <string name="select_project_menu_item">Mis proyectos</string>
+  <string name="google_api_install_failed">Falló la instalación de los servicios de Google Play</string>
+  <string name="sign_in_unsuccessful">Iniciar sesión sin éxito</string>
+  <string name="sign_out">Salir</string>
+  <string name="cancel">Cancelar</string>
+  <string name="join_project">Unirse al proyecto</string>
+
+  <!-- Untranslated strings -->
+  <string name="offline_base_maps">Mapas base sin conexión</string>
+  <string name="unknown_user">Usuario desconocido</string>
+  <string name="add_observation_toolbar_title">Agregar registro</string>
+  <string name="offline_base_map_selector">Seleccionar área para descargar</string>
+  <string name="offline_base_map_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
+  <string name="offline_base_map_selector_download">Descargar</string>
+  <string name="add_photo">Agregar imagen</string>
+  <string name="action_camera">Cámara</string>
+  <string name="action_storage">Almacenamiento</string>
+  <string name="photo_preview">Vista previa</string>
+  <string name="select_map_type">Seleccionar mapa base</string>
+  <string name="uploading_photos">Subiendo imágenes</string>
+  <string name="starting">Iniciando</string>
+  <string name="downloading_tiles">Descargando mapa base</string>
+  <string name="in_progress">En curso</string>
+  <string name="paused">Pausado</string>
+  <string name="completed">Completado</string>
+  <string name="uploading_data">Subiendo datos</string>
+  <string name="failed">Fallido</string>
+  <string name="app_running">La aplicación se está ejecutando</string>
+  <string name="settings">Ajustes</string>
+  <string name="offline_base_map_viewer_navgraph_label">Visor de mapas base sin conexión</string>
+  <string name="offline_base_map_viewer_title">Área del mapa base sin conexión</string>
+  <string name="offline_base_map_viewer_remove_button">Eliminar</string>
+  <string name="offline_base_map_viewer_storage">Este mapa base ocupa %.1f MB de espacio de almacenamiento en su dispositivo.</string>
+  <string name="unnamed_area">Área sin nombre</string>
+  <string name="offline_base_map_download_started">Descarga iniciada</string>
+  <string name="offline_base_map_download_failed">Error al descargar el mapa base</string>
+  <string name="added_by">Añadido por %s</string>
+  <string name="move_point_confirmation">Mover el punto a una nueva ubicación?</string>
+  <string name="move_point_hint">Arrastra para desplazar el mapa a una nueva ubicación</string>
+  <string name="error_occurred">Ocurrió un error</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_base_map_selector_select">Seleccionar y descargar</string>
+  <string name="no_basemaps_downloaded">No se descargaron mapas base.</string>
+  <string name="signing_in">Iniciando sesión</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">Construir %s</string>
+
+  <string name="tos_title">Términos de servicio</string>
+  <string name="agree_terms">De acuerdo</string>
+  <string name="agree_checkbox">Estoy de acuerdo con los términos de servicio</string>
+  <string name="date">Fecha</string>
+  <string name="time">Hora</string>
+  <string name="terms_load_error">Se produjo un error al cargar las Condiciones de servicio.</string>
+  <!-- Other strings (to be organized) -->
+  <string name="offline_base_map_name" translatable="false">%s</string>
+  <string name="sync_status">Estado de sincronización</string>
+  <string name="polygon">Polígono</string>
+  <string name="point">Punto</string>
+  <string name="layer_label_format">Capa: %s</string>
+
+  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
+  <string name="feature_properties">Propiedades de la característica</string>
+  <!-- Label on button shown to dismiss the feature properties dialog. -->
+  <string name="close_feature_properties">OK</string>
+  <string name="config_load_error">Error al cargar la configuración desde el servidor remoto</string>
+
+  <string name="add_point">Agregar punto</string>
+  <string name="complete_polygon">Completo</string>
+  <string name="select_feature_type">Elija un tipo de característica</string>
+  <string name="get_started_button_text">Empezar</string>
+  <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
+  <string name="location_accuracy">Precisión: %.2f m</string>
+
+  <string name="delete_button_label">Borrar</string>
+  <string name="cancel_button_label">Cancelar</string>
+  <string name="observation_delete_confirmation_dialog_title">Eliminar este registro?"</string>
+  <string name="observation_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
+  <string name="feature_delete_confirmation_dialog_title">Borrar %1$s ?"</string>
+  <string name="feature_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todos los registros asociados. Este cambio no se puede deshacer. ¿Está seguro?</string>
+</resources>

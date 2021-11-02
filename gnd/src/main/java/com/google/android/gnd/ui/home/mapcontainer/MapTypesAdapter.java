@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import com.google.android.gnd.databinding.MapTypeItemBinding;
-import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.MapTypeItem;
+import com.google.android.gnd.ui.home.mapcontainer.MapTypeItem;
 import java.util.List;
 
 /**

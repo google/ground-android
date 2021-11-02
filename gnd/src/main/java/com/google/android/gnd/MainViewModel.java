@@ -41,10 +41,7 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -60,8 +57,6 @@ public class MainViewModel extends AbstractViewModel {
   /** The state of sign in progress dialog visibility. */
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
-
-  @Hot private final Subject<Integer> unrecoverableErrors = PublishSubject.create();
 
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
@@ -172,7 +167,8 @@ public class MainViewModel extends AbstractViewModel {
     if (termsOfServiceRepository.isTermsOfServiceAccepted()) {
       return Observable.just(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      return getRemoteTermsOfService()
+      return termsOfServiceRepository
+          .getTermsOfService()
           .map(TermsOfService::getText)
           .map(text -> SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(text))
           .cast(NavDirections.class)
@@ -180,29 +176,7 @@ public class MainViewModel extends AbstractViewModel {
     }
   }
 
-  private Maybe<TermsOfService> getRemoteTermsOfService() {
-    return termsOfServiceRepository
-        .getTermsOfService()
-        .onErrorResumeNext(this::onGetTermsOfServiceError);
-  }
-
-  /**
-   * Handle error loading terms of service from remote config. This could happen if the network
-   * connection was lost immediately after signing in, but before the terms of service could be
-   * loaded or if permission to the remote config is denied (e.g., user not in passlist).
-   */
-  private Maybe<TermsOfService> onGetTermsOfServiceError(Throwable err) {
-    Timber.e(err, "Error loading terms of service from remote db");
-    unrecoverableErrors.onNext(R.string.config_load_error);
-    return Maybe.never();
-  }
-
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
     return signInProgressDialogVisibility;
-  }
-
-  @Hot
-  public Observable<Integer> getUnrecoverableErrors() {
-    return unrecoverableErrors;
   }
 }

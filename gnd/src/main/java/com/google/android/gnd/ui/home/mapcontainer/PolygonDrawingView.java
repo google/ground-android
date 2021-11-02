@@ -19,41 +19,27 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
 import android.content.Context;
-import android.util.AttributeSet;
-import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.PolygonDrawingControlsBinding;
 import com.google.android.gnd.ui.common.AbstractView;
 import com.google.android.gnd.ui.map.CameraPosition;
-import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.MapFragment;
 import dagger.hilt.android.AndroidEntryPoint;
 import dagger.hilt.android.WithFragmentBindings;
-import javax.inject.Inject;
 
 @WithFragmentBindings
 @AndroidEntryPoint
 public class PolygonDrawingView extends AbstractView {
 
-  private final PolygonDrawingViewModel viewModel;
-  private final PolygonDrawingControlsBinding binding;
-  @Inject MapProvider mapProvider;
-
-  public PolygonDrawingView(Context context, @Nullable AttributeSet attrs) {
-    super(context, attrs);
-
-    viewModel = getViewModel(PolygonDrawingViewModel.class);
-    binding = (PolygonDrawingControlsBinding) inflate(R.layout.polygon_drawing_controls);
+  public PolygonDrawingView(Context context, MapFragment mapFragment) {
+    super(context);
+    PolygonDrawingViewModel viewModel = getViewModel(PolygonDrawingViewModel.class);
+    PolygonDrawingControlsBinding binding =
+        (PolygonDrawingControlsBinding) inflate(R.layout.polygon_drawing_controls);
     binding.setViewModel(viewModel);
-  }
 
-  @Override
-  protected void onFinishInflate() {
-    super.onFinishInflate();
-    mapProvider
-        .getMapAdapter()
-        .toFlowable()
-        .flatMap(MapAdapter::getCameraMovedEvents)
+    mapFragment
+        .getCameraMovedEvents()
         .map(CameraPosition::getTarget)
         .onBackpressureLatest()
         .as(disposeOnDestroy(getActivity()))

@@ -196,7 +196,8 @@
   <string name="feature_properties">Feature properties</string>
   <!-- Label on button shown to dismiss the feature properties dialog. -->
   <string name="close_feature_properties">OK</string>
-  <string name="config_load_error">Error loading config from remote server</string>
+  <string name="config_load_error">Error loading config from remote server.</string>
+  <string name="permission_denied_error">Permission denied! Check user pass-list.</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
@@ -211,6 +212,11 @@
   <string name="observation_delete_confirmation_dialog_message">This observation will disappear from the map. This change cannot be undone. Are you sure?</string>
   <string name="feature_delete_confirmation_dialog_title">Delete %1$s feature?"</string>
   <string name="feature_delete_confirmation_dialog_message">This feature will disappear from the map along with all associated observations. This change cannot be undone. Are you sure?</string>
+
+  <string name="normal">Normal</string>
+  <string name="satellite">Satellite</string>
+  <string name="terrain">Terrain</string>
+  <string name="hybrid">Hybrid</string>
 
   <string name="map_type">Map type</string>
   <string name="data_layer">Data layer</string>
