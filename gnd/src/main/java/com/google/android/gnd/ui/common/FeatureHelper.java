@@ -22,13 +22,11 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
-import dagger.hilt.android.scopes.ActivityScoped;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.jetbrains.annotations.Nullable;
 
 /** Common logic for formatting attributes of {@link Feature} for display to the user. */
-@ActivityScoped
 public class FeatureHelper {
 
   private final Resources resources;

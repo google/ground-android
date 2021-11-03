@@ -23,51 +23,34 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.ui.util.BitmapUtil;
-import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
-public class StorageManagerTest {
+public class StorageManagerTest extends BaseHiltTest {
 
   private static final int REQUEST_CODE = StorageManager.PICK_PHOTO_REQUEST_CODE;
 
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
-
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @BindValue @Mock BitmapUtil mockBitmapUtil;
+  @BindValue @Mock PermissionsManager mockPermissionsManager;
 
   @Inject ActivityStreams activityStreams;
-
-  @Mock BitmapUtil mockBitmapUtil;
-  @Mock PermissionsManager mockPermissionsManager;
-
-  private StorageManager storageManager;
-
-  @Before
-  public void setUp() {
-    hiltRule.inject();
-    storageManager = new StorageManager(mockPermissionsManager, activityStreams, mockBitmapUtil);
-  }
+  @Inject StorageManager storageManager;
 
   private Bitmap mockBitmap() throws IOException {
     Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ALPHA_8);

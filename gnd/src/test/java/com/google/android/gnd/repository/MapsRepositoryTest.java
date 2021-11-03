@@ -18,9 +18,8 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.BaseHiltTest;
-import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.TermsOfService;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
@@ -29,30 +28,18 @@ import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
-public class TermsOfServiceRepositoryTest extends BaseHiltTest {
+public class MapsRepositoryTest extends BaseHiltTest {
 
-  @Inject TermsOfServiceRepository termsOfServiceRepository;
+  @Inject MapsRepository mapsRepository;
 
   @Test
-  public void testGetTermsOfService() {
-    termsOfServiceRepository
-        .getTermsOfService()
-        .test()
-        .assertResult(
-            TermsOfService.builder()
-                .setId(FakeData.TERMS_OF_SERVICE_ID)
-                .setText(FakeData.TERMS_OF_SERVICE)
-                .build());
+  public void testGetMapType_defaultValue() {
+    assertThat(mapsRepository.getSavedMapType()).isEqualTo(GoogleMap.MAP_TYPE_NORMAL);
   }
 
   @Test
-  public void testTermsOfServiceAccepted() {
-    termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
-  }
-
-  @Test
-  public void testTermsOfServiceNotAccepted() {
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isFalse();
+  public void testGetMapType() {
+    mapsRepository.saveMapType(GoogleMap.MAP_TYPE_HYBRID);
+    assertThat(mapsRepository.getSavedMapType()).isEqualTo(GoogleMap.MAP_TYPE_HYBRID);
   }
 }
