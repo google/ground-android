@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.system;
 
+import static org.mockito.Mockito.when;
+
 import android.Manifest.permission;
 import android.app.Activity;
 import com.google.android.gnd.BaseHiltTest;
@@ -31,7 +33,6 @@ import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
@@ -48,7 +49,7 @@ public class CameraManagerTest extends BaseHiltTest {
   private void mockPermissions(boolean allow) {
     String[] permissions = {permission.WRITE_EXTERNAL_STORAGE, permission.CAMERA};
     for (String permission : permissions) {
-      Mockito.when(mockPermissionsManager.obtainPermission(permission))
+      when(mockPermissionsManager.obtainPermission(permission))
           .thenReturn(
               allow ? Completable.complete() : Completable.error(new PermissionDeniedException()));
     }

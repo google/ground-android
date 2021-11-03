@@ -17,6 +17,7 @@
 package com.google.android.gnd.system;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import android.Manifest.permission;
 import android.app.Activity;
@@ -37,7 +38,6 @@ import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
@@ -54,12 +54,12 @@ public class StorageManagerTest extends BaseHiltTest {
 
   private Bitmap mockBitmap() throws IOException {
     Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ALPHA_8);
-    Mockito.when(mockBitmapUtil.fromUri(any(Uri.class))).thenReturn(bitmap);
+    when(mockBitmapUtil.fromUri(any(Uri.class))).thenReturn(bitmap);
     return bitmap;
   }
 
   private void mockPermissions(boolean allow) {
-    Mockito.when(mockPermissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE))
+    when(mockPermissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE))
         .thenReturn(
             allow ? Completable.complete() : Completable.error(new PermissionDeniedException()));
   }

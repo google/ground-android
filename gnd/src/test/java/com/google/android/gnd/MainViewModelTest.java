@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.navigation.NavDirections;
@@ -47,7 +48,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
@@ -81,7 +81,7 @@ public class MainViewModelTest extends BaseHiltTest {
   }
 
   private void assertNavigate(NavDirections navDirections) {
-    Mockito.verify(mockNavigator, times(1)).navigate(navDirections);
+    verify(mockNavigator, times(1)).navigate(navDirections);
   }
 
   @Test
@@ -90,9 +90,9 @@ public class MainViewModelTest extends BaseHiltTest {
 
     assertProgressDialogVisible(false);
     assertNavigate(SignInFragmentDirections.showSignInScreen());
-    Mockito.verify(mockProjectRepository, times(1)).clearActiveProject();
-    Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
-    Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+    verify(mockProjectRepository, times(1)).clearActiveProject();
+    verify(mockUserRepository, times(1)).clearUserPreferences();
+    verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
   }
 
   @Test
@@ -100,8 +100,8 @@ public class MainViewModelTest extends BaseHiltTest {
     fakeAuthenticationManager.setState(new SignInState(State.SIGNING_IN));
 
     assertProgressDialogVisible(true);
-    Mockito.verify(mockNavigator, times(0)).navigate(any());
-    Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+    verify(mockNavigator, times(0)).navigate(any());
+    verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
   }
 
   @Test
@@ -114,8 +114,8 @@ public class MainViewModelTest extends BaseHiltTest {
 
     assertProgressDialogVisible(false);
     assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
+    verify(mockUserRepository, times(1)).saveUser(TEST_USER);
+    verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
   }
 
   @Test
@@ -131,19 +131,19 @@ public class MainViewModelTest extends BaseHiltTest {
     assertNavigate(
         SignInFragmentDirections.showTermsOfService()
             .setTermsOfServiceText(TEST_TERMS_OF_SERVICE.getText()));
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
+    verify(mockUserRepository, times(1)).saveUser(TEST_USER);
+    verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
   }
 
   @Test
   public void testSignInStateChanged_onSignInError() {
     fakeAuthenticationManager.setState(new SignInState(new Exception()));
 
-    Mockito.verify(mockPopups, times(1)).showError(R.string.sign_in_unsuccessful);
+    verify(mockPopups, times(1)).showError(R.string.sign_in_unsuccessful);
     assertProgressDialogVisible(false);
     assertNavigate(SignInFragmentDirections.showSignInScreen());
-    Mockito.verify(mockProjectRepository, times(1)).clearActiveProject();
-    Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
-    Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+    verify(mockProjectRepository, times(1)).clearActiveProject();
+    verify(mockUserRepository, times(1)).clearUserPreferences();
+    verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
   }
 }
