@@ -18,19 +18,21 @@ package com.google.android.gnd.system;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.core.app.ApplicationProvider;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreException.Code;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
+import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.RobolectricTestRunner;
 
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
-public class ApplicationErrorManagerTest {
+public class ApplicationErrorManagerTest extends BaseHiltTest {
 
   /**
    * TODO: Use {@link ParameterizedRobolectricTestRunner} instead of doing it manually. Currently,
@@ -52,13 +54,7 @@ public class ApplicationErrorManagerTest {
             },
           });
 
-  private ApplicationErrorManager errorManager;
-
-  @Before
-  public void setup() {
-    errorManager =
-        new ApplicationErrorManager(ApplicationProvider.getApplicationContext().getResources());
-  }
+  @Inject ApplicationErrorManager errorManager;
 
   @Test
   public void testHandleException() {
