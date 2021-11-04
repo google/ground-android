@@ -119,7 +119,6 @@ public class MainViewModelTest extends BaseHiltTest {
     assertProgressDialogVisible(false);
     assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
     assertUserSaved();
-    userRepository.getUser(TEST_USER.getId()).test().assertResult(TEST_USER);
     assertThat(tosRepository.isTermsOfServiceAccepted()).isTrue();
   }
 
