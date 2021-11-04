@@ -19,7 +19,7 @@ package com.google.android.gnd.system;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import android.Manifest.permission;
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -29,11 +29,9 @@ import com.google.android.gnd.system.PermissionsManager.PermissionDeniedExceptio
 import com.google.android.gnd.ui.util.BitmapUtil;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,10 +45,10 @@ public class StorageManagerTest extends BaseHiltTest {
   private static final int REQUEST_CODE = StorageManager.PICK_PHOTO_REQUEST_CODE;
 
   @BindValue @Mock BitmapUtil mockBitmapUtil;
-  @BindValue @Mock PermissionsManager mockPermissionsManager;
 
   @Inject ActivityStreams activityStreams;
   @Inject StorageManager storageManager;
+  @Inject TestPermissionUtil permissionUtil;
 
   private Bitmap mockBitmap() throws IOException {
     Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ALPHA_8);
@@ -59,29 +57,22 @@ public class StorageManagerTest extends BaseHiltTest {
   }
 
   private void mockPermissions(boolean allow) {
-    when(mockPermissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE))
-        .thenReturn(
-            allow ? Completable.complete() : Completable.error(new PermissionDeniedException()));
+    String[] permission = {Manifest.permission.READ_EXTERNAL_STORAGE};
+    permissionUtil.setPermission(permission, allow);
   }
 
   @Test
   public void testLaunchPhotoPicker_whenPermissionGranted() {
-    TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
-
+    TestObserver<Bitmap> testObserver = storageManager.selectPhoto().test();
     mockPermissions(true);
-    storageManager.selectPhoto().test().assertNoErrors();
-
-    requests.assertValueCount(1);
+    testObserver.assertNoErrors();
   }
 
   @Test
   public void testLaunchPhotoPicker_whenPermissionDenied() {
-    TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
-
+    TestObserver<Bitmap> testObserver = storageManager.selectPhoto().test();
     mockPermissions(false);
-    storageManager.selectPhoto().test().assertFailure(PermissionDeniedException.class);
-
-    requests.assertNoValues();
+    testObserver.assertError(PermissionDeniedException.class);
   }
 
   @Test
