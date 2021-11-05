@@ -66,24 +66,24 @@ public class MainViewModelTest extends BaseHiltTest {
     sharedPreferences.edit().putString("foo", "bar").apply();
   }
 
-  private void assertUserPreferencesCleared() {
+  private void verifyUserPreferencesCleared() {
     assertThat(sharedPreferences.getAll()).isEmpty();
   }
 
-  private void assertUserSaved() {
+  private void verifyUserSaved() {
     userRepository.getUser(TEST_USER.getId()).test().assertResult(TEST_USER);
   }
 
-  private void assertUserNotSaved() {
+  private void verifyUserNotSaved() {
     userRepository.getUser(TEST_USER.getId()).test().assertError(NoSuchElementException.class);
   }
 
-  private void assertProgressDialogVisible(boolean visible) {
+  private void verifyProgressDialogVisible(boolean visible) {
     TestObservers.observeUntilFirstChange(viewModel.getSignInProgressDialogVisibility());
     assertThat(viewModel.getSignInProgressDialogVisibility().getValue()).isEqualTo(visible);
   }
 
-  private void assertNavigate(NavDirections... navDirections) {
+  private void verifyNavigationRequested(NavDirections... navDirections) {
     navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(navDirections);
   }
 
@@ -93,10 +93,10 @@ public class MainViewModelTest extends BaseHiltTest {
 
     fakeAuthenticationManager.signOut();
 
-    assertProgressDialogVisible(false);
-    assertNavigate(SignInFragmentDirections.showSignInScreen());
-    assertUserPreferencesCleared();
-    assertUserNotSaved();
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen());
+    verifyUserPreferencesCleared();
+    verifyUserNotSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 
@@ -104,9 +104,9 @@ public class MainViewModelTest extends BaseHiltTest {
   public void testSignInStateChanged_onSigningIn() {
     fakeAuthenticationManager.setState(new SignInState(State.SIGNING_IN));
 
-    assertProgressDialogVisible(true);
-    assertNavigate();
-    assertUserNotSaved();
+    verifyProgressDialogVisible(true);
+    verifyNavigationRequested();
+    verifyUserNotSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 
@@ -116,9 +116,9 @@ public class MainViewModelTest extends BaseHiltTest {
     fakeAuthenticationManager.setUser(TEST_USER);
     fakeAuthenticationManager.signIn();
 
-    assertProgressDialogVisible(false);
-    assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
-    assertUserSaved();
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen());
+    verifyUserSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isTrue();
   }
 
@@ -128,10 +128,10 @@ public class MainViewModelTest extends BaseHiltTest {
     fakeAuthenticationManager.setUser(TEST_USER);
     fakeAuthenticationManager.signIn();
 
-    assertProgressDialogVisible(false);
-    assertNavigate(
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(
         SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(TERMS_OF_SERVICE));
-    assertUserSaved();
+    verifyUserSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 
@@ -142,10 +142,10 @@ public class MainViewModelTest extends BaseHiltTest {
     fakeAuthenticationManager.setState(new SignInState(new Exception()));
 
     assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful");
-    assertProgressDialogVisible(false);
-    assertNavigate(SignInFragmentDirections.showSignInScreen());
-    assertUserPreferencesCleared();
-    assertUserNotSaved();
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen());
+    verifyUserPreferencesCleared();
+    verifyUserNotSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 }
