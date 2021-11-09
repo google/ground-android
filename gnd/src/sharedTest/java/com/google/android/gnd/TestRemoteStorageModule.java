@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,22 @@
 
 package com.google.android.gnd;
 
-import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.persistence.remote.FakeRemoteStorageManager;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.sync.FakeWorkManager;
+import com.google.android.gnd.persistence.remote.RemoteStorageModule;
 import com.google.android.gnd.persistence.uuid.FakeUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
+import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
 @Module
-@InstallIn(SingletonComponent.class)
-abstract class TestDependenciesModule {
-
-  @Provides
-  @Singleton
-  static WorkManager provideWorkManager() {
-    return new FakeWorkManager();
-  }
-
-  @Binds
-  @Singleton
-  abstract AuthenticationManager bindAuthenticationManager(
-      FakeAuthenticationManager authenticationManager
-  );
+@TestInstallIn(components = SingletonComponent.class, replaces = RemoteStorageModule.class)
+abstract class TestRemoteStorageModule {
 
   @Binds
   @Singleton
@@ -56,8 +40,7 @@ abstract class TestDependenciesModule {
   @Binds
   @Singleton
   abstract RemoteStorageManager bindRemoteStorageManager(
-      FakeRemoteStorageManager remoteStorageManager
-  );
+      FakeRemoteStorageManager remoteStorageManager);
 
   @Binds
   @Singleton

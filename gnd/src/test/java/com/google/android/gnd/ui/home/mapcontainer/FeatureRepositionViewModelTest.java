@@ -16,30 +16,24 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Nil;
+import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Before;
-import org.junit.Rule;
+import javax.inject.Inject;
 import org.junit.Test;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
-public class FeatureRepositionViewModelTest {
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner.class)
+public class FeatureRepositionViewModelTest extends BaseHiltTest {
 
   private static final Point TEST_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
 
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-  private FeatureRepositionViewModel viewModel;
-
-  @Before
-  public void setUp() {
-    viewModel = new FeatureRepositionViewModel();
-  }
+  @Inject FeatureRepositionViewModel viewModel;
 
   @Test
   public void testConfirmButtonClicks_notReplayed() {

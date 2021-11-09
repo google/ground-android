@@ -47,6 +47,9 @@ public class FakeData {
   public static final User TEST_USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
 
+  public static final User TEST_USER_2 =
+      User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
+
   public static final Layer TEST_LAYER =
       Layer.newBuilder()
           .setId("layer id")
@@ -73,16 +76,18 @@ public class FakeData {
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();
 
+  public static final ImmutableList<Point> TEST_POLYGON =
+      ImmutableList.of(
+          Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
+          Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
+          Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
+
   public static final PolygonFeature TEST_POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
           .setProject(TEST_PROJECT)
           .setLayer(TEST_LAYER)
-          .setVertices(
-              ImmutableList.of(
-                  Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
-                  Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
-                  Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build()))
+          .setVertices(TEST_POLYGON)
           .setCreated(AuditInfo.now(TEST_USER))
           .setLastModified(AuditInfo.now(TEST_USER))
           .build();

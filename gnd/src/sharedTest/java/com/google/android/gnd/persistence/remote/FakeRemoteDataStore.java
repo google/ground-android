@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import static com.google.android.gnd.system.auth.FakeAuthenticationManager.TEST_USER;
-
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -40,7 +38,9 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
 
   private final Layer layerWithNoForm =
@@ -57,7 +57,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
-          .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
+          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
           .build();
 
   private final TermsOfService testTermsOfService =
@@ -71,10 +71,11 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setId(FakeData.PROJECT_ID_WITH_NO_LAYERS)
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
-          .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
+          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
           .build();
 
   private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
+  private RemoteDataEvent<Feature> featureEvent;
 
   @Inject
   FakeRemoteDataStore() {}
@@ -117,7 +118,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
-    return Flowable.empty();
+    return featureEvent == null ? Flowable.empty() : Flowable.just(featureEvent);
   }
 
   @Override
@@ -128,5 +129,9 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return null;
+  }
+
+  public void streamFeatureOnce(RemoteDataEvent<Feature> featureEvent) {
+    this.featureEvent = featureEvent;
   }
 }

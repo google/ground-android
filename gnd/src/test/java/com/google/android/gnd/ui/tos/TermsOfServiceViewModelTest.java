@@ -16,31 +16,29 @@
 
 package com.google.android.gnd.ui.tos;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
-import com.google.common.truth.Truth;
-import org.junit.Before;
-import org.junit.Rule;
+import dagger.hilt.android.testing.BindValue;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import javax.inject.Inject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.robolectric.RobolectricTestRunner;
 
-public class TermsOfServiceViewModelTest {
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner.class)
+public class TermsOfServiceViewModelTest extends BaseHiltTest {
 
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
+  @BindValue @Mock Navigator mockNavigator;
+  @BindValue @Mock TermsOfServiceRepository mockRepository;
 
-  @Mock Navigator mockNavigator;
-  @Mock TermsOfServiceRepository mockRepository;
-
-  private TermsOfServiceViewModel viewModel;
-
-  @Before
-  public void before() {
-    viewModel = new TermsOfServiceViewModel(mockNavigator, mockRepository);
-  }
+  @Inject TermsOfServiceViewModel viewModel;
 
   @Test
   public void testOnButtonClicked() {
@@ -53,6 +51,6 @@ public class TermsOfServiceViewModelTest {
   @Test
   public void testTermsOfServiceText() {
     viewModel.setTermsOfServiceText("Terms Text");
-    Truth.assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
+    assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
   }
 }

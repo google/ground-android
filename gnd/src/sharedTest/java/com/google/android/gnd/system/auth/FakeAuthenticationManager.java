@@ -23,18 +23,15 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class FakeAuthenticationManager implements AuthenticationManager {
 
   @Hot(replays = true)
-  public Subject<SignInState> behaviourSubject = BehaviorSubject.create();
+  private final Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
-  public static final User TEST_USER =
-      User.builder()
-          .setDisplayName("Test User")
-          .setEmail("test@user.com")
-          .setId("TEST_USER_ID")
-          .build();
+  private User user;
 
   @Inject
   public FakeAuthenticationManager() {}
@@ -46,17 +43,25 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   @Override
   public User getCurrentUser() {
-    return TEST_USER;
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public void setState(SignInState state) {
+    behaviourSubject.onNext(state);
   }
 
   @Override
   public void init() {
-    behaviourSubject.onNext(new SignInState(TEST_USER));
+    behaviourSubject.onNext(new SignInState(user));
   }
 
   @Override
   public void signIn() {
-    behaviourSubject.onNext(new SignInState(TEST_USER));
+    behaviourSubject.onNext(new SignInState(user));
   }
 
   @Override

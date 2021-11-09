@@ -53,6 +53,7 @@ import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.util.Date;
 import java8.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -198,7 +199,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
         .ifPresentOrElse(
             projectId ->
                 addFeatureRequests.onNext(
-                    featureRepository.newMutation(projectId, layer.getId(), point)),
+                    featureRepository.newMutation(projectId, layer.getId(), point, new Date())),
             () -> {
               throw new IllegalStateException("Empty project");
             });
@@ -210,9 +211,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
         .ifPresentOrElse(
             projectId ->
                 addFeatureRequests.onNext(
-                    featureRepository
-                        .newPolygonFeatureMutation(projectId,
-                            feature.getLayer().getId(), feature.getVertices())),
+                    featureRepository.newPolygonFeatureMutation(
+                        projectId, feature.getLayer().getId(), feature.getVertices(), new Date())),
             () -> {
               throw new IllegalStateException("Empty project");
             });
