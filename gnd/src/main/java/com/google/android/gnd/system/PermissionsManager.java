@@ -31,7 +31,7 @@ import timber.log.Timber;
 /** Provides access to obtain and check the app's permissions. */
 @Singleton
 public class PermissionsManager {
-  private static final int PERMISSIONS_REQUEST_CODE = PermissionsManager.class.hashCode() & 0xffff;
+  static final int PERMISSIONS_REQUEST_CODE = PermissionsManager.class.hashCode() & 0xffff;
 
   private final Context context;
   private final ActivityStreams activityStreams;
