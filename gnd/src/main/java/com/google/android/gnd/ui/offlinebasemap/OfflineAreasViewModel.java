@@ -19,8 +19,8 @@ package com.google.android.gnd.ui.offlinebasemap;
 import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
-import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
@@ -31,18 +31,18 @@ import timber.log.Timber;
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
-public class OfflineBaseMapsViewModel extends AbstractViewModel {
+public class OfflineAreasViewModel extends AbstractViewModel {
 
-  private final LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
+  private final LiveData<ImmutableList<OfflineArea>> offlineAreas;
   private final LiveData<Integer> noAreasMessageVisibility;
 
   private final Navigator navigator;
 
   @Inject
-  OfflineBaseMapsViewModel(Navigator navigator, OfflineBaseMapRepository offlineBaseMapRepository) {
+  OfflineAreasViewModel(Navigator navigator, OfflineAreaRepository offlineAreaRepository) {
     this.navigator = navigator;
-    Flowable<ImmutableList<OfflineBaseMap>> offlineAreas =
-        offlineBaseMapRepository
+    Flowable<ImmutableList<OfflineArea>> offlineAreas =
+        offlineAreaRepository
             .getOfflineAreasOnceAndStream()
             .doOnError(
                 throwable ->
@@ -58,14 +58,14 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
   /** Navigate to the offline area selector UI from the offline basemaps UI. */
   public void showOfflineAreaSelector() {
-    navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
+    navigator.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector());
   }
 
   /**
    * Returns the current list of downloaded offline basemaps available for viewing. If an unexpected
    * error accessing the local store is encountered, emits an empty list, circumventing the error.
    */
-  LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
+  LiveData<ImmutableList<OfflineArea>> getOfflineAreas() {
     return offlineAreas;
   }
 

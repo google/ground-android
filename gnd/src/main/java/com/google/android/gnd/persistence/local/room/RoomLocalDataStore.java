@@ -29,7 +29,7 @@ import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -54,7 +54,7 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
@@ -69,7 +69,7 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapEntity;
+import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
@@ -118,7 +118,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
-  @Inject OfflineBaseMapDao offlineBaseMapDao;
+  @Inject
+  OfflineAreaDao offlineAreaDao;
   @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
   @Inject Schedulers schedulers;
   @Inject FileUtil fileUtil;
@@ -666,36 +667,36 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable insertOrUpdateOfflineArea(OfflineBaseMap area) {
-    return offlineBaseMapDao
-        .insertOrUpdate(OfflineBaseMapEntity.fromArea(area))
+  public Completable insertOrUpdateOfflineArea(OfflineArea area) {
+    return offlineAreaDao
+        .insertOrUpdate(OfflineAreaEntity.fromArea(area))
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream() {
-    return offlineBaseMapDao
+  public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
+    return offlineAreaDao
         .findAllOnceAndStream()
-        .map(areas -> stream(areas).map(OfflineBaseMapEntity::toArea).collect(toImmutableList()))
+        .map(areas -> stream(areas).map(OfflineAreaEntity::toArea).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Single<OfflineBaseMap> getOfflineAreaById(String id) {
-    return offlineBaseMapDao
+  public Single<OfflineArea> getOfflineAreaById(String id) {
+    return offlineAreaDao
         .findById(id)
-        .map(OfflineBaseMapEntity::toArea)
+        .map(OfflineAreaEntity::toArea)
         .toSingle()
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable deleteOfflineArea(String id) {
-    return offlineBaseMapDao
+    return offlineAreaDao
         .findById(id)
         .toSingle()
         .doOnSubscribe(__ -> Timber.d("Deleting offline area: %s", id))
-        .flatMapCompletable(offlineBaseMapDao::delete)
+        .flatMapCompletable(offlineAreaDao::delete)
         .subscribeOn(schedulers.io());
   }
 

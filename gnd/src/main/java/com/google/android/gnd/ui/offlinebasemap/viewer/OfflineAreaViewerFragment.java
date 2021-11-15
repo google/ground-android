@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapFragment;
@@ -35,21 +35,21 @@ import javax.inject.Inject;
  * device.
  */
 @AndroidEntryPoint
-public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
+public class OfflineAreaViewerFragment extends AbstractMapViewerFragment {
 
   @Inject Navigator navigator;
 
-  private OfflineBaseMapViewerViewModel viewModel;
+  private OfflineAreaViewerViewModel viewModel;
 
   @Inject
-  public OfflineBaseMapViewerFragment() {}
+  public OfflineAreaViewerFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    OfflineBaseMapViewerFragmentArgs args =
-        OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
-    viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
+    OfflineAreaViewerFragmentArgs args =
+        OfflineAreaViewerFragmentArgs.fromBundle(getArguments());
+    viewModel = getViewModel(OfflineAreaViewerViewModel.class);
     viewModel.loadOfflineArea(args);
     viewModel.getOfflineArea().observe(this, this::panMap);
   }
@@ -72,8 +72,8 @@ public class OfflineBaseMapViewerFragment extends AbstractMapViewerFragment {
     map.disableGestures();
   }
 
-  private void panMap(OfflineBaseMap offlineBaseMap) {
-    getMapFragment().setViewport(offlineBaseMap.getBounds());
+  private void panMap(OfflineArea offlineArea) {
+    getMapFragment().setViewport(offlineArea.getBounds());
   }
 
   /** Removes the area associated with this fragment from the user's device. */
