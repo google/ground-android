@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore.schema;
+package com.google.android.gnd.persistence.local.room.dao;
 
-import androidx.annotation.Nullable;
+import androidx.room.Dao;
+import androidx.room.Query;
+import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
+import io.reactivex.Completable;
 
-class OfflineBaseMapSourceNestedObject {
-  @Nullable private String url;
+@Dao
+public interface BaseMapDao extends BaseDao<BaseMapEntity> {
 
-  @SuppressWarnings("unused")
-  OfflineBaseMapSourceNestedObject() {}
-
-  @SuppressWarnings("unused")
-  OfflineBaseMapSourceNestedObject(@Nullable String url) {
-    this.url = url;
-  }
-
-  @Nullable
-  public String getUrl() {
-    return url;
-  }
+  @Query("DELETE FROM offline_base_map_source WHERE project_id = :projectId")
+  Completable deleteByProjectId(String projectId);
 }

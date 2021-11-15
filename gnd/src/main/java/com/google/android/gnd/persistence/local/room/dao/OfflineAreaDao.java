@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,17 @@ package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
-import io.reactivex.Completable;
+import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import java.util.List;
 
+/** Provides read/write operations for writing {@link OfflineAreaEntity} to the local db. */
 @Dao
-public interface OfflineBaseMapSourceDao extends BaseDao<OfflineBaseMapSourceEntity> {
+public interface OfflineAreaDao extends BaseDao<OfflineAreaEntity> {
+  @Query("SELECT * FROM offline_base_map")
+  Flowable<List<OfflineAreaEntity>> findAllOnceAndStream();
 
-  @Query("DELETE FROM offline_base_map_source WHERE project_id = :projectId")
-  Completable deleteByProjectId(String projectId);
+  @Query("SELECT * FROM offline_base_map WHERE id = :id")
+  Maybe<OfflineAreaEntity> findById(String id);
 }

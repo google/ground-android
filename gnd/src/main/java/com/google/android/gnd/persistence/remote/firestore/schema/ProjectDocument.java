@@ -32,7 +32,7 @@ class ProjectDocument {
 
   @Nullable private Map<String, String> acl;
 
-  @Nullable private List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources;
+  @Nullable private List<BaseMapNestedObject> baseMaps;
 
   @SuppressWarnings("unused")
   public ProjectDocument() {}
@@ -43,12 +43,12 @@ class ProjectDocument {
       @Nullable Map<String, String> description,
       @Nullable Map<String, LayerNestedObject> layers,
       @Nullable Map<String, String> acl,
-      @Nullable List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources) {
+      @Nullable List<BaseMapNestedObject> baseMaps) {
     this.title = title;
     this.description = description;
     this.layers = layers;
     this.acl = acl;
-    this.offlineBaseMapSources = offlineBaseMapSources;
+    this.baseMaps = baseMaps;
   }
 
   @Nullable
@@ -72,7 +72,7 @@ class ProjectDocument {
   }
 
   @Nullable
-  public List<OfflineBaseMapSourceNestedObject> getOfflineBaseMapSources() {
-    return offlineBaseMapSources;
+  public List<BaseMapNestedObject> getBaseMaps() {
+    return baseMaps;
   }
 }

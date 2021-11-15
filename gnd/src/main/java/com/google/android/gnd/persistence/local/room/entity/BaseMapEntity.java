@@ -23,8 +23,8 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
-import com.google.android.gnd.model.basemap.OfflineBaseMapSource.OfflineBaseMapSourceType;
+import com.google.android.gnd.model.basemap.BaseMap;
+import com.google.android.gnd.model.basemap.BaseMap.BaseMapType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import java.net.MalformedURLException;
@@ -40,11 +40,11 @@ import java.net.URL;
             childColumns = "project_id", // NOPMD
             onDelete = ForeignKey.CASCADE),
     indices = {@Index("project_id")}) // NOPMD
-public abstract class OfflineBaseMapSourceEntity {
+public abstract class BaseMapEntity {
 
-  public static OfflineBaseMapSource toModel(OfflineBaseMapSourceEntity source)
+  public static BaseMap toModel(BaseMapEntity source)
       throws MalformedURLException {
-    return OfflineBaseMapSource.builder()
+    return BaseMap.builder()
         .setUrl(new URL(source.getUrl()))
         .setType(entityToModelType(source))
         .build();
@@ -69,53 +69,53 @@ public abstract class OfflineBaseMapSourceEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "type")
-  public abstract OfflineBaseMapSourceEntityType getType();
+  public abstract BaseMapEntityType getType();
 
-  public enum OfflineBaseMapSourceEntityType {
+  public enum BaseMapEntityType {
     GEOJSON,
     IMAGE,
     UNKNOWN
   }
 
-  private static OfflineBaseMapSourceEntityType modelToEntityType(OfflineBaseMapSource source) {
+  private static BaseMapEntityType modelToEntityType(BaseMap source) {
     switch (source.getType()) {
       case TILED_WEB_MAP:
-        return OfflineBaseMapSourceEntityType.IMAGE;
+        return BaseMapEntityType.IMAGE;
       case MBTILES_FOOTPRINTS:
-        return OfflineBaseMapSourceEntityType.GEOJSON;
+        return BaseMapEntityType.GEOJSON;
       default:
-        return OfflineBaseMapSourceEntityType.UNKNOWN;
+        return BaseMapEntityType.UNKNOWN;
     }
   }
 
-  private static OfflineBaseMapSourceType entityToModelType(OfflineBaseMapSourceEntity source) {
+  private static BaseMapType entityToModelType(BaseMapEntity source) {
     switch (source.getType()) {
       case IMAGE:
-        return OfflineBaseMapSourceType.TILED_WEB_MAP;
+        return BaseMapType.TILED_WEB_MAP;
       case GEOJSON:
-        return OfflineBaseMapSourceType.MBTILES_FOOTPRINTS;
+        return BaseMapType.MBTILES_FOOTPRINTS;
       default:
-        return OfflineBaseMapSourceType.UNKNOWN;
+        return BaseMapType.UNKNOWN;
     }
   }
 
-  public static OfflineBaseMapSourceEntity fromModel(
-      String projectId, OfflineBaseMapSource source) {
+  public static BaseMapEntity fromModel(
+      String projectId, BaseMap source) {
 
-    return OfflineBaseMapSourceEntity.builder()
+    return BaseMapEntity.builder()
         .setProjectId(projectId)
         .setUrl(source.getUrl().toString())
         .setType(modelToEntityType(source))
         .build();
   }
 
-  public static OfflineBaseMapSourceEntity create(
-      @Nullable Integer id, String projectId, String url, OfflineBaseMapSourceEntityType type) {
+  public static BaseMapEntity create(
+      @Nullable Integer id, String projectId, String url, BaseMapEntityType type) {
     return builder().setId(id).setProjectId(projectId).setUrl(url).setType(type).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_OfflineBaseMapSourceEntity.Builder();
+    return new AutoValue_BaseMapEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -127,8 +127,8 @@ public abstract class OfflineBaseMapSourceEntity {
 
     public abstract Builder setUrl(@NonNull String newUrl);
 
-    public abstract Builder setType(OfflineBaseMapSourceEntityType type);
+    public abstract Builder setType(BaseMapEntityType type);
 
-    public abstract OfflineBaseMapSourceEntity build();
+    public abstract BaseMapEntity build();
   }
 }

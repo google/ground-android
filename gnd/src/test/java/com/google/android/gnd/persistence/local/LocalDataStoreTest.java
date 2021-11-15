@@ -26,7 +26,7 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.basemap.tile.TileSource.State;
 import com.google.android.gnd.model.feature.Feature;
@@ -177,11 +177,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setBasemapReferenceCount(1)
           .build();
 
-  private static final OfflineBaseMap TEST_OFFLINE_AREA =
-      OfflineBaseMap.newBuilder()
+  private static final OfflineArea TEST_OFFLINE_AREA =
+      OfflineArea.newBuilder()
           .setId("id_1")
           .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
-          .setState(OfflineBaseMap.State.PENDING)
+          .setState(OfflineArea.State.PENDING)
           .setName("Test Area")
           .build();
 

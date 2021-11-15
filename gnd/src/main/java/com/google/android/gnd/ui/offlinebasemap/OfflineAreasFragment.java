@@ -36,19 +36,19 @@ import javax.inject.Inject;
  * need or access the UI used to select and download a new area to the device.
  */
 @AndroidEntryPoint
-public class OfflineBaseMapsFragment extends AbstractFragment {
+public class OfflineAreasFragment extends AbstractFragment {
   @Inject Navigator navigator;
 
-  private OfflineBaseMapListAdapter offlineBaseMapListAdapter;
-  private OfflineBaseMapsViewModel viewModel;
+  private OfflineAreaListAdapter offlineAreaListAdapter;
+  private OfflineAreasViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(OfflineBaseMapsViewModel.class);
-    offlineBaseMapListAdapter = new OfflineBaseMapListAdapter(navigator);
+    viewModel = getViewModel(OfflineAreasViewModel.class);
+    offlineAreaListAdapter = new OfflineAreaListAdapter(navigator);
 
-    viewModel.getOfflineAreas().observe(this, offlineBaseMapListAdapter::update);
+    viewModel.getOfflineAreas().observe(this, offlineAreaListAdapter::update);
   }
 
   @Override
@@ -66,7 +66,7 @@ public class OfflineBaseMapsFragment extends AbstractFragment {
     RecyclerView recyclerView = binding.offlineAreasList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(offlineBaseMapListAdapter);
+    recyclerView.setAdapter(offlineAreaListAdapter);
 
     return binding.getRoot();
   }
