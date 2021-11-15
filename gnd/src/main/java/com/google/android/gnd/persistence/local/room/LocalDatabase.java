@@ -31,7 +31,7 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
@@ -45,7 +45,7 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapEntity;
+import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
@@ -57,7 +57,7 @@ import com.google.android.gnd.persistence.local.room.models.FieldEntityType;
 import com.google.android.gnd.persistence.local.room.models.MultipleChoiceEntityType;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
-import com.google.android.gnd.persistence.local.room.models.OfflineBaseMapEntityState;
+import com.google.android.gnd.persistence.local.room.models.OfflineAreaEntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 
 /**
@@ -81,7 +81,7 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
       ObservationEntity.class,
       ObservationMutationEntity.class,
       TileSourceEntity.class,
-      OfflineBaseMapEntity.class,
+      OfflineAreaEntity.class,
       UserEntity.class
     },
     version = Config.DB_VERSION,
@@ -95,7 +95,7 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
   JsonArrayTypeConverter.class,
   JsonObjectTypeConverter.class,
   MutationEntitySyncStatus.class,
-  OfflineBaseMapEntityState.class,
+  OfflineAreaEntityState.class,
   StyleTypeConverter.class,
   TileEntityState.class
 })
@@ -125,7 +125,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract TileSourceDao tileSourceDao();
 
-  public abstract OfflineBaseMapDao offlineAreaDao();
+  public abstract OfflineAreaDao offlineAreaDao();
 
   public abstract UserDao userDao();
 }

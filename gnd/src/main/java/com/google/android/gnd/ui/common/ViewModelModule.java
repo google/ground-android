@@ -35,9 +35,9 @@ import com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
-import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel;
-import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel;
-import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerViewModel;
+import com.google.android.gnd.ui.offlinebasemap.OfflineAreasViewModel;
+import com.google.android.gnd.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel;
+import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import com.google.android.gnd.ui.syncstatus.SyncStatusViewModel;
@@ -70,8 +70,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineBaseMapSelectorViewModel.class)
-  abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineBaseMapSelectorViewModel viewModel);
+  @ViewModelKey(OfflineAreaSelectorViewModel.class)
+  abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineAreaSelectorViewModel viewModel);
 
   @Binds
   @IntoMap
@@ -80,13 +80,13 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineBaseMapsViewModel.class)
-  abstract ViewModel bindOfflineAreasViewModel(OfflineBaseMapsViewModel viewModel);
+  @ViewModelKey(OfflineAreasViewModel.class)
+  abstract ViewModel bindOfflineAreasViewModel(OfflineAreasViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineBaseMapViewerViewModel.class)
-  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineBaseMapViewerViewModel viewModel);
+  @ViewModelKey(OfflineAreaViewerViewModel.class)
+  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineAreaViewerViewModel viewModel);
 
   @Binds
   @IntoMap

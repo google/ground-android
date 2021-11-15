@@ -29,7 +29,7 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
+import com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragmentDirections;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -84,7 +84,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
   }
 
   public void showOfflineAreaSelector() {
-    navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
+    navigator.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector());
   }
 
   @Cold(replays = true, terminates = false)

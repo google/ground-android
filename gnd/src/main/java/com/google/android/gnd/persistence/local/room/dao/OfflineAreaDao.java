@@ -18,17 +18,17 @@ package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapEntity;
+import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import java.util.List;
 
-/** Provides read/write operations for writing {@link OfflineBaseMapEntity} to the local db. */
+/** Provides read/write operations for writing {@link OfflineAreaEntity} to the local db. */
 @Dao
-public interface OfflineBaseMapDao extends BaseDao<OfflineBaseMapEntity> {
+public interface OfflineAreaDao extends BaseDao<OfflineAreaEntity> {
   @Query("SELECT * FROM offline_base_map")
-  Flowable<List<OfflineBaseMapEntity>> findAllOnceAndStream();
+  Flowable<List<OfflineAreaEntity>> findAllOnceAndStream();
 
   @Query("SELECT * FROM offline_base_map WHERE id = :id")
-  Maybe<OfflineBaseMapEntity> findById(String id);
+  Maybe<OfflineAreaEntity> findById(String id);
 }
