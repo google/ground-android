@@ -168,13 +168,10 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(this::showAddFeatureDialog);
+        .subscribe(args -> showAddFeatureDialog(args.first, args.second));
   }
 
-  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
-    ImmutableList<Layer> layers = args.first;
-
-    Point point = args.second;
+  private void showAddFeatureDialog(ImmutableList<Layer> layers, Point point) {
     addFeatureDialogFragment.show(
         layers,
         getChildFragmentManager(),
