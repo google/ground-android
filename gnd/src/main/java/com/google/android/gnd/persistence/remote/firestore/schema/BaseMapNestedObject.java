@@ -18,14 +18,14 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 
-class OfflineBaseMapSourceNestedObject {
+class BaseMapNestedObject {
   @Nullable private String url;
 
   @SuppressWarnings("unused")
-  OfflineBaseMapSourceNestedObject() {}
+  BaseMapNestedObject() {}
 
   @SuppressWarnings("unused")
-  OfflineBaseMapSourceNestedObject(@Nullable String url) {
+  BaseMapNestedObject(@Nullable String url) {
     this.url = url;
   }
 

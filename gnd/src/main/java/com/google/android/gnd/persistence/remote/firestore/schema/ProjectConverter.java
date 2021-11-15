@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.model.basemap.OfflineBaseMapSource.typeFromExtension;
+import static com.google.android.gnd.model.basemap.BaseMap.typeFromExtension;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
+import com.google.android.gnd.model.basemap.BaseMap;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -44,22 +44,22 @@ class ProjectConverter {
           pd.getLayers(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
     }
     project.setAcl(ImmutableMap.copyOf(pd.getAcl()));
-    if (pd.getOfflineBaseMapSources() != null) {
+    if (pd.getBaseMaps() != null) {
       convertOfflineBaseMapSources(pd, project);
     }
     return project.build();
   }
 
   private static void convertOfflineBaseMapSources(ProjectDocument pd, Project.Builder project) {
-    for (OfflineBaseMapSourceNestedObject src : pd.getOfflineBaseMapSources()) {
+    for (BaseMapNestedObject src : pd.getBaseMaps()) {
       if (src.getUrl() == null) {
         Timber.d("Skipping base map source in project with missing URL");
         continue;
       }
       try {
         URL url = new URL(src.getUrl());
-        project.addOfflineBaseMapSource(
-            OfflineBaseMapSource.builder()
+        project.addBaseMap(
+            BaseMap.builder()
                 .setUrl(url)
                 .setType(typeFromExtension(src.getUrl()))
                 .build());

@@ -23,32 +23,32 @@ import org.apache.commons.io.FilenameUtils;
 
 /** Represents a possible source for offline base map data. */
 @AutoValue
-public abstract class OfflineBaseMapSource {
+public abstract class BaseMap {
 
-  public enum OfflineBaseMapSourceType {
+  public enum BaseMapType {
     MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,
     UNKNOWN
   }
 
-  public static OfflineBaseMapSourceType typeFromExtension(String url) {
+  public static BaseMapType typeFromExtension(String url) {
     switch (FilenameUtils.getExtension(url)) {
       case "geojson":
-        return OfflineBaseMapSourceType.MBTILES_FOOTPRINTS;
+        return BaseMapType.MBTILES_FOOTPRINTS;
       case "png":
-        return OfflineBaseMapSourceType.TILED_WEB_MAP;
+        return BaseMapType.TILED_WEB_MAP;
       default:
-        return OfflineBaseMapSourceType.UNKNOWN;
+        return BaseMapType.UNKNOWN;
     }
   }
 
   @NonNull
   public abstract URL getUrl();
 
-  public abstract OfflineBaseMapSourceType getType();
+  public abstract BaseMapType getType();
 
   public static Builder builder() {
-    return new AutoValue_OfflineBaseMapSource.Builder();
+    return new AutoValue_BaseMap.Builder();
   }
 
   @AutoValue.Builder
@@ -56,8 +56,8 @@ public abstract class OfflineBaseMapSource {
 
     public abstract Builder setUrl(@NonNull URL newUrl);
 
-    public abstract Builder setType(OfflineBaseMapSourceType type);
+    public abstract Builder setType(BaseMapType type);
 
-    public abstract OfflineBaseMapSource build();
+    public abstract BaseMap build();
   }
 }
