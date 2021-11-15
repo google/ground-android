@@ -17,7 +17,7 @@
 package com.google.android.gnd.model;
 
 import androidx.annotation.NonNull;
-import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
+import com.google.android.gnd.model.basemap.BaseMap;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -38,7 +38,7 @@ public abstract class Project {
   protected abstract ImmutableMap<String, Layer> getLayerMap();
 
   @NonNull
-  public abstract ImmutableList<OfflineBaseMapSource> getOfflineBaseMapSources();
+  public abstract ImmutableList<BaseMap> getBaseMaps();
 
   public ImmutableList<Layer> getLayers() {
     return getLayerMap().values().asList();
@@ -73,10 +73,10 @@ public abstract class Project {
 
     public abstract Builder setAcl(ImmutableMap<String, String> acl);
 
-    public abstract ImmutableList.Builder<OfflineBaseMapSource> offlineBaseMapSourcesBuilder();
+    public abstract ImmutableList.Builder<BaseMap> baseMapsBuilder();
 
-    public Builder addOfflineBaseMapSource(OfflineBaseMapSource source) {
-      offlineBaseMapSourcesBuilder().add(source);
+    public Builder addBaseMap(BaseMap source) {
+      baseMapsBuilder().add(source);
       return this;
     }
 

@@ -80,10 +80,10 @@ public abstract class ProjectEntity {
       LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
       projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerEntityAndRelations));
     }
-    for (OfflineBaseMapSourceEntity source :
-        projectEntityAndRelations.offlineBaseMapSourceEntityAndRelations) {
+    for (BaseMapEntity source :
+        projectEntityAndRelations.baseMapEntityAndRelations) {
       try {
-        projectBuilder.addOfflineBaseMapSource(OfflineBaseMapSourceEntity.toModel(source));
+        projectBuilder.addBaseMap(BaseMapEntity.toModel(source));
       } catch (MalformedURLException e) {
         Timber.d("Skipping basemap source with malformed URL %s", source.getUrl());
       }

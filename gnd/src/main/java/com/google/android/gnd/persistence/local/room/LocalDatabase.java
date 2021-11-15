@@ -32,11 +32,12 @@ import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
+import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
+import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
@@ -46,7 +47,6 @@ import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
@@ -77,7 +77,7 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
       MultipleChoiceEntity.class,
       OptionEntity.class,
       ProjectEntity.class,
-      OfflineBaseMapSourceEntity.class,
+      BaseMapEntity.class,
       ObservationEntity.class,
       ObservationMutationEntity.class,
       TileSourceEntity.class,
@@ -117,7 +117,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract ProjectDao projectDao();
 
-  public abstract OfflineBaseMapSourceDao offlineBaseMapSourceDao();
+  public abstract BaseMapDao baseMapDao();
 
   public abstract ObservationDao observationDao();
 

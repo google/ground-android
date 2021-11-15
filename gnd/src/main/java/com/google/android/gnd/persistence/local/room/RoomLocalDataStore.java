@@ -46,6 +46,7 @@ import com.google.android.gnd.model.observation.ResponseMap.Builder;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
+import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
@@ -55,12 +56,12 @@ import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
+import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
@@ -70,7 +71,6 @@ import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
@@ -118,9 +118,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
-  @Inject
-  OfflineAreaDao offlineAreaDao;
-  @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
+  @Inject OfflineAreaDao offlineAreaDao;
+  @Inject BaseMapDao baseMapDao;
   @Inject Schedulers schedulers;
   @Inject FileUtil fileUtil;
 
@@ -193,11 +192,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable insertOfflineBaseMapSources(Project project) {
-    return Observable.fromIterable(project.getOfflineBaseMapSources())
+    return Observable.fromIterable(project.getBaseMaps())
         .flatMapCompletable(
-            source ->
-                offlineBaseMapSourceDao.insert(
-                    OfflineBaseMapSourceEntity.fromModel(project.getId(), source)));
+            source -> baseMapDao.insert(BaseMapEntity.fromModel(project.getId(), source)));
   }
 
   @Transaction
@@ -207,7 +204,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .insertOrUpdate(ProjectEntity.fromProject(project))
         .andThen(layerDao.deleteByProjectId(project.getId()))
         .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
-        .andThen(offlineBaseMapSourceDao.deleteByProjectId(project.getId()))
+        .andThen(baseMapDao.deleteByProjectId(project.getId()))
         .andThen(insertOfflineBaseMapSources(project))
         .subscribeOn(schedulers.io());
   }

@@ -22,9 +22,9 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.BaseMap;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.OfflineArea.State;
-import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
@@ -87,10 +87,9 @@ public class OfflineAreaRepository {
    * <p>Only the first basemap source is used. Sources are always re-downloaded and overwritten on
    * subsequent calls.
    */
-  private File downloadOfflineBaseMapSource(OfflineBaseMapSource offlineBaseMapSource)
-      throws IOException {
+  private File downloadOfflineBaseMapSource(BaseMap baseMap) throws IOException {
 
-    URL baseMapUrl = offlineBaseMapSource.getUrl();
+    URL baseMapUrl = baseMap.getUrl();
     Timber.d("Basemap url: %s, file: %s", baseMapUrl, baseMapUrl.getFile());
     File localFile = fileUtil.getOrCreateFile(baseMapUrl.getFile());
 
@@ -141,7 +140,7 @@ public class OfflineAreaRepository {
     return projectRepository
         .getProjectLoadingState()
         .compose(Loadable::values)
-        .map(Project::getOfflineBaseMapSources)
+        .map(Project::getBaseMaps)
         .doOnError(
             throwable -> Timber.e(throwable, "no basemap sources specified for the active project"))
         .map(ImmutableList::asList)
@@ -240,8 +239,8 @@ public class OfflineAreaRepository {
   }
 
   /**
-   * Delete an offline area and any tile sources associated with it that do not overlap with
-   * other offline base maps .
+   * Delete an offline area and any tile sources associated with it that do not overlap with other
+   * offline base maps .
    */
   @Cold
   public Completable deleteOfflineArea(String offlineAreaId) {
@@ -267,7 +266,7 @@ public class OfflineAreaRepository {
     return projectRepository
         .getProjectLoadingState()
         .compose(Loadable::values)
-        .map(Project::getOfflineBaseMapSources)
+        .map(Project::getBaseMaps)
         .doOnError(t -> Timber.e(t, "No basemap sources specified for the active project"))
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)
@@ -276,18 +275,17 @@ public class OfflineAreaRepository {
         .doOnError(t -> Timber.e(t, "Couldn't retrieve basemap sources for the active project"));
   }
 
-  private ImmutableList<TileSource> identifyAndHandleSource(
-      OfflineBaseMapSource offlineBaseMapSource) throws IOException {
-    switch (offlineBaseMapSource.getType()) {
+  private ImmutableList<TileSource> identifyAndHandleSource(BaseMap baseMap) throws IOException {
+    switch (baseMap.getType()) {
       case MBTILES_FOOTPRINTS:
-        File tileFile = downloadOfflineBaseMapSource(offlineBaseMapSource);
+        File tileFile = downloadOfflineBaseMapSource(baseMap);
         return geoJsonParser.allTiles(tileFile);
       case TILED_WEB_MAP:
         return ImmutableList.of(
             TileSource.newBuilder()
                 .setId(offlineUuidGenerator.generateUuid())
-                .setPath(offlineBaseMapSource.getUrl().toString())
-                .setUrl(offlineBaseMapSource.getUrl().toString())
+                .setPath(baseMap.getUrl().toString())
+                .setUrl(baseMap.getUrl().toString())
                 .setBasemapReferenceCount(1)
                 .setState(TileSource.State.PENDING)
                 .build());
@@ -297,8 +295,8 @@ public class OfflineAreaRepository {
         return ImmutableList.of(
             TileSource.newBuilder()
                 .setId(offlineUuidGenerator.generateUuid())
-                .setPath(offlineBaseMapSource.getUrl().toString())
-                .setUrl(offlineBaseMapSource.getUrl().toString())
+                .setPath(baseMap.getUrl().toString())
+                .setUrl(baseMap.getUrl().toString())
                 .setBasemapReferenceCount(1)
                 .setState(TileSource.State.PENDING)
                 .build());
