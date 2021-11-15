@@ -180,7 +180,10 @@ public class HomeScreenFragment extends AbstractFragment
         getChildFragmentManager(),
         layer -> {
           if (layer.getContributorsCanAdd().isEmpty()) {
-            Timber.e("No permissions set on layer %s", layer.getId());
+            Timber.e(
+                "User cannot add features to layer %s - layer list should not have been shown",
+                layer.getId());
+            return;
           }
 
           if (layer.getContributorsCanAdd().size() > 1) {
@@ -591,8 +594,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void showPolygonInfoDialog(Layer layer) {
     polygonDrawingViewModel.updatePolygonInfoDialogShown();
     polygonDrawingInfoDialogFragment =
-        new PolygonDrawingInfoDialogFragment(
-            () -> startPolygonDrawing(layer));
+        new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(layer));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }
