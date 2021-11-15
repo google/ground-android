@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.TermsOfService;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
@@ -35,14 +34,7 @@ public class TermsOfServiceRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetTermsOfService() {
-    termsOfServiceRepository
-        .getTermsOfService()
-        .test()
-        .assertResult(
-            TermsOfService.builder()
-                .setId(FakeData.TERMS_OF_SERVICE_ID)
-                .setText(FakeData.TERMS_OF_SERVICE)
-                .build());
+    termsOfServiceRepository.getTermsOfService().test().assertResult(FakeData.TERMS_OF_SERVICE);
   }
 
   @Test

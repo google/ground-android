@@ -130,7 +130,8 @@ public class MainViewModelTest extends BaseHiltTest {
 
     verifyProgressDialogVisible(false);
     verifyNavigationRequested(
-        SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(TERMS_OF_SERVICE));
+        SignInFragmentDirections.showTermsOfService()
+            .setTermsOfServiceText(TERMS_OF_SERVICE.getText()));
     verifyUserSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
