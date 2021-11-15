@@ -146,4 +146,19 @@ public class MainViewModelTest extends BaseHiltTest {
     Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
     Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
   }
+
+  @Test
+  public void testSignInStateChanged_onSignedIn_whenTosMissing() {
+    when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(false);
+    when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
+    when(mockTosRepository.getTermsOfService()).thenReturn(Maybe.empty());
+
+    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.signIn();
+
+    assertProgressDialogVisible(false);
+    assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
+    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
+    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
+  }
 }
