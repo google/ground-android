@@ -20,14 +20,14 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.basemap.tile.TileSource;
-import com.google.android.gnd.persistence.local.room.models.TileEntityState;
+import com.google.android.gnd.model.basemap.tile.TileSet;
+import com.google.android.gnd.persistence.local.room.models.TileSetEntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
 @Entity(tableName = "tile_sources")
-public abstract class TileSourceEntity {
+public abstract class TileSetEntity {
   @CopyAnnotations
   @NonNull
   @PrimaryKey
@@ -47,78 +47,78 @@ public abstract class TileSourceEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "state")
-  public abstract TileEntityState getState();
+  public abstract TileSetEntityState getState();
 
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "basemap_count")
-  public abstract int getBasemapReferenceCount();
+  public abstract int getOfflineAreaReferenceCount();
 
-  public static TileSource toTileSource(TileSourceEntity tileSourceEntity) {
-    TileSource.Builder tile =
-        TileSource.newBuilder()
-            .setId(tileSourceEntity.getId())
-            .setPath(tileSourceEntity.getPath())
-            .setState(toTileState(tileSourceEntity.getState()))
-            .setUrl(tileSourceEntity.getUrl())
-            .setBasemapReferenceCount(tileSourceEntity.getBasemapReferenceCount());
+  public static TileSet toTileSet(TileSetEntity tileSetEntity) {
+    TileSet.Builder tile =
+        TileSet.newBuilder()
+            .setId(tileSetEntity.getId())
+            .setPath(tileSetEntity.getPath())
+            .setState(toTileState(tileSetEntity.getState()))
+            .setUrl(tileSetEntity.getUrl())
+            .setOfflineAreaReferenceCount(tileSetEntity.getOfflineAreaReferenceCount());
     return tile.build();
   }
 
-  private static TileSource.State toTileState(TileEntityState state) {
+  private static TileSet.State toTileState(TileSetEntityState state) {
     switch (state) {
       case PENDING:
-        return TileSource.State.PENDING;
+        return TileSet.State.PENDING;
       case IN_PROGRESS:
-        return TileSource.State.IN_PROGRESS;
+        return TileSet.State.IN_PROGRESS;
       case DOWNLOADED:
-        return TileSource.State.DOWNLOADED;
+        return TileSet.State.DOWNLOADED;
       case FAILED:
-        return TileSource.State.FAILED;
+        return TileSet.State.FAILED;
       default:
         throw new IllegalArgumentException("Unknown tile source state: " + state);
     }
   }
 
-  public static TileSourceEntity fromTile(TileSource tileSource) {
-    TileSourceEntity.Builder entity =
-        TileSourceEntity.builder()
-            .setId(tileSource.getId())
-            .setPath(tileSource.getPath())
-            .setState(toEntityState(tileSource.getState()))
-            .setUrl(tileSource.getUrl())
-            .setBasemapReferenceCount(tileSource.getBasemapReferenceCount());
+  public static TileSetEntity fromTileSet(TileSet tileSet) {
+    TileSetEntity.Builder entity =
+        TileSetEntity.builder()
+            .setId(tileSet.getId())
+            .setPath(tileSet.getPath())
+            .setState(toEntityState(tileSet.getState()))
+            .setUrl(tileSet.getUrl())
+            .setOfflineAreaReferenceCount(tileSet.getOfflineAreaReferenceCount());
     return entity.build();
   }
 
-  private static TileEntityState toEntityState(TileSource.State state) {
+  private static TileSetEntityState toEntityState(TileSet.State state) {
     switch (state) {
       case PENDING:
-        return TileEntityState.PENDING;
+        return TileSetEntityState.PENDING;
       case IN_PROGRESS:
-        return TileEntityState.IN_PROGRESS;
+        return TileSetEntityState.IN_PROGRESS;
       case FAILED:
-        return TileEntityState.FAILED;
+        return TileSetEntityState.FAILED;
       case DOWNLOADED:
-        return TileEntityState.DOWNLOADED;
+        return TileSetEntityState.DOWNLOADED;
       default:
-        return TileEntityState.UNKNOWN;
+        return TileSetEntityState.UNKNOWN;
     }
   }
 
-  public static TileSourceEntity create(
-      String id, String path, TileEntityState state, String url, int basemapReferenceCount) {
+  public static TileSetEntity create(
+      String id, String path, TileSetEntityState state, String url, int offlineAreaReferenceCount) {
     return builder()
         .setId(id)
         .setState(state)
         .setPath(path)
         .setUrl(url)
-        .setBasemapReferenceCount(basemapReferenceCount)
+        .setOfflineAreaReferenceCount(offlineAreaReferenceCount)
         .build();
   }
 
   public static Builder builder() {
-    return new AutoValue_TileSourceEntity.Builder();
+    return new AutoValue_TileSetEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -129,10 +129,10 @@ public abstract class TileSourceEntity {
 
     public abstract Builder setPath(String newPath);
 
-    public abstract Builder setState(TileEntityState newState);
+    public abstract Builder setState(TileSetEntityState newState);
 
-    public abstract Builder setBasemapReferenceCount(int basemapReferenceCount);
+    public abstract Builder setOfflineAreaReferenceCount(int offlineAreaReferenceCount);
 
-    public abstract TileSourceEntity build();
+    public abstract TileSetEntity build();
   }
 }

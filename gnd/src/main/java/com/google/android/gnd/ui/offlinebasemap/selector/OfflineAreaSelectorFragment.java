@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineBaseMapSelectorFragBinding;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -85,12 +85,12 @@ public class OfflineAreaSelectorFragment extends AbstractMapViewerFragment {
   @Override
   protected void onMapReady(MapFragment map) {
     viewModel
-        .getRemoteTileSources()
-        .map(tileSources -> stream(tileSources).map(TileSource::getUrl).collect(toImmutableList()))
+        .getRemoteTileSets()
+        .map(tileSets -> stream(tileSets).map(TileSet::getUrl).collect(toImmutableList()))
         .as(autoDisposable(this))
         .subscribe(map::addRemoteTileOverlays);
 
-    viewModel.requestRemoteTileSources();
+    viewModel.requestRemoteTileSets();
 
     map.getCameraMovedEvents()
         .map(__ -> map.getViewport())

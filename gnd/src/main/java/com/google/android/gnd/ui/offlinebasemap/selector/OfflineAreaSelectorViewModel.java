@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.OfflineArea.State;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.rx.Event;
@@ -48,7 +48,7 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<OfflineArea> downloadClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Nil> remoteTileRequests = PublishProcessor.create();
   private final LiveData<Event<DownloadMessage>> messages;
-  private final Flowable<ImmutableList<TileSource>> remoteTileSources;
+  private final Flowable<ImmutableList<TileSet>> remoteTileSets;
   private final OfflineUuidGenerator offlineUuidGenerator;
   @Nullable private LatLngBounds viewport;
   private final Resources resources;
@@ -69,9 +69,9 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
                         .map(Event::create)));
     this.offlineUuidGenerator = offlineUuidGenerator;
     this.resources = resources;
-    this.remoteTileSources =
+    this.remoteTileSets =
             remoteTileRequests.switchMapSingle(
-                __ -> offlineAreaRepository.getTileSources());
+                __ -> offlineAreaRepository.getTileSets());
   }
 
   private DownloadMessage onEnqueueError(Throwable e) {
@@ -102,11 +102,11 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
             .build());
   }
 
-  public Flowable<ImmutableList<TileSource>> getRemoteTileSources() {
-    return this.remoteTileSources;
+  public Flowable<ImmutableList<TileSet>> getRemoteTileSets() {
+    return this.remoteTileSets;
   }
 
-  public void requestRemoteTileSources() {
+  public void requestRemoteTileSets() {
     remoteTileRequests.onNext(Nil.NIL);
   }
 }

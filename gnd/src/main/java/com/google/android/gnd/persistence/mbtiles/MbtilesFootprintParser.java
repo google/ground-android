@@ -20,8 +20,8 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.model.basemap.tile.TileSource;
-import com.google.android.gnd.model.basemap.tile.TileSource.State;
+import com.google.android.gnd.model.basemap.tile.TileSet;
+import com.google.android.gnd.model.basemap.tile.TileSet.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -48,15 +48,15 @@ public class MbtilesFootprintParser {
     this.uuidGenerator = uuidGenerator;
   }
 
-  public ImmutableList<TileSource> allTiles(File file) {
+  public ImmutableList<TileSet> allTiles(File file) {
     try {
       String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       JSONObject geoJson = new JSONObject(fileContents);
       JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
 
       return stream(toArrayList(features))
-          .map(TileSetSource::new)
-          .map(this::jsonToTileSource)
+          .map(TileSetJson::new)
+          .map(this::jsonToTileSet)
           .collect(toImmutableList());
 
     } catch (JSONException | IOException e) {
@@ -70,7 +70,7 @@ public class MbtilesFootprintParser {
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
+  public ImmutableList<TileSet> intersectingTiles(LatLngBounds bounds, File file) {
     try {
       String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
@@ -79,10 +79,10 @@ public class MbtilesFootprintParser {
       JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
 
       return stream(toArrayList(features))
-          .map(TileSetSource::new)
+          .map(TileSetJson::new)
           .filter(tile -> tile.boundsIntersect(bounds))
-          .map(this::jsonToTileSource)
-          .map(TileSource::incrementAreaCount)
+          .map(this::jsonToTileSet)
+          .map(TileSet::incrementOfflineAreaCount)
           .collect(toImmutableList());
 
     } catch (JSONException | IOException e) {
@@ -122,20 +122,20 @@ public class MbtilesFootprintParser {
     return ImmutableList.of();
   }
 
-  public ImmutableList<TileSetSource> getGeoJsonTiles(String jsonString) {
-    return stream(getFeaturesArray(jsonString)).map(TileSetSource::new).collect(toImmutableList());
+  public ImmutableList<TileSetJson> getGeoJsonTiles(String jsonString) {
+    return stream(getFeaturesArray(jsonString)).map(TileSetJson::new).collect(toImmutableList());
   }
 
-  /** Returns the {@link TileSource} specified by {@param json}. */
-  private TileSource jsonToTileSource(TileSetSource json) {
+  /** Returns the {@link TileSet} specified by {@param json}. */
+  private TileSet jsonToTileSet(TileSetJson json) {
     // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
     // Throw an exception here and handle it downstream.
-    return TileSource.newBuilder()
+    return TileSet.newBuilder()
         .setId(uuidGenerator.generateUuid())
         .setUrl(json.getUrl().orElse(""))
         .setState(State.PENDING)
-        .setPath(TileSource.pathFromId(json.getId().orElse("")))
-        .setBasemapReferenceCount(0)
+        .setPath(TileSet.pathFromId(json.getId().orElse("")))
+        .setOfflineAreaReferenceCount(0)
         .build();
   }
 }

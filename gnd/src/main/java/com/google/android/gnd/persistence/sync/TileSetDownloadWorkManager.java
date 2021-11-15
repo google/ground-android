@@ -23,20 +23,20 @@ import io.reactivex.Completable;
 import javax.inject.Inject;
 
 /** Enqueues file download work to be done in the background. */
-public class TileSourceDownloadWorkManager extends BaseWorkManager {
+public class TileSetDownloadWorkManager extends BaseWorkManager {
 
   private final WorkManager workManager;
   private final LocalValueStore localValueStore;
 
   @Inject
-  public TileSourceDownloadWorkManager(WorkManager workManager, LocalValueStore localValueStore) {
+  public TileSetDownloadWorkManager(WorkManager workManager, LocalValueStore localValueStore) {
     this.workManager = workManager;
     this.localValueStore = localValueStore;
   }
 
   @Override
-  Class<TileSourceDownloadWorker> getWorkerClass() {
-    return TileSourceDownloadWorker.class;
+  Class<TileSetDownloadWorker> getWorkerClass() {
+    return TileSetDownloadWorker.class;
   }
 
   @Override
@@ -50,11 +50,11 @@ public class TileSourceDownloadWorkManager extends BaseWorkManager {
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completable upon enqueueing.
    */
-  public Completable enqueueTileSourceDownloadWorker() {
-    return Completable.fromRunnable(this::enqueueTileSourceDownloadWorkerInternal);
+  public Completable enqueueTileSetDownloadWorker() {
+    return Completable.fromRunnable(this::enqueueTileSetDownloadWorkerInternal);
   }
 
-  private void enqueueTileSourceDownloadWorkerInternal() {
+  private void enqueueTileSetDownloadWorkerInternal() {
     workManager.enqueue(buildWorkerRequest());
   }
 }

@@ -30,7 +30,7 @@ import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.form.Element;
@@ -58,7 +58,7 @@ import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
-import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
+import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
 import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
@@ -73,11 +73,11 @@ import com.google.android.gnd.persistence.local.room.entity.ObservationMutationE
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
-import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
+import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
-import com.google.android.gnd.persistence.local.room.models.TileEntityState;
+import com.google.android.gnd.persistence.local.room.models.TileSetEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -116,7 +116,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject FeatureMutationDao featureMutationDao;
   @Inject ObservationDao observationDao;
   @Inject ObservationMutationDao observationMutationDao;
-  @Inject TileSourceDao tileSourceDao;
+  @Inject
+  TileSetDao tileSetDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
   @Inject BaseMapDao baseMapDao;
@@ -303,10 +304,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Flowable<ImmutableSet<TileSource>> getTileSourcesOnceAndStream() {
-    return tileSourceDao
+  public Flowable<ImmutableSet<TileSet>> getTileSetsOnceAndStream() {
+    return tileSetDao
         .findAllOnceAndStream()
-        .map(list -> stream(list).map(TileSourceEntity::toTileSource).collect(toImmutableSet()))
+        .map(list -> stream(list).map(TileSetEntity::toTileSet).collect(toImmutableSet()))
         .subscribeOn(schedulers.io());
   }
 
@@ -641,25 +642,25 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable insertOrUpdateTileSource(TileSource tileSource) {
-    return tileSourceDao
-        .insertOrUpdate(TileSourceEntity.fromTile(tileSource))
+  public Completable insertOrUpdateTileSet(TileSet tileSet) {
+    return tileSetDao
+        .insertOrUpdate(TileSetEntity.fromTileSet(tileSet))
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Maybe<TileSource> getTileSource(String tileUrl) {
-    return tileSourceDao
+  public Maybe<TileSet> getTileSet(String tileUrl) {
+    return tileSetDao
         .findByUrl(tileUrl)
-        .map(TileSourceEntity::toTileSource)
+        .map(TileSetEntity::toTileSet)
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Single<ImmutableList<TileSource>> getPendingTileSources() {
-    return tileSourceDao
-        .findByState(TileEntityState.PENDING.intValue())
-        .map(ts -> stream(ts).map(TileSourceEntity::toTileSource).collect(toImmutableList()))
+  public Single<ImmutableList<TileSet>> getPendingTileSets() {
+    return tileSetDao
+        .findByState(TileSetEntityState.PENDING.intValue())
+        .map(ts -> stream(ts).map(TileSetEntity::toTileSet).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
@@ -698,15 +699,15 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable updateTileSourceBasemapReferenceCountByUrl(int newCount, String url) {
-    return Completable.fromSingle(tileSourceDao.updateBasemapReferenceCount(newCount, url));
+  public Completable updateTileSetOfflineAreaReferenceCountByUrl(int newCount, String url) {
+    return Completable.fromSingle(tileSetDao.updateBasemapReferenceCount(newCount, url));
   }
 
   @Override
-  public Completable deleteTileByUrl(TileSource tileSource) {
-    if (tileSource.getBasemapReferenceCount() < 1) {
-      return Completable.fromAction(() -> fileUtil.deleteFile(tileSource.getPath()))
-          .andThen(Completable.fromMaybe(tileSourceDao.deleteByUrl(tileSource.getUrl())))
+  public Completable deleteTileSetByUrl(TileSet tileSet) {
+    if (tileSet.getOfflineAreaReferenceCount() < 1) {
+      return Completable.fromAction(() -> fileUtil.deleteFile(tileSet.getPath()))
+          .andThen(Completable.fromMaybe(tileSetDao.deleteByUrl(tileSet.getUrl())))
           .subscribeOn(schedulers.io());
     } else {
       return Completable.complete().subscribeOn(schedulers.io());
