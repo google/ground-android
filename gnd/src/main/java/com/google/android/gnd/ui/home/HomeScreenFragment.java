@@ -180,7 +180,7 @@ public class HomeScreenFragment extends AbstractFragment
         getChildFragmentManager(),
         layer -> {
           if (layer.getContributorsCanAdd().isEmpty()) {
-            Timber.e("No permissions set on layer %s%", layer.getId());
+            Timber.e("No permissions set on layer %s", layer.getId());
           }
 
           if (layer.getContributorsCanAdd().size() > 1) {
