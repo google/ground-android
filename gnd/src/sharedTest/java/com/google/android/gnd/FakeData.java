@@ -46,13 +46,13 @@ public class FakeData {
           .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
           .build();
 
-  public static final User TEST_USER =
+  public static final User USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
 
-  public static final User TEST_USER_2 =
+  public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Layer TEST_LAYER =
+  public static final Layer LAYER =
       Layer.newBuilder()
           .setId("layer id")
           .setName("heading title")
@@ -66,50 +66,50 @@ public class FakeData {
           .setTitle("Layers and forms")
           .setDescription("Project with layer and no form")
           .putLayer(LAYER_WITH_NO_FORM.getId(), LAYER_WITH_NO_FORM)
-          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
+          .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
           .build();
 
-  public static final Project TEST_PROJECT =
+  public static final Project PROJECT =
       Project.newBuilder()
           .setId("project id")
           .setTitle("project 1")
           .setDescription("foo description")
-          .putLayer("layer id", TEST_LAYER)
+          .putLayer("layer id", LAYER)
           .build();
 
-  public static final PointFeature TEST_POINT_FEATURE =
+  public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
+          .setProject(PROJECT)
+          .setLayer(LAYER)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+          .setCreated(AuditInfo.now(USER))
+          .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final ImmutableList<Point> TEST_POLYGON =
+  public static final ImmutableList<Point> VERTICES =
       ImmutableList.of(
           Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
           Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
           Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
 
-  public static final PolygonFeature TEST_POLYGON_FEATURE =
+  public static final PolygonFeature POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
-          .setVertices(TEST_POLYGON)
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+          .setProject(PROJECT)
+          .setLayer(LAYER)
+          .setVertices(VERTICES)
+          .setCreated(AuditInfo.now(USER))
+          .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final GeoJsonFeature TEST_GEO_JSON_FEATURE =
+  public static final GeoJsonFeature GEO_JSON_FEATURE =
       GeoJsonFeature.newBuilder()
           .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
+          .setProject(PROJECT)
+          .setLayer(LAYER)
           .setGeoJsonString("some data string")
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+          .setCreated(AuditInfo.now(USER))
+          .setLastModified(AuditInfo.now(USER))
           .build();
 }

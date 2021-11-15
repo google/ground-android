@@ -308,13 +308,13 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
     FeatureMutation newMutation =
         featureRepository.newPolygonFeatureMutation(
-            "foo_project_id", "foo_layer_id", FakeData.TEST_POLYGON, testDate);
+            "foo_project_id", "foo_layer_id", FakeData.VERTICES, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
-    assertThat(newMutation.getNewPolygonVertices()).isEqualTo(FakeData.TEST_POLYGON);
+    assertThat(newMutation.getNewPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(TEST_USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
   }

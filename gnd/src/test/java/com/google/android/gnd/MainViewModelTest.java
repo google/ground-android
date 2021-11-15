@@ -17,7 +17,7 @@
 package com.google.android.gnd;
 
 import static com.google.android.gnd.FakeData.TERMS_OF_SERVICE;
-import static com.google.android.gnd.FakeData.TEST_USER;
+import static com.google.android.gnd.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.SharedPreferences;
@@ -71,11 +71,11 @@ public class MainViewModelTest extends BaseHiltTest {
   }
 
   private void verifyUserSaved() {
-    userRepository.getUser(TEST_USER.getId()).test().assertResult(TEST_USER);
+    userRepository.getUser(USER.getId()).test().assertResult(USER);
   }
 
   private void verifyUserNotSaved() {
-    userRepository.getUser(TEST_USER.getId()).test().assertError(NoSuchElementException.class);
+    userRepository.getUser(USER.getId()).test().assertError(NoSuchElementException.class);
   }
 
   private void verifyProgressDialogVisible(boolean visible) {
@@ -113,7 +113,7 @@ public class MainViewModelTest extends BaseHiltTest {
   @Test
   public void testSignInStateChanged_onSignedIn_whenTosAccepted() {
     tosRepository.setTermsOfServiceAccepted(true);
-    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
     verifyProgressDialogVisible(false);
@@ -125,7 +125,7 @@ public class MainViewModelTest extends BaseHiltTest {
   @Test
   public void testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
     tosRepository.setTermsOfServiceAccepted(false);
-    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
     verifyProgressDialogVisible(false);

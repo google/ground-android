@@ -42,7 +42,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
   @Override
   public void setUp() {
     super.setUp();
-    fakeAuthenticationManager.setUser(FakeData.TEST_USER);
+    fakeAuthenticationManager.setUser(FakeData.USER);
   }
 
   // Given: a logged in user - with an active project with no map markers.

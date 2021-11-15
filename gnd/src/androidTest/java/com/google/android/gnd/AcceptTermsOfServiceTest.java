@@ -37,7 +37,7 @@ public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
   @Override
   public void setUp() {
     super.setUp();
-    fakeAuthenticationManager.setUser(FakeData.TEST_USER);
+    fakeAuthenticationManager.setUser(FakeData.USER);
   }
 
   // Given: a logged in user - with terms not accepted.
