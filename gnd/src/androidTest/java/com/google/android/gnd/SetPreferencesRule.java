@@ -52,7 +52,7 @@ class SetPreferencesRule extends TestWatcher {
     prefs
         .edit()
         .clear()
-        .putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_WITH_LAYER_AND_NO_FORM.getId())
+        .putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT.getId())
         .apply();
   }
 }

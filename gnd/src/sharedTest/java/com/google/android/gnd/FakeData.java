@@ -20,7 +20,6 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -30,6 +29,10 @@ import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * Shared test data constants. Tests are expected to override existing or set missing values when
+ * the specific value is relevant to the test.
+ */
 public class FakeData {
   public static final TermsOfService TERMS_OF_SERVICE =
       TermsOfService.builder()
@@ -37,12 +40,11 @@ public class FakeData {
           .setText("Fake Terms of Service text")
           .build();
 
-  public static final Layer LAYER_WITH_NO_FORM =
+  public static final Layer LAYER =
       Layer.newBuilder()
-          .setId("LAYER_WITH_NO_FORM")
-          .setName("Layer with no form")
+          .setId("LAYER")
+          .setName("Layer")
           .setDefaultStyle(Style.builder().setColor("#00ff00").build())
-          .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
           .build();
 
   public static final User USER =
@@ -51,20 +53,19 @@ public class FakeData {
   public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Project PROJECT_WITH_LAYER_AND_NO_FORM =
+  public static final Project PROJECT =
       Project.newBuilder()
           .setId("PROJECT_WITH_LAYER_AND_NO_FORM")
-          .setTitle("Layers and forms")
-          .setDescription("Project with layer and no form")
-          .putLayer(LAYER_WITH_NO_FORM.getId(), LAYER_WITH_NO_FORM)
+          .setTitle("Project title")
+          .setDescription("Test project description")
           .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
           .build();
 
   public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
-          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
-          .setLayer(LAYER_WITH_NO_FORM)
+          .setProject(PROJECT)
+          .setLayer(LAYER)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
@@ -79,8 +80,8 @@ public class FakeData {
   public static final PolygonFeature POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
-          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
-          .setLayer(LAYER_WITH_NO_FORM)
+          .setProject(PROJECT)
+          .setLayer(LAYER)
           .setVertices(VERTICES)
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
@@ -89,8 +90,8 @@ public class FakeData {
   public static final GeoJsonFeature GEO_JSON_FEATURE =
       GeoJsonFeature.newBuilder()
           .setId("feature id")
-          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
-          .setLayer(LAYER_WITH_NO_FORM)
+          .setProject(PROJECT)
+          .setLayer(LAYER)
           .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))

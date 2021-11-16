@@ -84,7 +84,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
     onView(withId(R.id.add_feature_btn)).perform(click());
 
     // Tap on the layer type.
-    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER_WITH_NO_FORM.getName())))
+    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER.getName())))
         .perform(click());
 
     // Tap on the crosshair at the centre of the map.
@@ -97,6 +97,6 @@ public class AddFeatureTest extends BaseMainActivityTest {
     // Verify that the feature title matches the layer title and that it is displayed.
     onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
     onView(withId(R.id.feature_title))
-        .check(matches(withText(FakeData.LAYER_WITH_NO_FORM.getName())));
+        .check(matches(withText(FakeData.LAYER.getName())));
   }
 }
