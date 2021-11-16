@@ -24,6 +24,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
+import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
@@ -33,11 +34,13 @@ import org.junit.Test;
 public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
   @Override
   public void setUp() {
     super.setUp();
     fakeAuthenticationManager.setUser(FakeData.USER);
+    fakeRemoteDataStore.setTestProject(FakeData.PROJECT);
   }
 
   // Given: a logged in user - with terms not accepted.
