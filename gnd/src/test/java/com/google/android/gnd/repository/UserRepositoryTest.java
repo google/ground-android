@@ -45,34 +45,34 @@ public class UserRepositoryTest extends BaseHiltTest {
   @Test
   public void testGetCurrentUser() {
     assertThat(userRepository.getCurrentUser()).isNull();
-    fakeAuthenticationManager.setUser(FakeData.TEST_USER);
-    assertThat(userRepository.getCurrentUser()).isEqualTo(FakeData.TEST_USER);
+    fakeAuthenticationManager.setUser(FakeData.USER);
+    assertThat(userRepository.getCurrentUser()).isEqualTo(FakeData.USER);
   }
 
   @Test
   public void testGetUserRole() {
     Project project =
-        FakeData.TEST_PROJECT.toBuilder()
-            .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
+        FakeData.PROJECT_WITH_LAYER_AND_NO_FORM.toBuilder()
+            .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
             .build();
 
-    // Current user is authorized as contributor
-    fakeAuthenticationManager.setUser(FakeData.TEST_USER);
+    // Current user is authorized as contributor.
+    fakeAuthenticationManager.setUser(FakeData.USER);
     assertThat(userRepository.getUserRole(project)).isEqualTo(Role.CONTRIBUTOR);
 
-    // Current user is unauthorized
-    fakeAuthenticationManager.setUser(FakeData.TEST_USER_2);
+    // Current user is unauthorized.
+    fakeAuthenticationManager.setUser(FakeData.USER_2);
     assertThat(userRepository.getUserRole(project)).isEqualTo(Role.UNKNOWN);
   }
 
   @Test
   public void testSaveUser() {
     localDataStore
-        .getUser(FakeData.TEST_USER.getId())
+        .getUser(FakeData.USER.getId())
         .test()
         .assertFailure(NoSuchElementException.class);
-    userRepository.saveUser(FakeData.TEST_USER).test().assertComplete();
-    localDataStore.getUser(FakeData.TEST_USER.getId()).test().assertResult(FakeData.TEST_USER);
+    userRepository.saveUser(FakeData.USER).test().assertComplete();
+    localDataStore.getUser(FakeData.USER.getId()).test().assertResult(FakeData.USER);
   }
 
   @Test

@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.ui.common;
 
-import static com.google.android.gnd.FakeData.TEST_GEO_JSON_FEATURE;
-import static com.google.android.gnd.FakeData.TEST_LAYER;
-import static com.google.android.gnd.FakeData.TEST_POINT_FEATURE;
-import static com.google.android.gnd.FakeData.TEST_POLYGON_FEATURE;
-import static com.google.android.gnd.FakeData.TEST_USER;
+import static com.google.android.gnd.FakeData.GEO_JSON_FEATURE;
+import static com.google.android.gnd.FakeData.LAYER_WITH_NO_FORM;
+import static com.google.android.gnd.FakeData.POINT_FEATURE;
+import static com.google.android.gnd.FakeData.POLYGON_FEATURE;
+import static com.google.android.gnd.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
@@ -46,8 +46,8 @@ public class FeatureHelperTest extends BaseHiltTest {
   @Test
   public void testGetCreatedBy() {
     PointFeature feature =
-        TEST_POINT_FEATURE.toBuilder()
-            .setCreated(AuditInfo.now(TEST_USER.toBuilder().setDisplayName("Test User").build()))
+        POINT_FEATURE.toBuilder()
+            .setCreated(AuditInfo.now(USER.toBuilder().setDisplayName("Test User").build()))
             .build();
 
     assertThat(featureHelper.getCreatedBy(Optional.of(feature))).isEqualTo("Added by Test User");
@@ -65,13 +65,13 @@ public class FeatureHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPoint() {
-    PointFeature feature = TEST_POINT_FEATURE.toBuilder().setCaption("").build();
+    PointFeature feature = POINT_FEATURE.toBuilder().setCaption("").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPolygon() {
-    PolygonFeature feature = TEST_POLYGON_FEATURE.toBuilder().setCaption("").build();
+    PolygonFeature feature = POLYGON_FEATURE.toBuilder().setCaption("").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
   }
 
@@ -80,20 +80,20 @@ public class FeatureHelperTest extends BaseHiltTest {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
     GeoJsonFeature feature =
-        TEST_GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
+        GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon foo id");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
-    PointFeature feature = TEST_POINT_FEATURE.toBuilder().setCaption("point caption").build();
+    PointFeature feature = POINT_FEATURE.toBuilder().setCaption("point caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
-    PolygonFeature feature = TEST_POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
+    PolygonFeature feature = POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
   }
 
@@ -102,7 +102,7 @@ public class FeatureHelperTest extends BaseHiltTest {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "foo caption");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
     GeoJsonFeature feature =
-        TEST_GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
+        GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("foo caption");
   }
@@ -110,8 +110,8 @@ public class FeatureHelperTest extends BaseHiltTest {
   @Test
   public void testGetSubtitle() {
     PointFeature feature =
-        TEST_POINT_FEATURE.toBuilder()
-            .setLayer(TEST_LAYER.toBuilder().setName("some layer").build())
+        POINT_FEATURE.toBuilder()
+            .setLayer(LAYER_WITH_NO_FORM.toBuilder().setName("some layer").build())
             .build();
 
     assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Layer: some layer");

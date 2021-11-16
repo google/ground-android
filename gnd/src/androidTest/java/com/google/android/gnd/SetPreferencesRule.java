@@ -44,15 +44,15 @@ class SetPreferencesRule extends TestWatcher {
   public void starting(Description description) {
     super.starting(description);
 
-    SharedPreferences prefs = EntryPointAccessors.fromApplication(
-        ApplicationProvider.getApplicationContext(),
-        SetPreferencesRuleEntryPoint.class
-    ).preferenceStorage();
+    SharedPreferences prefs =
+        EntryPointAccessors.fromApplication(
+                ApplicationProvider.getApplicationContext(), SetPreferencesRuleEntryPoint.class)
+            .preferenceStorage();
 
     prefs
         .edit()
         .clear()
-        .putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM)
+        .putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_WITH_LAYER_AND_NO_FORM.getId())
         .apply();
   }
 }

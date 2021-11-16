@@ -20,6 +20,7 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -27,78 +28,71 @@ import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
+import com.google.common.collect.ImmutableMap;
 
 public class FakeData {
+  public static final TermsOfService TERMS_OF_SERVICE =
+      TermsOfService.builder()
+          .setId("TERMS_OF_SERVICE")
+          .setText("Fake Terms of Service text")
+          .build();
 
-  public static final String PROJECT_ID_WITH_LAYER_AND_NO_FORM = "FAKE_PROJECT_ID";
-  public static final String PROJECT_ID_WITH_NO_LAYERS = "FAKE_PROJECT_ID with no layers";
-  public static final String PROJECT_TITLE = "Fake project title";
-  public static final String PROJECT_DESCRIPTION = "Fake project description";
-  public static final String TERMS_OF_SERVICE_ID = "TERMS_ID";
-  public static final String TERMS_OF_SERVICE = "Fake Terms of Service";
-  public static final String LAYER_NO_FORM_ID = "LAYER_NO_FORM_ID";
-  public static final String LAYER_NO_FORM_NAME = "Fake name for layer with no form";
-  public static final String LAYER_NO_FORM_COLOR = "#00ff00";
+  public static final Layer LAYER_WITH_NO_FORM =
+      Layer.newBuilder()
+          .setId("LAYER_WITH_NO_FORM")
+          .setName("Layer with no form")
+          .setDefaultStyle(Style.builder().setColor("#00ff00").build())
+          .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
+          .build();
 
-  public static final TermsOfService TEST_TERMS_OF_SERVICE =
-      TermsOfService.builder().setId("1").setText("Test Terms").build();
-
-  public static final User TEST_USER =
+  public static final User USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
 
-  public static final User TEST_USER_2 =
+  public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Layer TEST_LAYER =
-      Layer.newBuilder()
-          .setId("layer id")
-          .setName("heading title")
-          .setDefaultStyle(Style.builder().setColor("000").build())
-          .setForm(Optional.empty())
-          .build();
-
-  public static final Project TEST_PROJECT =
+  public static final Project PROJECT_WITH_LAYER_AND_NO_FORM =
       Project.newBuilder()
-          .setId("project id")
-          .setTitle("project 1")
-          .setDescription("foo description")
-          .putLayer("layer id", TEST_LAYER)
+          .setId("PROJECT_WITH_LAYER_AND_NO_FORM")
+          .setTitle("Layers and forms")
+          .setDescription("Project with layer and no form")
+          .putLayer(LAYER_WITH_NO_FORM.getId(), LAYER_WITH_NO_FORM)
+          .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
           .build();
 
-  public static final PointFeature TEST_POINT_FEATURE =
+  public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
+          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
+          .setLayer(LAYER_WITH_NO_FORM)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+          .setCreated(AuditInfo.now(USER))
+          .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final ImmutableList<Point> TEST_POLYGON =
+  public static final ImmutableList<Point> VERTICES =
       ImmutableList.of(
           Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
           Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
           Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
 
-  public static final PolygonFeature TEST_POLYGON_FEATURE =
+  public static final PolygonFeature POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
-          .setVertices(TEST_POLYGON)
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
+          .setLayer(LAYER_WITH_NO_FORM)
+          .setVertices(VERTICES)
+          .setCreated(AuditInfo.now(USER))
+          .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final GeoJsonFeature TEST_GEO_JSON_FEATURE =
+  public static final GeoJsonFeature GEO_JSON_FEATURE =
       GeoJsonFeature.newBuilder()
           .setId("feature id")
-          .setProject(TEST_PROJECT)
-          .setLayer(TEST_LAYER)
+          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
+          .setLayer(LAYER_WITH_NO_FORM)
           .setGeoJsonString("some data string")
-          .setCreated(AuditInfo.now(TEST_USER))
-          .setLastModified(AuditInfo.now(TEST_USER))
+          .setCreated(AuditInfo.now(USER))
+          .setLastModified(AuditInfo.now(USER))
           .build();
 }

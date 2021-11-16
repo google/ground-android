@@ -30,20 +30,19 @@ import javax.inject.Inject;
 
 public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
-  static final User TEST_USER_OWNER =
-      FakeData.TEST_USER.toBuilder().setEmail("user1@gmail.com").build();
+  static final User TEST_USER_OWNER = FakeData.USER.toBuilder().setEmail("user1@gmail.com").build();
 
   static final User TEST_USER_MANAGER =
-      FakeData.TEST_USER.toBuilder().setEmail("user2@gmail.com").build();
+      FakeData.USER.toBuilder().setEmail("user2@gmail.com").build();
 
   static final User TEST_USER_CONTRIBUTOR =
-      FakeData.TEST_USER.toBuilder().setEmail("user3@gmail.com").build();
+      FakeData.USER.toBuilder().setEmail("user3@gmail.com").build();
 
   static final User TEST_USER_UNKNOWN =
-      FakeData.TEST_USER.toBuilder().setEmail("user4@gmail.com").build();
+      FakeData.USER.toBuilder().setEmail("user4@gmail.com").build();
 
   private static final Project TEST_PROJECT =
-      FakeData.TEST_PROJECT.toBuilder()
+      FakeData.PROJECT_WITH_LAYER_AND_NO_FORM.toBuilder()
           .setAcl(
               ImmutableMap.<String, String>builder()
                   .put(TEST_USER_OWNER.getEmail(), "owner")
@@ -66,14 +65,14 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   }
 
   static PointFeature createPointFeature(User user) {
-    return FakeData.TEST_POINT_FEATURE.toBuilder()
+    return FakeData.POINT_FEATURE.toBuilder()
         .setProject(TEST_PROJECT)
         .setCreated(AuditInfo.now(user))
         .build();
   }
 
   static PolygonFeature createPolygonFeature(User user) {
-    return FakeData.TEST_POLYGON_FEATURE.toBuilder()
+    return FakeData.POLYGON_FEATURE.toBuilder()
         .setProject(TEST_PROJECT)
         .setCreated(AuditInfo.now(user))
         .build();

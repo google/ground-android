@@ -37,7 +37,7 @@ public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
   @Override
   public void setUp() {
     super.setUp();
-    fakeAuthenticationManager.setUser(FakeData.TEST_USER);
+    fakeAuthenticationManager.setUser(FakeData.USER);
   }
 
   // Given: a logged in user - with terms not accepted.
@@ -58,7 +58,7 @@ public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
     onView(withId(R.id.agreeButton)).check(matches(isEnabled()));
 
     // Verify that the terms text matched with fake data.
-    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE)));
+    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE.getText())));
 
     // Tap on the button
     onView(withId(R.id.agreeButton)).perform(click());
