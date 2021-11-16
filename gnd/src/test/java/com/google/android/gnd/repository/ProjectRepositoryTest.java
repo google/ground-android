@@ -72,7 +72,6 @@ public class ProjectRepositoryTest extends BaseHiltTest {
     Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
     projectRepository
         .getActiveProject()
-        .doOnNext(v -> System.out.println(v))
         .test()
         .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
