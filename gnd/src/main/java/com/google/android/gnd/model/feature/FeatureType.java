@@ -16,8 +16,12 @@
 
 package com.google.android.gnd.model.feature;
 
+import com.google.common.collect.ImmutableList;
+
 public enum FeatureType {
   UNKNOWN,
   POINT,
-  POLYGON
+  POLYGON;
+
+  public static ImmutableList<FeatureType> ALL = ImmutableList.of(POINT, POLYGON);
 }

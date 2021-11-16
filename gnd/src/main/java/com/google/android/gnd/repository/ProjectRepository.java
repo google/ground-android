@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
@@ -83,8 +84,11 @@ public class ProjectRepository {
 
     // Kicks off the loading process whenever a new project id is selected.
     selectProjectEvent
+        .doOnNext(e -> System.out.println("!!! EVENT"))
         .distinctUntilChanged()
+        .doOnNext(e -> System.out.println("!!! D EVENT"))
         .switchMap(this::activateProject)
+        .doOnNext(e -> System.out.println("!!! ACTIVATE"))
         .onBackpressureLatest()
         .subscribe(projectLoadingState);
   }
@@ -97,10 +101,35 @@ public class ProjectRepository {
     }
     String id = projectId.get();
     return syncProjectWithRemote(id)
+        .map(this::attachLayerPermissions)
         .onErrorResumeNext(__ -> getProject(id))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
+  }
+
+  private Project attachLayerPermissions(Project project) {
+    Project.Builder updatedProject = project.toBuilder();
+    Role userRole = userRepository.getUserRole(project);
+    for (Layer layer : project.getLayers()) {
+      updatedProject.putLayer(
+          layer.getId(),
+          layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole, layer)).build());
+    }
+    return updatedProject.build();
+  }
+
+  private ImmutableList<FeatureType> getAddableFeatureTypes(Role userRole, Layer layer) {
+    switch (userRole) {
+      case OWNER:
+      case MANAGER:
+        return FeatureType.ALL;
+      case CONTRIBUTOR:
+        return layer.getContributorsCanAdd();
+      case UNKNOWN:
+      default:
+        return ImmutableList.of();
+    }
   }
 
   /** This only works if the project is already cached to local db. */
