@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.common;
 
 import static com.google.android.gnd.FakeData.GEO_JSON_FEATURE;
-import static com.google.android.gnd.FakeData.LAYER_WITH_NO_FORM;
+import static com.google.android.gnd.FakeData.LAYER;
 import static com.google.android.gnd.FakeData.POINT_FEATURE;
 import static com.google.android.gnd.FakeData.POLYGON_FEATURE;
 import static com.google.android.gnd.FakeData.USER;
@@ -111,7 +111,7 @@ public class FeatureHelperTest extends BaseHiltTest {
   public void testGetSubtitle() {
     PointFeature feature =
         POINT_FEATURE.toBuilder()
-            .setLayer(LAYER_WITH_NO_FORM.toBuilder().setName("some layer").build())
+            .setLayer(LAYER.toBuilder().setName("some layer").build())
             .build();
 
     assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Layer: some layer");

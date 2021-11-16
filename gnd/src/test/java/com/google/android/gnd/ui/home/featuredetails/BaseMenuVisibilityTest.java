@@ -42,7 +42,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
       FakeData.USER.toBuilder().setEmail("user4@gmail.com").build();
 
   private static final Project TEST_PROJECT =
-      FakeData.PROJECT_WITH_LAYER_AND_NO_FORM.toBuilder()
+      FakeData.PROJECT.toBuilder()
           .setAcl(
               ImmutableMap.<String, String>builder()
                   .put(TEST_USER_OWNER.getEmail(), "owner")
