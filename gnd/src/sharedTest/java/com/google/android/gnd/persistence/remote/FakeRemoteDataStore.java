@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
@@ -33,6 +32,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -40,6 +40,7 @@ import javax.inject.Singleton;
 public class FakeRemoteDataStore implements RemoteDataStore {
   private RemoteDataEvent<Feature> featureEvent;
   private Project testProject;
+  private Optional<TermsOfService> termsOfService = Optional.empty();
 
   @Inject
   FakeRemoteDataStore() {}
@@ -64,9 +65,13 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     return Single.just(testProject);
   }
 
+  public void setTermsOfService(Optional<TermsOfService> termsOfService) {
+    this.termsOfService = termsOfService;
+  }
+
   @Override
   public @Cold Maybe<TermsOfService> loadTermsOfService() {
-    return Maybe.just(FakeData.TERMS_OF_SERVICE);
+    return termsOfService.isEmpty() ? Maybe.empty() : Maybe.just(termsOfService.get());
   }
 
   @Override
