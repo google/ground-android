@@ -146,7 +146,7 @@ public class MainViewModelTest extends BaseHiltTest {
     tosRepository.setTermsOfServiceAccepted(false);
     fakeRemoteDataStore.setTermsOfService(Optional.empty());
 
-    fakeAuthenticationManager.setUser(FakeData.USER);
+    fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
     verifyProgressDialogVisible(false);
