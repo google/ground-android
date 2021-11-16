@@ -163,11 +163,6 @@ public class MainViewModel extends AbstractViewModel {
     return Observable.just(SignInFragmentDirections.showSignInScreen());
   }
 
-  /**
-   * @return {@link NavDirections} to {@link com.google.android.gnd.ui.home.HomeScreenFragment} if
-   *     the ToS is already accepted or if it is missing from remote config. Else returns {@link
-   *     NavDirections} to {@link com.google.android.gnd.ui.tos.TermsOfServiceFragment}.
-   */
   private Observable<NavDirections> onSignedIn() {
     hideProgressDialog();
     if (termsOfServiceRepository.isTermsOfServiceAccepted()) {

@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.SharedPreferences;
 import androidx.navigation.NavDirections;
+import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
@@ -33,6 +34,7 @@ import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
 import java.util.NoSuchElementException;
+import java8.util.Optional;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +47,7 @@ import org.robolectric.shadows.ShadowToast;
 public class MainViewModelTest extends BaseHiltTest {
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject FakeRemoteDataStore fakeRemoteDataStore;
   @Inject MainViewModel viewModel;
   @Inject Navigator navigator;
   @Inject SharedPreferences sharedPreferences;
@@ -136,6 +139,20 @@ public class MainViewModelTest extends BaseHiltTest {
   }
 
   @Test
+  public void testSignInStateChanged_onSignedIn_whenTosMissing() {
+    tosRepository.setTermsOfServiceAccepted(false);
+    fakeRemoteDataStore.setTermsOfService(Optional.empty());
+
+    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.signIn();
+
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen());
+    verifyUserSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
+  }
+
+  @Test
   public void testSignInStateChanged_onSignInError() {
     setupUserPreferences();
 
@@ -147,20 +164,5 @@ public class MainViewModelTest extends BaseHiltTest {
     verifyUserPreferencesCleared();
     verifyUserNotSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
-  }
-
-  @Test
-  public void testSignInStateChanged_onSignedIn_whenTosMissing() {
-    when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(false);
-    when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
-    when(mockTosRepository.getTermsOfService()).thenReturn(Maybe.empty());
-
-    fakeAuthenticationManager.setUser(TEST_USER);
-    fakeAuthenticationManager.signIn();
-
-    assertProgressDialogVisible(false);
-    assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
   }
 }
