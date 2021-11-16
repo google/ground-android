@@ -96,4 +96,6 @@ public class FakeData {
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
           .build();
+
+  public static final Point POINT = Point.newBuilder().setLatitude(42.0).setLongitude(18.0).build();
 }
