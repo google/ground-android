@@ -116,6 +116,7 @@ public class MainViewModelTest extends BaseHiltTest {
   @Test
   public void testSignInStateChanged_onSignedIn_whenTosAccepted() {
     tosRepository.setTermsOfServiceAccepted(true);
+    fakeRemoteDataStore.setTermsOfService(Optional.of(TERMS_OF_SERVICE));
     fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
@@ -128,6 +129,7 @@ public class MainViewModelTest extends BaseHiltTest {
   @Test
   public void testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
     tosRepository.setTermsOfServiceAccepted(false);
+    fakeRemoteDataStore.setTermsOfService(Optional.of(TERMS_OF_SERVICE));
     fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
@@ -144,7 +146,7 @@ public class MainViewModelTest extends BaseHiltTest {
     tosRepository.setTermsOfServiceAccepted(false);
     fakeRemoteDataStore.setTermsOfService(Optional.empty());
 
-    fakeAuthenticationManager.setUser(TEST_USER);
+    fakeAuthenticationManager.setUser(FakeData.USER);
     fakeAuthenticationManager.signIn();
 
     verifyProgressDialogVisible(false);
