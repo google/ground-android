@@ -40,7 +40,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 
-// TODO: Include a test for Polygon feature
 @HiltAndroidTest
 @UninstallModules({LocalDataStoreModule.class})
 @RunWith(RobolectricTestRunner.class)
@@ -63,14 +62,17 @@ public class ProjectRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testActivateProject_managersCanAddFeaturesToAllLayers() {
-    setTestProject(FakeData.PROJECT);
+    Layer layer =
+        FakeData.LAYER.toBuilder().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
+    setTestProject(FakeData.PROJECT.toBuilder().putLayer(layer.getId(), layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
     projectRepository.activateProject("id");
 
-    Layer expectedLayer = FakeData.LAYER.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
     projectRepository
         .getActiveProject()
+        .doOnNext(v -> System.out.println(v))
         .test()
         .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
