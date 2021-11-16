@@ -64,6 +64,8 @@ public abstract class Project {
 
     public abstract Builder setDescription(String newDescription);
 
+    public abstract Builder setLayerMap(ImmutableMap newLayers);
+
     public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 
     public Builder putLayer(String id, Layer layer) {

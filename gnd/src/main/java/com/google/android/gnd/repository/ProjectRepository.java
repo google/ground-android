@@ -34,6 +34,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -84,11 +85,8 @@ public class ProjectRepository {
 
     // Kicks off the loading process whenever a new project id is selected.
     selectProjectEvent
-        .doOnNext(e -> System.out.println("!!! EVENT"))
         .distinctUntilChanged()
-        .doOnNext(e -> System.out.println("!!! D EVENT"))
         .switchMap(this::activateProject)
-        .doOnNext(e -> System.out.println("!!! ACTIVATE"))
         .onBackpressureLatest()
         .subscribe(projectLoadingState);
   }
@@ -101,22 +99,22 @@ public class ProjectRepository {
     }
     String id = projectId.get();
     return syncProjectWithRemote(id)
-        .map(this::attachLayerPermissions)
         .onErrorResumeNext(__ -> getProject(id))
+        .map(this::attachLayerPermissions)
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
 
   private Project attachLayerPermissions(Project project) {
-    Project.Builder updatedProject = project.toBuilder();
     Role userRole = userRepository.getUserRole(project);
+    ImmutableMap.Builder layers = ImmutableMap.builder();
     for (Layer layer : project.getLayers()) {
-      updatedProject.putLayer(
+      layers.put(
           layer.getId(),
           layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole, layer)).build());
     }
-    return updatedProject.build();
+    return project.toBuilder().setLayerMap(layers.build()).build();
   }
 
   private ImmutableList<FeatureType> getAddableFeatureTypes(Role userRole, Layer layer) {
