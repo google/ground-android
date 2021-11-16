@@ -56,11 +56,11 @@ public class UserRepositoryTest extends BaseHiltTest {
             .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
             .build();
 
-    // Current user is authorized as contributor
+    // Current user is authorized as contributor.
     fakeAuthenticationManager.setUser(FakeData.USER);
     assertThat(userRepository.getUserRole(project)).isEqualTo(Role.CONTRIBUTOR);
 
-    // Current user is unauthorized
+    // Current user is unauthorized.
     fakeAuthenticationManager.setUser(FakeData.USER_2);
     assertThat(userRepository.getUserRole(project)).isEqualTo(Role.UNKNOWN);
   }
