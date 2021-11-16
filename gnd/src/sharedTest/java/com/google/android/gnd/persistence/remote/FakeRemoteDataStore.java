@@ -37,6 +37,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -60,11 +61,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
           .build();
 
-  private final TermsOfService testTermsOfService =
-      TermsOfService.builder()
-          .setId(FakeData.TERMS_OF_SERVICE_ID)
-          .setText(FakeData.TERMS_OF_SERVICE)
-          .build();
+  private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TEST_TERMS_OF_SERVICE);
 
   private final Project testProjectWithNoLayers =
       Project.newBuilder()
@@ -111,9 +108,13 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     return Single.just(getTestProject());
   }
 
+  public void setTermsOfService(Optional<TermsOfService> termsOfService) {
+    this.termsOfService = termsOfService;
+  }
+
   @Override
   public @Cold Maybe<TermsOfService> loadTermsOfService() {
-    return Maybe.just(testTermsOfService);
+    return termsOfService.isEmpty() ? Maybe.empty() : Maybe.just(termsOfService.get());
   }
 
   @Override

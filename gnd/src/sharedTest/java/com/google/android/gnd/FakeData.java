@@ -42,7 +42,7 @@ public class FakeData {
   public static final String LAYER_NO_FORM_COLOR = "#00ff00";
 
   public static final TermsOfService TEST_TERMS_OF_SERVICE =
-      TermsOfService.builder().setId("1").setText("Test Terms").build();
+      TermsOfService.builder().setId(TERMS_OF_SERVICE_ID).setText(TERMS_OF_SERVICE).build();
 
   public static final User TEST_USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
