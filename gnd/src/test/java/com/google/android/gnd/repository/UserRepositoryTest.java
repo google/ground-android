@@ -44,6 +44,7 @@ public class UserRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetCurrentUser() {
+    fakeAuthenticationManager.setUser(null);
     assertThat(userRepository.getCurrentUser()).isNull();
     fakeAuthenticationManager.setUser(FakeData.USER);
     assertThat(userRepository.getCurrentUser()).isEqualTo(FakeData.USER);
