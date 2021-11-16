@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
@@ -38,16 +37,9 @@ public class TermsOfServiceRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetTermsOfService() {
-    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TEST_TERMS_OF_SERVICE));
+    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE));
 
-    termsOfServiceRepository
-        .getTermsOfService()
-        .test()
-        .assertResult(
-            TermsOfService.builder()
-                .setId(FakeData.TERMS_OF_SERVICE_ID)
-                .setText(FakeData.TERMS_OF_SERVICE)
-                .build());
+    termsOfServiceRepository.getTermsOfService().test().assertResult(FakeData.TERMS_OF_SERVICE);
   }
 
   @Test

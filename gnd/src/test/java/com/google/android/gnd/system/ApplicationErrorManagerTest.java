@@ -63,7 +63,7 @@ public class ApplicationErrorManagerTest extends BaseHiltTest {
       boolean isConsumed = (boolean) input[1];
       assertThat(errorManager.handleException(exception)).isEqualTo(isConsumed);
 
-      // Expect an error message if the error is consumed
+      // Expect an error message if the error is consumed.
       if (isConsumed) {
         errorManager.getExceptions().test().assertValue((String) input[2]);
       } else {

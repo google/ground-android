@@ -22,15 +22,11 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureType;
-import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -43,36 +39,11 @@ import javax.inject.Singleton;
 
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
-
-  private final Layer layerWithNoForm =
-      Layer.newBuilder()
-          .setId(FakeData.LAYER_NO_FORM_ID)
-          .setName(FakeData.LAYER_NO_FORM_NAME)
-          .setDefaultStyle(Style.builder().setColor(FakeData.LAYER_NO_FORM_COLOR).build())
-          .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
-          .build();
-
-  private final Project testProjectWithLayerAndNoForm =
-      Project.newBuilder()
-          .setId(FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM)
-          .setTitle(FakeData.PROJECT_TITLE)
-          .setDescription(FakeData.PROJECT_DESCRIPTION)
-          .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
-          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
-          .build();
-
-  private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TEST_TERMS_OF_SERVICE);
-
-  private final Project testProjectWithNoLayers =
-      Project.newBuilder()
-          .setId(FakeData.PROJECT_ID_WITH_NO_LAYERS)
-          .setTitle(FakeData.PROJECT_TITLE)
-          .setDescription(FakeData.PROJECT_DESCRIPTION)
-          .setAcl(ImmutableMap.of(FakeData.TEST_USER.getEmail(), "contributor"))
-          .build();
-
-  private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
   private RemoteDataEvent<Feature> featureEvent;
+  // TODO(#1045): Allow default project to be initialized by tests.
+  private Project testProject = FakeData.PROJECT;
+  // TODO(#1045): Allow default ToS to be initialized by tests.
+  private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
 
   @Inject
   FakeRemoteDataStore() {}
@@ -83,29 +54,18 @@ public class FakeRemoteDataStore implements RemoteDataStore {
    * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
    * ActivityScenarioRule.
    */
-  public void setActiveProjectId(String projectId) {
-    activeProjectId = projectId;
-  }
-
-  private Project getTestProject() {
-    switch (activeProjectId) {
-      case FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM:
-        return testProjectWithLayerAndNoForm;
-      case FakeData.PROJECT_ID_WITH_NO_LAYERS:
-        return testProjectWithNoLayers;
-      default:
-        return null;
-    }
+  public void setTestProject(Project project) {
+    this.testProject = project;
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return Single.just(Collections.singletonList(getTestProject()));
+    return Single.just(Collections.singletonList(testProject));
   }
 
   @Override
   public Single<Project> loadProject(String projectId) {
-    return Single.just(getTestProject());
+    return Single.just(testProject);
   }
 
   public void setTermsOfService(Optional<TermsOfService> termsOfService) {
