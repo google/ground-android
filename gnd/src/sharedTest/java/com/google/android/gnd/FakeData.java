@@ -55,7 +55,7 @@ public class FakeData {
 
   public static final Project PROJECT =
       Project.newBuilder()
-          .setId("PROJECT_WITH_LAYER_AND_NO_FORM")
+          .setId("PROJECT")
           .setTitle("Project title")
           .setDescription("Test project description")
           .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
