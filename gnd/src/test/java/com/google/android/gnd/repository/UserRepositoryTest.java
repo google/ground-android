@@ -52,7 +52,7 @@ public class UserRepositoryTest extends BaseHiltTest {
   @Test
   public void testGetUserRole() {
     Project project =
-        FakeData.PROJECT.toBuilder()
+        FakeData.PROJECT_WITH_LAYER_AND_NO_FORM.toBuilder()
             .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
             .build();
 

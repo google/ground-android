@@ -29,7 +29,6 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java8.util.Optional;
 
 public class FakeData {
   public static final TermsOfService TERMS_OF_SERVICE =
@@ -52,14 +51,6 @@ public class FakeData {
   public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Layer LAYER =
-      Layer.newBuilder()
-          .setId("layer id")
-          .setName("heading title")
-          .setDefaultStyle(Style.builder().setColor("000").build())
-          .setForm(Optional.empty())
-          .build();
-
   public static final Project PROJECT_WITH_LAYER_AND_NO_FORM =
       Project.newBuilder()
           .setId("PROJECT_WITH_LAYER_AND_NO_FORM")
@@ -69,19 +60,11 @@ public class FakeData {
           .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
           .build();
 
-  public static final Project PROJECT =
-      Project.newBuilder()
-          .setId("project id")
-          .setTitle("project 1")
-          .setDescription("foo description")
-          .putLayer("layer id", LAYER)
-          .build();
-
   public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
-          .setProject(PROJECT)
-          .setLayer(LAYER)
+          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
+          .setLayer(LAYER_WITH_NO_FORM)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
@@ -96,8 +79,8 @@ public class FakeData {
   public static final PolygonFeature POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
-          .setProject(PROJECT)
-          .setLayer(LAYER)
+          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
+          .setLayer(LAYER_WITH_NO_FORM)
           .setVertices(VERTICES)
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
@@ -106,8 +89,8 @@ public class FakeData {
   public static final GeoJsonFeature GEO_JSON_FEATURE =
       GeoJsonFeature.newBuilder()
           .setId("feature id")
-          .setProject(PROJECT)
-          .setLayer(LAYER)
+          .setProject(PROJECT_WITH_LAYER_AND_NO_FORM)
+          .setLayer(LAYER_WITH_NO_FORM)
           .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
