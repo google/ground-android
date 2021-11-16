@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
@@ -39,8 +40,10 @@ import javax.inject.Singleton;
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
   private RemoteDataEvent<Feature> featureEvent;
-  private Project testProject;
-  private Optional<TermsOfService> termsOfService = Optional.empty();
+  // TODO(#1045): Allow default project to be initialized by tests.
+  private Project testProject = FakeData.PROJECT;
+  // TODO(#1045): Allow default ToS to be initialized by tests.
+  private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
 
   @Inject
   FakeRemoteDataStore() {}
