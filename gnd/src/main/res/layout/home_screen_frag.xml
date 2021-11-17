@@ -35,6 +35,7 @@
         android:id="@+id/map_container_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
       <FrameLayout
