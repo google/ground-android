@@ -172,38 +172,37 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point point) {
     addFeatureDialogFragment.show(
-        layers,
-        getChildFragmentManager(),
-        layer -> {
-          if (layer.getUserCanAdd().isEmpty()) {
-            Timber.e(
-                "User cannot add features to layer %s - layer list should not have been shown",
-                layer.getId());
-            return;
-          }
+        layers, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, point));
+  }
 
-          if (layer.getUserCanAdd().size() > 1) {
-            showFeatureTypeDialog(layer, point);
-            return;
-          }
+  private void onAddFeatureLayerSelected(Layer layer, Point point) {
+    if (layer.getUserCanAdd().isEmpty()) {
+      Timber.e(
+          "User cannot add features to layer %s - layer list should not have been shown",
+          layer.getId());
+      return;
+    }
 
-          switch (layer.getUserCanAdd().get(0)) {
-            case POINT:
-              viewModel.addFeature(layer, point);
-              break;
-            case POLYGON:
-              if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
-                startPolygonDrawing(layer);
-              } else {
-                showPolygonInfoDialog(layer);
-              }
-              break;
-            default:
-              Timber.w(
-                  "Unsupported feature type defined in layer: %s", layer.getUserCanAdd().get(0));
-              break;
-          }
-        });
+    if (layer.getUserCanAdd().size() > 1) {
+      showFeatureTypeDialog(layer, point);
+      return;
+    }
+
+    switch (layer.getUserCanAdd().get(0)) {
+      case POINT:
+        viewModel.addFeature(layer, point);
+        break;
+      case POLYGON:
+        if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+          startPolygonDrawing(layer);
+        } else {
+          showPolygonInfoDialog(layer);
+        }
+        break;
+      default:
+        Timber.w("Unsupported feature type defined in layer: %s", layer.getUserCanAdd().get(0));
+        break;
+    }
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
