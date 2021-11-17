@@ -16,11 +16,12 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.FakeData.newLayer;
+import static com.google.android.gnd.FakeData.newProject;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.BaseHiltTest;
-import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.feature.FeatureType;
@@ -53,18 +54,18 @@ public class ProjectRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testActivateProject() {
-    setTestProject(FakeData.PROJECT);
+    Project project = newProject().build();
+    setTestProject(project);
 
     projectRepository.activateProject("id");
 
-    projectRepository.getActiveProject().test().assertValue(Optional.of(FakeData.PROJECT));
+    projectRepository.getActiveProject().test().assertValue(Optional.of(project));
   }
 
   @Test
   public void testActivateProject_managersCanAddFeaturesToAllLayers() {
-    Layer layer =
-        FakeData.LAYER.toBuilder().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestProject(FakeData.PROJECT.toBuilder().putLayer(layer.getId(), layer).build());
+    Layer layer = newLayer().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
+    setTestProject(newProject().putLayer(layer.getId(), layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
     projectRepository.activateProject("id");
@@ -79,24 +80,19 @@ public class ProjectRepositoryTest extends BaseHiltTest {
   @Test
   public void testActivateProject_contributorsCanAddFeaturesIfAllowed() {
     Layer layer1 =
-        FakeData.LAYER.toBuilder()
+        newLayer()
             .setId("Layer 1")
             .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
             .build();
     Layer layer2 =
-        FakeData.LAYER.toBuilder()
+        newLayer()
             .setId("Layer 2")
             .setContributorsCanAdd(ImmutableList.of(FeatureType.POLYGON))
             .build();
-    Layer layer3 =
-        FakeData.LAYER.toBuilder().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
-    Layer layer4 =
-        FakeData.LAYER.toBuilder()
-            .setId("Layer 4")
-            .setContributorsCanAdd(ImmutableList.of())
-            .build();
+    Layer layer3 = newLayer().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
+    Layer layer4 = newLayer().setId("Layer 4").setContributorsCanAdd(ImmutableList.of()).build();
     setTestProject(
-        FakeData.PROJECT.toBuilder()
+        newProject()
             .putLayer(layer1.getId(), layer1)
             .putLayer(layer2.getId(), layer2)
             .putLayer(layer3.getId(), layer3)
