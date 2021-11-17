@@ -366,7 +366,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
     // TODO: add the anchor values into the resource dimensions file
     Marker marker =
-        getMap().addMarker(new MarkerOptions().position(position).icon(icon).anchor(0.5f, 0.85f).alpha(1.0f));
+        getMap().addMarker(
+            new MarkerOptions().position(position).icon(icon).anchor(0.5f, 0.85f).alpha(1.0f));
     markers.add(marker);
     marker.setTag(mapPin);
   }
