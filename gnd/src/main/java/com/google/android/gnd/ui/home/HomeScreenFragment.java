@@ -170,12 +170,12 @@ public class HomeScreenFragment extends AbstractFragment
         .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
   }
 
-  private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point point) {
+  private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
     addFeatureDialogFragment.show(
-        layers, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, point));
+        layers, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, mapCenter));
   }
 
-  private void onAddFeatureLayerSelected(Layer layer, Point point) {
+  private void onAddFeatureLayerSelected(Layer layer, Point mapCenter) {
     if (layer.getUserCanAdd().isEmpty()) {
       Timber.e(
           "User cannot add features to layer %s - layer list should not have been shown",
@@ -184,13 +184,13 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     if (layer.getUserCanAdd().size() > 1) {
-      showFeatureTypeDialog(layer, point);
+      showFeatureTypeDialog(layer, mapCenter);
       return;
     }
 
     switch (layer.getUserCanAdd().get(0)) {
       case POINT:
-        viewModel.addFeature(layer, point);
+        viewModel.addFeature(layer, mapCenter);
         break;
       case POLYGON:
         if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
