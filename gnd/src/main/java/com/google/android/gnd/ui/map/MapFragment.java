@@ -116,4 +116,6 @@ public interface MapFragment {
   /** Returns TileProviders associated with this map adapter. */
   @Hot
   Observable<MapBoxOfflineTileProvider> getTileProviders();
+
+  double getDistanceInPixels(Point point1, Point point2);
 }

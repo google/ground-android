@@ -33,62 +33,60 @@
 
     <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/undo_button"
+    <LinearLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="32dp"
-      android:layout_marginEnd="16dp"
-      android:layout_marginRight="16dp"
-      android:onClick="@{() -> viewModel.removeLastVertex()}"
-      app:backgroundTint="@android:color/white"
-      app:fabSize="normal"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:srcCompat="@drawable/ic_undo_black"
-      app:tint="@android:color/black"
-      app:layout_constraintEnd_toStartOf="@id/add_polygon_button" />
-
-    <Button
-      android:id="@+id/add_polygon_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="32dp"
-      android:background="@android:color/white"
-      android:onClick="@{() -> viewModel.onAddPolygonBtnClick()}"
-      android:text="@string/add_point"
-      android:textColor="@color/colorAccent"
+      android:orientation="horizontal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
+      app:layout_constraintStart_toStartOf="parent"
+      android:layout_marginBottom="48dp"
+      android:gravity="center_vertical">
 
-    <Button
-      android:id="@+id/complete_polygon_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="32dp"
-      android:background="@android:color/white"
-      android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
-      android:text="@string/complete_polygon"
-      android:textColor="@color/colorAccent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/undo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:onClick="@{() -> viewModel.removeLastVertex()}"
+        app:backgroundTint="@android:color/white"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_undo_black"
+        app:tint="@color/colorForeground" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/current_location_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="32dp"
-      android:layout_marginStart="16dp"
-      android:layout_marginLeft="16dp"
-      android:enabled="@{viewModel.getLocationLockEnabled()}"
-      android:onClick="@{() -> viewModel.onLocationLockClick()}"
-      app:backgroundTint="@android:color/white"
-      app:fabSize="normal"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toEndOf="@id/add_polygon_button"
-      app:srcCompat="@drawable/ic_gps_lock"
-      app:tint="@{viewModel.getIconTint()}" />
+      <Button
+        android:id="@+id/add_polygon_button"
+        android:layout_width="150dp"
+        android:layout_height="64dp"
+        android:backgroundTint="@color/colorBackground"
+        android:onClick="@{() -> viewModel.onAddPolygonBtnClick()}"
+        android:radius="4dp"
+        android:text="@string/add_point"
+        android:textColor="@color/colorAccent" />
 
+      <Button
+        android:id="@+id/complete_polygon_button"
+        android:layout_width="150dp"
+        android:layout_height="64dp"
+        android:backgroundTint="@color/colorAccent"
+        android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
+        android:radius="4dp"
+        android:text="@string/complete_polygon"
+        android:textColor="@color/colorBackground" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/current_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:enabled="@{viewModel.getLocationLockEnabled()}"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_gps_lock"
+        app:tint="@{viewModel.getIconTint()}" />
+    </LinearLayout>
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

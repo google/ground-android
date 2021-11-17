@@ -40,10 +40,17 @@ public class PolygonDrawingView extends AbstractView {
 
     mapFragment
         .getCameraMovedEvents()
-        .map(CameraPosition::getTarget)
         .onBackpressureLatest()
+        .map(CameraPosition::getTarget)
+        .doOnNext(viewModel::onCameraMoved)
+        .doOnNext(
+            mapCenter ->
+                viewModel
+                    .getFirstVertex()
+                    .map(firstVertex -> mapFragment.getDistanceInPixels(firstVertex, mapCenter))
+                    .ifPresent(dist -> viewModel.updateLastVertex(mapCenter, dist)))
         .as(disposeOnDestroy(getActivity()))
-        .subscribe(viewModel::onCameraMoved);
+        .subscribe();
 
     // Using this approach as data binding approach did not work with view.
     viewModel
@@ -51,8 +58,8 @@ public class PolygonDrawingView extends AbstractView {
         .observe(
             getActivity(),
             visible -> {
-              binding.completePolygonButton.setVisibility(visible == 4 ? INVISIBLE : VISIBLE);
-              binding.addPolygonButton.setVisibility(visible == 4 ? VISIBLE : INVISIBLE);
+              binding.completePolygonButton.setVisibility(visible == 4 ? GONE : VISIBLE);
+              binding.addPolygonButton.setVisibility(visible == 4 ? VISIBLE : GONE);
             });
   }
 }
