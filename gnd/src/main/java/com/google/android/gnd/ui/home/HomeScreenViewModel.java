@@ -173,12 +173,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Project project = getActiveProject().get();
     ImmutableList<Layer> layers = projectRepository.getModifiableLayers(project);
     // TODO: Pause location updates while dialog is open.
-    // Skip layer selection if there's only one layer to which the user can add features.
-    if (layers.size() == 1) {
-      addFeature(layers.get(0), point);
-    } else {
-      showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
-    }
+    showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
   }
 
   public Observable<Pair<ImmutableList<Layer>, Point>> getShowAddFeatureDialogRequests() {
