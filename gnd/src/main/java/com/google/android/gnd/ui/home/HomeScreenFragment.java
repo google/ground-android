@@ -167,10 +167,10 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(args -> showAddFeatureDialog(args.first, args.second));
+        .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
   }
 
-  private void showAddFeatureDialog(ImmutableList<Layer> layers, Point point) {
+  private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point point) {
     addFeatureDialogFragment.show(
         layers,
         getChildFragmentManager(),
@@ -200,8 +200,7 @@ public class HomeScreenFragment extends AbstractFragment
               break;
             default:
               Timber.w(
-                  "Unsupported feature type defined in layer: %s",
-                  layer.getUserCanAdd().get(0));
+                  "Unsupported feature type defined in layer: %s", layer.getUserCanAdd().get(0));
               break;
           }
         });
