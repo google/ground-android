@@ -167,44 +167,48 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(args -> showAddFeatureDialog(args.first, args.second));
+        .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
   }
 
-  private void showAddFeatureDialog(ImmutableList<Layer> layers, Point point) {
+  private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
+    // Skip layer selection if there's only one layer to which the user can add features.
+    // TODO: Refactor and move logic into view model.
+    if (layers.size() == 1) {
+      onAddFeatureLayerSelected(layers.get(0), mapCenter);
+      return;
+    }
     addFeatureDialogFragment.show(
-        layers,
-        getChildFragmentManager(),
-        layer -> {
-          if (layer.getContributorsCanAdd().isEmpty()) {
-            Timber.e(
-                "User cannot add features to layer %s - layer list should not have been shown",
-                layer.getId());
-            return;
-          }
+        layers, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, mapCenter));
+  }
 
-          if (layer.getContributorsCanAdd().size() > 1) {
-            showFeatureTypeDialog(layer, point);
-            return;
-          }
+  private void onAddFeatureLayerSelected(Layer layer, Point mapCenter) {
+    if (layer.getUserCanAdd().isEmpty()) {
+      Timber.e(
+          "User cannot add features to layer %s - layer list should not have been shown",
+          layer.getId());
+      return;
+    }
 
-          switch (layer.getContributorsCanAdd().get(0)) {
-            case POINT:
-              viewModel.addFeature(layer, point);
-              break;
-            case POLYGON:
-              if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
-                startPolygonDrawing(layer);
-              } else {
-                showPolygonInfoDialog(layer);
-              }
-              break;
-            default:
-              Timber.w(
-                  "Unsupported feature type defined in layer: %s",
-                  layer.getContributorsCanAdd().get(0));
-              break;
-          }
-        });
+    if (layer.getUserCanAdd().size() > 1) {
+      showAddFeatureTypeSelector(layer, mapCenter);
+      return;
+    }
+
+    switch (layer.getUserCanAdd().get(0)) {
+      case POINT:
+        viewModel.addFeature(layer, mapCenter);
+        break;
+      case POLYGON:
+        if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+          startPolygonDrawing(layer);
+        } else {
+          showPolygonInfoDialog(layer);
+        }
+        break;
+      default:
+        Timber.w("Unsupported feature type defined in layer: %s", layer.getUserCanAdd().get(0));
+        break;
+    }
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
@@ -556,7 +560,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showFeatureTypeDialog(Layer layer, Point point) {
+  private void showAddFeatureTypeSelector(Layer layer, Point point) {
     featureDataTypeSelectorDialogFragment =
         new FeatureDataTypeSelectorDialogFragment(
             featureType -> {
