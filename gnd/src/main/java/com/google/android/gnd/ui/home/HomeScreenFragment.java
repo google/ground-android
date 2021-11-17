@@ -184,7 +184,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     if (layer.getUserCanAdd().size() > 1) {
-      showFeatureTypeDialog(layer, mapCenter);
+      showAddFeatureTypeSelector(layer, mapCenter);
       return;
     }
 
@@ -554,7 +554,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showFeatureTypeDialog(Layer layer, Point point) {
+  private void showAddFeatureTypeSelector(Layer layer, Point point) {
     featureDataTypeSelectorDialogFragment =
         new FeatureDataTypeSelectorDialogFragment(
             featureType -> {
