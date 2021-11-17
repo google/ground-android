@@ -42,13 +42,13 @@ class LayerConverter {
       }
       String formId = obj.getForms().keySet().iterator().next();
       layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
-      if (obj.getContributorsCanAdd() != null) {
-        ImmutableList<FeatureType> featureTypes =
-            stream(obj.getContributorsCanAdd())
-                .map(LayerConverter::toFeatureType)
-                .collect(toImmutableList());
-        layer.setContributorsCanAdd(featureTypes);
-      }
+    }
+    if (obj.getContributorsCanAdd() != null) {
+      ImmutableList<FeatureType> featureTypes =
+          stream(obj.getContributorsCanAdd())
+              .map(LayerConverter::toFeatureType)
+              .collect(toImmutableList());
+      layer.setContributorsCanAdd(featureTypes);
     }
     return layer.build();
   }

@@ -28,31 +28,31 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineBaseMapSelectorFragBinding;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapFragment;
-import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel.DownloadMessage;
+import com.google.android.gnd.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
-public class OfflineBaseMapSelectorFragment extends AbstractMapViewerFragment {
+public class OfflineAreaSelectorFragment extends AbstractMapViewerFragment {
 
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
 
-  private OfflineBaseMapSelectorViewModel viewModel;
+  private OfflineAreaSelectorViewModel viewModel;
 
-  public static OfflineBaseMapSelectorFragment newInstance() {
-    return new OfflineBaseMapSelectorFragment();
+  public static OfflineAreaSelectorFragment newInstance() {
+    return new OfflineAreaSelectorFragment();
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(OfflineBaseMapSelectorViewModel.class);
+    viewModel = getViewModel(OfflineAreaSelectorViewModel.class);
     viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
   }
 
@@ -85,12 +85,12 @@ public class OfflineBaseMapSelectorFragment extends AbstractMapViewerFragment {
   @Override
   protected void onMapReady(MapFragment map) {
     viewModel
-        .getRemoteTileSources()
-        .map(tileSources -> stream(tileSources).map(TileSource::getUrl).collect(toImmutableList()))
+        .getRemoteTileSets()
+        .map(tileSets -> stream(tileSets).map(TileSet::getUrl).collect(toImmutableList()))
         .as(autoDisposable(this))
         .subscribe(map::addRemoteTileOverlays);
 
-    viewModel.requestRemoteTileSources();
+    viewModel.requestRemoteTileSets();
 
     map.getCameraMovedEvents()
         .map(__ -> map.getViewport())

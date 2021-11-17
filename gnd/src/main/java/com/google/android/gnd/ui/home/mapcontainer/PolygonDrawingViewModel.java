@@ -84,6 +84,13 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   @Nullable private Point cameraTarget;
 
+  /**
+   * If true, then it means that the last vertex is added automatically and should be removed before
+   * adding any permanent vertex. Used for rendering a line between last added point and current
+   * camera target.
+   */
+  boolean isLastVertexNotSelectedByUser;
+
   @Inject
   PolygonDrawingViewModel(
       LocationManager locationManager,
@@ -127,13 +134,20 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public void onCameraMoved(Point newTarget) {
     cameraTarget = newTarget;
-    if (vertices.size() >= 3) {
-      checkPointNearVertex(cameraTarget, false);
-    }
     if (locationLockState.getValue() != null && isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
     }
+
+    if (!vertices.isEmpty()) {
+      updateLastVertex(newTarget);
+    }
+  }
+
+  private void updateLastVertex(Point newTarget) {
+    boolean isPolygonComplete = isPointNearFirstVertex(newTarget);
+    addVertex(isPolygonComplete ? vertices.get(0) : newTarget, true);
+    updateDrawingState(isPolygonComplete ? PolygonDrawing.COMPLETED : PolygonDrawing.STARTED);
   }
 
   public void removeLastVertex() {
@@ -148,12 +162,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public void onAddPolygonBtnClick() {
     if (cameraTarget != null) {
-      if (vertices.size() >= 3) {
-        checkPointNearVertex(cameraTarget, true);
-      } else {
-        vertices.add(cameraTarget);
-      }
-      updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+      addVertex(cameraTarget, false);
     }
   }
 
@@ -161,19 +170,26 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     locationLockEnabled.postValue(enabled);
   }
 
-  private void checkPointNearVertex(Point position, Boolean addVertex) {
-    if (isPointNearFirstVertex(position)) {
-      updateDrawingState(PolygonDrawing.COMPLETED);
-      vertices.add(vertices.get(0));
-      updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    } else {
-      if (vertices.get(0) != vertices.get(vertices.size() - 1)) {
-        if (addVertex) {
-          vertices.add(position);
-        }
-        updateDrawingState(PolygonDrawing.STARTED);
-      }
+  /**
+   * Adds a new vertex.
+   *
+   * @param vertex new position
+   * @param isNotSelectedByUser whether the vertex is not selected by the user
+   */
+  private void addVertex(Point vertex, boolean isNotSelectedByUser) {
+    // Clear last vertex if it is unselected
+    if (isLastVertexNotSelectedByUser) {
+      vertices.remove(vertices.size() - 1);
     }
+
+    // Update selected state
+    isLastVertexNotSelectedByUser = isNotSelectedByUser;
+
+    // Add the new vertex
+    vertices.add(vertex);
+
+    // Render changes to UI
+    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
   private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
@@ -191,6 +207,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   private boolean isPointNearFirstVertex(Point point) {
+    if (vertices.size() < 3) {
+      return false;
+    }
     if (vertices.get(0) == vertices.get(vertices.size() - 1)) {
       return false;
     }
@@ -206,8 +225,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public void onCompletePolygonButtonClick() {
     defaultMapMode.onNext(Nil.NIL);
-    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
     drawingCompleted.onNext(Nil.NIL);
+    isLastVertexNotSelectedByUser = false;
     vertices.clear();
   }
 

@@ -32,14 +32,14 @@ import androidx.lifecycle.MutableLiveData;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
@@ -139,7 +139,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineBaseMapRepository offlineBaseMapRepository) {
+      OfflineAreaRepository offlineAreaRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.resources = resources;
     this.projectRepository = projectRepository;
@@ -195,9 +195,9 @@ public class MapContainerViewModel extends AbstractViewModel {
 
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository
-                .getDownloadedTileSourcesOnceAndStream()
-                .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
+            offlineAreaRepository
+                .getDownloadedTileSetsOnceAndStream()
+                .map(set -> stream(set).map(TileSet::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
   }
 

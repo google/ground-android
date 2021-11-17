@@ -29,7 +29,6 @@ import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.form.Form;
@@ -145,11 +144,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
 
-  private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
+  private boolean shouldShowAddFeatureButton(Loadable<Project> loadingState) {
     // Project must contain at least one layer that the user can modify for add feature button to be
     // shown.
+    if (loadingState.value().isEmpty()) {
+      // Don't show if no active project.
+      return false;
+    }
     ImmutableList<Layer> modifiableLayers =
-        projectRepository.getModifiableLayers(project.value(), FeatureType.POINT);
+        projectRepository.getModifiableLayers(loadingState.value().get());
     return !modifiableLayers.isEmpty();
   }
 
@@ -163,14 +166,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onAddFeatureButtonClick(Point point) {
-    ImmutableList<Layer> layers =
-        projectRepository.getModifiableLayers(getActiveProject(), FeatureType.POINT);
-    // TODO: Pause location updates while dialog is open.
-    if (layers.size() == 1) {
-      addFeature(layers.get(0), point);
-    } else {
-      showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
+    if (getActiveProject().isEmpty()) {
+      Timber.e("No active project");
+      return;
     }
+    Project project = getActiveProject().get();
+    ImmutableList<Layer> layers = projectRepository.getModifiableLayers(project);
+    // TODO: Pause location updates while dialog is open.
+    showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
   }
 
   public Observable<Pair<ImmutableList<Layer>, Point>> getShowAddFeatureDialogRequests() {

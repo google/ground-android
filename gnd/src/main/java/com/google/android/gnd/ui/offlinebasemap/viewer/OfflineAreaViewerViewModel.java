@@ -21,9 +21,9 @@ import static java8.util.stream.StreamSupport.stream;
 import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
-import com.google.android.gnd.model.basemap.tile.TileSource;
-import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.model.basemap.tile.TileSet;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -44,24 +44,24 @@ import timber.log.Timber;
  * View model for the OfflineAreaViewerFragment. Manges offline area deletions and calculates the
  * storage size of an area on the user's device.
  */
-public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
+public class OfflineAreaViewerViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
-  private final PublishSubject<OfflineBaseMapViewerFragmentArgs> fragmentArgs =
+  private final PublishSubject<OfflineAreaViewerFragmentArgs> fragmentArgs =
       PublishSubject.create();
 
   @Hot private final PublishSubject<Nil> removeAreaClicks = PublishSubject.create();
 
   private final WeakReference<Context> context;
+  private final LiveData<OfflineArea> offlineArea;
   public LiveData<Double> areaStorageSize;
   public LiveData<String> areaName;
-  private final LiveData<OfflineBaseMap> offlineArea;
   @Inject Navigator navigator;
   @Nullable private String offlineAreaId;
 
   @Inject
-  public OfflineBaseMapViewerViewModel(
-      OfflineBaseMapRepository offlineBaseMapRepository,
+  public OfflineAreaViewerViewModel(
+      OfflineAreaRepository offlineAreaRepository,
       @ApplicationContext Context context,
       Navigator navigator) {
     this.context = new WeakReference<>(context);
@@ -69,51 +69,49 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     @Hot
     // We only need to convert this single to a flowable in order to use it with LiveData.
     // It still only contains a single offline area returned by getOfflineArea.
-    Flowable<OfflineBaseMap> offlineAreaItemAsFlowable =
+    Flowable<OfflineArea> offlineAreaItemAsFlowable =
         this.fragmentArgs
-            .map(OfflineBaseMapViewerFragmentArgs::getOfflineAreaId)
-            .flatMapSingle(offlineBaseMapRepository::getOfflineArea)
+            .map(OfflineAreaViewerFragmentArgs::getOfflineAreaId)
+            .flatMapSingle(offlineAreaRepository::getOfflineArea)
             .doOnError(throwable -> Timber.e(throwable, "Couldn't render area %s", offlineAreaId))
             .toFlowable(BackpressureStrategy.LATEST);
     this.areaName =
-        LiveDataReactiveStreams.fromPublisher(
-            offlineAreaItemAsFlowable.map(OfflineBaseMap::getName));
+        LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable.map(OfflineArea::getName));
     this.areaStorageSize =
         LiveDataReactiveStreams.fromPublisher(
             offlineAreaItemAsFlowable
-                .flatMap(
-                    offlineBaseMapRepository::getIntersectingDownloadedTileSourcesOnceAndStream)
-                .map(this::tileSourcesToTotalStorageSize));
+                .flatMap(offlineAreaRepository::getIntersectingDownloadedTileSetsOnceAndStream)
+                .map(this::tileSetsToTotalStorageSize));
     this.offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable);
     disposeOnClear(
         removeAreaClicks
             .map(__ -> Objects.requireNonNull(this.offlineArea.getValue()).getId())
-            .flatMapCompletable(offlineBaseMapRepository::deleteArea)
+            .flatMapCompletable(offlineAreaRepository::deleteOfflineArea)
             .doOnError(throwable -> Timber.e(throwable, "Couldn't remove area: %s", offlineAreaId))
             .subscribe(navigator::navigateUp));
   }
 
-  private Double tileSourcesToTotalStorageSize(ImmutableSet<TileSource> tileSources) {
-    return stream(tileSources).map(this::tileSourceStorageSize).reduce((x, y) -> x + y).orElse(0.0);
+  private Double tileSetsToTotalStorageSize(ImmutableSet<TileSet> tileSets) {
+    return stream(tileSets).map(this::tileSetStorageSize).reduce((x, y) -> x + y).orElse(0.0);
   }
 
-  private double tileSourceStorageSize(TileSource tileSource) {
+  private double tileSetStorageSize(TileSet tileSet) {
     Context context1 = context.get();
     if (context1 == null) {
       return 0.0;
     } else {
-      File tileFile = new File(context1.getFilesDir(), tileSource.getPath());
+      File tileFile = new File(context1.getFilesDir(), tileSet.getPath());
       return (double) tileFile.length() / (1024 * 1024);
     }
   }
 
   /** Returns the offline area associated with this view model. */
-  public LiveData<OfflineBaseMap> getOfflineArea() {
+  public LiveData<OfflineArea> getOfflineArea() {
     return offlineArea;
   }
 
   /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
-  public void loadOfflineArea(OfflineBaseMapViewerFragmentArgs args) {
+  public void loadOfflineArea(OfflineAreaViewerFragmentArgs args) {
     this.fragmentArgs.onNext(args);
     this.offlineAreaId = args.getOfflineAreaId();
   }

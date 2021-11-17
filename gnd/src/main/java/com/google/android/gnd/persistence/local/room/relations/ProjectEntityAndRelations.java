@@ -18,8 +18,8 @@ package com.google.android.gnd.persistence.local.room.relations;
 
 import androidx.room.Embedded;
 import androidx.room.Relation;
+import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
 import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
-import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import java.util.List;
 
@@ -38,6 +38,6 @@ public class ProjectEntityAndRelations {
   @Relation(
       parentColumn = "id",
       entityColumn = "project_id",
-      entity = OfflineBaseMapSourceEntity.class)
-  public List<OfflineBaseMapSourceEntity> offlineBaseMapSourceEntityAndRelations;
+      entity = BaseMapEntity.class)
+  public List<BaseMapEntity> baseMapEntityAndRelations;
 }

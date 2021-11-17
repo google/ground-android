@@ -19,14 +19,9 @@ package com.google.android.gnd.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
-/**
- * A database representation of OfflineArea download states. Mirrors the states specified by the
- * model {@link OfflineBaseMap}
- */
-public enum OfflineBaseMapEntityState implements IntEnum {
+public enum TileSetEntityState implements IntEnum {
   UNKNOWN(0),
   PENDING(1),
   IN_PROGRESS(2),
@@ -35,7 +30,7 @@ public enum OfflineBaseMapEntityState implements IntEnum {
 
   private final int intValue;
 
-  OfflineBaseMapEntityState(int intValue) {
+  TileSetEntityState(int intValue) {
     this.intValue = intValue;
   }
 
@@ -44,13 +39,14 @@ public enum OfflineBaseMapEntityState implements IntEnum {
   }
 
   @TypeConverter
-  public static int toInt(@Nullable OfflineBaseMapEntityState value) {
+  public static int toInt(@Nullable TileSetEntityState value) {
     return IntEnum.toInt(value, UNKNOWN);
   }
 
   @NonNull
   @TypeConverter
-  public static OfflineBaseMapEntityState fromInt(int intValue) {
+  public static TileSetEntityState fromInt(int intValue) {
     return IntEnum.fromInt(values(), intValue, UNKNOWN);
   }
 }
+

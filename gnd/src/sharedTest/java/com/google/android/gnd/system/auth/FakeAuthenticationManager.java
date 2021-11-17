@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.system.auth;
 
+import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.SignInState.State;
@@ -31,7 +32,8 @@ public class FakeAuthenticationManager implements AuthenticationManager {
   @Hot(replays = true)
   private final Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
-  private User user;
+  // TODO(#1045): Allow default user to be initialized by tests.
+  private User user = FakeData.USER;
 
   @Inject
   public FakeAuthenticationManager() {}

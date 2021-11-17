@@ -22,11 +22,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
-import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.model.basemap.OfflineArea.State;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -38,40 +38,40 @@ import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
+public class OfflineAreaSelectorViewModel extends AbstractViewModel {
 
   enum DownloadMessage {
     STARTED,
     FAILURE
   }
 
-  @Hot private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<OfflineArea> downloadClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Nil> remoteTileRequests = PublishProcessor.create();
   private final LiveData<Event<DownloadMessage>> messages;
-  private final Flowable<ImmutableList<TileSource>> remoteTileSources;
+  private final Flowable<ImmutableList<TileSet>> remoteTileSets;
   private final OfflineUuidGenerator offlineUuidGenerator;
   @Nullable private LatLngBounds viewport;
   private final Resources resources;
 
   @Inject
-  OfflineBaseMapSelectorViewModel(
-      OfflineBaseMapRepository offlineBaseMapRepository,
+  OfflineAreaSelectorViewModel(
+      OfflineAreaRepository offlineAreaRepository,
       OfflineUuidGenerator offlineUuidGenerator,
       Resources resources) {
     this.messages =
         LiveDataReactiveStreams.fromPublisher(
             downloadClicks.switchMapSingle(
                 baseMap ->
-                    offlineBaseMapRepository
-                        .addAreaAndEnqueue(baseMap)
+                    offlineAreaRepository
+                        .addOfflineAreaAndEnqueue(baseMap)
                         .toSingleDefault(DownloadMessage.STARTED)
                         .onErrorReturn(this::onEnqueueError)
                         .map(Event::create)));
     this.offlineUuidGenerator = offlineUuidGenerator;
     this.resources = resources;
-    this.remoteTileSources =
+    this.remoteTileSets =
             remoteTileRequests.switchMapSingle(
-                __ -> offlineBaseMapRepository.getTileSources());
+                __ -> offlineAreaRepository.getTileSets());
   }
 
   private DownloadMessage onEnqueueError(Throwable e) {
@@ -94,7 +94,7 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
     }
 
     downloadClicks.onNext(
-        OfflineBaseMap.newBuilder()
+        OfflineArea.newBuilder()
             .setBounds(viewport)
             .setId(offlineUuidGenerator.generateUuid())
             .setState(State.PENDING)
@@ -102,11 +102,11 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
             .build());
   }
 
-  public Flowable<ImmutableList<TileSource>> getRemoteTileSources() {
-    return this.remoteTileSources;
+  public Flowable<ImmutableList<TileSet>> getRemoteTileSets() {
+    return this.remoteTileSets;
   }
 
-  public void requestRemoteTileSources() {
+  public void requestRemoteTileSets() {
     remoteTileRequests.onNext(Nil.NIL);
   }
 }

@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
@@ -33,6 +34,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -98,9 +100,34 @@ public class ProjectRepository {
     String id = projectId.get();
     return syncProjectWithRemote(id)
         .onErrorResumeNext(__ -> getProject(id))
+        .map(this::attachLayerPermissions)
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
+  }
+
+  private Project attachLayerPermissions(Project project) {
+    Role userRole = userRepository.getUserRole(project);
+    ImmutableMap.Builder layers = ImmutableMap.builder();
+    for (Layer layer : project.getLayers()) {
+      layers.put(
+          layer.getId(),
+          layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole, layer)).build());
+    }
+    return project.toBuilder().setLayerMap(layers.build()).build();
+  }
+
+  private ImmutableList<FeatureType> getAddableFeatureTypes(Role userRole, Layer layer) {
+    switch (userRole) {
+      case OWNER:
+      case MANAGER:
+        return FeatureType.ALL;
+      case CONTRIBUTOR:
+        return layer.getContributorsCanAdd();
+      case UNKNOWN:
+      default:
+        return ImmutableList.of();
+    }
   }
 
   /** This only works if the project is already cached to local db. */
@@ -171,24 +198,10 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
-  public ImmutableList<Layer> getModifiableLayers(
-      Optional<Project> project, FeatureType featureType) {
-    return project.map(p -> getModifiableLayers(p, featureType)).orElse(ImmutableList.of());
-  }
-
-  public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
-    switch (userRepository.getUserRole(project)) {
-      case OWNER:
-      case MANAGER:
-        return project.getLayers();
-      case CONTRIBUTOR:
-        return stream(project.getLayers())
-            .filter(layer -> layer.getContributorsCanAdd().contains(featureType))
-            .collect(toImmutableList());
-      case UNKNOWN:
-      default:
-        return ImmutableList.of();
-    }
+  public ImmutableList<Layer> getModifiableLayers(Project project) {
+    return stream(project.getLayers())
+        .filter(layer -> !layer.getUserCanAdd().isEmpty())
+        .collect(toImmutableList());
   }
 
   public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {

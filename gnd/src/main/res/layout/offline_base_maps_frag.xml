@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel" />
+      type="com.google.android.gnd.ui.offlinebasemap.OfflineAreasViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

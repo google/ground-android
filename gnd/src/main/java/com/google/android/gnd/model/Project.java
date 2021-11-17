@@ -16,8 +16,10 @@
 
 package com.google.android.gnd.model;
 
+import static java8.util.J8Arrays.stream;
+
 import androidx.annotation.NonNull;
-import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
+import com.google.android.gnd.model.basemap.BaseMap;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -38,7 +40,7 @@ public abstract class Project {
   protected abstract ImmutableMap<String, Layer> getLayerMap();
 
   @NonNull
-  public abstract ImmutableList<OfflineBaseMapSource> getOfflineBaseMapSources();
+  public abstract ImmutableList<BaseMap> getBaseMaps();
 
   public ImmutableList<Layer> getLayers() {
     return getLayerMap().values().asList();
@@ -64,19 +66,32 @@ public abstract class Project {
 
     public abstract Builder setDescription(String newDescription);
 
+    public abstract Builder setLayerMap(ImmutableMap newLayers);
+
     public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 
+    @Deprecated
     public Builder putLayer(String id, Layer layer) {
       layerMapBuilder().put(id, layer);
       return this;
     }
 
+    public Builder putLayer(Layer layer) {
+      layerMapBuilder().put(layer.getId(), layer);
+      return this;
+    }
+
+    public Builder putLayers(Layer... layers) {
+      stream(layers).forEach(this::putLayer);
+      return this;
+    }
+
     public abstract Builder setAcl(ImmutableMap<String, String> acl);
 
-    public abstract ImmutableList.Builder<OfflineBaseMapSource> offlineBaseMapSourcesBuilder();
+    public abstract ImmutableList.Builder<BaseMap> baseMapsBuilder();
 
-    public Builder addOfflineBaseMapSource(OfflineBaseMapSource source) {
-      offlineBaseMapSourcesBuilder().add(source);
+    public Builder addBaseMap(BaseMap source) {
+      baseMapsBuilder().add(source);
       return this;
     }
 

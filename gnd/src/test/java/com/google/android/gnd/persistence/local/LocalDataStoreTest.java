@@ -26,9 +26,9 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.basemap.OfflineBaseMap;
-import com.google.android.gnd.model.basemap.tile.TileSource;
-import com.google.android.gnd.model.basemap.tile.TileSource.State;
+import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.model.basemap.tile.TileSet;
+import com.google.android.gnd.model.basemap.tile.TileSet.State;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
@@ -150,38 +150,38 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setClientTimestamp(new Date())
           .build();
 
-  private static final TileSource TEST_PENDING_TILE_SOURCE =
-      TileSource.newBuilder()
+  private static final TileSet TEST_PENDING_TILE_SOURCE =
+      TileSet.newBuilder()
           .setId("id_1")
           .setState(State.PENDING)
           .setPath("some_path 1")
           .setUrl("some_url 1")
-          .setBasemapReferenceCount(1)
+          .setOfflineAreaReferenceCount(1)
           .build();
 
-  private static final TileSource TEST_DOWNLOADED_TILE_SOURCE =
-      TileSource.newBuilder()
+  private static final TileSet TEST_DOWNLOADED_TILE_SOURCE =
+      TileSet.newBuilder()
           .setId("id_2")
           .setState(State.DOWNLOADED)
           .setPath("some_path 2")
           .setUrl("some_url 2")
-          .setBasemapReferenceCount(1)
+          .setOfflineAreaReferenceCount(1)
           .build();
 
-  private static final TileSource TEST_FAILED_TILE_SOURCE =
-      TileSource.newBuilder()
+  private static final TileSet TEST_FAILED_TILE_SOURCE =
+      TileSet.newBuilder()
           .setId("id_3")
           .setState(State.FAILED)
           .setPath("some_path 3")
           .setUrl("some_url 3")
-          .setBasemapReferenceCount(1)
+          .setOfflineAreaReferenceCount(1)
           .build();
 
-  private static final OfflineBaseMap TEST_OFFLINE_AREA =
-      OfflineBaseMap.newBuilder()
+  private static final OfflineArea TEST_OFFLINE_AREA =
+      OfflineArea.newBuilder()
           .setId("id_1")
           .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
-          .setState(OfflineBaseMap.State.PENDING)
+          .setState(OfflineArea.State.PENDING)
           .setName("Test Area")
           .build();
 
@@ -591,14 +591,14 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testInsertTile() {
-    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).test().assertComplete();
+    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).test().assertComplete();
   }
 
   @Test
   public void testGetTile() {
-    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait();
     localDataStore
-        .getTileSource("some_url 1")
+        .getTileSet("some_url 1")
         .test()
         .assertValueCount(1)
         .assertValue(TEST_PENDING_TILE_SOURCE);
@@ -606,13 +606,13 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testGetTilesOnceAndStream() {
-    TestSubscriber<ImmutableSet<TileSource>> subscriber =
-        localDataStore.getTileSourcesOnceAndStream().test();
+    TestSubscriber<ImmutableSet<TileSet>> subscriber =
+        localDataStore.getTileSetsOnceAndStream().test();
 
     subscriber.assertValue(ImmutableSet.of());
 
-    localDataStore.insertOrUpdateTileSource(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait();
-    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait();
 
     subscriber.assertValueSet(
         ImmutableSet.of(
@@ -623,11 +623,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testGetPendingTile() {
-    localDataStore.insertOrUpdateTileSource(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait();
-    localDataStore.insertOrUpdateTileSource(TEST_FAILED_TILE_SOURCE).blockingAwait();
-    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait();
     localDataStore
-        .getPendingTileSources()
+        .getPendingTileSets()
         .test()
         .assertValue(ImmutableList.of(TEST_PENDING_TILE_SOURCE));
   }

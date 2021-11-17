@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.feature;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.common.collect.ImmutableList;
+import androidx.annotation.Nullable;
 
-public enum FeatureType {
-  UNKNOWN,
-  POINT,
-  POLYGON;
+class BaseMapNestedObject {
+  @Nullable private String url;
 
-  public static final ImmutableList<FeatureType> ALL = ImmutableList.of(POINT, POLYGON);
+  @SuppressWarnings("unused")
+  BaseMapNestedObject() {}
+
+  @SuppressWarnings("unused")
+  BaseMapNestedObject(@Nullable String url) {
+    this.url = url;
+  }
+
+  @Nullable
+  public String getUrl() {
+    return url;
+  }
 }

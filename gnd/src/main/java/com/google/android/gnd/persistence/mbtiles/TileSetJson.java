@@ -29,7 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** Describes a tile set source, including its id, extents, and source URL. */
-class TileSetSource {
+class TileSetJson {
 
   private static final String GEOMETRY_KEY = "geometry";
   private static final String VERTICES_JSON_KEY = "coordinates";
@@ -54,7 +54,7 @@ class TileSetSource {
    *
    * <p>Interior rings, which describe holes in the polygon, are ignored.
    */
-  TileSetSource(JSONObject jsonObject) {
+  TileSetJson(JSONObject jsonObject) {
     this.json = jsonObject;
   }
 
