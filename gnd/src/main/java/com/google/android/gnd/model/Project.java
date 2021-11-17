@@ -70,7 +70,6 @@ public abstract class Project {
 
     public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 
-    /** @deprecated Use putLayer(Layer) instead. */
     @Deprecated
     public Builder putLayer(String id, Layer layer) {
       layerMapBuilder().put(id, layer);
