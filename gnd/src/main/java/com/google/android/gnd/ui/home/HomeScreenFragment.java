@@ -172,6 +172,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
     // Skip layer selection if there's only one layer to which the user can add features.
+    // TODO: Refactor and move logic into view model.
     if (layers.size() == 1) {
       onAddFeatureLayerSelected(layers.get(0), mapCenter);
       return;
