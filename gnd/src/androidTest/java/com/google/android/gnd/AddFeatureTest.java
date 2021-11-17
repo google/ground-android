@@ -59,7 +59,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
     onView(withId(R.id.agreeButton)).perform(click());
 
     // Tap on the cross-hair at the centre of the map.
-    onView(withId(R.id.map_crosshairs)).perform(click());
+    onView(withId(R.id.map_crosshairs_img)).perform(click());
 
     // Verify that the title is not displayed.
     onView(withId(R.id.feature_title)).check(matches(not(isCompletelyDisplayed())));
@@ -88,7 +88,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
         .perform(click());
 
     // Tap on the crosshair at the centre of the map.
-    onView(withId(R.id.map_crosshairs)).perform(click());
+    onView(withId(R.id.map_crosshairs_img)).perform(click());
 
     // TODO: figure out how to remove this.
     //  See here for more: https://github.com/dturner/ground-android/pull/1
