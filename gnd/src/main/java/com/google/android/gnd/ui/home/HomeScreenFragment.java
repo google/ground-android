@@ -175,19 +175,19 @@ public class HomeScreenFragment extends AbstractFragment
         layers,
         getChildFragmentManager(),
         layer -> {
-          if (layer.getContributorsCanAdd().isEmpty()) {
+          if (layer.getUserCanAdd().isEmpty()) {
             Timber.e(
                 "User cannot add features to layer %s - layer list should not have been shown",
                 layer.getId());
             return;
           }
 
-          if (layer.getContributorsCanAdd().size() > 1) {
+          if (layer.getUserCanAdd().size() > 1) {
             showFeatureTypeDialog(layer, point);
             return;
           }
 
-          switch (layer.getContributorsCanAdd().get(0)) {
+          switch (layer.getUserCanAdd().get(0)) {
             case POINT:
               viewModel.addFeature(layer, point);
               break;
@@ -201,7 +201,7 @@ public class HomeScreenFragment extends AbstractFragment
             default:
               Timber.w(
                   "Unsupported feature type defined in layer: %s",
-                  layer.getContributorsCanAdd().get(0));
+                  layer.getUserCanAdd().get(0));
               break;
           }
         });
