@@ -23,5 +23,5 @@ public enum FeatureType {
   POINT,
   POLYGON;
 
-  public static ImmutableList<FeatureType> ALL = ImmutableList.of(POINT, POLYGON);
+  public static final ImmutableList<FeatureType> ALL = ImmutableList.of(POINT, POLYGON);
 }
