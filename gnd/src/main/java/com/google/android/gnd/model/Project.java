@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.model;
 
+import static java8.util.J8Arrays.stream;
+
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.basemap.BaseMap;
 import com.google.android.gnd.model.layer.Layer;
@@ -77,6 +79,11 @@ public abstract class Project {
 
     public Builder putLayer(Layer layer) {
       layerMapBuilder().put(layer.getId(), layer);
+      return this;
+    }
+
+    public Builder putLayers(Layer... layers) {
+      stream(layers).forEach(this::putLayer);
       return this;
     }
 

@@ -91,8 +91,7 @@ public class ProjectRepositoryTest extends BaseHiltTest {
             .build();
     Layer layer3 = newLayer().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
     Layer layer4 = newLayer().setId("Layer 4").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestProject(
-        newProject().putLayer(layer1).putLayer(layer2).putLayer(layer3).putLayer(layer4).build());
+    setTestProject(newProject().putLayers(layer1, layer2, layer3, layer4).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
     projectRepository.activateProject("id");
