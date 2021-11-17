@@ -21,5 +21,4 @@ public enum Role {
   OWNER,
   MANAGER,
   CONTRIBUTOR
-  // TODO: Add VIEWER role.s
 }
