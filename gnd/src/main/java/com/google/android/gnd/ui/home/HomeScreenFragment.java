@@ -26,7 +26,6 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -168,19 +167,19 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(this::showAddFeatureDialog);
+        .subscribe(args -> showAddFeatureDialog(args.first, args.second));
   }
 
-  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
-    ImmutableList<Layer> layers = args.first;
-
-    Point point = args.second;
+  private void showAddFeatureDialog(ImmutableList<Layer> layers, Point point) {
     addFeatureDialogFragment.show(
         layers,
         getChildFragmentManager(),
         layer -> {
           if (layer.getContributorsCanAdd().isEmpty()) {
-            Timber.e("No permissions set on layer %s%", layer.getId());
+            Timber.e(
+                "User cannot add features to layer %s - layer list should not have been shown",
+                layer.getId());
+            return;
           }
 
           if (layer.getContributorsCanAdd().size() > 1) {
@@ -591,8 +590,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void showPolygonInfoDialog(Layer layer) {
     polygonDrawingViewModel.updatePolygonInfoDialogShown();
     polygonDrawingInfoDialogFragment =
-        new PolygonDrawingInfoDialogFragment(
-            () -> startPolygonDrawing(layer));
+        new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(layer));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }

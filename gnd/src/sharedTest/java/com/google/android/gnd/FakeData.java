@@ -25,6 +25,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Layer.Builder;
 import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,18 +35,21 @@ import com.google.common.collect.ImmutableMap;
  * the specific value is relevant to the test.
  */
 public class FakeData {
+  // TODO: Replace constants with calls to newFoo() methods.
   public static final TermsOfService TERMS_OF_SERVICE =
       TermsOfService.builder()
           .setId("TERMS_OF_SERVICE")
           .setText("Fake Terms of Service text")
           .build();
 
-  public static final Layer LAYER =
-      Layer.newBuilder()
-          .setId("LAYER")
-          .setName("Layer")
-          .setDefaultStyle(Style.builder().setColor("#00ff00").build())
-          .build();
+  public static final Layer LAYER = newLayer().build();
+
+  public static Builder newLayer() {
+    return Layer.newBuilder()
+        .setId("LAYER")
+        .setName("Layer")
+        .setDefaultStyle(Style.builder().setColor("#00ff00").build());
+  }
 
   public static final User USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
@@ -53,13 +57,15 @@ public class FakeData {
   public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Project PROJECT =
-      Project.newBuilder()
-          .setId("PROJECT")
-          .setTitle("Project title")
-          .setDescription("Test project description")
-          .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
-          .build();
+  public static final Project PROJECT = newProject().build();
+
+  public static Project.Builder newProject() {
+    return Project.newBuilder()
+        .setId("PROJECT")
+        .setTitle("Project title")
+        .setDescription("Test project description")
+        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"));
+  }
 
   public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
