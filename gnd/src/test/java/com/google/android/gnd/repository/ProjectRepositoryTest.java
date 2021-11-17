@@ -65,7 +65,7 @@ public class ProjectRepositoryTest extends BaseHiltTest {
   @Test
   public void testActivateProject_managersCanAddFeaturesToAllLayers() {
     Layer layer = newLayer().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestProject(newProject().putLayer(layer.getId(), layer).build());
+    setTestProject(newProject().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
     projectRepository.activateProject("id");
@@ -92,12 +92,7 @@ public class ProjectRepositoryTest extends BaseHiltTest {
     Layer layer3 = newLayer().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
     Layer layer4 = newLayer().setId("Layer 4").setContributorsCanAdd(ImmutableList.of()).build();
     setTestProject(
-        newProject()
-            .putLayer(layer1.getId(), layer1)
-            .putLayer(layer2.getId(), layer2)
-            .putLayer(layer3.getId(), layer3)
-            .putLayer(layer4.getId(), layer4)
-            .build());
+        newProject().putLayer(layer1).putLayer(layer2).putLayer(layer3).putLayer(layer4).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
     projectRepository.activateProject("id");
