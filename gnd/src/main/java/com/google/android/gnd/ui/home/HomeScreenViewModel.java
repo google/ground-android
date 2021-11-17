@@ -145,11 +145,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
 
-  private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
+  private boolean shouldShowAddFeatureButton(Loadable<Project> loadingState) {
     // Project must contain at least one layer that the user can modify for add feature button to be
     // shown.
+    if (loadingState.value().isEmpty()) {
+      // Don't show if no active project.
+      return false;
+    }
     ImmutableList<Layer> modifiableLayers =
-        projectRepository.getModifiableLayers(project.value(), FeatureType.POINT);
+        projectRepository.getModifiableLayers(loadingState.value().get());
     return !modifiableLayers.isEmpty();
   }
 
@@ -163,9 +167,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onAddFeatureButtonClick(Point point) {
-    ImmutableList<Layer> layers =
-        projectRepository.getModifiableLayers(getActiveProject(), FeatureType.POINT);
+    if (getActiveProject().isEmpty()) {
+      Timber.e("No active project");
+      return;
+    }
+    Project project = getActiveProject().get();
+    ImmutableList<Layer> layers = projectRepository.getModifiableLayers(project);
     // TODO: Pause location updates while dialog is open.
+    // Skip layer selection if there's only one layer to which the user can add features.
     if (layers.size() == 1) {
       addFeature(layers.get(0), point);
     } else {

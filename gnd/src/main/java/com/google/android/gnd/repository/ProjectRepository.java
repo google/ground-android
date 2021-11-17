@@ -198,24 +198,10 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.empty());
   }
 
-  public ImmutableList<Layer> getModifiableLayers(
-      Optional<Project> project, FeatureType featureType) {
-    return project.map(p -> getModifiableLayers(p, featureType)).orElse(ImmutableList.of());
-  }
-
-  public ImmutableList<Layer> getModifiableLayers(Project project, FeatureType featureType) {
-    switch (userRepository.getUserRole(project)) {
-      case OWNER:
-      case MANAGER:
-        return project.getLayers();
-      case CONTRIBUTOR:
-        return stream(project.getLayers())
-            .filter(layer -> layer.getContributorsCanAdd().contains(featureType))
-            .collect(toImmutableList());
-      case UNKNOWN:
-      default:
-        return ImmutableList.of();
-    }
+  public ImmutableList<Layer> getModifiableLayers(Project project) {
+    return stream(project.getLayers())
+        .filter(layer -> !layer.getUserCanAdd().isEmpty())
+        .collect(toImmutableList());
   }
 
   public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
