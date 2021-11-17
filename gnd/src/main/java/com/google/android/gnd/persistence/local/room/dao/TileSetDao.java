@@ -18,29 +18,29 @@ package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
+import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface TileSourceDao extends BaseDao<TileSourceEntity> {
+public interface TileSetDao extends BaseDao<TileSetEntity> {
 
   @Query("SELECT * FROM tile_sources")
-  Flowable<List<TileSourceEntity>> findAllOnceAndStream();
+  Flowable<List<TileSetEntity>> findAllOnceAndStream();
 
   @Query("SELECT * FROM tile_sources WHERE state = :state")
-  Single<List<TileSourceEntity>> findByState(int state);
+  Single<List<TileSetEntity>> findByState(int state);
 
   @Query("SELECT * FROM tile_sources WHERE id = :id")
-  Maybe<TileSourceEntity> findById(String id);
+  Maybe<TileSetEntity> findById(String id);
 
   @Query("SELECT * FROM tile_sources WHERE url = :url")
-  Maybe<TileSourceEntity> findByUrl(String url);
+  Maybe<TileSetEntity> findByUrl(String url);
 
   @Query("SELECT * FROM tile_sources WHERE path = :path")
-  Maybe<TileSourceEntity> findByPath(String path);
+  Maybe<TileSetEntity> findByPath(String path);
 
   @Query("UPDATE tile_sources SET basemap_count=:newCount WHERE url = :url")
   Single<Integer> updateBasemapReferenceCount(int newCount, String url);

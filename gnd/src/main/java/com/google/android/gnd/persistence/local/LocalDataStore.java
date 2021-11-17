@@ -20,7 +20,7 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
@@ -122,7 +122,7 @@ public interface LocalDataStore {
    * return the full set each time a tile is added/changed/removed.
    */
   @Cold(terminates = false)
-  Flowable<ImmutableSet<TileSource>> getTileSourcesOnceAndStream();
+  Flowable<ImmutableSet<TileSet>> getTileSetsOnceAndStream();
 
   /**
    * Returns a long-lived stream that emits the full list of mutations for specified project on
@@ -178,15 +178,15 @@ public interface LocalDataStore {
    * into the local data store.
    */
   @Cold
-  Completable insertOrUpdateTileSource(TileSource tileSource);
+  Completable insertOrUpdateTileSet(TileSet tileSet);
 
   /** Returns the tile with the specified URL from the local data store, if found. */
   @Cold
-  Maybe<TileSource> getTileSource(String tileUrl);
+  Maybe<TileSet> getTileSet(String tileUrl);
 
   /** Returns all pending tiles from the local data store. */
   @Cold
-  Single<ImmutableList<TileSource>> getPendingTileSources();
+  Single<ImmutableList<TileSet>> getPendingTileSets();
 
   /**
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
@@ -208,14 +208,14 @@ public interface LocalDataStore {
 
   /**
    * Update the area count of an existing tile source in the local data store with the area count of
-   * {@param tilesource}.
+   * {@link TileSet}.
    */
   @Cold
-  Completable updateTileSourceBasemapReferenceCountByUrl(int newCount, String url);
+  Completable updateTileSetOfflineAreaReferenceCountByUrl(int newCount, String url);
 
   /** Delete a tile source associated with a given URL from the local data store. */
   @Cold
-  Completable deleteTileByUrl(TileSource tile);
+  Completable deleteTileSetByUrl(TileSet tileSet);
 
   /**
    * Emits the list of {@link FeatureMutation} instances for a given feature which match the
