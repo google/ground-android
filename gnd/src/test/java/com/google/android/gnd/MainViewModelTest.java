@@ -16,134 +16,156 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.FakeData.TERMS_OF_SERVICE;
+import static com.google.android.gnd.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
+import android.content.SharedPreferences;
 import androidx.navigation.NavDirections;
-import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.TermsOfService;
-import com.google.android.gnd.model.User;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.system.auth.SignInState.State;
-import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+import io.reactivex.observers.TestObserver;
+import java.util.NoSuchElementException;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.shadows.ShadowToast;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 public class MainViewModelTest extends BaseHiltTest {
 
-  private static final TermsOfService TEST_TERMS_OF_SERVICE = FakeData.TEST_TERMS_OF_SERVICE;
-  private static final Optional<Project> TEST_ACTIVE_PROJECT = Optional.of(FakeData.TEST_PROJECT);
-  private static final User TEST_USER = FakeData.TEST_USER;
-
-  @BindValue @Mock EphemeralPopups mockPopups;
-  @BindValue @Mock Navigator mockNavigator;
-  @BindValue @Mock ProjectRepository mockProjectRepository;
-  @BindValue @Mock TermsOfServiceRepository mockTosRepository;
-  @BindValue @Mock UserRepository mockUserRepository;
-
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject FakeRemoteDataStore fakeRemoteDataStore;
   @Inject MainViewModel viewModel;
+  @Inject Navigator navigator;
+  @Inject SharedPreferences sharedPreferences;
+  @Inject TermsOfServiceRepository tosRepository;
+  @Inject UserRepository userRepository;
+
+  private TestObserver<NavDirections> navDirectionsTestObserver;
 
   @Before
   public void setUp() {
     // TODO: Add a test for syncFeatures
-    when(mockProjectRepository.getActiveProject()).thenReturn(Flowable.just(TEST_ACTIVE_PROJECT));
-
     super.setUp();
+
+    // Subscribe to navigation requests
+    navDirectionsTestObserver = navigator.getNavigateRequests().test();
   }
 
-  private void assertProgressDialogVisible(boolean visible) {
+  private void setupUserPreferences() {
+    sharedPreferences.edit().putString("foo", "bar").apply();
+  }
+
+  private void verifyUserPreferencesCleared() {
+    assertThat(sharedPreferences.getAll()).isEmpty();
+  }
+
+  private void verifyUserSaved() {
+    userRepository.getUser(USER.getId()).test().assertResult(USER);
+  }
+
+  private void verifyUserNotSaved() {
+    userRepository.getUser(USER.getId()).test().assertError(NoSuchElementException.class);
+  }
+
+  private void verifyProgressDialogVisible(boolean visible) {
     TestObservers.observeUntilFirstChange(viewModel.getSignInProgressDialogVisibility());
     assertThat(viewModel.getSignInProgressDialogVisibility().getValue()).isEqualTo(visible);
   }
 
-  private void assertNavigate(NavDirections navDirections) {
-    Mockito.verify(mockNavigator, times(1)).navigate(navDirections);
+  private void verifyNavigationRequested(NavDirections... navDirections) {
+    navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(navDirections);
   }
 
   @Test
   public void testSignInStateChanged_onSignedOut() {
+    setupUserPreferences();
+
     fakeAuthenticationManager.signOut();
 
-    assertProgressDialogVisible(false);
-    assertNavigate(SignInFragmentDirections.showSignInScreen());
-    Mockito.verify(mockProjectRepository, times(1)).clearActiveProject();
-    Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
-    Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen());
+    verifyUserPreferencesCleared();
+    verifyUserNotSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 
   @Test
   public void testSignInStateChanged_onSigningIn() {
     fakeAuthenticationManager.setState(new SignInState(State.SIGNING_IN));
 
-    assertProgressDialogVisible(true);
-    Mockito.verify(mockNavigator, times(0)).navigate(any());
-    Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+    verifyProgressDialogVisible(true);
+    verifyNavigationRequested();
+    verifyUserNotSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 
   @Test
   public void testSignInStateChanged_onSignedIn_whenTosAccepted() {
-    when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(true);
-    when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
-
-    fakeAuthenticationManager.setUser(TEST_USER);
+    tosRepository.setTermsOfServiceAccepted(true);
+    fakeRemoteDataStore.setTermsOfService(Optional.of(TERMS_OF_SERVICE));
+    fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
-    assertProgressDialogVisible(false);
-    assertNavigate(HomeScreenFragmentDirections.showHomeScreen());
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen());
+    verifyUserSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isTrue();
   }
 
   @Test
   public void testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
-    when(mockTosRepository.isTermsOfServiceAccepted()).thenReturn(false);
-    when(mockUserRepository.saveUser(any(User.class))).thenReturn(Completable.complete());
-    when(mockTosRepository.getTermsOfService()).thenReturn(Maybe.just(TEST_TERMS_OF_SERVICE));
-
-    fakeAuthenticationManager.setUser(TEST_USER);
+    tosRepository.setTermsOfServiceAccepted(false);
+    fakeRemoteDataStore.setTermsOfService(Optional.of(TERMS_OF_SERVICE));
+    fakeAuthenticationManager.setUser(USER);
     fakeAuthenticationManager.signIn();
 
-    assertProgressDialogVisible(false);
-    assertNavigate(
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(
         SignInFragmentDirections.showTermsOfService()
-            .setTermsOfServiceText(TEST_TERMS_OF_SERVICE.getText()));
-    Mockito.verify(mockUserRepository, times(1)).saveUser(TEST_USER);
-    Mockito.verify(mockTosRepository, times(0)).setTermsOfServiceAccepted(anyBoolean());
+            .setTermsOfServiceText(TERMS_OF_SERVICE.getText()));
+    verifyUserSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
+  }
+
+  @Test
+  public void testSignInStateChanged_onSignedIn_whenTosMissing() {
+    tosRepository.setTermsOfServiceAccepted(false);
+    fakeRemoteDataStore.setTermsOfService(Optional.empty());
+
+    fakeAuthenticationManager.setUser(USER);
+    fakeAuthenticationManager.signIn();
+
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen());
+    verifyUserSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 
   @Test
   public void testSignInStateChanged_onSignInError() {
+    setupUserPreferences();
+
     fakeAuthenticationManager.setState(new SignInState(new Exception()));
 
-    Mockito.verify(mockPopups, times(1)).showError(R.string.sign_in_unsuccessful);
-    assertProgressDialogVisible(false);
-    assertNavigate(SignInFragmentDirections.showSignInScreen());
-    Mockito.verify(mockProjectRepository, times(1)).clearActiveProject();
-    Mockito.verify(mockUserRepository, times(1)).clearUserPreferences();
-    Mockito.verify(mockTosRepository, times(1)).setTermsOfServiceAccepted(false);
+    assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful");
+    verifyProgressDialogVisible(false);
+    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen());
+    verifyUserPreferencesCleared();
+    verifyUserNotSaved();
+    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }
 }

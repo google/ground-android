@@ -27,6 +27,7 @@ import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import javax.inject.Inject;
 
 /**
@@ -64,6 +65,11 @@ public class UserRepository {
   @Cold
   public Completable saveUser(User user) {
     return localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io());
+  }
+
+  @Cold
+  public Single<User> getUser(String userId) {
+    return localDataStore.getUser(userId);
   }
 
   /** Clears all user-specific preferences and settings. */

@@ -41,6 +41,7 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -172,6 +173,7 @@ public class MainViewModel extends AbstractViewModel {
           .map(TermsOfService::getText)
           .map(text -> SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(text))
           .cast(NavDirections.class)
+          .switchIfEmpty(Maybe.just(HomeScreenFragmentDirections.showHomeScreen()))
           .toObservable();
     }
   }
