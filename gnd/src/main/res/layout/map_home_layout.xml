@@ -36,18 +36,6 @@
     android:layout_height="match_parent"
     tools:background="@color/colorGrey800">
 
-    <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
-    <ImageView
-      android:id="@+id/map_crosshairs"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:adjustViewBounds="false"
-      android:src="@drawable/ic_crosshairs"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/map_type_btn"
       android:layout_width="wrap_content"
