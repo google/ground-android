@@ -51,8 +51,8 @@ public class PolygonDrawingView extends AbstractView {
         .observe(
             getActivity(),
             visible -> {
-              binding.completePolygonButton.setVisibility(visible == 4 ? INVISIBLE : VISIBLE);
-              binding.addPolygonButton.setVisibility(visible == 4 ? VISIBLE : INVISIBLE);
+              binding.completePolygonButton.setVisibility(visible == 4 ? GONE : VISIBLE);
+              binding.addPolygonButton.setVisibility(visible == 4 ? VISIBLE : GONE);
             });
   }
 }
