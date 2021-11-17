@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-import android.location.Location;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -47,6 +46,7 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.List;
+import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -54,8 +54,8 @@ import timber.log.Timber;
 @SharedViewModel
 public class PolygonDrawingViewModel extends AbstractViewModel {
 
-  /** Minimum distance (in metres) between points to be considered as non-overlapping. */
-  public static final int DISTANCE_THRESHOLD = 10;
+  /** Min. distance in dp between two points for them be considered as overlapping. */
+  public static final int DISTANCE_THRESHOLD_DP = 24;
 
   @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
@@ -138,14 +138,10 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
       Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
     }
-
-    if (!vertices.isEmpty()) {
-      updateLastVertex(newTarget);
-    }
   }
 
-  private void updateLastVertex(Point newTarget) {
-    boolean isPolygonComplete = isPointNearFirstVertex(newTarget);
+  public void updateLastVertex(Point newTarget, double distanceInPixels) {
+    boolean isPolygonComplete = vertices.size() > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP;
     addVertex(isPolygonComplete ? vertices.get(0) : newTarget, true);
     updateDrawingState(isPolygonComplete ? PolygonDrawing.COMPLETED : PolygonDrawing.STARTED);
   }
@@ -206,28 +202,15 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     drawnPolylineVertices.setValue(polygonFeature);
   }
 
-  private boolean isPointNearFirstVertex(Point point) {
-    if (vertices.size() < 3) {
-      return false;
-    }
-    if (vertices.get(0) == vertices.get(vertices.size() - 1)) {
-      return false;
-    }
-    float[] distance = new float[1];
-    Location.distanceBetween(
-        point.getLatitude(),
-        point.getLongitude(),
-        vertices.get(0).getLatitude(),
-        vertices.get(0).getLongitude(),
-        distance);
-    return distance[0] < DISTANCE_THRESHOLD;
-  }
-
   public void onCompletePolygonButtonClick() {
     defaultMapMode.onNext(Nil.NIL);
     drawingCompleted.onNext(Nil.NIL);
     isLastVertexNotSelectedByUser = false;
     vertices.clear();
+  }
+
+  public Optional<Point> getFirstVertex() {
+    return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(0));
   }
 
   public void onLocationLockClick() {
