@@ -98,6 +98,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     this.locationManager = locationManager;
     this.authManager = authManager;
     this.uuidGenerator = uuidGenerator;
+    // TODO: Create custom ui component for location lock button and share across app.
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
