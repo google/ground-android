@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
+import static androidx.room.ForeignKey.SET_DEFAULT;
 
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -45,12 +46,12 @@ import org.json.JSONObject;
           entity = FeatureEntity.class,
           parentColumns = "id",
           childColumns = "feature_id",
-          onDelete = CASCADE),
+          onDelete = SET_DEFAULT),
       @ForeignKey(
           entity = ObservationEntity.class,
           parentColumns = "id",
           childColumns = "observation_id",
-          onDelete = CASCADE)
+          onDelete = SET_DEFAULT)
     },
     indices = {@Index("feature_id"), @Index("observation_id")})
 public abstract class ObservationMutationEntity extends MutationEntity {

@@ -412,9 +412,11 @@ public class RoomLocalDataStore implements LocalDataStore {
         .flatMapCompletable(
             mutation -> {
               if (mutation instanceof ObservationMutation) {
-                return deleteObservation(((ObservationMutation) mutation).getObservationId());
+                // Deletions are finalized once the remote receives the delete and propagated locally
+                // via Project.syncFeatures
+                return Completable.complete();
               } else if (mutation instanceof FeatureMutation) {
-                return deleteFeature(mutation.getFeatureId());
+                return Completable.complete();
               } else {
                 return Completable.error(new RuntimeException("Unknown type : " + mutation));
               }

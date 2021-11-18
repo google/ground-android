@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
+import static androidx.room.ForeignKey.SET_DEFAULT;
 import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.formatVertices;
 import static com.google.android.gnd.persistence.local.room.entity.FeatureEntity.parseVertices;
 
@@ -49,7 +50,7 @@ import java8.util.Optional;
             entity = FeatureEntity.class,
             parentColumns = "id",
             childColumns = "feature_id",
-            onDelete = CASCADE),
+            onDelete = SET_DEFAULT),
     indices = {@Index("feature_id")})
 public abstract class FeatureMutationEntity extends MutationEntity {
 
