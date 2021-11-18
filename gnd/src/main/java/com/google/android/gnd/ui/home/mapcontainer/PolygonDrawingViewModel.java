@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -156,7 +157,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     updateDrawingState(PolygonDrawing.STARTED);
   }
 
-  public void onAddPolygonBtnClick() {
+  public void selectCurrentVertex() {
     if (cameraTarget != null) {
       addVertex(cameraTarget, false);
     }
@@ -188,7 +189,17 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
+  @VisibleForTesting
+  int getVertexCount() {
+    return vertices.size();
+  }
+
   private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
+    if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
+      Timber.e("Project or layer is null");
+      return;
+    }
+
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     PolygonFeature polygonFeature =
         PolygonFeature.builder()
@@ -211,6 +222,11 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public Optional<Point> getFirstVertex() {
     return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(0));
+  }
+
+  @VisibleForTesting
+  Optional<Point> getLastVertex() {
+    return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(vertices.size() - 1));
   }
 
   public void onLocationLockClick() {
