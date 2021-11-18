@@ -147,7 +147,7 @@ public class OfflineAreaRepository {
         .flatMap(Flowable::fromIterable)
         .firstOrError()
         .map(this::downloadOfflineBaseMapSource)
-        .map(json -> geoJsonParser.intersectingTiles(bounds, json))
+        .flatMap(json -> geoJsonParser.intersectingTiles(bounds, json))
         .doOnError(
             throwable ->
                 Timber.e(throwable, "couldn't retrieve basemap sources for the active project"));
@@ -185,8 +185,7 @@ public class OfflineAreaRepository {
    */
   private ImmutableSet<TileSet> downloadedTileSetsIntersection(
       Collection<TileSet> tileSets, Collection<TileSet> other) {
-    ImmutableList<String> otherUrls =
-        stream(other).map(TileSet::getUrl).collect(toImmutableList());
+    ImmutableList<String> otherUrls = stream(other).map(TileSet::getUrl).collect(toImmutableList());
 
     return stream(tileSets)
         .filter(tile -> otherUrls.contains(tile.getUrl()))
@@ -271,35 +270,38 @@ public class OfflineAreaRepository {
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)
         .firstOrError()
-        .map(this::identifyAndHandleSource)
+        .flatMap(this::identifyAndHandleSource)
         .doOnError(t -> Timber.e(t, "Couldn't retrieve basemap sources for the active project"));
   }
 
-  private ImmutableList<TileSet> identifyAndHandleSource(BaseMap baseMap) throws IOException {
+  private Single<ImmutableList<TileSet>> identifyAndHandleSource(BaseMap baseMap)
+      throws IOException {
     switch (baseMap.getType()) {
       case MBTILES_FOOTPRINTS:
         File tileFile = downloadOfflineBaseMapSource(baseMap);
         return geoJsonParser.allTiles(tileFile);
       case TILED_WEB_MAP:
-        return ImmutableList.of(
-            TileSet.newBuilder()
-                .setId(offlineUuidGenerator.generateUuid())
-                .setPath(baseMap.getUrl().toString())
-                .setUrl(baseMap.getUrl().toString())
-                .setOfflineAreaReferenceCount(1)
-                .setState(TileSet.State.PENDING)
-                .build());
+        return Single.just(
+            ImmutableList.of(
+                TileSet.newBuilder()
+                    .setId(offlineUuidGenerator.generateUuid())
+                    .setPath(baseMap.getUrl().toString())
+                    .setUrl(baseMap.getUrl().toString())
+                    .setOfflineAreaReferenceCount(1)
+                    .setState(TileSet.State.PENDING)
+                    .build()));
       default:
         Timber.d("Unknown basemap source type");
         // Try to read a tile from the URL anyway.
-        return ImmutableList.of(
-            TileSet.newBuilder()
-                .setId(offlineUuidGenerator.generateUuid())
-                .setPath(baseMap.getUrl().toString())
-                .setUrl(baseMap.getUrl().toString())
-                .setOfflineAreaReferenceCount(1)
-                .setState(TileSet.State.PENDING)
-                .build());
+        return Single.just(
+            ImmutableList.of(
+                TileSet.newBuilder()
+                    .setId(offlineUuidGenerator.generateUuid())
+                    .setPath(baseMap.getUrl().toString())
+                    .setUrl(baseMap.getUrl().toString())
+                    .setOfflineAreaReferenceCount(1)
+                    .setState(TileSet.State.PENDING)
+                    .build()));
     }
   }
 }
