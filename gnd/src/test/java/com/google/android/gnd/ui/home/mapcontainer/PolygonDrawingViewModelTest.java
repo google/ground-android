@@ -2,6 +2,7 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static com.google.android.gnd.TestObservers.observeUntilFirstChange;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.view.View;
 import com.google.android.gnd.BaseHiltTest;
@@ -138,6 +139,40 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     assertPolygonFeatureMutated(3);
     assertCompleteButtonVisible(View.INVISIBLE);
+  }
+
+  @Test
+  public void testPolygonDrawingCompleted_whenPolygonIsIncomplete() {
+    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.selectCurrentVertex();
+    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.selectCurrentVertex();
+    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+
+    assertThrows(
+        "Polygon is not complete",
+        IllegalStateException.class,
+        () -> viewModel.onCompletePolygonButtonClick());
+  }
+
+  @Test
+  public void testPolygonDrawingCompleted() {
+    TestObserver<Nil> defaultMapModeObserver = viewModel.getDefaultMapMode().test();
+    TestObserver<Nil> drawingCompletedObserver = viewModel.getDrawingCompleted().test();
+
+    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.selectCurrentVertex();
+    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.selectCurrentVertex();
+    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.selectCurrentVertex();
+    viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
+
+    viewModel.onCompletePolygonButtonClick();
+
+    defaultMapModeObserver.assertValue(Nil.NIL);
+    drawingCompletedObserver.assertValue(Nil.NIL);
+    assertThat(viewModel.getVertexCount()).isEqualTo(0);
   }
 
   private void assertCompleteButtonVisible(int visibility) {
