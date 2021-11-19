@@ -270,12 +270,18 @@ public class OfflineAreaRepository {
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)
         .firstOrError()
-        .flatMap(this::identifyAndHandleSource)
+        .flatMap(this::getTileSets)
         .doOnError(t -> Timber.e(t, "Couldn't retrieve basemap sources for the active project"));
   }
 
-  private Single<ImmutableList<TileSet>> identifyAndHandleSource(BaseMap baseMap)
-      throws IOException {
+  /**
+   * Returns a list of {@link TileSet}s corresponding to a given {@link BaseMap} based on the
+   * BaseMap's type.
+   *
+   * <p>This function may perform network IO when the provided BaseMap requires downloading TileSets
+   * locally.
+   */
+  private Single<ImmutableList<TileSet>> getTileSets(BaseMap baseMap) throws IOException {
     switch (baseMap.getType()) {
       case MBTILES_FOOTPRINTS:
         File tileFile = downloadOfflineBaseMapSource(baseMap);
