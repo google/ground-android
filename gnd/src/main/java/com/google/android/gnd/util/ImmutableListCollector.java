@@ -60,6 +60,7 @@ public abstract class ImmutableListCollector {
           Function<T, E> func) {
     return x -> StreamSupport.stream(x).map(func).collect(toImmutableList());
   }
+
   /**
    * Returns a function for use with RxJava Observables that filters a list using a provided
    * function and recollects the results back into an immutable list.
