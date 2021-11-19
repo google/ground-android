@@ -50,8 +50,8 @@ public abstract class ImmutableListCollector {
   }
 
   /**
-   * Returns a function for use in rx streams that maps a function over the contents of an immutable
-   * list and recollects the results back into an immutable list.
+   * Returns a function for use with RxJava Observables that maps a function over the contents of an
+   * immutable list and recollects the results back into an immutable list.
    *
    * <p>This eliminates list handling boilerplate when lists are used as rx stream values.
    */
@@ -61,8 +61,8 @@ public abstract class ImmutableListCollector {
     return x -> StreamSupport.stream(x).map(func).collect(toImmutableList());
   }
   /**
-   * Returns a function for use in rx streams that filters a list using a provided function and
-   * recollects the results back into an immutable list.
+   * Returns a function for use with RxJava Observables that filters a list using a provided
+   * function and recollects the results back into an immutable list.
    *
    * <p>This eliminates list handling boilerplate when lists are used as rx stream values.
    */
