@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -186,11 +185,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
-  @VisibleForTesting
-  int getVertexCount() {
-    return vertices.size();
-  }
-
   private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
     if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
       Timber.e("Project or layer is null");
@@ -225,7 +219,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(0));
   }
 
-  @VisibleForTesting
   Optional<Point> getLastVertex() {
     return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(vertices.size() - 1));
   }

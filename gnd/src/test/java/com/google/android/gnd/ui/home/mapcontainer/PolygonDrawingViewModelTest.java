@@ -47,14 +47,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   }
 
   @Test
-  public void testSelectCurrentVertex_whenCameraTargetIsNotAvailable() {
-    viewModel.selectCurrentVertex();
-
-    assertThat(viewModel.getVertexCount()).isEqualTo(0);
-  }
-
-  @Test
-  public void testSelectCurrentVertex_whenCameraTargetIsAvailable() {
+  public void testSelectCurrentVertex() {
     viewModel.onCameraMoved(newPoint(0.0, 0.0));
     viewModel.selectCurrentVertex();
 
@@ -187,7 +180,6 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     defaultMapModeObserver.assertValue(Nil.NIL);
     drawingCompletedObserver.assertValue(Nil.NIL);
-    assertThat(viewModel.getVertexCount()).isEqualTo(0);
   }
 
   private void assertCompleteButtonVisible(int visibility) {
