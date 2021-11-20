@@ -19,6 +19,7 @@
 <lint>
   <!-- Severity: Warning -->
   <issue id="InvalidPackage" severity="warning" />
+  <issue id="LintError" severity="warning" />
   <issue id="MissingTranslation" severity="warning" />
 
   <!-- Severity: Error -->
