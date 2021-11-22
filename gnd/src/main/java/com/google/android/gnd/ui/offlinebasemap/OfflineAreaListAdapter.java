@@ -33,7 +33,6 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
   public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public OfflineBaseMapListItemBinding binding;
-    public int position;
     private ImmutableList<OfflineArea> areas;
     private final Navigator navigator;
 
@@ -51,7 +50,7 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     @Override
     public void onClick(View v) {
       if (areas.size() > 0) {
-        String id = areas.get(position).getId();
+        String id = areas.get(getAdapterPosition()).getId();
         navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(id));
       }
     }
@@ -77,7 +76,6 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
   public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
     viewHolder.areas = offlineAreas;
     viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getName());
-    viewHolder.position = position;
   }
 
   @Override

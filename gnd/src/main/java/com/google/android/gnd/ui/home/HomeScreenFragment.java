@@ -53,6 +53,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -105,6 +106,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   @Inject FeatureHelper featureHelper;
+  @Inject FeatureRepository featureRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -199,7 +201,7 @@ public class HomeScreenFragment extends AbstractFragment
         viewModel.addFeature(layer, mapCenter);
         break;
       case POLYGON:
-        if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+        if (featureRepository.isPolygonDialogInfoShown()) {
           startPolygonDrawing(layer);
         } else {
           showPolygonInfoDialog(layer);
@@ -567,7 +569,7 @@ public class HomeScreenFragment extends AbstractFragment
               if (featureType == 0) {
                 viewModel.addFeature(layer, point);
               } else if (featureType == 1) {
-                if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+                if (featureRepository.isPolygonDialogInfoShown()) {
                   startPolygonDrawing(layer);
                 } else {
                   showPolygonInfoDialog(layer);
@@ -592,7 +594,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showPolygonInfoDialog(Layer layer) {
-    polygonDrawingViewModel.updatePolygonInfoDialogShown();
+    featureRepository.setPolygonDialogInfoShown(true);
     polygonDrawingInfoDialogFragment =
         new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(layer));
     polygonDrawingInfoDialogFragment.show(
