@@ -18,7 +18,8 @@
 
 buildscript {
     ext {
-        hiltVersion = "2.38"
+        hiltVersion = "2.38.1"
+        navigationVersion = "2.3.5"
     }
     repositories {
         google()
@@ -29,9 +30,9 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
         classpath "com.google.gms:google-services:4.3.3"
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.5.0"
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.5'

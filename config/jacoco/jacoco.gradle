@@ -31,9 +31,16 @@ jacocoAndroidUnitTestReport {
         '**/generated/callback/*',
         '**/_com_google_android_gnd_*',
         '**/hilt_aggregated_deps',
-        '**/*Hilt*',
-        '**/AutoValue_*',
+        '**/local/room/dao/*',
+        '**/AutoOneOf_*',
+        '**/*AutoValue_*',
         '**/DataBind*',
+        '**/*_Factory*',
+        '**/*FragmentArgs*',
+        '**/*FragmentDirections*',
+        '**/*Hilt*',
+        '**/LocalDatabase_Impl*',
+        '**/*Module*',
     ]
 }
 
