@@ -115,7 +115,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .subscribe(__ -> setDefaultMode());
     polygonDrawingViewModel
         .getPolygonFeature()
-        .observe(this, feature -> mapContainerViewModel.updateDrawnPolygonFeature(feature));
+        .observe(this, mapContainerViewModel::updateDrawnPolygonFeature);
     featureRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))

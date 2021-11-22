@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-import android.location.Location;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -30,7 +29,6 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -47,6 +45,7 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.List;
+import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -54,8 +53,8 @@ import timber.log.Timber;
 @SharedViewModel
 public class PolygonDrawingViewModel extends AbstractViewModel {
 
-  /** Minimum distance (in metres) between points to be considered as non-overlapping. */
-  public static final int DISTANCE_THRESHOLD = 10;
+  /** Min. distance in dp between two points for them be considered as overlapping. */
+  public static final int DISTANCE_THRESHOLD_DP = 24;
 
   @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
@@ -81,19 +80,24 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
-  private final FeatureRepository featureRepository;
   @Nullable private Point cameraTarget;
+
+  /**
+   * If true, then it means that the last vertex is added automatically and should be removed before
+   * adding any permanent vertex. Used for rendering a line between last added point and current
+   * camera target.
+   */
+  boolean isLastVertexNotSelectedByUser;
 
   @Inject
   PolygonDrawingViewModel(
       LocationManager locationManager,
-      FeatureRepository featureRepository,
       AuthenticationManager authManager,
       OfflineUuidGenerator uuidGenerator) {
     this.locationManager = locationManager;
     this.authManager = authManager;
-    this.featureRepository = featureRepository;
     this.uuidGenerator = uuidGenerator;
+    // TODO: Create custom ui component for location lock button and share across app.
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
@@ -127,13 +131,16 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public void onCameraMoved(Point newTarget) {
     cameraTarget = newTarget;
-    if (vertices.size() >= 3) {
-      checkPointNearVertex(cameraTarget, false);
-    }
     if (locationLockState.getValue() != null && isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
     }
+  }
+
+  public void updateLastVertex(Point newTarget, double distanceInPixels) {
+    boolean isPolygonComplete = vertices.size() > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP;
+    addVertex(isPolygonComplete ? vertices.get(0) : newTarget, true);
+    updateDrawingState(isPolygonComplete ? PolygonDrawing.COMPLETED : PolygonDrawing.STARTED);
   }
 
   public void removeLastVertex() {
@@ -146,14 +153,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     updateDrawingState(PolygonDrawing.STARTED);
   }
 
-  public void onAddPolygonBtnClick() {
+  public void selectCurrentVertex() {
     if (cameraTarget != null) {
-      if (vertices.size() >= 3) {
-        checkPointNearVertex(cameraTarget, true);
-      } else {
-        vertices.add(cameraTarget);
-      }
-      updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+      addVertex(cameraTarget, false);
     }
   }
 
@@ -161,22 +163,34 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     locationLockEnabled.postValue(enabled);
   }
 
-  private void checkPointNearVertex(Point position, Boolean addVertex) {
-    if (isPointNearFirstVertex(position)) {
-      updateDrawingState(PolygonDrawing.COMPLETED);
-      vertices.add(vertices.get(0));
-      updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    } else {
-      if (vertices.get(0) != vertices.get(vertices.size() - 1)) {
-        if (addVertex) {
-          vertices.add(position);
-        }
-        updateDrawingState(PolygonDrawing.STARTED);
-      }
+  /**
+   * Adds a new vertex.
+   *
+   * @param vertex new position
+   * @param isNotSelectedByUser whether the vertex is not selected by the user
+   */
+  private void addVertex(Point vertex, boolean isNotSelectedByUser) {
+    // Clear last vertex if it is unselected
+    if (isLastVertexNotSelectedByUser && !vertices.isEmpty()) {
+      vertices.remove(vertices.size() - 1);
     }
+
+    // Update selected state
+    isLastVertexNotSelectedByUser = isNotSelectedByUser;
+
+    // Add the new vertex
+    vertices.add(vertex);
+
+    // Render changes to UI
+    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
   private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
+    if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
+      Timber.e("Project or layer is null");
+      return;
+    }
+
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     PolygonFeature polygonFeature =
         PolygonFeature.builder()
@@ -190,25 +204,23 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     drawnPolylineVertices.setValue(polygonFeature);
   }
 
-  private boolean isPointNearFirstVertex(Point point) {
-    if (vertices.get(0) == vertices.get(vertices.size() - 1)) {
-      return false;
+  public void onCompletePolygonButtonClick() {
+    if (vertices.size() < 3 || !getFirstVertex().equals(getLastVertex())) {
+      throw new IllegalStateException("Polygon is not complete");
     }
-    float[] distance = new float[1];
-    Location.distanceBetween(
-        point.getLatitude(),
-        point.getLongitude(),
-        vertices.get(0).getLatitude(),
-        vertices.get(0).getLongitude(),
-        distance);
-    return distance[0] < DISTANCE_THRESHOLD;
+
+    defaultMapMode.onNext(Nil.NIL);
+    drawingCompleted.onNext(Nil.NIL);
+    isLastVertexNotSelectedByUser = false;
+    vertices.clear();
   }
 
-  public void onCompletePolygonButtonClick() {
-    defaultMapMode.onNext(Nil.NIL);
-    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    drawingCompleted.onNext(Nil.NIL);
-    vertices.clear();
+  Optional<Point> getFirstVertex() {
+    return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(0));
+  }
+
+  Optional<Point> getLastVertex() {
+    return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(vertices.size() - 1));
   }
 
   public void onLocationLockClick() {
@@ -250,13 +262,5 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   public enum PolygonDrawing {
     STARTED,
     COMPLETED
-  }
-
-  public boolean isPolygonInfoDialogShown() {
-    return featureRepository.isPolygonDialogInfoShown();
-  }
-
-  public void updatePolygonInfoDialogShown() {
-    featureRepository.setPolygonDialogInfoShown(true);
   }
 }

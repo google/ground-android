@@ -16,39 +16,32 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.common.truth.Truth;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.android.gnd.model.observation.DateResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Month;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.Locale;
 import org.junit.Test;
 
 public class DateTimeResponseTest {
 
-  public final DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-  public final DateFormat dateFormat =
-      new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
   @Test
-  public void testTimeFormat() {
-    Date originalDate = new Date();
-    String timeString = timeFormat.format(originalDate);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
-    LocalTime lt = LocalTime.parse(timeString, formatter);
-    String formattedTime = lt.format(formatter);
-    Truth.assertThat(timeString).isEqualTo(formattedTime);
+  public void testTimeResponse_textDetails() {
+    Instant instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant();
+    assertThat(new TimeResponse(Date.from(instant)).getDetailsText()).isEqualTo("07:30");
   }
 
   @Test
-  public void testDateFormat() {
-    Date originalDate = new Date();
-    String dateString = dateFormat.format(originalDate);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault());
-    LocalDate ld = LocalDate.parse(dateString, formatter);
-    String formattedDate = ld.format(formatter);
-    Truth.assertThat(dateString).isEqualTo(formattedDate);
+  public void testDateResponse_textDetails() {
+    Instant instant =
+        LocalDate.of(2021, Month.OCTOBER, 23)
+            .atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant();
+    assertThat(new DateResponse(Date.from(instant)).getDetailsText()).isEqualTo("2021-10-23");
   }
 }

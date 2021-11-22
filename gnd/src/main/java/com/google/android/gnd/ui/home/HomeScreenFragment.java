@@ -26,7 +26,6 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,6 +53,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -106,6 +106,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject EphemeralPopups popups;
   @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   @Inject FeatureHelper featureHelper;
+  @Inject FeatureRepository featureRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -168,44 +169,48 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(this::showAddFeatureDialog);
+        .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
   }
 
-  private void showAddFeatureDialog(Pair<ImmutableList<Layer>, Point> args) {
-    ImmutableList<Layer> layers = args.first;
-
-    Point point = args.second;
+  private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
+    // Skip layer selection if there's only one layer to which the user can add features.
+    // TODO: Refactor and move logic into view model.
+    if (layers.size() == 1) {
+      onAddFeatureLayerSelected(layers.get(0), mapCenter);
+      return;
+    }
     addFeatureDialogFragment.show(
-        layers,
-        getChildFragmentManager(),
-        layer -> {
-          if (layer.getContributorsCanAdd().isEmpty()) {
-            Timber.e("No permissions set on layer %s%", layer.getId());
-          }
+        layers, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, mapCenter));
+  }
 
-          if (layer.getContributorsCanAdd().size() > 1) {
-            showFeatureTypeDialog(layer, point);
-            return;
-          }
+  private void onAddFeatureLayerSelected(Layer layer, Point mapCenter) {
+    if (layer.getUserCanAdd().isEmpty()) {
+      Timber.e(
+          "User cannot add features to layer %s - layer list should not have been shown",
+          layer.getId());
+      return;
+    }
 
-          switch (layer.getContributorsCanAdd().get(0)) {
-            case POINT:
-              viewModel.addFeature(layer, point);
-              break;
-            case POLYGON:
-              if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
-                startPolygonDrawing(layer);
-              } else {
-                showPolygonInfoDialog(layer);
-              }
-              break;
-            default:
-              Timber.w(
-                  "Unsupported feature type defined in layer: %s",
-                  layer.getContributorsCanAdd().get(0));
-              break;
-          }
-        });
+    if (layer.getUserCanAdd().size() > 1) {
+      showAddFeatureTypeSelector(layer, mapCenter);
+      return;
+    }
+
+    switch (layer.getUserCanAdd().get(0)) {
+      case POINT:
+        viewModel.addFeature(layer, mapCenter);
+        break;
+      case POLYGON:
+        if (featureRepository.isPolygonDialogInfoShown()) {
+          startPolygonDrawing(layer);
+        } else {
+          showPolygonInfoDialog(layer);
+        }
+        break;
+      default:
+        Timber.w("Unsupported feature type defined in layer: %s", layer.getUserCanAdd().get(0));
+        break;
+    }
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
@@ -557,14 +562,14 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showFeatureTypeDialog(Layer layer, Point point) {
+  private void showAddFeatureTypeSelector(Layer layer, Point point) {
     featureDataTypeSelectorDialogFragment =
         new FeatureDataTypeSelectorDialogFragment(
             featureType -> {
               if (featureType == 0) {
                 viewModel.addFeature(layer, point);
               } else if (featureType == 1) {
-                if (polygonDrawingViewModel.isPolygonInfoDialogShown()) {
+                if (featureRepository.isPolygonDialogInfoShown()) {
                   startPolygonDrawing(layer);
                 } else {
                   showPolygonInfoDialog(layer);
@@ -589,10 +594,9 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showPolygonInfoDialog(Layer layer) {
-    polygonDrawingViewModel.updatePolygonInfoDialogShown();
+    featureRepository.setPolygonDialogInfoShown(true);
     polygonDrawingInfoDialogFragment =
-        new PolygonDrawingInfoDialogFragment(
-            () -> startPolygonDrawing(layer));
+        new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(layer));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }

@@ -16,43 +16,44 @@
 
 package com.google.android.gnd.ui.tos;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import androidx.navigation.NavDirections;
+import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
-import com.google.common.truth.Truth;
-import org.junit.Before;
-import org.junit.Rule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import io.reactivex.observers.TestObserver;
+import javax.inject.Inject;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
-public class TermsOfServiceViewModelTest {
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner.class)
+public class TermsOfServiceViewModelTest extends BaseHiltTest {
 
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
-
-  @Mock Navigator mockNavigator;
-  @Mock TermsOfServiceRepository mockRepository;
-
-  private TermsOfServiceViewModel viewModel;
-
-  @Before
-  public void before() {
-    viewModel = new TermsOfServiceViewModel(mockNavigator, mockRepository);
-  }
+  @Inject Navigator navigator;
+  @Inject TermsOfServiceRepository termsOfServiceRepository;
+  @Inject TermsOfServiceViewModel viewModel;
 
   @Test
   public void testOnButtonClicked() {
+    TestObserver<NavDirections> testObserver = navigator.getNavigateRequests().test();
+
     viewModel.onButtonClicked();
-    Mockito.verify(mockRepository, Mockito.times(1)).setTermsOfServiceAccepted(true);
-    Mockito.verify(mockNavigator, Mockito.times(1))
-        .navigate(HomeScreenFragmentDirections.showHomeScreen());
+
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
+    testObserver
+        .assertNoErrors()
+        .assertNotComplete()
+        .assertValue(HomeScreenFragmentDirections.showHomeScreen());
   }
 
   @Test
   public void testTermsOfServiceText() {
     viewModel.setTermsOfServiceText("Terms Text");
-    Truth.assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
+    assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
   }
 }

@@ -18,40 +18,35 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.gnd.persistence.local.LocalValueStore;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import dagger.hilt.android.testing.HiltAndroidRule;
+import com.google.android.gnd.BaseHiltTest;
+import com.google.android.gnd.FakeData;
+import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
+import java8.util.Optional;
 import javax.inject.Inject;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @HiltAndroidTest
-@Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
-public class TermsOfServiceRepositoryTest {
+public class TermsOfServiceRepositoryTest extends BaseHiltTest {
 
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
+  @Inject FakeRemoteDataStore fakeRemoteDataStore;
+  @Inject TermsOfServiceRepository termsOfServiceRepository;
 
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Test
+  public void testGetTermsOfService() {
+    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE));
 
-  @Inject LocalValueStore localValueStore;
-  @Mock RemoteDataStore mockRemoteDataStore;
+    termsOfServiceRepository.getTermsOfService().test().assertResult(FakeData.TERMS_OF_SERVICE);
+  }
 
-  private TermsOfServiceRepository termsOfServiceRepository;
+  @Test
+  public void testGetTermsOfService_whenMissing_doesNotThrowException() {
+    fakeRemoteDataStore.setTermsOfService(Optional.empty());
 
-  @Before
-  public void setUp() {
-    hiltRule.inject();
-    termsOfServiceRepository = new TermsOfServiceRepository(mockRemoteDataStore, localValueStore);
+    termsOfServiceRepository.getTermsOfService().test().assertNoValues().assertComplete();
   }
 
   @Test

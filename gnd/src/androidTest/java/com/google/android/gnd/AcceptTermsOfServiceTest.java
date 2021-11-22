@@ -24,67 +24,23 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.test.espresso.IdlingRegistry;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import com.google.android.gnd.persistence.remote.RemoteStorageModule;
-import com.google.android.gnd.persistence.sync.WorkManagerModule;
-import com.google.android.gnd.system.auth.AuthenticationModule;
-import dagger.hilt.android.testing.HiltAndroidRule;
+import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
+import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.UninstallModules;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import javax.inject.Inject;
 import org.junit.Test;
 
-@UninstallModules({
-    AuthenticationModule.class,
-    RemoteStorageModule.class,
-    WorkManagerModule.class,
-})
 @HiltAndroidTest
-public class AcceptTermsOfServiceTest {
+public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
 
-  // Ensures that the Hilt component is initialized before running the ActivityScenarioRule.
-  @Rule(order = 0)
-  public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
-  // Swaps the background executor in Architecture Components with one which executes synchronously.
-  @Rule(order = 1)
-  public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-
-  // Sets the preferences so no login is required and an active project is selected.
-  @Rule(order = 2)
-  public SetPreferencesRule preferencesRule = new SetPreferencesRule();
-
-  // Load the MainActivity for each test.
-  @Rule(order = 3)
-  public ActivityScenarioRule<MainActivity> scenarioRule =
-      new ActivityScenarioRule<>(MainActivity.class);
-
-  // Create an idling resource which can be used to wait for databindings to complete.
-  private final DataBindingIdlingResource dataBindingIdlingResource =
-      new DataBindingIdlingResource();
-
-  /**
-   * Idling resources tell Espresso that the app is idle or busy. This is needed when operations are
-   * not scheduled in the main Looper (for example when executed on a different thread).
-   */
-  @Before
-  public void registerIdlingResource() {
-    // Register the databinding idling resource. If a test is dependent on a databinding then it
-    // MUST monitor the activity, otherwise it will timeout waiting for the databinding to
-    // complete. See tests below for examples.
-    IdlingRegistry.getInstance().register(dataBindingIdlingResource);
-  }
-
-  /**
-   * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
-   */
-  @After
-  public void unregisterIdlingResource() {
-    IdlingRegistry.getInstance().unregister(dataBindingIdlingResource);
+  @Override
+  public void setUp() {
+    super.setUp();
+    fakeAuthenticationManager.setUser(FakeData.USER);
+    fakeRemoteDataStore.setTestProject(FakeData.PROJECT);
   }
 
   // Given: a logged in user - with terms not accepted.
@@ -93,7 +49,6 @@ public class AcceptTermsOfServiceTest {
   //       should appear.
   @Test
   public void acceptTerms() {
-
     dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
 
     // Verify that the agree button is not enabled by default.
@@ -106,7 +61,7 @@ public class AcceptTermsOfServiceTest {
     onView(withId(R.id.agreeButton)).check(matches(isEnabled()));
 
     // Verify that the terms text matched with fake data.
-    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE)));
+    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE.getText())));
 
     // Tap on the button
     onView(withId(R.id.agreeButton)).perform(click());

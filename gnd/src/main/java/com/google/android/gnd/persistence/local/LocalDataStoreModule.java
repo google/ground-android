@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
+import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
@@ -26,11 +27,10 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
-import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
+import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import dagger.Binds;
 import dagger.Module;
@@ -94,18 +94,18 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static TileSourceDao tileSourceDao(LocalDatabase localDatabase) {
-    return localDatabase.tileSourceDao();
+  static TileSetDao tileSetDao(LocalDatabase localDatabase) {
+    return localDatabase.tileSetDao();
   }
 
   @Provides
-  static OfflineBaseMapDao offlineAreaDao(LocalDatabase localDatabase) {
+  static OfflineAreaDao offlineAreaDao(LocalDatabase localDatabase) {
     return localDatabase.offlineAreaDao();
   }
 
   @Provides
-  static OfflineBaseMapSourceDao offlineBaseMapSourceDao(LocalDatabase localDatabase) {
-    return localDatabase.offlineBaseMapSourceDao();
+  static BaseMapDao baseMapDao(LocalDatabase localDatabase) {
+    return localDatabase.baseMapDao();
   }
 
   @Provides

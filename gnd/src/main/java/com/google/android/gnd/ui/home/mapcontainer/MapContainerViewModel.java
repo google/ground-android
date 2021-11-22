@@ -33,7 +33,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
@@ -42,8 +42,7 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.MapsRepository;
-import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
@@ -98,7 +97,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
-  private final MapsRepository mapsRepository;
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
@@ -147,8 +145,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineBaseMapRepository offlineBaseMapRepository,
-      MapsRepository mapsRepository) {
+      OfflineAreaRepository offlineAreaRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.resources = resources;
     this.projectRepository = projectRepository;
@@ -183,8 +180,7 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .map(
                     loadableProject ->
-                        projectRepository.getModifiableLayers(
-                            loadableProject.value(), FeatureType.POINT)));
+                        projectRepository.getModifiableLayers(loadableProject.value().get())));
 
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
@@ -213,12 +209,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository
-                .getDownloadedTileSourcesOnceAndStream()
-                .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
+            offlineAreaRepository
+                .getDownloadedTileSetsOnceAndStream()
+                .map(set -> stream(set).map(TileSet::getPath).collect(toImmutableSet())));
     disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
-
-    this.mapsRepository = mapsRepository;
   }
 
   private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {

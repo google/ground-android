@@ -36,6 +36,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -326,6 +327,20 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   @Override
+  public double getDistanceInPixels(Point point1, Point point2) {
+    if (map == null) {
+      Timber.e("Null Map reference");
+      return 0;
+    }
+    Projection projection = map.getProjection();
+    android.graphics.Point loc1 = projection.toScreenLocation(toLatLng(point1));
+    android.graphics.Point loc2 = projection.toScreenLocation(toLatLng(point2));
+    double dx = loc1.x - loc2.x;
+    double dy = loc1.y - loc2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  @Override
   public void enableGestures() {
     getMap().getUiSettings().setAllGesturesEnabled(true);
   }
@@ -349,8 +364,10 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     LatLng position = toLatLng(mapPin.getPosition());
     String color = mapPin.getStyle().getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
+    // TODO: add the anchor values into the resource dimensions file
     Marker marker =
-        getMap().addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
+        getMap().addMarker(
+            new MarkerOptions().position(position).icon(icon).anchor(0.5f, 0.85f).alpha(1.0f));
     markers.add(marker);
     marker.setTag(mapPin);
   }
