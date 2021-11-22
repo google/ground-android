@@ -174,7 +174,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
    */
   private void addVertex(Point vertex, boolean isNotSelectedByUser) {
     // Clear last vertex if it is unselected
-    if (isLastVertexNotSelectedByUser) {
+    if (isLastVertexNotSelectedByUser && vertices.size() > 1) {
       vertices.remove(vertices.size() - 1);
     }
 
