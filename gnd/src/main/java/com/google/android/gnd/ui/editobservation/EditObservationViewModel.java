@@ -60,49 +60,59 @@ import timber.log.Timber;
 
 public class EditObservationViewModel extends AbstractViewModel {
 
-  // Injected inputs.
-  /** True if observation is currently being loaded, otherwise false. */
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-  /** True if observation is currently being saved, otherwise false. */
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+  // Injected dependencies.
 
   private final ObservationRepository observationRepository;
   private final Resources resources;
   private final UserMediaRepository userMediaRepository;
   private final StorageManager storageManager;
-
-  // Input events.
   private final CameraManager cameraManager;
 
-  // View state streams.
+  // States.
+
+  /** True if observation is currently being loaded, otherwise false. */
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+
+  /** True if observation is currently being saved, otherwise false. */
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+
+  /** Form definition, loaded when view is initialized. */
+  private final LiveData<Form> form;
+
+  /** Toolbar title, based on whether user is adding new or editing existing observation. */
+  @Hot(replays = true)
+  private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
+
+  /** Original form responses, loaded when view is initialized. */
+  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
+
+  /** Form validation errors, updated when existing for loaded and when responses change. */
+  @Nullable private Map<String, String> validationErrors;
+
   /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
   private final FlowableProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
-  /** "Save" button clicks. */
-  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
-  /** Form definition, loaded when view is initialized. */
-  private final LiveData<Form> form;
-  /** Toolbar title, based on whether user is adding new or editing existing observation. */
-  @Hot(replays = true)
-  private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
-  /** Stream of updates to photo fields. */
-  @Hot(replays = true)
-  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
-  /** Original form responses, loaded when view is initialized. */
-  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
-  /** Outcome of user clicking "Save". */
-  private final Observable<SaveResult> saveResults;
-  /** Form validation errors, updated when existing for loaded and when responses change. */
-  @Nullable private Map<String, String> validationErrors;
+
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
-  // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
+
+  // Events.
+
+  /** "Save" button clicks. */
+  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+
+  /** Outcome of user clicking "Save". */
+  private final Observable<SaveResult> saveResults;
+
+  /** Stream of updates to photo fields. */
+  @Hot(replays = true)
+  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
 
   @Inject
   EditObservationViewModel(
