@@ -23,8 +23,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:minWidth="200dp"
-    android:paddingTop="@dimen/map_layer_popup_padding"
-    android:paddingBottom="@dimen/map_layer_popup_padding"
+    android:padding="@dimen/map_layer_popup_padding"
     android:orientation="vertical">
     <LinearLayout
       android:layout_width="match_parent"
