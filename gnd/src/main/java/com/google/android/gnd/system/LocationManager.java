@@ -25,16 +25,16 @@ import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
 import com.google.android.gnd.system.rx.RxLocationCallback;
-import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import timber.log.Timber;
 
-@ActivityScoped
+@Singleton
 public class LocationManager {
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
   private static final long FASTEST_INTERVAL = 250; /* 250 ms */
