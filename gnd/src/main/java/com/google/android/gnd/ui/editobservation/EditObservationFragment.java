@@ -127,7 +127,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
     viewModel
         .getSaveResults()
-        .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
+        .as(autoDisposable(getViewLifecycleOwner()))
+        .subscribe(this::handleSaveResult);
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }

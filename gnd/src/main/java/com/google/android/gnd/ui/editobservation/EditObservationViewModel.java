@@ -37,7 +37,6 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.repository.UserMediaRepository;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -47,6 +46,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
@@ -94,7 +94,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   /** Outcome of user clicking "Save". */
-  private final LiveData<Event<SaveResult>> saveResults;
+  private final Observable<SaveResult> saveResults;
   /** Form validation errors, updated when existing for loaded and when responses change. */
   @Nullable private Map<String, String> validationErrors;
   /** Observation state loaded when view is initialized. */
@@ -117,7 +117,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
-    this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+    this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
@@ -132,7 +132,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return toolbarTitle;
   }
 
-  LiveData<Event<SaveResult>> getSaveResults() {
+  Observable<SaveResult> getSaveResults() {
     return saveResults;
   }
 
@@ -249,17 +249,17 @@ public class EditObservationViewModel extends AbstractViewModel {
         .onErrorResumeNext(this::onError);
   }
 
-  private Single<Event<SaveResult>> onSave() {
+  private Single<SaveResult> onSave() {
     if (originalObservation == null) {
       Timber.e("Save attempted before observation loaded");
-      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(SaveResult.NO_CHANGES_TO_SAVE);
     }
 
     if (hasValidationErrors()) {
-      return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
+      return Single.just(SaveResult.HAS_VALIDATION_ERRORS);
     }
     if (!hasUnsavedChanges()) {
-      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(SaveResult.NO_CHANGES_TO_SAVE);
     }
     return save();
   }
@@ -270,7 +270,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Single.never();
   }
 
-  private Single<Event<SaveResult>> save() {
+  private Single<SaveResult> save() {
     if (originalObservation == null) {
       return Single.error(new IllegalStateException("Observation is null"));
     }
@@ -279,7 +279,7 @@ public class EditObservationViewModel extends AbstractViewModel {
         .createOrUpdateObservation(originalObservation, getResponseDeltas(), isNew)
         .doOnSubscribe(__ -> isSaving.postValue(true))
         .doOnComplete(() -> isSaving.postValue(false))
-        .toSingleDefault(Event.create(SaveResult.SAVED));
+        .toSingleDefault(SaveResult.SAVED);
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
