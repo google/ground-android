@@ -174,7 +174,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   public void onSaveClick(View view) {
     hideKeyboard(view);
-    viewModel.onSave(getValidationErrors());
+    viewModel.onSaveClick(getValidationErrors());
   }
 
   private void hideKeyboard(View view) {
