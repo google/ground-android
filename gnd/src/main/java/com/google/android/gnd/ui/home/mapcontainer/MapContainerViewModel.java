@@ -178,9 +178,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             projectRepository
                 .getProjectLoadingState()
-                .map(
-                    loadableProject ->
-                        projectRepository.getModifiableLayers(loadableProject.value().get())));
+                .map(loadableProject -> loadableProject.value().get().getLayers()));
 
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
