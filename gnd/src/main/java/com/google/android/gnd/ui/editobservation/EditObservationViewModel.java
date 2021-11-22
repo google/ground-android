@@ -20,7 +20,6 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import android.app.Application;
 import android.content.res.Resources;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
@@ -116,12 +115,12 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @Inject
   EditObservationViewModel(
-      Application application,
+      Resources resources,
       ObservationRepository observationRepository,
       UserMediaRepository userMediaRepository,
       StorageManager storageManager,
       CameraManager cameraManager) {
-    this.resources = application.getResources();
+    this.resources = resources;
     this.observationRepository = observationRepository;
     this.userMediaRepository = userMediaRepository;
     this.storageManager = storageManager;
@@ -222,7 +221,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return photoUpdates;
   }
 
-  public void onSave(Map<String, String> validationErrors) {
+  public void onSaveClick(Map<String, String> validationErrors) {
     this.validationErrors = validationErrors;
     saveClicks.onNext(Nil.NIL);
   }
