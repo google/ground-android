@@ -93,8 +93,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private EditObservationViewModel viewModel;
   private EditObservationFragBinding binding;
 
-  private ActivityResultLauncher<String> selectPhotoResultLauncher;
-  private ActivityResultLauncher<Void> capturePhotoResultLauncher;
+  private ActivityResultLauncher<String> selectPhotoLauncher;
+  private ActivityResultLauncher<Void> capturePhotoLauncher;
 
   private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
     if (binding instanceof TextInputFieldBinding) {
@@ -119,7 +119,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(EditObservationViewModel.class);
 
-    selectPhotoResultLauncher =
+    selectPhotoLauncher =
         registerForActivityResult(
             new GetContent(),
             uri -> {
@@ -134,7 +134,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
               }
             });
 
-    capturePhotoResultLauncher =
+    capturePhotoLauncher =
         registerForActivityResult(
             new TakePicturePreview(),
             thumbnail -> {
@@ -415,7 +415,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .as(autoDisposable(getViewLifecycleOwner()))
             .subscribe(
                 () -> {
-                  capturePhotoResultLauncher.launch(null);
+                  capturePhotoLauncher.launch(null);
                   Timber.d("file picker intent sent");
                 });
         break;
@@ -426,7 +426,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .subscribe(
                 () -> {
                   viewModel.setWaitingForPhoto(field);
-                  selectPhotoResultLauncher.launch("image/*");
+                  selectPhotoLauncher.launch("image/*");
                   Timber.d("file picker intent sent");
                 });
         break;
