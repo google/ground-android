@@ -399,27 +399,29 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         viewModel
             .obtainCapturePhotoPermissions()
             .as(autoDisposable(getViewLifecycleOwner()))
-            .subscribe(
-                () -> {
-                  viewModel.setFieldWaitingForPhoto(field.getId());
-                  capturePhotoLauncher.launch(null);
-                  Timber.d("Capture photo intent sent");
-                });
+            .subscribe(() -> launchPhotoCapture(field.getId()));
         break;
       case PHOTO_SOURCE_STORAGE:
         viewModel
             .obtainSelectPhotoPermissions()
             .as(autoDisposable(getViewLifecycleOwner()))
-            .subscribe(
-                () -> {
-                  viewModel.setFieldWaitingForPhoto(field.getId());
-                  selectPhotoLauncher.launch("image/*");
-                  Timber.d("Select photo intent sent");
-                });
+            .subscribe(() -> launchPhotoSelector(field.getId()));
         break;
       default:
         throw new IllegalArgumentException("Unknown type: " + type);
     }
+  }
+
+  private void launchPhotoCapture(String fieldId) {
+    viewModel.setFieldWaitingForPhoto(fieldId);
+    capturePhotoLauncher.launch(null);
+    Timber.d("Capture photo intent sent");
+  }
+
+  private void launchPhotoSelector(String fieldId) {
+    viewModel.setFieldWaitingForPhoto(fieldId);
+    selectPhotoLauncher.launch("image/*");
+    Timber.d("Select photo intent sent");
   }
 
   @Override
