@@ -41,7 +41,6 @@ import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.PermissionsManager;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
