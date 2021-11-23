@@ -84,7 +84,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
-  /** Original form responses, loaded when view is initialized. */
+  /** Current form responses. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
 
   /** Form validation errors, updated when existing for loaded and when responses change. */
@@ -157,15 +157,15 @@ public class EditObservationViewModel extends AbstractViewModel {
         return originalObservation.getResponses().getResponse(fieldId);
       }
     } else {
-      return getResponse(fieldId);
+      return Optional.ofNullable(responses.get(fieldId));
     }
   }
 
-  Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(responses.get(fieldId));
-  }
-
-  void onResponseChanged(Field field, Optional<Response> newResponse) {
+  /**
+   * Update the current value of a response. Called what fields are initialized and on each
+   * subsequent change.
+   */
+  void setResponse(Field field, Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
   }
@@ -305,7 +305,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       }
       String fieldId = e.getField().getId();
       Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
-      Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
+      Optional<Response> currentResponse =
+          Optional.ofNullable(responses.get(fieldId)).filter(r -> !r.isEmpty());
       if (currentResponse.equals(originalResponse)) {
         continue;
       }

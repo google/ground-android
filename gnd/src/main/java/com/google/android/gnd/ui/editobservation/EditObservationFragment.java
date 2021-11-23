@@ -165,9 +165,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       observeTimeDialogClicks((TimeFieldViewModel) fieldViewModel);
     }
 
-    fieldViewModel
-        .getResponse()
-        .observe(this, response -> viewModel.onResponseChanged(field, response));
+    fieldViewModel.getResponse().observe(this, response -> viewModel.setResponse(field, response));
 
     fieldViewModelList.add(fieldViewModel);
   }
