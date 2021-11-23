@@ -416,7 +416,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .subscribe(
                 () -> {
                   capturePhotoLauncher.launch(null);
-                  Timber.d("file picker intent sent");
+                  Timber.d("Capture photo intent sent");
                 });
         break;
       case PHOTO_SOURCE_STORAGE:
@@ -427,7 +427,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                 () -> {
                   viewModel.setWaitingForPhoto(field);
                   selectPhotoLauncher.launch("image/*");
-                  Timber.d("file picker intent sent");
+                  Timber.d("Select photo intent sent");
                 });
         break;
       default:
