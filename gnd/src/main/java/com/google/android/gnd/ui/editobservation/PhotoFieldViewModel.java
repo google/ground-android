@@ -19,9 +19,7 @@ package com.google.android.gnd.ui.editobservation;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -29,9 +27,9 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.editobservation.EditObservationViewModel.PhotoResult;
 import java.io.File;
 import java.io.IOException;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -100,23 +98,22 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     this.observationId = observationId;
   }
 
-  public void onPhotoResult(Pair<String, Optional<Bitmap>> args) throws IOException {
+  public void onPhotoResult(PhotoResult photoResult) throws IOException {
     if (projectId == null || observationId == null) {
       Timber.e("projectId or observationId not set");
       return;
     }
-    String fieldId = args.first;
-    if (!fieldId.equals(getField().getId())) {
+    if (!photoResult.getFieldId().equals(getField().getId())) {
       // Update belongs to another field.
       return;
     }
-    Optional<Bitmap> bitmap = args.second;
-    if (bitmap.isEmpty()) {
+    if (photoResult.getBitmap().isEmpty()) {
       clearResponse();
       Timber.v("Photo cleared");
       return;
     }
-    File imageFile = userMediaRepository.savePhoto(bitmap.get(), fieldId);
+    File imageFile =
+        userMediaRepository.savePhoto(photoResult.getBitmap().get(), photoResult.getFieldId());
     String filename = imageFile.getName();
     String path = imageFile.getAbsolutePath();
 

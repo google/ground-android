@@ -24,7 +24,6 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
@@ -43,6 +42,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.util.BitmapUtil;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -109,7 +109,7 @@ public class EditObservationViewModel extends AbstractViewModel {
    * last value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
-  private Subject<Pair<String, Optional<Bitmap>>> lastPhotoResult = BehaviorSubject.create();
+  private Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
 
   // Events.
 
@@ -323,7 +323,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
-  public Observable<Pair<String, Optional<Bitmap>>> getLastPhotoResult() {
+  public Observable<PhotoResult> getLastPhotoResult() {
     return lastPhotoResult;
   }
 
@@ -357,7 +357,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
     String fieldId = fieldWaitingForPhoto;
     fieldWaitingForPhoto = null;
-    lastPhotoResult.onNext(Pair.create(fieldId, Optional.of(bitmap)));
+    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.of(bitmap)));
   }
 
   /** Possible outcomes of user clicking "Save". */
@@ -365,5 +365,16 @@ public class EditObservationViewModel extends AbstractViewModel {
     HAS_VALIDATION_ERRORS,
     NO_CHANGES_TO_SAVE,
     SAVED
+  }
+
+  @AutoValue
+  abstract static class PhotoResult {
+    abstract String getFieldId();
+
+    abstract Optional<Bitmap> getBitmap();
+
+    static PhotoResult create(String fieldId, Optional<Bitmap> bitmap) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(fieldId, bitmap);
+    }
   }
 }
