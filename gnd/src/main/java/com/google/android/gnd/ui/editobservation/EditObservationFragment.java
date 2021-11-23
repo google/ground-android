@@ -247,8 +247,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
     viewModel
         .getShowDialogClicks()
-        .observe(
-            this,
+        .as(autoDisposable(this))
+        .subscribe(
             __ ->
                 createDialog(
                         viewModel.getField(),
