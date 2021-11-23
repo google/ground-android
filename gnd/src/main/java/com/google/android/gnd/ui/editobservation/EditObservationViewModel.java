@@ -319,10 +319,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     String filename = imageFile.getName();
     String path = imageFile.getAbsolutePath();
 
-    // Add image to gallery
+    // Add image to gallery.
     userMediaRepository.addImageToGallery(path, filename);
 
-    // Update response
+    // Update response.
     String remoteDestinationPath =
         getRemoteMediaPath(requireNonNull(originalObservation), filename);
     //    setResponse(field, TextResponse.fromString(remoteDestinationPath));
