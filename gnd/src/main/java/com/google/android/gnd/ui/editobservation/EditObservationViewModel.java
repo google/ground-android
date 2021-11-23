@@ -19,11 +19,11 @@ package com.google.android.gnd.ui.editobservation;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
-import static java.util.Objects.requireNonNull;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
@@ -36,13 +36,13 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.repository.ObservationRepository;
-import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -50,7 +50,8 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.File;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -66,9 +67,9 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private final ObservationRepository observationRepository;
   private final Resources resources;
-  private final UserMediaRepository userMediaRepository;
   private final StorageManager storageManager;
   private final PermissionsManager permissionsManager;
+  private final BitmapUtil bitmapUtil;
 
   // States.
 
@@ -104,6 +105,13 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
+  /**
+   * Emits the last photo field id updated and either its photo result, or empty if
+   * removed. The last value is emitted on each subscription because {@see #onPhotoResult} is called
+   * before subscribers are created.
+   */
+  private Subject<Pair<String, Optional<Bitmap>>> lastPhotoResult = BehaviorSubject.create();
+
   // Events.
 
   /** "Save" button clicks. */
@@ -118,14 +126,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   EditObservationViewModel(
       Resources resources,
       ObservationRepository observationRepository,
-      UserMediaRepository userMediaRepository,
       StorageManager storageManager,
-      PermissionsManager permissionsManager) {
+      PermissionsManager permissionsManager,
+      BitmapUtil bitmapUtil) {
     this.resources = resources;
     this.observationRepository = observationRepository;
-    this.userMediaRepository = userMediaRepository;
     this.storageManager = storageManager;
     this.permissionsManager = permissionsManager;
+    this.bitmapUtil = bitmapUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
@@ -144,6 +152,14 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   Observable<SaveResult> getSaveResults() {
     return saveResults;
+  }
+
+  public @Nullable String getProjectId() {
+    return originalObservation == null ? null : originalObservation.getProject().getId();
+  }
+
+  public @Nullable String getObservationId() {
+    return originalObservation == null ? null : originalObservation.getId();
   }
 
   void initialize(EditObservationFragmentArgs args) {
@@ -306,28 +322,45 @@ public class EditObservationViewModel extends AbstractViewModel {
     return fieldWaitingForPhoto;
   }
 
-  public void setFieldWaitingForPhoto(@Nullable  String fieldWaitingForPhoto) {
+  public void setFieldWaitingForPhoto(@Nullable String fieldWaitingForPhoto) {
     this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
-  public void onPhotoResult(Bitmap bitmap) throws IOException {
+  public Observable<Pair<String, Optional<Bitmap>>> getLastPhotoResult() {
+    return lastPhotoResult;
+  }
+
+  public void onSelectPhotoResult(Uri uri) {
+    if (uri == null) {
+      Timber.e("onSelectPhotoResult called with null uri");
+      return;
+    }
+    try {
+      Bitmap bitmap = bitmapUtil.fromUri(uri);
+      onPhotoResult(bitmap);
+      Timber.v("Select photo result returned");
+    } catch (IOException e) {
+      Timber.e(e, "Error getting photo returned by camera");
+    }
+  }
+
+  public void onCapturePhotoResult(Bitmap thumbnail) {
+    if (thumbnail == null) {
+      Timber.e("onCapturePhotoResult called with null thumbnail");
+      return;
+    }
+    onPhotoResult(thumbnail);
+    Timber.v("Photo capture result returned");
+  }
+
+  private void onPhotoResult(Bitmap bitmap) {
     if (fieldWaitingForPhoto == null) {
       Timber.e("Photo received but no field waiting for result");
       return;
     }
-    File imageFile = userMediaRepository.savePhoto(bitmap, fieldWaitingForPhoto);
-    String filename = imageFile.getName();
-    String path = imageFile.getAbsolutePath();
-
-    // Add image to gallery.
-    userMediaRepository.addImageToGallery(path, filename);
-
-    // Update response.
-    String remoteDestinationPath =
-        getRemoteMediaPath(requireNonNull(originalObservation), filename);
-    //    setResponse(field, TextResponse.fromString(remoteDestinationPath));
-
-    // TODO: Figure out a way to update the response in PhotoFieldViewModel to update UI.
+    String fieldId = fieldWaitingForPhoto;
+    fieldWaitingForPhoto = null;
+    lastPhotoResult.onNext(Pair.create(fieldId, Optional.of(bitmap)));
   }
 
   /** Possible outcomes of user clicking "Save". */

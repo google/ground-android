@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -66,7 +65,6 @@ import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -83,14 +81,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   /** String constant keys used for persisting state in {@see Bundle} objects. */
   private static final class BundleKeys {
 
-    /**
-     * Key used to store unsaved responses across activity re-creation.
-     */
+    /** Key used to store unsaved responses across activity re-creation. */
     private static final String RESTORED_RESPONSES = "restoredResponses";
 
-    /**
-     * Key used to store field ID waiting for photo response across activity re-creation.
-     */
+    /** Key used to store field ID waiting for photo response across activity re-creation. */
     private static final String FIELD_WAITING_FOR_PHOTO = "photoFieldId";
   }
 
@@ -130,35 +124,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(EditObservationViewModel.class);
-
     selectPhotoLauncher =
-        registerForActivityResult(
-            new GetContent(),
-            uri -> {
-              if (uri != null) {
-                try {
-                  Bitmap bitmap = bitmapUtil.fromUri(uri);
-                  viewModel.onPhotoResult(bitmap);
-                  Timber.d("Success: %s", bitmap);
-                } catch (IOException e) {
-                  Timber.e(e);
-                }
-              }
-            });
-
+        registerForActivityResult(new GetContent(), viewModel::onSelectPhotoResult);
     capturePhotoLauncher =
-        registerForActivityResult(
-            new TakePicturePreview(),
-            thumbnail -> {
-              if (thumbnail != null) {
-                try {
-                  viewModel.onPhotoResult(thumbnail);
-                  Timber.d("Success: %s", thumbnail);
-                } catch (IOException e) {
-                  Timber.e(e);
-                }
-              }
-            });
+        registerForActivityResult(new TakePicturePreview(), viewModel::onCapturePhotoResult);
   }
 
   @Override
@@ -192,7 +161,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       args.putSerializable(
           BundleKeys.RESTORED_RESPONSES,
           savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES));
-      viewModel.setFieldWaitingForPhoto(savedInstanceState.getString(BundleKeys.FIELD_WAITING_FOR_PHOTO));
+      viewModel.setFieldWaitingForPhoto(
+          savedInstanceState.getString(BundleKeys.FIELD_WAITING_FOR_PHOTO));
     }
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(args));
   }
@@ -342,8 +312,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void initPhotoField(PhotoFieldViewModel photoFieldViewModel) {
     photoFieldViewModel.setEditable(true);
+    photoFieldViewModel.setProjectId(viewModel.getProjectId());
+    photoFieldViewModel.setObservationId(viewModel.getObservationId());
     observeSelectPhotoClicks(photoFieldViewModel);
-    //    observePhotoAdded(photoFieldViewModel);
+    observePhotoResults(photoFieldViewModel);
   }
 
   private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
@@ -352,12 +324,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getField()));
   }
 
-  //  private void observePhotoAdded(PhotoFieldViewModel fieldViewModel) {
-  //    viewModel
-  //        .getPhotoFieldUpdates(fieldViewModel.getField().getId())
-  //        .as(autoDisposable(getViewLifecycleOwner()))
-  //        .subscribe(fieldViewModel::updateResponse);
-  //  }
+  private void observePhotoResults(PhotoFieldViewModel fieldViewModel) {
+    viewModel
+        .getLastPhotoResult()
+        .as(autoDisposable(getViewLifecycleOwner()))
+        .subscribe(fieldViewModel::onPhotoResult);
+  }
 
   private void onShowPhotoSelectorDialog(Field field) {
     EditObservationBottomSheetBinding addPhotoBottomSheetBinding =
