@@ -68,7 +68,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private final ObservationRepository observationRepository;
   private final Resources resources;
-  private final StorageManager storageManager;
   private final PermissionsManager permissionsManager;
   private final BitmapUtil bitmapUtil;
 
@@ -127,12 +126,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   EditObservationViewModel(
       Resources resources,
       ObservationRepository observationRepository,
-      StorageManager storageManager,
       PermissionsManager permissionsManager,
       BitmapUtil bitmapUtil) {
     this.resources = resources;
     this.observationRepository = observationRepository;
-    this.storageManager = storageManager;
     this.permissionsManager = permissionsManager;
     this.bitmapUtil = bitmapUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
