@@ -35,7 +35,7 @@ import timber.log.Timber;
 @Singleton
 public class StorageManager {
 
-  static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
+  public static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
 
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
@@ -49,6 +49,11 @@ public class StorageManager {
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
     this.bitmapUtil = bitmapUtil;
+  }
+
+  @Cold
+  public Completable obtainPermissionsIfNeeded() {
+    return permissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE);
   }
 
   /**

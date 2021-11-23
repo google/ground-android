@@ -55,6 +55,13 @@ public class CameraManager {
     this.activityStreams = activityStreams;
   }
 
+  @Cold
+  public Completable obtainPermissionsIfNeeded() {
+    return permissionsManager
+        .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
+        .andThen(permissionsManager.obtainPermission(permission.CAMERA));
+  }
+
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
   @Cold
   public Maybe<Nil> capturePhoto(File destFile) {
