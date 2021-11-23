@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import android.net.Uri;
-import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.rx.RxTask;
@@ -46,19 +45,19 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   FirestoreStorageManager() {}
 
   /**
-   * Generates destination path in which an observation attachement is to be stored in to Cloud
+   * Generates destination path in which an observation attachment is to be stored in to Cloud
    * Storage.
    *
    * <p>user-media/projects/{project_id}/observations/{observation_id}/{field_id-uuid.jpg}
    */
-  public static String getRemoteMediaPath(Observation observation, String filename) {
+  public static String getRemoteMediaPath(String projectId, String observationId, String filename) {
     // TODO: Refactor this into MediaStorageRepository.
     return new StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)
         .add("projects")
-        .add(observation.getProject().getId())
+        .add(projectId)
         .add("observations")
-        .add(observation.getId())
+        .add(observationId)
         .add(filename)
         .toString();
   }

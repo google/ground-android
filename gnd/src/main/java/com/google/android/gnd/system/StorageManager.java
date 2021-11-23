@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.util.BitmapUtil;
@@ -35,6 +36,7 @@ import timber.log.Timber;
 @Singleton
 public class StorageManager {
 
+  @VisibleForTesting
   static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
 
   private final PermissionsManager permissionsManager;
