@@ -58,7 +58,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   // TODO: Add a reference of Field in Response for simplification.
-  void init(Field field, Optional<Response> response) {
+  void initialize(Field field, Optional<Response> response) {
     this.field = field;
     setResponse(response);
   }
