@@ -20,7 +20,6 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import android.app.Application;
 import android.content.res.Resources;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
@@ -37,7 +36,6 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.repository.UserMediaRepository;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -47,6 +45,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
@@ -60,64 +59,74 @@ import timber.log.Timber;
 
 public class EditObservationViewModel extends AbstractViewModel {
 
-  // Injected inputs.
-  /** True if observation is currently being loaded, otherwise false. */
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-  /** True if observation is currently being saved, otherwise false. */
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+  // Injected dependencies.
 
   private final ObservationRepository observationRepository;
   private final Resources resources;
   private final UserMediaRepository userMediaRepository;
   private final StorageManager storageManager;
-
-  // Input events.
   private final CameraManager cameraManager;
 
-  // View state streams.
+  // States.
+
+  /** True if observation is currently being loaded, otherwise false. */
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+
+  /** True if observation is currently being saved, otherwise false. */
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+
+  /** Form definition, loaded when view is initialized. */
+  private final LiveData<Form> form;
+
+  /** Toolbar title, based on whether user is adding new or editing existing observation. */
+  @Hot(replays = true)
+  private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
+
+  /** Current form responses. */
+  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
+
+  /** Form validation errors, updated when existing for loaded and when responses change. */
+  @Nullable private Map<String, String> validationErrors;
+
   /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
   private final FlowableProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
-  /** "Save" button clicks. */
-  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
-  /** Form definition, loaded when view is initialized. */
-  private final LiveData<Form> form;
-  /** Toolbar title, based on whether user is adding new or editing existing observation. */
-  @Hot(replays = true)
-  private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
-  /** Stream of updates to photo fields. */
-  @Hot(replays = true)
-  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
-  /** Original form responses, loaded when view is initialized. */
-  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
-  /** Outcome of user clicking "Save". */
-  private final LiveData<Event<SaveResult>> saveResults;
-  /** Form validation errors, updated when existing for loaded and when responses change. */
-  @Nullable private Map<String, String> validationErrors;
+
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
-  // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
+  // Events.
+
+  /** "Save" button clicks. */
+  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+
+  /** Outcome of user clicking "Save". */
+  private final Observable<SaveResult> saveResults;
+
+  /** Stream of updates to photo fields. */
+  @Hot(replays = true)
+  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
+
   @Inject
   EditObservationViewModel(
-      Application application,
+      Resources resources,
       ObservationRepository observationRepository,
       UserMediaRepository userMediaRepository,
       StorageManager storageManager,
       CameraManager cameraManager) {
-    this.resources = application.getResources();
+    this.resources = resources;
     this.observationRepository = observationRepository;
     this.userMediaRepository = userMediaRepository;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
-    this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+    this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
@@ -132,7 +141,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return toolbarTitle;
   }
 
-  LiveData<Event<SaveResult>> getSaveResults() {
+  Observable<SaveResult> getSaveResults() {
     return saveResults;
   }
 
@@ -140,23 +149,15 @@ public class EditObservationViewModel extends AbstractViewModel {
     viewArgs.onNext(args);
   }
 
-  Optional<Response> getSavedOrOriginalResponse(String fieldId) {
-    if (responses.isEmpty()) {
-      if (originalObservation == null) {
-        return Optional.empty();
-      } else {
-        return originalObservation.getResponses().getResponse(fieldId);
-      }
-    } else {
-      return getResponse(fieldId);
-    }
-  }
-
   Optional<Response> getResponse(String fieldId) {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  void onResponseChanged(Field field, Optional<Response> newResponse) {
+  /**
+   * Update the current value of a response. Called what fields are initialized and on each
+   * subsequent change.
+   */
+  void setResponse(Field field, Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
   }
@@ -212,7 +213,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return photoUpdates;
   }
 
-  public void onSave(Map<String, String> validationErrors) {
+  public void onSaveClick(Map<String, String> validationErrors) {
     this.validationErrors = validationErrors;
     saveClicks.onNext(Nil.NIL);
   }
@@ -234,6 +235,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
     responses.clear();
+    ResponseMap responseMap = observation.getResponses();
+    for (String fieldId : responseMap.fieldIds()) {
+      responseMap.getResponse(fieldId).ifPresent(r -> responses.put(fieldId, r));
+    }
     isLoading.postValue(false);
   }
 
@@ -249,17 +254,17 @@ public class EditObservationViewModel extends AbstractViewModel {
         .onErrorResumeNext(this::onError);
   }
 
-  private Single<Event<SaveResult>> onSave() {
+  private Single<SaveResult> onSave() {
     if (originalObservation == null) {
       Timber.e("Save attempted before observation loaded");
-      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(SaveResult.NO_CHANGES_TO_SAVE);
     }
 
     if (hasValidationErrors()) {
-      return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
+      return Single.just(SaveResult.HAS_VALIDATION_ERRORS);
     }
     if (!hasUnsavedChanges()) {
-      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(SaveResult.NO_CHANGES_TO_SAVE);
     }
     return save();
   }
@@ -270,7 +275,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Single.never();
   }
 
-  private Single<Event<SaveResult>> save() {
+  private Single<SaveResult> save() {
     if (originalObservation == null) {
       return Single.error(new IllegalStateException("Observation is null"));
     }
@@ -279,7 +284,7 @@ public class EditObservationViewModel extends AbstractViewModel {
         .createOrUpdateObservation(originalObservation, getResponseDeltas(), isNew)
         .doOnSubscribe(__ -> isSaving.postValue(true))
         .doOnComplete(() -> isSaving.postValue(false))
-        .toSingleDefault(Event.create(SaveResult.SAVED));
+        .toSingleDefault(SaveResult.SAVED);
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
