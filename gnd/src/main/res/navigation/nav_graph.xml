@@ -160,6 +160,11 @@
     <argument
       android:name="formId"
       type="string" />
+    <argument
+      android:name="restoredResponses"
+      app:argType="java.util.HashMap"
+      app:nullable="true"
+      android:defaultValue="@null" />
   </fragment>
   <fragment
     android:id="@+id/sign_in_fragment"
