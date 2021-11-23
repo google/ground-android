@@ -46,12 +46,7 @@ public class ApplicationErrorManagerTest extends BaseHiltTest {
               new FirebaseFirestoreException("User not in pass-list", Code.PERMISSION_DENIED),
               true,
               "Permission denied! Check user pass-list."
-            },
-            {
-              new FirebaseFirestoreException("Unable to load config", Code.UNAVAILABLE),
-              true,
-              "Error loading config from remote server."
-            },
+            }
           });
 
   @Inject ApplicationErrorManager errorManager;
