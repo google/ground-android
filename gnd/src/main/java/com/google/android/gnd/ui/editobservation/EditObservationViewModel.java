@@ -236,7 +236,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private void onObservationLoaded(
-      Observation observation, @Nullable HashMap<String, Response> restoredResponses) {
+      Observation observation, @Nullable Map<String, Response> restoredResponses) {
     Timber.v("Observation loaded");
     this.originalObservation = observation;
     responses.clear();
