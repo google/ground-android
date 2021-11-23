@@ -250,14 +250,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .as(autoDisposable(this))
         .subscribe(
             __ ->
-                createDialog(
+                createMultipleChoiceDialog(
                         viewModel.getField(),
                         viewModel.getCurrentResponse(),
                         viewModel::updateResponse)
                     .show());
   }
 
-  private AlertDialog createDialog(
+  private AlertDialog createMultipleChoiceDialog(
       Field field,
       Optional<MultipleChoiceResponse> response,
       Consumer<ImmutableList<Option>> consumer) {
