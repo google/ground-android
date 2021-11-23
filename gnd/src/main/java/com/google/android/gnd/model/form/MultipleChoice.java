@@ -20,11 +20,14 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java.io.Serializable;
 import java8.util.Optional;
 
 /** A {@link Field} with pre-defined options for the user to choose from. */
 @AutoValue
-public abstract class MultipleChoice {
+public abstract class MultipleChoice implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   public enum Cardinality {
     SELECT_ONE,
     SELECT_MULTIPLE

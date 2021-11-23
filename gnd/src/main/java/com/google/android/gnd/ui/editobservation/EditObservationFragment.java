@@ -74,6 +74,8 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
+  private static final String RESTORED_RESPONSES_BUNDLE_KEY = "restoredResponses";
+
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
 
   @Inject Navigator navigator;
@@ -132,8 +134,21 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observeOn(schedulers.ui())
         .as(autoDisposable(getViewLifecycleOwner()))
         .subscribe(this::handleSaveResult);
+
     // Initialize view model.
-    viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
+    Bundle args = getArguments();
+    if (savedInstanceState != null) {
+      args.putSerializable(
+          RESTORED_RESPONSES_BUNDLE_KEY,
+          savedInstanceState.getSerializable(RESTORED_RESPONSES_BUNDLE_KEY));
+    }
+    viewModel.initialize(EditObservationFragmentArgs.fromBundle(args));
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putSerializable(RESTORED_RESPONSES_BUNDLE_KEY, viewModel.getDraftResponses());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {

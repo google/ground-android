@@ -17,10 +17,13 @@
 package com.google.android.gnd.model.form;
 
 import com.google.auto.value.AutoValue;
+import java.io.Serializable;
 
 /** Describes a single valid option to a multiple choice question. */
 @AutoValue
-public abstract class Option {
+public abstract class Option implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   public abstract String getId();
 
   public abstract String getCode();

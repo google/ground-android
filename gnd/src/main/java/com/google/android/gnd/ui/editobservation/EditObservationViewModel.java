@@ -21,8 +21,6 @@ import static com.google.android.gnd.persistence.remote.firestore.FirestoreStora
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.content.res.Resources;
-import androidx.databinding.ObservableArrayMap;
-import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
@@ -51,6 +49,8 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.File;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -85,7 +85,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
   /** Current form responses. */
-  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
+  private final Map<String, Response> responses = new HashMap<>();
 
   /** Form validation errors, updated when existing for loaded and when responses change. */
   @Nullable private Map<String, String> validationErrors;
@@ -229,15 +229,25 @@ public class EditObservationViewModel extends AbstractViewModel {
       toolbarTitle.setValue(resources.getString(R.string.edit_observation));
       obs = loadObservation(viewArgs);
     }
-    return obs.doOnSuccess(this::onObservationLoaded).map(Observation::getForm);
+    HashMap<String, Response> restoredResponses = viewArgs.getRestoredResponses();
+    return obs.doOnSuccess(
+            loadedObservation -> onObservationLoaded(loadedObservation, restoredResponses))
+        .map(Observation::getForm);
   }
 
-  private void onObservationLoaded(Observation observation) {
+  private void onObservationLoaded(
+      Observation observation, @Nullable Map<String, Response> restoredResponses) {
+    Timber.v("Observation loaded");
     this.originalObservation = observation;
     responses.clear();
-    ResponseMap responseMap = observation.getResponses();
-    for (String fieldId : responseMap.fieldIds()) {
-      responseMap.getResponse(fieldId).ifPresent(r -> responses.put(fieldId, r));
+    if (restoredResponses == null) {
+      ResponseMap responseMap = observation.getResponses();
+      for (String fieldId : responseMap.fieldIds()) {
+        responseMap.getResponse(fieldId).ifPresent(r -> responses.put(fieldId, r));
+      }
+    } else {
+      Timber.v("Restoring responses from bundle");
+      responses.putAll(restoredResponses);
     }
     isLoading.postValue(false);
   }
@@ -323,6 +333,12 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private boolean hasValidationErrors() {
     return validationErrors != null && !validationErrors.isEmpty();
+  }
+
+  public Serializable getDraftResponses() {
+    HashMap<String, Response> hashMap = new HashMap<>();
+    hashMap.putAll(responses);
+    return hashMap;
   }
 
   /** Possible outcomes of user clicking "Save". */
