@@ -106,11 +106,11 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       return;
     }
     String fieldId = args.first;
-    Optional<Bitmap> bitmap = args.second;
     if (!fieldId.equals(getField().getId())) {
       // Update belongs to another field.
       return;
     }
+    Optional<Bitmap> bitmap = args.second;
     if (bitmap.isEmpty()) {
       clearResponse();
       Timber.v("Photo cleared");
