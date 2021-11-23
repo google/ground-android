@@ -80,7 +80,10 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
-  private static final String RESTORED_RESPONSES_BUNDLE_KEY = "restoredResponses";
+  /** String constant keys used for persisting state in {@see Bundle} objects. */
+  private static final class BundleKeys {
+    private static final String RESTORED_RESPONSES = "restoredResponses";
+  }
 
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
 
@@ -178,8 +181,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     Bundle args = getArguments();
     if (savedInstanceState != null) {
       args.putSerializable(
-          RESTORED_RESPONSES_BUNDLE_KEY,
-          savedInstanceState.getSerializable(RESTORED_RESPONSES_BUNDLE_KEY));
+          BundleKeys.RESTORED_RESPONSES,
+          savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES));
     }
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(args));
   }
@@ -187,7 +190,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putSerializable(RESTORED_RESPONSES_BUNDLE_KEY, viewModel.getDraftResponses());
+    outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
