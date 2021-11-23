@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
 import static java.util.Objects.requireNonNull;
@@ -39,7 +41,7 @@ import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.CameraManager;
+import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
@@ -67,7 +69,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final UserMediaRepository userMediaRepository;
   private final StorageManager storageManager;
-  private final CameraManager cameraManager;
+  private final PermissionsManager permissionsManager;
 
   // States.
 
@@ -119,12 +121,12 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       UserMediaRepository userMediaRepository,
       StorageManager storageManager,
-      CameraManager cameraManager) {
+      PermissionsManager permissionsManager) {
     this.resources = resources;
     this.observationRepository = observationRepository;
     this.userMediaRepository = userMediaRepository;
     this.storageManager = storageManager;
-    this.cameraManager = cameraManager;
+    this.permissionsManager = permissionsManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
@@ -164,7 +166,9 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @Cold
   public Completable canLaunchCapturePhotoIntent() {
-    return cameraManager.obtainPermissionsIfNeeded();
+    return permissionsManager
+        .obtainPermission(WRITE_EXTERNAL_STORAGE)
+        .andThen(permissionsManager.obtainPermission(CAMERA));
   }
 
   @Cold
