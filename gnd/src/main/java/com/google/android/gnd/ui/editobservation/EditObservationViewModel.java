@@ -35,7 +35,6 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Nil;
@@ -113,7 +112,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
-  @Nullable private Field fieldWaitingForPhoto;
+  @Nullable private String fieldWaitingForPhoto;
 
   @Inject
   EditObservationViewModel(
@@ -302,8 +301,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     return new HashMap<>(responses);
   }
 
-  public void setFieldWaitingForPhoto(Field field) {
-    fieldWaitingForPhoto = field;
+  public void setFieldWaitingForPhoto(String fieldWaitingForPhoto) {
+    this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
   public void onPhotoResult(Bitmap bitmap) throws IOException {
@@ -311,8 +310,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Photo received but no field waiting for result");
       return;
     }
-    Field field = fieldWaitingForPhoto;
-    File imageFile = userMediaRepository.savePhoto(bitmap, field);
+    File imageFile = userMediaRepository.savePhoto(bitmap, fieldWaitingForPhoto);
     String filename = imageFile.getName();
     String path = imageFile.getAbsolutePath();
 
@@ -322,7 +320,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     // Update response
     String remoteDestinationPath =
         getRemoteMediaPath(requireNonNull(originalObservation), filename);
-    setResponse(field, TextResponse.fromString(remoteDestinationPath));
+    //    setResponse(field, TextResponse.fromString(remoteDestinationPath));
 
     // TODO: Figure out a way to update the response in PhotoFieldViewModel to update UI.
   }
