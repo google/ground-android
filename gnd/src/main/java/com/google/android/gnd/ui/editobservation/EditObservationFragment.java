@@ -411,7 +411,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     switch (type) {
       case PHOTO_SOURCE_CAMERA:
         viewModel
-            .canLaunchCapturePhotoIntent()
+            .obtainCapturePhotoPermissions()
             .as(autoDisposable(getViewLifecycleOwner()))
             .subscribe(
                 () -> {
@@ -421,7 +421,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         break;
       case PHOTO_SOURCE_STORAGE:
         viewModel
-            .canLaunchSelectPhotoIntent()
+            .obtainSelectPhotoPermissions()
             .as(autoDisposable(getViewLifecycleOwner()))
             .subscribe(
                 () -> {

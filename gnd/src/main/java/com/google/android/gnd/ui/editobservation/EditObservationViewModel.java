@@ -165,14 +165,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   @Cold
-  public Completable canLaunchCapturePhotoIntent() {
+  public Completable obtainCapturePhotoPermissions() {
     return permissionsManager
         .obtainPermission(WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(CAMERA));
   }
 
   @Cold
-  public Completable canLaunchSelectPhotoIntent() {
+  public Completable obtainSelectPhotoPermissions() {
     return storageManager.obtainPermissionsIfNeeded();
   }
 
