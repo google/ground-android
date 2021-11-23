@@ -149,16 +149,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     viewArgs.onNext(args);
   }
 
-  Optional<Response> getSavedOrOriginalResponse(String fieldId) {
-    if (responses.isEmpty()) {
-      if (originalObservation == null) {
-        return Optional.empty();
-      } else {
-        return originalObservation.getResponses().getResponse(fieldId);
-      }
-    } else {
-      return Optional.ofNullable(responses.get(fieldId));
-    }
+  Optional<Response> getResponse(String fieldId) {
+    return Optional.ofNullable(responses.get(fieldId));
   }
 
   /**
@@ -243,6 +235,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
     responses.clear();
+    ResponseMap responseMap = observation.getResponses();
+    for (String fieldId : responseMap.fieldIds()) {
+      responseMap.getResponse(fieldId).ifPresent(r -> responses.put(fieldId, r));
+    }
     isLoading.postValue(false);
   }
 
@@ -305,8 +301,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       }
       String fieldId = e.getField().getId();
       Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
-      Optional<Response> currentResponse =
-          Optional.ofNullable(responses.get(fieldId)).filter(r -> !r.isEmpty());
+      Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
       if (currentResponse.equals(originalResponse)) {
         continue;
       }

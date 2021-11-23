@@ -52,6 +52,7 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -78,6 +79,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Inject Navigator navigator;
   @Inject FieldViewFactory fieldViewFactory;
   @Inject EphemeralPopups popups;
+  @Inject Schedulers schedulers;
 
   private EditObservationViewModel viewModel;
   private EditObservationFragBinding binding;
@@ -127,6 +129,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
     viewModel
         .getSaveResults()
+        .observeOn(schedulers.ui())
         .as(autoDisposable(getViewLifecycleOwner()))
         .subscribe(this::handleSaveResult);
     // Initialize view model.
@@ -153,7 +156,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
-    fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
+    fieldViewModel.init(field, viewModel.getResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
