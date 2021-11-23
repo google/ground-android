@@ -82,7 +82,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   /** String constant keys used for persisting state in {@see Bundle} objects. */
   private static final class BundleKeys {
+
+    /**
+     * Key used to store unsaved responses across activity re-creation.
+     */
     private static final String RESTORED_RESPONSES = "restoredResponses";
+
+    /**
+     * Key used to store field ID waiting for photo response across activity re-creation.
+     */
+    private static final String FIELD_WAITING_FOR_PHOTO = "photoFieldId";
   }
 
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
@@ -183,6 +192,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       args.putSerializable(
           BundleKeys.RESTORED_RESPONSES,
           savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES));
+      viewModel.setFieldWaitingForPhoto(savedInstanceState.getString(BundleKeys.FIELD_WAITING_FOR_PHOTO));
     }
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(args));
   }
@@ -191,6 +201,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
+    outState.putString(BundleKeys.FIELD_WAITING_FOR_PHOTO, viewModel.getFieldWaitingForPhoto());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -418,6 +429,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .as(autoDisposable(getViewLifecycleOwner()))
             .subscribe(
                 () -> {
+                  viewModel.setFieldWaitingForPhoto(field.getId());
                   capturePhotoLauncher.launch(null);
                   Timber.d("Capture photo intent sent");
                 });

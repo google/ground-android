@@ -301,7 +301,12 @@ public class EditObservationViewModel extends AbstractViewModel {
     return new HashMap<>(responses);
   }
 
-  public void setFieldWaitingForPhoto(String fieldWaitingForPhoto) {
+  @Nullable
+  public String getFieldWaitingForPhoto() {
+    return fieldWaitingForPhoto;
+  }
+
+  public void setFieldWaitingForPhoto(@Nullable  String fieldWaitingForPhoto) {
     this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
