@@ -307,7 +307,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void onPhotoResult(Bitmap bitmap) throws IOException {
-    Field field = requireNonNull(fieldWaitingForPhotoResult);
+    if (fieldWaitingForPhotoResult == null) {
+      Timber.e("Photo received but no field waiting for result");
+      return;
+    }
+    Field field = fieldWaitingForPhotoResult;
     File imageFile = userMediaRepository.savePhoto(bitmap, field);
     String filename = imageFile.getName();
     String path = imageFile.getAbsolutePath();
