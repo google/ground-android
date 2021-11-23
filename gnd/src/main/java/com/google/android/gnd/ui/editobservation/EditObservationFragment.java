@@ -425,7 +425,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .as(autoDisposable(getViewLifecycleOwner()))
             .subscribe(
                 () -> {
-                  viewModel.setWaitingForPhoto(field);
+                  viewModel.setFieldWaitingForPhoto(field);
                   selectPhotoLauncher.launch("image/*");
                   Timber.d("Select photo intent sent");
                 });

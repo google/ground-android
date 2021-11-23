@@ -113,7 +113,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
-  @Nullable private Field fieldWaitingForPhotoResult;
+  @Nullable private Field fieldWaitingForPhoto;
 
   @Inject
   EditObservationViewModel(
@@ -302,16 +302,16 @@ public class EditObservationViewModel extends AbstractViewModel {
     return new HashMap<>(responses);
   }
 
-  public void setWaitingForPhoto(Field field) {
-    fieldWaitingForPhotoResult = field;
+  public void setFieldWaitingForPhoto(Field field) {
+    fieldWaitingForPhoto = field;
   }
 
   public void onPhotoResult(Bitmap bitmap) throws IOException {
-    if (fieldWaitingForPhotoResult == null) {
+    if (fieldWaitingForPhoto == null) {
       Timber.e("Photo received but no field waiting for result");
       return;
     }
-    Field field = fieldWaitingForPhotoResult;
+    Field field = fieldWaitingForPhoto;
     File imageFile = userMediaRepository.savePhoto(bitmap, field);
     String filename = imageFile.getName();
     String path = imageFile.getAbsolutePath();
