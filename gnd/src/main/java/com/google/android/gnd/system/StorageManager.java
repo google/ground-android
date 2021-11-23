@@ -53,11 +53,6 @@ public class StorageManager {
     this.bitmapUtil = bitmapUtil;
   }
 
-  @Cold
-  public Completable obtainPermissionsIfNeeded() {
-    return permissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE);
-  }
-
   /**
    * Requests for selecting a photo from the storage, if necessary permissions are granted.
    * Otherwise, requests for the permissions and then sends out the request.

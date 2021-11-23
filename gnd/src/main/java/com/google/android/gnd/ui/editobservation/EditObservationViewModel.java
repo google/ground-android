@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 
@@ -106,9 +107,9 @@ public class EditObservationViewModel extends AbstractViewModel {
   private boolean isNew;
 
   /**
-   * Emits the last photo field id updated and either its photo result, or empty if
-   * removed. The last value is emitted on each subscription because {@see #onPhotoResult} is called
-   * before subscribers are created.
+   * Emits the last photo field id updated and either its photo result, or empty if removed. The
+   * last value is emitted on each subscription because {@see #onPhotoResult} is called before
+   * subscribers are created.
    */
   private Subject<Pair<String, Optional<Bitmap>>> lastPhotoResult = BehaviorSubject.create();
 
@@ -188,7 +189,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @Cold
   public Completable obtainSelectPhotoPermissions() {
-    return storageManager.obtainPermissionsIfNeeded();
+    return permissionsManager.obtainPermission(READ_EXTERNAL_STORAGE);
   }
 
   public void onSaveClick(Map<String, String> validationErrors) {
