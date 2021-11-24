@@ -340,7 +340,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public void onSelectPhotoResult(Uri uri) {
     if (uri == null) {
-      Timber.e("Select photo failed or canceled");
+      Timber.v("Select photo failed or canceled");
       return;
     }
     if (fieldWaitingForPhoto == null) {
@@ -359,7 +359,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public void onCapturePhotoResult(boolean result) {
     if (!result) {
-      Timber.e("Capture photo failed or canceled");
+      Timber.v("Capture photo failed or canceled");
       // TODO: Cleanup created file if it exists.
       return;
     }
