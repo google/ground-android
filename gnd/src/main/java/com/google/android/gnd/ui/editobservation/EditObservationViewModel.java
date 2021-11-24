@@ -20,7 +20,6 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static java.util.Objects.requireNonNull;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -359,9 +358,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       return;
     }
     try {
-      onPhotoResult(
-          PhotoResult.createSelectResult(
-              requireNonNull(fieldWaitingForPhoto), bitmapUtil.fromUri(uri)));
+      onPhotoResult(PhotoResult.createSelectResult(fieldWaitingForPhoto, bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
     } catch (IOException e) {
       Timber.e(e, "Error getting photo selected from storage");
@@ -382,9 +379,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Photo captured but no path available to read the result");
       return;
     }
-    onPhotoResult(
-        PhotoResult.createCaptureResult(
-            requireNonNull(fieldWaitingForPhoto), requireNonNull(capturedPhotoPath)));
+    onPhotoResult(PhotoResult.createCaptureResult(fieldWaitingForPhoto, capturedPhotoPath));
     Timber.v("Photo capture result returned");
   }
 
