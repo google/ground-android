@@ -36,7 +36,7 @@
   <string name="add_feature_data_toolbar_title">Adicionar dados ao local</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Deseja salvar os dados antes de fechar?</string>
-  <string name="close_without_saving">Não salvar</string>
+  <string name="discard_changes">Descartar alterações</string>
   <!-- Shown on save when connection was not available. -->
   <string name="save_queued">Salvo no dispositivo, sincronização pendente.</string>
   <!-- Shown on save when connection is available (TBD). -->
