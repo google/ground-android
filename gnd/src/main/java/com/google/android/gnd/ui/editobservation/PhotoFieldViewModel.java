@@ -98,7 +98,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     this.observationId = observationId;
   }
 
-  public void onPhotoResult(PhotoResult photoResult) throws IOException {
+  public void onPhotoResult(PhotoResult photoResult) {
     if (projectId == null || observationId == null) {
       Timber.e("projectId or observationId not set");
       return;
@@ -112,16 +112,21 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       Timber.v("Photo cleared");
       return;
     }
-    File imageFile =
-        userMediaRepository.savePhoto(photoResult.getBitmap().get(), photoResult.getFieldId());
-    String filename = imageFile.getName();
-    String path = imageFile.getAbsolutePath();
+    try {
+      File imageFile =
+          userMediaRepository.savePhoto(photoResult.getBitmap().get(), photoResult.getFieldId());
+      String filename = imageFile.getName();
+      String path = imageFile.getAbsolutePath();
 
-    // Add image to gallery.
-    userMediaRepository.addImageToGallery(path, filename);
+      // Add image to gallery.
+      userMediaRepository.addImageToGallery(path, filename);
 
-    // Update response.
-    String remoteDestinationPath = getRemoteMediaPath(projectId, observationId, filename);
-    updateResponse(remoteDestinationPath);
+      // Update response.
+      String remoteDestinationPath = getRemoteMediaPath(projectId, observationId, filename);
+      updateResponse(remoteDestinationPath);
+    } catch (IOException e) {
+      // TODO: Report error.
+      Timber.e(e, "Failed to save photo");
+    }
   }
 }

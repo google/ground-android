@@ -47,6 +47,7 @@ import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.NumberInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.databinding.TimeInputFieldBinding;
@@ -331,7 +332,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     viewModel
         .getLastPhotoResult()
         .as(autoDisposable(getViewLifecycleOwner()))
-        .subscribe(fieldViewModel::onPhotoResult);
+        .subscribe(event -> event.ifUnhandled(fieldViewModel::onPhotoResult));
   }
 
   private void onShowPhotoSelectorDialog(Field field) {
