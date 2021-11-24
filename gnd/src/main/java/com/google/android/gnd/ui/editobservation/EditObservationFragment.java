@@ -47,6 +47,7 @@ import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.NumberInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoInputFieldBindingImpl;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.databinding.TimeInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
@@ -193,7 +194,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
+  private void addFieldViewModel(Field field, ViewDataBinding binding) {
+    if (binding instanceof PhotoInputFieldBindingImpl) {
+      ((PhotoInputFieldBindingImpl) binding).setEditObservationViewModel(viewModel);
+    }
+
+    AbstractFieldViewModel fieldViewModel = getViewModel(binding);
     fieldViewModel.initialize(field, viewModel.getResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
@@ -257,7 +263,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         case FIELD:
           Field field = element.getField();
           ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
-          addFieldViewModel(field, getViewModel(binding));
+          addFieldViewModel(field, binding);
           break;
         case UNKNOWN:
         default:
