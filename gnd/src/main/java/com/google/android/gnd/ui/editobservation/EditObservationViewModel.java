@@ -360,6 +360,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.of(bitmap)));
   }
 
+  public void clearPhoto(String fieldId) {
+    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.empty()));
+  }
+
   /** Possible outcomes of user clicking "Save". */
   enum SaveResult {
     HAS_VALIDATION_ERRORS,
@@ -369,9 +373,19 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @AutoValue
   abstract static class PhotoResult {
+    boolean isHandled;
+
     abstract String getFieldId();
 
     abstract Optional<Bitmap> getBitmap();
+
+    public boolean isHandled() {
+      return isHandled;
+    }
+
+    public void setHandled(boolean handled) {
+      isHandled = handled;
+    }
 
     static PhotoResult create(String fieldId, Optional<Bitmap> bitmap) {
       return new AutoValue_EditObservationViewModel_PhotoResult(fieldId, bitmap);
