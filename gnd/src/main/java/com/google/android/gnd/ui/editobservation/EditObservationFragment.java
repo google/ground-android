@@ -94,7 +94,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     private static final String FIELD_WAITING_FOR_PHOTO = "photoFieldId";
 
     /** Key used to store captured photo Uri across activity re-creation. */
-    private static final String CAPTURED_PHOTO_URI = "capturedPhotoUri";
+    private static final String CAPTURED_PHOTO_PATH = "capturedPhotoPath";
   }
 
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
@@ -173,7 +173,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       viewModel.setFieldWaitingForPhoto(
           savedInstanceState.getString(BundleKeys.FIELD_WAITING_FOR_PHOTO));
       viewModel.setCapturedPhotoPath(
-          savedInstanceState.getParcelable(BundleKeys.CAPTURED_PHOTO_URI));
+          savedInstanceState.getParcelable(BundleKeys.CAPTURED_PHOTO_PATH));
     }
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(args));
   }
@@ -183,7 +183,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     super.onSaveInstanceState(outState);
     outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
     outState.putString(BundleKeys.FIELD_WAITING_FOR_PHOTO, viewModel.getFieldWaitingForPhoto());
-    outState.putString(BundleKeys.CAPTURED_PHOTO_URI, viewModel.getCapturedPhotoPath());
+    outState.putString(BundleKeys.CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
