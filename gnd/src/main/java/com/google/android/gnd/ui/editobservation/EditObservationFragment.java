@@ -37,7 +37,6 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicturePrev
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.ViewDataBinding;
-import androidx.databinding.library.baseAdapters.BR;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
@@ -47,8 +46,8 @@ import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.NumberInputFieldBinding;
-import com.google.android.gnd.databinding.PhotoFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoInputFieldBindingImpl;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.databinding.TimeInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
@@ -196,11 +195,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void addFieldViewModel(Field field, ViewDataBinding binding) {
+    if (binding instanceof PhotoInputFieldBindingImpl) {
+      ((PhotoInputFieldBindingImpl) binding).setEditObservationViewModel(viewModel);
+    }
+
     AbstractFieldViewModel fieldViewModel = getViewModel(binding);
     fieldViewModel.initialize(field, viewModel.getResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
-      binding.setVariable(BR.editObservationViewModel, viewModel);
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
