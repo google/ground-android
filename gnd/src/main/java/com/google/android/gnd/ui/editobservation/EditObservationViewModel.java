@@ -360,6 +360,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.of(bitmap)));
   }
 
+  public void clearPhoto(String fieldId) {
+    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.empty()));
+  }
+
   /** Possible outcomes of user clicking "Save". */
   enum SaveResult {
     HAS_VALIDATION_ERRORS,
