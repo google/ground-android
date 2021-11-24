@@ -37,6 +37,7 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicturePrev
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.ViewDataBinding;
+import androidx.databinding.library.baseAdapters.BR;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
@@ -193,10 +194,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
+  private void addFieldViewModel(Field field, ViewDataBinding binding) {
+    AbstractFieldViewModel fieldViewModel = getViewModel(binding);
     fieldViewModel.initialize(field, viewModel.getResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
+      binding.setVariable(BR.editObservationViewModel, viewModel);
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
@@ -257,7 +260,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         case FIELD:
           Field field = element.getField();
           ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
-          addFieldViewModel(field, getViewModel(binding));
+          addFieldViewModel(field, binding);
           break;
         case UNKNOWN:
         default:
