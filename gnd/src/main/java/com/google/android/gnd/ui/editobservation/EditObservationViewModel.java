@@ -36,7 +36,6 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.repository.ObservationRepository;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -110,7 +109,7 @@ public class EditObservationViewModel extends AbstractViewModel {
    * last value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
-  private Subject<Event<PhotoResult>> lastPhotoResult = BehaviorSubject.create();
+  private Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
 
   // Events.
 
@@ -324,7 +323,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
-  public Observable<Event<PhotoResult>> getLastPhotoResult() {
+  public Observable<PhotoResult> getLastPhotoResult() {
     return lastPhotoResult;
   }
 
@@ -358,11 +357,11 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
     String fieldId = fieldWaitingForPhoto;
     fieldWaitingForPhoto = null;
-    lastPhotoResult.onNext(Event.create(PhotoResult.create(fieldId, Optional.of(bitmap))));
+    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.of(bitmap)));
   }
 
   public void clearPhoto(String fieldId) {
-    lastPhotoResult.onNext(Event.create(PhotoResult.create(fieldId, Optional.empty())));
+    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.empty()));
   }
 
   /** Possible outcomes of user clicking "Save". */
@@ -374,9 +373,19 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @AutoValue
   abstract static class PhotoResult {
+    boolean isHandled;
+
     abstract String getFieldId();
 
     abstract Optional<Bitmap> getBitmap();
+
+    public boolean isHandled() {
+      return isHandled;
+    }
+
+    public void setHandled(boolean handled) {
+      isHandled = handled;
+    }
 
     static PhotoResult create(String fieldId, Optional<Bitmap> bitmap) {
       return new AutoValue_EditObservationViewModel_PhotoResult(fieldId, bitmap);

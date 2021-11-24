@@ -99,6 +99,9 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void onPhotoResult(PhotoResult photoResult) {
+    if (photoResult.isHandled()) {
+      return;
+    }
     if (projectId == null || observationId == null) {
       Timber.e("projectId or observationId not set");
       return;
@@ -107,6 +110,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       // Update belongs to another field.
       return;
     }
+    photoResult.setHandled(true);
     if (photoResult.getBitmap().isEmpty()) {
       clearResponse();
       Timber.v("Photo cleared");

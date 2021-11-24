@@ -334,7 +334,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     viewModel
         .getLastPhotoResult()
         .as(autoDisposable(getViewLifecycleOwner()))
-        .subscribe(event -> event.ifUnhandled(fieldViewModel::onPhotoResult));
+        .subscribe(fieldViewModel::onPhotoResult);
   }
 
   private void onShowPhotoSelectorDialog(Field field) {
