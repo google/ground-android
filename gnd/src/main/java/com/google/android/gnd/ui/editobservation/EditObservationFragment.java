@@ -413,6 +413,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private void onSelectPhotoClick(int type, String fieldId) {
     switch (type) {
       case PHOTO_SOURCE_CAMERA:
+        // TODO: Launch intent is not invoked if the permission is not granted by default.
         viewModel
             .obtainCapturePhotoPermissions()
             .andThen(Completable.fromAction(() -> launchPhotoCapture(fieldId)))
@@ -420,6 +421,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             .subscribe();
         break;
       case PHOTO_SOURCE_STORAGE:
+        // TODO: Launch intent is not invoked if the permission is not granted by default.
         viewModel
             .obtainSelectPhotoPermissions()
             .andThen(Completable.fromAction(() -> launchPhotoSelector(fieldId)))
