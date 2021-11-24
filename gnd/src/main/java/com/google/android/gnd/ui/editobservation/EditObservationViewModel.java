@@ -20,6 +20,7 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
+import static java.util.Objects.requireNonNull;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -109,7 +110,7 @@ public class EditObservationViewModel extends AbstractViewModel {
    * last value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
-  private Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
+  private final Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
 
   // Events.
 
@@ -120,6 +121,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Observable<SaveResult> saveResults;
 
   @Nullable private String fieldWaitingForPhoto;
+  @Nullable private String capturedPhotoPath;
 
   @Inject
   EditObservationViewModel(
@@ -323,6 +325,15 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
+  @Nullable
+  public String getCapturedPhotoPath() {
+    return capturedPhotoPath;
+  }
+
+  public void setCapturedPhotoPath(@Nullable String photoUri) {
+    this.capturedPhotoPath = photoUri;
+  }
+
   public Observable<PhotoResult> getLastPhotoResult() {
     return lastPhotoResult;
   }
@@ -333,35 +344,35 @@ public class EditObservationViewModel extends AbstractViewModel {
       return;
     }
     try {
-      Bitmap bitmap = bitmapUtil.fromUri(uri);
-      onPhotoResult(bitmap);
+      onPhotoResult(
+          PhotoResult.createSelectResult(
+              requireNonNull(fieldWaitingForPhoto), bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
     } catch (IOException e) {
       Timber.e(e, "Error getting photo returned by camera");
     }
   }
 
-  public void onCapturePhotoResult(Bitmap thumbnail) {
-    if (thumbnail == null) {
-      Timber.e("onCapturePhotoResult called with null thumbnail");
+  public void onCapturePhotoResult(Boolean result) {
+    if (result == null || !result) {
+      Timber.e("onCapturePhotoResult called with false result");
+      // TODO: Cleanup created file if it exists.
       return;
     }
-    onPhotoResult(thumbnail);
+    onPhotoResult(
+        PhotoResult.createCaptureResult(
+            requireNonNull(fieldWaitingForPhoto), requireNonNull(capturedPhotoPath)));
     Timber.v("Photo capture result returned");
   }
 
-  private void onPhotoResult(Bitmap bitmap) {
-    if (fieldWaitingForPhoto == null) {
-      Timber.e("Photo received but no field waiting for result");
-      return;
-    }
-    String fieldId = fieldWaitingForPhoto;
+  private void onPhotoResult(PhotoResult result) {
+    capturedPhotoPath = null;
     fieldWaitingForPhoto = null;
-    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.of(bitmap)));
+    lastPhotoResult.onNext(result);
   }
 
   public void clearPhoto(String fieldId) {
-    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.empty()));
+    lastPhotoResult.onNext(PhotoResult.createEmptyResult(fieldId));
   }
 
   /** Possible outcomes of user clicking "Save". */
@@ -379,16 +390,37 @@ public class EditObservationViewModel extends AbstractViewModel {
 
     abstract Optional<Bitmap> getBitmap();
 
+    abstract Optional<String> getPath();
+
     public boolean isHandled() {
       return isHandled;
+    }
+
+    public boolean hasFieldId(String fieldId) {
+      return getFieldId().equals(fieldId);
+    }
+
+    public boolean isEmpty() {
+      return getBitmap().isEmpty() && getPath().isEmpty();
     }
 
     public void setHandled(boolean handled) {
       isHandled = handled;
     }
 
-    static PhotoResult create(String fieldId, Optional<Bitmap> bitmap) {
-      return new AutoValue_EditObservationViewModel_PhotoResult(fieldId, bitmap);
+    static PhotoResult createEmptyResult(String fieldId) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.empty(), Optional.empty());
+    }
+
+    static PhotoResult createSelectResult(String fieldId, Bitmap bitmap) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.of(bitmap), Optional.empty());
+    }
+
+    static PhotoResult createCaptureResult(String fieldId, String path) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.empty(), Optional.of(path));
     }
   }
 }
