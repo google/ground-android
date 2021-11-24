@@ -106,19 +106,18 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       Timber.e("projectId or observationId not set");
       return;
     }
-    if (!photoResult.getFieldId().equals(getField().getId())) {
+    if (!photoResult.hasFieldId(getField().getId())) {
       // Update belongs to another field.
       return;
     }
     photoResult.setHandled(true);
-    if (photoResult.getBitmap().isEmpty()) {
+    if (photoResult.isEmpty()) {
       clearResponse();
       Timber.v("Photo cleared");
       return;
     }
     try {
-      File imageFile =
-          userMediaRepository.savePhoto(photoResult.getBitmap().get(), photoResult.getFieldId());
+      File imageFile = getFileFromResult(photoResult);
       String filename = imageFile.getName();
       String path = imageFile.getAbsolutePath();
 
@@ -132,5 +131,15 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       // TODO: Report error.
       Timber.e(e, "Failed to save photo");
     }
+  }
+
+  private File getFileFromResult(PhotoResult result) throws IOException {
+    if (result.getBitmap().isPresent()) {
+      return userMediaRepository.savePhoto(result.getBitmap().get(), result.getFieldId());
+    }
+    if (result.getPath().isPresent()) {
+      return new File(result.getPath().get());
+    }
+    throw new IllegalStateException("PhotoResult is empty");
   }
 }
