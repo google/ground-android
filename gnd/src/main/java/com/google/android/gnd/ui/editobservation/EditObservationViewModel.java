@@ -343,12 +343,16 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Select photo failed or canceled");
       return;
     }
+    if (fieldWaitingForPhoto == null) {
+      Timber.e("Photo captured but no field waiting for the result");
+      return;
+    }
     try {
       onPhotoResult(
           PhotoResult.createSelectResult(
               requireNonNull(fieldWaitingForPhoto), bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
-    } catch (IOException | NullPointerException e) {
+    } catch (IOException e) {
       Timber.e(e, "Error getting photo selected from storage");
     }
   }
@@ -359,13 +363,17 @@ public class EditObservationViewModel extends AbstractViewModel {
       // TODO: Cleanup created file if it exists.
       return;
     }
-    try {
-      onPhotoResult(
-          PhotoResult.createCaptureResult(
-              requireNonNull(fieldWaitingForPhoto), requireNonNull(capturedPhotoPath)));
-    } catch (NullPointerException e) {
-      Timber.e(e, "Error getting photo returned by camera");
+    if (fieldWaitingForPhoto == null) {
+      Timber.e("Photo captured but no field waiting for the result");
+      return;
     }
+    if (capturedPhotoPath == null) {
+      Timber.e("Photo captured but no path available to read the result");
+      return;
+    }
+    onPhotoResult(
+        PhotoResult.createCaptureResult(
+            requireNonNull(fieldWaitingForPhoto), requireNonNull(capturedPhotoPath)));
     Timber.v("Photo capture result returned");
   }
 
