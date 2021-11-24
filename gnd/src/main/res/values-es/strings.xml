@@ -45,7 +45,7 @@
     Shown when the user attempts to close the form without saving. If tapped, unsaved
     changes will be lost.
   -->
-  <string name="close_without_saving">Cerrar sin guardar</string>
+  <string name="discard_changes">Descartar cambios</string>
   <!-- Shown on save when connection was not available. -->
   <string name="save_queued">Guardado localmente, en cola para sincronizar.</string>
   <!-- Shown on save when connection is available (TBD). -->
