@@ -340,7 +340,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public void onSelectPhotoResult(Uri uri) {
     if (uri == null) {
-      Timber.e("onSelectPhotoResult called with null uri");
+      Timber.e("Select photo failed or canceled");
       return;
     }
     try {
@@ -348,20 +348,24 @@ public class EditObservationViewModel extends AbstractViewModel {
           PhotoResult.createSelectResult(
               requireNonNull(fieldWaitingForPhoto), bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
-    } catch (IOException e) {
-      Timber.e(e, "Error getting photo returned by camera");
+    } catch (IOException | NullPointerException e) {
+      Timber.e(e, "Error getting photo selected from storage");
     }
   }
 
-  public void onCapturePhotoResult(Boolean result) {
-    if (result == null || !result) {
-      Timber.e("onCapturePhotoResult called with false result");
+  public void onCapturePhotoResult(boolean result) {
+    if (!result) {
+      Timber.e("Capture photo failed or canceled");
       // TODO: Cleanup created file if it exists.
       return;
     }
-    onPhotoResult(
-        PhotoResult.createCaptureResult(
-            requireNonNull(fieldWaitingForPhoto), requireNonNull(capturedPhotoPath)));
+    try {
+      onPhotoResult(
+          PhotoResult.createCaptureResult(
+              requireNonNull(fieldWaitingForPhoto), requireNonNull(capturedPhotoPath)));
+    } catch (NullPointerException e) {
+      Timber.e(e, "Error getting photo returned by camera");
+    }
     Timber.v("Photo capture result returned");
   }
 
