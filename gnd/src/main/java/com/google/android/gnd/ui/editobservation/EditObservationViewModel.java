@@ -109,7 +109,7 @@ public class EditObservationViewModel extends AbstractViewModel {
    * last value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
-  private Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
+  private final Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
 
   // Events.
 
@@ -119,7 +119,19 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
+  /**
+   * Field id waiting for a photo response. As only 1 photo result is returned at a time, we can
+   * directly map it 1:1 with the field waiting for a photo response.
+   */
   @Nullable private String fieldWaitingForPhoto;
+
+  /**
+   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
+   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
+   * result returns true/false based on whether the operation passed or not. As only 1 photo result
+   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
+   */
+  @Nullable private String capturedPhotoPath;
 
   @Inject
   EditObservationViewModel(
@@ -323,45 +335,62 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.fieldWaitingForPhoto = fieldWaitingForPhoto;
   }
 
+  @Nullable
+  public String getCapturedPhotoPath() {
+    return capturedPhotoPath;
+  }
+
+  public void setCapturedPhotoPath(@Nullable String photoUri) {
+    this.capturedPhotoPath = photoUri;
+  }
+
   public Observable<PhotoResult> getLastPhotoResult() {
     return lastPhotoResult;
   }
 
   public void onSelectPhotoResult(Uri uri) {
     if (uri == null) {
-      Timber.e("onSelectPhotoResult called with null uri");
+      Timber.v("Select photo failed or canceled");
+      return;
+    }
+    if (fieldWaitingForPhoto == null) {
+      Timber.e("Photo captured but no field waiting for the result");
       return;
     }
     try {
-      Bitmap bitmap = bitmapUtil.fromUri(uri);
-      onPhotoResult(bitmap);
+      onPhotoResult(PhotoResult.createSelectResult(fieldWaitingForPhoto, bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
     } catch (IOException e) {
-      Timber.e(e, "Error getting photo returned by camera");
+      Timber.e(e, "Error getting photo selected from storage");
     }
   }
 
-  public void onCapturePhotoResult(Bitmap thumbnail) {
-    if (thumbnail == null) {
-      Timber.e("onCapturePhotoResult called with null thumbnail");
+  public void onCapturePhotoResult(boolean result) {
+    if (!result) {
+      Timber.v("Capture photo failed or canceled");
+      // TODO: Cleanup created file if it exists.
       return;
     }
-    onPhotoResult(thumbnail);
+    if (fieldWaitingForPhoto == null) {
+      Timber.e("Photo captured but no field waiting for the result");
+      return;
+    }
+    if (capturedPhotoPath == null) {
+      Timber.e("Photo captured but no path available to read the result");
+      return;
+    }
+    onPhotoResult(PhotoResult.createCaptureResult(fieldWaitingForPhoto, capturedPhotoPath));
     Timber.v("Photo capture result returned");
   }
 
-  private void onPhotoResult(Bitmap bitmap) {
-    if (fieldWaitingForPhoto == null) {
-      Timber.e("Photo received but no field waiting for result");
-      return;
-    }
-    String fieldId = fieldWaitingForPhoto;
+  private void onPhotoResult(PhotoResult result) {
+    capturedPhotoPath = null;
     fieldWaitingForPhoto = null;
-    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.of(bitmap)));
+    lastPhotoResult.onNext(result);
   }
 
   public void clearPhoto(String fieldId) {
-    lastPhotoResult.onNext(PhotoResult.create(fieldId, Optional.empty()));
+    lastPhotoResult.onNext(PhotoResult.createEmptyResult(fieldId));
   }
 
   /** Possible outcomes of user clicking "Save". */
@@ -379,16 +408,37 @@ public class EditObservationViewModel extends AbstractViewModel {
 
     abstract Optional<Bitmap> getBitmap();
 
+    abstract Optional<String> getPath();
+
     public boolean isHandled() {
       return isHandled;
+    }
+
+    public boolean hasFieldId(String fieldId) {
+      return getFieldId().equals(fieldId);
+    }
+
+    public boolean isEmpty() {
+      return getBitmap().isEmpty() && getPath().isEmpty();
     }
 
     public void setHandled(boolean handled) {
       isHandled = handled;
     }
 
-    static PhotoResult create(String fieldId, Optional<Bitmap> bitmap) {
-      return new AutoValue_EditObservationViewModel_PhotoResult(fieldId, bitmap);
+    static PhotoResult createEmptyResult(String fieldId) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.empty(), Optional.empty());
+    }
+
+    static PhotoResult createSelectResult(String fieldId, Bitmap bitmap) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.of(bitmap), Optional.empty());
+    }
+
+    static PhotoResult createCaptureResult(String fieldId, String path) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.empty(), Optional.of(path));
     }
   }
 }
