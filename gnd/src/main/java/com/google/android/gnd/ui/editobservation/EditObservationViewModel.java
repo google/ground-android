@@ -120,7 +120,18 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
+  /**
+   * Field id waiting for a photo response. As only 1 photo result is returned at a time, we can
+   * directly map it 1:1 with the field waiting for a photo response.
+   */
   @Nullable private String fieldWaitingForPhoto;
+
+  /**
+   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
+   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
+   * result returns true/false based on whether the operation passed or not. As only 1 photo result
+   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
+   */
   @Nullable private String capturedPhotoPath;
 
   @Inject
