@@ -428,6 +428,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     Timber.v("setMapFeatures() called with %s features", features.size());
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
+    List<Marker> deletedMarkers = new ArrayList<>();
     for (Marker marker : markers) {
       MapPin pin = (MapPin) marker.getTag();
       if (features.contains(pin)) {
@@ -436,8 +437,12 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       } else {
         // If pin isn't present or up-to-date, remove it so it can be added back later.
         removeMarker(marker);
+        deletedMarkers.add(marker);
       }
     }
+
+    // Update markers list.
+    stream(deletedMarkers).forEach(markers::remove);
 
     Iterator<Entry<MapFeature, Polyline>> polylineIterator = polygons.entrySet().iterator();
     while (polylineIterator.hasNext()) {
