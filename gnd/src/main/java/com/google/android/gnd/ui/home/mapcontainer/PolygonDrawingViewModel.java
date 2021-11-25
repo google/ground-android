@@ -58,7 +58,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
-  @Hot private final Subject<Nil> drawingCompleted = PublishSubject.create();
+  @Hot private final Subject<PolygonFeature> drawingCompleted = PublishSubject.create();
 
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
   /** Polyline drawn by the user but not yet saved as polygon. */
@@ -128,7 +128,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   @Hot
-  public Observable<Nil> getDrawingCompleted() {
+  public Observable<PolygonFeature> getDrawingCompleted() {
     return drawingCompleted;
   }
 
@@ -218,7 +218,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     if (vertices.size() < 3 || !getFirstVertex().equals(getLastVertex())) {
       throw new IllegalStateException("Polygon is not complete");
     }
-    drawingCompleted.onNext(Nil.NIL);
+    drawingCompleted.onNext(drawnPolylineVertices.getValue());
     reset();
   }
 
