@@ -421,7 +421,11 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
   @Override
   public void setMapFeatures(ImmutableSet<MapFeature> features) {
-    Timber.d("Set map features called : %s", features.size());
+    if (features.isEmpty()) {
+      return;
+    }
+
+    Timber.v("setMapFeatures() called with %s features", features.size());
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
     for (Marker marker : markers) {
@@ -469,13 +473,16 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       }
     }
 
-    for (MapFeature mapFeature : featuresToUpdate) {
-      if (mapFeature instanceof MapPin) {
-        addMapPin((MapPin) mapFeature);
-      } else if (mapFeature instanceof MapPolygon) {
-        addMapPolyline((MapPolygon) mapFeature);
-      } else if (mapFeature instanceof MapGeoJson) {
-        addMapGeoJson((MapGeoJson) mapFeature);
+    if (!featuresToUpdate.isEmpty()) {
+      Timber.v("Updating %d features", featuresToUpdate.size());
+      for (MapFeature mapFeature : featuresToUpdate) {
+        if (mapFeature instanceof MapPin) {
+          addMapPin((MapPin) mapFeature);
+        } else if (mapFeature instanceof MapPolygon) {
+          addMapPolyline((MapPolygon) mapFeature);
+        } else if (mapFeature instanceof MapGeoJson) {
+          addMapGeoJson((MapGeoJson) mapFeature);
+        }
       }
     }
   }
