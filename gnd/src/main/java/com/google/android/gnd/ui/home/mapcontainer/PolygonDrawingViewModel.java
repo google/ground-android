@@ -63,9 +63,10 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   @Hot private final Subject<PolygonDrawingState> polygonDrawingState = PublishSubject.create();
 
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
-  /** Polyline drawn by the user but not yet saved as polygon. */
+
+  /** Features drawn by the user but not yet saved. */
   @Hot
-  private final MutableLiveData<ImmutableSet<MapFeature>> drawnPolylineVertices =
+  private final MutableLiveData<ImmutableSet<MapFeature>> drawnMapFeatures =
       new MutableLiveData<>();
 
   @Hot(replays = true)
@@ -137,11 +138,19 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     }
   }
 
+  /**
+   * Adds another vertex at the given point if {@param distanceInPixels} is more than the configured
+   * threshold. Otherwise, snaps to the first vertex.
+   *
+   * @param newTarget Position of the map camera.
+   * @param distanceInPixels Distance between the last vertex and {@param newTarget}.
+   */
   public void updateLastVertex(Point newTarget, double distanceInPixels) {
     boolean isPolygonComplete = vertices.size() > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP;
     addVertex(isPolygonComplete ? vertices.get(0) : newTarget, true);
   }
 
+  /** Attempts to remove the last vertex of drawn polygon, if any. */
   public void removeLastVertex() {
     if (vertices.isEmpty()) {
       polygonDrawingState.onNext(createDrawingState(State.CANCELED));
@@ -185,11 +194,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   private void updateUI() {
-    if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
-      Timber.e("Project or layer is null");
-      return;
-    }
-
     // Update complete button visibility
     completeButtonVisible.postValue(isPolygonComplete() ? VISIBLE : INVISIBLE);
 
@@ -197,10 +201,13 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     mapPolygon =
         requireNonNull(mapPolygon).toBuilder().setVertices(ImmutableList.copyOf(vertices)).build();
 
-    drawnPolylineVertices.setValue(TransientMapFeatures.forMapPolygon(mapPolygon));
+    drawnMapFeatures.setValue(TransientMapFeatures.forMapPolygon(mapPolygon));
   }
 
   public void onCompletePolygonButtonClick() {
+    if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
+      throw new IllegalStateException("Project or layer is null");
+    }
     if (!isPolygonComplete()) {
       throw new IllegalStateException("Polygon is not complete");
     }
@@ -272,7 +279,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
-    return drawnPolylineVertices;
+    return drawnMapFeatures;
   }
 
   private PolygonDrawingState createDrawingState(State state) {
@@ -286,8 +293,10 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   @AutoValue
   public abstract static class PolygonDrawingState {
 
+    /** Current state of polygon drawing. */
     public abstract State getState();
 
+    /** Final polygon feature. */
     @Nullable
     public abstract PolygonFeature getPolygonFeature();
   }
