@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
 
 import androidx.lifecycle.LiveData;
@@ -62,7 +60,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   @Hot private final Subject<PolygonDrawingState> polygonDrawingState = PublishSubject.create();
 
-  private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
+  /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
+  @Hot private final MutableLiveData<Boolean> polygonCompleted = new MutableLiveData<>(false);
 
   /** Features drawn by the user but not yet saved. */
   @Hot
@@ -195,7 +194,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   private void updateUI() {
     // Update complete button visibility
-    completeButtonVisible.postValue(isPolygonComplete() ? VISIBLE : INVISIBLE);
+    polygonCompleted.postValue(isPolygonComplete());
 
     // Update drawn map features
     mapPolygon =
@@ -229,7 +228,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     isLastVertexNotSelectedByUser = false;
     vertices.clear();
     mapPolygon = null;
-    completeButtonVisible.setValue(INVISIBLE);
+    polygonCompleted.setValue(false);
   }
 
   private boolean isPolygonComplete() {
@@ -248,8 +247,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
-  public LiveData<Integer> getPolygonDrawingCompletedVisibility() {
-    return completeButtonVisible;
+  public LiveData<Boolean> isPolygonCompleted() {
+    return polygonCompleted;
   }
 
   private boolean isLocationLockEnabled() {

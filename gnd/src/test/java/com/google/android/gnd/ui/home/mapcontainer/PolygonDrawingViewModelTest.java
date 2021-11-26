@@ -196,8 +196,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   }
 
   private void assertCompleteButtonVisible(int visibility) {
-    observeUntilFirstChange(viewModel.getPolygonDrawingCompletedVisibility());
-    assertThat(viewModel.getPolygonDrawingCompletedVisibility().getValue()).isEqualTo(visibility);
+    observeUntilFirstChange(viewModel.isPolygonCompleted());
+    assertThat(viewModel.isPolygonCompleted().getValue()).isEqualTo(visibility);
   }
 
   private void assertPolygonFeatureMutated(int vertexCount) {
