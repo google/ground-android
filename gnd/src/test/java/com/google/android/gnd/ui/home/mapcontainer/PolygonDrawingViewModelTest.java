@@ -20,7 +20,6 @@ import static com.google.android.gnd.TestObservers.observeUntilFirstChange;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import android.view.View;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.feature.Point;
@@ -75,7 +74,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.selectCurrentVertex();
 
     assertPolygonFeatureMutated(3);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    assertCompleteButtonVisible(false);
   }
 
   @Test
@@ -85,7 +84,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.updateLastVertex(newPoint(20.0, 20.0), 100);
 
     assertPolygonFeatureMutated(1);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    assertCompleteButtonVisible(false);
   }
 
   @Test
@@ -102,7 +101,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.updateLastVertex(newPoint(30.0, 30.0), 25);
 
     assertPolygonFeatureMutated(4);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    assertCompleteButtonVisible(false);
     assertThat(viewModel.getFirstVertex()).isNotEqualTo(viewModel.getLastVertex());
   }
 
@@ -120,7 +119,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
 
     assertPolygonFeatureMutated(4);
-    assertCompleteButtonVisible(View.VISIBLE);
+    assertCompleteButtonVisible(true);
     assertThat(viewModel.getFirstVertex()).isEqualTo(viewModel.getLastVertex());
   }
 
@@ -132,7 +131,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.removeLastVertex();
 
     assertPolygonFeatureMutated(0);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    assertCompleteButtonVisible(false);
   }
 
   @Test
@@ -157,7 +156,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.removeLastVertex();
 
     assertPolygonFeatureMutated(3);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    assertCompleteButtonVisible(false);
   }
 
   @Test
@@ -195,9 +194,9 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
                 && polygonDrawingState.getPolygonFeature().getVertices().size() == 4);
   }
 
-  private void assertCompleteButtonVisible(int visibility) {
+  private void assertCompleteButtonVisible(boolean isVisible) {
     observeUntilFirstChange(viewModel.isPolygonCompleted());
-    assertThat(viewModel.isPolygonCompleted().getValue()).isEqualTo(visibility);
+    assertThat(viewModel.isPolygonCompleted().getValue()).isEqualTo(isVisible);
   }
 
   private void assertPolygonFeatureMutated(int vertexCount) {
