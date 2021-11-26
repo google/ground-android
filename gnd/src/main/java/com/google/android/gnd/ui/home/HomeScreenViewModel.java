@@ -252,7 +252,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onMarkerClick(MapPin marker) {
-    showBottomSheet(marker.getFeature());
+    if (marker.getFeature() != null) {
+      showBottomSheet(marker.getFeature());
+    }
   }
 
   public void onFeatureSelected(Feature feature) {
