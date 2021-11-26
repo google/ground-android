@@ -421,10 +421,6 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
   @Override
   public void setMapFeatures(ImmutableSet<MapFeature> features) {
-    if (features.isEmpty()) {
-      return;
-    }
-
     Timber.v("setMapFeatures() called with %s features", features.size());
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
