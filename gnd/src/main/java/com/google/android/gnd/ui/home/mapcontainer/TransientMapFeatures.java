@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
@@ -27,27 +26,30 @@ import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+/** Helper class to generate ephemeral {@link MapFeature}. Used when adding/editing features. */
 public final class TransientMapFeatures {
 
   private TransientMapFeatures() {}
-
-  private static MapFeature toMapPolygon(String id, ImmutableList<Point> vertices, Style style) {
-    return MapPolygon.newBuilder().setId(id).setVertices(vertices).setStyle(style).build();
-  }
 
   private static MapFeature toMapPin(String id, Point point, Style style) {
     return MapPin.newBuilder().setId(id).setPosition(point).setStyle(style).build();
   }
 
-  public static ImmutableSet<MapFeature> fromPolygonFeature(PolygonFeature polygonFeature) {
-    String id = polygonFeature.getId();
-    ImmutableList<Point> vertices = polygonFeature.getVertices();
-    Style style = polygonFeature.getLayer().getDefaultStyle();
+  /**
+   * Returns a set of {@link MapFeature} to be drawn on map for the given {@link MapPolygon}.
+   *
+   * <p>TODO: Use different marker style for ephemeral markers.
+   *
+   * <p>Includes itself and adds a {@link MapPin} for each vertex.
+   */
+  public static ImmutableSet<MapFeature> forMapPolygon(MapPolygon mapPolygon) {
+    ImmutableList<Point> vertices = mapPolygon.getVertices();
     ImmutableSet.Builder<MapFeature> builder = ImmutableSet.builder();
-    // Add MapPolygon
-    builder.add(toMapPolygon(id, vertices, style));
-    // Add MapPin for each vertex
-    builder.addAll(stream(vertices).map(point -> toMapPin(id, point, style)).toList());
+    builder.add(mapPolygon);
+    builder.addAll(
+        stream(vertices)
+            .map(point -> toMapPin(mapPolygon.getId(), point, mapPolygon.getStyle()))
+            .toList());
     return builder.build();
   }
 }

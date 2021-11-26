@@ -40,6 +40,8 @@ public abstract class MapPolygon extends MapFeature {
   @Override
   public abstract Feature getFeature();
 
+  public abstract Builder toBuilder();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);

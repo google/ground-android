@@ -96,9 +96,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
-  /** Polyline drawn by the user but not yet saved as polygon. */
+  /** Short-lived {@link MapFeature} used during add/edit flows. */
   @Hot
-  private final PublishProcessor<PolygonFeature> drawnPolylineFeature = PublishProcessor.create();
+  private final PublishProcessor<ImmutableSet<MapFeature>> ephemeralMapFeatures =
+      PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
@@ -180,15 +181,12 @@ public class MapContainerViewModel extends AbstractViewModel {
             selectedFeature,
             this::updateSelectedFeature);
 
-    Flowable<ImmutableSet<MapFeature>> transientFeatures =
-        drawnPolylineFeature.map(TransientMapFeatures::fromPolygonFeature);
-
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
                     Arrays.asList(
                         persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
-                        transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
+                        ephemeralMapFeatures.startWith(ImmutableSet.<MapFeature>of())),
                     MapContainerViewModel::concatFeatureSets)
                 .distinctUntilChanged());
 
@@ -231,8 +229,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         .ifPresent(this::panAndZoomCamera);
   }
 
-  public void updateDrawnPolygonFeature(PolygonFeature feature) {
-    drawnPolylineFeature.onNext(feature);
+  public void setEphemeralMapFeatures(ImmutableSet<MapFeature> features) {
+    ephemeralMapFeatures.onNext(features);
   }
 
   private ImmutableSet<MapFeature> updateSelectedFeature(

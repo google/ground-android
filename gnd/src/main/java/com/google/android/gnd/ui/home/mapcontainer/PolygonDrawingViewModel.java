@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static java.util.Objects.requireNonNull;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -35,8 +36,11 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -61,7 +65,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
   /** Polyline drawn by the user but not yet saved as polygon. */
   @Hot
-  private final MutableLiveData<PolygonFeature> drawnPolylineVertices = new MutableLiveData<>();
+  private final MutableLiveData<ImmutableSet<MapFeature>> drawnPolylineVertices =
+      new MutableLiveData<>();
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
@@ -87,8 +92,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
    */
   boolean isLastVertexNotSelectedByUser;
 
-  /** Avoid creating a new uuid to prevent re-drawing everything on render. Reset to */
-  @Nullable private String uuid;
+  @Nullable private MapPolygon mapPolygon;
 
   @Inject
   PolygonDrawingViewModel(
@@ -180,13 +184,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     updateUI();
   }
 
-  private String getId() {
-    if (uuid == null) {
-      uuid = uuidGenerator.generateUuid();
-    }
-    return uuid;
-  }
-
   private void updateUI() {
     if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
       Timber.e("Project or layer is null");
@@ -196,33 +193,35 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     // Update complete button visibility
     completeButtonVisible.postValue(isPolygonComplete() ? VISIBLE : INVISIBLE);
 
-    // Update drawn polygon
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    PolygonFeature polygonFeature =
-        PolygonFeature.builder()
-            .setVertices(ImmutableList.copyOf(this.vertices))
-            .setId(getId())
-            .setProject(selectedProject.getValue())
-            .setLayer(selectedLayer.getValue())
-            .setCreated(auditInfo)
-            .setLastModified(auditInfo)
-            .build();
-    drawnPolylineVertices.setValue(polygonFeature);
+    // Update drawn map features
+    mapPolygon =
+        requireNonNull(mapPolygon).toBuilder().setVertices(ImmutableList.copyOf(vertices)).build();
+
+    drawnPolylineVertices.setValue(TransientMapFeatures.forMapPolygon(mapPolygon));
   }
 
   public void onCompletePolygonButtonClick() {
     if (!isPolygonComplete()) {
       throw new IllegalStateException("Polygon is not complete");
     }
-    polygonDrawingState.onNext(
-        createDrawingState(State.COMPLETED, drawnPolylineVertices.getValue()));
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
+    PolygonFeature polygonFeature =
+        PolygonFeature.builder()
+            .setId(requireNonNull(mapPolygon).getId())
+            .setVertices(mapPolygon.getVertices())
+            .setProject(selectedProject.getValue())
+            .setLayer(selectedLayer.getValue())
+            .setCreated(auditInfo)
+            .setLastModified(auditInfo)
+            .build();
+    polygonDrawingState.onNext(createDrawingState(State.COMPLETED, polygonFeature));
     reset();
   }
 
   private void reset() {
     isLastVertexNotSelectedByUser = false;
     vertices.clear();
-    uuid = null;
+    mapPolygon = null;
     completeButtonVisible.setValue(INVISIBLE);
   }
 
@@ -259,13 +258,20 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     this.selectedLayer.onNext(selectedLayer);
     this.selectedProject.onNext(selectedProject);
     polygonDrawingState.onNext(createDrawingState(State.IN_PROGRESS));
+
+    mapPolygon =
+        MapPolygon.newBuilder()
+            .setId(uuidGenerator.generateUuid())
+            .setVertices(ImmutableList.of())
+            .setStyle(selectedLayer.getDefaultStyle())
+            .build();
   }
 
   public LiveData<Integer> getIconTint() {
     return iconTint;
   }
 
-  public LiveData<PolygonFeature> getPolygonFeature() {
+  public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
     return drawnPolylineVertices;
   }
 
