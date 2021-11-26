@@ -21,6 +21,7 @@ import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
+import static java.util.Objects.requireNonNull;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -71,6 +72,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -152,9 +154,10 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     polygonDrawingViewModel
-        .getDrawingCompleted()
+        .getDrawingState()
+        .distinctUntilChanged()
         .as(autoDisposable(this))
-        .subscribe(polygonFeature -> viewModel.addPolygonFeature(polygonFeature));
+        .subscribe(this::onPolygonDrawingStateUpdated);
     featureSelectorViewModel
         .getFeatureClicks()
         .as(autoDisposable(this))
@@ -167,6 +170,22 @@ public class HomeScreenFragment extends AbstractFragment
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
         .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
+  }
+
+  private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
+    Timber.v("PolygonDrawing state : %s", state);
+    switch (state.getState()) {
+      case IN_PROGRESS:
+        mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+        break;
+      case COMPLETED:
+        viewModel.addPolygonFeature(requireNonNull(state.getPolygonFeature()));
+        mapContainerFragment.setDefaultMode();
+        break;
+      case CANCELED:
+        mapContainerFragment.setDefaultMode();
+        break;
+    }
   }
 
   private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
@@ -581,13 +600,8 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getActiveProject()
         .ifPresentOrElse(
-            project -> {
-              polygonDrawingViewModel.startDrawingFlow(project, layer);
-              mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
-            },
-            () -> {
-              Timber.e("No active project");
-            });
+            project -> polygonDrawingViewModel.startDrawingFlow(project, layer),
+            () -> Timber.e("No active project"));
   }
 
   private void showPolygonInfoDialog(Layer layer) {

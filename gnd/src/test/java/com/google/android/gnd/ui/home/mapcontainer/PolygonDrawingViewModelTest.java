@@ -24,8 +24,8 @@ import android.view.View;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.State;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
 import javax.inject.Inject;
@@ -45,6 +45,16 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     // Initialize polygon drawing
     viewModel.startDrawingFlow(FakeData.PROJECT, FakeData.LAYER);
+  }
+
+  @Test
+  public void testStateOnBegin() {
+    TestObserver<PolygonDrawingState> stateTestObserver = viewModel.getDrawingState().test();
+
+    viewModel.startDrawingFlow(FakeData.PROJECT, FakeData.LAYER);
+
+    stateTestObserver.assertValue(
+        state -> state.getState() == State.IN_PROGRESS && state.getPolygonFeature() == null);
   }
 
   @Test
@@ -127,11 +137,11 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   @Test
   public void testRemoveLastVertex_whenNothingIsSelected() {
-    TestObserver<Nil> testObserver = viewModel.getDefaultMapMode().test();
+    TestObserver<PolygonDrawingState> testObserver = viewModel.getDrawingState().test();
 
     viewModel.removeLastVertex();
 
-    testObserver.assertValue(Nil.NIL);
+    testObserver.assertValue(state -> state.getState() == State.CANCELED);
   }
 
   @Test
@@ -166,8 +176,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   @Test
   public void testPolygonDrawingCompleted() {
-    TestObserver<Nil> defaultMapModeObserver = viewModel.getDefaultMapMode().test();
-    TestObserver<PolygonFeature> drawingCompletedObserver = viewModel.getDrawingCompleted().test();
+    TestObserver<PolygonDrawingState> stateTestObserver = viewModel.getDrawingState().test();
 
     viewModel.onCameraMoved(newPoint(0.0, 0.0));
     viewModel.selectCurrentVertex();
@@ -179,8 +188,11 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.onCompletePolygonButtonClick();
 
-    defaultMapModeObserver.assertValue(Nil.NIL);
-    drawingCompletedObserver.assertValue(feature -> feature.getVertices().size() == 4);
+    stateTestObserver.assertValue(
+        polygonDrawingState ->
+            polygonDrawingState.getState() == State.COMPLETED
+                && polygonDrawingState.getPolygonFeature() != null
+                && polygonDrawingState.getPolygonFeature().getVertices().size() == 4);
   }
 
   private void assertCompleteButtonVisible(int visibility) {

@@ -99,10 +99,6 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .subscribe(mapContainerViewModel::queueTileProvider);
 
     polygonDrawingViewModel
-        .getDefaultMapMode()
-        .as(autoDisposable(this))
-        .subscribe(__ -> setDefaultMode());
-    polygonDrawingViewModel
         .getPolygonFeature()
         .observe(this, mapContainerViewModel::updateDrawnPolygonFeature);
     featureRepositionViewModel

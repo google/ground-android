@@ -30,12 +30,12 @@ import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.BooleanOrError;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -56,9 +56,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   /** Min. distance in dp between two points for them be considered as overlapping. */
   public static final int DISTANCE_THRESHOLD_DP = 24;
 
-  @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
-
-  @Hot private final Subject<PolygonFeature> drawingCompleted = PublishSubject.create();
+  @Hot private final Subject<PolygonDrawingState> polygonDrawingState = PublishSubject.create();
 
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
   /** Polyline drawn by the user but not yet saved as polygon. */
@@ -123,13 +121,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   @Hot
-  public Observable<Nil> getDefaultMapMode() {
-    return defaultMapMode;
-  }
-
-  @Hot
-  public Observable<PolygonFeature> getDrawingCompleted() {
-    return drawingCompleted;
+  public Observable<PolygonDrawingState> getDrawingState() {
+    return polygonDrawingState;
   }
 
   public void onCameraMoved(Point newTarget) {
@@ -143,17 +136,16 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   public void updateLastVertex(Point newTarget, double distanceInPixels) {
     boolean isPolygonComplete = vertices.size() > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP;
     addVertex(isPolygonComplete ? vertices.get(0) : newTarget, true);
-    updateDrawingState(isPolygonComplete ? PolygonDrawing.COMPLETED : PolygonDrawing.STARTED);
   }
 
   public void removeLastVertex() {
     if (vertices.isEmpty()) {
+      polygonDrawingState.onNext(createDrawingState(State.CANCELED));
       reset();
-      return;
+    } else {
+      vertices.remove(vertices.size() - 1);
+      updateUI();
     }
-    vertices.remove(vertices.size() - 1);
-    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
-    updateDrawingState(PolygonDrawing.STARTED);
   }
 
   public void selectCurrentVertex() {
@@ -185,7 +177,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     vertices.add(vertex);
 
     // Render changes to UI
-    updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+    updateUI();
   }
 
   private String getId() {
@@ -195,16 +187,20 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return uuid;
   }
 
-  private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
+  private void updateUI() {
     if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
       Timber.e("Project or layer is null");
       return;
     }
 
+    // Update complete button visibility
+    completeButtonVisible.postValue(isPolygonComplete() ? VISIBLE : INVISIBLE);
+
+    // Update drawn polygon
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     PolygonFeature polygonFeature =
         PolygonFeature.builder()
-            .setVertices(vertices)
+            .setVertices(ImmutableList.copyOf(this.vertices))
             .setId(getId())
             .setProject(selectedProject.getValue())
             .setLayer(selectedLayer.getValue())
@@ -215,18 +211,23 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   public void onCompletePolygonButtonClick() {
-    if (vertices.size() < 3 || !getFirstVertex().equals(getLastVertex())) {
+    if (!isPolygonComplete()) {
       throw new IllegalStateException("Polygon is not complete");
     }
-    drawingCompleted.onNext(drawnPolylineVertices.getValue());
+    polygonDrawingState.onNext(
+        createDrawingState(State.COMPLETED, drawnPolylineVertices.getValue()));
     reset();
   }
 
   private void reset() {
-    defaultMapMode.onNext(Nil.NIL);
     isLastVertexNotSelectedByUser = false;
     vertices.clear();
     uuid = null;
+    completeButtonVisible.setValue(INVISIBLE);
+  }
+
+  private boolean isPolygonComplete() {
+    return vertices.size() > 3 && getFirstVertex().equals(getLastVertex());
   }
 
   Optional<Point> getFirstVertex() {
@@ -245,11 +246,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return completeButtonVisible;
   }
 
-  private void updateDrawingState(PolygonDrawing polygonDrawing) {
-    completeButtonVisible.postValue(
-        polygonDrawing == PolygonDrawing.COMPLETED ? VISIBLE : INVISIBLE);
-  }
-
   private boolean isLocationLockEnabled() {
     return locationLockState.getValue().isTrue();
   }
@@ -262,7 +258,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   public void startDrawingFlow(Project selectedProject, Layer selectedLayer) {
     this.selectedLayer.onNext(selectedLayer);
     this.selectedProject.onNext(selectedProject);
-    updateDrawingState(PolygonDrawing.STARTED);
+    polygonDrawingState.onNext(createDrawingState(State.IN_PROGRESS));
   }
 
   public LiveData<Integer> getIconTint() {
@@ -273,8 +269,27 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return drawnPolylineVertices;
   }
 
-  public enum PolygonDrawing {
-    STARTED,
-    COMPLETED
+  private PolygonDrawingState createDrawingState(State state) {
+    return createDrawingState(state, null);
+  }
+
+  private PolygonDrawingState createDrawingState(State state, @Nullable PolygonFeature feature) {
+    return new AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, feature);
+  }
+
+  @AutoValue
+  public abstract static class PolygonDrawingState {
+
+    public abstract State getState();
+
+    @Nullable
+    public abstract PolygonFeature getPolygonFeature();
+  }
+
+  /** Represents state of PolygonDrawing action. */
+  public enum State {
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELED
   }
 }
