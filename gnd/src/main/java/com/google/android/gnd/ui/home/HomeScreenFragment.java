@@ -178,13 +178,15 @@ public class HomeScreenFragment extends AbstractFragment
       case IN_PROGRESS:
         mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
         break;
+      case CANCELED:
+        mapContainerFragment.setDefaultMode();
+        break;
       case COMPLETED:
         viewModel.addPolygonFeature(requireNonNull(state.getPolygonFeature()));
         mapContainerFragment.setDefaultMode();
         break;
-      case CANCELED:
-        mapContainerFragment.setDefaultMode();
-        break;
+      default:
+        throw new IllegalArgumentException("Unknown PolygonDrawingState : " + state.getState());
     }
   }
 
