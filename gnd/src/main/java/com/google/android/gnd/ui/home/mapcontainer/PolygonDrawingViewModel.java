@@ -117,8 +117,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
             .share();
     this.polygonCompleted =
         LiveDataReactiveStreams.fromPublisher(
-            polygonFlowable.map(
-                polygon -> polygon.map(MapPolygon::isPolygonComplete).orElse(false)));
+            polygonFlowable
+                .map(polygon -> polygon.map(MapPolygon::isPolygonComplete).orElse(false))
+                .startWith(false));
     this.drawnMapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             polygonFlowable.map(
