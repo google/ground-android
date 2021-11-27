@@ -44,6 +44,11 @@ public final class TransientMapFeatures {
    */
   public static ImmutableSet<MapFeature> forMapPolygon(MapPolygon mapPolygon) {
     ImmutableList<Point> vertices = mapPolygon.getVertices();
+
+    if (vertices.isEmpty()) {
+      return ImmutableSet.of();
+    }
+
     ImmutableSet.Builder<MapFeature> builder = ImmutableSet.builder();
     builder.add(mapPolygon);
     builder.addAll(

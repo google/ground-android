@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static java.util.Objects.requireNonNull;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -60,13 +58,13 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   @Hot private final Subject<PolygonDrawingState> polygonDrawingState = PublishSubject.create();
 
+  @Hot private final Subject<Optional<MapPolygon>> mapPolygonFlowable = PublishSubject.create();
+
   /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
-  @Hot private final MutableLiveData<Boolean> polygonCompleted = new MutableLiveData<>(false);
+  @Hot private final LiveData<Boolean> polygonCompleted;
 
   /** Features drawn by the user but not yet saved. */
-  @Hot
-  private final MutableLiveData<ImmutableSet<MapFeature>> drawnMapFeatures =
-      new MutableLiveData<>();
+  @Hot private final LiveData<ImmutableSet<MapFeature>> drawnMapFeatures;
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
@@ -92,7 +90,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
    */
   boolean isLastVertexNotSelectedByUser;
 
-  @Nullable private MapPolygon mapPolygon;
+  private Optional<MapPolygon> mapPolygon = Optional.empty();
 
   @Inject
   PolygonDrawingViewModel(
@@ -112,6 +110,20 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
             locationLockStateFlowable
                 .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
                 .startWith(R.color.colorGrey800));
+    Flowable<Optional<MapPolygon>> polygonFlowable =
+        mapPolygonFlowable
+            .startWith(Optional.empty())
+            .toFlowable(BackpressureStrategy.LATEST)
+            .share();
+    this.polygonCompleted =
+        LiveDataReactiveStreams.fromPublisher(
+            polygonFlowable.map(
+                polygon -> polygon.map(MapPolygon::isPolygonComplete).orElse(false)));
+    this.drawnMapFeatures =
+        LiveDataReactiveStreams.fromPublisher(
+            polygonFlowable.map(
+                polygon ->
+                    polygon.map(TransientMapFeatures::forMapPolygon).orElse(ImmutableSet.of())));
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
@@ -193,27 +205,23 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   private void updateUI(ImmutableList<Point> newVertices) {
-    // Update drawn map features
-    mapPolygon = requireNonNull(mapPolygon).toBuilder().setVertices(newVertices).build();
-
-    // Update complete button visibility
-    polygonCompleted.postValue(mapPolygon.isPolygonComplete());
-
-    drawnMapFeatures.setValue(TransientMapFeatures.forMapPolygon(mapPolygon));
+    mapPolygon = mapPolygon.map(polygon -> polygon.toBuilder().setVertices(newVertices).build());
+    mapPolygonFlowable.onNext(mapPolygon);
   }
 
   public void onCompletePolygonButtonClick() {
     if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
       throw new IllegalStateException("Project or layer is null");
     }
-    if (!requireNonNull(mapPolygon).isPolygonComplete()) {
+    MapPolygon polygon = mapPolygon.get();
+    if (!polygon.isPolygonComplete()) {
       throw new IllegalStateException("Polygon is not complete");
     }
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     PolygonFeature polygonFeature =
         PolygonFeature.builder()
-            .setId(requireNonNull(mapPolygon).getId())
-            .setVertices(mapPolygon.getVertices())
+            .setId(polygon.getId())
+            .setVertices(polygon.getVertices())
             .setProject(selectedProject.getValue())
             .setLayer(selectedLayer.getValue())
             .setCreated(auditInfo)
@@ -226,16 +234,12 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   private void reset() {
     isLastVertexNotSelectedByUser = false;
     vertices.clear();
-    mapPolygon = null;
-    polygonCompleted.setValue(false);
+    mapPolygon = Optional.empty();
+    mapPolygonFlowable.onNext(Optional.empty());
   }
 
   Optional<Point> getFirstVertex() {
-    return Optional.ofNullable(mapPolygon).map(MapPolygon::getFirstVertex);
-  }
-
-  Optional<Point> getLastVertex() {
-    return Optional.ofNullable(mapPolygon).map(MapPolygon::getLastVertex);
+    return mapPolygon.map(MapPolygon::getFirstVertex);
   }
 
   public void onLocationLockClick() {
@@ -261,11 +265,12 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     polygonDrawingState.onNext(createDrawingState(State.IN_PROGRESS));
 
     mapPolygon =
-        MapPolygon.newBuilder()
-            .setId(uuidGenerator.generateUuid())
-            .setVertices(ImmutableList.of())
-            .setStyle(selectedLayer.getDefaultStyle())
-            .build();
+        Optional.of(
+            MapPolygon.newBuilder()
+                .setId(uuidGenerator.generateUuid())
+                .setVertices(ImmutableList.of())
+                .setStyle(selectedLayer.getDefaultStyle())
+                .build());
   }
 
   public LiveData<Integer> getIconTint() {
