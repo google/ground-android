@@ -42,6 +42,27 @@ public abstract class MapPolygon extends MapFeature {
 
   public abstract Builder toBuilder();
 
+  public boolean isPolygonComplete() {
+    if (getVertices().size() < 4) {
+      return false;
+    }
+    Point first = getFirstVertex();
+    Point last = getLastVertex();
+    return first != null && first.equals(last);
+  }
+
+  @Nullable
+  public Point getFirstVertex() {
+    ImmutableList<Point> vertices = getVertices();
+    return vertices.isEmpty() ? null : vertices.get(0);
+  }
+
+  @Nullable
+  public Point getLastVertex() {
+    ImmutableList<Point> vertices = getVertices();
+    return vertices.isEmpty() ? null : vertices.get(vertices.size() - 1);
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);

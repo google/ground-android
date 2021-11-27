@@ -76,9 +76,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final LiveData<BooleanOrError> locationLockState;
   private final List<Point> vertices = new ArrayList<>();
+
   /** The currently selected layer and project for the polygon drawing. */
   private final BehaviorProcessor<Layer> selectedLayer = BehaviorProcessor.create();
-
   private final BehaviorProcessor<Project> selectedProject = BehaviorProcessor.create();
 
   private final OfflineUuidGenerator uuidGenerator;
@@ -156,7 +156,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
       reset();
     } else {
       vertices.remove(vertices.size() - 1);
-      updateUI();
+      updateUI(ImmutableList.copyOf(vertices));
     }
   }
 
@@ -189,16 +189,15 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     vertices.add(vertex);
 
     // Render changes to UI
-    updateUI();
+    updateUI(ImmutableList.copyOf(vertices));
   }
 
-  private void updateUI() {
-    // Update complete button visibility
-    polygonCompleted.postValue(isPolygonComplete());
-
+  private void updateUI(ImmutableList<Point> newVertices) {
     // Update drawn map features
-    mapPolygon =
-        requireNonNull(mapPolygon).toBuilder().setVertices(ImmutableList.copyOf(vertices)).build();
+    mapPolygon = requireNonNull(mapPolygon).toBuilder().setVertices(newVertices).build();
+
+    // Update complete button visibility
+    polygonCompleted.postValue(mapPolygon.isPolygonComplete());
 
     drawnMapFeatures.setValue(TransientMapFeatures.forMapPolygon(mapPolygon));
   }
@@ -207,7 +206,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
       throw new IllegalStateException("Project or layer is null");
     }
-    if (!isPolygonComplete()) {
+    if (!requireNonNull(mapPolygon).isPolygonComplete()) {
       throw new IllegalStateException("Polygon is not complete");
     }
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
@@ -231,16 +230,12 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     polygonCompleted.setValue(false);
   }
 
-  private boolean isPolygonComplete() {
-    return vertices.size() > 3 && getFirstVertex().equals(getLastVertex());
-  }
-
   Optional<Point> getFirstVertex() {
-    return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(0));
+    return Optional.ofNullable(mapPolygon).map(MapPolygon::getFirstVertex);
   }
 
   Optional<Point> getLastVertex() {
-    return vertices.isEmpty() ? Optional.empty() : Optional.of(vertices.get(vertices.size() - 1));
+    return Optional.ofNullable(mapPolygon).map(MapPolygon::getLastVertex);
   }
 
   public void onLocationLockClick() {
