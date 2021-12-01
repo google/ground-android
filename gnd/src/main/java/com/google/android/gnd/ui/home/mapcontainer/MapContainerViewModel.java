@@ -84,7 +84,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
-  private final LiveData<Event<Float>> zoomThresholdUpdateRequests;
+  private final LiveData<Event<Nil>> zoomThresholdUpdateRequests;
 
   @Hot(replays = true)
   private final MutableLiveData<CameraPosition> cameraPosition =
@@ -384,7 +384,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraUpdateRequests;
   }
 
-  LiveData<Event<Float>> getZoomThresholdUpdateRequests() {
+  LiveData<Event<Nil>> getZoomThresholdUpdateRequests() {
     return zoomThresholdUpdateRequests;
   }
 
