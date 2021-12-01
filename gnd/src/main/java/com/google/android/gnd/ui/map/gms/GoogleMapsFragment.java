@@ -363,7 +363,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   private void addMapPin(MapPin mapPin) {
     LatLng position = toLatLng(mapPin.getPosition());
     String color = mapPin.getStyle().getColor();
-    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
+    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color), getCurrentZoomLevel());
     // TODO: add the anchor values into the resource dimensions file
     Marker marker =
         getMap().addMarker(
@@ -477,6 +477,23 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       } else if (mapFeature instanceof MapGeoJson) {
         addMapGeoJson((MapGeoJson) mapFeature);
       }
+    }
+  }
+
+  @Override
+  public void refreshMarkers() {
+    Set<MapPin> mapPinsToAdd = new HashSet<>();
+    for(Marker marker: markers) {
+      MapPin mapPin = (MapPin) marker.getTag();
+
+      if (mapPin != null) {
+        mapPinsToAdd.add(mapPin);
+        removeMarker(marker);
+      }
+    }
+
+    for(MapPin mapPin: mapPinsToAdd) {
+      addMapPin(mapPin);
     }
   }
 

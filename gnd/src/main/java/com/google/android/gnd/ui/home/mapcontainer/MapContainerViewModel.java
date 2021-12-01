@@ -75,7 +75,8 @@ import timber.log.Timber;
 public class MapContainerViewModel extends AbstractViewModel {
 
   // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
-  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
+  public static final float ZOOM_LEVEL_THRESHOLD = 16f;
+  public static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
@@ -83,6 +84,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
+  private final LiveData<Event<Float>> zoomThresholdUpdateRequests;
 
   @Hot(replays = true)
   private final MutableLiveData<CameraPosition> cameraPosition =
@@ -95,11 +97,11 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
+  @Hot private final Subject<Nil> zoomThresholdCrossedSubject = PublishSubject.create();
 
   /** Polyline drawn by the user but not yet saved as polygon. */
   @Hot
-  private final PublishProcessor<PolygonFeature> drawnPolylineFeature =
-      PublishProcessor.create();
+  private final PublishProcessor<PolygonFeature> drawnPolylineFeature = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
@@ -166,6 +168,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
+    this.zoomThresholdUpdateRequests =
+        LiveDataReactiveStreams.fromPublisher(createZoomThresholdFlowable());
     this.projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
     // TODO: Clear feature markers when project is deactivated.
@@ -182,8 +186,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             this::updateSelectedFeature);
 
     Flowable<ImmutableSet<MapFeature>> transientFeatures =
-        drawnPolylineFeature.map(feature -> ImmutableSet.of(
-            toMapPolygon(feature)));
+        drawnPolylineFeature.map(feature -> ImmutableSet.of(toMapPolygon(feature)));
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
@@ -329,6 +332,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Event::create);
   }
 
+  private Flowable<Event<Nil>> createZoomThresholdFlowable() {
+    return zoomThresholdCrossedSubject.toFlowable(BackpressureStrategy.LATEST).map(Event::create);
+  }
+
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
     if (!lockState.isTrue()) {
       return Flowable.empty();
@@ -377,6 +384,10 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraUpdateRequests;
   }
 
+  LiveData<Event<Float>> getZoomThresholdUpdateRequests() {
+    return zoomThresholdUpdateRequests;
+  }
+
   public LiveData<CameraPosition> getCameraPosition() {
     Timber.d("Current position is %s", cameraPosition.getValue().toString());
     return cameraPosition;
@@ -404,10 +415,20 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
+    onZoomChange(cameraPosition.getValue().getZoomLevel(), newCameraPosition.getZoomLevel());
     cameraPosition.setValue(newCameraPosition);
     Loadable.getValue(projectLoadingState)
         .ifPresent(
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
+  }
+
+  private void onZoomChange(float oldZoomLevel, float newZoomLevel) {
+    boolean zoomThresholdCrossed =
+        (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD)
+            || (oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD);
+    if (zoomThresholdCrossed) {
+      zoomThresholdCrossedSubject.onNext(Nil.NIL);
+    }
   }
 
   public void onMapDrag() {

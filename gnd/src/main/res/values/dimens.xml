@@ -20,6 +20,8 @@
   <!-- Map -->
   <dimen name="polyline_stroke_width">4dp</dimen>
   <dimen name="selected_polyline_stroke_width">7dp</dimen>
+  <item name="marker_bitmap_default_scale" format="float" type="dimen">1.8</item>
+  <item name="marker_bitmap_zoomed_scale" format="float" type="dimen">2.5</item>
 
   <!-- Forms -->
   <dimen name="field_label_text_size">14sp</dimen>

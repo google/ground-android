@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui;
 
+import static com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.ZOOM_LEVEL_THRESHOLD;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -23,6 +25,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.ColorInt;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.res.ResourcesCompat;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
@@ -39,13 +42,16 @@ public class MarkerIconFactory {
     this.context = context;
   }
 
-  public Bitmap getMarkerBitmap(int color) {
+  public Bitmap getMarkerBitmap(int color, float currentZoomLevel) {
     Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
     Drawable fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill);
     Drawable overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay);
-    // TODO: Define scale in resources.
-    // TODO: Adjust size based on zoom level and selection state.
-    float scale = 1.8f;
+    // TODO: Adjust size based on selection state.
+    float scale =
+        ResourcesCompat.getFloat(context.getResources(), R.dimen.marker_bitmap_default_scale);
+    if (currentZoomLevel >= ZOOM_LEVEL_THRESHOLD) {
+      scale = ResourcesCompat.getFloat(context.getResources(), R.dimen.marker_bitmap_zoomed_scale);
+    }
     int width = (int) (outline.getIntrinsicWidth() * scale);
     int height = (int) (outline.getIntrinsicHeight() * scale);
     Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -60,8 +66,8 @@ public class MarkerIconFactory {
     return bitmap;
   }
 
-  public BitmapDescriptor getMarkerIcon(@ColorInt int color) {
-    Bitmap bitmap = getMarkerBitmap(color);
+  public BitmapDescriptor getMarkerIcon(@ColorInt int color, float currentZoomLevel) {
+    Bitmap bitmap = getMarkerBitmap(color, currentZoomLevel);
     // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap);
   }
