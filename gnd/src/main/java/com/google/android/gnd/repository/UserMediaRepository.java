@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import com.google.android.gnd.Config;
-import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -61,12 +60,12 @@ public class UserMediaRepository {
     return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
   }
 
-  public String createImageFilename(Field field) {
-    return field.getId() + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+  public String createImageFilename(String fieldId) {
+    return fieldId + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT;
   }
 
-  public File createImageFile(Field field) {
-    return new File(getRootDir(), createImageFilename(field));
+  public File createImageFile(String fieldId) {
+    return new File(getRootDir(), createImageFilename(fieldId));
   }
 
   /**
@@ -74,8 +73,8 @@ public class UserMediaRepository {
    *
    * @throws IOException If path is not accessible or error occurs while saving file
    */
-  public File savePhoto(Bitmap bitmap, Field field) throws IOException {
-    File file = createImageFile(field);
+  public File savePhoto(Bitmap bitmap, String fieldId) throws IOException {
+    File file = createImageFile(fieldId);
     try (FileOutputStream fos = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
     }

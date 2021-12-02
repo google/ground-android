@@ -64,9 +64,6 @@ public class ApplicationErrorManager {
         case PERMISSION_DENIED:
           msgId = R.string.permission_denied_error;
           break;
-        case UNAVAILABLE:
-          msgId = R.string.config_load_error;
-          break;
         default:
           msgId = -1;
           break;

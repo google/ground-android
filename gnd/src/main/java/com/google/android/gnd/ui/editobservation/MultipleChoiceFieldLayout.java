@@ -39,10 +39,14 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
   }
 
   @Override
-  protected void onFinishInflate() {
-    super.onFinishInflate();
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
 
     TextInputEditText editText = findViewById(R.id.multiple_choice_input_edit_text);
+
+    // Clear focus in case it was automatically set when the form was initialized. This prevents the
+    // dialog from triggering on rotate.
+    editText.clearFocus();
 
     editText.setOnFocusChangeListener(
         (v, hasFocus) -> {

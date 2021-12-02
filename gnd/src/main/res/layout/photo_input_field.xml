@@ -23,6 +23,9 @@
   <data>
     <import type="android.view.View" />
     <variable
+      name="editObservationViewModel"
+      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+    <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
@@ -42,6 +45,7 @@
     <include
       layout="@layout/photo_field"
       app:viewModel="@{viewModel}"
+      app:editObservationViewModel="@{editObservationViewModel}"
       tools:visibility="visible" />
 
     <LinearLayout
