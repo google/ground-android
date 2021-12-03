@@ -45,7 +45,7 @@
     Shown when the user attempts to close the form without saving. If tapped, unsaved
     changes will be lost.
   -->
-  <string name="close_without_saving">Close without saving</string>
+  <string name="discard_changes">Discard changes</string>
   <!-- Shown on save when connection was not available. -->
   <string name="save_queued">Saved locally, queued for sync.</string>
   <!-- Shown on save when connection is available (TBD). -->

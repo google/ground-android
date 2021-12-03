@@ -21,19 +21,20 @@ import static java8.util.Objects.requireNonNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
-import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
 
-  @Hot(replays = true)
-  private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
+  @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
   MultipleChoiceFieldViewModel(Resources resources) {
@@ -41,10 +42,11 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void onShowDialog() {
-    showDialogClicks.setValue(Nil.NIL);
+    showDialogClicks.onNext(Nil.NIL);
   }
 
-  MutableLiveData<Nil> getShowDialogClicks() {
+  @Hot
+  Observable<Nil> getShowDialogClicks() {
     return showDialogClicks;
   }
 

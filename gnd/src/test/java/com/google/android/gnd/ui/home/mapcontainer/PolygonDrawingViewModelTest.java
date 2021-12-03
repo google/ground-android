@@ -16,15 +16,17 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static com.google.android.gnd.TestObservers.observeUntilFirstChange;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import android.view.View;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
+import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
 import javax.inject.Inject;
@@ -38,12 +40,29 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   @Inject PolygonDrawingViewModel viewModel;
 
+  private com.jraska.livedata.TestObserver<Boolean> polygonCompletedTestObserver;
+  private com.jraska.livedata.TestObserver<ImmutableSet<MapFeature>> drawnMapFeaturesTestObserver;
+
   @Override
   public void setUp() {
     super.setUp();
 
+    polygonCompletedTestObserver =
+        com.jraska.livedata.TestObserver.test(viewModel.isPolygonCompleted());
+    drawnMapFeaturesTestObserver =
+        com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapFeatures());
+
     // Initialize polygon drawing
     viewModel.startDrawingFlow(FakeData.PROJECT, FakeData.LAYER);
+  }
+
+  @Test
+  public void testStateOnBegin() {
+    TestObserver<PolygonDrawingState> stateTestObserver = viewModel.getDrawingState().test();
+
+    viewModel.startDrawingFlow(FakeData.PROJECT, FakeData.LAYER);
+
+    stateTestObserver.assertValue(PolygonDrawingState::isInProgress);
   }
 
   @Test
@@ -51,7 +70,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.onCameraMoved(newPoint(0.0, 0.0));
     viewModel.selectCurrentVertex();
 
-    assertPolygonFeatureMutated(1);
+    validateMapFeaturesDrawn(1, 1);
   }
 
   @Test
@@ -63,8 +82,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.onCameraMoved(newPoint(20.0, 20.0));
     viewModel.selectCurrentVertex();
 
-    assertPolygonFeatureMutated(3);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    validateMapFeaturesDrawn(1, 3);
+    validatePolygonCompleted(false);
   }
 
   @Test
@@ -73,8 +92,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.updateLastVertex(newPoint(10.0, 10.0), 100);
     viewModel.updateLastVertex(newPoint(20.0, 20.0), 100);
 
-    assertPolygonFeatureMutated(1);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    validateMapFeaturesDrawn(1, 1);
+    validatePolygonCompleted(false);
   }
 
   @Test
@@ -90,9 +109,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     // Move camera such that distance from last vertex is more than threshold
     viewModel.updateLastVertex(newPoint(30.0, 30.0), 25);
 
-    assertPolygonFeatureMutated(4);
-    assertCompleteButtonVisible(View.INVISIBLE);
-    assertThat(viewModel.getFirstVertex()).isNotEqualTo(viewModel.getLastVertex());
+    validateMapFeaturesDrawn(1, 4);
+    validatePolygonCompleted(false);
   }
 
   @Test
@@ -108,9 +126,9 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     // Move camera such that distance from last vertex is equal to threshold
     viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
 
-    assertPolygonFeatureMutated(4);
-    assertCompleteButtonVisible(View.VISIBLE);
-    assertThat(viewModel.getFirstVertex()).isEqualTo(viewModel.getLastVertex());
+    // Only 3 pins should be drawn. First and last points are exactly same.
+    validateMapFeaturesDrawn(1, 3);
+    validatePolygonCompleted(true);
   }
 
   @Test
@@ -120,17 +138,17 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.removeLastVertex();
 
-    assertPolygonFeatureMutated(0);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    validateMapFeaturesDrawn(0, 0);
+    validatePolygonCompleted(false);
   }
 
   @Test
   public void testRemoveLastVertex_whenNothingIsSelected() {
-    TestObserver<Nil> testObserver = viewModel.getDefaultMapMode().test();
+    TestObserver<PolygonDrawingState> testObserver = viewModel.getDrawingState().test();
 
     viewModel.removeLastVertex();
 
-    testObserver.assertValue(Nil.NIL);
+    testObserver.assertValue(PolygonDrawingState::isCanceled);
   }
 
   @Test
@@ -145,8 +163,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.removeLastVertex();
 
-    assertPolygonFeatureMutated(3);
-    assertCompleteButtonVisible(View.INVISIBLE);
+    validateMapFeaturesDrawn(1, 3);
+    validatePolygonCompleted(false);
   }
 
   @Test
@@ -165,8 +183,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   @Test
   public void testPolygonDrawingCompleted() {
-    TestObserver<Nil> defaultMapModeObserver = viewModel.getDefaultMapMode().test();
-    TestObserver<Nil> drawingCompletedObserver = viewModel.getDrawingCompleted().test();
+    TestObserver<PolygonDrawingState> stateTestObserver = viewModel.getDrawingState().test();
 
     viewModel.onCameraMoved(newPoint(0.0, 0.0));
     viewModel.selectCurrentVertex();
@@ -178,18 +195,37 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.onCompletePolygonButtonClick();
 
-    defaultMapModeObserver.assertValue(Nil.NIL);
-    drawingCompletedObserver.assertValue(Nil.NIL);
+    stateTestObserver.assertValue(
+        polygonDrawingState ->
+            polygonDrawingState.isCompleted()
+                && polygonDrawingState.getUnsavedPolygonFeature() != null
+                && polygonDrawingState.getUnsavedPolygonFeature().getVertices().size() == 4);
   }
 
-  private void assertCompleteButtonVisible(int visibility) {
-    observeUntilFirstChange(viewModel.getPolygonDrawingCompletedVisibility());
-    assertThat(viewModel.getPolygonDrawingCompletedVisibility().getValue()).isEqualTo(visibility);
+  private void validatePolygonCompleted(boolean isVisible) {
+    polygonCompletedTestObserver.assertValue(isVisible);
   }
 
-  private void assertPolygonFeatureMutated(int vertexCount) {
-    observeUntilFirstChange(viewModel.getPolygonFeature());
-    assertThat(viewModel.getPolygonFeature().getValue().getVertices()).hasSize(vertexCount);
+  private void validateMapFeaturesDrawn(int expectedMapPolygonCount, int expectedMapPinCount) {
+    drawnMapFeaturesTestObserver.assertValue(
+        mapFeatures -> {
+          int actualMapPolygonCount = 0;
+          int actualMapPinCount = 0;
+
+          for (MapFeature mapFeature : mapFeatures) {
+            if (mapFeature instanceof MapPolygon) {
+              actualMapPolygonCount++;
+            } else if (mapFeature instanceof MapPin) {
+              actualMapPinCount++;
+            }
+          }
+
+          // Check whether drawn features contain expected number of polygons and pins.
+          assertThat(actualMapPinCount).isEqualTo(expectedMapPinCount);
+          assertThat(actualMapPolygonCount).isEqualTo(expectedMapPolygonCount);
+
+          return true;
+        });
   }
 
   private Point newPoint(double latitude, double longitude) {

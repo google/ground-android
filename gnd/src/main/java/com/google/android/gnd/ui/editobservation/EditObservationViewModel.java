@@ -16,11 +16,14 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
@@ -33,22 +36,23 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.repository.ObservationRepository;
-import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.CameraManager;
-import com.google.android.gnd.system.StorageManager;
+import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.util.BitmapUtil;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.File;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,9 +67,8 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private final ObservationRepository observationRepository;
   private final Resources resources;
-  private final UserMediaRepository userMediaRepository;
-  private final StorageManager storageManager;
-  private final CameraManager cameraManager;
+  private final PermissionsManager permissionsManager;
+  private final BitmapUtil bitmapUtil;
 
   // States.
 
@@ -101,6 +104,13 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
+  /**
+   * Emits the last photo field id updated and either its photo result, or empty if removed. The
+   * last value is emitted on each subscription because {@see #onPhotoResult} is called before
+   * subscribers are created.
+   */
+  private final Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
+
   // Events.
 
   /** "Save" button clicks. */
@@ -109,22 +119,30 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
-  /** Stream of updates to photo fields. */
-  @Hot(replays = true)
-  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
+  /**
+   * Field id waiting for a photo response. As only 1 photo result is returned at a time, we can
+   * directly map it 1:1 with the field waiting for a photo response.
+   */
+  @Nullable private String fieldWaitingForPhoto;
+
+  /**
+   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
+   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
+   * result returns true/false based on whether the operation passed or not. As only 1 photo result
+   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
+   */
+  @Nullable private String capturedPhotoPath;
 
   @Inject
   EditObservationViewModel(
       Resources resources,
       ObservationRepository observationRepository,
-      UserMediaRepository userMediaRepository,
-      StorageManager storageManager,
-      CameraManager cameraManager) {
+      PermissionsManager permissionsManager,
+      BitmapUtil bitmapUtil) {
     this.resources = resources;
     this.observationRepository = observationRepository;
-    this.userMediaRepository = userMediaRepository;
-    this.storageManager = storageManager;
-    this.cameraManager = cameraManager;
+    this.permissionsManager = permissionsManager;
+    this.bitmapUtil = bitmapUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
@@ -145,6 +163,14 @@ public class EditObservationViewModel extends AbstractViewModel {
     return saveResults;
   }
 
+  public @Nullable String getProjectId() {
+    return originalObservation == null ? null : originalObservation.getProject().getId();
+  }
+
+  public @Nullable String getObservationId() {
+    return originalObservation == null ? null : originalObservation.getId();
+  }
+
   void initialize(EditObservationFragmentArgs args) {
     viewArgs.onNext(args);
   }
@@ -162,55 +188,16 @@ public class EditObservationViewModel extends AbstractViewModel {
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
   }
 
-  public void showPhotoSelector(Field field) {
-    /*
-     * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
-     * after the fragment is destroyed (for activity result)
-     */
-    // TODO: launch intent through fragment and handle activity result callbacks async
-    disposeOnClear(
-        storageManager
-            .selectPhoto()
-            .doOnError(Timber::e) // TODO(#726): Display as a toast
-            .map(bitmap -> userMediaRepository.savePhoto(bitmap, field))
-            .flatMapCompletable(file -> onPhotoSaved(field, file))
-            .subscribe());
-  }
-
-  public void showPhotoCapture(Field field) {
-    File imageFile = userMediaRepository.createImageFile(field);
-
-    /*
-     * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
-     * after the fragment is destroyed (for activity result)
-     */
-    // TODO: launch intent through fragment and handle activity result callbacks async
-    disposeOnClear(
-        cameraManager
-            .capturePhoto(imageFile)
-            .doOnError(Timber::e) // TODO(#726): Display as a toast
-            .flatMapCompletable(__ -> onPhotoSaved(field, imageFile))
-            .subscribe());
+  @Cold
+  public Completable obtainCapturePhotoPermissions() {
+    return permissionsManager
+        .obtainPermission(WRITE_EXTERNAL_STORAGE)
+        .andThen(permissionsManager.obtainPermission(CAMERA));
   }
 
   @Cold
-  private Completable onPhotoSaved(Field field, File imageFile) {
-    return Completable.fromAction(
-        () -> {
-          String filename = imageFile.getName();
-
-          // Add image to gallery
-          userMediaRepository.addImageToGallery(imageFile.getAbsolutePath(), filename);
-
-          // Update response
-          checkNotNull(originalObservation);
-          String remoteDestinationPath = getRemoteMediaPath(originalObservation, filename);
-          photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
-        });
-  }
-
-  LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
-    return photoUpdates;
+  public Completable obtainSelectPhotoPermissions() {
+    return permissionsManager.obtainPermission(READ_EXTERNAL_STORAGE);
   }
 
   public void onSaveClick(Map<String, String> validationErrors) {
@@ -336,9 +323,74 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public Serializable getDraftResponses() {
-    HashMap<String, Response> hashMap = new HashMap<>();
-    hashMap.putAll(responses);
-    return hashMap;
+    return new HashMap<>(responses);
+  }
+
+  @Nullable
+  public String getFieldWaitingForPhoto() {
+    return fieldWaitingForPhoto;
+  }
+
+  public void setFieldWaitingForPhoto(@Nullable String fieldWaitingForPhoto) {
+    this.fieldWaitingForPhoto = fieldWaitingForPhoto;
+  }
+
+  @Nullable
+  public String getCapturedPhotoPath() {
+    return capturedPhotoPath;
+  }
+
+  public void setCapturedPhotoPath(@Nullable String photoUri) {
+    this.capturedPhotoPath = photoUri;
+  }
+
+  public Observable<PhotoResult> getLastPhotoResult() {
+    return lastPhotoResult;
+  }
+
+  public void onSelectPhotoResult(Uri uri) {
+    if (uri == null) {
+      Timber.v("Select photo failed or canceled");
+      return;
+    }
+    if (fieldWaitingForPhoto == null) {
+      Timber.e("Photo captured but no field waiting for the result");
+      return;
+    }
+    try {
+      onPhotoResult(PhotoResult.createSelectResult(fieldWaitingForPhoto, bitmapUtil.fromUri(uri)));
+      Timber.v("Select photo result returned");
+    } catch (IOException e) {
+      Timber.e(e, "Error getting photo selected from storage");
+    }
+  }
+
+  public void onCapturePhotoResult(boolean result) {
+    if (!result) {
+      Timber.v("Capture photo failed or canceled");
+      // TODO: Cleanup created file if it exists.
+      return;
+    }
+    if (fieldWaitingForPhoto == null) {
+      Timber.e("Photo captured but no field waiting for the result");
+      return;
+    }
+    if (capturedPhotoPath == null) {
+      Timber.e("Photo captured but no path available to read the result");
+      return;
+    }
+    onPhotoResult(PhotoResult.createCaptureResult(fieldWaitingForPhoto, capturedPhotoPath));
+    Timber.v("Photo capture result returned");
+  }
+
+  private void onPhotoResult(PhotoResult result) {
+    capturedPhotoPath = null;
+    fieldWaitingForPhoto = null;
+    lastPhotoResult.onNext(result);
+  }
+
+  public void clearPhoto(String fieldId) {
+    lastPhotoResult.onNext(PhotoResult.createEmptyResult(fieldId));
   }
 
   /** Possible outcomes of user clicking "Save". */
@@ -346,5 +398,47 @@ public class EditObservationViewModel extends AbstractViewModel {
     HAS_VALIDATION_ERRORS,
     NO_CHANGES_TO_SAVE,
     SAVED
+  }
+
+  @AutoValue
+  abstract static class PhotoResult {
+    boolean isHandled;
+
+    abstract String getFieldId();
+
+    abstract Optional<Bitmap> getBitmap();
+
+    abstract Optional<String> getPath();
+
+    public boolean isHandled() {
+      return isHandled;
+    }
+
+    public boolean hasFieldId(String fieldId) {
+      return getFieldId().equals(fieldId);
+    }
+
+    public boolean isEmpty() {
+      return getBitmap().isEmpty() && getPath().isEmpty();
+    }
+
+    public void setHandled(boolean handled) {
+      isHandled = handled;
+    }
+
+    static PhotoResult createEmptyResult(String fieldId) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.empty(), Optional.empty());
+    }
+
+    static PhotoResult createSelectResult(String fieldId, Bitmap bitmap) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.of(bitmap), Optional.empty());
+    }
+
+    static PhotoResult createCaptureResult(String fieldId, String path) {
+      return new AutoValue_EditObservationViewModel_PhotoResult(
+          fieldId, Optional.empty(), Optional.of(path));
+    }
   }
 }
