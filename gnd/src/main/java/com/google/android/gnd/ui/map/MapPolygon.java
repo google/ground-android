@@ -24,6 +24,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 @AutoValue
+// TODO: Rename to MapPolyline for correctness.
 public abstract class MapPolygon extends MapFeature {
 
   public static Builder newBuilder() {
