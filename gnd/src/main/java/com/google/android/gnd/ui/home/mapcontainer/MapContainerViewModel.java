@@ -96,9 +96,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
-  /** Short-lived {@link MapFeature} used during add/edit flows. */
+  /** Temporary set of {@link MapFeature} used for displaying on map during add/edit flows. */
   @Hot
-  private final PublishProcessor<ImmutableSet<MapFeature>> ephemeralMapFeatures =
+  private final PublishProcessor<ImmutableSet<MapFeature>> unsavedMapFeatures =
       PublishProcessor.create();
 
   @Hot(replays = true)
@@ -174,7 +174,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
     // Features that are persisted to the local and remote dbs.
-    Flowable<ImmutableSet<MapFeature>> persistentFeatures =
+    Flowable<ImmutableSet<MapFeature>> savedMapFeatures =
         Flowable.combineLatest(
             projectRepository
                 .getActiveProject()
@@ -187,8 +187,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
                     Arrays.asList(
-                        persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
-                        ephemeralMapFeatures.startWith(ImmutableSet.<MapFeature>of())),
+                        savedMapFeatures.startWith(ImmutableSet.<MapFeature>of()),
+                        unsavedMapFeatures.startWith(ImmutableSet.<MapFeature>of())),
                     MapContainerViewModel::concatFeatureSets)
                 .distinctUntilChanged());
 
@@ -231,8 +231,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         .ifPresent(this::panAndZoomCamera);
   }
 
-  public void setEphemeralMapFeatures(ImmutableSet<MapFeature> features) {
-    ephemeralMapFeatures.onNext(features);
+  public void setUnsavedMapFeatures(ImmutableSet<MapFeature> features) {
+    unsavedMapFeatures.onNext(features);
   }
 
   private ImmutableSet<MapFeature> updateSelectedFeature(

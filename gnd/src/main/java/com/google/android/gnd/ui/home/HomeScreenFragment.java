@@ -179,7 +179,7 @@ public class HomeScreenFragment extends AbstractFragment
     } else {
       mapContainerViewModel.setMode(Mode.DEFAULT);
       if (state.isCompleted()) {
-        viewModel.addPolygonFeature(requireNonNull(state.getPolygonFeature()));
+        viewModel.addPolygonFeature(requireNonNull(state.getUnsavedPolygonFeature()));
       }
     }
   }

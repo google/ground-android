@@ -99,8 +99,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .subscribe(mapContainerViewModel::queueTileProvider);
 
     polygonDrawingViewModel
-        .getMapFeatures()
-        .observe(this, mapContainerViewModel::setEphemeralMapFeatures);
+        .getUnsavedMapFeatures()
+        .observe(this, mapContainerViewModel::setUnsavedMapFeatures);
     featureRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))

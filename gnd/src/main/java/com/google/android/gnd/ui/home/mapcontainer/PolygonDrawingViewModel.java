@@ -64,7 +64,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   @Hot private final LiveData<Boolean> polygonCompleted;
 
   /** Features drawn by the user but not yet saved. */
-  @Hot private final LiveData<ImmutableSet<MapFeature>> drawnMapFeatures;
+  @Hot private final LiveData<ImmutableSet<MapFeature>> unsavedMapFeatures;
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
@@ -120,7 +120,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
             polygonFlowable
                 .map(polygon -> polygon.map(MapPolygon::isPolygonComplete).orElse(false))
                 .startWith(false));
-    this.drawnMapFeatures =
+    this.unsavedMapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             polygonFlowable.map(
                 polygon ->
@@ -169,7 +169,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
       reset();
     } else {
       vertices.remove(vertices.size() - 1);
-      updateUI(ImmutableList.copyOf(vertices));
+      updateVertices(ImmutableList.copyOf(vertices));
     }
   }
 
@@ -202,10 +202,10 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     vertices.add(vertex);
 
     // Render changes to UI
-    updateUI(ImmutableList.copyOf(vertices));
+    updateVertices(ImmutableList.copyOf(vertices));
   }
 
-  private void updateUI(ImmutableList<Point> newVertices) {
+  private void updateVertices(ImmutableList<Point> newVertices) {
     mapPolygon = mapPolygon.map(polygon -> polygon.toBuilder().setVertices(newVertices).build());
     mapPolygonFlowable.onNext(mapPolygon);
   }
@@ -278,8 +278,8 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return iconTint;
   }
 
-  public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
-    return drawnMapFeatures;
+  public LiveData<ImmutableSet<MapFeature>> getUnsavedMapFeatures() {
+    return unsavedMapFeatures;
   }
 
   @AutoValue
@@ -326,6 +326,6 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
     /** Final polygon feature. */
     @Nullable
-    public abstract PolygonFeature getPolygonFeature();
+    public abstract PolygonFeature getUnsavedPolygonFeature();
   }
 }

@@ -50,7 +50,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     polygonCompletedTestObserver =
         com.jraska.livedata.TestObserver.test(viewModel.isPolygonCompleted());
     drawnMapFeaturesTestObserver =
-        com.jraska.livedata.TestObserver.test(viewModel.getMapFeatures());
+        com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapFeatures());
 
     // Initialize polygon drawing
     viewModel.startDrawingFlow(FakeData.PROJECT, FakeData.LAYER);
@@ -198,8 +198,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     stateTestObserver.assertValue(
         polygonDrawingState ->
             polygonDrawingState.isCompleted()
-                && polygonDrawingState.getPolygonFeature() != null
-                && polygonDrawingState.getPolygonFeature().getVertices().size() == 4);
+                && polygonDrawingState.getUnsavedPolygonFeature() != null
+                && polygonDrawingState.getUnsavedPolygonFeature().getVertices().size() == 4);
   }
 
   private void validatePolygonCompleted(boolean isVisible) {
