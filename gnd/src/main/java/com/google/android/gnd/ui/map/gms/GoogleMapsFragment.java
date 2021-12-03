@@ -362,14 +362,22 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
   private void addMapPin(MapPin mapPin) {
     LatLng position = toLatLng(mapPin.getPosition());
-    String color = mapPin.getStyle().getColor();
-    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color), getCurrentZoomLevel());
     // TODO: add the anchor values into the resource dimensions file
     Marker marker =
-        getMap().addMarker(
-            new MarkerOptions().position(position).icon(icon).anchor(0.5f, 0.85f).alpha(1.0f));
+        getMap()
+            .addMarker(
+                new MarkerOptions()
+                    .position(position)
+                    .icon(getMarkerIcon(mapPin))
+                    .anchor(0.5f, 0.85f)
+                    .alpha(1.0f));
     markers.add(marker);
     marker.setTag(mapPin);
+  }
+
+  private BitmapDescriptor getMarkerIcon(MapPin mapPin) {
+    String color = mapPin.getStyle().getColor();
+    return markerIconFactory.getMarkerIcon(parseColor(color), getCurrentZoomLevel());
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
@@ -481,19 +489,13 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   @Override
-  public void refreshMarkers() {
-    Set<MapPin> mapPinsToAdd = new HashSet<>();
-    for(Marker marker: markers) {
+  public void refreshMarkerIcons() {
+    for (Marker marker : markers) {
       MapPin mapPin = (MapPin) marker.getTag();
 
       if (mapPin != null) {
-        mapPinsToAdd.add(mapPin);
-        removeMarker(marker);
+        marker.setIcon(getMarkerIcon(mapPin));
       }
-    }
-
-    for(MapPin mapPin: mapPinsToAdd) {
-      addMapPin(mapPin);
     }
   }
 

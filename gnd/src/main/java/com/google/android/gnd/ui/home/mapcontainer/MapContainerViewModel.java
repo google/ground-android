@@ -84,7 +84,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
-  private final LiveData<Event<Nil>> zoomThresholdUpdateRequests;
 
   @Hot(replays = true)
   private final MutableLiveData<CameraPosition> cameraPosition =
@@ -97,7 +96,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
-  @Hot private final Subject<Nil> zoomThresholdCrossedSubject = PublishSubject.create();
 
   /** Polyline drawn by the user but not yet saved as polygon. */
   @Hot
@@ -132,6 +130,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
+
+  @Hot private final Subject<Nil> zoomThresholdCrossed = PublishSubject.create();
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
@@ -168,8 +168,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.zoomThresholdUpdateRequests =
-        LiveDataReactiveStreams.fromPublisher(createZoomThresholdFlowable());
     this.projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
     // TODO: Clear feature markers when project is deactivated.
@@ -333,7 +331,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private Flowable<Event<Nil>> createZoomThresholdFlowable() {
-    return zoomThresholdCrossedSubject.toFlowable(BackpressureStrategy.LATEST).map(Event::create);
+    return zoomThresholdCrossed.toFlowable(BackpressureStrategy.LATEST).map(Event::create);
   }
 
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
@@ -384,10 +382,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraUpdateRequests;
   }
 
-  LiveData<Event<Nil>> getZoomThresholdUpdateRequests() {
-    return zoomThresholdUpdateRequests;
-  }
-
   public LiveData<CameraPosition> getCameraPosition() {
     Timber.d("Current position is %s", cameraPosition.getValue().toString());
     return cameraPosition;
@@ -427,7 +421,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD)
             || (oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD);
     if (zoomThresholdCrossed) {
-      zoomThresholdCrossedSubject.onNext(Nil.NIL);
+      this.zoomThresholdCrossed.onNext(Nil.NIL);
     }
   }
 
@@ -483,6 +477,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public Observable<Point> getAddFeatureButtonClicks() {
     return addFeatureButtonClicks;
+  }
+
+  public Observable<Nil> getZoomThresholdCrossed() {
+    return zoomThresholdCrossed;
   }
 
   public LiveData<Integer> getMapControlsVisibility() {

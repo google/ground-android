@@ -95,7 +95,7 @@ public interface MapFragment {
   void setMapFeatures(ImmutableSet<MapFeature> mapFeatures);
 
   /** Refreshes map pins, updating their size according to the zoom level */
-  void refreshMarkers();
+  void refreshMarkerIcons();
 
   /** Get current map type. */
   int getMapType();
