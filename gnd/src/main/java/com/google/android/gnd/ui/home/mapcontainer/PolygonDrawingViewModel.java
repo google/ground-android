@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -33,6 +35,7 @@ import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -124,7 +127,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             polygonFlowable.map(
                 polygon ->
-                    polygon.map(TransientMapFeatures::forMapPolygon).orElse(ImmutableSet.of())));
+                    polygon
+                        .map(PolygonDrawingViewModel::unsavedFeaturesFromPolygon)
+                        .orElse(ImmutableSet.of())));
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
@@ -135,6 +140,32 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
                     ? this.locationManager.enableLocationUpdates()
                     : this.locationManager.disableLocationUpdates())
         .toFlowable(BackpressureStrategy.LATEST);
+  }
+
+  /** Returns a set of {@link MapFeature} to be drawn on map for the given {@link MapPolygon}. */
+  private static ImmutableSet<MapFeature> unsavedFeaturesFromPolygon(MapPolygon mapPolygon) {
+    ImmutableList<Point> vertices = mapPolygon.getVertices();
+
+    if (vertices.isEmpty()) {
+      // Return if polygon has 0 vertices.
+      return ImmutableSet.of();
+    }
+
+    // Include the given polygon and add 1 MapPin for each of its vertex.
+    return ImmutableSet.<MapFeature>builder()
+        .add(mapPolygon)
+        .addAll(
+            stream(vertices)
+                .map(
+                    point ->
+                        MapPin.newBuilder()
+                            .setId(mapPolygon.getId())
+                            .setPosition(point)
+                            // TODO: Use different marker style for unsaved markers.
+                            .setStyle(mapPolygon.getStyle())
+                            .build())
+                .toList())
+        .build();
   }
 
   @Hot
