@@ -108,7 +108,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     featureRepositionViewModel
         .getCancelButtonClicks()
         .as(autoDisposable(this))
-        .subscribe(__ -> setDefaultMode());
+        .subscribe(__ -> mapContainerViewModel.setMode(Mode.DEFAULT));
     mapContainerViewModel
         .getSelectMapTypeClicks()
         .as(autoDisposable(this))
@@ -202,7 +202,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     new AlertDialog.Builder(requireContext())
         .setTitle(R.string.move_point_confirmation)
         .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
-        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
+        .setNegativeButton(
+            android.R.string.cancel, (dialog, which) -> mapContainerViewModel.setMode(Mode.DEFAULT))
         .setCancelable(true)
         .create()
         .show();
@@ -307,17 +308,5 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   public void onDestroy() {
     mapContainerViewModel.closeProviders();
     super.onDestroy();
-  }
-
-  public void setDefaultMode() {
-    mapContainerViewModel.setViewMode(Mode.DEFAULT);
-    mapContainerViewModel.setReposFeature(Optional.empty());
-  }
-
-  public void setRepositionMode(Optional<Feature> feature) {
-    mapContainerViewModel.setViewMode(Mode.REPOSITION);
-    mapContainerViewModel.setReposFeature(feature);
-
-    Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
   }
 }

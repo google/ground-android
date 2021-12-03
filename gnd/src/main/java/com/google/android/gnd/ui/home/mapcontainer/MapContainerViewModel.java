@@ -130,6 +130,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
+
+  // TODO: Move this in FeatureRepositionView and return the final updated feature as the result.
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
@@ -439,10 +441,14 @@ public class MapContainerViewModel extends AbstractViewModel {
     stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
   }
 
-  public void setViewMode(Mode viewMode) {
+  public void setMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
-    moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    moveFeaturesVisibility.postValue(viewMode == Mode.MOVE_POINT ? VISIBLE : GONE);
     addPolygonVisibility.postValue(viewMode == Mode.DRAW_POLYGON ? VISIBLE : GONE);
+
+    if (viewMode == Mode.DEFAULT) {
+      setReposFeature(Optional.empty());
+    }
   }
 
   public void onMapTypeButtonClicked() {
@@ -504,8 +510,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public enum Mode {
     DEFAULT,
-    REPOSITION,
-    DRAW_POLYGON
+    DRAW_POLYGON,
+    MOVE_POINT,
   }
 
   static class CameraUpdate {

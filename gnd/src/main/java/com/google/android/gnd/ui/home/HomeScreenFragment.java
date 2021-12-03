@@ -175,9 +175,9 @@ public class HomeScreenFragment extends AbstractFragment
   private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
     Timber.v("PolygonDrawing state : %s", state);
     if (state.isInProgress()) {
-      mapContainerViewModel.setViewMode(Mode.DRAW_POLYGON);
+      mapContainerViewModel.setMode(Mode.DRAW_POLYGON);
     } else {
-      mapContainerFragment.setDefaultMode();
+      mapContainerViewModel.setMode(Mode.DEFAULT);
       if (state.isCompleted()) {
         viewModel.addPolygonFeature(requireNonNull(state.getPolygonFeature()));
       }
@@ -247,7 +247,7 @@ public class HomeScreenFragment extends AbstractFragment
   /** This is only possible after updating the location of the feature. So, reset the UI. */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
-      mapContainerFragment.setDefaultMode();
+      mapContainerViewModel.setMode(Mode.DEFAULT);
     }
   }
 
@@ -392,7 +392,9 @@ public class HomeScreenFragment extends AbstractFragment
 
     if (item.getItemId() == R.id.move_feature_menu_item) {
       hideBottomSheet();
-      mapContainerFragment.setRepositionMode(state.getFeature());
+      mapContainerViewModel.setMode(Mode.MOVE_POINT);
+      mapContainerViewModel.setReposFeature(state.getFeature());
+      Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
     } else if (item.getItemId() == R.id.delete_feature_menu_item) {
       Optional<Feature> featureToDelete = state.getFeature();
       if (featureToDelete.isPresent()) {
