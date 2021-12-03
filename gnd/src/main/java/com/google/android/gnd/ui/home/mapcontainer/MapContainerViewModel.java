@@ -330,10 +330,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Event::create);
   }
 
-  private Flowable<Event<Nil>> createZoomThresholdFlowable() {
-    return zoomThresholdCrossed.toFlowable(BackpressureStrategy.LATEST).map(Event::create);
-  }
-
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
     if (!lockState.isTrue()) {
       return Flowable.empty();
