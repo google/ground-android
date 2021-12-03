@@ -23,7 +23,6 @@ import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.State;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
@@ -63,8 +62,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.startDrawingFlow(FakeData.PROJECT, FakeData.LAYER);
 
-    stateTestObserver.assertValue(
-        state -> state.getState() == State.IN_PROGRESS && state.getPolygonFeature() == null);
+    stateTestObserver.assertValue(PolygonDrawingState::isInProgress);
   }
 
   @Test
@@ -150,7 +148,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.removeLastVertex();
 
-    testObserver.assertValue(state -> state.getState() == State.CANCELED);
+    testObserver.assertValue(PolygonDrawingState::isCanceled);
   }
 
   @Test
@@ -199,7 +197,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     stateTestObserver.assertValue(
         polygonDrawingState ->
-            polygonDrawingState.getState() == State.COMPLETED
+            polygonDrawingState.isCompleted()
                 && polygonDrawingState.getPolygonFeature() != null
                 && polygonDrawingState.getPolygonFeature().getVertices().size() == 4);
   }

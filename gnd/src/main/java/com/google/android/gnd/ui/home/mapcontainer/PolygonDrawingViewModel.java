@@ -165,7 +165,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   public void removeLastVertex() {
     if (vertices.isEmpty()) {
-      polygonDrawingState.onNext(createDrawingState(State.CANCELED));
+      polygonDrawingState.onNext(PolygonDrawingState.canceled());
       reset();
     } else {
       vertices.remove(vertices.size() - 1);
@@ -228,7 +228,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
             .setCreated(auditInfo)
             .setLastModified(auditInfo)
             .build();
-    polygonDrawingState.onNext(createDrawingState(State.COMPLETED, polygonFeature));
+    polygonDrawingState.onNext(PolygonDrawingState.completed(polygonFeature));
     reset();
   }
 
@@ -263,7 +263,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   public void startDrawingFlow(Project selectedProject, Layer selectedLayer) {
     this.selectedLayer.onNext(selectedLayer);
     this.selectedProject.onNext(selectedProject);
-    polygonDrawingState.onNext(createDrawingState(State.IN_PROGRESS));
+    polygonDrawingState.onNext(PolygonDrawingState.inProgress());
 
     mapPolygon =
         Optional.of(
@@ -282,16 +282,44 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     return drawnMapFeatures;
   }
 
-  private PolygonDrawingState createDrawingState(State state) {
-    return createDrawingState(state, null);
-  }
-
-  private PolygonDrawingState createDrawingState(State state, @Nullable PolygonFeature feature) {
-    return new AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, feature);
-  }
-
   @AutoValue
   public abstract static class PolygonDrawingState {
+
+    public static PolygonDrawingState canceled() {
+      return createDrawingState(State.CANCELED, null);
+    }
+
+    public static PolygonDrawingState inProgress() {
+      return createDrawingState(State.IN_PROGRESS, null);
+    }
+
+    public static PolygonDrawingState completed(PolygonFeature unsavedFeature) {
+      return createDrawingState(State.COMPLETED, unsavedFeature);
+    }
+
+    private static PolygonDrawingState createDrawingState(
+        State state, @Nullable PolygonFeature unsavedFeature) {
+      return new AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, unsavedFeature);
+    }
+
+    public boolean isCanceled() {
+      return getState() == State.CANCELED;
+    }
+
+    public boolean isInProgress() {
+      return getState() == State.IN_PROGRESS;
+    }
+
+    public boolean isCompleted() {
+      return getState() == State.COMPLETED;
+    }
+
+    /** Represents state of PolygonDrawing action. */
+    public enum State {
+      IN_PROGRESS,
+      COMPLETED,
+      CANCELED
+    }
 
     /** Current state of polygon drawing. */
     public abstract State getState();
@@ -299,12 +327,5 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     /** Final polygon feature. */
     @Nullable
     public abstract PolygonFeature getPolygonFeature();
-  }
-
-  /** Represents state of PolygonDrawing action. */
-  public enum State {
-    IN_PROGRESS,
-    COMPLETED,
-    CANCELED
   }
 }
