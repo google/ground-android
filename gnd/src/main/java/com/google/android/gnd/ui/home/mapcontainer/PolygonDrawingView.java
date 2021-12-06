@@ -54,12 +54,12 @@ public class PolygonDrawingView extends AbstractView {
 
     // Using this approach as data binding approach did not work with view.
     viewModel
-        .getPolygonDrawingCompletedVisibility()
+        .isPolygonCompleted()
         .observe(
             getActivity(),
-            visible -> {
-              binding.completePolygonButton.setVisibility(visible == 4 ? GONE : VISIBLE);
-              binding.addPolygonButton.setVisibility(visible == 4 ? VISIBLE : GONE);
+            isComplete -> {
+              binding.completePolygonButton.setVisibility(isComplete ? VISIBLE : GONE);
+              binding.addPolygonButton.setVisibility(isComplete ? GONE : VISIBLE);
             });
   }
 }

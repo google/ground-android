@@ -429,9 +429,10 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
   @Override
   public void setMapFeatures(ImmutableSet<MapFeature> features) {
-    Timber.d("Set map features called : %s", features.size());
+    Timber.v("setMapFeatures() called with %s features", features.size());
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
+    List<Marker> deletedMarkers = new ArrayList<>();
     for (Marker marker : markers) {
       MapPin pin = (MapPin) marker.getTag();
       if (features.contains(pin)) {
@@ -440,8 +441,12 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       } else {
         // If pin isn't present or up-to-date, remove it so it can be added back later.
         removeMarker(marker);
+        deletedMarkers.add(marker);
       }
     }
+
+    // Update markers list.
+    stream(deletedMarkers).forEach(markers::remove);
 
     Iterator<Entry<MapFeature, Polyline>> polylineIterator = polygons.entrySet().iterator();
     while (polylineIterator.hasNext()) {
@@ -477,13 +482,16 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       }
     }
 
-    for (MapFeature mapFeature : featuresToUpdate) {
-      if (mapFeature instanceof MapPin) {
-        addMapPin((MapPin) mapFeature);
-      } else if (mapFeature instanceof MapPolygon) {
-        addMapPolyline((MapPolygon) mapFeature);
-      } else if (mapFeature instanceof MapGeoJson) {
-        addMapGeoJson((MapGeoJson) mapFeature);
+    if (!featuresToUpdate.isEmpty()) {
+      Timber.v("Updating %d features", featuresToUpdate.size());
+      for (MapFeature mapFeature : featuresToUpdate) {
+        if (mapFeature instanceof MapPin) {
+          addMapPin((MapPin) mapFeature);
+        } else if (mapFeature instanceof MapPolygon) {
+          addMapPolyline((MapPolygon) mapFeature);
+        } else if (mapFeature instanceof MapGeoJson) {
+          addMapGeoJson((MapGeoJson) mapFeature);
+        }
       }
     }
   }
