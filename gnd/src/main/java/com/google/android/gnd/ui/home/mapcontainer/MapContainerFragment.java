@@ -113,6 +113,10 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getSelectMapTypeClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> showMapTypeSelectorDialog());
+    mapContainerViewModel
+        .getZoomThresholdCrossed()
+        .as(autoDisposable(this))
+        .subscribe(__ -> onZoomThresholdCrossed());
   }
 
   @Override
@@ -302,6 +306,12 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     } else {
       map.moveCamera(update.getCenter());
     }
+  }
+
+  private void onZoomThresholdCrossed() {
+    Timber.v("Refresh markers after zoom threshold crossed");
+
+    getMapFragment().refreshMarkerIcons();
   }
 
   @Override

@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import static com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.DEFAULT_FEATURE_ZOOM_LEVEL;
+
 import android.graphics.Bitmap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -71,7 +73,8 @@ public class FeatureDetailsViewModel extends ViewModel {
     this.observationRepository = observationRepository;
     this.userRepository = userRepository;
     this.markerBitmap =
-        markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
+        markerIconFactory.getMarkerBitmap(
+            drawableUtil.getColor(R.color.colorGrey600), DEFAULT_FEATURE_ZOOM_LEVEL);
     this.title =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =

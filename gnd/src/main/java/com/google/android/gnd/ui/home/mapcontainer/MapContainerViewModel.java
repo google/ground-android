@@ -75,7 +75,8 @@ import timber.log.Timber;
 public class MapContainerViewModel extends AbstractViewModel {
 
   // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
-  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
+  public static final float ZOOM_LEVEL_THRESHOLD = 16f;
+  public static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
@@ -131,6 +132,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
   @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
 
+  @Hot private final Subject<Nil> zoomThresholdCrossed = PublishSubject.create();
   // TODO: Move this in FeatureRepositionView and return the final updated feature as the result.
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
@@ -403,10 +405,20 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
+    onZoomChange(cameraPosition.getValue().getZoomLevel(), newCameraPosition.getZoomLevel());
     cameraPosition.setValue(newCameraPosition);
     Loadable.getValue(projectLoadingState)
         .ifPresent(
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
+  }
+
+  private void onZoomChange(float oldZoomLevel, float newZoomLevel) {
+    boolean zoomThresholdCrossed =
+        oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD
+            || oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD;
+    if (zoomThresholdCrossed) {
+      this.zoomThresholdCrossed.onNext(Nil.NIL);
+    }
   }
 
   public void onMapDrag() {
@@ -465,6 +477,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public Observable<Point> getAddFeatureButtonClicks() {
     return addFeatureButtonClicks;
+  }
+
+  public Observable<Nil> getZoomThresholdCrossed() {
+    return zoomThresholdCrossed;
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
