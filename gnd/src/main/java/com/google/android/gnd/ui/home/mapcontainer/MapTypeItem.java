@@ -17,30 +17,30 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import com.google.android.gnd.ui.map.MapFragment;
+import com.google.auto.value.AutoValue;
 
 /**
  * A map type item in the list view inside map container.
  */
-public class MapTypeItem {
-  private final int type;
-  private final String label;
-  private final MapFragment mapFragment;
+@AutoValue
+public abstract class MapTypeItem {
+  public abstract int getType();
+  public abstract String getLabel();
+  abstract MapFragment getMapFragment();
 
-  MapTypeItem(int type, String label, MapFragment mapFragment) {
-    this.type = type;
-    this.label = label;
-    this.mapFragment = mapFragment;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  public String getLabel() {
-    return label;
+  public static MapTypeItem.Builder newBuilder() {
+    return new AutoValue_MapTypeItem.Builder();
   }
 
   public boolean isSelected() {
-    return mapFragment.getMapType() == type;
+    return getMapFragment().getMapType() == getType();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+    public abstract Builder setType(int type);
+    public abstract Builder setLabel(String label);
+    public abstract Builder setMapFragment(MapFragment mapFragment);
+    public abstract MapTypeItem build();
   }
 }

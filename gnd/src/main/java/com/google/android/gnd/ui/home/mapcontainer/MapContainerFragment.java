@@ -211,8 +211,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
             stream(getMapFragment().getAvailableMapTypes())
                 .map(
                     mapType ->
-                        new MapTypeItem(
-                            mapType.getType(), getString(mapType.getLabelId()), getMapFragment()))
+                        MapTypeItem.newBuilder()
+                            .setType(mapType.getType())
+                            .setLabel(getString(mapType.getLabelId()))
+                            .setMapFragment(getMapFragment())
+                            .build())
                 .collect(toImmutableList()));
     popupWindowBinding.mapTypeListView.setAdapter(mapTypeAdapter);
     popupWindowBinding.mapTypeListView.setOnItemClickListener((adapterView, view, position, id) -> {
