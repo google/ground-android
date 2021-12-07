@@ -154,10 +154,7 @@ public class HomeScreenFragment extends AbstractFragment
     polygonDrawingViewModel
         .getDrawingCompleted()
         .as(autoDisposable(this))
-        .subscribe(
-            __ ->
-                viewModel.addPolygonFeature(
-                    polygonDrawingViewModel.getPolygonFeature().getValue()));
+        .subscribe(polygonFeature -> viewModel.addPolygonFeature(polygonFeature));
     featureSelectorViewModel
         .getFeatureClicks()
         .as(autoDisposable(this))

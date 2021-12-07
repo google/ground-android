@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 public class MultipleChoiceResponse implements Response {
+  private static final long serialVersionUID = 1L;
 
   private final MultipleChoice multipleChoice;
   private final List<String> selectedOptionIds;

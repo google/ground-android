@@ -26,9 +26,11 @@ import java8.util.Optional;
 
 /** A user-provided date {@link Field} response. */
 public class DateResponse implements Response {
+
+  private static final long serialVersionUID = 1L;
+
   // TODO(#752): Use device localization preferences.
-  private final DateFormat dateFormat =
-      new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+  private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
   private final Date date;
 
   public DateResponse(Date date) {

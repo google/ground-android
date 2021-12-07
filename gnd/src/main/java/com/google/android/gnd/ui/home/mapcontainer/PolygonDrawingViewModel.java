@@ -58,7 +58,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   @Hot private final Subject<Nil> defaultMapMode = PublishSubject.create();
 
-  @Hot private final Subject<Nil> drawingCompleted = PublishSubject.create();
+  @Hot private final Subject<PolygonFeature> drawingCompleted = PublishSubject.create();
 
   private final MutableLiveData<Integer> completeButtonVisible = new MutableLiveData<>(INVISIBLE);
   /** Polyline drawn by the user but not yet saved as polygon. */
@@ -88,6 +88,9 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
    * camera target.
    */
   boolean isLastVertexNotSelectedByUser;
+
+  /** Avoid creating a new uuid to prevent re-drawing everything on render. Reset to */
+  @Nullable private String uuid;
 
   @Inject
   PolygonDrawingViewModel(
@@ -125,7 +128,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
   }
 
   @Hot
-  public Observable<Nil> getDrawingCompleted() {
+  public Observable<PolygonFeature> getDrawingCompleted() {
     return drawingCompleted;
   }
 
@@ -145,7 +148,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
 
   public void removeLastVertex() {
     if (vertices.isEmpty()) {
-      defaultMapMode.onNext(Nil.NIL);
+      reset();
       return;
     }
     vertices.remove(vertices.size() - 1);
@@ -185,6 +188,13 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
+  private String getId() {
+    if (uuid == null) {
+      uuid = uuidGenerator.generateUuid();
+    }
+    return uuid;
+  }
+
   private void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
     if (selectedLayer.getValue() == null || selectedProject.getValue() == null) {
       Timber.e("Project or layer is null");
@@ -195,7 +205,7 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     PolygonFeature polygonFeature =
         PolygonFeature.builder()
             .setVertices(vertices)
-            .setId(uuidGenerator.generateUuid())
+            .setId(getId())
             .setProject(selectedProject.getValue())
             .setLayer(selectedLayer.getValue())
             .setCreated(auditInfo)
@@ -208,11 +218,15 @@ public class PolygonDrawingViewModel extends AbstractViewModel {
     if (vertices.size() < 3 || !getFirstVertex().equals(getLastVertex())) {
       throw new IllegalStateException("Polygon is not complete");
     }
+    drawingCompleted.onNext(drawnPolylineVertices.getValue());
+    reset();
+  }
 
+  private void reset() {
     defaultMapMode.onNext(Nil.NIL);
-    drawingCompleted.onNext(Nil.NIL);
     isLastVertexNotSelectedByUser = false;
     vertices.clear();
+    uuid = null;
   }
 
   Optional<Point> getFirstVertex() {

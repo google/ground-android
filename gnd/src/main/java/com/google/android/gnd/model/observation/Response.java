@@ -17,10 +17,11 @@
 package com.google.android.gnd.model.observation;
 
 import com.google.android.gnd.model.form.Field;
+import java.io.Serializable;
 import java8.util.Optional;
 
 /** A user-provided response to a single {@link Field}. */
-public interface Response {
+public interface Response extends Serializable {
 
   String getSummaryText();
 

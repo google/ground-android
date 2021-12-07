@@ -26,6 +26,8 @@ import java8.util.Optional;
 
 /** A user-provided time {@link Field} response. */
 public class TimeResponse implements Response {
+  private static final long serialVersionUID = 1L;
+
   // TODO(#752): Use device localization preferences.
   private final DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
   private final Date time;

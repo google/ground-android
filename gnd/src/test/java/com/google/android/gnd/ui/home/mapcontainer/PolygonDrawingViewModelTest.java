@@ -24,6 +24,7 @@ import android.view.View;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.rx.Nil;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
@@ -166,7 +167,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   @Test
   public void testPolygonDrawingCompleted() {
     TestObserver<Nil> defaultMapModeObserver = viewModel.getDefaultMapMode().test();
-    TestObserver<Nil> drawingCompletedObserver = viewModel.getDrawingCompleted().test();
+    TestObserver<PolygonFeature> drawingCompletedObserver = viewModel.getDrawingCompleted().test();
 
     viewModel.onCameraMoved(newPoint(0.0, 0.0));
     viewModel.selectCurrentVertex();
@@ -179,7 +180,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.onCompletePolygonButtonClick();
 
     defaultMapModeObserver.assertValue(Nil.NIL);
-    drawingCompletedObserver.assertValue(Nil.NIL);
+    drawingCompletedObserver.assertValue(feature -> feature.getVertices().size() == 4);
   }
 
   private void assertCompleteButtonVisible(int visibility) {

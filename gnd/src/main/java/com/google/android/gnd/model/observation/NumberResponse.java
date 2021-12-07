@@ -22,6 +22,7 @@ import java8.util.Optional;
 
 /** A user provided response to a number {@link Field}. */
 public class NumberResponse implements Response {
+  private static final long serialVersionUID = 1L;
 
   private final String number;
 

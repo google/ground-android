@@ -103,8 +103,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   /** Polyline drawn by the user but not yet saved as polygon. */
   @Hot
-  private final PublishProcessor<PolygonFeature> drawnPolylineFeature =
-      PublishProcessor.create();
+  private final PublishProcessor<PolygonFeature> drawnPolylineFeature = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
@@ -194,8 +193,8 @@ public class MapContainerViewModel extends AbstractViewModel {
             this::updateSelectedFeature);
 
     Flowable<ImmutableSet<MapFeature>> transientFeatures =
-        drawnPolylineFeature.map(feature -> ImmutableSet.of(
-            toMapPolygon(feature)));
+        drawnPolylineFeature.map(TransientMapFeatures::fromPolygonFeature);
+
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(

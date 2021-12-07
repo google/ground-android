@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Style;
@@ -37,7 +37,7 @@ public abstract class MapPin extends MapFeature {
 
   // TODO: Stop embedding entire Feature in pins to free up memory. Instead, copy only details
   // relevant to rendering pins and uuid to reference the related Feature.
-  @NonNull
+  @Nullable
   @Override
   public abstract Feature getFeature();
 
@@ -49,7 +49,7 @@ public abstract class MapPin extends MapFeature {
 
     public abstract Builder setStyle(Style style);
 
-    public abstract Builder setFeature(Feature newFeature);
+    public abstract Builder setFeature(@Nullable Feature newFeature);
 
     public abstract MapPin build();
   }
