@@ -414,8 +414,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private void onZoomChange(float oldZoomLevel, float newZoomLevel) {
     boolean zoomThresholdCrossed =
-        (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD)
-            || (oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD);
+        oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD
+            || oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD;
     if (zoomThresholdCrossed) {
       this.zoomThresholdCrossed.onNext(Nil.NIL);
     }
