@@ -84,6 +84,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -116,8 +117,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject FeatureMutationDao featureMutationDao;
   @Inject ObservationDao observationDao;
   @Inject ObservationMutationDao observationMutationDao;
-  @Inject
-  TileSetDao tileSetDao;
+  @Inject TileSetDao tileSetDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
   @Inject BaseMapDao baseMapDao;
@@ -250,6 +250,13 @@ public class RoomLocalDataStore implements LocalDataStore {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
+      FirebaseCrashlytics.getInstance()
+          .log(
+              "Error enqueueing "
+                  + mutation.getType()
+                  + "mutation for feature "
+                  + mutation.getFeatureId());
+      FirebaseCrashlytics.getInstance().recordException(e);
       return Completable.error(e);
     }
   }
@@ -559,6 +566,13 @@ public class RoomLocalDataStore implements LocalDataStore {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
+      FirebaseCrashlytics.getInstance()
+          .log(
+              "Error enqueueing "
+                  + mutation.getType()
+                  + "mutation for observation "
+                  + mutation.getObservationId());
+      FirebaseCrashlytics.getInstance().recordException(e);
       return Completable.error(e);
     }
   }
@@ -650,10 +664,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Maybe<TileSet> getTileSet(String tileUrl) {
-    return tileSetDao
-        .findByUrl(tileUrl)
-        .map(TileSetEntity::toTileSet)
-        .subscribeOn(schedulers.io());
+    return tileSetDao.findByUrl(tileUrl).map(TileSetEntity::toTileSet).subscribeOn(schedulers.io());
   }
 
   @Override

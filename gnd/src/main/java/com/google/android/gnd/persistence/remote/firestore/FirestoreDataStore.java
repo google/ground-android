@@ -37,6 +37,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.ApplicationErrorManager;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
@@ -66,6 +67,11 @@ public class FirestoreDataStore implements RemoteDataStore {
    */
   private boolean shouldInterceptException(Throwable throwable) {
     return errorManager.handleException(throwable);
+  }
+
+  private void recordException(Throwable t, String message) {
+    FirebaseCrashlytics.getInstance().log(message);
+    FirebaseCrashlytics.getInstance().recordException(t);
   }
 
   @Cold
@@ -124,6 +130,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))
+        .doOnError(e -> recordException(e, "Error applying mutation"))
         .onErrorResumeNext(
             e -> shouldInterceptException(e) ? Completable.never() : Completable.error(e))
         .subscribeOn(schedulers.io());
@@ -135,6 +142,17 @@ public class FirestoreDataStore implements RemoteDataStore {
       try {
         addMutationToBatch(mutation, user, batch);
       } catch (DataStoreException e) {
+        recordException(
+            e,
+            "Error adding "
+                + mutation.getType()
+                + " "
+                + mutation.getClass().getSimpleName()
+                + " for "
+                + (mutation instanceof ObservationMutation
+                    ? ((ObservationMutation) mutation).getObservationId()
+                    : mutation.getFeatureId())
+                + " to batch");
         Timber.e(e, "Skipping invalid mutation");
       }
     }

@@ -24,9 +24,11 @@ import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.system.NotificationManager;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
 import java.io.File;
+import java.io.FileNotFoundException;
 import timber.log.Timber;
 
 /**
@@ -77,10 +79,14 @@ public class PhotoSyncWorker extends BaseWorker {
             .blockingForEach(this::sendNotification);
         return Result.success();
       } catch (Exception e) {
+        FirebaseCrashlytics.getInstance().log("Photo sync failed");
+        FirebaseCrashlytics.getInstance().recordException(e);
         Timber.e(e, "Photo sync failed: %s %s", localSourcePath, remoteDestinationPath);
         return Result.retry();
       }
     } else {
+      FirebaseCrashlytics.getInstance().log("Photo missing on local device");
+      FirebaseCrashlytics.getInstance().recordException(new FileNotFoundException());
       Timber.e("Photo not found %s, %s", localSourcePath, remoteDestinationPath);
       return Result.failure();
     }

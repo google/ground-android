@@ -34,6 +34,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
 import io.reactivex.Completable;
@@ -88,6 +89,9 @@ public class LocalMutationSyncWorker extends BaseWorker {
       processMutations(mutations).compose(this::notifyTransferState).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
+      FirebaseCrashlytics.getInstance()
+          .log("Error applying remote updates to feature " + featureId);
+      FirebaseCrashlytics.getInstance().recordException(t);
       Timber.e(t, "Remote updates for feature %s failed", featureId);
       localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
@@ -102,13 +106,14 @@ public class LocalMutationSyncWorker extends BaseWorker {
     Map<String, ImmutableList<Mutation>> mutationsByUserId = groupByUserId(pendingMutations);
     Set<String> userIds = mutationsByUserId.keySet();
     return Observable.fromIterable(userIds)
-        .flatMapCompletable(userId -> {
-          ImmutableList<Mutation> mutations = mutationsByUserId.get(userId);
-          if (mutations == null) {
-            mutations = ImmutableList.of();
-          }
-          return processMutations(mutations, userId);
-        });
+        .flatMapCompletable(
+            userId -> {
+              ImmutableList<Mutation> mutations = mutationsByUserId.get(userId);
+              if (mutations == null) {
+                mutations = ImmutableList.of();
+              }
+              return processMutations(mutations, userId);
+            });
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
@@ -156,8 +161,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   private Mutation incrementRetryCount(Mutation mutation, Throwable error) {
-    return mutation
-        .toBuilder()
+    return mutation.toBuilder()
         .setRetryCount(mutation.getRetryCount() + 1)
         .setLastError(error.toString())
         .build();
