@@ -41,7 +41,7 @@ import javax.inject.Singleton;
 public class FakeRemoteDataStore implements RemoteDataStore {
   private RemoteDataEvent<Feature> featureEvent;
   // TODO(#1045): Allow default project to be initialized by tests.
-  private Project testProject = FakeData.PROJECT;
+  private List<Project> testProjects = Collections.singletonList(FakeData.PROJECT);
   // TODO(#1045): Allow default ToS to be initialized by tests.
   private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
 
@@ -55,17 +55,27 @@ public class FakeRemoteDataStore implements RemoteDataStore {
    * ActivityScenarioRule.
    */
   public void setTestProject(Project project) {
-    this.testProject = project;
+    this.testProjects = Collections.singletonList(project);
+  }
+
+  /**
+   * Set this before the test scenario is loaded.
+   *
+   * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
+   * ActivityScenarioRule.
+   */
+  public void setTestProjects(List<Project> projects) {
+    this.testProjects = projects;
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return Single.just(Collections.singletonList(testProject));
+    return Single.just(testProjects);
   }
 
   @Override
   public Single<Project> loadProject(String projectId) {
-    return Single.just(testProject);
+    return Single.just(testProjects.get(0));
   }
 
   public void setTermsOfService(Optional<TermsOfService> termsOfService) {
