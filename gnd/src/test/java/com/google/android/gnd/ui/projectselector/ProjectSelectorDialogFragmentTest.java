@@ -55,24 +55,20 @@ import org.robolectric.android.controller.ActivityController;
 @UninstallModules({LocalDataStoreModule.class})
 public class ProjectSelectorDialogFragmentTest extends BaseHiltTest {
 
-  @Inject ProjectSelectorViewModel viewModel;
   @Inject ProjectRepository projectRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
   @BindValue @Mock LocalDataStore mockLocalDataStore;
 
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
 
-  private Project project1 = FakeData.newProject().setId("1").build();
-  private Project project2 = FakeData.newProject().setId("2").build();
+  private final Project project1 = FakeData.newProject().setId("1").build();
+  private final Project project2 = FakeData.newProject().setId("2").build();
 
-  private List<Project> projects = ImmutableList.of(project1, project2);
+  private final List<Project> projects = ImmutableList.of(project1, project2);
 
   @Before
   public void setup() {
     fakeRemoteDataStore.setTestProjects(projects);
-//    for (Project project : projects) {
-//      localDataStore.insertOrUpdateProject(project);
-//    }
     setupFragment();
   }
 
