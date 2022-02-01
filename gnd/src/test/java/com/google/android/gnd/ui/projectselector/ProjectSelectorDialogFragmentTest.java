@@ -67,12 +67,12 @@ public class ProjectSelectorDialogFragmentTest extends BaseHiltTest {
   private final List<Project> projects = ImmutableList.of(project1, project2);
 
   @Before
-  public void setup() {
+  public void setUp() {
     fakeRemoteDataStore.setTestProjects(projects);
-    setupFragment();
+    setUpFragment();
   }
 
-  private void setupFragment() {
+  private void setUpFragment() {
     ActivityController<MainActivity> activityController =
         Robolectric.buildActivity(MainActivity.class);
     MainActivity activity = activityController.setup().get();
