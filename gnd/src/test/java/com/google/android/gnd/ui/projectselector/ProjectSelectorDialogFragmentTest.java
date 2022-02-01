@@ -68,6 +68,7 @@ public class ProjectSelectorDialogFragmentTest extends BaseHiltTest {
 
   @Before
   public void setUp() {
+    super.setUp();
     fakeRemoteDataStore.setTestProjects(projects);
     setUpFragment();
   }
