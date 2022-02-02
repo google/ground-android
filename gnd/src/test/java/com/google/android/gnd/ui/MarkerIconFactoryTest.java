@@ -46,7 +46,8 @@ public class MarkerIconFactoryTest extends BaseHiltTest {
   private int markerUnscaledHeight;
 
   @Before
-  public void setup() {
+  public void setUp() {
+    super.setUp();
     Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
     markerUnscaledWidth = outline.getIntrinsicWidth();
     markerUnscaledHeight = outline.getIntrinsicHeight();
