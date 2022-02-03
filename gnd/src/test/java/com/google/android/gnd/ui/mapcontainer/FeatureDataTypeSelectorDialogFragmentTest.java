@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.mapcontainer;
 
-
 import static android.os.Looper.getMainLooper;
 import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.Shadows.shadowOf;
@@ -60,10 +59,11 @@ public class FeatureDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
         Robolectric.buildActivity(MainActivity.class);
     MainActivity activity = activityController.setup().get();
 
-    featureDataTypeSelectorDialogFragment = new FeatureDataTypeSelectorDialogFragment(onSelectFeatureDataType);
+    featureDataTypeSelectorDialogFragment =
+        new FeatureDataTypeSelectorDialogFragment(onSelectFeatureDataType);
 
-    featureDataTypeSelectorDialogFragment.showNow(activity.getSupportFragmentManager(),
-        ProjectSelectorDialogFragment.class.getSimpleName());
+    featureDataTypeSelectorDialogFragment.showNow(
+        activity.getSupportFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
     shadowOf(getMainLooper()).idle();
   }
 
@@ -78,7 +78,8 @@ public class FeatureDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
 
   @Test
   public void show_dataTypeSelected_correctDataTypeIsPassed() {
-    ListView listView = (ListView) featureDataTypeSelectorDialogFragment.getDialog().getCurrentFocus();
+    ListView listView =
+        (ListView) featureDataTypeSelectorDialogFragment.getDialog().getCurrentFocus();
 
     int positionToSelect = 1;
     shadowOf(listView).performItemClick(positionToSelect);
