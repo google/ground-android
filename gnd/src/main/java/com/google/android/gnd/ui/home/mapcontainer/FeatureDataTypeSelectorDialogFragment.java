@@ -47,9 +47,7 @@ public class FeatureDataTypeSelectorDialogFragment extends AbstractDialogFragmen
         .setTitle(R.string.select_feature_type)
         .setAdapter(
             listAdapter,
-            (dialog, position) -> {
-              onSelectFeatureDataType.accept(position);
-            })
+            (dialog, position) -> onSelectFeatureDataType.accept(position))
         .setCancelable(true)
         .create();
   }
