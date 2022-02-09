@@ -42,7 +42,7 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
   private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
 
   private Runnable onClickRunnable;
-  private boolean clicked = false;
+  private boolean clicked;
 
   @Before
   public void setUp() {
