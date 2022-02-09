@@ -58,8 +58,7 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
         Robolectric.buildActivity(MainActivity.class);
     MainActivity activity = activityController.setup().get();
 
-    polygonDrawingInfoDialogFragment =
-        new PolygonDrawingInfoDialogFragment(onClickRunnable);
+    polygonDrawingInfoDialogFragment = new PolygonDrawingInfoDialogFragment(onClickRunnable);
 
     polygonDrawingInfoDialogFragment.showNow(
         activity.getSupportFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
@@ -72,13 +71,18 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
 
     assertThat(dialogView).isNotNull();
     assertThat(dialogView.getVisibility()).isEqualTo(View.VISIBLE);
-    assertThat(((ConstraintLayout) dialogView.getParent()).findViewById(R.id.polygon_info_image).getVisibility()).isEqualTo(View.VISIBLE);
+    assertThat(
+            ((ConstraintLayout) dialogView.getParent())
+                .findViewById(R.id.polygon_info_image)
+                .getVisibility())
+        .isEqualTo(View.VISIBLE);
   }
 
   @Test
   public void show_dataTypeSelected_correctDataTypeIsPassed() {
     ConstraintLayout dialogView =
-        (ConstraintLayout) polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
+        (ConstraintLayout)
+            polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
 
     shadowOf((View) dialogView.findViewById(R.id.get_started_button)).checkedPerformClick();
     shadowOf(getMainLooper()).idle();
@@ -92,7 +96,8 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
   @Test
   public void cancelClicked_dialogIsDismissed() {
     ConstraintLayout dialogView =
-        (ConstraintLayout) polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
+        (ConstraintLayout)
+            polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
 
     shadowOf((View) dialogView.findViewById(R.id.cancel_text_view)).checkedPerformClick();
     shadowOf(getMainLooper()).idle();
