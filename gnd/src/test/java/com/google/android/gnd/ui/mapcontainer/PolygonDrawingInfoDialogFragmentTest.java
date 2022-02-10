@@ -28,6 +28,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import dagger.hilt.android.testing.HiltAndroidTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,11 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
     onClickRunnable = () -> clicked = true;
 
     setUpFragment();
+  }
+
+  @After
+  public void tearDown() {
+    clicked = false;
   }
 
   private void setUpFragment() {
@@ -79,7 +85,7 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
   }
 
   @Test
-  public void show_dataTypeSelected_correctDataTypeIsPassed() {
+  public void startClicked_clickIsRegisteredAndDialogIsDismissed() {
     ConstraintLayout dialogView =
         (ConstraintLayout)
             polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
