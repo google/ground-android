@@ -21,14 +21,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.view.View;
-import android.widget.ListView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
+import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import dagger.hilt.android.testing.HiltAndroidTest;
-import java8.util.function.Consumer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,20 +38,25 @@ import org.robolectric.android.controller.ActivityController;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
-public class FeatureDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
+public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
 
-  private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
+  private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
 
-  private Consumer<Integer> onSelectFeatureDataType;
-  private int selectedPosition = -1;
+  private Runnable onClickRunnable;
+  private boolean clicked;
 
   @Before
   public void setUp() {
     super.setUp();
 
-    onSelectFeatureDataType = integer -> selectedPosition = integer;
+    onClickRunnable = () -> clicked = true;
 
     setUpFragment();
+  }
+
+  @After
+  public void tearDown() {
+    clicked = false;
   }
 
   private void setUpFragment() {
@@ -59,35 +64,51 @@ public class FeatureDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
         Robolectric.buildActivity(MainActivity.class);
     MainActivity activity = activityController.setup().get();
 
-    featureDataTypeSelectorDialogFragment =
-        new FeatureDataTypeSelectorDialogFragment(onSelectFeatureDataType);
+    polygonDrawingInfoDialogFragment = new PolygonDrawingInfoDialogFragment(onClickRunnable);
 
-    featureDataTypeSelectorDialogFragment.showNow(
+    polygonDrawingInfoDialogFragment.showNow(
         activity.getSupportFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
     shadowOf(getMainLooper()).idle();
   }
 
   @Test
   public void show_dialogIsShown() {
-    View listView = featureDataTypeSelectorDialogFragment.getDialog().getCurrentFocus();
+    View dialogView = polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus();
 
-    assertThat(listView).isNotNull();
-    assertThat(listView.getVisibility()).isEqualTo(View.VISIBLE);
-    assertThat(listView.findViewById(R.id.project_name).getVisibility()).isEqualTo(View.VISIBLE);
+    assertThat(dialogView).isNotNull();
+    assertThat(dialogView.getVisibility()).isEqualTo(View.VISIBLE);
+    assertThat(
+            ((ConstraintLayout) dialogView.getParent())
+                .findViewById(R.id.polygon_info_image)
+                .getVisibility())
+        .isEqualTo(View.VISIBLE);
   }
 
   @Test
-  public void show_dataTypeSelected_correctDataTypeIsPassed() {
-    ListView listView =
-        (ListView) featureDataTypeSelectorDialogFragment.getDialog().getCurrentFocus();
+  public void startClicked_clickIsRegisteredAndDialogIsDismissed() {
+    ConstraintLayout dialogView =
+        (ConstraintLayout)
+            polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
 
-    int positionToSelect = 1;
-    shadowOf(listView).performItemClick(positionToSelect);
+    shadowOf((View) dialogView.findViewById(R.id.get_started_button)).checkedPerformClick();
     shadowOf(getMainLooper()).idle();
 
     // Verify Dialog is dismissed
-    assertThat(featureDataTypeSelectorDialogFragment.getDialog()).isNull();
+    assertThat(polygonDrawingInfoDialogFragment.getDialog()).isNull();
 
-    assertThat(selectedPosition).isEqualTo(1);
+    assertThat(clicked).isTrue();
+  }
+
+  @Test
+  public void cancelClicked_dialogIsDismissed() {
+    ConstraintLayout dialogView =
+        (ConstraintLayout)
+            polygonDrawingInfoDialogFragment.getDialog().getCurrentFocus().getParent();
+
+    shadowOf((View) dialogView.findViewById(R.id.cancel_text_view)).checkedPerformClick();
+    shadowOf(getMainLooper()).idle();
+
+    // Verify Dialog is dismissed
+    assertThat(polygonDrawingInfoDialogFragment.getDialog()).isNull();
   }
 }
