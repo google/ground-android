@@ -59,11 +59,12 @@ class ProjectRepository @Inject constructor(
     private val localDataStore: LocalDataStore,
     private val remoteDataStore: RemoteDataStore,
     private val localValueStore: LocalValueStore) {
+
     /** Emits a project id on {@see #activateProject} and empty on {@see #clearActiveProject}.  */
-    private val selectProjectEvent: @Hot FlowableProcessor<Optional<String>>? = PublishProcessor.create()
+    private val selectProjectEvent: @Hot FlowableProcessor<Optional<String>> = PublishProcessor.create()
 
     /** Emits the latest loading state of the current project on subscribe and on change.  */
-    private val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>>? = BehaviorProcessor.create()
+    private val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>> = BehaviorProcessor.create()
     private fun activateProject(projectId: Optional<String>): @Cold Flowable<Loadable<Project>>? {
         // Empty id indicates intent to deactivate the current project. Used on sign out.
         if (projectId.isEmpty) {
@@ -99,13 +100,13 @@ class ProjectRepository @Inject constructor(
     }
 
     /** This only works if the project is already cached to local db.  */
-    fun getProject(projectId: String): @Cold Single<Project>? {
+    fun getProject(projectId: String): @Cold Single<Project> {
         return localDataStore
             .getProjectById(projectId)
             .switchIfEmpty(Single.error { NotFoundException("Project not found $projectId") })
     }
 
-    private fun syncProjectWithRemote(id: String): @Cold Single<Project>? {
+    private fun syncProjectWithRemote(id: String): @Cold Single<Project> {
         return remoteDataStore
             .loadProject(id)
             .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
@@ -121,16 +122,16 @@ class ProjectRepository @Inject constructor(
      * Returns an observable that emits the latest project activation state, and continues to emit
      * changes to that state until all subscriptions are disposed.
      */
-    fun getProjectLoadingState(): @Hot(replays = true) Flowable<Loadable<Project>>? {
+    fun getProjectLoadingState(): @Hot(replays = true) Flowable<Loadable<Project>> {
         return projectLoadingState
     }
 
-    val activeProject: @Hot(replays = true) Flowable<Optional<Project>>?
-        get() = projectLoadingState!!.map { obj: Loadable<Project> -> obj.value() }
+    val activeProject: @Hot(replays = true) Flowable<Optional<Project>>
+        get() = projectLoadingState.map { obj: Loadable<Project> -> obj.value() }
 
     fun activateProject(projectId: String) {
         Timber.v("activateProject() called with %s", projectId)
-        selectProjectEvent!!.onNext(Optional.of(projectId))
+        selectProjectEvent.onNext(Optional.of(projectId))
     }
 
     fun getProjectSummaries(user: User): @Cold Flowable<Loadable<List<Project>>>? {
@@ -153,7 +154,7 @@ class ProjectRepository @Inject constructor(
 
     /** Clears the currently active project from cache.  */
     fun clearActiveProject() {
-        selectProjectEvent!!.onNext(Optional.empty())
+        selectProjectEvent.onNext(Optional.empty())
     }
 
     fun getModifiableLayers(project: Project): ImmutableList<Layer> {
