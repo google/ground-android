@@ -19,6 +19,7 @@
 buildscript {
     ext {
         hiltVersion = "2.38.1"
+        kotlinVersion = "1.6.20"
         navigationVersion = "2.3.5"
     }
     repositories {
@@ -45,6 +46,9 @@ buildscript {
 
         // Errorprone plugin (required for NullAway)
         classpath "net.ltgt.gradle:gradle-errorprone-plugin:2.0.1"
+
+        // Kotlin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
