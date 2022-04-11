@@ -15,7 +15,6 @@
  */
 package com.google.android.gnd.repository
 
-import com.google.android.gnd.model.Mutation
 import com.google.android.gnd.model.Project
 import com.google.android.gnd.model.Role
 import com.google.android.gnd.model.User
@@ -62,7 +61,7 @@ class ProjectRepository @Inject constructor(
     private val selectProjectEvent: @Hot FlowableProcessor<Optional<String>> = PublishProcessor.create()
 
     /** Emits the latest loading state of the current project on subscribe and on change.  */
-    private val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>> = BehaviorProcessor.create()
+    val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>> = BehaviorProcessor.create()
 
     val lastActiveProjectId: Optional<String?>
         get() = Optional.ofNullable(localValueStore.lastActiveProjectId)
@@ -82,7 +81,7 @@ class ProjectRepository @Inject constructor(
             .subscribe(projectLoadingState)
     }
 
-    private fun activateProject(projectId: Optional<String>): @Cold Flowable<Loadable<Project>>? {
+    private fun activateProject(projectId: Optional<String>): @Cold Flowable<Loadable<Project>> {
         // Empty id indicates intent to deactivate the current project. Used on sign out.
         if (projectId.isEmpty) {
             return Flowable.just(Loadable.notLoaded())
@@ -98,6 +97,7 @@ class ProjectRepository @Inject constructor(
 
     private fun attachLayerPermissions(project: Project): Project {
         val userRole = userRepository.getUserRole(project)
+        // TODO: Use Map once migration of dependencies to Kotlin is complete.
         val layers: ImmutableMap.Builder<String, Layer> = ImmutableMap.builder()
         for (layer in project.layers) {
             layers.put(
@@ -126,21 +126,13 @@ class ProjectRepository @Inject constructor(
         return remoteDataStore
             .loadProject(id)
             .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .flatMap { p: Project -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p) }
-            .doOnSubscribe { Timber.d("Loading project %s", id) }
+            .flatMap { localDataStore.insertOrUpdateProject(it).toSingleDefault(it) }
+            .doOnSubscribe { Timber.d("Loading project $id") }
             .doOnError { err -> Timber.d(err, "Error loading project from remote") }
     }
 
-    /**
-     * Returns an observable that emits the latest project activation state, and continues to emit
-     * changes to that state until all subscriptions are disposed.
-     */
-    fun getProjectLoadingState(): @Hot(replays = true) Flowable<Loadable<Project>> {
-        return projectLoadingState
-    }
-
     fun activateProject(projectId: String) {
-        Timber.v("activateProject() called with %s", projectId)
+        Timber.v("activateProject() called with $projectId")
         selectProjectEvent.onNext(Optional.of(projectId))
     }
 
