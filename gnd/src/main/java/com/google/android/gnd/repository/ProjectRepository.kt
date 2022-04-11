@@ -170,10 +170,6 @@ class ProjectRepository @Inject constructor(
             .toImmutableList()
     }
 
-    fun getMutationsOnceAndStream(project: Project): Flowable<ImmutableList<Mutation<*>>> {
-        return localDataStore.getMutationsOnceAndStream(project)
-    }
-
     fun setCameraPosition(projectId: String, cameraPosition: CameraPosition) {
         localValueStore.setLastCameraPosition(projectId, cameraPosition)
     }
