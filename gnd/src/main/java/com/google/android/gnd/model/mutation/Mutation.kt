@@ -74,27 +74,27 @@ sealed class Mutation {
     // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
     abstract inner class Builder<T : Mutation> {
         var id: Long? = null
-            private set
+            @JvmSynthetic set
         var type: Type = Type.UNKNOWN
-            private set
+            @JvmSynthetic set
         var syncStatus: SyncStatus = SyncStatus.UNKNOWN
-            private set
+            @JvmSynthetic set
         var projectId: String = ""
-            private set
+            @JvmSynthetic set
         var featureId: String = ""
-            private set
+            @JvmSynthetic set
         var layerId: String = ""
-            private set
+            @JvmSynthetic set
         var userId: String = ""
-            private set
+            @JvmSynthetic set
         var clientTimestamp: Date = Date()
-            private set
+            @JvmSynthetic set
         var retryCount: Long = 0
-            private set
+            @JvmSynthetic set
         var lastError: String = ""
-            private set
+            @JvmSynthetic set
 
-        fun setId(id: Long): Builder<T> = apply { this.id = id }
+        fun setId(id: Long?): Builder<T> = apply { this.id = id }
         fun setType(type: Type): Builder<T> = apply { this.type = type }
         fun setSyncStatus(syncStatus: SyncStatus): Builder<T> =
             apply { this.syncStatus = syncStatus }
@@ -108,6 +108,21 @@ sealed class Mutation {
 
         fun setRetryCount(count: Long): Builder<T> = apply { this.retryCount = count }
         fun setLastError(error: String): Builder<T> = apply { this.lastError = error }
+
+        fun fromMutation(mutation: T): Builder<T> {
+            return this.apply {
+                id = mutation.id
+                type = mutation.type
+                syncStatus = mutation.syncStatus
+                projectId = mutation.projectId
+                featureId = mutation.featureId
+                layerId = mutation.layerId
+                userId = mutation.userId
+                clientTimestamp = mutation.clientTimestamp
+                retryCount = mutation.retryCount
+                lastError = lastError
+            }
+        }
 
         abstract fun build(): T
     }

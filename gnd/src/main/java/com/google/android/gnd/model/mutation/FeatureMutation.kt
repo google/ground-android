@@ -36,14 +36,19 @@ data class FeatureMutation(
     val polygonVertices: ImmutableList<Point> = ImmutableList.of(),
 ) : Mutation() {
 
-    override fun toBuilder(): Builder = this.Builder()
+    override fun toBuilder(): Builder {
+        return Builder().also {
+            it.location = this.location
+            it.polygonVertices = this.polygonVertices
+        }.fromMutation(this) as Builder
+    }
 
     // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
     inner class Builder : Mutation.Builder<FeatureMutation>() {
         var location: Optional<Point> = Optional.empty()
-            private set
+            @JvmSynthetic set
         var polygonVertices: ImmutableList<Point> = ImmutableList.of()
-            private set
+            @JvmSynthetic set
 
         fun setLocation(newLocation: Optional<Point>): Builder = apply {
             this.location = newLocation
@@ -55,18 +60,18 @@ data class FeatureMutation(
 
         override fun build() =
             FeatureMutation(
-                super.id,
-                super.type,
-                super.syncStatus,
-                super.projectId,
-                super.featureId,
-                super.layerId,
-                super.userId,
-                super.clientTimestamp,
-                super.retryCount,
-                super.lastError,
-                this.location,
-                this.polygonVertices
+                id,
+                type,
+                syncStatus,
+                projectId,
+                featureId,
+                layerId,
+                userId,
+                clientTimestamp,
+                retryCount,
+                lastError,
+                location,
+                polygonVertices
             )
     }
 

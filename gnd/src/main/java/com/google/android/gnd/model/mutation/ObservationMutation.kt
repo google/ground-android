@@ -6,7 +6,7 @@ import com.google.android.gnd.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import java.util.*
 
-class ObservationMutation(
+data class ObservationMutation(
     override val id: Long? = null,
     override val type: Type = Type.UNKNOWN,
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
@@ -21,18 +21,25 @@ class ObservationMutation(
     var form: Form? = null,
     var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
 ) : Mutation() {
-    override fun toBuilder(): Builder = this.Builder()
+
+    override fun toBuilder(): Builder {
+        return Builder().also {
+            it.observationId = this.observationId
+            it.form = this.form
+            it.responseDeltas = this.responseDeltas
+        }.fromMutation(this) as Builder
+    }
 
     override fun toString(): String =
         super.toString() + "deltas= $responseDeltas"
 
     inner class Builder : Mutation.Builder<ObservationMutation>() {
         var observationId: String = ""
-            private set
+            @JvmSynthetic set
         var form: Form? = null
-            private set
+            @JvmSynthetic set
         var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
-            private set
+            @JvmSynthetic set
 
         fun setObservationId(id: String): Builder = apply {
             this.observationId = id
@@ -47,19 +54,19 @@ class ObservationMutation(
         }
 
         override fun build(): ObservationMutation = ObservationMutation(
-            super.id,
-            super.type,
-            super.syncStatus,
-            super.projectId,
-            super.featureId,
-            super.layerId,
-            super.userId,
-            super.clientTimestamp,
-            super.retryCount,
-            super.lastError,
-            this.observationId,
-            this.form,
-            this.responseDeltas
+            id,
+            type,
+            syncStatus,
+            projectId,
+            featureId,
+            layerId,
+            userId,
+            clientTimestamp,
+            retryCount,
+            lastError,
+            observationId,
+            form,
+            responseDeltas
         )
     }
 
