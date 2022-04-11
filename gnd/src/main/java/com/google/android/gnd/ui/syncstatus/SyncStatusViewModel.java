@@ -22,7 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;

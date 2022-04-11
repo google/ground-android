@@ -26,10 +26,10 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.Mutation;
-import com.google.android.gnd.model.Mutation.SyncStatus;
-import com.google.android.gnd.model.Mutation.Type;
-import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.Mutation.Type;
+import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;

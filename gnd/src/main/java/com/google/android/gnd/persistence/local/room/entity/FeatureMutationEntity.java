@@ -27,7 +27,7 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
@@ -53,36 +53,14 @@ import java8.util.Optional;
     indices = {@Index("feature_id")})
 public abstract class FeatureMutationEntity extends MutationEntity {
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "feature_id")
-  public abstract String getFeatureId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
-
-  /** Non-null if the feature's location was updated, null if unchanged. */
-  @CopyAnnotations
-  @Nullable
-  @Embedded
-  public abstract Coordinates getNewLocation();
-
-  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "polygon_vertices")
-  public abstract String getNewPolygonVertices();
-
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
-        .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
-        .setNewPolygonVertices(formatVertices(m.getNewPolygonVertices()))
+        .setNewLocation(m.getLocation().map(Coordinates::fromPoint).orElse(null))
+        .setNewPolygonVertices(formatVertices(m.getPolygonVertices()))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setRetryCount(m.getRetryCount())
@@ -91,25 +69,6 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setClientTimestamp(m.getClientTimestamp().getTime())
         .build();
   }
-
-  public FeatureMutation toMutation() {
-    return FeatureMutation.builder()
-        .setId(getId())
-        .setProjectId(getProjectId())
-        .setFeatureId(getFeatureId())
-        .setLayerId(getLayerId())
-        .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
-        .setNewPolygonVertices(parseVertices(getNewPolygonVertices()))
-        .setType(getType().toMutationType())
-        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
-        .setRetryCount(getRetryCount())
-        .setLastError(getLastError())
-        .setUserId(getUserId())
-        .setClientTimestamp(new Date(getClientTimestamp()))
-        .build();
-  }
-
-  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static FeatureMutationEntity create(
       @Nullable Long id,
@@ -142,6 +101,47 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   public static Builder builder() {
     return new AutoValue_FeatureMutationEntity.Builder();
+  }
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "feature_id")
+  public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
+
+  /** Non-null if the feature's location was updated, null if unchanged. */
+  @CopyAnnotations
+  @Nullable
+  @Embedded
+  public abstract Coordinates getNewLocation();
+
+  // Boilerplate generated using Android Studio AutoValue plugin:
+
+  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "polygon_vertices")
+  public abstract String getNewPolygonVertices();
+
+  public FeatureMutation toMutation() {
+    return FeatureMutation.builder()
+        .setLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
+        .setPolygonVertices(parseVertices(getNewPolygonVertices()))
+        .setId(getId())
+        .setProjectId(getProjectId())
+        .setFeatureId(getFeatureId())
+        .setLayerId(getLayerId())
+        .setType(getType().toMutationType())
+        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
+        .setRetryCount(getRetryCount())
+        .setLastError(getLastError())
+        .setUserId(getUserId())
+        .setClientTimestamp(new Date(getClientTimestamp()))
+        .build();
   }
 
   @AutoValue.Builder

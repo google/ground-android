@@ -19,7 +19,7 @@ package com.google.android.gnd.repository;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;

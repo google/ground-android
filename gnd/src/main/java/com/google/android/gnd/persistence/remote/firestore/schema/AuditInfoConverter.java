@@ -20,7 +20,7 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;

@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;

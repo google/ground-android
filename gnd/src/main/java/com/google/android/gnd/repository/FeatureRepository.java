@@ -16,12 +16,12 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.Mutation.SyncStatus;
-import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
@@ -131,12 +131,12 @@ public class FeatureRepository {
 
   public FeatureMutation newMutation(String projectId, String layerId, Point point, Date date) {
     return FeatureMutation.builder()
+        .setLocation(Optional.of(point))
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
         .setProjectId(projectId)
         .setLayerId(layerId)
-        .setNewLocation(Optional.of(point))
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
@@ -145,12 +145,12 @@ public class FeatureRepository {
   public FeatureMutation newPolygonFeatureMutation(
       String projectId, String layerId, ImmutableList<Point> vertices, Date date) {
     return FeatureMutation.builder()
+        .setPolygonVertices(vertices)
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
         .setProjectId(projectId)
         .setLayerId(layerId)
-        .setNewPolygonVertices(vertices)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();

@@ -29,7 +29,7 @@ import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -113,9 +113,9 @@ public abstract class FeatureEntity {
             .setState(EntityState.DEFAULT)
             .setCreated(authInfo)
             .setLastModified(authInfo);
-    mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
+    mutation.getLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
     entity.setPolygonVertices(formatVertices(
-        mutation.getNewPolygonVertices()));
+        mutation.getPolygonVertices()));
     return entity.build();
   }
 

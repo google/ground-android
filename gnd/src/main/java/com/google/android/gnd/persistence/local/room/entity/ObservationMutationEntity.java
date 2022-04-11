@@ -26,7 +26,7 @@ import androidx.room.Index;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.mutation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
@@ -54,34 +54,6 @@ import org.json.JSONObject;
     },
     indices = {@Index("feature_id"), @Index("observation_id")})
 public abstract class ObservationMutationEntity extends MutationEntity {
-  @CopyAnnotations
-  @ColumnInfo(name = "form_id")
-  public abstract String getFormId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
-  public abstract String getFeatureId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "observation_id")
-  public abstract String getObservationId();
-
-  /**
-   * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
-   * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
-   * values representing responses that were removed/cleared.
-   *
-   * <p>This method returns {@code null} for mutation type {@link MutationEntityType#DELETE}.
-   */
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "response_deltas")
-  public abstract String getResponseDeltas();
-
   public static ObservationMutationEntity create(
       long id,
       String projectId,
@@ -131,6 +103,40 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .build();
   }
 
+  public static Builder builder() {
+    return new AutoValue_ObservationMutationEntity.Builder();
+  }
+
+  @CopyAnnotations
+  @ColumnInfo(name = "form_id")
+  public abstract String getFormId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "feature_id")
+  public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "observation_id")
+  public abstract String getObservationId();
+
+  /**
+   * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
+   * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
+   * values representing responses that were removed/cleared.
+   *
+   * <p>This method returns {@code null} for mutation type {@link MutationEntityType#DELETE}.
+   */
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "response_deltas")
+  public abstract String getResponseDeltas();
+
+  // Boilerplate generated using Android Studio AutoValue plugin:
+
   public ObservationMutation toMutation(Project project) throws LocalDataConsistencyException {
     Layer layer =
         project
@@ -147,26 +153,20 @@ public abstract class ObservationMutationEntity extends MutationEntity {
                     new LocalDataConsistencyException(
                         "Unknown formId in observation mutation " + getId()));
     return ObservationMutation.builder()
+        .setObservationId(getObservationId())
+        .setForm(form)
+        .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setForm(form)
-        .setObservationId(getObservationId())
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
-        .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
         .setClientTimestamp(new Date(getClientTimestamp()))
         .build();
-  }
-
-  // Boilerplate generated using Android Studio AutoValue plugin:
-
-  public static Builder builder() {
-    return new AutoValue_ObservationMutationEntity.Builder();
   }
 
   @AutoValue.Builder
