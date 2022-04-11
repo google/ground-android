@@ -29,24 +29,22 @@ import com.google.android.gnd.rx.Loadable
 import com.google.android.gnd.rx.annotations.Cold
 import com.google.android.gnd.rx.annotations.Hot
 import com.google.android.gnd.ui.map.CameraPosition
-import com.google.android.gnd.util.ImmutableListCollector
+import com.google.android.gnd.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import io.reactivex.Flowable
 import io.reactivex.Single
-import io.reactivex.SingleSource
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import java8.util.Optional
-import java8.util.stream.StreamSupport
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val LOAD_REMOTE_PROJECT_TIMEOUT_SECS: Long = 15
+private const val LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS: Long = 30
 
 /**
  * Coordinates persistence and retrieval of [Project] instances from remote, local, and in
@@ -65,6 +63,25 @@ class ProjectRepository @Inject constructor(
 
     /** Emits the latest loading state of the current project on subscribe and on change.  */
     private val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>> = BehaviorProcessor.create()
+
+    val lastActiveProjectId: Optional<String?>
+        get() = Optional.ofNullable(localValueStore.lastActiveProjectId)
+
+    val activeProject: @Hot(replays = true) Flowable<Optional<Project>>
+        get() = projectLoadingState.map { obj: Loadable<Project> -> obj.value() }
+
+    val offlineProjects: @Cold Single<ImmutableList<Project>>
+        get() = localDataStore.projects
+
+    init {
+        // Kicks off the loading process whenever a new project id is selected.
+        selectProjectEvent
+            .distinctUntilChanged()
+            .switchMap { activateProject(it) }
+            .onBackpressureLatest()
+            .subscribe(projectLoadingState)
+    }
+
     private fun activateProject(projectId: Optional<String>): @Cold Flowable<Loadable<Project>>? {
         // Empty id indicates intent to deactivate the current project. Used on sign out.
         if (projectId.isEmpty) {
@@ -72,16 +89,16 @@ class ProjectRepository @Inject constructor(
         }
         val id = projectId.get()
         return syncProjectWithRemote(id)
-            .onErrorResumeNext(Function<Throwable, SingleSource<out Project>?> { __: Throwable? -> getProject(id) })
+            .onErrorResumeNext { getProject(id) }
             .map { project: Project -> attachLayerPermissions(project) }
-            .doOnSuccess { __: Project? -> localValueStore.setLastActiveProjectId(id) }
+            .doOnSuccess { localValueStore.setLastActiveProjectId(id) }
             .toFlowable()
             .compose { source: Flowable<Project>? -> Loadable.loadingOnceAndWrap(source) }
     }
 
     private fun attachLayerPermissions(project: Project): Project {
         val userRole = userRepository.getUserRole(project)
-        val layers: ImmutableMap.Builder<*, *> = ImmutableMap.builder<Any, Any>()
+        val layers: ImmutableMap.Builder<String, Layer> = ImmutableMap.builder()
         for (layer in project.layers) {
             layers.put(
                 layer.id,
@@ -95,7 +112,6 @@ class ProjectRepository @Inject constructor(
             Role.OWNER, Role.MANAGER -> FeatureType.ALL
             Role.CONTRIBUTOR -> layer.contributorsCanAdd
             Role.UNKNOWN -> ImmutableList.of()
-            else -> ImmutableList.of()
         }
     }
 
@@ -111,12 +127,9 @@ class ProjectRepository @Inject constructor(
             .loadProject(id)
             .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
             .flatMap { p: Project -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p) }
-            .doOnSubscribe { __: Disposable? -> Timber.d("Loading project %s", id) }
-            .doOnError { err: Throwable? -> Timber.d(err, "Error loading project from remote") }
+            .doOnSubscribe { Timber.d("Loading project %s", id) }
+            .doOnError { err -> Timber.d(err, "Error loading project from remote") }
     }
-
-    val lastActiveProjectId: Optional<String?>
-        get() = Optional.ofNullable(localValueStore.lastActiveProjectId)
 
     /**
      * Returns an observable that emits the latest project activation state, and continues to emit
@@ -126,9 +139,6 @@ class ProjectRepository @Inject constructor(
         return projectLoadingState
     }
 
-    val activeProject: @Hot(replays = true) Flowable<Optional<Project>>
-        get() = projectLoadingState.map { obj: Loadable<Project> -> obj.value() }
-
     fun activateProject(projectId: String) {
         Timber.v("activateProject() called with %s", projectId)
         selectProjectEvent.onNext(Optional.of(projectId))
@@ -136,17 +146,14 @@ class ProjectRepository @Inject constructor(
 
     fun getProjectSummaries(user: User): @Cold Flowable<Loadable<List<Project>>>? {
         return loadProjectSummariesFromRemote(user)
-            .doOnSubscribe(Consumer { __: Disposable? -> Timber.d("Loading project list from remote") })
+            .doOnSubscribe { Timber.d("Loading project list from remote") }
             .doOnError { err: Throwable? -> Timber.d(err, "Failed to load project list from remote") }
-            .onErrorResumeNext { __: Throwable? -> localDataStore.projects }
+            .onErrorResumeNext { offlineProjects }
             .toFlowable()
             .compose { source: Flowable<List<Project>>? -> Loadable.loadingOnceAndWrap(source) }
     }
 
-    val offlineProjects: @Cold Single<ImmutableList<Project>>?
-        get() = localDataStore.projects
-
-    private fun loadProjectSummariesFromRemote(user: User): @Cold Single<List<Project>>? {
+    private fun loadProjectSummariesFromRemote(user: User): @Cold Single<List<Project>> {
         return remoteDataStore
             .loadProjectSummaries(user)
             .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
@@ -158,35 +165,20 @@ class ProjectRepository @Inject constructor(
     }
 
     fun getModifiableLayers(project: Project): ImmutableList<Layer> {
-        return StreamSupport.stream(project.layers)
-            .filter { layer: Layer -> !layer.userCanAdd.isEmpty() }
-            .collect<ImmutableList<Layer>, Any>(ImmutableListCollector.toImmutableList())
+        return project.layers
+            .filter { !it.userCanAdd.isEmpty() }
+            .toImmutableList()
     }
 
-    fun getMutationsOnceAndStream(project: Project?): Flowable<ImmutableList<Mutation<*>>> {
+    fun getMutationsOnceAndStream(project: Project): Flowable<ImmutableList<Mutation<*>>> {
         return localDataStore.getMutationsOnceAndStream(project)
     }
 
-    fun setCameraPosition(projectId: String?, cameraPosition: CameraPosition?) {
+    fun setCameraPosition(projectId: String, cameraPosition: CameraPosition) {
         localValueStore.setLastCameraPosition(projectId, cameraPosition)
     }
 
-    fun getLastCameraPosition(projectId: String?): Optional<CameraPosition> {
+    fun getLastCameraPosition(projectId: String): Optional<CameraPosition> {
         return localValueStore.getLastCameraPosition(projectId)
-    }
-
-    companion object {
-        private const val LOAD_REMOTE_PROJECT_TIMEOUT_SECS: Long = 15
-        private const val LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS: Long = 30
-    }
-
-    init {
-
-        // Kicks off the loading process whenever a new project id is selected.
-        selectProjectEvent
-            .distinctUntilChanged()
-            .switchMap { projectId: Optional<String> -> this.activateProject(projectId) }
-            .onBackpressureLatest()
-            .subscribe(projectLoadingState)
     }
 }
