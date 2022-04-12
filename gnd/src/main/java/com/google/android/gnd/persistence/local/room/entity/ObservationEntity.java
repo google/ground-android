@@ -53,6 +53,48 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     indices = {@Index({"feature_id", "form_id", "state"})})
 public abstract class ObservationEntity {
 
+  @CopyAnnotations
+  @PrimaryKey
+  @ColumnInfo(name = "id")
+  @NonNull
+  public abstract String getId();
+
+  /** Returns the id of the feature to which this observation applies. */
+  @CopyAnnotations
+  @ColumnInfo(name = "feature_id")
+  @NonNull
+  public abstract String getFeatureId();
+
+  /** Returns the id of the form to which this observation's responses apply. */
+  @CopyAnnotations
+  @ColumnInfo(name = "form_id")
+  @NonNull
+  public abstract String getFormId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "state")
+  @NonNull
+  public abstract EntityState getState();
+
+  /**
+   * Returns a JSON object containing user responses keyed by their respective elementId in the form
+   * identified by formId. Returns null if no responses have been provided.
+   */
+  @CopyAnnotations
+  @ColumnInfo(name = "responses")
+  @Nullable
+  public abstract String getResponses();
+
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "created_")
+  public abstract AuditInfoEntity getCreated();
+
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "modified_")
+  public abstract AuditInfoEntity getLastModified();
+
   public static ObservationEntity fromObservation(Observation observation) {
     return ObservationEntity.builder()
         .setId(observation.getId())
@@ -102,6 +144,8 @@ public abstract class ObservationEntity {
         .build();
   }
 
+  // Boilerplate generated using Android Studio AutoValue plugin:
+
   public static ObservationEntity create(
       String id,
       String featureId,
@@ -124,50 +168,6 @@ public abstract class ObservationEntity {
   public static Builder builder() {
     return new AutoValue_ObservationEntity.Builder();
   }
-
-  @CopyAnnotations
-  @PrimaryKey
-  @ColumnInfo(name = "id")
-  @NonNull
-  public abstract String getId();
-
-  /** Returns the id of the feature to which this observation applies. */
-  @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
-  @NonNull
-  public abstract String getFeatureId();
-
-  /** Returns the id of the form to which this observation's responses apply. */
-  @CopyAnnotations
-  @ColumnInfo(name = "form_id")
-  @NonNull
-  public abstract String getFormId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "state")
-  @NonNull
-  public abstract EntityState getState();
-
-  /**
-   * Returns a JSON object containing user responses keyed by their respective elementId in the form
-   * identified by formId. Returns null if no responses have been provided.
-   */
-  @CopyAnnotations
-  @ColumnInfo(name = "responses")
-  @Nullable
-  public abstract String getResponses();
-
-  @CopyAnnotations
-  @NonNull
-  @Embedded(prefix = "created_")
-  public abstract AuditInfoEntity getCreated();
-
-  // Boilerplate generated using Android Studio AutoValue plugin:
-
-  @CopyAnnotations
-  @NonNull
-  @Embedded(prefix = "modified_")
-  public abstract AuditInfoEntity getLastModified();
 
   public abstract ObservationEntity.Builder toBuilder();
 
