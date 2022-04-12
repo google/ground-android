@@ -17,11 +17,11 @@
 package com.google.android.gnd.persistence.remote;
 
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
