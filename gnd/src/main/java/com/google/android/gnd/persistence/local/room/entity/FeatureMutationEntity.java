@@ -53,6 +53,30 @@ import java8.util.Optional;
     indices = {@Index("feature_id")})
 public abstract class FeatureMutationEntity extends MutationEntity {
 
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "feature_id")
+  public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
+
+  /** Non-null if the feature's location was updated, null if unchanged. */
+  @CopyAnnotations
+  @Nullable
+  @Embedded
+  public abstract Coordinates getNewLocation();
+
+  // Boilerplate generated using Android Studio AutoValue plugin:
+
+  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "polygon_vertices")
+  public abstract String getNewPolygonVertices();
+
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
@@ -67,6 +91,23 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
         .setClientTimestamp(m.getClientTimestamp().getTime())
+        .build();
+  }
+
+  public FeatureMutation toMutation() {
+    return FeatureMutation.builder()
+        .setLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
+        .setPolygonVertices(parseVertices(getNewPolygonVertices()))
+        .setId(getId())
+        .setProjectId(getProjectId())
+        .setFeatureId(getFeatureId())
+        .setLayerId(getLayerId())
+        .setType(getType().toMutationType())
+        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
+        .setRetryCount(getRetryCount())
+        .setLastError(getLastError())
+        .setUserId(getUserId())
+        .setClientTimestamp(new Date(getClientTimestamp()))
         .build();
   }
 
@@ -101,47 +142,6 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   public static Builder builder() {
     return new AutoValue_FeatureMutationEntity.Builder();
-  }
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "feature_id")
-  public abstract String getFeatureId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
-
-  /** Non-null if the feature's location was updated, null if unchanged. */
-  @CopyAnnotations
-  @Nullable
-  @Embedded
-  public abstract Coordinates getNewLocation();
-
-  // Boilerplate generated using Android Studio AutoValue plugin:
-
-  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "polygon_vertices")
-  public abstract String getNewPolygonVertices();
-
-  public FeatureMutation toMutation() {
-    return FeatureMutation.builder()
-        .setLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
-        .setPolygonVertices(parseVertices(getNewPolygonVertices()))
-        .setId(getId())
-        .setProjectId(getProjectId())
-        .setFeatureId(getFeatureId())
-        .setLayerId(getLayerId())
-        .setType(getType().toMutationType())
-        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
-        .setRetryCount(getRetryCount())
-        .setLastError(getLastError())
-        .setUserId(getUserId())
-        .setClientTimestamp(new Date(getClientTimestamp()))
-        .build();
   }
 
   @AutoValue.Builder

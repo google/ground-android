@@ -54,6 +54,34 @@ import org.json.JSONObject;
     },
     indices = {@Index("feature_id"), @Index("observation_id")})
 public abstract class ObservationMutationEntity extends MutationEntity {
+  @CopyAnnotations
+  @ColumnInfo(name = "form_id")
+  public abstract String getFormId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "feature_id")
+  public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "observation_id")
+  public abstract String getObservationId();
+
+  /**
+   * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
+   * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
+   * values representing responses that were removed/cleared.
+   *
+   * <p>This method returns {@code null} for mutation type {@link MutationEntityType#DELETE}.
+   */
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "response_deltas")
+  public abstract String getResponseDeltas();
+
   public static ObservationMutationEntity create(
       long id,
       String projectId,
@@ -103,39 +131,11 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .build();
   }
 
+  // Boilerplate generated using Android Studio AutoValue plugin:
+
   public static Builder builder() {
     return new AutoValue_ObservationMutationEntity.Builder();
   }
-
-  @CopyAnnotations
-  @ColumnInfo(name = "form_id")
-  public abstract String getFormId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
-  public abstract String getFeatureId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "observation_id")
-  public abstract String getObservationId();
-
-  /**
-   * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
-   * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
-   * values representing responses that were removed/cleared.
-   *
-   * <p>This method returns {@code null} for mutation type {@link MutationEntityType#DELETE}.
-   */
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "response_deltas")
-  public abstract String getResponseDeltas();
-
-  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public ObservationMutation toMutation(Project project) throws LocalDataConsistencyException {
     Layer layer =
