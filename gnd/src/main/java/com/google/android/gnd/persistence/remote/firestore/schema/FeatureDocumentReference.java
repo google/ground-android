@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;

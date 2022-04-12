@@ -17,12 +17,12 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Mutation.SyncStatus;
-import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.Mutation.Type;
+import com.google.android.gnd.model.mutation.ObservationMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
@@ -151,14 +151,14 @@ public class ObservationRepository {
   public Completable deleteObservation(Observation observation) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
+            .setObservationId(observation.getId())
+            .setForm(observation.getForm())
+            .setResponseDeltas(ImmutableList.of())
             .setType(Type.DELETE)
             .setSyncStatus(SyncStatus.PENDING)
             .setProjectId(observation.getProject().getId())
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
-            .setObservationId(observation.getId())
-            .setForm(observation.getForm())
-            .setResponseDeltas(ImmutableList.of())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();
@@ -170,14 +170,14 @@ public class ObservationRepository {
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
+            .setObservationId(observation.getId())
+            .setForm(observation.getForm())
+            .setResponseDeltas(responseDeltas)
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
             .setSyncStatus(SyncStatus.PENDING)
             .setProjectId(observation.getProject().getId())
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
-            .setObservationId(observation.getId())
-            .setForm(observation.getForm())
-            .setResponseDeltas(responseDeltas)
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();

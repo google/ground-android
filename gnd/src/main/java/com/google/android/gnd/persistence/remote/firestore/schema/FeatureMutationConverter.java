@@ -20,8 +20,8 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
@@ -41,12 +41,12 @@ class FeatureMutationConverter {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     map.put(FeatureConverter.LAYER_ID, mutation.getLayerId());
     mutation
-        .getNewLocation()
+        .getLocation()
         .map(FeatureMutationConverter::toGeoPoint)
         .ifPresent(point -> map.put(FeatureConverter.LOCATION, point));
     Map<String, Object> geometry = new HashMap<>();
     geometry.put(
-        FeatureConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getNewPolygonVertices()));
+        FeatureConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getPolygonVertices()));
     geometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
     map.put(FeatureConverter.GEOMETRY, geometry);
 

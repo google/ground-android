@@ -16,7 +16,8 @@
 
 package com.google.android.gnd.model.feature;
 
-import com.google.android.gnd.model.Mutation.Type;
+import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import java8.util.Optional;
@@ -33,9 +34,7 @@ public abstract class PointFeature extends Feature<PointFeature.Builder> {
 
   @Override
   public FeatureMutation toMutation(Type type, String userId) {
-    return super.toMutation(type, userId).toBuilder()
-        .setNewLocation(Optional.of(getPoint()))
-        .build();
+    return super.toMutation(type, userId).toBuilder().setLocation(Optional.of(getPoint())).build();
   }
 
   @Memoized

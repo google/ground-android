@@ -29,8 +29,8 @@ import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.mutation.ObservationMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
@@ -144,8 +144,6 @@ public abstract class ObservationEntity {
         .build();
   }
 
-  public abstract ObservationEntity.Builder toBuilder();
-
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static ObservationEntity create(
@@ -170,6 +168,8 @@ public abstract class ObservationEntity {
   public static Builder builder() {
     return new AutoValue_ObservationEntity.Builder();
   }
+
+  public abstract ObservationEntity.Builder toBuilder();
 
   @AutoValue.Builder
   public abstract static class Builder {

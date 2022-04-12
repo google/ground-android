@@ -20,7 +20,7 @@ import static java8.util.J8Arrays.stream;
 
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
 /**

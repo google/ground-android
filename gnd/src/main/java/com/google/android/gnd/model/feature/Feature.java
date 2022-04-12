@@ -18,10 +18,11 @@ package com.google.android.gnd.model.feature;
 
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Mutation.SyncStatus;
-import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.Mutation.Type;
 import java.util.Date;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;

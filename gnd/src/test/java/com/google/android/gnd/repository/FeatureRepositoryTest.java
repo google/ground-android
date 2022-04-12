@@ -26,10 +26,10 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.Mutation;
-import com.google.android.gnd.model.Mutation.SyncStatus;
-import com.google.android.gnd.model.Mutation.Type;
-import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
@@ -239,7 +239,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
-    assertThat(newMutation.getNewLocation().get()).isEqualTo(FakeData.POINT);
+    assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
   }
@@ -257,7 +257,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
-    assertThat(newMutation.getNewPolygonVertices()).isEqualTo(FakeData.VERTICES);
+    assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
   }
