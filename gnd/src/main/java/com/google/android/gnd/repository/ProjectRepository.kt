@@ -92,7 +92,7 @@ class ProjectRepository @Inject constructor(
             .map { project: Project -> attachLayerPermissions(project) }
             .doOnSuccess { localValueStore.setLastActiveProjectId(id) }
             .toFlowable()
-            .compose { source: Flowable<Project>? -> Loadable.loadingOnceAndWrap(source) }
+            .compose { Loadable.loadingOnceAndWrap(it) }
     }
 
     private fun attachLayerPermissions(project: Project): Project {
@@ -107,66 +107,56 @@ class ProjectRepository @Inject constructor(
         return project.toBuilder().setLayerMap(layers.build()).build()
     }
 
-    private fun getAddableFeatureTypes(userRole: Role, layer: Layer): ImmutableList<FeatureType> {
-        return when (userRole) {
+    private fun getAddableFeatureTypes(userRole: Role, layer: Layer): ImmutableList<FeatureType> =
+        when (userRole) {
             Role.OWNER, Role.MANAGER -> FeatureType.ALL
             Role.CONTRIBUTOR -> layer.contributorsCanAdd
             Role.UNKNOWN -> ImmutableList.of()
         }
-    }
 
     /** This only works if the project is already cached to local db.  */
-    fun getProject(projectId: String): @Cold Single<Project> {
-        return localDataStore
+    fun getProject(projectId: String): @Cold Single<Project> =
+        localDataStore
             .getProjectById(projectId)
             .switchIfEmpty(Single.error { NotFoundException("Project not found $projectId") })
-    }
 
-    private fun syncProjectWithRemote(id: String): @Cold Single<Project> {
-        return remoteDataStore
+    private fun syncProjectWithRemote(id: String): @Cold Single<Project> =
+        remoteDataStore
             .loadProject(id)
             .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
             .flatMap { localDataStore.insertOrUpdateProject(it).toSingleDefault(it) }
             .doOnSubscribe { Timber.d("Loading project $id") }
             .doOnError { err -> Timber.d(err, "Error loading project from remote") }
-    }
 
     fun activateProject(projectId: String) {
         Timber.v("activateProject() called with $projectId")
         selectProjectEvent.onNext(Optional.of(projectId))
     }
 
-    fun getProjectSummaries(user: User): @Cold Flowable<Loadable<List<Project>>>? {
-        return loadProjectSummariesFromRemote(user)
+    fun getProjectSummaries(user: User): @Cold Flowable<Loadable<List<Project>>> =
+        loadProjectSummariesFromRemote(user)
             .doOnSubscribe { Timber.d("Loading project list from remote") }
             .doOnError { err: Throwable? -> Timber.d(err, "Failed to load project list from remote") }
             .onErrorResumeNext { offlineProjects }
             .toFlowable()
             .compose { source: Flowable<List<Project>>? -> Loadable.loadingOnceAndWrap(source) }
-    }
 
-    private fun loadProjectSummariesFromRemote(user: User): @Cold Single<List<Project>> {
-        return remoteDataStore
+    private fun loadProjectSummariesFromRemote(user: User): @Cold Single<List<Project>> =
+        remoteDataStore
             .loadProjectSummaries(user)
             .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
-    }
 
     /** Clears the currently active project from cache.  */
-    fun clearActiveProject() {
-        selectProjectEvent.onNext(Optional.empty())
-    }
+    fun clearActiveProject() = selectProjectEvent.onNext(Optional.empty())
 
-    fun getModifiableLayers(project: Project): ImmutableList<Layer> {
-        return project.layers
+    fun getModifiableLayers(project: Project): ImmutableList<Layer> =
+        project.layers
             .filter { !it.userCanAdd.isEmpty() }
             .toImmutableList()
-    }
 
-    fun setCameraPosition(projectId: String, cameraPosition: CameraPosition) {
+    fun setCameraPosition(projectId: String, cameraPosition: CameraPosition) =
         localValueStore.setLastCameraPosition(projectId, cameraPosition)
-    }
 
-    fun getLastCameraPosition(projectId: String): Optional<CameraPosition> {
-        return localValueStore.getLastCameraPosition(projectId)
-    }
+    fun getLastCameraPosition(projectId: String): Optional<CameraPosition> =
+        localValueStore.getLastCameraPosition(projectId)
 }
