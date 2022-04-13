@@ -56,16 +56,21 @@ class ProjectRepository @Inject constructor(
     private val userRepository: UserRepository,
     private val localDataStore: LocalDataStore,
     private val remoteDataStore: RemoteDataStore,
-    private val localValueStore: LocalValueStore) {
+    private val localValueStore: LocalValueStore
+) {
 
     /** Emits a project id on {@see #activateProject} and empty on {@see #clearActiveProject}.  */
-    private val selectProjectEvent: @Hot FlowableProcessor<Optional<String>> = PublishProcessor.create()
+    private val selectProjectEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
 
     /** Emits the latest loading state of the current project on subscribe and on change.  */
-    val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>> = BehaviorProcessor.create()
+    val projectLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Project>> =
+        BehaviorProcessor.create()
 
-    val lastActiveProjectId: Optional<String?>
-        get() = Optional.ofNullable(localValueStore.lastActiveProjectId)
+    var lastActiveProjectId: String
+        get() = localValueStore.lastActiveProjectId
+        set(value) {
+            localValueStore.lastActiveProjectId = value
+        }
 
     val activeProject: @Hot(replays = true) Flowable<Optional<Project>>
         get() = projectLoadingState.map { obj: Loadable<Project> -> obj.value() }
@@ -77,23 +82,22 @@ class ProjectRepository @Inject constructor(
         // Kicks off the loading process whenever a new project id is selected.
         selectProjectEvent
             .distinctUntilChanged()
-            .switchMap { activateProject(it) }
+            .switchMap { selectProject(it) }
             .onBackpressureLatest()
             .subscribe(projectLoadingState)
     }
 
-    private fun activateProject(projectId: Optional<String>): @Cold Flowable<Loadable<Project>> {
+    private fun selectProject(projectId: String): @Cold Flowable<Loadable<Project>> {
         // Empty id indicates intent to deactivate the current project. Used on sign out.
-        if (projectId.isEmpty) {
-            return Flowable.just(Loadable.notLoaded())
-        }
-        val id = projectId.get()
-        return syncProjectWithRemote(id)
-            .onErrorResumeNext { getProject(id) }
-            .map { project: Project -> attachLayerPermissions(project) }
-            .doOnSuccess { localValueStore.setLastActiveProjectId(id) }
-            .toFlowable()
-            .compose { Loadable.loadingOnceAndWrap(it) }
+        return if (projectId.isEmpty())
+            Flowable.just(Loadable.notLoaded())
+        else
+            syncProjectWithRemote(projectId)
+                .onErrorResumeNext { getProject(projectId) }
+                .map { attachLayerPermissions(it) }
+                .doOnSuccess { lastActiveProjectId = projectId }
+                .toFlowable()
+                .compose { Loadable.loadingOnceAndWrap(it) }
     }
 
     private fun attachLayerPermissions(project: Project): Project {
@@ -103,7 +107,8 @@ class ProjectRepository @Inject constructor(
         for (layer in project.layers) {
             layers.put(
                 layer.id,
-                layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole, layer)).build())
+                layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole, layer)).build()
+            )
         }
         return project.toBuilder().setLayerMap(layers.build()).build()
     }
@@ -129,15 +134,16 @@ class ProjectRepository @Inject constructor(
             .doOnSubscribe { Timber.d("Loading project $id") }
             .doOnError { err -> Timber.d(err, "Error loading project from remote") }
 
-    fun activateProject(projectId: String) {
-        Timber.v("activateProject() called with $projectId")
-        selectProjectEvent.onNext(Optional.of(projectId))
-    }
+    fun loadLastActiveProject() = activateProject(lastActiveProjectId)
+
+    fun activateProject(projectId: String) = selectProjectEvent.onNext(projectId)
+
+    fun clearActiveProject() = selectProjectEvent.onNext("")
 
     fun getProjectSummaries(user: User): @Cold Flowable<Loadable<List<Project>>> =
         loadProjectSummariesFromRemote(user)
             .doOnSubscribe { Timber.d("Loading project list from remote") }
-            .doOnError { err: Throwable? -> Timber.d(err, "Failed to load project list from remote") }
+            .doOnError { Timber.d(it, "Failed to load project list from remote") }
             .onErrorResumeNext { offlineProjects }
             .toFlowable()
             .compose { source: Flowable<List<Project>>? -> Loadable.loadingOnceAndWrap(source) }
@@ -146,9 +152,6 @@ class ProjectRepository @Inject constructor(
         remoteDataStore
             .loadProjectSummaries(user)
             .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
-
-    /** Clears the currently active project from cache.  */
-    fun clearActiveProject() = selectProjectEvent.onNext(Optional.empty())
 
     fun getModifiableLayers(project: Project): ImmutableList<Layer> =
         project.layers
