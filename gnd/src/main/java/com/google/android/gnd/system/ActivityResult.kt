@@ -13,44 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.app.Activity
+import android.content.Intent
 
-import android.app.Activity;
-import android.content.Intent;
-import androidx.annotation.Nullable;
+/** Represents the arguments of an [Activity.onActivityResult] event. */
+data class ActivityResult(
+    val requestCode: Int,
+    val resultCode: Int,
+    val data: Intent?
+) {
 
-/** Represents the arguments of an {@link Activity#onActivityResult(int, int, Intent)} event. */
-public class ActivityResult {
-
-  private final int requestCode;
-  private final int resultCode;
-  @Nullable private final Intent data;
-
-  public ActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-    this.requestCode = requestCode;
-    this.resultCode = resultCode;
-    this.data = data;
-  }
-
-  /** Returns the activity request code for which this result applies. */
-  public int getRequestCode() {
-    return requestCode;
-  }
-
-  /**
-   * Returns true iff the system provided a result of {@link Activity#RESULT_OK} to the {@code
-   * onActivityResult} callback.
-   */
-  public boolean isOk() {
-    return resultCode == Activity.RESULT_OK;
-  }
-
-  /**
-   * Returns {@link Intent} data provided by the system to the {@code onActivityResult} callback.
-   */
-  @Nullable
-  public Intent getData() {
-    return data;
-  }
+    /**
+     * Returns true iff the system provided a result of [Activity.RESULT_OK] to the `onActivityResult` callback.
+     */
+    fun isOk() = resultCode == Activity.RESULT_OK
 }
