@@ -23,7 +23,6 @@ import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -42,18 +41,15 @@ import javax.inject.Inject;
 public class SyncStatusViewModel extends AbstractViewModel {
 
   private final LiveData<ImmutableList<Pair<Feature, Mutation>>> mutations;
-  private final LocalDataStore localDataStore;
   private final Navigator navigator;
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
 
   @Inject
   SyncStatusViewModel(
-      LocalDataStore localDataStore,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       Navigator navigator) {
-    this.localDataStore = localDataStore;
     this.navigator = navigator;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
@@ -83,8 +79,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
         .switchMap(
             project ->
                 project
-                    // TODO(ashobhit): Create as getMutationsOnceAndStream() in ProjectRepository
-                    .map(localDataStore::getMutationsOnceAndStream)
+                    .map(projectRepository::getMutationsOnceAndStream)
                     .orElse(Flowable.just(ImmutableList.of())));
   }
 

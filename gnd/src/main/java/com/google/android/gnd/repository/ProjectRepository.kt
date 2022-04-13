@@ -20,6 +20,7 @@ import com.google.android.gnd.model.Role
 import com.google.android.gnd.model.User
 import com.google.android.gnd.model.feature.FeatureType
 import com.google.android.gnd.model.layer.Layer
+import com.google.android.gnd.model.mutation.Mutation
 import com.google.android.gnd.persistence.local.LocalDataStore
 import com.google.android.gnd.persistence.local.LocalValueStore
 import com.google.android.gnd.persistence.remote.NotFoundException
@@ -153,6 +154,10 @@ class ProjectRepository @Inject constructor(
         project.layers
             .filter { !it.userCanAdd.isEmpty() }
             .toImmutableList()
+
+    fun getMutationsOnceAndStream(project: Project): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
+        return localDataStore.getMutationsOnceAndStream(project)
+    }
 
     fun setCameraPosition(projectId: String, cameraPosition: CameraPosition) =
         localValueStore.setLastCameraPosition(projectId, cameraPosition)
