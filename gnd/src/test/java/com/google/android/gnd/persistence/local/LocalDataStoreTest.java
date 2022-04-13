@@ -96,7 +96,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setId("project id")
           .setTitle("project 1")
           .setDescription("foo description")
-          .putLayer("layer id", TEST_LAYER)
+          .putLayer(TEST_LAYER)
           .build();
 
   private static final Point TEST_POINT =
@@ -272,7 +272,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .setId("foo id")
             .setTitle("foo project")
             .setDescription("foo project description")
-            .putLayer(layer1.getId(), layer1)
+            .putLayer(layer1)
             .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
 
@@ -281,7 +281,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .setId("foo id")
             .setTitle("foo project")
             .setDescription("foo project description")
-            .putLayer(layer2.getId(), layer2)
+            .putLayer(layer2)
             .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
 
