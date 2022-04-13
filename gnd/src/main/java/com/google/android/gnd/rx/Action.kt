@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.gnd.rx;
+package com.google.android.gnd.rx
 
 /**
  * Wrapper for actions passed through streams that should be handled at most once. This is used to
  * prevent actions that trigger dialogs or other notifications from retriggering when views are
  * restored on configuration change.
  */
-public class Action {
-  private boolean handled;
+open class Action protected constructor() {
+    private var handled = false
 
-  protected Action() {
-    this.handled = false;
-  }
-
-  public static Action create() {
-    return new Action();
-  }
-
-  /** Invokes the provided handler if the value has not yet been handled. */
-  public synchronized void ifUnhandled(Runnable handler) {
-    if (!handled) {
-      this.handled = true;
-      handler.run();
+    /** Invokes the provided handler if the value has not yet been handled.  */
+    @Synchronized
+    fun ifUnhandled(handler: Runnable) {
+        if (!handled) {
+            handled = true
+            handler.run()
+        }
     }
-  }
 }
