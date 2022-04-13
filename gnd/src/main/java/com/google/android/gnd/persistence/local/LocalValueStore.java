@@ -50,7 +50,7 @@ public class LocalValueStore {
     this.preferences = preferences;
   }
 
-  /** Returns the id of the last project successfully activated by the user, or null if not set. */
+  /** Returns the id of the last project successfully activated by the user, or empty if not set. */
   @NonNull
   public String getLastActiveProjectId() {
     return preferences.getString(ACTIVE_PROJECT_ID_KEY, "");
