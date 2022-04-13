@@ -16,15 +16,15 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation;
+import com.google.android.gnd.model.mutation.ObservationMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.rx.annotations.Cold;

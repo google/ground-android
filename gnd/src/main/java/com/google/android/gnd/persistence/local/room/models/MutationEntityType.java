@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
 /** Defines how Room represents mutation types in the remote sync queue in the local db. */

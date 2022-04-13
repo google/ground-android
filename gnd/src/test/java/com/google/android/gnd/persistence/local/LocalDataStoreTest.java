@@ -22,15 +22,12 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.BaseHiltTest;
-import com.google.android.gnd.model.Mutation;
-import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.basemap.tile.TileSet.State;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
@@ -39,8 +36,11 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.Mutation;
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
+import com.google.android.gnd.model.mutation.ObservationMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
@@ -131,15 +131,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static final ObservationMutation TEST_OBSERVATION_MUTATION =
       ObservationMutation.builder()
-          .setId(1L)
           .setObservationId("observation id")
-          .setType(Mutation.Type.CREATE)
-          .setSyncStatus(SyncStatus.PENDING)
-          .setProjectId("project id")
-          .setFeatureId("feature id")
-          .setLayerId("layer id")
           .setForm(TEST_FORM)
-          .setUserId("user id")
           .setResponseDeltas(
               ImmutableList.of(
                   ResponseDelta.builder()
@@ -147,6 +140,13 @@ public class LocalDataStoreTest extends BaseHiltTest {
                       .setFieldType(Field.Type.TEXT_FIELD)
                       .setNewResponse(TextResponse.fromString("updated response"))
                       .build()))
+          .setId(1L)
+          .setType(Mutation.Type.CREATE)
+          .setSyncStatus(SyncStatus.PENDING)
+          .setProjectId("project id")
+          .setFeatureId("feature id")
+          .setLayerId("layer id")
+          .setUserId("user id")
           .setClientTimestamp(new Date())
           .build();
 
@@ -192,6 +192,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
+        .setLocation(Optional.ofNullable(point))
+        .setPolygonVertices(ImmutableList.of())
         .setId(1L)
         .setFeatureId("feature id")
         .setType(Mutation.Type.CREATE)
@@ -199,8 +201,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setUserId("user id")
         .setProjectId("project id")
         .setLayerId("layer id")
-        .setNewLocation(Optional.ofNullable(point))
-        .setNewPolygonVertices(ImmutableList.of())
         .setClientTimestamp(new Date())
         .build();
   }
@@ -208,6 +208,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static FeatureMutation createTestPolygonFeatureMutation(
       ImmutableList<Point> polygonVertices) {
     return FeatureMutation.builder()
+        .setLocation(Optional.empty())
+        .setPolygonVertices(polygonVertices)
         .setId(1L)
         .setFeatureId("feature id")
         .setType(Mutation.Type.CREATE)
@@ -215,8 +217,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setUserId("user id")
         .setProjectId("project id")
         .setLayerId("layer id")
-        .setNewLocation(Optional.empty())
-        .setNewPolygonVertices(polygonVertices)
         .setClientTimestamp(new Date())
         .build();
   }
@@ -463,8 +463,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     ObservationMutation mutation =
         TEST_OBSERVATION_MUTATION.toBuilder()
-            .setId(2L)
             .setResponseDeltas(deltas)
+            .setId(2L)
             .setType(Mutation.Type.UPDATE)
             .build();
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
