@@ -13,63 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.rx
 
-package com.google.android.gnd.rx;
-
-import io.reactivex.Observable;
-import java8.util.Optional;
-import java8.util.function.Supplier;
-import javax.annotation.Nullable;
+import io.reactivex.Observable
+import java8.util.Optional
+import java8.util.function.Supplier
 
 /**
  * Represents the outcome of an operation that either succeeds with a value, or fails with an
  * exception.
  *
- * @param <T> the type of value held by instances of this {@code ValueOrError}.
- */
-public class ValueOrError<T> {
-  @Nullable private T value;
-  @Nullable private Throwable error;
+ * @param <T> the type of value held by instances of this `ValueOrError`.
+</T> */
+open class ValueOrError<T> protected constructor(
+    private val value: T?,
+    private val error: Throwable?
+) {
+    val isPresent = value().isPresent
 
-  protected ValueOrError(@Nullable T value, @Nullable Throwable error) {
-    this.value = value;
-    this.error = error;
-  }
-
-  public Optional<T> value() {
-    return Optional.ofNullable(value);
-  }
-
-  public Optional<Throwable> error() {
-    return Optional.ofNullable(error);
-  }
-
-  @Override
-  public String toString() {
-    return error().map(t -> "Error: " + t).orElse("Value: " + value);
-  }
-
-  /** Returns the value returned by the specified supplier, or an error if the supplier fails. */
-  public static <T> ValueOrError<T> create(Supplier<T> supplier) {
-    try {
-      return ValueOrError.newValue(supplier.get());
-    } catch (Throwable e) {
-      return ValueOrError.newError(e);
+    fun value(): Optional<T> {
+        return Optional.ofNullable(value)
     }
-  }
 
-  /** Returns a new instance with the specified value. */
-  public static <T> ValueOrError<T> newValue(T value) {
-    return new ValueOrError(value, null);
-  }
+    fun error(): Optional<Throwable?> {
+        return Optional.ofNullable(error)
+    }
 
-  /** Returns a new instance with the specified error. */
-  public static <T> ValueOrError<T> newError(Throwable t) {
-    return new ValueOrError(null, t);
-  }
+    override fun toString(): String =
+        error().map { t: Throwable? -> "Error: $t" }.orElse("Value: $value")
 
-  /** Modifies the specified stream to ignore errors, returning wrapped values. */
-  public static <T> Observable<T> ignoreErrors(Observable<ValueOrError<T>> observable) {
-    return observable.filter(voe -> voe.value().isPresent()).map(voe -> voe.value().get());
-  }
+
+    companion object {
+        /** Returns the value returned by the specified supplier, or an error if the supplier fails.  */
+        @JvmStatic
+        fun <T> create(supplier: Supplier<T>): ValueOrError<T?> {
+            return try {
+                newValue(supplier.get())
+            } catch (e: Throwable) {
+                newError(e)
+            }
+        }
+
+        /** Returns a new instance with the specified value.  */
+        private fun <T> newValue(value: T): ValueOrError<T?> = ValueOrError(value, null)
+
+        /** Returns a new instance with the specified error.  */
+        private fun <T> newError(t: Throwable?): ValueOrError<T?> = ValueOrError(null, t)
+
+        /** Modifies the specified stream to ignore errors, returning wrapped values.  */
+        @JvmStatic
+        fun <T> ignoreErrors(observable: Observable<ValueOrError<T>>): Observable<T> =
+            observable.filter { it.isPresent }.map { it.value().get() }
+
+    }
 }

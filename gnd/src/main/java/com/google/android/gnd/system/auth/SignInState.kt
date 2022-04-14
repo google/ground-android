@@ -13,44 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system.auth
 
-package com.google.android.gnd.system.auth;
+import com.google.android.gnd.model.User
+import com.google.android.gnd.rx.ValueOrError
 
-import com.google.android.gnd.model.User;
-import com.google.android.gnd.rx.ValueOrError;
-import java8.util.Optional;
+class SignInState : ValueOrError<User?> {
+    val state: State
 
-public class SignInState extends ValueOrError<User> {
+    enum class State {
+        SIGNED_OUT, SIGNING_IN, SIGNED_IN, ERROR
+    }
 
-  private final State state;
+    constructor(state: State) : super(null, null) {
+        this.state = state
+    }
 
-  public enum State {
-    SIGNED_OUT,
-    SIGNING_IN,
-    SIGNED_IN,
-    ERROR
-  }
+    constructor(user: User) : super(user, null) {
+        state = State.SIGNED_IN
+    }
 
-  public SignInState(State state) {
-    super(null, null);
-    this.state = state;
-  }
-
-  public SignInState(User user) {
-    super(user, null);
-    this.state = State.SIGNED_IN;
-  }
-
-  public SignInState(Throwable error) {
-    super(null, error);
-    this.state = State.ERROR;
-  }
-
-  public State state() {
-    return state;
-  }
-
-  public Optional<User> getUser() {
-    return value();
-  }
+    constructor(error: Throwable) : super(null, error) {
+        state = State.ERROR
+    }
 }

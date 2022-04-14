@@ -13,109 +13,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.rx
 
-package com.google.android.gnd.rx;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import com.google.android.gnd.persistence.remote.NotFoundException;
-import io.reactivex.Flowable;
-import java8.util.Optional;
-import javax.annotation.Nullable;
-import org.reactivestreams.Publisher;
+import androidx.lifecycle.LiveData
+import com.google.android.gnd.persistence.remote.NotFoundException
+import io.reactivex.Flowable
+import java8.util.Optional
+import org.reactivestreams.Publisher
 
 /**
- * Wraps the state of an entity that can be loaded asynchronously. Based on {@code Resource} in
+ * Wraps the state of an entity that can be loaded asynchronously. Based on `Resource` in
  * Android Guide to App Architecture: https://developer.android.com/jetpack/docs/guide#addendum
  *
  * @param <T> the type of data payload the resource contains.
- */
-public class Loadable<T> extends ValueOrError<T> {
-  private final LoadState state;
+</T> */
+class Loadable<T> private constructor(val state: LoadState, data: T?, error: Throwable?) :
+    ValueOrError<T>(data, error) {
 
-  public enum LoadState {
-    NOT_LOADED,
-    LOADING,
-    LOADED,
-    NOT_FOUND,
-    ERROR
-  }
-
-  private Loadable(LoadState state, @Nullable T data, @Nullable Throwable error) {
-    super(data, error);
-    this.state = state;
-  }
-
-  public static <T> Loadable<T> notLoaded() {
-    return new Loadable<>(LoadState.NOT_LOADED, null, null);
-  }
-
-  public static <T> Loadable<T> notFound() {
-    return new Loadable<>(LoadState.NOT_FOUND, null, null);
-  }
-
-  public static <T> Loadable<T> loading() {
-    return new Loadable<>(LoadState.LOADING, null, null);
-  }
-
-  public static <T> Loadable<T> loaded(T data) {
-    return new Loadable<>(LoadState.LOADED, data, null);
-  }
-
-  public static <T> Loadable<T> error(Throwable t) {
-    if (t instanceof NotFoundException) {
-      return new Loadable<>(LoadState.NOT_FOUND, null, t);
+    enum class LoadState {
+        NOT_LOADED, LOADING, LOADED, NOT_FOUND, ERROR
     }
-    return new Loadable<>(LoadState.ERROR, null, t);
-  }
 
-  public LoadState getState() {
-    return state;
-  }
+    val isLoaded = state == LoadState.LOADED
 
-  public boolean isLoaded() {
-    return state == LoadState.LOADED;
-  }
-
-  public boolean isLoading() {
-    return state == LoadState.LOADING;
-  }
-
-  @NonNull
-  public static <T> Optional<T> getValue(LiveData<Loadable<T>> liveData) {
-    return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
-  }
-
-  /**
-   * Modifies the provided stream to emit values instead of {@link Loadable} only when a value is
-   * loaded (i.e., omitting intermediate loading and error states).
-   */
-  public static <V> Publisher<V> values(Flowable<Loadable<V>> stream) {
-    return stream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
-  }
-
-  /**
-   * Returns a {@link Flowable} that first emits LOADING, then maps values emitted from the source
-   * stream to {@code Loadable}s with a LOADED {@code Loadable}. Errors in the provided stream are
-   * handled and wrapped in a {@code Loadable} with state ERROR. The returned stream itself should
-   * never fail with an error.
-   *
-   * @param source the stream responsible for loading values.
-   * @param <T> the type of entity being loaded
-   */
-  public static <T> Flowable<Loadable<T>> loadingOnceAndWrap(Flowable<T> source) {
-    return source
-        .map(Loadable::loaded)
-        .onErrorReturn(Loadable::error)
-        .startWith(Loadable.loading());
-  }
-
-  @Override
-  public String toString() {
-    if (state == LoadState.LOADED || state == LoadState.ERROR) {
-      return super.toString();
-    } else {
-      return state.toString();
+    override fun toString(): String {
+        return if (state == LoadState.LOADED || state == LoadState.ERROR) {
+            super.toString()
+        } else {
+            state.toString()
+        }
     }
-  }
+
+    companion object {
+        @JvmStatic
+        fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, null, null)
+
+        fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, null, null)
+
+        @JvmStatic
+        fun <T> loaded(data: T): Loadable<T> = Loadable(LoadState.LOADED, data, null)
+
+        @JvmStatic
+        fun <T> error(t: Throwable): Loadable<T> = Loadable(t.toState(), null, t)
+
+        @JvmStatic
+        fun <T> getValue(liveData: LiveData<Loadable<T?>?>): Optional<T?> =
+            liveData.value?.value() ?: Optional.empty()
+
+        /**
+         * Modifies the provided stream to emit values instead of [Loadable] only when a value is
+         * loaded (i.e., omitting intermediate loading and error states).
+         */
+        @JvmStatic
+        fun <V> values(stream: Flowable<Loadable<V?>>): Publisher<V> =
+            stream.filter { it.isPresent }.map { it.value().get() }
+
+        /**
+         * Returns a [Flowable] that first emits LOADING, then maps values emitted from the source
+         * stream to `Loadable`s with a LOADED `Loadable`. Errors in the provided stream are
+         * handled and wrapped in a `Loadable` with state ERROR. The returned stream itself should
+         * never fail with an error.
+         *
+         * @param source the stream responsible for loading values.
+         * @param <T> the type of entity being loaded
+        </T> */
+        @JvmStatic
+        fun <T> loadingOnceAndWrap(source: Flowable<T>): Flowable<Loadable<T>> =
+            source
+                .map { data: T -> loaded(data) }
+                .onErrorReturn { t: Throwable -> error(t) }
+                .startWith(Loadable(LoadState.LOADING, null, null))
+    }
+}
+
+private fun Throwable.toState(): Loadable.LoadState = when (this) {
+    is NotFoundException -> Loadable.LoadState.NOT_FOUND
+    else -> Loadable.LoadState.ERROR
 }

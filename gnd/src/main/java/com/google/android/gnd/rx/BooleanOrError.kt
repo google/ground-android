@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.rx
 
-package com.google.android.gnd.rx;
+/** The result of an operation that can return either true, false, or fail with an exception.  */
+class BooleanOrError private constructor(value: Boolean?, error: Throwable?) :
+    ValueOrError<Boolean?>(value, error) {
+    /**
+     * Returns true if the operation succeeded with a result of `true`, or false otherwise. Note
+     * that false is also returned if the operation failed in error.
+     */
+    val isTrue = value().orElse(false)!!
 
-import javax.annotation.Nullable;
+    companion object {
+        @JvmStatic
+        fun trueValue(): BooleanOrError {
+            return BooleanOrError(true, null)
+        }
 
-/** The result of an operation that can return either true, false, or fail with an exception. */
-public class BooleanOrError extends ValueOrError<Boolean> {
-  private BooleanOrError(@Nullable Boolean value, @Nullable Throwable error) {
-    super(value, error);
-  }
+        @JvmStatic
+        fun falseValue(): BooleanOrError {
+            return BooleanOrError(false, null)
+        }
 
-  public static BooleanOrError trueValue() {
-    return new BooleanOrError(true, null);
-  }
-
-  public static BooleanOrError falseValue() {
-    return new BooleanOrError(false, null);
-  }
-
-  public static BooleanOrError error(Throwable t) {
-    return new BooleanOrError(null, t);
-  }
-
-  /**
-   * Returns true if the operation succeeded with a result of {@code true}, or false otherwise. Note
-   * that false is also returned if the operation failed in error.
-   */
-  public boolean isTrue() {
-    return value().orElse(false);
-  }
+        @JvmStatic
+        fun error(t: Throwable?): BooleanOrError {
+            return BooleanOrError(null, t)
+        }
+    }
 }
