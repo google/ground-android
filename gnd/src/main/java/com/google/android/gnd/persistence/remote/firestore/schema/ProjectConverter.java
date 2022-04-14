@@ -40,8 +40,7 @@ class ProjectConverter {
         .setTitle(getLocalizedMessage(pd.getTitle()))
         .setDescription(getLocalizedMessage(pd.getDescription()));
     if (pd.getLayers() != null) {
-      Maps.forEach(
-          pd.getLayers(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
+      Maps.forEach(pd.getLayers(), (id, obj) -> project.putLayer(LayerConverter.toLayer(id, obj)));
     }
     project.setAcl(ImmutableMap.copyOf(pd.getAcl()));
     if (pd.getBaseMaps() != null) {
