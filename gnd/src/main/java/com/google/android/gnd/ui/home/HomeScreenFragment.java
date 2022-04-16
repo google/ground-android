@@ -73,7 +73,6 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
@@ -116,7 +115,6 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
   @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
@@ -127,8 +125,6 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
 
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
@@ -444,10 +440,6 @@ public class HomeScreenFragment extends AbstractFragment
   public void onStop() {
     super.onStop();
 
-    if (projectSelectorDialogFragment.isVisible()) {
-      dismissProjectSelector();
-    }
-
     if (featureDataTypeSelectorDialogFragment != null
         && featureDataTypeSelectorDialogFragment.isVisible()) {
       featureDataTypeSelectorDialogFragment.dismiss();
@@ -459,14 +451,10 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showProjectSelector() {
-    if (!projectSelectorDialogFragment.isVisible()) {
-      projectSelectorDialogFragment.show(
-          getFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
-    }
-  }
-
-  private void dismissProjectSelector() {
-    projectSelectorDialogFragment.dismiss();
+    // TODO: After login, if the screen is rotated without selecting any project, then the
+    //   navigation throws an error due to invalid destination. Fix this!
+    navigator.navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
   }
 
   private void showOfflineAreas() {
