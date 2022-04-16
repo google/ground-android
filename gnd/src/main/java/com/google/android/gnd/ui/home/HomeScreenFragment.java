@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static androidx.navigation.fragment.NavHostFragment.findNavController;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
@@ -41,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavDestination;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.BuildConfig;
 import com.google.android.gnd.MainActivity;
@@ -446,11 +448,16 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
+  private int getCurrentDestinationId() {
+    NavDestination currentDestination = findNavController(this).getCurrentDestination();
+    return currentDestination == null ? -1 : currentDestination.getId();
+  }
+
   private void showProjectSelector() {
-    // TODO: After login, if the screen is rotated without selecting any project, then the
-    //   navigation throws an error due to invalid destination. Fix this!
-    navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
+    if (getCurrentDestinationId() != R.id.projectSelectorDialogFragment) {
+      navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
+    }
   }
 
   private void showOfflineAreas() {
