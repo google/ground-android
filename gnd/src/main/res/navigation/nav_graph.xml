@@ -81,6 +81,9 @@
     <action
       android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
       app:destination="@id/projectSelectorDialogFragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
+      app:destination="@id/featureSelectorFragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -214,5 +217,9 @@
     android:id="@+id/projectSelectorDialogFragment"
     android:name="com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment"
     android:label="ProjectSelectorDialogFragment" />
+  <dialog
+    android:id="@+id/featureSelectorFragment"
+    android:name="com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment"
+    android:label="FeatureSelectorFragment" />
 
 </navigation>

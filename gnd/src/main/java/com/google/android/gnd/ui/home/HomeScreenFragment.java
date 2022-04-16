@@ -64,7 +64,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
-import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
@@ -105,7 +104,6 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
-  @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   @Inject FeatureHelper featureHelper;
   @Inject FeatureRepository featureRepository;
   MapContainerViewModel mapContainerViewModel;
@@ -223,10 +221,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
     featureSelectorViewModel.setFeatures(features);
-    if (!featureSelectorDialogFragment.isVisible()) {
-      featureSelectorDialogFragment.show(
-          getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
-    }
+    navigator.navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToFeatureSelectorFragment());
   }
 
   private void onFeatureAdded(Feature feature) {

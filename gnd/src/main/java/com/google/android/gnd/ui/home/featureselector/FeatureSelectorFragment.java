@@ -49,9 +49,6 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
 
   @Nullable private ArrayAdapter listAdapter;
 
-  @Inject
-  public FeatureSelectorFragment() {}
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
