@@ -77,8 +77,7 @@ public abstract class ProjectEntity {
 
     for (LayerEntityAndRelations layerEntityAndRelations :
         projectEntityAndRelations.layerEntityAndRelations) {
-      LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
-      projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerEntityAndRelations));
+      projectBuilder.putLayer(LayerEntity.toLayer(layerEntityAndRelations));
     }
     for (BaseMapEntity source :
         projectEntityAndRelations.baseMapEntityAndRelations) {

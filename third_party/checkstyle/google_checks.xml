@@ -22,7 +22,7 @@
 
   <property name="severity" value="error" />
 
-  <property name="fileExtensions" value="java, properties, xml" />
+  <property name="fileExtensions" value="java, properties, xml, kt" />
   <!-- Excludes all 'module-info.java' files              -->
   <!-- See https://checkstyle.org/config_filefilters.html -->
   <module name="BeforeExecutionExclusionFileFilter">
@@ -52,6 +52,10 @@
   <module name="RegexpHeader">
     <property name="headerFile" value="${config_loc}/../../config/checkstyle/java.header" />
     <property name="fileExtensions" value="java" />
+  </module>
+  <module name="RegexpHeader">
+    <property name="headerFile" value="${config_loc}/../../config/checkstyle/java.header" />
+    <property name="fileExtensions" value="kt" />
   </module>
   <module name="RegexpHeader">
     <property name="headerFile" value="${config_loc}/../../config/checkstyle/xml.header" />

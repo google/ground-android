@@ -96,7 +96,7 @@ public class FeatureConverterTest {
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
     layer = newLayer().setId(layerId).setForm(form).build();
-    project = newProject().putLayer(layerId, layer).build();
+    project = newProject().putLayer(layer).build();
   }
 
   @Test
