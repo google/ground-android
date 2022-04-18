@@ -13,33 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.rx
 
-package com.google.android.gnd.rx;
-
-import java8.util.function.Consumer;
+import java8.util.function.Consumer
 
 /**
  * Wrapper for events passed through streams that should be handled at most once. This is used to
- * prevent events that trigger dialogs or other notifications from retriggering when views are
+ * prevent events that trigger dialogs or other notifications from re-triggering when views are
  * restored on configuration change.
  *
  * @param <T> The event data.
- */
-public class Event<T> extends Action {
-  private final T data;
+</T> */
+class Event<T> private constructor(private val data: T) : Action() {
 
-  private Event(T data) {
-    super();
-    this.data = data;
-  }
+    /** Invokes the provided consumer if the value has not yet been handled.  */
+    @Synchronized
+    fun ifUnhandled(consumer: Consumer<T>) {
+        ifUnhandled(Runnable { consumer.accept(data) })
+    }
 
-  /** Returns a new event with the specified event data. */
-  public static <T> Event<T> create(T data) {
-    return new Event<>(data);
-  }
-
-  /** Invokes the provided consumer if the value has not yet been handled. */
-  public synchronized void ifUnhandled(Consumer<T> consumer) {
-    ifUnhandled(() -> consumer.accept(data));
-  }
+    companion object {
+        /** Returns a new event with the specified event data.  */
+        @JvmStatic
+        fun <T> create(data: T): Event<T> {
+            return Event(data)
+        }
+    }
 }

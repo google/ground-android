@@ -119,12 +119,12 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
-    if (signInState.state() != State.SIGNED_IN) {
+    if (signInState.getState() != State.SIGNED_IN) {
       termsOfServiceRepository.setTermsOfServiceAccepted(false);
       featureRepository.setPolygonDialogInfoShown(false);
     }
 
-    switch (signInState.state()) {
+    switch (signInState.getState()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
         return onSignedOut();
@@ -137,7 +137,7 @@ public class MainViewModel extends AbstractViewModel {
         Timber.d("Authentication error : %s", signInState.error());
         return onSignInError();
       default:
-        Timber.e("Unhandled state: %s", signInState.state());
+        Timber.e("Unhandled state: %s", signInState.getState());
         break;
     }
     return Observable.never();
