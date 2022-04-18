@@ -36,14 +36,6 @@ class Loadable<T> private constructor(val state: LoadState, data: T?, error: Thr
 
     val isLoaded = state == LoadState.LOADED
 
-    override fun toString(): String {
-        return if (state == LoadState.LOADED || state == LoadState.ERROR) {
-            super.toString()
-        } else {
-            state.toString()
-        }
-    }
-
     companion object {
         @JvmStatic
         fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, null, null)

@@ -20,6 +20,7 @@ import com.google.android.gnd.rx.ValueOrError
 
 class SignInState : ValueOrError<User?> {
     val state: State
+    val user = value()
 
     enum class State {
         SIGNED_OUT, SIGNING_IN, SIGNED_IN, ERROR

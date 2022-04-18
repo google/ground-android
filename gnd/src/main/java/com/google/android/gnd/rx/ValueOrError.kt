@@ -31,28 +31,19 @@ open class ValueOrError<T> protected constructor(
 ) {
     val isPresent = value().isPresent
 
-    fun value(): Optional<T> {
-        return Optional.ofNullable(value)
-    }
+    fun value(): Optional<T> = Optional.ofNullable(value)
 
-    fun error(): Optional<Throwable?> {
-        return Optional.ofNullable(error)
-    }
-
-    override fun toString(): String =
-        error().map { t: Throwable? -> "Error: $t" }.orElse("Value: $value")
-
+    fun error(): Optional<Throwable?> = Optional.ofNullable(error)
 
     companion object {
         /** Returns the value returned by the specified supplier, or an error if the supplier fails.  */
         @JvmStatic
-        fun <T> create(supplier: Supplier<T>): ValueOrError<T?> {
-            return try {
+        fun <T> create(supplier: Supplier<T>): ValueOrError<T?> =
+            try {
                 newValue(supplier.get())
             } catch (e: Throwable) {
                 newError(e)
             }
-        }
 
         /** Returns a new instance with the specified value.  */
         private fun <T> newValue(value: T): ValueOrError<T?> = ValueOrError(value, null)

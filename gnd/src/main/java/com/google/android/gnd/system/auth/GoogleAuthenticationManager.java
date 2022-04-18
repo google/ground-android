@@ -77,7 +77,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   }
 
   public Observable<Optional<User>> getUser() {
-    return getSignInState().map(SignInState::value);
+    return getSignInState().map(SignInState::getUser);
   }
 
   public void init() {

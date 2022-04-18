@@ -92,7 +92,7 @@ public class MainViewModel extends AbstractViewModel {
     disposeOnClear(
         authenticationManager
             .getSignInState()
-            .compose(switchMapIfPresent(SignInState::value, userRepository::saveUser))
+            .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
             .switchMap(this::onSignInStateChange)
             .subscribe(navigator::navigate));
