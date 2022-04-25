@@ -19,21 +19,14 @@ import android.app.Dialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.google.android.gnd.ui.common.AbstractDialogFragment
-import com.google.android.gnd.ui.home.AddFeatureDialogFragment
 import android.os.Bundle
 import timber.log.Timber
-import com.google.android.gnd.util.ImmutableListCollector
 import com.google.android.gnd.R
-import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import androidx.core.util.Consumer
 import androidx.fragment.app.FragmentManager
 import com.google.android.gnd.model.layer.Layer
-import com.google.common.collect.ImmutableList
-import java8.util.Objects
-import java8.util.stream.StreamSupport
-import java.lang.RuntimeException
-import java.util.*
+import java.lang.NullPointerException
 
 @AndroidEntryPoint
 class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() {
@@ -56,7 +49,7 @@ class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() 
 
         return try {
             createDialog(sortByName(layers!!), layerConsumer!!)
-        } catch (e) {
+        } catch (e: NullPointerException) {
             Timber.e(e)
             fail("Error getting layers")
         }
