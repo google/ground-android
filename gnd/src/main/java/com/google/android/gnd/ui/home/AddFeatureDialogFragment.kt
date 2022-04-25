@@ -38,56 +38,53 @@ import java.util.*
 @AndroidEntryPoint
 class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() {
 
-private var layerConsumer: Consumer<Layer>? = null
-private var layers: List<Layer>? = null
+    private var layerConsumer: Consumer<Layer>? = null
+    private var layers: List<Layer>? = null
 
     fun show(
-    layers: List<Layer>,
-    fragmentManager: FragmentManager,
-    layerConsumer: Consumer<Layer>
+        layers: List<Layer>,
+        fragmentManager: FragmentManager,
+        layerConsumer: Consumer<Layer>
     ) {
-      this.layers = layers
-      this.layerConsumer = layerConsumer
-      show(fragmentManager, TAG)
+        this.layers = layers
+        this.layerConsumer = layerConsumer
+        show(fragmentManager, TAG)
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        super.onCreateDialog(savedInstanceState)
 
-  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    super.onCreateDialog(savedInstanceState)
-
-    return if (layers != null && layerConsumer != null) {
-      createDialog(sortByName(layers!!), layerConsumer!!)
-    } else {
-      Timber.e(e)
-      fail("Error getting layers")
+        return try {
+            createDialog(sortByName(layers!!), layerConsumer!!)
+        } catch (e) {
+            Timber.e(e)
+            fail("Error getting layers")
+        }
     }
-  }
 
-  private fun sortByName(layers: List<Layer>): List<Layer> = layers.sortedBy { it.name }
+    private fun sortByName(layers: List<Layer>): List<Layer> = layers.sortedBy { it.name }
 
-  private fun getLayerNames(layers: List<Layer>): List<String> = layers.map{ it.name }
+    private fun getLayerNames(layers: List<Layer>): List<String> = layers.map { it.name }
 
-  private fun createDialog(
-    layers: List<Layer>,
-    layerConsumer: Consumer<Layer>
+    private fun createDialog(
+        layers: List<Layer>,
+        layerConsumer: Consumer<Layer>
     ): Dialog {
-    // TODO: Add icons.
-    return AlertDialog.Builder(requireContext())
-    .setTitle(R.string.add_feature_select_type_dialog_title)
-    .setNegativeButton(R.string.cancel, (_, _) -> { dismiss() })
-    .setItems(getLayerNames(layers), (dialog, index) -> {
-    layerConsumer.accept(layers[index])
-    })
-    .create()
-  }
+        // TODO: Add icons.
+        return AlertDialog.Builder(requireContext())
+            .setTitle(R.string.add_feature_select_type_dialog_title)
+            .setNegativeButton(R.string.cancel) { _, _ -> dismiss() }
+            .setItems(getLayerNames(layers).toTypedArray()) { _, index -> layerConsumer.accept(layers[index]) }
+            .create()
+    }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    layers = null
-    layerConsumer = null
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        layers = null
+        layerConsumer = null
+    }
 
-  companion object {
-private val TAG = AddFeatureDialogFragment::class.java.simpleName
-  }
+    companion object {
+        private val TAG = AddFeatureDialogFragment::class.java.simpleName
+    }
 }
