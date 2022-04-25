@@ -19,24 +19,25 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import com.google.android.gnd.BaseHiltTest
-import javax.inject.Inject
-import com.google.android.gnd.ui.home.AddFeatureDialogFragment
 import org.junit.Before
-import org.robolectric.android.controller.ActivityController
 import com.google.android.gnd.MainActivity
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import android.os.Looper
 import android.view.View
-import com.google.common.truth.Truth
+import com.google.android.gnd.FakeData
+import com.google.common.truth.Truth.assertThat
 import com.google.android.gnd.R
+import com.google.android.gnd.model.feature.FeatureType
+import com.google.common.collect.ImmutableList
 import org.junit.Test
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class AddFeatureDialogFragmentTest : BaseHiltTest() {
-    @Inject
     var addFeatureDialogFragment: AddFeatureDialogFragment? = null
+
+    @Override
     @Before
     override fun setUp() {
         super.setUp()
@@ -47,32 +48,29 @@ class AddFeatureDialogFragmentTest : BaseHiltTest() {
         val activityController = Robolectric.buildActivity(
             MainActivity::class.java
         )
+
+        addFeatureDialogFragment = AddFeatureDialogFragment()
+
         val activity = activityController.setup().get()
-        addFeatureDialogFragment!!.showNow(
-            activity.supportFragmentManager, AddFeatureDialogFragment::class.java.simpleName
-        )
+
+        val layer1 = FakeData.newLayer()
+            .setId("Layer 1")
+            .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
+            .build()
+        val layer2 = FakeData.newLayer()
+            .setId("Layer 2")
+            .setContributorsCanAdd(ImmutableList.of(FeatureType.POLYGON))
+            .build()
+        addFeatureDialogFragment!!.show(listOf(layer1, layer2), activity.supportFragmentManager
+        ) { }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
     @Test
     fun show_dialogIsShown() {
         val listView = addFeatureDialogFragment!!.dialog!!.currentFocus
-        Truth.assertThat(listView).isNotNull()
-        Truth.assertThat(listView!!.visibility).isEqualTo(View.VISIBLE)
-        Truth.assertThat(listView.findViewById<View>(R.id.project_name).visibility)
-            .isEqualTo(View.VISIBLE)
-    } //  @Test
-    //  public void show_dataTypeSelected_correctDataTypeIsPassed() {
-    //    ListView listView =
-    //        (ListView) addFeatureDialogFragment.getDialog().getCurrentFocus();
-    //
-    //    int positionToSelect = 1;
-    //    shadowOf(listView).performItemClick(positionToSelect);
-    //    shadowOf(getMainLooper()).idle();
-    //
-    //    // Verify Dialog is dismissed
-    //    assertThat(addFeatureDialogFragment.getDialog()).isNull();
-    //
-    //    assertThat(selectedPosition).isEqualTo(1);
-    //  }
+
+        assertThat(listView).isNotNull()
+        assertThat(listView!!.visibility).isEqualTo(View.VISIBLE)
+    }
 }

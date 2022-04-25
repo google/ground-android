@@ -18,6 +18,7 @@ import com.android.build.gradle.api.BaseVariant
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
@@ -214,15 +215,16 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
+    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
     implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    annotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    annotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
-    androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    androidTestAnnotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+//    annotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    kaptAndroidTest "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    kaptTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
 
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
@@ -245,7 +247,7 @@ dependencies {
 
     // Auto-value
     compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
-    annotationProcessor "com.google.auto.value:auto-value:$project.autoValueVersion"
+    kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
 
     // Guava
     implementation 'com.google.guava:guava:30.1-jre'
@@ -258,7 +260,7 @@ dependencies {
 
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
-    annotationProcessor "androidx.room:room-compiler:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
     implementation "androidx.room:room-guava:$roomVersion"
     testImplementation "androidx.room:room-testing:$roomVersion"
