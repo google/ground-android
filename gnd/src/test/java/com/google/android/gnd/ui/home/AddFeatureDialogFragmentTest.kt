@@ -27,7 +27,6 @@ import android.os.Looper
 import android.view.View
 import com.google.android.gnd.FakeData
 import com.google.common.truth.Truth.assertThat
-import com.google.android.gnd.R
 import com.google.android.gnd.model.feature.FeatureType
 import com.google.common.collect.ImmutableList
 import org.junit.Test
@@ -35,7 +34,7 @@ import org.junit.Test
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class AddFeatureDialogFragmentTest : BaseHiltTest() {
-    var addFeatureDialogFragment: AddFeatureDialogFragment? = null
+    lateinit var addFeatureDialogFragment: AddFeatureDialogFragment
 
     @Override
     @Before
@@ -61,14 +60,14 @@ class AddFeatureDialogFragmentTest : BaseHiltTest() {
             .setId("Layer 2")
             .setContributorsCanAdd(ImmutableList.of(FeatureType.POLYGON))
             .build()
-        addFeatureDialogFragment!!.show(listOf(layer1, layer2), activity.supportFragmentManager
+        addFeatureDialogFragment.show(listOf(layer1, layer2), activity.supportFragmentManager
         ) { }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
     @Test
     fun show_dialogIsShown() {
-        val listView = addFeatureDialogFragment!!.dialog!!.currentFocus
+        val listView = addFeatureDialogFragment.dialog!!.currentFocus
 
         assertThat(listView).isNotNull()
         assertThat(listView!!.visibility).isEqualTo(View.VISIBLE)

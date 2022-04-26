@@ -20,19 +20,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.google.android.gnd.ui.common.AbstractDialogFragment
 import android.os.Bundle
-import timber.log.Timber
 import com.google.android.gnd.R
 import androidx.appcompat.app.AlertDialog
 import androidx.core.util.Consumer
 import androidx.fragment.app.FragmentManager
 import com.google.android.gnd.model.layer.Layer
-import java.lang.NullPointerException
 
 @AndroidEntryPoint
 class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() {
 
-    private var layerConsumer: Consumer<Layer>? = null
-    private var layers: List<Layer>? = null
+    private val fragmentTag = AddFeatureDialogFragment::class.java.simpleName
+    private lateinit var layerConsumer: Consumer<Layer>
+    private lateinit var layers: List<Layer>
 
     fun show(
         layers: List<Layer>,
@@ -41,16 +40,15 @@ class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() 
     ) {
         this.layers = layers
         this.layerConsumer = layerConsumer
-        show(fragmentManager, TAG)
+        show(fragmentManager, fragmentTag)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        return try {
-            createDialog(sortByName(layers!!), layerConsumer!!)
-        } catch (e: NullPointerException) {
-            Timber.e(e)
+        return if (::layers.isInitialized && ::layerConsumer.isInitialized) {
+            createDialog(sortByName(layers), layerConsumer)
+        } else {
             fail("Error getting layers")
         }
     }
@@ -69,15 +67,5 @@ class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() 
             .setNegativeButton(R.string.cancel) { _, _ -> dismiss() }
             .setItems(getLayerNames(layers).toTypedArray()) { _, index -> layerConsumer.accept(layers[index]) }
             .create()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        layers = null
-        layerConsumer = null
-    }
-
-    companion object {
-        private val TAG = AddFeatureDialogFragment::class.java.simpleName
     }
 }
