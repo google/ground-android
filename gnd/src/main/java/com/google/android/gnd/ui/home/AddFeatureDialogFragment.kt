@@ -46,11 +46,7 @@ class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        return if (::layers.isInitialized && ::layerConsumer.isInitialized) {
-            createDialog(sortByName(layers), layerConsumer)
-        } else {
-            fail("Error getting layers")
-        }
+        return createDialog(sortByName(layers), layerConsumer)
     }
 
     private fun sortByName(layers: List<Layer>): List<Layer> = layers.sortedBy { it.name }
