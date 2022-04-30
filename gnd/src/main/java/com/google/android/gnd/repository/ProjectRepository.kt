@@ -146,7 +146,7 @@ class ProjectRepository @Inject constructor(
             .doOnError { Timber.d(it, "Failed to load project list from remote") }
             .onErrorResumeNext { offlineProjects }
             .toFlowable()
-            .compose { source: Flowable<List<Project>>? -> Loadable.loadingOnceAndWrap(source) }
+            .compose { Loadable.loadingOnceAndWrap(it) }
 
     private fun loadProjectSummariesFromRemote(user: User): @Cold Single<List<Project>> =
         remoteDataStore
