@@ -25,7 +25,6 @@ import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.settings.Keys;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -51,10 +50,10 @@ public class LocalValueStore {
     this.preferences = preferences;
   }
 
-  /** Returns the id of the last project successfully activated by the user, or null if not set. */
-  @Nullable
+  /** Returns the id of the last project successfully activated by the user, or empty if not set. */
+  @NonNull
   public String getLastActiveProjectId() {
-    return preferences.getString(ACTIVE_PROJECT_ID_KEY, null);
+    return preferences.getString(ACTIVE_PROJECT_ID_KEY, "");
   }
 
   /** Set the id of the last project successfully activated by the user. */
