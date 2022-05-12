@@ -284,8 +284,9 @@ dependencies {
     testImplementation 'com.jraska.livedata:testing:1.2.0'
 
     // Mockito
-    testImplementation 'org.mockito:mockito-core:3.11.2'
-    androidTestImplementation 'org.mockito:mockito-core:3.11.2'
+    testImplementation 'org.mockito:mockito-inline:2.8.47'
+    testImplementation 'org.mockito:mockito-core:4.4.0'
+    androidTestImplementation 'org.mockito:mockito-core:4.4.0'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
