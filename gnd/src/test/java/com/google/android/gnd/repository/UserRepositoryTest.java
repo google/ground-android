@@ -77,9 +77,9 @@ public class UserRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testClearUserPreferences() {
+  public void testClearUserPreferences_returnsEmptyLastActiveProject() {
     localValueStore.setLastActiveProjectId("foo");
     userRepository.clearUserPreferences();
-    assertThat(localValueStore.getLastActiveProjectId()).isNull();
+    assertThat(localValueStore.getLastActiveProjectId()).isEmpty();
   }
 }
