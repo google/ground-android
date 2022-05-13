@@ -86,9 +86,10 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
     private var mapPolygon = Optional.empty<MapPolygon>()
 
-    private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> = locationLockChangeRequests
-        .switchMapSingle { enabled -> if (enabled) locationManager.enableLocationUpdates() else locationManager.disableLocationUpdates() }
-        .toFlowable(BackpressureStrategy.LATEST)
+    private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
+        locationLockChangeRequests
+            .switchMapSingle { enabled -> if (enabled) locationManager.enableLocationUpdates() else locationManager.disableLocationUpdates() }
+            .toFlowable(BackpressureStrategy.LATEST)
 
     val drawingState: @Hot Observable<PolygonDrawingState>
         get() = polygonDrawingState
