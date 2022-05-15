@@ -22,7 +22,7 @@ import com.google.android.gnd.persistence.local.LocalValueStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL
+private const val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
 @Singleton
 class MapsRepository @Inject constructor(private val localValueStore: LocalValueStore) {

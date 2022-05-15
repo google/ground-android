@@ -34,8 +34,8 @@ class MapsRepositoryTest : BaseHiltTest() {
     lateinit var mapsRepository: MapsRepository
 
     @Test
-    fun testGetMapType_returnsNormal() {
-        assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_NORMAL)
+    fun testGetMapType_returnsSatellite() {
+        assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
     }
 
     @Test
