@@ -13,30 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.map
 
-package com.google.android.gnd.ui.map;
-
-import androidx.annotation.StringRes;
+import android.os.Parcelable
+import androidx.annotation.StringRes
+import kotlinx.parcelize.Parcelize
 
 /**
  * MapType refers to the basemap shown below map features and offline satellite imagery. It's called
  * "map styles" in Mapbox and "basemaps" in Leaflet.
  */
-public class MapType {
-
-  private final int type;
-  private final @StringRes int labelId;
-
-  public MapType(int type, @StringRes int labelId) {
-    this.type = type;
-    this.labelId = labelId;
-  }
-
-  public int getLabelId() {
-    return labelId;
-  }
-
-  public int getType() {
-    return type;
-  }
-}
+@Parcelize
+data class MapType(val type: Int, @field:StringRes @param:StringRes val labelId: Int) : Parcelable
