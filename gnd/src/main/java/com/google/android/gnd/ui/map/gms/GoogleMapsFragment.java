@@ -110,10 +110,9 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
   private static final ImmutableList<MapType> MAP_TYPES =
       ImmutableList.<MapType>builder()
-          .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.normal))
-          .add(new MapType(GoogleMap.MAP_TYPE_SATELLITE, R.string.satellite))
+          .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map))
           .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain))
-          .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.hybrid))
+          .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite))
           .build();
 
   /** Marker click events. */
