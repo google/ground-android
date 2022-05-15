@@ -78,6 +78,9 @@
     <action
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_mapTypeDialogFragment"
+      app:destination="@id/mapTypeDialogFragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -207,5 +210,13 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
+  <dialog
+    android:id="@+id/mapTypeDialogFragment"
+    android:name="com.google.android.gnd.ui.home.mapcontainer.MapTypeDialogFragment"
+    android:label="MapTypeDialogFragment">
+    <argument
+      android:name="mapTypes"
+      app:argType="com.google.android.gnd.ui.map.MapType[]" />
+  </dialog>
 
 </navigation>

@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.repository;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import javax.inject.Inject;
@@ -27,14 +29,21 @@ public class MapsRepository {
   private static final int DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
 
   private final LocalValueStore localValueStore;
+  private final MutableLiveData<Integer> mapType;
 
   @Inject
   public MapsRepository(LocalValueStore localValueStore) {
     this.localValueStore = localValueStore;
+    this.mapType = new MutableLiveData<>(getSavedMapType());
+  }
+
+  public LiveData<Integer> getMapType() {
+    return mapType;
   }
 
   public void saveMapType(int type) {
     localValueStore.saveMapType(type);
+    mapType.postValue(type);
   }
 
   public int getSavedMapType() {

@@ -216,5 +216,7 @@
   <string name="road_map">Road Map</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
+  <string name="map_type">Map Type</string>
+  <string name="close">Close</string>
 
 </resources>

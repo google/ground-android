@@ -1,0 +1,50 @@
+package com.google.android.gnd.ui.home.mapcontainer
+
+import android.graphics.Color
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gnd.R
+
+
+class MapTypeAdapter(
+    private val itemsList: List<ItemsViewModel>,
+    private var selectedIndex: Int,
+    private val callback: (Int) -> Unit
+) : RecyclerView.Adapter<MapTypeAdapter.ViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.map_type_dialog_item, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val itemsViewModel = itemsList[position]
+        holder.imageView.setImageResource(itemsViewModel.image)
+        holder.textView.text = itemsViewModel.text
+        holder.itemView.setBackgroundColor(Color.parseColor(if (selectedIndex == position) "#eeeeee" else "#ffffff"))
+        holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
+    }
+
+    override fun getItemCount(): Int {
+        return itemsList.size
+    }
+
+    private fun handleItemClicked(position: Int) {
+        callback.invoke(position)
+
+        selectedIndex = position
+        notifyDataSetChanged()
+    }
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageView: ImageView = view.findViewById(R.id.imageview)
+        val textView: TextView = view.findViewById(R.id.textView)
+    }
+}
+
+data class ItemsViewModel(val image: Int, val text: String)
