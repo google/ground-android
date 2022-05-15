@@ -22,6 +22,7 @@ import android.content.Context;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.PolygonDrawingControlsBinding;
 import com.google.android.gnd.ui.common.AbstractView;
+import com.google.android.gnd.ui.home.LocationLockViewModel;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFragment;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -34,9 +35,11 @@ public class PolygonDrawingView extends AbstractView {
   public PolygonDrawingView(Context context, MapFragment mapFragment) {
     super(context);
     PolygonDrawingViewModel viewModel = getViewModel(PolygonDrawingViewModel.class);
+    LocationLockViewModel locationLockViewModel = getViewModel(LocationLockViewModel.class);
     PolygonDrawingControlsBinding binding =
         (PolygonDrawingControlsBinding) inflate(R.layout.polygon_drawing_controls);
     binding.setViewModel(viewModel);
+    binding.setLocationLockViewModel(locationLockViewModel);
 
     mapFragment
         .getCameraMovedEvents()

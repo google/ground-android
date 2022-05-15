@@ -17,8 +17,6 @@ package com.google.android.gnd.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.MutableLiveData
-import com.google.android.gnd.R
 import com.google.android.gnd.model.AuditInfo
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.feature.Point
@@ -26,10 +24,7 @@ import com.google.android.gnd.model.feature.PolygonFeature
 import com.google.android.gnd.model.layer.Layer
 import com.google.android.gnd.model.layer.Style
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
-import com.google.android.gnd.rx.BooleanOrError
-import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
 import com.google.android.gnd.rx.annotations.Hot
-import com.google.android.gnd.system.LocationManager
 import com.google.android.gnd.system.auth.AuthenticationManager
 import com.google.android.gnd.ui.common.AbstractViewModel
 import com.google.android.gnd.ui.common.SharedViewModel
@@ -40,18 +35,15 @@ import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
-import timber.log.Timber
 import javax.inject.Inject
 
 @SharedViewModel
 class PolygonDrawingViewModel @Inject internal constructor(
-    private val locationManager: LocationManager,
     private val authManager: AuthenticationManager,
     private val uuidGenerator: OfflineUuidGenerator
 ) : AbstractViewModel() {
@@ -64,12 +56,6 @@ class PolygonDrawingViewModel @Inject internal constructor(
     /** Features drawn by the user but not yet saved.  */
     val unsavedMapFeatures: @Hot LiveData<ImmutableSet<MapFeature>>
 
-    private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> =
-        MutableLiveData()
-
-    val iconTint: LiveData<Int>
-    private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
-    private val locationLockState: LiveData<BooleanOrError>
     private val vertices: MutableList<Point> = ArrayList()
 
     /** The currently selected layer and project for the polygon drawing.  */
@@ -86,20 +72,11 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
     private var mapPolygon = Optional.empty<MapPolygon>()
 
-    private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
-        locationLockChangeRequests
-            .switchMapSingle { enabled -> if (enabled) locationManager.enableLocationUpdates() else locationManager.disableLocationUpdates() }
-            .toFlowable(BackpressureStrategy.LATEST)
-
     val drawingState: @Hot Observable<PolygonDrawingState>
         get() = polygonDrawingState
 
     fun onCameraMoved(newTarget: Point) {
         cameraTarget = newTarget
-        if (locationLockState.value != null && isLocationLockEnabled()) {
-            Timber.d("User dragged map. Disabling location lock")
-            locationLockChangeRequests.onNext(false)
-        }
     }
 
     /**
@@ -129,10 +106,6 @@ class PolygonDrawingViewModel @Inject internal constructor(
         cameraTarget?.let {
             addVertex(it, false)
         }
-
-    fun setLocationLockEnabled(enabled: Boolean) {
-        locationLockEnabled.postValue(enabled)
-    }
 
     /**
      * Adds a new vertex.
@@ -189,14 +162,6 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
     val firstVertex: Optional<Point>
         get() = mapPolygon.map { it.firstVertex }
-
-    fun onLocationLockClick() =
-        locationLockChangeRequests.onNext(!isLocationLockEnabled())
-
-    private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.isTrue
-
-    // TODO : current location is not working value is always false.
-    fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
 
     fun startDrawingFlow(selectedSurvey: Survey, selectedLayer: Layer) {
         this.selectedLayer.onNext(selectedLayer)
@@ -284,15 +249,6 @@ class PolygonDrawingViewModel @Inject internal constructor(
     }
 
     init {
-        // TODO: Create custom ui component for location lock button and share across app.
-        val locationLockStateFlowable = createLocationLockStateFlowable().share()
-        locationLockState = LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.startWith(falseValue())
-        )
-        iconTint = LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable
-                .map { locked -> if (locked.isTrue) R.color.colorMapBlue else R.color.colorGrey800 }
-                .startWith(R.color.colorGrey800))
         val polygonFlowable = mapPolygonFlowable
             .startWith(Optional.empty())
             .toFlowable(BackpressureStrategy.LATEST)

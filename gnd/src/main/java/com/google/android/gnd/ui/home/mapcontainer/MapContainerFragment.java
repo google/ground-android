@@ -44,6 +44,7 @@ import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.LocationLockViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFragment;
@@ -61,6 +62,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
+  private LocationLockViewModel locationLockViewModel;
   private MapContainerFragBinding binding;
 
   @Override
@@ -68,6 +70,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     super.onCreate(savedInstanceState);
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
+    locationLockViewModel = getViewModel(LocationLockViewModel.class);
     FeatureRepositionViewModel featureRepositionViewModel =
         getViewModel(FeatureRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
@@ -87,7 +90,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getStartDragEvents()
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
-        .subscribe(__ -> mapContainerViewModel.onMapDrag());
+        .subscribe(__ -> locationLockViewModel.onMapDrag());
     getMapFragment()
         .getCameraMovedEvents()
         .onBackpressureLatest()
@@ -117,6 +120,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getZoomThresholdCrossed()
         .as(autoDisposable(this))
         .subscribe(__ -> onZoomThresholdCrossed());
+
+    mapContainerViewModel.init(locationLockViewModel.getLocationLockStateFlowable());
   }
 
   @Override
@@ -125,6 +130,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
+    binding.setLocationLockViewModel(locationLockViewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
@@ -143,12 +149,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     // Hence, initializing them here instead of inflating in layout.
     attachCustomViews(map);
 
-    mapContainerViewModel.setLocationLockEnabled(true);
-    polygonDrawingViewModel.setLocationLockEnabled(true);
+    locationLockViewModel.setLocationLockEnabled(true);
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
-    mapContainerViewModel
+    locationLockViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));
     mapContainerViewModel

@@ -26,6 +26,7 @@ import android.location.Location;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -66,6 +67,7 @@ import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.json.JSONException;
@@ -83,8 +85,6 @@ public class MapContainerViewModel extends AbstractViewModel {
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
   private final LiveData<Loadable<Survey>> surveyLoadingState;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
-  private final LiveData<BooleanOrError> locationLockState;
-  private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
 
   @Hot(replays = true)
   private final MutableLiveData<CameraPosition> cameraPosition =
@@ -95,7 +95,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
-  @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
   /** Temporary set of {@link MapFeature} used for displaying on map during add/edit flows. */
@@ -112,16 +111,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
-  private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
-
-  @Hot(replays = true)
   private final MutableLiveData<Integer> featureAddButtonBackgroundTint =
       new MutableLiveData<>(R.color.colorGrey500);
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
-  private final LiveData<Integer> iconTint;
-  private final LiveData<Boolean> locationUpdatesEnabled;
-  private final LiveData<String> locationAccuracy;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
@@ -138,6 +131,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   /** Feature selected for repositioning. */
   private Optional<Feature> reposFeature = Optional.empty();
 
+  @Nullable private LiveData<Event<CameraUpdate>> cameraUpdateRequests;
+  @Nullable private LiveData<String> locationAccuracy;
+  private boolean isInitialized;
+
   @Inject
   MapContainerViewModel(
       Resources resources,
@@ -153,24 +150,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
     this.selectedPolygonStrokeWidth =
         (int) resources.getDimension(R.dimen.selected_polyline_stroke_width);
-    Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
-    this.locationLockState =
-        LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.startWith(BooleanOrError.falseValue()));
-    this.iconTint =
-        LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable
-                .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
-                .startWith(R.color.colorGrey800));
-    this.locationUpdatesEnabled =
-        LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.map(BooleanOrError::isTrue).startWith(false));
-    this.locationAccuracy =
-        LiveDataReactiveStreams.fromPublisher(
-            createLocationAccuracyFlowable(locationLockStateFlowable));
-    this.cameraUpdateRequests =
-        LiveDataReactiveStreams.fromPublisher(
-            createCameraUpdateFlowable(locationLockStateFlowable));
     this.surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
     // TODO: Clear feature markers when project is deactivated.
@@ -232,6 +211,20 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Survey::getId)
         .flatMap(surveyRepository::getLastCameraPosition)
         .ifPresent(this::panAndZoomCamera);
+  }
+
+  public void init(Flowable<BooleanOrError> locationLockStateFlowable) {
+    if (isInitialized) {
+      return;
+    }
+
+    isInitialized = true;
+    locationAccuracy =
+        LiveDataReactiveStreams.fromPublisher(
+            createLocationAccuracyFlowable(locationLockStateFlowable));
+    cameraUpdateRequests =
+        LiveDataReactiveStreams.fromPublisher(
+            createCameraUpdateFlowable(locationLockStateFlowable));
   }
 
   public void setUnsavedMapFeatures(ImmutableSet<MapFeature> features) {
@@ -345,16 +338,6 @@ public class MapContainerViewModel extends AbstractViewModel {
         .concatWith(locationUpdates.map(CameraUpdate::pan).skip(1));
   }
 
-  private Flowable<BooleanOrError> createLocationLockStateFlowable() {
-    return locationLockChangeRequests
-        .switchMapSingle(
-            enabled ->
-                enabled
-                    ? this.locationManager.enableLocationUpdates()
-                    : this.locationManager.disableLocationUpdates())
-        .toFlowable(BackpressureStrategy.LATEST);
-  }
-
   private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Survey> activeProject) {
     // Emit empty set in separate stream to force unsubscribe from Feature updates and update
     // subscribers.
@@ -375,8 +358,9 @@ public class MapContainerViewModel extends AbstractViewModel {
     return mbtilesFilePaths;
   }
 
+  @NonNull
   LiveData<Event<CameraUpdate>> getCameraUpdateRequests() {
-    return cameraUpdateRequests;
+    return Objects.requireNonNull(cameraUpdateRequests);
   }
 
   public LiveData<CameraPosition> getCameraPosition() {
@@ -384,24 +368,9 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraPosition;
   }
 
-  public LiveData<BooleanOrError> getLocationLockState() {
-    return locationLockState;
-  }
-
-  public LiveData<Boolean> isLocationUpdatesEnabled() {
-    return locationUpdatesEnabled;
-  }
-
+  @NonNull
   public LiveData<String> getLocationAccuracy() {
-    return locationAccuracy;
-  }
-
-  public LiveData<Integer> getIconTint() {
-    return iconTint;
-  }
-
-  private boolean isLocationLockEnabled() {
-    return locationLockState.getValue().isTrue();
+    return Objects.requireNonNull(locationAccuracy);
   }
 
   public void onCameraMove(CameraPosition newCameraPosition) {
@@ -422,13 +391,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
-  public void onMapDrag() {
-    if (isLocationLockEnabled()) {
-      Timber.d("User dragged map. Disabling location lock");
-      locationLockChangeRequests.onNext(false);
-    }
-  }
-
   public void onMarkerClick(MapPin pin) {
     panAndZoomCamera(pin.getPosition());
   }
@@ -439,10 +401,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void panAndZoomCamera(Point position) {
     cameraUpdateSubject.onNext(CameraUpdate.panAndZoomIn(position));
-  }
-
-  public void onLocationLockClick() {
-    locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
   // TODO(#691): Create our own wrapper/interface for MbTiles providers.
@@ -515,14 +473,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<Integer> getFeatureAddButtonBackgroundTint() {
     return featureAddButtonBackgroundTint;
-  }
-
-  public LiveData<Boolean> getLocationLockEnabled() {
-    return locationLockEnabled;
-  }
-
-  public void setLocationLockEnabled(boolean enabled) {
-    locationLockEnabled.postValue(enabled);
   }
 
   public enum Mode {
