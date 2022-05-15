@@ -150,6 +150,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     attachCustomViews(map);
 
     locationLockViewModel.setLocationLockEnabled(true);
+    locationLockViewModel.requestLockChange(true);
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);

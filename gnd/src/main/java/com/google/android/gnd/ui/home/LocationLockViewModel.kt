@@ -68,7 +68,9 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
         }
     }
 
-    fun onLocationLockClick() = locationLockChangeRequests.onNext(!isLocationLockEnabled())
+    fun onLocationLockClick() = requestLockChange(!isLocationLockEnabled())
+
+    fun requestLockChange(value: Boolean) = locationLockChangeRequests.onNext(value)
 
     fun setLocationLockEnabled(enabled: Boolean) = locationLockEnabled.postValue(enabled)
 
