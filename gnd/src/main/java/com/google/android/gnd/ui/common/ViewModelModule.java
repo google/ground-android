@@ -27,6 +27,7 @@ import com.google.android.gnd.ui.editsubmission.PhotoFieldViewModel;
 import com.google.android.gnd.ui.editsubmission.TextFieldViewModel;
 import com.google.android.gnd.ui.editsubmission.TimeFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.LocationLockViewModel;
 import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
 import com.google.android.gnd.ui.home.featuredetails.SubmissionListItemViewModel;
 import com.google.android.gnd.ui.home.featuredetails.SubmissionListViewModel;
@@ -172,6 +173,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(FeatureSelectorViewModel.class)
   abstract ViewModel bindFeatureSelectorViewModel(FeatureSelectorViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(LocationLockViewModel.class)
+  abstract ViewModel bindLocationLockViewModel(LocationLockViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
