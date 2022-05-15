@@ -24,6 +24,9 @@
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel" />
+    <variable
+      name="locationLockViewModel"
+      type="com.google.android.gnd.ui.home.LocationLockViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -75,18 +78,10 @@
         android:text="@string/complete_polygon"
         android:textColor="@color/colorBackground" />
 
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/current_location_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:enabled="@{viewModel.getLocationLockEnabled()}"
-        android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        app:backgroundTint="@color/colorBackground"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_gps_lock"
-        app:tint="@{viewModel.getIconTint()}" />
+      <include
+        layout="@layout/location_lock_btn"
+        app:viewModel="@{locationLockViewModel}" />
+
     </LinearLayout>
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

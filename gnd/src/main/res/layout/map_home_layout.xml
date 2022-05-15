@@ -27,6 +27,9 @@
       name="viewModel"
       type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
     <variable
+      name="locationLockViewModel"
+      type="com.google.android.gnd.ui.home.LocationLockViewModel" />
+    <variable
       name="homeScreenViewModel"
       type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
   </data>
@@ -57,17 +60,9 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent">
 
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/location_lock_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="@{viewModel.getLocationLockEnabled()}"
-        android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        app:backgroundTint="@color/colorBackground"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_gps_lock"
-        app:tint="@{viewModel.getIconTint()}"
-        app:useCompatPadding="true" />
+      <include
+        layout="@layout/location_lock_btn"
+        app:viewModel="@{locationLockViewModel}" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_feature_btn"
@@ -92,7 +87,6 @@
       app:fabSize="mini"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:tint="@{viewModel.getIconTint()}"
       app:useCompatPadding="true" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

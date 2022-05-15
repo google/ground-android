@@ -24,9 +24,11 @@
       name="viewModel"
       type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
     <variable
+      name="locationLockViewModel"
+      type="com.google.android.gnd.ui.home.LocationLockViewModel" />
+    <variable
       name="homeScreenViewModel"
       type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
-
     <variable
       name="polygonDrawingViewModel"
       type="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel" />
@@ -53,6 +55,7 @@
         layout="@layout/map_home_layout"
         android:visibility="@{viewModel.mapControlsVisibility}"
         app:homeScreenViewModel="@{homeScreenViewModel}"
+        app:locationLockViewModel="@{locationLockViewModel}"
         app:viewModel="@{viewModel}" />
 
       <com.google.android.material.card.MaterialCardView
@@ -70,7 +73,7 @@
           android:padding="5dp"
           android:text="@{viewModel.getLocationAccuracy()}"
           android:textColor="@color/colorPrimary"
-          app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
+          app:visible="@{locationLockViewModel.locationUpdatesEnabled}" />
       </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
 
