@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home.mapcontainer
 
+import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -24,10 +25,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gnd.R
+import com.google.android.gnd.ui.map.MapType
 
 
 class MapTypeAdapter(
-    private val itemsList: List<ItemsViewModel>,
+    private val context: Context,
+    private val itemsList: Array<MapType>,
     private var selectedIndex: Int,
     private val callback: (Int) -> Unit
 ) : RecyclerView.Adapter<MapTypeAdapter.ViewHolder>() {
@@ -40,8 +43,9 @@ class MapTypeAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val itemsViewModel = itemsList[position]
-        holder.imageView.setImageResource(itemsViewModel.image)
-        holder.textView.text = itemsViewModel.text
+        holder.imageView.setImageResource(itemsViewModel.imageId)
+        holder.textView.text = context.getString(itemsViewModel.labelId)
+        // TODO(#936): Replace with appropriate UX
         holder.itemView.setBackgroundColor(Color.parseColor(if (selectedIndex == position) "#eeeeee" else "#ffffff"))
         holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
     }
@@ -52,7 +56,6 @@ class MapTypeAdapter(
 
     private fun handleItemClicked(position: Int) {
         callback.invoke(position)
-
         selectedIndex = position
         notifyDataSetChanged()
     }

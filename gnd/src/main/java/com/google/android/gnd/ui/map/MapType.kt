@@ -16,6 +16,7 @@
 package com.google.android.gnd.ui.map
 
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import kotlinx.parcelize.Parcelize
 
@@ -24,4 +25,8 @@ import kotlinx.parcelize.Parcelize
  * "map styles" in Mapbox and "basemaps" in Leaflet.
  */
 @Parcelize
-data class MapType(val type: Int, @field:StringRes @param:StringRes val labelId: Int) : Parcelable
+data class MapType(
+    val type: Int,
+    @field:StringRes @param:StringRes val labelId: Int,
+    @field:DrawableRes @param:DrawableRes val imageId: Int
+) : Parcelable

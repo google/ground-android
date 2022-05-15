@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.gnd.R
 import com.google.android.gnd.databinding.MapTypeDialogFragmentBinding
 import com.google.android.gnd.repository.MapsRepository
 import com.google.android.gnd.ui.map.MapType
@@ -38,9 +37,8 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: MapTypeDialogFragmentBinding
     private lateinit var mapTypes: Array<MapType>
-    private lateinit var items: List<ItemsViewModel>
 
-    // TODO: Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
+    // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
     @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +46,6 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes
-        items = mapTypes.map { it.toItemViewModel() }
         binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -61,14 +58,11 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
         val currentMapType = mapsRepository.mapType
         val index = mapTypes.indexOfFirst { it.type == currentMapType }
         val recyclerview = binding.recyclerView
-        recyclerview.adapter = MapTypeAdapter(items, index) { handleMapTypeSelected(it) }
+        recyclerview.adapter =
+            MapTypeAdapter(requireContext(), mapTypes, index) { handleMapTypeSelected(it) }
     }
 
     private fun handleMapTypeSelected(position: Int) {
         mapsRepository.mapType = mapTypes[position].type
-    }
-
-    private fun MapType.toItemViewModel(): ItemsViewModel {
-        return ItemsViewModel(R.drawable.ground_logo, getString(labelId))
     }
 }
