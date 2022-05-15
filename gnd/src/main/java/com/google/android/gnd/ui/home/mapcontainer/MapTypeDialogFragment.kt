@@ -39,21 +39,16 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
         binding.dialogCloseBtn.setOnClickListener { dismiss() }
 
+        val currentMapType = mapsRepository.mapType
+        val index = mapTypes.indexOfFirst { it.type == currentMapType }
         val recyclerview = binding.recyclerView
-        recyclerview.adapter = MapTypeAdapter(items, getSelectedItemIndex()) { position ->
-            mapsRepository.saveMapType(mapTypes[position].type)
-        }
+        recyclerview.adapter = MapTypeAdapter(items, index) { handleMapTypeSelected(it) }
     }
 
-    private fun getSelectedItemIndex(): Int {
-        val selectedMapType = mapsRepository.mapType.value
-        for ((index, mapType) in mapTypes.withIndex()) {
-            if (mapType.type == selectedMapType) return index
-        }
-        return -1
+    private fun handleMapTypeSelected(position: Int) {
+        mapsRepository.mapType = mapTypes[position].type
     }
 
-    // Remove this once drawable is added to MapType model
     private fun MapType.toItemViewModel(): ItemsViewModel {
         return ItemsViewModel(R.drawable.ground_logo, getString(labelId))
     }

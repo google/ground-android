@@ -165,7 +165,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     if (cameraPosition != null) {
       map.moveCamera(cameraPosition.getTarget(), cameraPosition.getZoomLevel());
     }
-    mapsRepository.getMapType().observe(this, map::setMapType);
+    mapsRepository.observableMapType().observe(this, map::setMapType);
   }
 
   private void attachCustomViews(MapFragment map) {
