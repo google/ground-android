@@ -20,14 +20,9 @@ import com.google.android.gnd.persistence.remote.DataStoreException
 import com.google.android.gnd.model.Project
 import com.google.android.gnd.model.feature.*
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.android.gnd.persistence.remote.firestore.schema.FeatureDocument
-import com.google.android.gnd.persistence.remote.firestore.schema.FeatureConverter
 import com.google.firebase.firestore.GeoPoint
 import timber.log.Timber
-import com.google.android.gnd.persistence.remote.firestore.schema.AuditInfoNestedObject
-import com.google.android.gnd.persistence.remote.firestore.schema.AuditInfoConverter
 import com.google.common.collect.ImmutableList
-import java8.util.Objects
 
 /** Converts between Firestore documents and [Feature] instances.  */
 object FeatureConverter {
@@ -43,30 +38,28 @@ object FeatureConverter {
     @JvmStatic
     @Throws(DataStoreException::class)
     fun toFeature(project: Project, doc: DocumentSnapshot): Feature<*> {
-        val f = DataStoreException.checkNotNull(
-            doc.toObject(
-                FeatureDocument::class.java
-            ),
+        val featureDoc = DataStoreException.checkNotNull(
+            doc.toObject(FeatureDocument::class.java),
             "feature data"
         )
 
-        if (f.geometry != null && hasNonEmptyVertices(f)) {
-            return toFeatureFromGeometry(project, doc, f)
+        if (featureDoc.geometry != null && hasNonEmptyVertices(featureDoc)) {
+            return toFeatureFromGeometry(project, doc, featureDoc)
         }
 
-        f.geoJson?.let {
+        featureDoc.geoJson?.let {
             val builder = GeoJsonFeature.newBuilder().setGeoJsonString(it)
-            fillFeature(builder, project, doc.id, f)
+            fillFeature(builder, project, doc.id, featureDoc)
             return builder.build()
         }
 
-        f.location?.let {
+        featureDoc.location?.let {
             val builder = PointFeature.newBuilder().setPoint(toPoint(it))
-            fillFeature(builder, project, doc.id, f)
+            fillFeature(builder, project, doc.id, featureDoc)
             return builder.build()
         }
 
-        throw DataStoreException("No geometry in remote feature " + doc.id)
+        throw DataStoreException("No geometry in remote feature ${doc.id}")
     }
 
     private fun hasNonEmptyVertices(featureDocument: FeatureDocument): Boolean {
@@ -89,20 +82,18 @@ object FeatureConverter {
         val geometry = f.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in feature " + doc.id + ": " + type)
+            throw DataStoreException("Unknown geometry type in feature ${doc.id}: $type")
         }
 
         val coordinates = geometry[GEOMETRY_COORDINATES]
         if (coordinates !is List<*>) {
-            throw DataStoreException(
-                "Invalid coordinates in feature " + doc.id + ": " + coordinates
-            )
+            throw DataStoreException("Invalid coordinates in feature ${doc.id}: $coordinates")
         }
 
         val vertices = ImmutableList.builder<Point>()
         for (point in coordinates) {
             if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in feature %s", doc.id)
+                Timber.d("Ignoring illegal point type in feature ${doc.id}")
                 break
             }
             vertices.add(
@@ -118,25 +109,28 @@ object FeatureConverter {
     }
 
     private fun fillFeature(
-        builder: Feature.Builder<*>, project: Project, id: String, f: FeatureDocument
+        builder: Feature.Builder<*>, project: Project, id: String, featureDoc: FeatureDocument
     ) {
-        val layerId = DataStoreException.checkNotNull(f.layerId, LAYER_ID)
+        val layerId = DataStoreException.checkNotNull(featureDoc.layerId, LAYER_ID)
         val layer =
-            DataStoreException.checkNotEmpty(project.getLayer(layerId), "layer " + f.layerId)
+            DataStoreException.checkNotEmpty(
+                project.getLayer(layerId),
+                "layer ${featureDoc.layerId}"
+            )
         // Degrade gracefully when audit info missing in remote db.
-        val created = f.created ?: AuditInfoNestedObject.FALLBACK_VALUE
-        val lastModified = f.lastModified ?: created
+        val created = featureDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
+        val lastModified = featureDoc.lastModified ?: created
         builder
             .setId(id)
             .setProject(project)
-            .setCustomId(f.customId)
-            .setCaption(f.caption)
+            .setCustomId(featureDoc.customId)
+            .setCaption(featureDoc.caption)
             .setLayer(layer)
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }
 
-    private fun toPoint(geoPoint: GeoPoint): Point? =
+    private fun toPoint(geoPoint: GeoPoint): Point =
         Point.newBuilder()
             .setLatitude(geoPoint.latitude)
             .setLongitude(geoPoint.longitude)
