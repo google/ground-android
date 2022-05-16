@@ -24,6 +24,7 @@ import javax.inject.Singleton
 
 private const val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
+/** Coordinates persistence and retrieval of map type from local value store. */
 @Singleton
 class MapsRepository @Inject constructor(private val localValueStore: LocalValueStore) {
 

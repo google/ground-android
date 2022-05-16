@@ -28,7 +28,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-
+/** Dialog fragment containing a list of [MapType] for updating basemap layer. */
 @AndroidEntryPoint
 class MapTypeDialogFragment : BottomSheetDialogFragment() {
 

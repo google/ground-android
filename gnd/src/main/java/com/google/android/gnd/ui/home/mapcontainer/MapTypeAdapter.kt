@@ -17,53 +17,58 @@
 package com.google.android.gnd.ui.home.mapcontainer
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gnd.R
+import com.google.android.gnd.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
 import com.google.android.gnd.ui.map.MapType
 
-
+/**
+ * An implementation of [RecyclerView.Adapter] that associates [MapType] data with the [ViewHolder]
+ * views.
+ */
 class MapTypeAdapter(
     private val context: Context,
     private val itemsList: Array<MapType>,
     private var selectedIndex: Int,
     private val callback: (Int) -> Unit
-) : RecyclerView.Adapter<MapTypeAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<ViewHolder>() {
 
+    /** Creates a new [ViewHolder] item without any data. */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.map_type_dialog_item, parent, false)
         return ViewHolder(view)
     }
 
+    /** Binds [MapType] data to [ViewHolder]. */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val itemsViewModel = itemsList[position]
         holder.imageView.setImageResource(itemsViewModel.imageId)
         holder.textView.text = context.getString(itemsViewModel.labelId)
-        // TODO(#936): Replace with appropriate UX
-        holder.itemView.setBackgroundColor(Color.parseColor(if (selectedIndex == position) "#eeeeee" else "#ffffff"))
+        val color = if (selectedIndex == position) R.color.colorGrey300 else R.color.colorBackground
+        holder.itemView.setBackgroundColor(ContextCompat.getColor(context, color))
         holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
     }
 
-    override fun getItemCount(): Int {
-        return itemsList.size
-    }
+    /** Returns the size of the list. */
+    override fun getItemCount() = itemsList.size
 
+    /** Updates the currently selected item and invokes the attached [callback]. */
     private fun handleItemClicked(position: Int) {
         callback.invoke(position)
         selectedIndex = position
         notifyDataSetChanged()
     }
 
+    /** View item representing the [MapType] data in the list. */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.imageview)
         val textView: TextView = view.findViewById(R.id.textView)
     }
 }
-
-data class ItemsViewModel(val image: Int, val text: String)

@@ -180,6 +180,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     binding.mapOverlay.addView(polygonDrawingView);
   }
 
+  /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   private void showMapTypeSelectorDialog() {
     MapType[] types = stream(getMapFragment().getAvailableMapTypes()).toArray(MapType[]::new);
     findNavController(this)
