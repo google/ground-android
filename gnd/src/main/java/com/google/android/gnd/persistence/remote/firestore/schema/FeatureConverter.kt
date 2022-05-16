@@ -77,9 +77,9 @@ object FeatureConverter {
     }
 
     private fun toFeatureFromGeometry(
-        project: Project, doc: DocumentSnapshot, f: FeatureDocument
+        project: Project, doc: DocumentSnapshot, featureDoc: FeatureDocument
     ): PolygonFeature {
-        val geometry = f.geometry
+        val geometry = featureDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
             throw DataStoreException("Unknown geometry type in feature ${doc.id}: $type")
@@ -104,7 +104,7 @@ object FeatureConverter {
         }
 
         val builder = PolygonFeature.builder().setVertices(vertices.build())
-        fillFeature(builder, project, doc.id, f)
+        fillFeature(builder, project, doc.id, featureDoc)
         return builder.build()
     }
 
