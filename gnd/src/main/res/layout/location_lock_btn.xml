@@ -30,11 +30,11 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:enabled="@{viewModel.locationLockEnabled}"
-    android:onClick="@{() -> viewModel.onLocationLockClick()}"
+    android:onClick="@{() -> viewModel.toggleLocationLock()}"
     app:backgroundTint="@color/colorBackground"
     app:fabSize="normal"
     app:srcCompat="@drawable/ic_gps_lock"
-    app:tint="@{viewModel.iconTint}"
+    app:tint="@{viewModel.locationLockIconTint}"
     app:useCompatPadding="true" />
 
 </layout>

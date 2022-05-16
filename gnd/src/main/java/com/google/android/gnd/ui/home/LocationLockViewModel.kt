@@ -30,7 +30,6 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import timber.log.Timber
 import javax.inject.Inject
 
 @SharedViewModel
@@ -39,8 +38,8 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
 
     private val locationLockChangeRequests: @Hot Subject<Boolean>
 
-    val iconTint: LiveData<Int>
-    val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean>
+    val locationLockEnabled: MutableLiveData<Boolean>
+    val locationLockIconTint: LiveData<Int>
     val locationLockState: LiveData<BooleanOrError>
     val locationLockStateFlowable: Flowable<BooleanOrError>
     val locationUpdatesEnabled: LiveData<Boolean>
@@ -50,8 +49,8 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
         locationLockEnabled = MutableLiveData()
         locationLockStateFlowable = createLocationLockStateFlowable().share()
         locationLockState = locationLockStateFlowable.toLiveData()
-        iconTint = locationLockStateFlowable.map { getIconTint(it) }.toLiveData()
-        locationUpdatesEnabled = locationLockStateFlowable.map(BooleanOrError::isTrue).toLiveData()
+        locationLockIconTint = locationLockStateFlowable.map { getLockIconTint(it) }.toLiveData()
+        locationUpdatesEnabled = locationLockStateFlowable.map { it.isTrue }.toLiveData()
     }
 
     private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> {
@@ -61,22 +60,21 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
             .toFlowable(BackpressureStrategy.LATEST)
     }
 
-    fun onMapDrag() {
-        if (isLocationLockEnabled()) {
-            Timber.d("User dragged map. Disabling location lock")
-            locationLockChangeRequests.onNext(false)
-        }
-    }
-
-    fun onLocationLockClick() = requestLockChange(!isLocationLockEnabled())
-
-    fun requestLockChange(value: Boolean) = locationLockChangeRequests.onNext(value)
-
     fun setLocationLockEnabled(enabled: Boolean) = locationLockEnabled.postValue(enabled)
 
-    private fun isLocationLockEnabled() = locationLockState.value?.isTrue ?: false
+    fun requestLocationLock() = requestLocationLockChange(true)
 
-    private fun getIconTint(value: BooleanOrError) =
+    fun releaseLocationLock() = requestLocationLockChange(false)
+
+    fun toggleLocationLock() = requestLocationLockChange(!isLocationLockEnabled())
+
+    private fun requestLocationLockChange(newState: Boolean) {
+        if (isLocationLockEnabled() != newState) locationLockChangeRequests.onNext(newState)
+    }
+
+    private fun isLocationLockEnabled(): Boolean = locationLockState.value?.isTrue ?: false
+
+    private fun getLockIconTint(value: BooleanOrError) =
         if (value.isTrue) R.color.colorMapBlue else R.color.colorGrey800
 
     private fun toggleLocationUpdates(value: Boolean) =

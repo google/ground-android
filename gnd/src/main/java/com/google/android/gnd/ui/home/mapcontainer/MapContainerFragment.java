@@ -90,7 +90,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getStartDragEvents()
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
-        .subscribe(__ -> locationLockViewModel.onMapDrag());
+        .subscribe(__ -> locationLockViewModel.releaseLocationLock());
     getMapFragment()
         .getCameraMovedEvents()
         .onBackpressureLatest()
@@ -150,7 +150,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     attachCustomViews(map);
 
     locationLockViewModel.setLocationLockEnabled(true);
-    locationLockViewModel.requestLockChange(true);
+    locationLockViewModel.requestLocationLock();
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
