@@ -16,6 +16,10 @@
 
 package com.google.android.gnd;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -75,5 +79,12 @@ public abstract class BaseMainActivityTest {
   @After
   public void unregisterIdlingResource() {
     IdlingRegistry.getInstance().unregister(dataBindingIdlingResource);
+  }
+
+  protected void skipTermsOfServiceFragment() {
+    // Tap on the checkbox
+    onView(withId(R.id.agreeCheckBox)).perform(click());
+    // Tap on Submit on Terms Fragment
+    onView(withId(R.id.agreeButton)).perform(click());
   }
 }
