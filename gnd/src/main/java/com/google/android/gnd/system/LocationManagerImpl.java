@@ -19,8 +19,8 @@ package com.google.android.gnd.system;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.location.Location;
+import androidx.annotation.NonNull;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
@@ -31,11 +31,9 @@ import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import timber.log.Timber;
 
-@Singleton
-public class LocationManager {
+public class LocationManagerImpl implements LocationManager {
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
   private static final long FASTEST_INTERVAL = 250; /* 250 ms */
   private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
@@ -53,7 +51,7 @@ public class LocationManager {
   private final Subject<Location> locationUpdates = BehaviorSubject.create();
 
   @Inject
-  public LocationManager(
+  public LocationManagerImpl(
       PermissionsManager permissionsManager,
       SettingsManager settingsManager,
       RxFusedLocationProviderClient locationClient) {
@@ -63,17 +61,12 @@ public class LocationManager {
     this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
   }
 
-  public static Point toPoint(Location location) {
-    return Point.newBuilder()
-        .setLatitude(location.getLatitude())
-        .setLongitude(location.getLongitude())
-        .build();
-  }
-
   /**
    * Returns the location update stream. New subscribers and downstream subscribers that can't keep
    * up will only see the latest location.
    */
+  @NonNull
+  @Override
   public Flowable<Location> getLocationUpdates() {
     // There sometimes noticeable latency between when location update request succeeds and when
     // the first location update is received. Requesting the last know location is usually
@@ -87,6 +80,8 @@ public class LocationManager {
    * Asynchronously try to enable location permissions and settings, and if successful, turns on
    * location updates exposed by {@link #getLocationUpdates()}.
    */
+  @NonNull
+  @Override
   public synchronized Single<BooleanOrError> enableLocationUpdates() {
     Timber.d("Attempting to enable location updates");
     return permissionsManager
@@ -100,6 +95,8 @@ public class LocationManager {
   }
 
   // TODO: Request/remove updates on resume/pause.
+  @NonNull
+  @Override
   public synchronized Single<BooleanOrError> disableLocationUpdates() {
     // Ignore errors when removing location updates, usually caused by disabling the same callback
     // multiple times.

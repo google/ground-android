@@ -324,6 +324,13 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Event::create);
   }
 
+  private static Point toPoint(Location location) {
+    return Point.newBuilder()
+        .setLatitude(location.getLatitude())
+        .setLongitude(location.getLongitude())
+        .build();
+  }
+
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
     if (!lockState.isTrue()) {
       return Flowable.empty();
@@ -331,7 +338,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
     Flowable<Point> locationUpdates =
-        locationManager.getLocationUpdates().map(LocationManager::toPoint);
+        locationManager.getLocationUpdates().map(MapContainerViewModel::toPoint);
     return locationUpdates
         .take(1)
         .map(CameraUpdate::panAndZoomIn)
