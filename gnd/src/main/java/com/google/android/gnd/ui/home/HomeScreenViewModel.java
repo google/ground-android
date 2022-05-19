@@ -62,18 +62,21 @@ import timber.log.Timber;
 public class HomeScreenViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
-  public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
+  public final MutableLiveData<Boolean> isSubmissionButtonVisible = new MutableLiveData<>(false);
 
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
 
-  /** The state and value of the currently active project (loading, loaded, etc.). */
+  /**
+   * The state and value of the currently active project (loading, loaded, etc.).
+   */
   private final LiveData<Loadable<Project>> projectLoadingState;
 
   // TODO(#719): Move into FeatureDetailsViewModel.
-  @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
+  @Hot
+  private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
@@ -89,11 +92,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<FeatureMutation> deleteFeatureRequests =
       PublishProcessor.create();
 
-  @Hot private final Flowable<Feature> addFeatureResults;
-  @Hot private final Flowable<Boolean> updateFeatureResults;
-  @Hot private final Flowable<Boolean> deleteFeatureResults;
+  @Hot
+  private final Flowable<Feature> addFeatureResults;
+  @Hot
+  private final Flowable<Boolean> updateFeatureResults;
+  @Hot
+  private final Flowable<Boolean> deleteFeatureResults;
 
-  @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
+  @Hot
+  private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
@@ -139,7 +146,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
   }
 
-  /** Handle state of the UI elements depending upon the active project. */
+  /**
+   * Handle state of the UI elements depending upon the active project.
+   */
   private void onProjectLoadingStateChange(Loadable<Project> project) {
     addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
@@ -263,16 +272,16 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private void showBottomSheet(Feature feature) {
     Timber.d("showing bottom sheet");
-    isObservationButtonVisible.setValue(true);
+    isSubmissionButtonVisible.setValue(true);
     bottomSheetState.setValue(BottomSheetState.visible(feature));
   }
 
   public void onBottomSheetHidden() {
     bottomSheetState.setValue(BottomSheetState.hidden());
-    isObservationButtonVisible.setValue(false);
+    isSubmissionButtonVisible.setValue(false);
   }
 
-  public void addObservation() {
+  public void addSubmission() {
     BottomSheetState state = bottomSheetState.getValue();
     if (state == null) {
       Timber.e("Missing bottomSheetState");
@@ -287,7 +296,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Feature feature = optionalFeature.get();
     Optional<Form> form = feature.getLayer().getForm();
     if (form.isEmpty()) {
-      // .TODO: Hide Add Observation button if no forms defined.
+      // .TODO: Hide Add Submission button if no forms defined.
       Timber.e("No forms in layer");
       return;
     }
@@ -297,7 +306,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     navigator.navigate(
-        HomeScreenFragmentDirections.addObservation(
+        HomeScreenFragmentDirections.addSubmission(
             project.getId(), feature.getId(), form.get().getId()));
   }
 

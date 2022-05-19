@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.NumberFieldViewModel" />
+      type="com.google.android.gnd.ui.editsubmission.NumberFieldViewModel" />
   </data>
 
   <LinearLayout
@@ -34,11 +34,11 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@{viewModel.fieldLabel()}"
-      style="@style/EditObservation.Field.Label" />
+      style="@style/EditSubmission.Field.Label" />
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/number_input_layout"
-      style="@style/EditObservation.Field.Text"
+      style="@style/EditSubmission.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 

@@ -22,7 +22,7 @@ import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.Mutation;
-import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
@@ -64,11 +64,11 @@ public interface RemoteDataStore {
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   /**
-   * Returns a list of all observations associated with the specified feature, or an empty list if
+   * Returns a list of all submissions associated with the specified feature, or an empty list if
    * none are found.
    */
   @Cold
-  Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature);
+  Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

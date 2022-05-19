@@ -17,14 +17,14 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.mutation.ObservationMutation;
-import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.NumberResponse;
-import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.model.observation.ResponseDelta;
-import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.model.observation.TimeResponse;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
+import com.google.android.gnd.model.submission.DateResponse;
+import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.submission.NumberResponse;
+import com.google.android.gnd.model.submission.Response;
+import com.google.android.gnd.model.submission.ResponseDelta;
+import com.google.android.gnd.model.submission.TextResponse;
+import com.google.android.gnd.model.submission.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -33,9 +33,10 @@ import java.util.Map;
 import timber.log.Timber;
 
 /**
- * Converts between Firestore maps used to merge updates and {@link ObservationMutation} instances.
+ * Converts between Firestore maps used to merge updates and {@link SubmissionMutation} instances.
  */
-class ObservationMutationConverter {
+class SubmissionMutationConverter {
+
   static final String FEATURE_ID = "featureId";
   private static final String LAYER_ID = "layerId";
   private static final String FORM_ID = "formId";
@@ -43,7 +44,7 @@ class ObservationMutationConverter {
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
 
-  static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user)
+  static ImmutableMap<String, Object> toMap(SubmissionMutation mutation, User user)
       throws DataStoreException {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
@@ -75,7 +76,7 @@ class ObservationMutationConverter {
           delta.getFieldId(),
           delta
               .getNewResponse()
-              .map(ObservationMutationConverter::toObject)
+              .map(SubmissionMutationConverter::toObject)
               .orElse(FieldValue.delete()));
     }
     return map.build();

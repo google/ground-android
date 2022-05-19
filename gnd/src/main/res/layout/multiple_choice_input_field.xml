@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel" />
+      type="com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldViewModel" />
   </data>
 
   <LinearLayout
@@ -33,19 +33,19 @@
     android:orientation="vertical">
 
     <TextView
-      style="@style/EditObservation.Field.Label"
+      style="@style/EditSubmission.Field.Label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@{viewModel.fieldLabel()}" />
 
-    <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
+    <com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       app:onShowDialog="@{() -> viewModel.onShowDialog()}">
 
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/multiple_choice_input_layout"
-        style="@style/EditObservation.Field.Text"
+        style="@style/EditSubmission.Field.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -85,6 +85,6 @@
         android:alpha="0"
         android:clickable="true" />
 
-    </com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout>
+    </com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldLayout>
   </LinearLayout>
 </layout>

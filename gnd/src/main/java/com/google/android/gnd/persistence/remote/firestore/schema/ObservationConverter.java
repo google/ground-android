@@ -24,14 +24,14 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.NumberResponse;
-import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.ResponseMap.Builder;
-import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.model.observation.TimeResponse;
+import com.google.android.gnd.model.submission.DateResponse;
+import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.submission.NumberResponse;
+import com.google.android.gnd.model.submission.ResponseMap;
+import com.google.android.gnd.model.submission.ResponseMap.Builder;
+import com.google.android.gnd.model.submission.Submission;
+import com.google.android.gnd.model.submission.TextResponse;
+import com.google.android.gnd.model.submission.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,15 +42,17 @@ import java8.util.Objects;
 import javax.annotation.Nullable;
 import timber.log.Timber;
 
-/** Converts between Firestore documents and {@link Observation} instances. */
+/**
+ * Converts between Firestore documents and {@link Submission} instances.
+ */
 class ObservationConverter {
 
-  static Observation toObservation(Feature feature, DocumentSnapshot snapshot)
+  static Submission ToSubmission(Feature feature, DocumentSnapshot snapshot)
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
     if (!feature.getId().equals(featureId)) {
-      throw new DataStoreException("Observation doc featureId doesn't match specified feature id");
+      throw new DataStoreException("Submission doc featureId doesn't match specified feature id");
     }
     String formId = checkNotNull(doc.getFormId(), "formId");
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form " + formId);
@@ -58,7 +60,7 @@ class ObservationConverter {
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Objects.requireNonNullElse(doc.getLastModified(), created);
-    return Observation.newBuilder()
+    return Submission.newBuilder()
         .setId(snapshot.getId())
         .setProject(feature.getProject())
         .setFeature(feature)
@@ -80,7 +82,7 @@ class ObservationConverter {
       try {
         putResponse(fieldId, form, entry.getValue(), responses);
       } catch (DataStoreException e) {
-        Timber.e(e, "Field " + fieldId + "in remote db in observation " + observationId);
+        Timber.e(e, "Field " + fieldId + "in remote db in submission " + observationId);
       }
     }
     return responses.build();

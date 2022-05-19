@@ -36,7 +36,9 @@ import java8.util.Optional;
 import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 
-/** Fragment containing the contents of the bottom sheet shown when a feature is selected. */
+/**
+ * Fragment containing the contents of the bottom sheet shown when a feature is selected.
+ */
 @AndroidEntryPoint
 public class FeatureDetailsFragment extends AbstractFragment {
 
@@ -46,7 +48,8 @@ public class FeatureDetailsFragment extends AbstractFragment {
   private FeatureDetailsFragBinding binding;
 
   @Inject
-  public FeatureDetailsFragment() {}
+  public FeatureDetailsFragment() {
+  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,7 +106,7 @@ public class FeatureDetailsFragment extends AbstractFragment {
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     binding
         .getRoot()
-        .findViewById(R.id.observation_list_container)
+        .findViewById(R.id.submission_list_container)
         .setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
 

@@ -39,13 +39,13 @@ import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
-import com.google.android.gnd.model.mutation.ObservationMutation;
-import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ResponseDelta;
-import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
+import com.google.android.gnd.model.submission.ResponseDelta;
+import com.google.android.gnd.model.submission.ResponseMap;
+import com.google.android.gnd.model.submission.Submission;
+import com.google.android.gnd.model.submission.TextResponse;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.common.collect.ImmutableList;
@@ -129,9 +129,9 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final FeatureMutation TEST_POLYGON_FEATURE_MUTATION =
       createTestPolygonFeatureMutation(TEST_POLYGON_1);
 
-  private static final ObservationMutation TEST_OBSERVATION_MUTATION =
-      ObservationMutation.builder()
-          .setObservationId("observation id")
+  private static final SubmissionMutation TEST_OBSERVATION_MUTATION =
+      SubmissionMutation.builder()
+          .setSubmissionId("submission id")
           .setForm(TEST_FORM)
           .setResponseDeltas(
               ImmutableList.of(
@@ -185,10 +185,14 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setName("Test Area")
           .build();
 
-  @Inject LocalDataStore localDataStore;
-  @Inject LocalValueStore localValueStore;
-  @Inject ObservationDao observationDao;
-  @Inject FeatureDao featureDao;
+  @Inject
+  LocalDataStore localDataStore;
+  @Inject
+  LocalValueStore localValueStore;
+  @Inject
+  SubmissionDao submissionDao;
+  @Inject
+  FeatureDao featureDao;
 
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
@@ -221,16 +225,16 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .build();
   }
 
-  private static void assertEquivalent(ObservationMutation mutation, Observation observation) {
-    assertThat(mutation.getObservationId()).isEqualTo(observation.getId());
-    assertThat(mutation.getFeatureId()).isEqualTo(observation.getFeature().getId());
-    assertThat(mutation.getForm()).isEqualTo(observation.getForm());
-    assertThat(mutation.getProjectId()).isEqualTo(observation.getProject().getId());
-    assertThat(mutation.getUserId()).isEqualTo(observation.getLastModified().getUser().getId());
-    assertThat(mutation.getUserId()).isEqualTo(observation.getCreated().getUser().getId());
+  private static void assertEquivalent(SubmissionMutation mutation, Submission submission) {
+    assertThat(mutation.getSubmissionId()).isEqualTo(submission.getId());
+    assertThat(mutation.getFeatureId()).isEqualTo(submission.getFeature().getId());
+    assertThat(mutation.getForm()).isEqualTo(submission.getForm());
+    assertThat(mutation.getProjectId()).isEqualTo(submission.getProject().getId());
+    assertThat(mutation.getUserId()).isEqualTo(submission.getLastModified().getUser().getId());
+    assertThat(mutation.getUserId()).isEqualTo(submission.getCreated().getUser().getId());
     MatcherAssert.assertThat(
         ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
-        samePropertyValuesAs(observation.getResponses()));
+        samePropertyValuesAs(submission.getResponses()));
   }
 
   @Test
@@ -434,7 +438,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   }
 
   @Test
-  public void testApplyAndEnqueue_observationMutation() {
+  public void testApplyAndEnqueue_submissionMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
@@ -448,11 +452,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     PointFeature feature =
         (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
-    Observation observation =
-        localDataStore.getObservation(feature, "observation id").blockingGet();
-    assertEquivalent(TEST_OBSERVATION_MUTATION, observation);
+    Submission submission =
+        localDataStore.getSubmission(feature, "submission id").blockingGet();
+    assertEquivalent(TEST_OBSERVATION_MUTATION, submission);
 
-    // now update the inserted observation with new responses
+    // now update the inserted submission with new responses
     ImmutableList<ResponseDelta> deltas =
         ImmutableList.of(
             ResponseDelta.builder()
@@ -461,7 +465,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
 
-    ObservationMutation mutation =
+    SubmissionMutation mutation =
         TEST_OBSERVATION_MUTATION.toBuilder()
             .setResponseDeltas(deltas)
             .setId(2L)
@@ -474,15 +478,15 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .test()
         .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION, mutation));
 
-    // check if the observation was updated in the local database
-    observation = localDataStore.getObservation(feature, "observation id").blockingGet();
-    assertEquivalent(mutation, observation);
+    // check if the submission was updated in the local database
+    submission = localDataStore.getSubmission(feature, "submission id").blockingGet();
+    assertEquivalent(mutation, submission);
 
-    // also test that getObservations returns the same observation as well
-    ImmutableList<Observation> observations =
-        localDataStore.getObservations(feature, "form id").blockingGet();
-    assertThat(observations).hasSize(1);
-    assertEquivalent(mutation, observations.get(0));
+    // also test that getObservations returns the same submission as well
+    ImmutableList<Submission> submissions =
+        localDataStore.getSubmissions(feature, "form id").blockingGet();
+    assertThat(submissions).hasSize(1);
+    assertEquivalent(mutation, submissions.get(0));
   }
 
   @Test
@@ -499,16 +503,16 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .putResponse("field id", TextResponse.fromString("foo value").get())
             .build();
 
-    Observation observation =
-        localDataStore.getObservation(feature, "observation id").blockingGet().toBuilder()
+    Submission submission =
+        localDataStore.getSubmission(feature, "submission id").blockingGet().toBuilder()
             .setResponses(responseMap)
             .build();
 
-    localDataStore.mergeObservation(observation).test().assertComplete();
+    localDataStore.mergeSubmission(submission).test().assertComplete();
 
     ResponseMap responses =
         localDataStore
-            .getObservation(feature, observation.getId())
+            .getSubmission(feature, submission.getId())
             .test()
             .values()
             .get(0)
@@ -518,34 +522,34 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testDeleteObservation() {
-    // Add test observation
+    // Add test submission
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
 
-    ObservationMutation mutation =
+    SubmissionMutation mutation =
         TEST_OBSERVATION_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build();
 
-    // Calling applyAndEnqueue marks the local observation as deleted.
+    // Calling applyAndEnqueue marks the local submission as deleted.
     localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
     // Verify that local entity exists and its state is updated.
-    observationDao
-        .findById("observation id")
+    submissionDao
+        .findById("submission id")
         .test()
         .assertValue(observationEntity -> observationEntity.getState() == EntityState.DELETED);
 
-    // Verify that the local observation doesn't end up in getObservations().
+    // Verify that the local submission doesn't end up in getObservations().
     PointFeature feature =
         (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
-    localDataStore.getObservations(feature, "form id").test().assertValue(ImmutableList.of());
+    localDataStore.getSubmissions(feature, "form id").test().assertValue(ImmutableList.of());
 
-    // After successful remote sync, delete observation is called by LocalMutationSyncWorker.
-    localDataStore.deleteObservation("observation id").blockingAwait();
+    // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
+    localDataStore.deleteSubmission("submission id").blockingAwait();
 
-    // Verify that the observation doesn't exist anymore
-    localDataStore.getObservation(feature, "observation id").test().assertNoValues();
+    // Verify that the submission doesn't exist anymore
+    localDataStore.getSubmission(feature, "submission id").test().assertNoValues();
   }
 
   @Test
@@ -585,8 +589,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
     // Verify that the feature doesn't exist anymore
     localDataStore.getFeature(TEST_PROJECT, "feature id").test().assertNoValues();
 
-    // Verify that the linked observation is also deleted.
-    localDataStore.getObservation(feature, "observation id").test().assertNoValues();
+    // Verify that the linked submission is also deleted.
+    localDataStore.getSubmission(feature, "submission id").test().assertNoValues();
   }
 
   @Test

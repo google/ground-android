@@ -18,8 +18,8 @@ package com.google.android.gnd.persistence.local;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.model.observation.TimeResponse;
+import com.google.android.gnd.model.submission.DateResponse;
+import com.google.android.gnd.model.submission.TimeResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;

@@ -22,15 +22,19 @@ import com.google.android.gnd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import timber.log.Timber;
 
-/** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
+/**
+ * Abstracts access to dimensions and positions of elements relative to the bottom sheet UI.
+ */
 public class BottomSheetMetrics {
 
-  /** Fallback toolbar height - margin top used when toolbar height is uninitialized. */
+  /**
+   * Fallback toolbar height - margin top used when toolbar height is uninitialized.
+   */
   public static final int FALLBACK_EXPANDED_OFFSET = 210 - 168;
 
   private final CoordinatorLayout parent;
   private final View bottomSheet;
-  private final View addObservationButton;
+  private final View addSubmissionButton;
   private final BottomSheetBehavior<View> bottomSheetBehavior;
   private final View header;
   private final View toolbarWrapper;
@@ -39,14 +43,16 @@ public class BottomSheetMetrics {
   BottomSheetMetrics(View bottomSheet) {
     this.parent = (CoordinatorLayout) bottomSheet.getParent();
     this.bottomSheet = bottomSheet;
-    this.addObservationButton = parent.findViewById(R.id.add_observation_btn);
+    this.addSubmissionButton = parent.findViewById(R.id.add_submission_btn);
     this.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
     this.header = parent.findViewById(R.id.bottom_sheet_header);
     this.toolbarWrapper = parent.findViewById(R.id.toolbar_wrapper);
     this.marginTop = (int) parent.getResources().getDimension(R.dimen.bottom_sheet_margin_top);
   }
 
-  /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
+  /**
+   * Returns the number of pixels of the bottom sheet visible above the bottom of the screen.
+   */
   public int getVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
@@ -54,12 +60,12 @@ public class BottomSheetMetrics {
   /**
    * Returns a ratio indicating bottom sheet scroll progress from hidden to visible state.
    * Specifically, it returns 0 when the bottom sheet is fully hidden, 1 when the top of the
-   * observation list just passes the top of the "Add Observation" button, and a linearly
-   * interpolated ratio for all values in between.
+   * submission list just passes the top of the "Add Submission" button, and a linearly interpolated
+   * ratio for all values in between.
    */
   public float getRevealRatio() {
     float buttonDistanceFromBottom =
-        Math.max(parent.getHeight() - addObservationButton.getTop(), 0);
+        Math.max(parent.getHeight() - addSubmissionButton.getTop(), 0);
     float sheetBodyVisibleHeight = getVisibleHeight() - header.getHeight();
     return Math.min(sheetBodyVisibleHeight / buttonDistanceFromBottom, 1.0f);
   }
