@@ -38,10 +38,11 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
 
     private val locationLockChangeRequests: @Hot Subject<Boolean>
 
+    val locationLockStateFlowable: Flowable<BooleanOrError>
+
     val locationLockEnabled: MutableLiveData<Boolean>
     val locationLockIconTint: LiveData<Int>
     val locationLockState: LiveData<BooleanOrError>
-    val locationLockStateFlowable: Flowable<BooleanOrError>
     val locationUpdatesEnabled: LiveData<Boolean>
 
     init {
@@ -55,6 +56,7 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
 
     private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> {
         return locationLockChangeRequests
+            .distinctUntilChanged()
             .switchMapSingle { toggleLocationUpdates(it) }
             .startWith(falseValue())
             .toFlowable(BackpressureStrategy.LATEST)
@@ -62,17 +64,13 @@ class LocationLockViewModel @Inject constructor(private val locationManager: Loc
 
     fun setLocationLockEnabled(enabled: Boolean) = locationLockEnabled.postValue(enabled)
 
-    fun requestLocationLock() = requestLocationLockChange(true)
+    fun requestLocationLock() = locationLockChangeRequests.onNext(true)
 
-    fun releaseLocationLock() = requestLocationLockChange(false)
+    fun releaseLocationLock() = locationLockChangeRequests.onNext(false)
 
-    fun toggleLocationLock() = requestLocationLockChange(!isLocationLockEnabled())
+    fun toggleLocationLock() = locationLockChangeRequests.onNext(!isLocationLocked())
 
-    private fun requestLocationLockChange(newState: Boolean) {
-        if (isLocationLockEnabled() != newState) locationLockChangeRequests.onNext(newState)
-    }
-
-    private fun isLocationLockEnabled(): Boolean = locationLockState.value?.isTrue ?: false
+    private fun isLocationLocked(): Boolean = locationLockState.value?.isTrue ?: false
 
     private fun getLockIconTint(value: BooleanOrError) =
         if (value.isTrue) R.color.colorMapBlue else R.color.colorGrey800
