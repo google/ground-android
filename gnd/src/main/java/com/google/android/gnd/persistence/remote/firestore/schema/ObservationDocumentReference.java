@@ -46,7 +46,7 @@ public class ObservationDocumentReference extends FluentDocumentReference {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        merge(SubmissionMutationConverter.toMap(mutation, user), batch);
+        merge(ObservationMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
         delete(batch);

@@ -61,6 +61,6 @@ public class ObservationsCollectionReference extends FluentCollectionReference {
 
   private Query byFeatureId(String featureId) {
     return reference()
-        .whereEqualTo(FieldPath.of(SubmissionMutationConverter.FEATURE_ID), featureId);
+        .whereEqualTo(FieldPath.of(ObservationMutationConverter.FEATURE_ID), featureId);
   }
 }

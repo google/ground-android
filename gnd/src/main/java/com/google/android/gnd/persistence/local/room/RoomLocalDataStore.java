@@ -316,11 +316,11 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<ImmutableList<Submission>> getSubmissions(Feature feature, String formId) {
     return submissionDao
         .findByFeatureId(feature.getId(), formId, EntityState.DEFAULT)
-        .map(submissionEntities -> ToSubmissions(feature, submissionEntities))
+        .map(submissionEntities -> toSubmissions(feature, submissionEntities))
         .subscribeOn(schedulers.io());
   }
 
-  private ImmutableList<Submission> ToSubmissions(
+  private ImmutableList<Submission> toSubmissions(
       Feature feature, List<SubmissionEntity> submissionEntities) {
     return stream(submissionEntities)
         .flatMap(obs -> logErrorsAndSkip(() -> SubmissionEntity.ToSubmission(feature, obs)))
@@ -597,7 +597,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   /**
    * Applies mutation to submission in database or creates a new one.
    *
-   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not *
+   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    * exist, or if type is "CREATE" and entity already exists.
    */
   public Completable apply(SubmissionMutation mutation) throws LocalDataStoreException {
