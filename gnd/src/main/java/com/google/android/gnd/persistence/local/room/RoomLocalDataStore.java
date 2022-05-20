@@ -107,42 +107,25 @@ import timber.log.Timber;
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
 
-  @Inject
-  OptionDao optionDao;
-  @Inject
-  MultipleChoiceDao multipleChoiceDao;
-  @Inject
-  FieldDao fieldDao;
-  @Inject
-  FormDao formDao;
-  @Inject
-  LayerDao layerDao;
-  @Inject
-  ProjectDao projectDao;
-  @Inject
-  FeatureDao featureDao;
-  @Inject
-  FeatureMutationDao featureMutationDao;
-  @Inject
-  SubmissionDao submissionDao;
-  @Inject
-  SubmissionMutationDao submissionMutationDao;
-  @Inject
-  TileSetDao tileSetDao;
-  @Inject
-  UserDao userDao;
-  @Inject
-  OfflineAreaDao offlineAreaDao;
-  @Inject
-  BaseMapDao baseMapDao;
-  @Inject
-  Schedulers schedulers;
-  @Inject
-  FileUtil fileUtil;
+  @Inject OptionDao optionDao;
+  @Inject MultipleChoiceDao multipleChoiceDao;
+  @Inject FieldDao fieldDao;
+  @Inject FormDao formDao;
+  @Inject LayerDao layerDao;
+  @Inject ProjectDao projectDao;
+  @Inject FeatureDao featureDao;
+  @Inject FeatureMutationDao featureMutationDao;
+  @Inject SubmissionDao submissionDao;
+  @Inject SubmissionMutationDao submissionMutationDao;
+  @Inject TileSetDao tileSetDao;
+  @Inject UserDao userDao;
+  @Inject OfflineAreaDao offlineAreaDao;
+  @Inject BaseMapDao baseMapDao;
+  @Inject Schedulers schedulers;
+  @Inject FileUtil fileUtil;
 
   @Inject
-  RoomLocalDataStore() {
-  }
+  RoomLocalDataStore() {}
 
   private Completable insertOrUpdateOption(String fieldId, Option option) {
     return optionDao
@@ -458,8 +441,7 @@ public class RoomLocalDataStore implements LocalDataStore {
             .collect(toImmutableList());
     return featureMutationDao
         .updateAll(featureMutations)
-        .andThen(
-            submissionMutationDao.updateAll(submissionMutations).subscribeOn(schedulers.io()))
+        .andThen(submissionMutationDao.updateAll(submissionMutations).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
 
@@ -499,10 +481,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private SubmissionEntity applyMutations(
-      Form form,
-      SubmissionEntity submission,
-      List<SubmissionMutationEntity> mutations,
-      User user) {
+      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations, User user) {
     SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging submission " + this + " with mutations " + mutations);
@@ -598,7 +577,7 @@ public class RoomLocalDataStore implements LocalDataStore {
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *     exist, or if type is "CREATE" and entity already exists.
    */
   public Completable apply(SubmissionMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
@@ -641,8 +620,7 @@ public class RoomLocalDataStore implements LocalDataStore {
    * a new submission. In these cases creation metadata is unknown, so empty audit info is used.
    */
   private SingleSource<SubmissionEntity> fallbackSubmission(SubmissionMutation mutation) {
-    return em ->
-        em.onSuccess(SubmissionEntity.fromMutation(mutation, AuditInfo.builder().build()));
+    return em -> em.onSuccess(SubmissionEntity.fromMutation(mutation, AuditInfo.builder().build()));
   }
 
   private Completable markSubmissionForDeletion(
@@ -751,8 +729,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Flowable<ImmutableList<SubmissionMutation>>
-  getSubmissionMutationsByFeatureIdOnceAndStream(
+  public Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByFeatureIdOnceAndStream(
       Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
     return submissionMutationDao
         .findByFeatureIdOnceAndStream(featureId, allowedStates)

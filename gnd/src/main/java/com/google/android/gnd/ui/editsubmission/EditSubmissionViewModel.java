@@ -72,56 +72,35 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   // States.
 
-  /**
-   * True if submission is currently being loaded, otherwise false.
-   */
+  /** True if submission is currently being loaded, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
-  /**
-   * True if submission is currently being saved, otherwise false.
-   */
+  /** True if submission is currently being saved, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
-  /**
-   * Form definition, loaded when view is initialized.
-   */
+  /** Form definition, loaded when view is initialized. */
   private final LiveData<Form> form;
 
-  /**
-   * Toolbar title, based on whether user is adding new or editing existing submission.
-   */
+  /** Toolbar title, based on whether user is adding new or editing existing submission. */
   @Hot(replays = true)
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
-  /**
-   * Current form responses.
-   */
+  /** Current form responses. */
   private final Map<String, Response> responses = new HashMap<>();
 
-  /**
-   * Form validation errors, updated when existing for loaded and when responses change.
-   */
-  @Nullable
-  private Map<String, String> validationErrors;
+  /** Form validation errors, updated when existing for loaded and when responses change. */
+  @Nullable private Map<String, String> validationErrors;
 
-  /**
-   * Arguments passed in from view on initialize().
-   */
+  /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
-  private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs =
-      BehaviorProcessor.create();
+  private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs = BehaviorProcessor.create();
 
-  /**
-   * Submission state loaded when view is initialized.
-   */
-  @Nullable
-  private Submission originalSubmission;
+  /** Submission state loaded when view is initialized. */
+  @Nullable private Submission originalSubmission;
 
-  /**
-   * True if the submission is being added, false if editing an existing one.
-   */
+  /** True if the submission is being added, false if editing an existing one. */
   private boolean isNew;
 
   /**
@@ -133,23 +112,17 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   // Events.
 
-  /**
-   * "Save" button clicks.
-   */
-  @Hot
-  private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+  /** "Save" button clicks. */
+  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
 
-  /**
-   * Outcome of user clicking "Save".
-   */
+  /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
   /**
    * Field id waiting for a photo response. As only 1 photo result is returned at a time, we can
    * directly map it 1:1 with the field waiting for a photo response.
    */
-  @Nullable
-  private String fieldWaitingForPhoto;
+  @Nullable private String fieldWaitingForPhoto;
 
   /**
    * Full path of the captured photo in local storage. In case of selecting a photo from storage,
@@ -157,8 +130,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
    * result returns true/false based on whether the operation passed or not. As only 1 photo result
    * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
    */
-  @Nullable
-  private String capturedPhotoPath;
+  @Nullable private String capturedPhotoPath;
 
   @Inject
   EditSubmissionViewModel(
@@ -190,13 +162,11 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     return saveResults;
   }
 
-  public @Nullable
-  String getProjectId() {
+  public @Nullable String getProjectId() {
     return originalSubmission == null ? null : originalSubmission.getProject().getId();
   }
 
-  public @Nullable
-  String getSubmissionId() {
+  public @Nullable String getSubmissionId() {
     return originalSubmission == null ? null : originalSubmission.getId();
   }
 
@@ -422,9 +392,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     lastPhotoResult.onNext(PhotoResult.createEmptyResult(fieldId));
   }
 
-  /**
-   * Possible outcomes of user clicking "Save".
-   */
+  /** Possible outcomes of user clicking "Save". */
   enum SaveResult {
     HAS_VALIDATION_ERRORS,
     NO_CHANGES_TO_SAVE,

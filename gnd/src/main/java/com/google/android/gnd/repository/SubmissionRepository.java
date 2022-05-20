@@ -107,8 +107,7 @@ public class SubmissionRepository {
   }
 
   @Cold
-  private Completable mergeRemoteSubmissions(
-      ImmutableList<ValueOrError<Submission>> submissions) {
+  private Completable mergeRemoteSubmissions(ImmutableList<ValueOrError<Submission>> submissions) {
     return Observable.fromIterable(submissions)
         .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad submission")))
         .compose(ValueOrError::ignoreErrors)
@@ -116,8 +115,7 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> getSubmission(
-      String projectId, String featureId, String submissionId) {
+  public Single<Submission> getSubmission(String projectId, String featureId, String submissionId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return featureRepository
         .getFeature(projectId, featureId)
@@ -196,8 +194,8 @@ public class SubmissionRepository {
    * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations. A
    * new list is emitted on each subsequent change.
    */
-  public Flowable<ImmutableList<SubmissionMutation>>
-  getIncompleteSubmissionMutationsOnceAndStream(Project project, String featureId) {
+  public Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
+      Project project, String featureId) {
     return localDataStore.getSubmissionMutationsByFeatureIdOnceAndStream(
         project,
         featureId,
