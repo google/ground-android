@@ -55,7 +55,7 @@ public class ObservationsCollectionReference extends FluentCollectionReference {
   private ImmutableList<ValueOrError<Submission>> convert(
       QuerySnapshot querySnapshot, Feature feature) {
     return stream(querySnapshot.getDocuments())
-        .map(doc -> ValueOrError.create(() -> ObservationConverter.ToSubmission(feature, doc)))
+        .map(doc -> ValueOrError.create(() -> ObservationConverter.toSubmission(feature, doc)))
         .collect(toImmutableList());
   }
 

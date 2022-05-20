@@ -128,7 +128,7 @@ public class SubmissionConverterTest {
                 "field4",
                 "Photo URL")));
 
-    assertThat(ToSubmission())
+    assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
@@ -170,7 +170,7 @@ public class SubmissionConverterTest {
             /* responses */
             ImmutableMap.of("field1", "")));
 
-    assertThrows(DataStoreException.class, this::ToSubmission);
+    assertThrows(DataStoreException.class, this::toSubmission);
   }
 
   @Test
@@ -192,7 +192,7 @@ public class SubmissionConverterTest {
             /* responses */
             null));
 
-    assertThat(ToSubmission())
+    assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
@@ -223,7 +223,7 @@ public class SubmissionConverterTest {
             /* responses */
             ImmutableMap.of("field1", "")));
 
-    assertThat(ToSubmission())
+    assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
@@ -256,7 +256,7 @@ public class SubmissionConverterTest {
             /* responses */
             ImmutableMap.of("field1", ImmutableList.of())));
 
-    assertThat(ToSubmission())
+    assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
@@ -300,7 +300,7 @@ public class SubmissionConverterTest {
             /* responses */
             ImmutableMap.of("field1", "Unknown", "field2", "Text response")));
 
-    assertThat(ToSubmission())
+    assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
@@ -329,7 +329,7 @@ public class SubmissionConverterTest {
     when(observationDocumentSnapshot.toObject(ObservationDocument.class)).thenReturn(doc);
   }
 
-  private Submission ToSubmission() {
-    return ObservationConverter.ToSubmission(feature, observationDocumentSnapshot);
+  private Submission toSubmission() {
+    return ObservationConverter.toSubmission(feature, observationDocumentSnapshot);
   }
 }

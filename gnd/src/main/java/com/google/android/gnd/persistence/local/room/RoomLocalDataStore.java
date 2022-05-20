@@ -306,7 +306,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Maybe<Submission> getSubmission(Feature feature, String submissionId) {
     return submissionDao
         .findById(submissionId)
-        .map(obs -> SubmissionEntity.ToSubmission(feature, obs))
+        .map(obs -> SubmissionEntity.toSubmission(feature, obs))
         .doOnError(e -> Timber.d(e))
         .onErrorComplete()
         .subscribeOn(schedulers.io());
@@ -323,7 +323,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private ImmutableList<Submission> toSubmissions(
       Feature feature, List<SubmissionEntity> submissionEntities) {
     return stream(submissionEntities)
-        .flatMap(obs -> logErrorsAndSkip(() -> SubmissionEntity.ToSubmission(feature, obs)))
+        .flatMap(obs -> logErrorsAndSkip(() -> SubmissionEntity.toSubmission(feature, obs)))
         .collect(toImmutableList());
   }
 

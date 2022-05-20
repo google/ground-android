@@ -36,7 +36,7 @@ public class ObservationDocumentReference extends FluentDocumentReference {
   @Cold
   public Maybe<Submission> get(Feature feature) {
     return RxFirestore.getDocument(reference())
-        .map(doc -> ObservationConverter.ToSubmission(feature, doc));
+        .map(doc -> ObservationConverter.toSubmission(feature, doc));
   }
 
   /**

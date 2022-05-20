@@ -47,7 +47,7 @@ import timber.log.Timber;
  */
 class ObservationConverter {
 
-  static Submission ToSubmission(Feature feature, DocumentSnapshot snapshot)
+  static Submission toSubmission(Feature feature, DocumentSnapshot snapshot)
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");

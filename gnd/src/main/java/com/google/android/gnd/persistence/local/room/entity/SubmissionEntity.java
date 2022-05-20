@@ -128,7 +128,7 @@ public abstract class SubmissionEntity {
         .build();
   }
 
-  public static Submission ToSubmission(Feature feature, SubmissionEntity submission) {
+  public static Submission toSubmission(Feature feature, SubmissionEntity submission) {
     String id = submission.getId();
     String formId = submission.getFormId();
     Form form =
