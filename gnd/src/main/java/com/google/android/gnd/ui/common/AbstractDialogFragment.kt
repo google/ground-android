@@ -13,139 +13,113 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import android.app.Dialog
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import com.google.android.gnd.util.Debug
+import javax.inject.Inject
 
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+abstract class AbstractDialogFragment : AppCompatDialogFragment() {
 
-import android.app.Dialog;
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
-import javax.inject.Inject;
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
-public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
+    /**
+     * Uses [ViewModelFactory] to obtain an instance of the view model of the specified class.
+     */
+    protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T {
+        return viewModelFactory.get(this, modelClass)
+    }
 
-  @Inject ViewModelFactory viewModelFactory;
-  @Inject EphemeralPopups popups;
+    override fun onAttach(context: Context) {
+        Debug.logLifecycleEvent(this)
+        super.onAttach(context)
+    }
 
-  /**
-   * Uses {@link ViewModelFactory} to obtain an instance of the view model of the specified class.
-   */
-  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
-    return viewModelFactory.get(this, modelClass);
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onCreate(savedInstanceState)
+    }
 
-  @Override
-  public void onAttach(Context context) {
-    logLifecycleEvent(this);
-    super.onAttach(context);
-  }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        Debug.logLifecycleEvent(this)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onCreate(savedInstanceState);
-  }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        Debug.logLifecycleEvent(this)
+        return super.onCreateDialog(savedInstanceState)
+    }
 
-  @Nullable
-  @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    return super.onCreateView(inflater, container, savedInstanceState);
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onViewCreated(view, savedInstanceState)
+    }
 
-  @Override
-  public Dialog onCreateDialog(Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    return super.onCreateDialog(savedInstanceState);
-  }
+    override fun onAttachFragment(childFragment: Fragment) {
+        Debug.logLifecycleEvent(this)
+        super.onAttachFragment(childFragment)
+    }
 
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onViewCreated(view, savedInstanceState);
-  }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onActivityCreated(savedInstanceState)
+    }
 
-  @Override
-  public void onAttachFragment(Fragment childFragment) {
-    logLifecycleEvent(this);
-    super.onAttachFragment(childFragment);
-  }
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onViewStateRestored(savedInstanceState)
+    }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onActivityCreated(savedInstanceState);
-  }
+    override fun onStart() {
+        Debug.logLifecycleEvent(this)
+        super.onStart()
+    }
 
-  @Override
-  public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onViewStateRestored(savedInstanceState);
-  }
+    override fun onResume() {
+        Debug.logLifecycleEvent(this)
+        super.onResume()
+    }
 
-  @Override
-  public void onStart() {
-    logLifecycleEvent(this);
-    super.onStart();
-  }
+    override fun onPause() {
+        Debug.logLifecycleEvent(this)
+        super.onPause()
+    }
 
-  @Override
-  public void onResume() {
-    logLifecycleEvent(this);
-    super.onResume();
-  }
+    override fun onSaveInstanceState(outState: Bundle) {
+        Debug.logLifecycleEvent(this)
+        super.onSaveInstanceState(outState)
+    }
 
-  @Override
-  public void onPause() {
-    logLifecycleEvent(this);
-    super.onPause();
-  }
+    override fun onStop() {
+        Debug.logLifecycleEvent(this)
+        super.onStop()
+    }
 
-  @Override
-  public void onSaveInstanceState(Bundle outState) {
-    logLifecycleEvent(this);
-    super.onSaveInstanceState(outState);
-  }
+    override fun onDestroyView() {
+        Debug.logLifecycleEvent(this)
+        super.onDestroyView()
+    }
 
-  @Override
-  public void onStop() {
-    logLifecycleEvent(this);
-    super.onStop();
-  }
+    override fun onDestroy() {
+        Debug.logLifecycleEvent(this)
+        super.onDestroy()
+    }
 
-  @Override
-  public void onDestroyView() {
-    logLifecycleEvent(this);
-    super.onDestroyView();
-  }
-
-  @Override
-  public void onDestroy() {
-    logLifecycleEvent(this);
-    super.onDestroy();
-  }
-
-  @Override
-  public void onDetach() {
-    logLifecycleEvent(this);
-    super.onDetach();
-  }
-
-  protected Dialog fail(String message) {
-    popups.showError(message);
-    return new AlertDialog.Builder(getContext()).create();
-  }
+    override fun onDetach() {
+        Debug.logLifecycleEvent(this)
+        super.onDetach()
+    }
 }
