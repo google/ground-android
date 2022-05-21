@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd
 
-package com.google.android.gnd;
+import android.content.Context
 
-import android.content.Context;
+/** Application configuration.  */
+object Config {
+    // Shared preferences.
+    const val SHARED_PREFS_NAME = "shared_prefs"
+    const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
-/** Application configuration. */
-public final class Config {
+    // Local db settings.
+    // TODO(#128): Reset version to 1 before releasing.
+    const val DB_VERSION = 87
+    const val DB_NAME = "gnd.db"
 
-  // Shared preferences.
-  public static final String SHARED_PREFS_NAME = "shared_prefs";
-  public static final int SHARED_PREFS_MODE = Context.MODE_PRIVATE;
+    // Firebase Cloud Firestore settings.
+    const val FIRESTORE_PERSISTENCE_ENABLED = false
+    const val FIRESTORE_LOGGING_ENABLED = true
 
-  // Local db settings.
-  // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 87;
-  public static final String DB_NAME = "gnd.db";
-
-  // Firebase Cloud Firestore settings.
-  public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
-  public static final boolean FIRESTORE_LOGGING_ENABLED = true;
-
-  // Photos
-  public static final String PHOTO_EXT = ".jpg";
+    // Photos
+    const val PHOTO_EXT = ".jpg"
 }
