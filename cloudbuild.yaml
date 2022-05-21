@@ -44,7 +44,7 @@ steps:
         # 1. List all files except hidden dirs.
         # 2. Filter by filename ending with .gradle
         # 3. Convert continuous spaces into a single space
-        # 4. Pick 5th column containing file size. This causes a collision if only a number is flipped (eg 2.4 -> 2.5). Look for a better alternative.
+        # 4. Pick 5th column containing file size. This causes a collision if only a number is flipped (eg "v2.4" -> "v2.5"). Look for a better alternative.
         # 5. Calculate md5sum (for mac, use md5)
         # 6. Strip ending " -" if present
         ls -lR | grep -e "\.gradle$" | tr -s " " | cut -d " " -f5 | md5sum | sed 's/  -//' > hashsum
@@ -230,7 +230,6 @@ steps:
         if [ -f $(< hashsum)-cache.tgz ]; then
           echo "Cache already exists, skipping save cache"
         else
-          # TODO(https://github.com/google/ground-android/issues/1098): Do not persist indefinitely. Add a retention policy to GCS bucket.
           gsutil cp cache.tgz gs://${_CACHE_BUCKET}/$(< hashsum)-cache.tgz
         fi
 
