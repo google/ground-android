@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import androidx.lifecycle.ViewModel
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 
-import androidx.lifecycle.ViewModel;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
+abstract class AbstractViewModel : ViewModel() {
 
-public abstract class AbstractViewModel extends ViewModel {
-  private CompositeDisposable disposables = new CompositeDisposable();
+    private val disposables = CompositeDisposable()
 
-  protected void disposeOnClear(Disposable subscription) {
-    disposables.add(subscription);
-  }
+    protected fun disposeOnClear(subscription: Disposable) = disposables.add(subscription)
 
-  @Override
-  protected void onCleared() {
-    disposables.clear();
-  }
+    override fun onCleared() = disposables.clear()
 }
