@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import android.os.Bundle
+import android.view.View
+import com.google.android.gnd.R
+import com.google.android.gnd.ui.map.MapFragment
+import javax.inject.Inject
 
-import android.os.Bundle;
-import android.view.View;
-import androidx.annotation.Nullable;
-import com.google.android.gnd.R;
-import com.google.android.gnd.ui.map.MapFragment;
-import javax.inject.Inject;
+/** Injects a [MapFragment] in the container with id "map".  */
+abstract class AbstractMapViewerFragment : AbstractFragment() {
 
-/** Injects a {@link MapFragment} in the container with id "map". */
-public abstract class AbstractMapViewerFragment extends AbstractFragment {
+    @Inject
+    lateinit var mapFragment: MapFragment
 
-  @Inject MapFragment mapFragment;
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mapFragment.attachToFragment(this, R.id.map) { onMapReady(it) }
+    }
 
-  @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    getMapFragment().attachToFragment(this, R.id.map, this::onMapReady);
-  }
-
-  protected MapFragment getMapFragment() {
-    return mapFragment;
-  }
-
-  protected abstract void onMapReady(MapFragment mapFragment);
+    protected abstract fun onMapReady(mapFragment: MapFragment)
 }
