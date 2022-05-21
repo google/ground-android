@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import android.content.Context
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import androidx.appcompat.widget.Toolbar
+import com.google.android.gnd.databinding.TwoLineToolbarBinding
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
-import com.google.android.gnd.databinding.TwoLineToolbarBinding;
+class TwoLineToolbar(context: Context, attrs: AttributeSet?) : Toolbar(context, attrs) {
 
-public class TwoLineToolbar extends Toolbar {
+    private val binding: TwoLineToolbarBinding =
+        TwoLineToolbarBinding.inflate(LayoutInflater.from(getContext()), this, true)
 
-  private final TwoLineToolbarBinding binding;
+    fun setTitle(title: String?) {
+        binding.toolbarTitleText.text = title
+    }
 
-  public TwoLineToolbar(Context context, @Nullable AttributeSet attrs) {
-    super(context, attrs);
-    binding = TwoLineToolbarBinding.inflate(LayoutInflater.from(getContext()), this, true);
-  }
-
-  public void setTitle(@Nullable String title) {
-    binding.toolbarTitleText.setText(title);
-  }
-
-  public void setSubtitle(@Nullable String subtitle) {
-    binding.toolbarSubtitleText.setText(subtitle);
-    binding.toolbarSubtitleText.setVisibility(
-        subtitle == null || subtitle.isEmpty() ? View.GONE : View.VISIBLE);
-  }
+    fun setSubtitle(subtitle: String?) {
+        binding.toolbarSubtitleText.text = subtitle
+        binding.toolbarSubtitleText.visibility = if (subtitle.isNullOrEmpty()) GONE else VISIBLE
+    }
 }
