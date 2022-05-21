@@ -13,49 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import android.app.Application
+import android.widget.Toast
+import androidx.annotation.StringRes
+import com.google.android.gnd.R
+import javax.inject.Inject
+import javax.inject.Singleton
 
-import android.app.Application;
-import android.widget.Toast;
-import androidx.annotation.StringRes;
-import com.google.android.gnd.R;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-/** Displays short-lived messages such as toasts that are shown over other UI elements. */
+/** Displays short-lived messages such as toasts that are shown over other UI elements.  */
 @Singleton
-public class EphemeralPopups {
+class EphemeralPopups @Inject constructor(private val context: Application) {
 
-  private final Application context;
+    fun showSuccess(@StringRes messageId: Int) {
+        showLong(messageId)
+    }
 
-  @Inject
-  public EphemeralPopups(Application context) {
-    this.context = context;
-  }
+    fun showError(@StringRes messageId: Int) {
+        showLong(messageId)
+    }
 
-  public void showSuccess(@StringRes int messageId) {
-    showLong(messageId);
-  }
+    fun showFyi(@StringRes messageId: Int) {
+        showLong(messageId)
+    }
 
-  public void showError(@StringRes int messageId) {
-    showLong(messageId);
-  }
+    fun showError(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
 
-  public void showFyi(@StringRes int messageId) {
-    showLong(messageId);
-  }
+    // TODO: Rename to unknownError?
+    fun showError() {
+        showLong(R.string.unexpected_error)
+    }
 
-  public void showError(String message) {
-    Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-  }
-
-  // TODO: Rename to unknownError?
-  public void showError() {
-    showLong(R.string.unexpected_error);
-  }
-
-  private void showLong(@StringRes int messageId) {
-    Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
-  }
+    private fun showLong(@StringRes messageId: Int) {
+        Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
+    }
 }
