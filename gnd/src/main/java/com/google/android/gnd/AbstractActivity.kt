@@ -13,114 +13,101 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd
 
-package com.google.android.gnd;
-
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
-
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.util.DrawableUtil;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.inject.Inject;
+import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.google.android.gnd.ui.common.TwoLineToolbar
+import com.google.android.gnd.ui.util.DrawableUtil
+import com.google.android.gnd.util.Debug
+import javax.annotation.OverridingMethodsMustInvokeSuper
+import javax.inject.Inject
 
 /**
  * Base activity class containing common helper methods.
  */
-public abstract class AbstractActivity extends AppCompatActivity {
+abstract class AbstractActivity : AppCompatActivity() {
 
-  @Inject
-  DrawableUtil drawableUtil;
+    @Inject
+    lateinit var drawableUtil: DrawableUtil
 
-  @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onCreate(savedInstanceState);
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onCreate(savedInstanceState)
+    }
 
-  @Override
-  public void setContentView(View view) {
-    super.setContentView(view);
-    ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(),
-        (v, insets) -> {
-          onWindowInsetChanged(insets);
-          return insets;
-        });
-  }
+    override fun setContentView(view: View) {
+        super.setContentView(view)
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView.rootView) { _, insets ->
+            insets.apply { onWindowInsetChanged(this) }
+        }
+    }
 
-  /** Adjust UI elements with respect to top/bottom insets. */
-  @OverridingMethodsMustInvokeSuper
-  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
-    findViewById(R.id.status_bar_scrim)
-        .setLayoutParams(
-            new FrameLayout.LayoutParams(
-                LayoutParams.MATCH_PARENT, insets.getSystemWindowInsetTop()));
-  }
+    /** Adjust UI elements with respect to top/bottom insets.  */
+    @OverridingMethodsMustInvokeSuper
+    protected open fun onWindowInsetChanged(insets: WindowInsetsCompat) {
+        findViewById<View>(R.id.status_bar_scrim).layoutParams =
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                insets.systemWindowInsetTop
+            )
+    }
 
-  @Override
-  protected void onStart() {
-    logLifecycleEvent(this);
-    super.onStart();
-  }
+    override fun onStart() {
+        Debug.logLifecycleEvent(this)
+        super.onStart()
+    }
 
-  @Override
-  protected void onResume() {
-    logLifecycleEvent(this);
-    super.onResume();
-  }
+    override fun onResume() {
+        Debug.logLifecycleEvent(this)
+        super.onResume()
+    }
 
-  @Override
-  protected void onPause() {
-    logLifecycleEvent(this);
-    super.onPause();
-  }
+    override fun onPause() {
+        Debug.logLifecycleEvent(this)
+        super.onPause()
+    }
 
-  @Override
-  protected void onStop() {
-    logLifecycleEvent(this);
-    super.onStop();
-  }
+    override fun onStop() {
+        Debug.logLifecycleEvent(this)
+        super.onStop()
+    }
 
-  @Override
-  protected void onDestroy() {
-    logLifecycleEvent(this);
-    super.onDestroy();
-  }
+    override fun onDestroy() {
+        Debug.logLifecycleEvent(this)
+        super.onDestroy()
+    }
 
-  public void setActionBar(TwoLineToolbar toolbar, @DrawableRes int upIconId) {
-    setActionBar(toolbar, false);
-    // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
-    // of the set icon, not the applied theme. This allows us to change the primary color
-    // programmatically without needing to remember to update the icon.
-    Drawable icon = drawableUtil.getDrawable(upIconId, R.color.colorAccent);
-    getSupportActionBar().setHomeAsUpIndicator(icon);
-  }
+    fun setActionBar(toolbar: TwoLineToolbar, @DrawableRes upIconId: Int) {
+        setActionBar(toolbar, false)
+        // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
+        // of the set icon, not the applied theme. This allows us to change the primary color
+        // programmatically without needing to remember to update the icon.
+        val icon = drawableUtil.getDrawable(upIconId, R.color.colorAccent)
+        supportActionBar!!.setHomeAsUpIndicator(icon)
+    }
 
-  public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
-    setSupportActionBar(toolbar);
+    fun setActionBar(toolbar: TwoLineToolbar, showTitle: Boolean) {
+        setSupportActionBar(toolbar)
 
-    // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
-    // XML doesn't work.
-    getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowHomeEnabled(true);
+        // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
+        // XML doesn't work.
+        supportActionBar!!.setDisplayShowTitleEnabled(showTitle)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setDisplayShowHomeEnabled(true)
 
-    // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
-    // Toolbars (https://issuetracker.google.com/issues/109868820).
-    toolbar.setNavigationOnClickListener(__ -> onToolbarUpClicked());
-  }
+        // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
+        // Toolbars (https://issuetracker.google.com/issues/109868820).
+        toolbar.setNavigationOnClickListener { onToolbarUpClicked() }
+    }
 
-  protected void onToolbarUpClicked() {
-    finish();
-  }
+    protected open fun onToolbarUpClicked() {
+        finish()
+    }
 }
