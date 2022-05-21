@@ -13,49 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import android.content.Context
+import android.content.ContextWrapper
+import android.view.LayoutInflater
+import android.widget.FrameLayout
+import androidx.annotation.LayoutRes
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModel
+import javax.inject.Inject
 
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.view.LayoutInflater;
-import android.widget.FrameLayout;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModel;
-import javax.inject.Inject;
+abstract class AbstractView(context: Context) : FrameLayout(context) {
 
-public abstract class AbstractView extends FrameLayout {
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
-  @Inject protected ViewModelFactory viewModelFactory;
+    protected val activity: FragmentActivity
+        get() {
+            var context = context
+            while (context is ContextWrapper) {
+                if (context is FragmentActivity) return context
+                context = context.baseContext
+            }
+            throw IllegalStateException("View is not contained in FragmentActivity")
+        }
 
-  public AbstractView(@NonNull Context context) {
-    super(context);
-  }
-
-  protected FragmentActivity getActivity() {
-    Context context = getContext();
-    while (context instanceof ContextWrapper) {
-      if (context instanceof FragmentActivity) {
-        return (FragmentActivity) context;
-      }
-      context = ((ContextWrapper) context).getBaseContext();
+    protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T {
+        return viewModelFactory.get(activity, modelClass)
     }
-    throw new IllegalStateException("View is not contained in FragmentActivity");
-  }
 
-  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
-    return viewModelFactory.get(getActivity(), modelClass);
-  }
-
-  protected ViewDataBinding inflate(@LayoutRes int layoutId) {
-    return DataBindingUtil.inflate(
-        (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE),
-        layoutId,
-        this,
-        true);
-  }
+    protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding {
+        return DataBindingUtil.inflate(
+            (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater),
+            layoutId,
+            this,
+            true
+        )
+    }
 }
