@@ -284,6 +284,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.5.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'
     testImplementation 'com.jraska.livedata:testing:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0'
 
     // Mockito
     testImplementation 'org.mockito:mockito-inline:2.8.47'

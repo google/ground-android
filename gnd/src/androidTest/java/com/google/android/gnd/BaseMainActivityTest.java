@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -23,6 +24,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.rule.GrantPermissionRule;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import org.junit.After;
@@ -50,8 +52,12 @@ public abstract class BaseMainActivityTest {
   @Rule(order = 2)
   public SetPreferencesRule preferencesRule = new SetPreferencesRule();
 
-  // Load the MainActivity for each test.
+  // Provide location permission.
   @Rule(order = 3)
+  public GrantPermissionRule permissionRule = GrantPermissionRule.grant(ACCESS_FINE_LOCATION);
+
+  // Load the MainActivity for each test.
+  @Rule(order = 4)
   public ActivityScenarioRule<MainActivity> scenarioRule =
       new ActivityScenarioRule<>(MainActivity.class);
 
