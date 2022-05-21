@@ -35,7 +35,6 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
@@ -84,12 +83,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .build();
 
   private static final Layer TEST_LAYER =
-      Layer.newBuilder()
-          .setId("layer id")
-          .setName("heading title")
-          .setDefaultStyle(Style.builder().setColor("000").build())
-          .setForm(TEST_FORM)
-          .build();
+      Layer.newBuilder().setId("layer id").setName("heading title").setForm(TEST_FORM).build();
 
   private static final Project TEST_PROJECT =
       Project.newBuilder()
@@ -254,18 +248,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testRemovedLayerFromProject() {
-    Layer layer1 =
-        Layer.newBuilder()
-            .setId("layer 1")
-            .setName("layer 1 name")
-            .setDefaultStyle(Style.builder().setColor("000").build())
-            .build();
-    Layer layer2 =
-        Layer.newBuilder()
-            .setId("layer 2")
-            .setName("layer 2 name")
-            .setDefaultStyle(Style.builder().setColor("000").build())
-            .build();
+    Layer layer1 = Layer.newBuilder().setId("layer 1").setName("layer 1 name").build();
+    Layer layer2 = Layer.newBuilder().setId("layer 2").setName("layer 2 name").build();
 
     Project project =
         Project.newBuilder()

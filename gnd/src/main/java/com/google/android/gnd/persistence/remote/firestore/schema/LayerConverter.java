@@ -22,20 +22,15 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
-import java8.util.Objects;
-import java8.util.Optional;
 import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Layer} instances. */
 class LayerConverter {
-  /** Black marker used when default remote data is corrupt or missing. */
-  private static final String FALLBACK_COLOR = "#000000";
 
   static Layer toLayer(String id, LayerNestedObject obj) {
     Layer.Builder layer = Layer.newBuilder();
-    layer.setId(id).setName(getLocalizedMessage(obj.getName())).setDefaultStyle(toStyle(obj));
+    layer.setId(id).setName(getLocalizedMessage(obj.getName()));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {
         Timber.e("Multiple forms not supported");
@@ -62,20 +57,5 @@ class LayerConverter {
       default:
         return FeatureType.UNKNOWN;
     }
-  }
-
-  private static Style toStyle(LayerNestedObject obj) {
-    return Optional.ofNullable(obj.getDefaultStyle())
-        .map(StyleConverter::toStyle)
-        .orElseGet(() -> LayerConverter.toStyleFromLegacyColorField(obj));
-  }
-
-  private static Style toStyleFromLegacyColorField(LayerNestedObject obj) {
-    // Use "color" field until web UI is updated:
-    // TODO(https://github.com/google/ground-platform/issues/402): Remove fallback once updated in
-    // web client.
-    return Style.builder()
-        .setColor(Objects.requireNonNullElse(obj.getColor(), FALLBACK_COLOR))
-        .build();
   }
 }

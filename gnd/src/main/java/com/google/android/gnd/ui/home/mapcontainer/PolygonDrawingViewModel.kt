@@ -16,38 +16,38 @@
 package com.google.android.gnd.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
-import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
-import com.google.android.gnd.ui.common.SharedViewModel
-import javax.inject.Inject
-import com.google.android.gnd.system.auth.AuthenticationManager
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
-import com.google.android.gnd.ui.common.AbstractViewModel
-import com.google.android.gnd.rx.annotations.Hot
-import io.reactivex.subjects.PublishSubject
-import com.google.android.gnd.ui.map.MapPolygon
-import com.google.android.gnd.ui.map.MapFeature
-import com.google.android.gnd.rx.BooleanOrError
-import io.reactivex.processors.BehaviorProcessor
-import com.google.android.gnd.model.Project
-import io.reactivex.Flowable
-import io.reactivex.BackpressureStrategy
-import timber.log.Timber
-import com.google.android.gnd.model.AuditInfo
-import com.google.android.gnd.model.feature.PolygonFeature
-import com.google.android.gnd.ui.map.MapPin
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gnd.R
+import com.google.android.gnd.model.AuditInfo
+import com.google.android.gnd.model.Project
 import com.google.android.gnd.model.feature.Point
+import com.google.android.gnd.model.feature.PolygonFeature
 import com.google.android.gnd.model.layer.Layer
+import com.google.android.gnd.model.layer.Style
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
+import com.google.android.gnd.rx.BooleanOrError
+import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
+import com.google.android.gnd.rx.annotations.Hot
 import com.google.android.gnd.system.LocationManager
+import com.google.android.gnd.system.auth.AuthenticationManager
+import com.google.android.gnd.ui.common.AbstractViewModel
+import com.google.android.gnd.ui.common.SharedViewModel
+import com.google.android.gnd.ui.map.MapFeature
+import com.google.android.gnd.ui.map.MapPin
+import com.google.android.gnd.ui.map.MapPolygon
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.processors.BehaviorProcessor
+import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
-import java.util.ArrayList
+import timber.log.Timber
+import javax.inject.Inject
 
 @SharedViewModel
 class PolygonDrawingViewModel @Inject internal constructor(
@@ -207,7 +207,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             MapPolygon.newBuilder()
                 .setId(uuidGenerator.generateUuid())
                 .setVertices(ImmutableList.of())
-                .setStyle(selectedLayer.defaultStyle)
+                .setStyle(Style.DEFAULT_MAP_STYLE)
                 .build()
         )
     }
