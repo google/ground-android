@@ -60,7 +60,7 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
 
   @NotNull
   @Override
-  public Dialog onCreateDialog(Bundle savedInstanceState) {
+  public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
 
     AlertDialog.Builder dialog = new Builder(getContext());

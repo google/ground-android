@@ -20,6 +20,7 @@ import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -37,8 +38,9 @@ public class FeatureDataTypeSelectorDialogFragment extends AbstractDialogFragmen
 
   @NotNull
   @Override
-  public Dialog onCreateDialog(Bundle savedInstanceState) {
+  public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
+
     ArrayAdapter<String> listAdapter =
         new ArrayAdapter<>(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     listAdapter.add(getString(R.string.point));

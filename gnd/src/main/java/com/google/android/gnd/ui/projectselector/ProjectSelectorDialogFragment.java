@@ -58,7 +58,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   @NonNull
   @Override
-  public Dialog onCreateDialog(Bundle savedInstanceState) {
+  public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
     dialog.setTitle(R.string.join_project);
