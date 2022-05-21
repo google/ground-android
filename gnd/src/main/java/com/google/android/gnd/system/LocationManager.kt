@@ -21,10 +21,25 @@ import com.google.android.gnd.rx.BooleanOrError
 import io.reactivex.Flowable
 import io.reactivex.Single
 
+/**
+ * Interface for communicating with location service.
+ */
 interface LocationManager {
+
+    /**
+     * Returns the location update stream. New subscribers and downstream subscribers that can't keep
+     * up will only see the latest location.
+     */
     fun getLocationUpdates(): Flowable<Location>
 
+    /**
+     * Asynchronously try to enable location permissions and settings, and if successful, turns on
+     * location updates exposed by {@link #getLocationUpdates()}.
+     */
     fun enableLocationUpdates(): Single<BooleanOrError>
 
+    /**
+     * Asynchronously turns off location updates exposed by {@link #getLocationUpdates()}.
+     */
     fun disableLocationUpdates(): Single<BooleanOrError>
 }

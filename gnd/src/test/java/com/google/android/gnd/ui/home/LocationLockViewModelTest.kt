@@ -19,16 +19,28 @@ package com.google.android.gnd.ui.home
 import com.google.android.gnd.BaseHiltTest
 import com.google.android.gnd.R
 import com.google.android.gnd.rx.BooleanOrError
+import com.google.android.gnd.system.LocationManager
+import com.google.android.gnd.system.SystemModule
 import com.jraska.livedata.TestObserver
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import io.reactivex.Single
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import javax.inject.Inject
 
 @HiltAndroidTest
+@UninstallModules(SystemModule::class)
 @RunWith(RobolectricTestRunner::class)
 class LocationLockViewModelTest : BaseHiltTest() {
+
+    @BindValue
+    @Mock
+    lateinit var mockLocationManager: LocationManager
 
     @Inject
     lateinit var viewModel: LocationLockViewModel
@@ -47,6 +59,16 @@ class LocationLockViewModelTest : BaseHiltTest() {
         locationLockUpdatesEnabledObserver = TestObserver.test(viewModel.locationUpdatesEnabled)
     }
 
+    private fun mockEnableLocationUpdates() {
+        `when`(mockLocationManager.enableLocationUpdates())
+            .thenReturn(Single.just(BooleanOrError.trueValue()))
+    }
+
+    private fun mockDisableLocationUpdates() {
+        `when`(mockLocationManager.disableLocationUpdates())
+            .thenReturn(Single.just(BooleanOrError.falseValue()))
+    }
+
     @Test
     fun setLocationLockEnabled() {
         viewModel.setLocationLockEnabled(false)
@@ -58,6 +80,8 @@ class LocationLockViewModelTest : BaseHiltTest() {
 
     @Test
     fun requestLocationLock() {
+        mockEnableLocationUpdates()
+
         viewModel.requestLocationLock()
 
         assertLocationLocked()
@@ -65,6 +89,9 @@ class LocationLockViewModelTest : BaseHiltTest() {
 
     @Test
     fun releaseLocationLock() {
+        mockEnableLocationUpdates()
+        mockDisableLocationUpdates()
+
         viewModel.requestLocationLock()
         viewModel.releaseLocationLock()
 
@@ -73,6 +100,9 @@ class LocationLockViewModelTest : BaseHiltTest() {
 
     @Test
     fun toggleLocationLock() {
+        mockEnableLocationUpdates()
+        mockDisableLocationUpdates()
+
         viewModel.toggleLocationLock()
 
         assertLocationLocked()
