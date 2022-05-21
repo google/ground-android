@@ -13,135 +13,116 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.common
 
-package com.google.android.gnd.ui.common;
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import com.google.android.gnd.ui.util.ViewUtil
+import com.google.android.gnd.util.Debug
+import javax.inject.Inject
 
-import static com.google.android.gnd.ui.util.ViewUtil.hideSoftInputFrom;
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+abstract class AbstractFragment : Fragment() {
 
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.IdRes;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModel;
-import javax.inject.Inject;
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
-public abstract class AbstractFragment extends Fragment {
-
-  @Inject protected ViewModelFactory viewModelFactory;
-
-  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
-    return viewModelFactory.get(this, modelClass);
-  }
-
-  @Override
-  public void onAttach(Context context) {
-    logLifecycleEvent(this);
-    super.onAttach(context);
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onCreate(savedInstanceState);
-  }
-
-  @Nullable
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    return super.onCreateView(inflater, container, savedInstanceState);
-  }
-
-  @Override
-  public void onSaveInstanceState(Bundle outState) {
-    logLifecycleEvent(this);
-    super.onSaveInstanceState(outState);
-  }
-
-  @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onViewCreated(view, savedInstanceState);
-  }
-
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onActivityCreated(savedInstanceState);
-  }
-
-  @Override
-  public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    super.onViewStateRestored(savedInstanceState);
-  }
-
-  @Override
-  public void onStart() {
-    logLifecycleEvent(this);
-    super.onStart();
-  }
-
-  @Override
-  public void onResume() {
-    logLifecycleEvent(this);
-    super.onResume();
-    hideSoftInputFrom(this);
-  }
-
-  @Override
-  public void onPause() {
-    logLifecycleEvent(this);
-    super.onPause();
-  }
-
-  @Override
-  public void onStop() {
-    logLifecycleEvent(this);
-    super.onStop();
-  }
-
-  @Override
-  public void onDestroyView() {
-    logLifecycleEvent(this);
-    super.onDestroyView();
-  }
-
-  @Override
-  public void onDestroy() {
-    logLifecycleEvent(this);
-    super.onDestroy();
-  }
-
-  @Override
-  public void onDetach() {
-    logLifecycleEvent(this);
-    super.onDetach();
-  }
-
-  public final void replaceFragment(@IdRes int containerViewId, Fragment fragment) {
-    getChildFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
-  }
-
-  protected void saveChildFragment(Bundle outState, Fragment fragment, String key) {
-    FragmentManager fragmentManager = getChildFragmentManager();
-    if (fragment != null && fragmentManager == fragment.getFragmentManager()) {
-      fragmentManager.putFragment(outState, key, fragment);
+    protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T {
+        return viewModelFactory.get(this, modelClass)
     }
-  }
 
-  protected <T> T restoreChildFragment(Bundle savedInstanceState, String key) {
-    return (T) getChildFragmentManager().getFragment(savedInstanceState, key);
-  }
+    override fun onAttach(context: Context) {
+        Debug.logLifecycleEvent(this)
+        super.onAttach(context)
+    }
 
-  protected <T> T restoreChildFragment(Bundle savedInstanceState, Class<T> fragmentClass) {
-    return (T) restoreChildFragment(savedInstanceState, fragmentClass.getName());
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        Debug.logLifecycleEvent(this)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        Debug.logLifecycleEvent(this)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        Debug.logLifecycleEvent(this)
+        super.onViewStateRestored(savedInstanceState)
+    }
+
+    override fun onStart() {
+        Debug.logLifecycleEvent(this)
+        super.onStart()
+    }
+
+    override fun onResume() {
+        Debug.logLifecycleEvent(this)
+        super.onResume()
+        ViewUtil.hideSoftInputFrom(this)
+    }
+
+    override fun onPause() {
+        Debug.logLifecycleEvent(this)
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Debug.logLifecycleEvent(this)
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        Debug.logLifecycleEvent(this)
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        Debug.logLifecycleEvent(this)
+        super.onDestroy()
+    }
+
+    override fun onDetach() {
+        Debug.logLifecycleEvent(this)
+        super.onDetach()
+    }
+
+    fun replaceFragment(@IdRes containerViewId: Int, fragment: Fragment?) {
+        childFragmentManager.beginTransaction().replace(containerViewId, fragment!!).commit()
+    }
+
+    protected fun saveChildFragment(outState: Bundle?, fragment: Fragment?, key: String?) {
+        val fragmentManager = childFragmentManager
+        if (fragment != null && fragmentManager === fragment.fragmentManager) {
+            fragmentManager.putFragment(outState!!, key!!, fragment)
+        }
+    }
+
+    private fun <T> restoreChildFragment(savedInstanceState: Bundle, key: String): T {
+        return childFragmentManager.getFragment(savedInstanceState, key) as T
+    }
+
+    protected fun <T> restoreChildFragment(
+        savedInstanceState: Bundle,
+        fragmentClass: Class<T>
+    ): T {
+        return restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
+    }
 }
