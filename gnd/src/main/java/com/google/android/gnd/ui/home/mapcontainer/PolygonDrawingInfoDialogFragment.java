@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.DialogPolygonInfoBinding;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -39,7 +40,7 @@ public class PolygonDrawingInfoDialogFragment extends AbstractDialogFragment {
 
   @NotNull
   @Override
-  public Dialog onCreateDialog(Bundle savedInstanceState) {
+  public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
 
     AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
