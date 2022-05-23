@@ -23,7 +23,6 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.GeoPoint;
 import java.util.Date;
@@ -94,11 +93,7 @@ public class TestModelBuilders {
   }
 
   public static Layer.Builder newLayer() {
-    return Layer.newBuilder().setId("").setName("").setDefaultStyle(newStyle().build());
-  }
-
-  public static Style.Builder newStyle() {
-    return Style.builder().setColor("");
+    return Layer.newBuilder().setId("").setName("");
   }
 
   public static Form.Builder newForm() {

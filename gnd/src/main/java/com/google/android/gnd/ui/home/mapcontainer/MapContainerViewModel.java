@@ -38,6 +38,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -212,7 +213,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return MapPin.newBuilder()
         .setId(feature.getId())
         .setPosition(feature.getPoint())
-        .setStyle(feature.getLayer().getDefaultStyle())
+        .setStyle(Style.DEFAULT_MAP_STYLE)
         .setFeature(feature)
         .build();
   }
@@ -221,7 +222,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return MapPolygon.newBuilder()
         .setId(feature.getId())
         .setVertices(feature.getVertices())
-        .setStyle(feature.getLayer().getDefaultStyle())
+        .setStyle(Style.DEFAULT_MAP_STYLE)
         .setFeature(feature)
         .build();
   }
@@ -304,7 +305,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return MapGeoJson.newBuilder()
         .setId(feature.getId())
         .setGeoJson(jsonObject)
-        .setStyle(feature.getLayer().getDefaultStyle())
+        .setStyle(Style.DEFAULT_MAP_STYLE)
         .setStrokeWidth(defaultPolygonStrokeWidth)
         .setFeature(feature)
         .build();
