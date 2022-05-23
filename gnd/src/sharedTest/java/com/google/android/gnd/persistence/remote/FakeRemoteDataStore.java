@@ -22,7 +22,7 @@ import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.Mutation;
-import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
@@ -39,6 +39,7 @@ import javax.inject.Singleton;
 
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
+
   private RemoteDataEvent<Feature> featureEvent;
   // TODO(#1045): Allow default project to be initialized by tests.
   private List<Project> testProjects = Collections.singletonList(FakeData.PROJECT);
@@ -46,7 +47,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
 
   @Inject
-  FakeRemoteDataStore() {}
+  FakeRemoteDataStore() {
+  }
 
   /**
    * Set this before the test scenario is loaded.
@@ -93,7 +95,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
     return null;
   }
 

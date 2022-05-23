@@ -8,8 +8,8 @@ Fixes #
 <!-- Checklist or simple bullet list of things done in the PR. If the PR is WIP, then leave the corresponding task unchecked.
 
 Example:
-- [x] Refactor ObservationViewModel allow modification of sort order.
-- [x] Sort results when returned from ObservationRepository.
+- [x] Refactor SubmissionViewModel allow modification of sort order.
+- [x] Sort results when returned from SubmissionRepository.
 -->
 
 <!-- Add steps to verify bug/feature. -->

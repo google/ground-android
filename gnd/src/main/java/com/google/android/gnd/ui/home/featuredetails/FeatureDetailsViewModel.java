@@ -28,9 +28,9 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.mutation.FeatureMutation;
-import com.google.android.gnd.model.mutation.ObservationMutation;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.ObservationRepository;
+import com.google.android.gnd.repository.SubmissionRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
@@ -52,7 +52,7 @@ public class FeatureDetailsViewModel extends ViewModel {
       BehaviorProcessor.createDefault(Optional.empty());
 
   private final FeatureRepository featureRepository;
-  private final ObservationRepository observationRepository;
+  private final SubmissionRepository submissionRepository;
   private final UserRepository userRepository;
   private final Bitmap markerBitmap;
   private final LiveData<String> title;
@@ -67,10 +67,10 @@ public class FeatureDetailsViewModel extends ViewModel {
       DrawableUtil drawableUtil,
       FeatureHelper featureHelper,
       FeatureRepository featureRepository,
-      ObservationRepository observationRepository,
+      SubmissionRepository submissionRepository,
       UserRepository userRepository) {
     this.featureRepository = featureRepository;
-    this.observationRepository = observationRepository;
+    this.submissionRepository = submissionRepository;
     this.userRepository = userRepository;
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(
@@ -89,12 +89,12 @@ public class FeatureDetailsViewModel extends ViewModel {
                 feature -> feature.map(this::isDeleteMenuOptionVisible).orElse(true)));
     Flowable<ImmutableList<FeatureMutation>> featureMutations =
         selectedFeature.switchMap(this::getIncompleteFeatureMutationsOnceAndStream);
-    Flowable<ImmutableList<ObservationMutation>> observationMutations =
-        selectedFeature.switchMap(this::getIncompleteObservationMutationsOnceAndStream);
+    Flowable<ImmutableList<SubmissionMutation>> submissionMutations =
+        selectedFeature.switchMap(this::getIncompleteSubmissionMutationsOnceAndStream);
     this.showUploadPendingIcon =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                featureMutations, observationMutations, (f, o) -> !f.isEmpty() && !o.isEmpty()));
+                featureMutations, submissionMutations, (f, o) -> !f.isEmpty() && !o.isEmpty()));
   }
 
   /** Returns true if the user is {@link Role#OWNER} or {@link Role#MANAGER} of the project. */
@@ -131,12 +131,12 @@ public class FeatureDetailsViewModel extends ViewModel {
         .orElse(Flowable.just(ImmutableList.of()));
   }
 
-  private Flowable<ImmutableList<ObservationMutation>>
-      getIncompleteObservationMutationsOnceAndStream(Optional<Feature> selectedFeature) {
+  private Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
+      Optional<Feature> selectedFeature) {
     return selectedFeature
         .map(
             feature ->
-                observationRepository.getIncompleteObservationMutationsOnceAndStream(
+                submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(
                     feature.getProject(), feature.getId()))
         .orElse(Flowable.just(ImmutableList.of()));
   }

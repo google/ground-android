@@ -19,27 +19,27 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.ui.editobservation.DateFieldViewModel;
-import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
-import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel;
-import com.google.android.gnd.ui.editobservation.NumberFieldViewModel;
-import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
-import com.google.android.gnd.ui.editobservation.TextFieldViewModel;
-import com.google.android.gnd.ui.editobservation.TimeFieldViewModel;
+import com.google.android.gnd.ui.editsubmission.DateFieldViewModel;
+import com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel;
+import com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldViewModel;
+import com.google.android.gnd.ui.editsubmission.NumberFieldViewModel;
+import com.google.android.gnd.ui.editsubmission.PhotoFieldViewModel;
+import com.google.android.gnd.ui.editsubmission.TextFieldViewModel;
+import com.google.android.gnd.ui.editsubmission.TimeFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
-import com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel;
-import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
+import com.google.android.gnd.ui.home.featuredetails.SubmissionListItemViewModel;
+import com.google.android.gnd.ui.home.featuredetails.SubmissionListViewModel;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
-import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinebasemap.OfflineAreasViewModel;
 import com.google.android.gnd.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel;
 import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
+import com.google.android.gnd.ui.submissiondetails.SubmissionDetailsViewModel;
 import com.google.android.gnd.ui.syncstatus.SyncStatusViewModel;
 import com.google.android.gnd.ui.tos.TermsOfServiceViewModel;
 import dagger.Binds;
@@ -120,23 +120,23 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(ObservationListItemViewModel.class)
-  abstract ViewModel bindObservationListItemViewModel(ObservationListItemViewModel viewModel);
+  @ViewModelKey(SubmissionListItemViewModel.class)
+  abstract ViewModel bindSubmissionListItemViewModel(SubmissionListItemViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(ObservationListViewModel.class)
-  abstract ViewModel bindObservationListViewModel(ObservationListViewModel viewModel);
+  @ViewModelKey(SubmissionListViewModel.class)
+  abstract ViewModel bindSubmissionListViewModel(SubmissionListViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(ObservationDetailsViewModel.class)
-  abstract ViewModel bindObservationDetailsViewModel(ObservationDetailsViewModel viewModel);
+  @ViewModelKey(SubmissionDetailsViewModel.class)
+  abstract ViewModel bindSubmissionDetailsViewModel(SubmissionDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(EditObservationViewModel.class)
-  abstract ViewModel bindEditObservationViewModel(EditObservationViewModel viewModel);
+  @ViewModelKey(EditSubmissionViewModel.class)
+  abstract ViewModel bindEditSubmissionViewModel(EditSubmissionViewModel viewModel);
 
   @Binds
   @IntoMap

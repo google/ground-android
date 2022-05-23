@@ -31,21 +31,25 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
 
-// TODO: Add column to Observation table for storing uploaded media urls
+// TODO: Add column to Submission table for storing uploaded media urls
 // TODO: Synced to remote db as well
 @Singleton
 public class FirestoreStorageManager implements RemoteStorageManager {
 
-  /** Top-level directory in Cloud Storage where user media is stored. */
+  /**
+   * Top-level directory in Cloud Storage where user media is stored.
+   */
   private static final String MEDIA_ROOT_DIR = "user-media";
 
-  @Inject StorageReference storageReference;
+  @Inject
+  StorageReference storageReference;
 
   @Inject
-  FirestoreStorageManager() {}
+  FirestoreStorageManager() {
+  }
 
   /**
-   * Generates destination path in which an observation attachment is to be stored in to Cloud
+   * Generates destination path in which an submission attachment is to be stored in to Cloud
    * Storage.
    *
    * <p>user-media/projects/{project_id}/observations/{observation_id}/{field_id-uuid.jpg}

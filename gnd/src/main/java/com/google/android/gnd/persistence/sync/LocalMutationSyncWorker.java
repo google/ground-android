@@ -29,7 +29,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.mutation.Mutation;
-import com.google.android.gnd.model.mutation.ObservationMutation;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
@@ -74,7 +74,9 @@ public class LocalMutationSyncWorker extends BaseWorker {
     this.photoSyncWorkManager = photoSyncWorkManager;
   }
 
-  /** Returns a new work {@link Data} object containing the specified feature id. */
+  /**
+   * Returns a new work {@link Data} object containing the specified feature id.
+   */
   public static Data createInputData(String featureId) {
     return new Data.Builder().putString(FEATURE_ID_PARAM_KEY, featureId).build();
   }
@@ -116,7 +118,9 @@ public class LocalMutationSyncWorker extends BaseWorker {
             });
   }
 
-  /** Loads each user with specified id, applies mutations, and removes processed mutations. */
+  /**
+   * Loads each user with specified id, applies mutations, and removes processed mutations.
+   */
   private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
     return localDataStore
         .getUser(userId)
@@ -125,7 +129,9 @@ public class LocalMutationSyncWorker extends BaseWorker {
         .onErrorComplete();
   }
 
-  /** Applies mutations to remote data store. Once successful, removes them from the local db. */
+  /**
+   * Applies mutations to remote data store. Once successful, removes them from the local db.
+   */
   private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)
@@ -135,13 +141,13 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /**
-   * Filters all mutations containing observation mutations with changes to photo fields and uploads
+   * Filters all mutations containing submission mutations with changes to photo fields and uploads
    * to remote storage.
    */
   private Completable processPhotoFieldMutations(@Nullable ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
-        .filter(mutation -> mutation instanceof ObservationMutation)
-        .flatMapIterable(mutation -> ((ObservationMutation) mutation).getResponseDeltas())
+        .filter(mutation -> mutation instanceof SubmissionMutation)
+        .flatMapIterable(mutation -> ((SubmissionMutation) mutation).getResponseDeltas())
         .filter(delta -> delta.getFieldType() == Type.PHOTO && delta.getNewResponse().isPresent())
         .map(delta -> delta.getNewResponse().get().toString())
         .flatMapCompletable(

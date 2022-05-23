@@ -18,8 +18,8 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.mutation.ObservationMutation;
-import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.firebase.firestore.DocumentReference;
@@ -28,18 +28,21 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Maybe;
 
 public class ObservationDocumentReference extends FluentDocumentReference {
+
   ObservationDocumentReference(DocumentReference ref) {
     super(ref);
   }
 
   @Cold
-  public Maybe<Observation> get(Feature feature) {
+  public Maybe<Submission> get(Feature feature) {
     return RxFirestore.getDocument(reference())
-        .map(doc -> ObservationConverter.toObservation(feature, doc));
+        .map(doc -> ObservationConverter.toSubmission(feature, doc));
   }
 
-  /** Appends the operation described by the specified mutation to the provided write batch. */
-  public void addMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
+  /**
+   * Appends the operation described by the specified mutation to the provided write batch.
+   */
+  public void addMutationToBatch(SubmissionMutation mutation, User user, WriteBatch batch) {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:

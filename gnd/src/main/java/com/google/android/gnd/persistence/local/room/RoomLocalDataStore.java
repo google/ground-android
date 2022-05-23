@@ -39,10 +39,10 @@ import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
 import com.google.android.gnd.model.mutation.Mutation.Type;
-import com.google.android.gnd.model.mutation.ObservationMutation;
-import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.ResponseMap.Builder;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
+import com.google.android.gnd.model.submission.ResponseMap;
+import com.google.android.gnd.model.submission.ResponseMap.Builder;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
@@ -53,11 +53,11 @@ import com.google.android.gnd.persistence.local.room.dao.FieldDao;
 import com.google.android.gnd.persistence.local.room.dao.FormDao;
 import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
@@ -68,11 +68,11 @@ import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
 import com.google.android.gnd.persistence.local.room.entity.FormEntity;
 import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
-import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
-import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
+import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
+import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -115,8 +115,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ProjectDao projectDao;
   @Inject FeatureDao featureDao;
   @Inject FeatureMutationDao featureMutationDao;
-  @Inject ObservationDao observationDao;
-  @Inject ObservationMutationDao observationMutationDao;
+  @Inject SubmissionDao submissionDao;
+  @Inject SubmissionMutationDao submissionMutationDao;
   @Inject TileSetDao tileSetDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
@@ -286,27 +286,27 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Observation> getObservation(Feature feature, String observationId) {
-    return observationDao
-        .findById(observationId)
-        .map(obs -> ObservationEntity.toObservation(feature, obs))
+  public Maybe<Submission> getSubmission(Feature feature, String submissionId) {
+    return submissionDao
+        .findById(submissionId)
+        .map(obs -> SubmissionEntity.toSubmission(feature, obs))
         .doOnError(e -> Timber.d(e))
         .onErrorComplete()
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
-    return observationDao
+  public Single<ImmutableList<Submission>> getSubmissions(Feature feature, String formId) {
+    return submissionDao
         .findByFeatureId(feature.getId(), formId, EntityState.DEFAULT)
-        .map(observationEntities -> toObservations(feature, observationEntities))
+        .map(submissionEntities -> toSubmissions(feature, submissionEntities))
         .subscribeOn(schedulers.io());
   }
 
-  private ImmutableList<Observation> toObservations(
-      Feature feature, List<ObservationEntity> observationEntities) {
-    return stream(observationEntities)
-        .flatMap(obs -> logErrorsAndSkip(() -> ObservationEntity.toObservation(feature, obs)))
+  private ImmutableList<Submission> toSubmissions(
+      Feature feature, List<SubmissionEntity> submissionEntities) {
+    return stream(submissionEntities)
+        .flatMap(obs -> logErrorsAndSkip(() -> SubmissionEntity.toSubmission(feature, obs)))
         .collect(toImmutableList());
   }
 
@@ -332,8 +332,8 @@ public class RoomLocalDataStore implements LocalDataStore {
                         .map(FeatureMutationEntity::toMutation)
                         .collect(toImmutableList()))
             .subscribeOn(schedulers.io());
-    Flowable<ImmutableList<ObservationMutation>> observationMutations =
-        observationMutationDao
+    Flowable<ImmutableList<SubmissionMutation>> submissionMutations =
+        submissionMutationDao
             .loadAllOnceAndStream()
             .map(
                 list ->
@@ -343,17 +343,17 @@ public class RoomLocalDataStore implements LocalDataStore {
                         .collect(toImmutableList()))
             .subscribeOn(schedulers.io());
     return Flowable.combineLatest(
-        featureMutations, observationMutations, this::combineAndSortMutations);
+        featureMutations, submissionMutations, this::combineAndSortMutations);
   }
 
   private ImmutableList<Mutation> combineAndSortMutations(
       ImmutableList<FeatureMutation> featureMutations,
-      ImmutableList<ObservationMutation> observationMutations) {
+      ImmutableList<SubmissionMutation> submissionMutations) {
     return ImmutableList.sortedCopyOf(
         Mutation.byDescendingClientTimestamp(),
         ImmutableList.<Mutation>builder()
             .addAll(featureMutations)
-            .addAll(observationMutations)
+            .addAll(submissionMutations)
             .build());
   }
 
@@ -365,7 +365,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .map(FeatureMutationEntity::toMutation)
         .cast(Mutation.class)
         .mergeWith(
-            observationMutationDao
+            submissionMutationDao
                 .findByFeatureId(featureId, MutationEntitySyncStatus.PENDING)
                 .flattenAsObservable(oms -> oms)
                 .flatMap(
@@ -374,7 +374,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                             .toSingle()
                             .map(project -> ome.toMutation(project))
                             .toObservable()
-                            .doOnError(e -> Timber.e(e, "Observation mutation skipped"))
+                            .doOnError(e -> Timber.e(e, "Submission mutation skipped"))
                             .onErrorResumeNext(Observable.empty()))
                 .cast(Mutation.class))
         .toList()
@@ -388,16 +388,16 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureMutationDao
         .updateAll(toFeatureMutationEntities(mutations))
         .andThen(
-            observationMutationDao
-                .updateAll(toObservationMutationEntities(mutations))
+            submissionMutationDao
+                .updateAll(toSubmissionMutationEntities(mutations))
                 .subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
 
-  private ImmutableList<ObservationMutationEntity> toObservationMutationEntities(
+  private ImmutableList<SubmissionMutationEntity> toSubmissionMutationEntities(
       ImmutableList<Mutation> mutations) {
-    return stream(ObservationMutation.filter(mutations))
-        .map(ObservationMutationEntity::fromMutation)
+    return stream(SubmissionMutation.filter(mutations))
+        .map(SubmissionMutationEntity::fromMutation)
         .collect(toImmutableList());
   }
 
@@ -418,8 +418,8 @@ public class RoomLocalDataStore implements LocalDataStore {
         .filter(mutation -> mutation.getType() == Type.DELETE)
         .flatMapCompletable(
             mutation -> {
-              if (mutation instanceof ObservationMutation) {
-                return deleteObservation(((ObservationMutation) mutation).getObservationId());
+              if (mutation instanceof SubmissionMutation) {
+                return deleteSubmission(((SubmissionMutation) mutation).getSubmissionId());
               } else if (mutation instanceof FeatureMutation) {
                 return deleteFeature(mutation.getFeatureId());
               } else {
@@ -434,15 +434,14 @@ public class RoomLocalDataStore implements LocalDataStore {
             .map(mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
             .map(FeatureMutationEntity::fromMutation)
             .collect(toImmutableList());
-    ImmutableList<ObservationMutationEntity> observationMutations =
-        stream(ObservationMutation.filter(mutations))
+    ImmutableList<SubmissionMutationEntity> submissionMutations =
+        stream(SubmissionMutation.filter(mutations))
             .map(mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
-            .map(ObservationMutationEntity::fromMutation)
+            .map(SubmissionMutationEntity::fromMutation)
             .collect(toImmutableList());
     return featureMutationDao
         .updateAll(featureMutations)
-        .andThen(
-            observationMutationDao.updateAll(observationMutations).subscribeOn(schedulers.io()))
+        .andThen(submissionMutationDao.updateAll(submissionMutations).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
 
@@ -457,41 +456,38 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable mergeObservation(Observation observation) {
-    ObservationEntity observationEntity = ObservationEntity.fromObservation(observation);
-    return observationMutationDao
-        .findByObservationId(
-            observation.getId(),
+  public Completable mergeSubmission(Submission submission) {
+    SubmissionEntity submissionEntity = SubmissionEntity.fromSubmission(submission);
+    return submissionMutationDao
+        .findBySubmissionId(
+            submission.getId(),
             MutationEntitySyncStatus.PENDING,
             MutationEntitySyncStatus.IN_PROGRESS)
         .flatMapCompletable(
-            mutations -> mergeObservation(observation.getForm(), observationEntity, mutations))
+            mutations -> mergeSubmission(submission.getForm(), submissionEntity, mutations))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable mergeObservation(
-      Form form, ObservationEntity observation, List<ObservationMutationEntity> mutations) {
+  private Completable mergeSubmission(
+      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
     if (mutations.isEmpty()) {
-      return observationDao.insertOrUpdate(observation);
+      return submissionDao.insertOrUpdate(submission);
     }
-    ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
+    SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     checkNotNull(lastMutation, "Could not get last mutation");
     return getUser(lastMutation.getUserId())
-        .map(user -> applyMutations(form, observation, mutations, user))
-        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs));
+        .map(user -> applyMutations(form, submission, mutations, user))
+        .flatMapCompletable(obs -> submissionDao.insertOrUpdate(obs));
   }
 
-  private ObservationEntity applyMutations(
-      Form form,
-      ObservationEntity observation,
-      List<ObservationMutationEntity> mutations,
-      User user) {
-    ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
+  private SubmissionEntity applyMutations(
+      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations, User user) {
+    SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     long clientTimestamp = lastMutation.getClientTimestamp();
-    Timber.v("Merging observation " + this + " with mutations " + mutations);
-    ObservationEntity.Builder builder = observation.toBuilder();
+    Timber.v("Merging submission " + this + " with mutations " + mutations);
+    SubmissionEntity.Builder builder = submission.toBuilder();
     builder.setResponses(
-        ResponseMapConverter.toString(applyMutations(form, observation, mutations)));
+        ResponseMapConverter.toString(applyMutations(form, submission, mutations)));
     // Update modified user and time.
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
@@ -499,15 +495,15 @@ public class RoomLocalDataStore implements LocalDataStore {
             .setClientTimestamp(clientTimestamp)
             .build();
     builder.setLastModified(lastModified);
-    Timber.v("Merged observation %s", builder.build());
+    Timber.v("Merged submission %s", builder.build());
     return builder.build();
   }
 
   private ResponseMap applyMutations(
-      Form form, ObservationEntity observation, List<ObservationMutationEntity> mutations) {
+      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
     Builder responseMap =
-        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
-    for (ObservationMutationEntity mutation : mutations) {
+        ResponseMapConverter.fromString(form, submission.getResponses()).toBuilder();
+    for (SubmissionMutationEntity mutation : mutations) {
       // Merge changes to responses.
       responseMap.applyDeltas(
           ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
@@ -562,7 +558,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable applyAndEnqueue(ObservationMutation mutation) {
+  public Completable applyAndEnqueue(SubmissionMutation mutation) {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
@@ -570,87 +566,85 @@ public class RoomLocalDataStore implements LocalDataStore {
           .log(
               "Error enqueueing "
                   + mutation.getType()
-                  + "mutation for observation "
-                  + mutation.getObservationId());
+                  + "mutation for submission "
+                  + mutation.getSubmissionId());
       FirebaseCrashlytics.getInstance().recordException(e);
       return Completable.error(e);
     }
   }
 
   /**
-   * Applies mutation to observation in database or creates a new one.
+   * Applies mutation to submission in database or creates a new one.
    *
-   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not *
+   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    *     exist, or if type is "CREATE" and entity already exists.
    */
-  public Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
+  public Completable apply(SubmissionMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
         return getUser(mutation.getUserId())
-            .flatMapCompletable(user -> createObservation(mutation, user));
+            .flatMapCompletable(user -> createSubmission(mutation, user));
       case UPDATE:
         return getUser(mutation.getUserId())
-            .flatMapCompletable(user -> updateObservation(mutation, user));
+            .flatMapCompletable(user -> updateSubmission(mutation, user));
       case DELETE:
-        return observationDao
-            .findById(mutation.getObservationId())
-            .flatMapCompletable(entity -> markObservationForDeletion(entity, mutation));
+        return submissionDao
+            .findById(mutation.getSubmissionId())
+            .flatMapCompletable(entity -> markSubmissionForDeletion(entity, mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
   }
 
-  private Completable createObservation(ObservationMutation mutation, User user) {
-    return observationDao
-        .insert(ObservationEntity.fromMutation(mutation, AuditInfo.now(user)))
-        .doOnSubscribe(__ -> Timber.v("Inserting observation: %s", mutation))
+  private Completable createSubmission(SubmissionMutation mutation, User user) {
+    return submissionDao
+        .insert(SubmissionEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .doOnSubscribe(__ -> Timber.v("Inserting submission: %s", mutation))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable updateObservation(ObservationMutation mutation, User user) {
-    ObservationMutationEntity mutationEntity = ObservationMutationEntity.fromMutation(mutation);
-    return observationDao
-        .findById(mutation.getObservationId())
+  private Completable updateSubmission(SubmissionMutation mutation, User user) {
+    SubmissionMutationEntity mutationEntity = SubmissionMutationEntity.fromMutation(mutation);
+    return submissionDao
+        .findById(mutation.getSubmissionId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
-        .switchIfEmpty(fallbackObservation(mutation))
+        .switchIfEmpty(fallbackSubmission(mutation))
         .map(obs -> applyMutations(mutation.getForm(), obs, ImmutableList.of(mutationEntity), user))
-        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
+        .flatMapCompletable(obs -> submissionDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
 
   /**
-   * Returns a source which creates an observation based on the provided mutation. Used in rare
-   * cases when the observation is no longer in the local db, but the user is updating rather than
-   * creating a new observation. In these cases creation metadata is unknown, so empty audit info is
-   * used.
+   * Returns a source which creates an submission based on the provided mutation. Used in rare cases
+   * when the submission is no longer in the local db, but the user is updating rather than creating
+   * a new submission. In these cases creation metadata is unknown, so empty audit info is used.
    */
-  private SingleSource<ObservationEntity> fallbackObservation(ObservationMutation mutation) {
-    return em ->
-        em.onSuccess(ObservationEntity.fromMutation(mutation, AuditInfo.builder().build()));
+  private SingleSource<SubmissionEntity> fallbackSubmission(SubmissionMutation mutation) {
+    return em -> em.onSuccess(SubmissionEntity.fromMutation(mutation, AuditInfo.builder().build()));
   }
 
-  private Completable markObservationForDeletion(
-      ObservationEntity entity, ObservationMutation mutation) {
-    return observationDao
+  private Completable markSubmissionForDeletion(
+      SubmissionEntity entity, SubmissionMutation mutation) {
+    return submissionDao
         .update(entity.toBuilder().setState(EntityState.DELETED).build())
-        .doOnSubscribe(__ -> Timber.d("Marking observation as deleted : %s", mutation))
+        .doOnSubscribe(__ -> Timber.d("Marking submission as deleted : %s", mutation))
         .ignoreElement()
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Completable deleteObservation(String observationId) {
-    return observationDao
-        .findById(observationId)
+  public Completable deleteSubmission(String submissionId) {
+    return submissionDao
+        .findById(submissionId)
         .toSingle()
-        .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", observationId))
-        .flatMapCompletable(entity -> observationDao.delete(entity))
+        .doOnSubscribe(__ -> Timber.d("Deleting local submission : %s", submissionId))
+        .flatMapCompletable(entity -> submissionDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable enqueue(ObservationMutation mutation) {
-    return observationMutationDao
-        .insert(ObservationMutationEntity.fromMutation(mutation))
+  private Completable enqueue(SubmissionMutation mutation) {
+    return submissionMutationDao
+        .insert(SubmissionMutationEntity.fromMutation(mutation))
         .doOnSubscribe(__ -> Timber.v("Enqueuing mutation: %s", mutation))
         .subscribeOn(schedulers.io());
   }
@@ -735,10 +729,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Flowable<ImmutableList<ObservationMutation>>
-      getObservationMutationsByFeatureIdOnceAndStream(
-          Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
-    return observationMutationDao
+  public Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByFeatureIdOnceAndStream(
+      Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
+    return submissionMutationDao
         .findByFeatureIdOnceAndStream(featureId, allowedStates)
         .map(list -> stream(list).map(e -> e.toMutation(project)).collect(toImmutableList()));
   }

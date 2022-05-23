@@ -84,7 +84,7 @@ data class FeatureMutation(
             return mutations.toTypedArray().filter {
                 when (it) {
                     is FeatureMutation -> true
-                    is ObservationMutation -> false
+                    is SubmissionMutation -> false
                     else -> false
                 }
             }.map { it as FeatureMutation }.toImmutableList()

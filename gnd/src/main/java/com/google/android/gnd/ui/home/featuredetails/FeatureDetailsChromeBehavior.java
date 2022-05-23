@@ -31,6 +31,7 @@ import timber.log.Timber;
  * sheet is scrolled, collapsed, or expanded.
  */
 public class FeatureDetailsChromeBehavior extends BottomSheetDependentBehavior<ViewGroup> {
+
   public FeatureDetailsChromeBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
@@ -44,8 +45,8 @@ public class FeatureDetailsChromeBehavior extends BottomSheetDependentBehavior<V
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
     View mapScrim = parent.findViewById(R.id.map_scrim);
 
-    // Fade in the bottom scrim and "Add Observation" button, with both being fully visible as soon
-    // as the top of the bottom sheet passes the top of the "Add Observation" button.
+    // Fade in the bottom scrim and "Add Submission" button, with both being fully visible as soon
+    // as the top of the bottom sheet passes the top of the "Add Submission" button.
     float revealRatio = metrics.getRevealRatio();
     float hideRatio = 1.0f - revealRatio;
     layout.setAlpha(revealRatio);

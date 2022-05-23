@@ -28,7 +28,7 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
+import com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
@@ -38,6 +38,7 @@ import java8.util.function.Consumer;
  * injectable, since binding adapters must be static.
  */
 public class BindingAdapters {
+
   @BindingAdapter("src")
   public static void bindImageBitmap(ImageView imageView, Bitmap bitmap) {
     imageView.setImageBitmap(bitmap);

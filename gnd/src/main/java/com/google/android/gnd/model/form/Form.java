@@ -19,7 +19,7 @@ package com.google.android.gnd.model.form;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.submission.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.Comparators;
@@ -55,6 +55,7 @@ public abstract class Form {
 
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setId(String newId);
 
     public abstract Builder setElements(ImmutableList<Element> newElementsList);

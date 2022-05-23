@@ -23,8 +23,8 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
-import com.google.android.gnd.model.mutation.ObservationMutation;
-import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -54,12 +54,16 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
 
-  @Inject ApplicationErrorManager errorManager;
-  @Inject GroundFirestore db;
-  @Inject Schedulers schedulers;
+  @Inject
+  ApplicationErrorManager errorManager;
+  @Inject
+  GroundFirestore db;
+  @Inject
+  Schedulers schedulers;
 
   @Inject
-  FirestoreDataStore() {}
+  FirestoreDataStore() {
+  }
 
   /**
    * Prevents known {@link FirebaseFirestoreException} from propagating downstream. Also, notifies
@@ -87,7 +91,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .observations()
@@ -149,9 +153,9 @@ public class FirestoreDataStore implements RemoteDataStore {
                 + " "
                 + mutation.getClass().getSimpleName()
                 + " for "
-                + (mutation instanceof ObservationMutation
-                    ? ((ObservationMutation) mutation).getObservationId()
-                    : mutation.getFeatureId())
+                + (mutation instanceof SubmissionMutation
+                ? ((SubmissionMutation) mutation).getSubmissionId()
+                : mutation.getFeatureId())
                 + " to batch");
         Timber.e(e, "Skipping invalid mutation");
       }
@@ -163,8 +167,8 @@ public class FirestoreDataStore implements RemoteDataStore {
       throws DataStoreException {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
-    } else if (mutation instanceof ObservationMutation) {
-      addObservationMutationToBatch((ObservationMutation) mutation, user, batch);
+    } else if (mutation instanceof SubmissionMutation) {
+      addSubmissionMutationToBatch((SubmissionMutation) mutation, user, batch);
     } else {
       throw new DataStoreException("Unsupported mutation " + mutation.getClass());
     }
@@ -179,12 +183,12 @@ public class FirestoreDataStore implements RemoteDataStore {
         .addMutationToBatch(mutation, user, batch);
   }
 
-  private void addObservationMutationToBatch(
-      ObservationMutation mutation, User user, WriteBatch batch) throws DataStoreException {
+  private void addSubmissionMutationToBatch(
+      SubmissionMutation mutation, User user, WriteBatch batch) throws DataStoreException {
     db.projects()
         .project(mutation.getProjectId())
         .observations()
-        .observation(mutation.getObservationId())
+        .observation(mutation.getSubmissionId())
         .addMutationToBatch(mutation, user, batch);
   }
 }

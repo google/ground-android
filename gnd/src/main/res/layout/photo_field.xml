@@ -22,11 +22,11 @@
   <data>
     <import type="android.view.View" />
     <variable
-      name="editObservationViewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+      name="editSubmissionViewModel"
+      type="com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
+      type="com.google.android.gnd.ui.editsubmission.PhotoFieldViewModel" />
   </data>
 
   <FrameLayout
@@ -47,7 +47,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"
-      android:onClick="@{() -> editObservationViewModel.clearPhoto(viewModel.getField().getId())}"
+      android:onClick="@{() -> editSubmissionViewModel.clearPhoto(viewModel.getField().getId())}"
       android:visibility="@{viewModel.isEditable() ? View.VISIBLE : View.GONE}"
       app:backgroundTint="@android:color/transparent"
       app:srcCompat="@drawable/ic_baseline_delete_24"

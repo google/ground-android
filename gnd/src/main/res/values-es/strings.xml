@@ -30,9 +30,9 @@
 
   <!-- Shown in toolbar when adding a new feature and form instance. -->
   <string name="add_feature_toolbar_title">Agregar una característica</string>
-  <!-- Shown in toolbar when editing an existing observation (form instance). -->
+  <!-- Shown in toolbar when editing an existing submission (form instance). -->
   <string name="edit_feature_data_toolbar_title">Editar datos de características</string>
-  <!-- Shown in toolbar when adding a new observation (form instance) to a feature. -->
+  <!-- Shown in toolbar when adding a new submission (form instance) to a feature. -->
   <string name="add_feature_data_toolbar_title">Agregar datos de características</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Guardar cambios antes de cerrar?</string>
@@ -64,22 +64,22 @@
     VIEW FEATURE DATA
   -->
 
-  <!-- Shown in observation overflow menu to open popup dialog to edit feature metadata. -->
-  <string name="edit_observation">Editar registro</string>
-  <!-- Shown in observation overflow menu to delete a observation. -->
-  <string name="delete_observation">Eliminar registro</string>
-  <!-- Confirmation shown when deleting a observation (TBD). -->
-  <string name="delete_observation_confirmation">
+  <!-- Shown in submission overflow menu to open popup dialog to edit feature metadata. -->
+  <string name="edit_submission">Editar registro</string>
+  <!-- Shown in submission overflow menu to delete a submission. -->
+  <string name="delete_submission">Eliminar registro</string>
+  <!-- Confirmation shown when deleting a submission (TBD). -->
+  <string name="delete_submission_confirmation">
     Esto eliminará permanentemente el registro seleccionado. Esto no se puede deshacer. Está seguro?
   </string>
   <!--
-    Shown above saved observations (forms) that have been submitted. %1$s placeholder will already be
-    translated, and it will contain the "time ago" that the observation was received by the server
+    Shown above saved submissions (forms) that have been submitted. %1$s placeholder will already be
+    translated, and it will contain the "time ago" that the submission was received by the server
     (e.g., "Submitted 2 min ago").
    -->
   <string name="submitted_status">Enviado %1$s</string>
   <!--
-    Shown above saved observations (forms) that have been submitted and subsequently modified. %1$s
+    Shown above saved submissions (forms) that have been submitted and subsequently modified. %1$s
     placeholder will already be translated, and it will contain the "time ago" that the changes were
     last received by the server (e.g., "Updated 1 min ago").
    -->
@@ -121,14 +121,14 @@
   sus respuestas y vuelve a intentarlo.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="add_observation_button_label">Agregar registro</string>
-  <string name="view_observation_details">Ver detalles del registro</string>
+  <string name="add_submission_button_label">Agregar registro</string>
+  <string name="view_submission_details">Ver detalles del registro</string>
   <string name="map_view">Vista del mapa</string>
   <string name="project_load_error">No se pudo cargar el proyecto</string>
   <string name="project_list_load_error">Lista de proyectos no disponible</string>
   <string name="unexpected_error">Ha ocurrido un error inesperado</string>
-  <string name="edit_observation_button_label">Editar</string>
-  <string name="save_observation_button_label">Guardar</string>
+  <string name="edit_submission_button_label">Editar</string>
+  <string name="save_submission_button_label">Guardar</string>
   <string name="saving">Guardando&#8230;</string>
   <string name="no_changes_to_save">Sin cambios para guardar</string>
   <string name="select_project_menu_item">Mis proyectos</string>
@@ -141,7 +141,7 @@
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Mapas base sin conexión</string>
   <string name="unknown_user">Usuario desconocido</string>
-  <string name="add_observation_toolbar_title">Agregar registro</string>
+  <string name="add_submission_toolbar_title">Agregar registro</string>
   <string name="offline_base_map_selector">Seleccionar área para descargar</string>
   <string name="offline_base_map_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
   <string name="offline_base_map_selector_download">Descargar</string>
@@ -206,8 +206,8 @@
 
   <string name="delete_button_label">Borrar</string>
   <string name="cancel_button_label">Cancelar</string>
-  <string name="observation_delete_confirmation_dialog_title">Eliminar este registro?"</string>
-  <string name="observation_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
+  <string name="submission_delete_confirmation_dialog_title">Eliminar este registro?"</string>
+  <string name="submission_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
   <string name="feature_delete_confirmation_dialog_title">Borrar %1$s ?"</string>
   <string name="feature_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todos los registros asociados. Este cambio no se puede deshacer. ¿Está seguro?</string>
 </resources>
