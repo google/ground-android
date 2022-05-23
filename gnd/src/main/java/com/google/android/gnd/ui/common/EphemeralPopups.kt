@@ -26,28 +26,20 @@ import javax.inject.Singleton
 @Singleton
 class EphemeralPopups @Inject constructor(private val context: Application) {
 
-    fun showSuccess(@StringRes messageId: Int) {
-        showLong(messageId)
-    }
+    fun showSuccess(@StringRes messageId: Int) = showLong(messageId)
 
-    fun showError(@StringRes messageId: Int) {
-        showLong(messageId)
-    }
+    fun showError(@StringRes messageId: Int) = showLong(messageId)
 
-    fun showFyi(@StringRes messageId: Int) {
-        showLong(messageId)
-    }
+    fun showFyi(@StringRes messageId: Int) = showLong(messageId)
 
-    fun showError(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
+    fun showError(message: String) = showLong(message)
 
     // TODO: Rename to unknownError?
-    fun showError() {
-        showLong(R.string.unexpected_error)
-    }
+    fun showError() = showLong(R.string.unexpected_error)
 
-    private fun showLong(@StringRes messageId: Int) {
+    private fun showLong(@StringRes messageId: Int) =
         Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
-    }
+
+    private fun showLong(message: String) =
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }

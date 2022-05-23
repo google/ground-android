@@ -32,9 +32,8 @@ abstract class AbstractFragment : Fragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
-    protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T {
-        return viewModelFactory.get(this, modelClass)
-    }
+    protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
+        viewModelFactory.get(this, modelClass)
 
     override fun onAttach(context: Context) {
         Debug.logLifecycleEvent(this)
@@ -115,14 +114,11 @@ abstract class AbstractFragment : Fragment() {
         }
     }
 
-    private fun <T> restoreChildFragment(savedInstanceState: Bundle, key: String): T {
-        return childFragmentManager.getFragment(savedInstanceState, key) as T
-    }
+    private fun <T> restoreChildFragment(savedInstanceState: Bundle, key: String): T =
+        childFragmentManager.getFragment(savedInstanceState, key) as T
 
     protected fun <T> restoreChildFragment(
         savedInstanceState: Bundle,
         fragmentClass: Class<T>
-    ): T {
-        return restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
-    }
+    ): T = restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
 }

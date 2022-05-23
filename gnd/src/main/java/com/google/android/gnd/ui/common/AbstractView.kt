@@ -41,16 +41,14 @@ abstract class AbstractView(context: Context) : FrameLayout(context) {
             throw IllegalStateException("View is not contained in FragmentActivity")
         }
 
-    protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T {
-        return viewModelFactory.get(activity, modelClass)
-    }
+    protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
+        viewModelFactory.get(activity, modelClass)
 
-    protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding {
-        return DataBindingUtil.inflate(
+    protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding =
+        DataBindingUtil.inflate(
             (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater),
             layoutId,
             this,
             true
         )
-    }
 }
