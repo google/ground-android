@@ -32,7 +32,7 @@ import java.io.FileNotFoundException;
 import timber.log.Timber;
 
 /**
- * A worker that uploads photos from observations to the FirestoreStorage in the background. The
+ * A worker that uploads photos from submissions to the FirestoreStorage in the background. The
  * source file and remote destination path are provided in a {@link Data} object. This worker should
  * only run when the device has a network connection.
  */

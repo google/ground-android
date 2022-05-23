@@ -20,17 +20,26 @@ import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
-/** Observation entity stored in Firestore. */
+/**
+ * Submission entity stored in Firestore.
+ */
 @IgnoreExtraProperties
 class ObservationDocument {
-  @Nullable private String featureId;
-  @Nullable private String formId;
-  @Nullable private AuditInfoNestedObject created;
-  @Nullable private AuditInfoNestedObject lastModified;
-  @Nullable private Map<String, Object> responses;
+
+  @Nullable
+  private String featureId;
+  @Nullable
+  private String formId;
+  @Nullable
+  private AuditInfoNestedObject created;
+  @Nullable
+  private AuditInfoNestedObject lastModified;
+  @Nullable
+  private Map<String, Object> responses;
 
   @SuppressWarnings("unused")
-  public ObservationDocument() {}
+  public ObservationDocument() {
+  }
 
   @SuppressWarnings("unused")
   ObservationDocument(

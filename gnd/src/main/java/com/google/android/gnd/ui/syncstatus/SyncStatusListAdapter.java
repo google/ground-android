@@ -66,7 +66,7 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
         new StringBuilder()
             .append(mutation.getType().toString())
             .append(' ')
-            .append(mutation instanceof FeatureMutation ? "Feature" : "Observation")
+            .append(mutation instanceof FeatureMutation ? "Feature" : "Submission")
             .append(' ')
             .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')

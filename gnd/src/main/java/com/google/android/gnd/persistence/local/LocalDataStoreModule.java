@@ -25,11 +25,11 @@ import com.google.android.gnd.persistence.local.room.dao.FieldDao;
 import com.google.android.gnd.persistence.local.room.dao.FormDao;
 import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import dagger.Binds;
@@ -84,13 +84,13 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static ObservationDao observationDao(LocalDatabase localDatabase) {
-    return localDatabase.observationDao();
+  static SubmissionDao submissionDao(LocalDatabase localDatabase) {
+    return localDatabase.submissionDao();
   }
 
   @Provides
-  static ObservationMutationDao observationMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.observationMutationDao();
+  static SubmissionMutationDao submissionMutationDao(LocalDatabase localDatabase) {
+    return localDatabase.submissionMutationDao();
   }
 
   @Provides
@@ -113,7 +113,9 @@ public abstract class LocalDataStoreModule {
     return localDatabase.userDao();
   }
 
-  /** Provides the Room implementation of local data store. */
+  /**
+   * Provides the Room implementation of local data store.
+   */
   @Binds
   @Singleton
   abstract LocalDataStore localDataStore(RoomLocalDataStore ds);

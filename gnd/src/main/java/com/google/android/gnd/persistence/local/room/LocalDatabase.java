@@ -23,18 +23,18 @@ import com.google.android.gnd.Config;
 import com.google.android.gnd.persistence.local.room.converter.JsonArrayTypeConverter;
 import com.google.android.gnd.persistence.local.room.converter.JsonObjectTypeConverter;
 import com.google.android.gnd.persistence.local.room.converter.StyleTypeConverter;
+import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
 import com.google.android.gnd.persistence.local.room.dao.FormDao;
 import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
-import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
+import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
@@ -44,11 +44,11 @@ import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
 import com.google.android.gnd.persistence.local.room.entity.FormEntity;
 import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
-import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
-import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
+import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
+import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
@@ -69,35 +69,35 @@ import com.google.android.gnd.persistence.local.room.models.TileSetEntityState;
  */
 @Database(
     entities = {
-      FeatureEntity.class,
-      FeatureMutationEntity.class,
-      FieldEntity.class,
-      FormEntity.class,
-      LayerEntity.class,
-      MultipleChoiceEntity.class,
-      OptionEntity.class,
-      ProjectEntity.class,
-      BaseMapEntity.class,
-      ObservationEntity.class,
-      ObservationMutationEntity.class,
-      TileSetEntity.class,
-      OfflineAreaEntity.class,
-      UserEntity.class
+        FeatureEntity.class,
+        FeatureMutationEntity.class,
+        FieldEntity.class,
+        FormEntity.class,
+        LayerEntity.class,
+        MultipleChoiceEntity.class,
+        OptionEntity.class,
+        ProjectEntity.class,
+        BaseMapEntity.class,
+        SubmissionEntity.class,
+        SubmissionMutationEntity.class,
+        TileSetEntity.class,
+        OfflineAreaEntity.class,
+        UserEntity.class
     },
     version = Config.DB_VERSION,
     exportSchema = false)
 @TypeConverters({
-  ElementEntityType.class,
-  FieldEntityType.class,
-  MultipleChoiceEntityType.class,
-  MutationEntityType.class,
-  EntityState.class,
-  JsonArrayTypeConverter.class,
-  JsonObjectTypeConverter.class,
-  MutationEntitySyncStatus.class,
-  OfflineAreaEntityState.class,
-  StyleTypeConverter.class,
-  TileSetEntityState.class
+    ElementEntityType.class,
+    FieldEntityType.class,
+    MultipleChoiceEntityType.class,
+    MutationEntityType.class,
+    EntityState.class,
+    JsonArrayTypeConverter.class,
+    JsonObjectTypeConverter.class,
+    MutationEntitySyncStatus.class,
+    OfflineAreaEntityState.class,
+    StyleTypeConverter.class,
+    TileSetEntityState.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
 
@@ -119,9 +119,9 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract BaseMapDao baseMapDao();
 
-  public abstract ObservationDao observationDao();
+  public abstract SubmissionDao submissionDao();
 
-  public abstract ObservationMutationDao observationMutationDao();
+  public abstract SubmissionMutationDao submissionMutationDao();
 
   public abstract TileSetDao tileSetDao();
 

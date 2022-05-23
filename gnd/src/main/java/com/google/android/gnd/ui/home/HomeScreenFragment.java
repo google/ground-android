@@ -92,33 +92,45 @@ import timber.log.Timber;
 /**
  * Fragment containing the map container and feature sheet fragments and NavigationView side drawer.
  * This is the default view in the application, and gets swapped out for other fragments (e.g., view
- * observation and edit observation) at runtime.
+ * submission and edit submission) at runtime.
  */
 @AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
+
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
-  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
-  @Inject AuthenticationManager authenticationManager;
-  @Inject Schedulers schedulers;
-  @Inject Navigator navigator;
-  @Inject EphemeralPopups popups;
-  @Inject FeatureSelectorFragment featureSelectorDialogFragment;
-  @Inject FeatureHelper featureHelper;
-  @Inject FeatureRepository featureRepository;
+  @Inject
+  AddFeatureDialogFragment addFeatureDialogFragment;
+  @Inject
+  AuthenticationManager authenticationManager;
+  @Inject
+  Schedulers schedulers;
+  @Inject
+  Navigator navigator;
+  @Inject
+  EphemeralPopups popups;
+  @Inject
+  FeatureSelectorFragment featureSelectorDialogFragment;
+  @Inject
+  FeatureHelper featureHelper;
+  @Inject
+  FeatureRepository featureRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
-  @Nullable private ProgressDialog progressDialog;
+  @Nullable
+  private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
-  @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
-  @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
+  @Nullable
+  private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
+  @Nullable
+  private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
@@ -234,17 +246,19 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
+    feature.getLayer().getForm().ifPresent(form -> addNewSubmission(feature, form));
   }
 
-  private void addNewObservation(Feature feature, Form form) {
+  private void addNewSubmission(Feature feature, Form form) {
     String projectId = feature.getProject().getId();
     String featureId = feature.getId();
     String formId = form.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
+    navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, formId));
   }
 
-  /** This is only possible after updating the location of the feature. So, reset the UI. */
+  /**
+   * This is only possible after updating the location of the feature. So, reset the UI.
+   */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
@@ -258,7 +272,9 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /** Generic handler to display error messages to the user. */
+  /**
+   * Generic handler to display error messages to the user.
+   */
   private void onError(Throwable throwable) {
     Timber.e(throwable);
     // Don't display the exact error message as it might not be user-readable.
@@ -310,7 +326,9 @@ public class HomeScreenFragment extends AbstractFragment
     saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
-  /** Fetches offline saved projects and adds them to navigation drawer. */
+  /**
+   * Fetches offline saved projects and adds them to navigation drawer.
+   */
   private void updateNavDrawer() {
     projectSelectorViewModel
         .getOfflineProjects()
@@ -678,8 +696,10 @@ public class HomeScreenFragment extends AbstractFragment
         .setCancelable(true)
         .setTitle(R.string.feature_properties)
         // TODO(#842): Use custom view to format feature properties as table.
-        .setItems(items.toArray(new String[] {}), (a, b) -> {})
-        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {})
+        .setItems(items.toArray(new String[]{}), (a, b) -> {
+        })
+        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {
+        })
         .create()
         .show();
   }
@@ -708,6 +728,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
       if (newState == BottomSheetBehavior.STATE_HIDDEN) {

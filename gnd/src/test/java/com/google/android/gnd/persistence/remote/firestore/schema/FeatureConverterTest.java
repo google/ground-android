@@ -55,7 +55,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class FeatureConverterTest {
 
-  @Mock private DocumentSnapshot featureDocumentSnapshot;
+  @Mock
+  private DocumentSnapshot featureDocumentSnapshot;
 
   private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
@@ -238,7 +239,9 @@ public class FeatureConverterTest {
     noVerticesGeometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
   }
 
-  /** Mock observation document snapshot to return the specified id and object representation. */
+  /**
+   * Mock submission document snapshot to return the specified id and object representation.
+   */
   private void mockFeatureDocumentSnapshot(String id, FeatureDocument doc) {
     when(featureDocumentSnapshot.getId()).thenReturn(id);
     when(featureDocumentSnapshot.toObject(FeatureDocument.class)).thenReturn(doc);

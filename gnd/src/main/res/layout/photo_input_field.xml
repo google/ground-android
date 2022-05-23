@@ -23,11 +23,11 @@
   <data>
     <import type="android.view.View" />
     <variable
-      name="editObservationViewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+      name="editSubmissionViewModel"
+      type="com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
+      type="com.google.android.gnd.ui.editsubmission.PhotoFieldViewModel" />
   </data>
 
   <LinearLayout
@@ -37,7 +37,7 @@
     android:orientation="vertical">
 
     <TextView
-      style="@style/EditObservation.Field.Label"
+      style="@style/EditSubmission.Field.Label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@{viewModel.fieldLabel()}" />
@@ -45,7 +45,7 @@
     <include
       layout="@layout/photo_field"
       app:viewModel="@{viewModel}"
-      app:editObservationViewModel="@{editObservationViewModel}"
+      app:editSubmissionViewModel="@{editSubmissionViewModel}"
       tools:visibility="visible" />
 
     <LinearLayout

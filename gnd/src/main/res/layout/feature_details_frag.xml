@@ -34,7 +34,7 @@
     android:clickable="true">
 
     <!--
-      Observation list background scrim. Used to fill space behind list
+      Submission list background scrim. Used to fill space behind list
       when list doesn't extend to bottom of screen.
     -->
     <FrameLayout
@@ -56,8 +56,8 @@
         app:viewModel="@{viewModel}" />
 
       <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/observation_list_frag"
-        android:name="com.google.android.gnd.ui.home.featuredetails.ObservationListFragment"
+        android:id="@+id/submission_list_frag"
+        android:name="com.google.android.gnd.ui.home.featuredetails.SubmissionListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

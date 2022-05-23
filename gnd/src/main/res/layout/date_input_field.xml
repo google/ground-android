@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.DateFieldViewModel" />
+      type="com.google.android.gnd.ui.editsubmission.DateFieldViewModel" />
   </data>
 
   <LinearLayout
@@ -32,7 +32,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input_layout"
-      style="@style/EditObservation.Field.Text"
+      style="@style/EditSubmission.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:hint="@{viewModel.fieldLabel()}">

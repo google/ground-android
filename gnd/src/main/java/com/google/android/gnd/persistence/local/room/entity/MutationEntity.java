@@ -23,8 +23,11 @@ import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncSt
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Base class for feature and observation mutation database entities. */
+/**
+ * Base class for feature and submission mutation database entities.
+ */
 public abstract class MutationEntity {
+
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
