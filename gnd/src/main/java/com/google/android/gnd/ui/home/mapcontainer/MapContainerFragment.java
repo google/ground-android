@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static androidx.navigation.fragment.NavHostFragment.findNavController;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.os.Bundle;
@@ -42,12 +42,12 @@ import com.google.android.gnd.system.PermissionsManager.PermissionDeniedExceptio
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapType;
-import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -165,7 +165,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     if (cameraPosition != null) {
       map.moveCamera(cameraPosition.getTarget(), cameraPosition.getZoomLevel());
     }
-    map.setMapType(mapsRepository.getSavedMapType());
+    mapsRepository.observableMapType().observe(this, map::setMapType);
   }
 
   private void attachCustomViews(MapFragment map) {
@@ -180,26 +180,12 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     binding.mapOverlay.addView(polygonDrawingView);
   }
 
+  /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   private void showMapTypeSelectorDialog() {
-    ImmutableList<MapType> mapTypes = getMapFragment().getAvailableMapTypes();
-    ImmutableList<Integer> mapTypeValues =
-        stream(mapTypes).map(MapType::getType).collect(toImmutableList());
-    int selectedIdx = mapTypeValues.indexOf(getMapFragment().getMapType());
-    String[] labels = stream(mapTypes).map(p -> getString(p.getLabelId())).toArray(String[]::new);
-    new AlertDialog.Builder(requireContext())
-        .setTitle(R.string.select_map_type)
-        .setSingleChoiceItems(
-            labels,
-            selectedIdx,
-            (dialog, which) -> {
-              int mapType = mapTypeValues.get(which);
-              getMapFragment().setMapType(mapType);
-              mapsRepository.saveMapType(mapType);
-              dialog.dismiss();
-            })
-        .setCancelable(true)
-        .create()
-        .show();
+    MapType[] types = stream(getMapFragment().getAvailableMapTypes()).toArray(MapType[]::new);
+    findNavController(this)
+        .navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToMapTypeDialogFragment(types));
   }
 
   private void showConfirmationDialog(Point point) {
