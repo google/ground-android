@@ -13,174 +13,170 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd
 
-package com.google.android.gnd;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-import com.google.android.gnd.databinding.MainActBinding;
-import com.google.android.gnd.repository.UserRepository;
-import com.google.android.gnd.system.ActivityStreams;
-import com.google.android.gnd.system.ApplicationErrorManager;
-import com.google.android.gnd.system.SettingsManager;
-import com.google.android.gnd.ui.common.BackPressListener;
-import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.common.ProgressDialogs;
-import com.google.android.gnd.ui.common.ViewModelFactory;
-import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
-import timber.log.Timber;
+import android.app.Activity
+import android.app.ProgressDialog
+import android.content.Intent
+import android.os.Bundle
+import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.NavHostFragment
+import com.google.android.gnd.databinding.MainActBinding
+import com.google.android.gnd.repository.UserRepository
+import com.google.android.gnd.rx.RxAutoDispose.autoDisposable
+import com.google.android.gnd.system.ActivityStreams
+import com.google.android.gnd.system.ApplicationErrorManager
+import com.google.android.gnd.system.SettingsManager
+import com.google.android.gnd.ui.common.*
+import dagger.hilt.android.AndroidEntryPoint
+import java8.util.function.Consumer
+import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.
  */
 @AndroidEntryPoint
-public class MainActivity extends AbstractActivity {
+class MainActivity : AbstractActivity() {
+    @Inject
+    lateinit var activityStreams: ActivityStreams
 
-  @Inject ActivityStreams activityStreams;
-  @Inject ApplicationErrorManager errorManager;
-  @Inject ViewModelFactory viewModelFactory;
-  @Inject SettingsManager settingsManager;
-  @Inject Navigator navigator;
-  @Inject UserRepository userRepository;
-  @Inject EphemeralPopups popups;
-  private NavHostFragment navHostFragment;
-  private MainViewModel viewModel;
+    @Inject
+    lateinit var errorManager: ApplicationErrorManager
 
-  @Nullable private ProgressDialog signInProgressDialog;
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
-  @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
-    // Make sure this is before calling super.onCreate()
-    setTheme(R.style.AppTheme);
-    super.onCreate(savedInstanceState);
+    @Inject
+    lateinit var settingsManager: SettingsManager
 
-    // Set up event streams first. Navigator must be listening when auth is first initialized.
-    activityStreams
-        .getActivityRequests()
-        .as(autoDisposable(this))
-        .subscribe(callback -> callback.accept(this));
-    navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
-    navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
+    @Inject
+    lateinit var navigator: Navigator
 
-    MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
+    @Inject
+    lateinit var userRepository: UserRepository
 
-    setContentView(binding.getRoot());
+    @Inject
+    lateinit var popups: EphemeralPopups
 
-    navHostFragment =
-        (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+    private lateinit var viewModel: MainViewModel
+    private lateinit var navHostFragment: NavHostFragment
 
-    viewModel = viewModelFactory.get(this, MainViewModel.class);
-    viewModel.getSignInProgressDialogVisibility().observe(this, this::onSignInProgress);
-    errorManager.getExceptions().as(autoDisposable(this)).subscribe(this::onUnrecoverableError);
-  }
+    private var signInProgressDialog: ProgressDialog? = null
 
-  public void onUnrecoverableError(String message) {
-    popups.showError(message);
-    finish();
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // Make sure this is before calling super.onCreate()
+        setTheme(R.style.AppTheme)
+        super.onCreate(savedInstanceState)
 
-  @Override
-  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
-    super.onWindowInsetChanged(insets);
-    viewModel.onApplyWindowInsets(insets);
-  }
+        // Set up event streams first. Navigator must be listening when auth is first initialized.
+        activityStreams.activityRequests
+            .`as`(autoDisposable(this))
+            .subscribe { callback: Consumer<Activity> -> callback.accept(this) }
 
-  private void onNavigate(NavDirections navDirections) {
-    getNavController().navigate(navDirections);
-  }
+        navigator.navigateRequests
+            .`as`(autoDisposable(this))
+            .subscribe { navDirections: NavDirections -> onNavigate(navDirections) }
 
-  /**
-   * The Android permissions API requires this callback to live in an Activity; here we dispatch the
-   * result back to the PermissionManager for handling.
-   */
-  @Override
-  public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    Timber.d("Permission result received");
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults);
-  }
+        navigator.navigateUpRequests
+            .`as`(autoDisposable(this))
+            .subscribe { navigateUp() }
 
-  /**
-   * The Android settings API requires this callback to live in an Activity; here we dispatch the
-   * result back to the SettingsManager for handling.
-   */
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    Timber.d("Activity result received");
-    super.onActivityResult(requestCode, resultCode, intent);
-    activityStreams.onActivityResult(requestCode, resultCode, intent);
-  }
+        val binding = MainActBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-  /** Override up button behavior to use Navigation Components back stack. */
-  @Override
-  public boolean onSupportNavigateUp() {
-    return navigateUp();
-  }
+        navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-  private boolean navigateUp() {
-    return getNavController().navigateUp();
-  }
+        viewModel = viewModelFactory.get(this, MainViewModel::class.java)
+        viewModel.signInProgressDialogVisibility
+            .observe(this) { visible: Boolean -> onSignInProgress(visible) }
 
-  private NavController getNavController() {
-    return navHostFragment.getNavController();
-  }
-
-  @Override
-  protected void onToolbarUpClicked() {
-    if (!dispatchBackPressed()) {
-      navigateUp();
+        errorManager.exceptions
+            .`as`(autoDisposable(this))
+            .subscribe { onUnrecoverableError(it) }
     }
-  }
 
-  @Override
-  public void onBackPressed() {
-    if (!dispatchBackPressed()) {
-      super.onBackPressed();
+    private fun onUnrecoverableError(message: String) {
+        popups.showError(message)
+        finish()
     }
-  }
 
-  private boolean dispatchBackPressed() {
-    Fragment currentFragment = getCurrentFragment();
-    return currentFragment instanceof BackPressListener
-        && ((BackPressListener) currentFragment).onBack();
-  }
-
-  private Fragment getCurrentFragment() {
-    return navHostFragment.getChildFragmentManager().findFragmentById(R.id.nav_host_fragment);
-  }
-
-  private void onSignInProgress(boolean visible) {
-    if (visible) {
-      showSignInDialog();
-    } else {
-      dismissSignInDialog();
+    override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
+        super.onWindowInsetChanged(insets)
+        viewModel.onApplyWindowInsets(insets)
     }
-  }
 
-  private void showSignInDialog() {
-    if (signInProgressDialog == null) {
-      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in);
+    private fun onNavigate(navDirections: NavDirections) {
+        val navController = navHostFragment.navController
+        navController.navigate(navDirections)
     }
-    signInProgressDialog.show();
-  }
 
-  public void dismissSignInDialog() {
-    if (signInProgressDialog != null) {
-      signInProgressDialog.dismiss();
-      signInProgressDialog = null;
+    /**
+     * The Android permissions API requires this callback to live in an Activity; here we dispatch the
+     * result back to the PermissionManager for handling.
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        Timber.d("Permission result received")
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-  }
+
+    /**
+     * The Android settings API requires this callback to live in an Activity; here we dispatch the
+     * result back to the SettingsManager for handling.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        Timber.d("Activity result received")
+        super.onActivityResult(requestCode, resultCode, intent)
+        activityStreams.onActivityResult(requestCode, resultCode, intent)
+    }
+
+    /** Override up button behavior to use Navigation Components back stack.  */
+    override fun onSupportNavigateUp(): Boolean = navigateUp()
+
+    private fun navigateUp(): Boolean {
+        val navController = navHostFragment.navController
+        return navController.navigateUp()
+    }
+
+    override fun onToolbarUpClicked() {
+        if (!dispatchBackPressed()) navigateUp()
+    }
+
+    override fun onBackPressed() {
+        if (!dispatchBackPressed()) super.onBackPressed()
+    }
+
+    private fun dispatchBackPressed(): Boolean {
+        val fragmentManager = navHostFragment.childFragmentManager
+        val currentFragment = fragmentManager.findFragmentById(R.id.nav_host_fragment)
+        return currentFragment is BackPressListener && currentFragment.onBack()
+    }
+
+    private fun onSignInProgress(visible: Boolean) {
+        if (visible)
+            showSignInDialog()
+        else
+            dismissSignInDialog()
+    }
+
+    private fun showSignInDialog() {
+        if (signInProgressDialog == null) {
+            signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in)
+        }
+        signInProgressDialog!!.show()
+    }
+
+    private fun dismissSignInDialog() {
+        if (signInProgressDialog != null) {
+            signInProgressDialog!!.dismiss()
+            signInProgressDialog = null
+        }
+    }
 }
