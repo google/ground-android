@@ -20,8 +20,8 @@ import static com.google.android.gnd.util.Enums.toEnum;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.remote.DataStoreException;
@@ -62,7 +62,7 @@ public class ResponseDeltasConverter {
   }
 
   @NonNull
-  public static ImmutableList<ResponseDelta> fromString(Form form, @Nullable String jsonString) {
+  public static ImmutableList<ResponseDelta> fromString(Task task, @Nullable String jsonString) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     if (jsonString == null) {
       return deltas.build();
@@ -74,7 +74,7 @@ public class ResponseDeltasConverter {
         try {
           String fieldId = keys.next();
           Field field =
-              form.getField(fieldId)
+              task.getField(fieldId)
                   .orElseThrow(
                       () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
           JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);

@@ -18,8 +18,8 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Field.Type;
 import com.google.android.gnd.model.submission.DateResponse;
 import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.model.submission.TimeResponse;

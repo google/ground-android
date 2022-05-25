@@ -24,7 +24,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
@@ -58,8 +58,8 @@ import org.json.JSONObject;
 public abstract class SubmissionMutationEntity extends MutationEntity {
 
   @CopyAnnotations
-  @ColumnInfo(name = "form_id")
-  public abstract String getFormId();
+  @ColumnInfo(name = "task_id")
+  public abstract String getTaskId();
 
   @CopyAnnotations
   @ColumnInfo(name = "feature_id")
@@ -75,7 +75,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
 
   /**
    * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
-   * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
+   * returns a {@link JSONObject} with the new values of modified task responses, with {@code null}
    * values representing responses that were removed/cleared.
    *
    * <p>This method returns {@code null} for mutation type {@link MutationEntityType#DELETE}.
@@ -90,7 +90,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
       String projectId,
       String featureId,
       String layerId,
-      String formId,
+      String taskId,
       String submissionId,
       MutationEntityType type,
       MutationEntitySyncStatus syncStatus,
@@ -104,7 +104,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setProjectId(projectId)
         .setFeatureId(featureId)
         .setLayerId(layerId)
-        .setFormId(formId)
+        .setTaskId(taskId)
         .setSubmissionId(submissionId)
         .setType(type)
         .setSyncStatus(syncStatus)
@@ -122,7 +122,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
-        .setFormId(m.getForm().getId())
+        .setTaskId(m.getTask().getId())
         .setSubmissionId(m.getSubmissionId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
@@ -148,17 +148,17 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
                 () ->
                     new LocalDataConsistencyException(
                         "Unknown layerId in  in submission mutation " + getId()));
-    Form form =
+    Task task =
         layer
-            .getForm(getFormId())
+            .getTask(getTaskId())
             .orElseThrow(
                 () ->
                     new LocalDataConsistencyException(
-                        "Unknown formId in submission mutation " + getId()));
+                        "Unknown taskId in submission mutation " + getId()));
     return SubmissionMutation.builder()
         .setSubmissionId(getSubmissionId())
-        .setForm(form)
-        .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
+        .setTask(task)
+        .setResponseDeltas(ResponseDeltasConverter.fromString(task, getResponseDeltas()))
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
@@ -179,7 +179,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
 
     public abstract Builder setLayerId(String newLayerId);
 
-    public abstract Builder setFormId(String newFormId);
+    public abstract Builder setTaskId(String newTaskId);
 
     public abstract Builder setSubmissionId(String newSubmissionId);
 

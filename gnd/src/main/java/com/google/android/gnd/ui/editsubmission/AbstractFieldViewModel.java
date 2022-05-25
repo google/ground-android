@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;

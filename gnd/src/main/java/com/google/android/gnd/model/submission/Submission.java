@@ -19,7 +19,7 @@ package com.google.android.gnd.model.submission;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.auto.value.AutoValue;
 
 /**
@@ -34,7 +34,7 @@ public abstract class Submission {
 
   public abstract Feature getFeature();
 
-  public abstract Form getForm();
+  public abstract Task getTask();
 
   /**
    * Returns the user and time audit info pertaining to the creation of this submission.
@@ -63,7 +63,7 @@ public abstract class Submission {
 
     public abstract Builder setFeature(Feature feature);
 
-    public abstract Builder setForm(Form form);
+    public abstract Builder setTask(Task task);
 
     public abstract Builder setCreated(AuditInfo newCreated);
 

@@ -19,16 +19,18 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import java.util.Map;
 
-/** Converts between Firestore nested objects and {@link Form} instances. */
+/**
+ * Converts between Firestore nested objects and {@link Task} instances.
+ */
 class FormConverter {
 
-  static Form toForm(String formId, FormNestedObject obj) {
-    return Form.newBuilder().setId(formId).setElements(toList(obj.getElements())).build();
+  static Task toForm(String taskId, FormNestedObject obj) {
+    return Task.newBuilder().setId(taskId).setElements(toList(obj.getElements())).build();
   }
 
   private static ImmutableList<Element> toList(Map<String, ElementNestedObject> elements) {

@@ -25,7 +25,7 @@ import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.BR;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import javax.inject.Inject;
 

@@ -20,19 +20,28 @@ import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
-/** Firestore representation of form element definitions. */
+/**
+ * Firestore representation of task element definitions.
+ */
 @IgnoreExtraProperties
 class ElementNestedObject {
 
-  @Nullable private Integer index;
-  @Nullable private String type;
-  @Nullable private String cardinality;
-  @Nullable private Map<String, String> label;
-  @Nullable private Map<String, OptionNestedObject> options;
-  @Nullable private Boolean required;
+  @Nullable
+  private Integer index;
+  @Nullable
+  private String type;
+  @Nullable
+  private String cardinality;
+  @Nullable
+  private Map<String, String> label;
+  @Nullable
+  private Map<String, OptionNestedObject> options;
+  @Nullable
+  private Boolean required;
 
   @SuppressWarnings("unused")
-  public ElementNestedObject() {}
+  public ElementNestedObject() {
+  }
 
   @SuppressWarnings("unused")
   ElementNestedObject(

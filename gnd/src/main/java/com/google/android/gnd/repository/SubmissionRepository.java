@@ -77,7 +77,7 @@ public class SubmissionRepository {
   }
 
   /**
-   * Retrieves the submissions or the specified project, feature, and form.
+   * Retrieves the submissions or the specified project, feature, and task.
    *
    * <ol>
    *   <li>Attempt to sync remote submission changes to the local data store. If network is not
@@ -87,15 +87,15 @@ public class SubmissionRepository {
    */
   @Cold
   public Single<ImmutableList<Submission>> getSubmissions(
-      String projectId, String featureId, String formId) {
+      String projectId, String featureId, String taskId) {
     // TODO: Only fetch first n fields.
     return featureRepository
         .getFeature(projectId, featureId)
-        .flatMap(feature -> getSubmissions(feature, formId));
+        .flatMap(feature -> getSubmissions(feature, taskId));
   }
 
   @Cold
-  private Single<ImmutableList<Submission>> getSubmissions(Feature feature, String formId) {
+  private Single<ImmutableList<Submission>> getSubmissions(Feature feature, String taskId) {
     Completable remoteSync =
         remoteDataStore
             .loadSubmissions(feature)
@@ -103,7 +103,7 @@ public class SubmissionRepository {
             .doOnError(t -> Timber.e(t, "Submission sync timed out"))
             .flatMapCompletable(this::mergeRemoteSubmissions)
             .onErrorComplete();
-    return remoteSync.andThen(localDataStore.getSubmissions(feature, formId));
+    return remoteSync.andThen(localDataStore.getSubmissions(feature, taskId));
   }
 
   @Cold
@@ -128,8 +128,8 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> createSubmission(String projectId, String featureId, String formId) {
-    // TODO: Handle invalid formId.
+  public Single<Submission> createSubmission(String projectId, String featureId, String taskId) {
+    // TODO: Handle invalid taskId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
@@ -139,7 +139,7 @@ public class SubmissionRepository {
                     .setId(uuidGenerator.generateUuid())
                     .setProject(feature.getProject())
                     .setFeature(feature)
-                    .setForm(feature.getLayer().getForm(formId).get())
+                    .setTask(feature.getLayer().getTask(taskId).get())
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build());
@@ -150,7 +150,7 @@ public class SubmissionRepository {
     SubmissionMutation submissionMutation =
         SubmissionMutation.builder()
             .setSubmissionId(submission.getId())
-            .setForm(submission.getForm())
+            .setTask(submission.getTask())
             .setResponseDeltas(ImmutableList.of())
             .setType(Type.DELETE)
             .setSyncStatus(SyncStatus.PENDING)
@@ -169,7 +169,7 @@ public class SubmissionRepository {
     SubmissionMutation submissionMutation =
         SubmissionMutation.builder()
             .setSubmissionId(submission.getId())
-            .setForm(submission.getForm())
+            .setTask(submission.getTask())
             .setResponseDeltas(responseDeltas)
             .setType(isNew ? SubmissionMutation.Type.CREATE : SubmissionMutation.Type.UPDATE)
             .setSyncStatus(SyncStatus.PENDING)

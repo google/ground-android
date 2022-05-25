@@ -34,11 +34,11 @@ import static org.mockito.Mockito.when;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Task;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
@@ -90,13 +90,13 @@ public class FeatureConverterTest {
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
-  private void setUpTestProject(String layerId, String formId, Field... fields) {
-    Form form =
+  private void setUpTestProject(String layerId, String taskId, Field... fields) {
+    Task task =
         newForm()
-            .setId(formId)
+            .setId(taskId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
-    layer = newLayer().setId(layerId).setForm(form).build();
+    layer = newLayer().setId(layerId).setTask(task).build();
     project = newProject().putLayer(layer).build();
   }
 

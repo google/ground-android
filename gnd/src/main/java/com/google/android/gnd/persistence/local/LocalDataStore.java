@@ -116,10 +116,10 @@ public interface LocalDataStore {
 
   /**
    * Returns the list of submissions which are not marked for deletion for the specified feature and
-   * form.
+   * task.
    */
   @Cold
-  Single<ImmutableList<Submission>> getSubmissions(Feature feature, String formId);
+  Single<ImmutableList<Submission>> getSubmissions(Feature feature, String taskId);
 
   /**
    * Returns the feature with the specified UUID from the local data store, if found.

@@ -19,18 +19,19 @@ package com.google.android.gnd.persistence.local.room.relations;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
-import com.google.android.gnd.persistence.local.room.entity.FormEntity;
+import com.google.android.gnd.persistence.local.room.entity.TaskEntity;
 import java.util.List;
 
 /**
- * Represents relationship among FormEntity and FieldEntity.
+ * Represents relationship among TaskEntity and FieldEntity.
  *
  * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
  */
-public class FormEntityAndRelations {
+public class TaskEntityAndRelations {
 
-  @Embedded public FormEntity formEntity;
+  @Embedded
+  public TaskEntity taskEntity;
 
-  @Relation(parentColumn = "id", entityColumn = "form_id", entity = FieldEntity.class)
+  @Relation(parentColumn = "id", entityColumn = "task_id", entity = FieldEntity.class)
   public List<FieldEntityAndRelations> fieldEntityAndRelations;
 }

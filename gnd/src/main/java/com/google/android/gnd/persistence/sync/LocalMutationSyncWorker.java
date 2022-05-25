@@ -27,7 +27,7 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.task.Field.Type;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;

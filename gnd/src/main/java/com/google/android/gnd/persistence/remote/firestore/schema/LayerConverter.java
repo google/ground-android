@@ -25,7 +25,9 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.common.collect.ImmutableList;
 import timber.log.Timber;
 
-/** Converts between Firestore documents and {@link Layer} instances. */
+/**
+ * Converts between Firestore documents and {@link Layer} instances.
+ */
 class LayerConverter {
 
   static Layer toLayer(String id, LayerNestedObject obj) {
@@ -35,8 +37,8 @@ class LayerConverter {
       if (obj.getForms().size() > 1) {
         Timber.e("Multiple forms not supported");
       }
-      String formId = obj.getForms().keySet().iterator().next();
-      layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
+      String taskId = obj.getForms().keySet().iterator().next();
+      layer.setTask(FormConverter.toForm(taskId, obj.getForms().get(taskId)));
     }
     if (obj.getContributorsCanAdd() != null) {
       ImmutableList<FeatureType> featureTypes =

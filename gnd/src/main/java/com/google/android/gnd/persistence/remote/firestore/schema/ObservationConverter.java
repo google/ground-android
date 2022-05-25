@@ -21,9 +21,9 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Task;
+import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.submission.DateResponse;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.NumberResponse;
@@ -54,8 +54,8 @@ class ObservationConverter {
     if (!feature.getId().equals(featureId)) {
       throw new DataStoreException("Submission doc featureId doesn't match specified feature id");
     }
-    String formId = checkNotNull(doc.getFormId(), "formId");
-    Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form " + formId);
+    String taskId = checkNotNull(doc.getTaskId(), "taskId");
+    Task task = checkNotEmpty(feature.getLayer().getTask(taskId), "task " + taskId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
@@ -64,15 +64,15 @@ class ObservationConverter {
         .setId(snapshot.getId())
         .setProject(feature.getProject())
         .setFeature(feature)
-        .setForm(form)
-        .setResponses(toResponseMap(snapshot.getId(), form, doc.getResponses()))
+        .setTask(task)
+        .setResponses(toResponseMap(snapshot.getId(), task, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
         .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 
   private static ResponseMap toResponseMap(
-      String observationId, Form form, @Nullable Map<String, Object> docResponses) {
+      String observationId, Task task, @Nullable Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     if (docResponses == null) {
       return responses.build();
@@ -80,7 +80,7 @@ class ObservationConverter {
     for (Entry<String, Object> entry : docResponses.entrySet()) {
       String fieldId = entry.getKey();
       try {
-        putResponse(fieldId, form, entry.getValue(), responses);
+        putResponse(fieldId, task, entry.getValue(), responses);
       } catch (DataStoreException e) {
         Timber.e(e, "Field " + fieldId + "in remote db in submission " + observationId);
       }
@@ -89,9 +89,9 @@ class ObservationConverter {
   }
 
   private static void putResponse(
-      String fieldId, Form form, Object obj, ResponseMap.Builder responses) {
+      String fieldId, Task task, Object obj, ResponseMap.Builder responses) {
     Field field =
-        form.getField(fieldId).orElseThrow(() -> new DataStoreException("Not defined in form"));
+        task.getField(fieldId).orElseThrow(() -> new DataStoreException("Not defined in task"));
     switch (field.getType()) {
       case PHOTO:
         // Intentional fall-through.

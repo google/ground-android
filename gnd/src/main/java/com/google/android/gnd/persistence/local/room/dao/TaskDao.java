@@ -17,7 +17,9 @@
 package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
-import com.google.android.gnd.persistence.local.room.entity.FormEntity;
+import com.google.android.gnd.persistence.local.room.entity.TaskEntity;
 
 @Dao
-public interface FormDao extends BaseDao<FormEntity> {}
+public interface TaskDao extends BaseDao<TaskEntity> {
+
+}

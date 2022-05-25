@@ -29,7 +29,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
@@ -294,7 +294,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = optionalFeature.get();
-    Optional<Form> form = feature.getLayer().getForm();
+    Optional<Task> form = feature.getLayer().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
       Timber.e("No forms in layer");

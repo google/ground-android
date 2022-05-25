@@ -28,11 +28,11 @@
   <!-- Title shown above list of layers when (+) is clicked on map. -->
   <string name="add_feature_select_type_dialog_title">O que adicionar?</string>
 
-  <!-- Shown in toolbar when adding a new feature and form instance. -->
+  <!-- Shown in toolbar when adding a new feature and task instance. -->
   <string name="add_feature_toolbar_title">Adicionar local</string>
-  <!-- Shown in toolbar when editing an existing submission (form instance). -->
+  <!-- Shown in toolbar when editing an existing submission (task instance). -->
   <string name="edit_feature_data_toolbar_title">Editar dados do local</string>
-  <!-- Shown in toolbar when adding a new submission (form instance) to a feature. -->
+  <!-- Shown in toolbar when adding a new submission (task instance) to a feature. -->
   <string name="add_feature_data_toolbar_title">Adicionar dados ao local</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Deseja salvar os dados antes de fechar?</string>
@@ -46,7 +46,7 @@
     FEATURE DATA FORMS
   -->
 
-  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to form -->
+  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
   <string name="apply_multiple_choice_changes">Aplicar</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_field">Obrigatório</string>
@@ -64,13 +64,13 @@
     Tem certeza que deseja apagar permanentemente os dados? Isso não pode ser desfeito.
   </string>
   <!--
-    Shown above saved submissions (forms) that have been submitted. %1$s placeholder will already be
+    Shown above saved submissions (tasks) that have been submitted. %1$s placeholder will already be
     translated, and it will contain the "time ago" that the submission was received by the server
     (e.g., "Submitted 2 min ago").
    -->
   <string name="submitted_status">Enviado %1$s</string>
   <!--
-    Shown above saved submissions (forms) that have been submitted and subsequently modified. %1$s
+    Shown above saved submissions (tasks) that have been submitted and subsequently modified. %1$s
     placeholder will already be translated, and it will contain the "time ago" that the changes were
     last received by the server (e.g., "Updated 1 min ago").
    -->
@@ -108,8 +108,8 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
 
   <!-- NEW STRINGS FOR TRANSLATION -->
 
-  <!-- Shown when saving a form that contains missing or invalid data -->
-  <string name="invalid_data_warning">The form contains incomplete or invalid data. Please check
+  <!-- Shown when saving a task that contains missing or invalid data -->
+  <string name="invalid_data_warning">The task contains incomplete or invalid data. Please check
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 

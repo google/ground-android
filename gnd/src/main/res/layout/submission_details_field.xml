@@ -19,7 +19,7 @@
   <data>
     <variable
       name="field"
-      type="com.google.android.gnd.model.form.Field" />
+      type="com.google.android.gnd.model.task.Field" />
   </data>
 
   <LinearLayout

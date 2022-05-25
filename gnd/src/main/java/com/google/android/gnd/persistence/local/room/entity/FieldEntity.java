@@ -23,9 +23,9 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Element.Type;
+import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
 import com.google.android.gnd.persistence.local.room.models.FieldEntityType;
 import com.google.android.gnd.persistence.local.room.relations.FieldEntityAndRelations;
@@ -38,12 +38,12 @@ import timber.log.Timber;
 @Entity(
     tableName = "field",
     foreignKeys =
-        @ForeignKey(
-            entity = FormEntity.class,
-            parentColumns = "id",
-            childColumns = "form_id",
-            onDelete = ForeignKey.CASCADE),
-    indices = {@Index("form_id")})
+    @ForeignKey(
+        entity = TaskEntity.class,
+        parentColumns = "id",
+        childColumns = "task_id",
+        onDelete = ForeignKey.CASCADE),
+    indices = {@Index("task_id")})
 public abstract class FieldEntity {
 
   @CopyAnnotations
@@ -77,10 +77,10 @@ public abstract class FieldEntity {
 
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "form_id")
-  public abstract String getFormId();
+  @ColumnInfo(name = "task_id")
+  public abstract String getTaskId();
 
-  public static FieldEntity fromField(String formId, Type elementType, Field field) {
+  public static FieldEntity fromField(String taskId, Type elementType, Field field) {
     return FieldEntity.builder()
         .setId(field.getId())
         .setIndex(field.getIndex())
@@ -88,7 +88,7 @@ public abstract class FieldEntity {
         .setRequired(field.isRequired())
         .setElementType(ElementEntityType.fromElementType(elementType))
         .setFieldType(FieldEntityType.fromFieldType(field.getType()))
-        .setFormId(formId)
+        .setTaskId(taskId)
         .build();
   }
 
@@ -131,7 +131,7 @@ public abstract class FieldEntity {
       FieldEntityType fieldType,
       String label,
       boolean required,
-      String formId) {
+      String taskId) {
     return builder()
         .setId(id)
         .setIndex(index)
@@ -139,7 +139,7 @@ public abstract class FieldEntity {
         .setFieldType(fieldType)
         .setLabel(label)
         .setRequired(required)
-        .setFormId(formId)
+        .setTaskId(taskId)
         .build();
   }
 
@@ -162,7 +162,7 @@ public abstract class FieldEntity {
 
     public abstract Builder setRequired(boolean required);
 
-    public abstract Builder setFormId(String formId);
+    public abstract Builder setTaskId(String taskId);
 
     public abstract FieldEntity build();
   }

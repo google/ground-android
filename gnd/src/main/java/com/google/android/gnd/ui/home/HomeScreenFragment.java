@@ -52,7 +52,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
@@ -246,14 +246,14 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewSubmission(feature, form));
+    feature.getLayer().getTask().ifPresent(form -> addNewSubmission(feature, form));
   }
 
-  private void addNewSubmission(Feature feature, Form form) {
+  private void addNewSubmission(Feature feature, Task task) {
     String projectId = feature.getProject().getId();
     String featureId = feature.getId();
-    String formId = form.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, formId));
+    String taskId = task.getId();
+    navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, taskId));
   }
 
   /**

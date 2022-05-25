@@ -25,10 +25,10 @@ import androidx.annotation.StyleRes;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.SubmissionListItemBinding;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Element.Type;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.common.collect.ImmutableList;
@@ -58,9 +58,9 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 
-    Form form = submission.getForm();
+    Task task = submission.getTask();
     // TODO: Clean this up.
-    ImmutableList<Element> elements = form.getElementsSorted();
+    ImmutableList<Element> elements = task.getElementsSorted();
     for (int i = 0; i < MAX_COLUMNS && i < elements.size(); i++) {
       Element elem = elements.get(i);
       if (elem.getType() == Type.FIELD) {

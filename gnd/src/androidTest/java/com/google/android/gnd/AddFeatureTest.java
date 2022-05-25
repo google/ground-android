@@ -37,7 +37,8 @@ import org.junit.Test;
 @HiltAndroidTest
 public class AddFeatureTest extends BaseMainActivityTest {
 
-  @Inject FakeAuthenticationManager fakeAuthenticationManager;
+  @Inject
+  FakeAuthenticationManager fakeAuthenticationManager;
 
   @Override
   public void setUp() {
@@ -66,7 +67,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
   }
 
   // Given: A logged in user with an active project
-  // When: They tap the "Add feature" FAB and choose a layer which does not contain a form.
+  // When: They tap the "Add feature" FAB and choose a layer which does not contain a task.
   // Then: The feature map pin is displayed on the map screen. Tapping on the map pin displays the
   // feature details.
   @Test

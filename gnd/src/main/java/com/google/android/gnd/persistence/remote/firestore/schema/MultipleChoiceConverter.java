@@ -20,7 +20,7 @@ import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.task.MultipleChoice;
 import java8.util.Comparators;
 
 class MultipleChoiceConverter {

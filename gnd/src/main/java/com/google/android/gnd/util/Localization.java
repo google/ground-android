@@ -20,14 +20,18 @@ import androidx.annotation.Nullable;
 import java.util.Map;
 
 public abstract class Localization {
-  /** Do not instantiate. */
-  private Localization() {}
+
+  /**
+   * Do not instantiate.
+   */
+  private Localization() {
+  }
 
   public static String getLocalizedMessage(Map<String, String> messages) {
     if (messages == null) {
       return "<Untitled>";
     }
-    // TODO(#711): Allow user to select project/form language and use here.
+    // TODO(#711): Allow user to select project/task language and use here.
     @Nullable String msg = messages.get("_");
     if (msg == null) {
       msg = messages.get("en");

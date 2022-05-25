@@ -19,9 +19,9 @@ package com.google.android.gnd.model;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Field.Type;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.GeoPoint;
@@ -33,6 +33,7 @@ import java.util.Date;
  * specific values should explicitly set them in relevant test methods or during test setup.
  */
 public class TestModelBuilders {
+
   public static Project.Builder newProject() {
     return Project.newBuilder().setId("").setTitle("").setDescription("");
   }
@@ -96,8 +97,8 @@ public class TestModelBuilders {
     return Layer.newBuilder().setId("").setName("");
   }
 
-  public static Form.Builder newForm() {
-    return Form.newBuilder().setId("");
+  public static Task.Builder newForm() {
+    return Task.newBuilder().setId("");
   }
 
   public static Field.Builder newField() {

@@ -25,7 +25,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.relations.TaskEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -36,11 +36,11 @@ import org.json.JSONArray;
 @Entity(
     tableName = "layer",
     foreignKeys =
-        @ForeignKey(
-            entity = ProjectEntity.class,
-            parentColumns = "id",
-            childColumns = "project_id",
-            onDelete = ForeignKey.CASCADE),
+    @ForeignKey(
+        entity = ProjectEntity.class,
+        parentColumns = "id",
+        childColumns = "project_id",
+        onDelete = ForeignKey.CASCADE),
     indices = {@Index("project_id")})
 public abstract class LayerEntity {
 
@@ -81,9 +81,9 @@ public abstract class LayerEntity {
             .setId(layerEntity.getId())
             .setName(layerEntity.getName());
 
-    for (FormEntityAndRelations formEntityAndRelations :
-        layerEntityAndRelations.formEntityAndRelations) {
-      layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
+    for (TaskEntityAndRelations taskEntityAndRelations :
+        layerEntityAndRelations.taskEntityAndRelations) {
+      layerBuilder.setTask(TaskEntity.toTask(taskEntityAndRelations));
     }
 
     layerBuilder.setContributorsCanAdd(toFeatureTypes(layerEntity.getContributorsCanAdd()));

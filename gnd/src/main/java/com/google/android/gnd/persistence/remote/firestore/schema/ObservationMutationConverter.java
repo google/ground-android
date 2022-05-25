@@ -39,7 +39,7 @@ class ObservationMutationConverter {
 
   static final String FEATURE_ID = "featureId";
   private static final String LAYER_ID = "layerId";
-  private static final String FORM_ID = "formId";
+  private static final String TASK_ID = "taskId";
   private static final String RESPONSES = "responses";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
@@ -64,7 +64,7 @@ class ObservationMutationConverter {
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
         .put(LAYER_ID, mutation.getLayerId())
-        .put(FORM_ID, mutation.getForm().getId())
+        .put(TASK_ID, mutation.getTask().getId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));
     return map.build();
   }

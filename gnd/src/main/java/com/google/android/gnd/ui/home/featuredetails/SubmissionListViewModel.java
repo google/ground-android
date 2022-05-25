@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.repository.SubmissionRepository;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -66,18 +66,18 @@ public class SubmissionListViewModel extends AbstractViewModel {
    * Loads a list of submissions associated with a given feature.
    */
   public void loadSubmissionList(Feature feature) {
-    Optional<Form> form = feature.getLayer().getForm();
-    loadSubmissions(feature.getProject(), feature.getId(), form.map(Form::getId));
+    Optional<Task> form = feature.getLayer().getTask();
+    loadSubmissions(feature.getProject(), feature.getId(), form.map(Task::getId));
   }
 
   private Single<ImmutableList<Submission>> getSubmissions(SubmissionListRequest req) {
-    if (req.formId.isEmpty()) {
-      // Do nothing. No form defined for this layer.
-      // TODO(#354): Show message or special treatment for layer with no form.
+    if (req.taskId.isEmpty()) {
+      // Do nothing. No task defined for this layer.
+      // TODO(#354): Show message or special treatment for layer with no task.
       return Single.just(ImmutableList.of());
     }
     return submissionRepository
-        .getSubmissions(req.project.getId(), req.featureId, req.formId.get())
+        .getSubmissions(req.project.getId(), req.featureId, req.taskId.get())
         .onErrorResumeNext(this::onGetSubmissionsError);
   }
 
@@ -87,20 +87,20 @@ public class SubmissionListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadSubmissions(Project project, String featureId, Optional<String> formId) {
-    submissionListRequests.onNext(new SubmissionListRequest(project, featureId, formId));
+  private void loadSubmissions(Project project, String featureId, Optional<String> taskId) {
+    submissionListRequests.onNext(new SubmissionListRequest(project, featureId, taskId));
   }
 
   static class SubmissionListRequest {
 
     final Project project;
     final String featureId;
-    final Optional<String> formId;
+    final Optional<String> taskId;
 
-    public SubmissionListRequest(Project project, String featureId, Optional<String> formId) {
+    public SubmissionListRequest(Project project, String featureId, Optional<String> taskId) {
       this.project = project;
       this.featureId = featureId;
-      this.formId = formId;
+      this.taskId = taskId;
     }
   }
 }
