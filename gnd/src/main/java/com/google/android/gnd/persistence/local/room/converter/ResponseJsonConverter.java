@@ -20,12 +20,12 @@ import static java8.lang.Iterables.forEach;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.NumberResponse;
-import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.model.observation.TimeResponse;
+import com.google.android.gnd.model.submission.DateResponse;
+import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.submission.NumberResponse;
+import com.google.android.gnd.model.submission.Response;
+import com.google.android.gnd.model.submission.TextResponse;
+import com.google.android.gnd.model.submission.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
@@ -44,6 +44,7 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 class ResponseJsonConverter {
+
   private static final DateFormat ISO_INSTANT_FORMAT =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
 

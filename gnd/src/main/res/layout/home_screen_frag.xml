@@ -63,7 +63,7 @@
       </FrameLayout>
 
       <!-- feature_sheet_chrome contains the fixed widgets that don't scroll -
-      in this case the Add Observation button the shim to obscure
+      in this case the Add Submission button the shim to obscure
       the transparent bottom inset -->
       <include
         android:id="@+id/feature_details_chrome"

@@ -20,7 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -45,17 +45,17 @@ public class ObservationsCollectionReference extends FluentCollectionReference {
   }
 
   @Cold
-  public Single<ImmutableList<ValueOrError<Observation>>> observationsByFeatureId(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Submission>>> observationsByFeatureId(Feature feature) {
     return RxFirestore.getCollection(byFeatureId(feature.getId()))
         .map(querySnapshot -> convert(querySnapshot, feature))
         .toSingle(ImmutableList.of());
   }
 
   @NotNull
-  private ImmutableList<ValueOrError<Observation>> convert(
+  private ImmutableList<ValueOrError<Submission>> convert(
       QuerySnapshot querySnapshot, Feature feature) {
     return stream(querySnapshot.getDocuments())
-        .map(doc -> ValueOrError.create(() -> ObservationConverter.toObservation(feature, doc)))
+        .map(doc -> ValueOrError.create(() -> ObservationConverter.toSubmission(feature, doc)))
         .collect(toImmutableList());
   }
 

@@ -28,8 +28,6 @@ public abstract class Layer {
 
   public abstract String getName();
 
-  public abstract Style getDefaultStyle();
-
   public abstract Optional<Form> getForm();
 
   public Optional<Form> getForm(String formId) {
@@ -60,8 +58,6 @@ public abstract class Layer {
     public abstract Builder setId(String newId);
 
     public abstract Builder setName(String newName);
-
-    public abstract Builder setDefaultStyle(Style newDefaultStyle);
 
     public abstract Builder setForm(Optional<Form> form);
 

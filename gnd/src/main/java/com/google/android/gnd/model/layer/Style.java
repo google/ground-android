@@ -20,6 +20,9 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class Style {
+
+  public static final Style DEFAULT_MAP_STYLE = Style.builder().setColor("#ff9131").build();
+
   public abstract String getColor();
 
   public static Builder builder() {

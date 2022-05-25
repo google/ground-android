@@ -19,6 +19,7 @@ import com.android.build.gradle.api.BaseVariant
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
@@ -278,6 +279,7 @@ dependencies {
     // Testing
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.truth:truth:1.1.3'
+    androidTestImplementation 'com.google.truth:truth:1.1.3'
     testImplementation 'androidx.test:core:1.3.0'
     testImplementation 'org.robolectric:robolectric:4.5.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'

@@ -23,8 +23,8 @@ import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
-import com.google.android.gnd.model.mutation.ObservationMutation;
-import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.mutation.SubmissionMutation;
+import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -50,23 +50,33 @@ import io.reactivex.Single;
  */
 public interface LocalDataStore {
 
-  /** Load projects stored in local database. */
+  /**
+   * Load projects stored in local database.
+   */
   @Cold
   Single<ImmutableList<Project>> getProjects();
 
-  /** Load last active project, if any. */
+  /**
+   * Load last active project, if any.
+   */
   @Cold
   Maybe<Project> getProjectById(String id);
 
-  /** Delete stored project from database. */
+  /**
+   * Delete stored project from database.
+   */
   @Cold
   Completable deleteProject(Project project);
 
-  /** Add project to the database. */
+  /**
+   * Add project to the database.
+   */
   @Cold
   Completable insertOrUpdateProject(Project project);
 
-  /** Add user to the database. */
+  /**
+   * Add user to the database.
+   */
   @Cold
   Completable insertOrUpdateUser(User user);
 
@@ -85,15 +95,17 @@ public interface LocalDataStore {
   Completable applyAndEnqueue(FeatureMutation mutation);
 
   /**
-   * Applies the specified {@link ObservationMutation} to the local data store, appending the
+   * Applies the specified {@link SubmissionMutation} to the local data store, appending the
    * mutation to the local queue for remote sync.
    */
   @Cold
-  Completable applyAndEnqueue(ObservationMutation mutation);
+  Completable applyAndEnqueue(SubmissionMutation mutation);
 
-  /** Applies the specified {@link ObservationMutation} to the local data store.. */
+  /**
+   * Applies the specified {@link SubmissionMutation} to the local data store..
+   */
   @Cold
-  Completable apply(ObservationMutation mutation) throws LocalDataStoreException;
+  Completable apply(SubmissionMutation mutation) throws LocalDataStoreException;
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
@@ -103,19 +115,23 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
   /**
-   * Returns the list of observations which are not marked for deletion for the specified feature
-   * and form.
+   * Returns the list of submissions which are not marked for deletion for the specified feature and
+   * form.
    */
   @Cold
-  Single<ImmutableList<Observation>> getObservations(Feature feature, String formId);
+  Single<ImmutableList<Submission>> getSubmissions(Feature feature, String formId);
 
-  /** Returns the feature with the specified UUID from the local data store, if found. */
+  /**
+   * Returns the feature with the specified UUID from the local data store, if found.
+   */
   @Cold
   Maybe<Feature> getFeature(Project project, String featureId);
 
-  /** Returns the observation with the specified UUID from the local data store, if found. */
+  /**
+   * Returns the submission with the specified UUID from the local data store, if found.
+   */
   @Cold
-  Maybe<Observation> getObservation(Feature feature, String observationId);
+  Maybe<Submission> getSubmission(Feature feature, String submissionId);
 
   /**
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
@@ -132,19 +148,21 @@ public interface LocalDataStore {
   Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project);
 
   /**
-   * Returns all feature and observation mutations in the local mutation queue relating to feature
+   * Returns all feature and submission mutations in the local mutation queue relating to feature
    * with the specified id.
    */
   @Cold
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 
-  /** Updates the provided list of mutations. */
+  /**
+   * Updates the provided list of mutations.
+   */
   @Cold
   Completable updateMutations(ImmutableList<Mutation> mutations);
 
   /**
    * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
-   * corresponding observation or feature.
+   * corresponding submission or feature.
    */
   @Cold
   Completable finalizePendingMutations(ImmutableList<Mutation> mutations);
@@ -157,21 +175,25 @@ public interface LocalDataStore {
   @Cold
   Completable mergeFeature(Feature feature);
 
-  /** Deletes feature from local database. */
+  /**
+   * Deletes feature from local database.
+   */
   @Cold
   Completable deleteFeature(String featureId);
 
   /**
-   * Merges the provided observation with pending unsynced local mutations, and inserts it into the
-   * local data store. If a observation with the same id already exists, it will be overwritten with
+   * Merges the provided submission with pending unsynced local mutations, and inserts it into the
+   * local data store. If a submission with the same id already exists, it will be overwritten with
    * the merged instance.
    */
   @Cold
-  Completable mergeObservation(Observation observation);
+  Completable mergeSubmission(Submission submission);
 
-  /** Deletes observation from local database. */
+  /**
+   * Deletes submission from local database.
+   */
   @Cold
-  Completable deleteObservation(String observationId);
+  Completable deleteSubmission(String submissionId);
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
@@ -180,11 +202,15 @@ public interface LocalDataStore {
   @Cold
   Completable insertOrUpdateTileSet(TileSet tileSet);
 
-  /** Returns the tile with the specified URL from the local data store, if found. */
+  /**
+   * Returns the tile with the specified URL from the local data store, if found.
+   */
   @Cold
   Maybe<TileSet> getTileSet(String tileUrl);
 
-  /** Returns all pending tiles from the local data store. */
+  /**
+   * Returns all pending tiles from the local data store.
+   */
   @Cold
   Single<ImmutableList<TileSet>> getPendingTileSets();
 
@@ -195,15 +221,21 @@ public interface LocalDataStore {
   @Cold
   Completable insertOrUpdateOfflineArea(OfflineArea area);
 
-  /** Returns all queued, failed, and completed offline areas from the local data store. */
+  /**
+   * Returns all queued, failed, and completed offline areas from the local data store.
+   */
   @Cold(terminates = false)
   Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream();
 
-  /** Delete an offline area and any associated tiles that are no longer needed. */
+  /**
+   * Delete an offline area and any associated tiles that are no longer needed.
+   */
   @Cold
   Completable deleteOfflineArea(String offlineAreaId);
 
-  /** Returns the offline area with the specified id. */
+  /**
+   * Returns the offline area with the specified id.
+   */
   Single<OfflineArea> getOfflineAreaById(String id);
 
   /**
@@ -213,7 +245,9 @@ public interface LocalDataStore {
   @Cold
   Completable updateTileSetOfflineAreaReferenceCountByUrl(int newCount, String url);
 
-  /** Delete a tile source associated with a given URL from the local data store. */
+  /**
+   * Delete a tile source associated with a given URL from the local data store.
+   */
   @Cold
   Completable deleteTileSetByUrl(TileSet tileSet);
 
@@ -225,9 +259,9 @@ public interface LocalDataStore {
       String featureId, MutationEntitySyncStatus... allowedStates);
 
   /**
-   * Emits the list of {@link ObservationMutation} instances for a given feature which match the
+   * Emits the list of {@link SubmissionMutation} instances for a given feature which match the
    * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
    */
-  Flowable<ImmutableList<ObservationMutation>> getObservationMutationsByFeatureIdOnceAndStream(
+  Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByFeatureIdOnceAndStream(
       Project project, String featureId, MutationEntitySyncStatus... allowedStates);
 }

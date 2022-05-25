@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;

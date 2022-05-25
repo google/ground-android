@@ -25,7 +25,6 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.auto.value.AutoValue;
@@ -57,10 +56,6 @@ public abstract class LayerEntity {
   public abstract String getName();
 
   @CopyAnnotations
-  @ColumnInfo(name = "default_style")
-  public abstract Style getDefaultStyle();
-
-  @CopyAnnotations
   @Nullable
   @ColumnInfo(name = "project_id")
   public abstract String getProjectId();
@@ -75,7 +70,6 @@ public abstract class LayerEntity {
         .setId(layer.getId())
         .setProjectId(projectId)
         .setName(layer.getName())
-        .setDefaultStyle(layer.getDefaultStyle())
         .setContributorsCanAdd(new JSONArray(layer.getContributorsCanAdd()))
         .build();
   }
@@ -85,7 +79,6 @@ public abstract class LayerEntity {
     Layer.Builder layerBuilder =
         Layer.newBuilder()
             .setId(layerEntity.getId())
-            .setDefaultStyle(layerEntity.getDefaultStyle())
             .setName(layerEntity.getName());
 
     for (FormEntityAndRelations formEntityAndRelations :
@@ -121,11 +114,10 @@ public abstract class LayerEntity {
   }
 
   public static LayerEntity create(
-      String id, String name, Style defaultStyle, String projectId, JSONArray contributorsCanAdd) {
+      String id, String name, String projectId, JSONArray contributorsCanAdd) {
     return builder()
         .setId(id)
         .setName(name)
-        .setDefaultStyle(defaultStyle)
         .setProjectId(projectId)
         .setContributorsCanAdd(contributorsCanAdd)
         .build();
@@ -141,8 +133,6 @@ public abstract class LayerEntity {
     public abstract Builder setId(String id);
 
     public abstract Builder setName(String name);
-
-    public abstract Builder setDefaultStyle(Style defaultStyle);
 
     public abstract Builder setProjectId(String projectId);
 

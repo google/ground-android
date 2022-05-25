@@ -55,7 +55,9 @@ public class TermsOfServiceConverterTest {
     termsOfService = newTermsOfService().setId(TEST_TERMS_ID).setText(TEST_TERMS).build();
   }
 
-  /** Mock observation document snapshot to return the specified id and object representation. */
+  /**
+   * Mock submission document snapshot to return the specified id and object representation.
+   */
   private void mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument doc) {
     when(termsOfServiceDocumentSnapshot.getId()).thenReturn(TEST_TERMS_ID);
     when(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument.class)).thenReturn(doc);

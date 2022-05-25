@@ -26,7 +26,6 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Layer.Builder;
-import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -45,10 +44,7 @@ public class FakeData {
   public static final Layer LAYER = newLayer().build();
 
   public static Builder newLayer() {
-    return Layer.newBuilder()
-        .setId("LAYER")
-        .setName("Layer")
-        .setDefaultStyle(Style.builder().setColor("#00ff00").build());
+    return Layer.newBuilder().setId("LAYER").setName("Layer");
   }
 
   public static final User USER =

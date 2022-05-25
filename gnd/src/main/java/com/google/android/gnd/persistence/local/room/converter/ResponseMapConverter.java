@@ -20,14 +20,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-/** Converts between {@link ResponseMap} and JSON strings used to represent them in the local db. */
+/**
+ * Converts between {@link ResponseMap} and JSON strings used to represent them in the local db.
+ */
 public class ResponseMapConverter {
 
   @Nullable

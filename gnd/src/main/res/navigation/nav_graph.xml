@@ -51,17 +51,17 @@
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
-      android:id="@+id/showObservationDetails"
-      app:destination="@id/observation_details_fragment"
+      android:id="@+id/showSubmissionDetails"
+      app:destination="@id/submission_details_fragment"
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <action
-      android:id="@+id/addObservation"
-      app:destination="@id/edit_observation_fragment">
+      android:id="@+id/addSubmission"
+      app:destination="@id/edit_submission_fragment">
       <argument
-        android:name="observationId"
+        android:name="submissionId"
         android:defaultValue="" />
     </action>
     <action
@@ -84,6 +84,9 @@
     <action
       android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
       app:destination="@id/featureSelectorFragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_mapTypeDialogFragment"
+      app:destination="@id/mapTypeDialogFragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -124,10 +127,10 @@
       app:argType="string" />
   </fragment>
   <fragment
-    android:id="@+id/observation_details_fragment"
-    android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
-    android:label="@string/view_observation_details"
-    tools:layout="@layout/observation_details_frag">
+    android:id="@+id/submission_details_fragment"
+    android:name="com.google.android.gnd.ui.submissiondetails.SubmissionDetailsFragment"
+    android:label="@string/view_submission_details"
+    tools:layout="@layout/submission_details_frag">
     <argument
       android:name="projectId"
       type="string" />
@@ -135,11 +138,11 @@
       android:name="featureId"
       type="string" />
     <argument
-      android:name="observationId"
+      android:name="submissionId"
       type="string" />
     <action
-      android:id="@+id/editObservation"
-      app:destination="@id/edit_observation_fragment"
+      android:id="@+id/editSubmission"
+      app:destination="@id/edit_submission_fragment"
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -150,10 +153,10 @@
     </action>
   </fragment>
   <fragment
-    android:id="@+id/edit_observation_fragment"
-    android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
-    android:label="edit_observation_frag"
-    tools:layout="@layout/edit_observation_frag">
+    android:id="@+id/edit_submission_fragment"
+    android:name="com.google.android.gnd.ui.editsubmission.EditSubmissionFragment"
+    android:label="edit_submission_frag"
+    tools:layout="@layout/edit_submission_frag">
     <argument
       android:name="projectId"
       type="string" />
@@ -161,7 +164,7 @@
       android:name="featureId"
       type="string" />
     <argument
-      android:name="observationId"
+      android:name="submissionId"
       type="string" />
     <argument
       android:name="formId"
@@ -221,5 +224,13 @@
     android:id="@+id/featureSelectorFragment"
     android:name="com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment"
     android:label="FeatureSelectorFragment" />
+  <dialog
+    android:id="@+id/mapTypeDialogFragment"
+    android:name="com.google.android.gnd.ui.home.mapcontainer.MapTypeDialogFragment"
+    android:label="MapTypeDialogFragment">
+    <argument
+      android:name="mapTypes"
+      app:argType="com.google.android.gnd.ui.map.MapType[]" />
+  </dialog>
 
 </navigation>
