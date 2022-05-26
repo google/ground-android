@@ -105,7 +105,7 @@ class MainActivity : AbstractActivity() {
 
     override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
         super.onWindowInsetChanged(insets)
-        viewModel.onApplyWindowInsets(insets)
+        viewModel.windowInsets.postValue(insets)
     }
 
     private fun onNavigate(navDirections: NavDirections) {
