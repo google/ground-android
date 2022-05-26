@@ -78,7 +78,6 @@ public abstract class TaskEntity {
 
   public static TaskEntity create(String id, String title, String layerId) {
     return builder().setId(id).setTitle(title).setLayerId(layerId).build();
-    form
   }
 
   public static Builder builder() {
