@@ -107,22 +107,17 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
-  @Inject
-  FeatureHelper featureHelper;
-  @Inject
-  FeatureRepository featureRepository;
+  @Inject FeatureHelper featureHelper;
+  @Inject FeatureRepository featureRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
-  @Nullable
-  private ProgressDialog progressDialog;
+  @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  @Nullable
-  private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
-  @Nullable
-  private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
+  @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
+  @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
@@ -244,9 +239,7 @@ public class HomeScreenFragment extends AbstractFragment
     navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, formId));
   }
 
-  /**
-   * This is only possible after updating the location of the feature. So, reset the UI.
-   */
+  /** This is only possible after updating the location of the feature. So, reset the UI. */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
@@ -260,9 +253,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /**
-   * Generic handler to display error messages to the user.
-   */
+  /** Generic handler to display error messages to the user. */
   private void onError(Throwable throwable) {
     Timber.e(throwable);
     // Don't display the exact error message as it might not be user-readable.
@@ -314,9 +305,7 @@ public class HomeScreenFragment extends AbstractFragment
     saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
-  /**
-   * Fetches offline saved projects and adds them to navigation drawer.
-   */
+  /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
     projectSelectorViewModel
         .getOfflineProjects()
@@ -681,10 +670,8 @@ public class HomeScreenFragment extends AbstractFragment
         .setCancelable(true)
         .setTitle(R.string.feature_properties)
         // TODO(#842): Use custom view to format feature properties as table.
-        .setItems(items.toArray(new String[]{}), (a, b) -> {
-        })
-        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {
-        })
+        .setItems(items.toArray(new String[] {}), (a, b) -> {})
+        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {})
         .create()
         .show();
   }
