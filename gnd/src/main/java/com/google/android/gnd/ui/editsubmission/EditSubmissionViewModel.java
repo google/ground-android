@@ -247,7 +247,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     HashMap<String, Response> restoredResponses = viewArgs.getRestoredResponses();
     return obs.doOnSuccess(
             loadedSubmission -> onSubmissionLoaded(loadedSubmission, restoredResponses))
-        .map(Submission::getForm);
+        .map(Submission::getTask);
   }
 
   private void onSubmissionLoaded(
