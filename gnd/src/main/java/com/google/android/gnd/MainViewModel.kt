@@ -94,20 +94,17 @@ class MainViewModel @Inject constructor(
         // Display progress only when signing in.
         signInProgressDialogVisibility.postValue(signInState.state == SignInState.State.SIGNING_IN)
 
-        if (signInState.error().isPresent) {
-            Timber.e("Authentication error: ${signInState.error()}")
-        }
-
         // TODO: Check auth status whenever fragments resumes
         return when (signInState.state) {
             SignInState.State.SIGNED_IN -> onUserSignedIn()
             SignInState.State.SIGNED_OUT -> onUserSignedOut()
-            SignInState.State.ERROR -> onUserSignInError()
+            SignInState.State.ERROR -> onUserSignInError(signInState.error())
             else -> Observable.never()
         }
     }
 
-    private fun onUserSignInError(): Observable<NavDirections> {
+    private fun onUserSignInError(error: Optional<Throwable?>): Observable<NavDirections> {
+        Timber.e("Authentication error: $error")
         popups.showError(R.string.sign_in_unsuccessful)
         return onUserSignedOut()
     }
