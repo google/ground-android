@@ -79,6 +79,12 @@
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
     <action
+      android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
+      app:destination="@id/projectSelectorDialogFragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
+      app:destination="@id/featureSelectorFragment" />
+    <action
       android:id="@+id/action_home_screen_fragment_to_mapTypeDialogFragment"
       app:destination="@id/mapTypeDialogFragment" />
   </fragment>
@@ -86,7 +92,7 @@
     android:id="@+id/sync_status_fragment"
     android:name="com.google.android.gnd.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
-    tools:layout="@layout/sync_status_frag"></fragment>
+    tools:layout="@layout/sync_status_frag" />
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragment"
@@ -210,6 +216,14 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
+  <dialog
+    android:id="@+id/projectSelectorDialogFragment"
+    android:name="com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment"
+    android:label="ProjectSelectorDialogFragment" />
+  <dialog
+    android:id="@+id/featureSelectorFragment"
+    android:name="com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment"
+    android:label="FeatureSelectorFragment" />
   <dialog
     android:id="@+id/mapTypeDialogFragment"
     android:name="com.google.android.gnd.ui.home.mapcontainer.MapTypeDialogFragment"

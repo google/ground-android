@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static androidx.navigation.fragment.NavHostFragment.findNavController;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
@@ -41,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavDestination;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.BuildConfig;
 import com.google.android.gnd.MainActivity;
@@ -64,7 +66,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
-import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
@@ -73,7 +74,6 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
@@ -102,35 +102,22 @@ public class HomeScreenFragment extends AbstractFragment
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
-  @Inject
-  AddFeatureDialogFragment addFeatureDialogFragment;
-  @Inject
-  AuthenticationManager authenticationManager;
-  @Inject
-  Schedulers schedulers;
-  @Inject
-  Navigator navigator;
-  @Inject
-  EphemeralPopups popups;
-  @Inject
-  FeatureSelectorFragment featureSelectorDialogFragment;
-  @Inject
-  FeatureHelper featureHelper;
-  @Inject
-  FeatureRepository featureRepository;
+  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
+  @Inject AuthenticationManager authenticationManager;
+  @Inject Schedulers schedulers;
+  @Inject Navigator navigator;
+  @Inject EphemeralPopups popups;
+  @Inject FeatureHelper featureHelper;
+  @Inject FeatureRepository featureRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
-  @Nullable
-  private ProgressDialog progressDialog;
+  @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private ProjectSelectorDialogFragment projectSelectorDialogFragment;
-  @Nullable
-  private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
-  @Nullable
-  private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
+  @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
+  @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
@@ -139,8 +126,6 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
 
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
@@ -239,10 +224,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
     featureSelectorViewModel.setFeatures(features);
-    if (!featureSelectorDialogFragment.isVisible()) {
-      featureSelectorDialogFragment.show(
-          getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
-    }
+    navigator.navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToFeatureSelectorFragment());
   }
 
   private void onFeatureAdded(Feature feature) {
@@ -256,9 +239,7 @@ public class HomeScreenFragment extends AbstractFragment
     navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, formId));
   }
 
-  /**
-   * This is only possible after updating the location of the feature. So, reset the UI.
-   */
+  /** This is only possible after updating the location of the feature. So, reset the UI. */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
@@ -272,9 +253,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /**
-   * Generic handler to display error messages to the user.
-   */
+  /** Generic handler to display error messages to the user. */
   private void onError(Throwable throwable) {
     Timber.e(throwable);
     // Don't display the exact error message as it might not be user-readable.
@@ -326,9 +305,7 @@ public class HomeScreenFragment extends AbstractFragment
     saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
-  /**
-   * Fetches offline saved projects and adds them to navigation drawer.
-   */
+  /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
     projectSelectorViewModel
         .getOfflineProjects()
@@ -462,10 +439,6 @@ public class HomeScreenFragment extends AbstractFragment
   public void onStop() {
     super.onStop();
 
-    if (projectSelectorDialogFragment.isVisible()) {
-      dismissProjectSelector();
-    }
-
     if (featureDataTypeSelectorDialogFragment != null
         && featureDataTypeSelectorDialogFragment.isVisible()) {
       featureDataTypeSelectorDialogFragment.dismiss();
@@ -476,15 +449,16 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showProjectSelector() {
-    if (!projectSelectorDialogFragment.isVisible()) {
-      projectSelectorDialogFragment.show(
-          getFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
-    }
+  private int getCurrentDestinationId() {
+    NavDestination currentDestination = findNavController(this).getCurrentDestination();
+    return currentDestination == null ? -1 : currentDestination.getId();
   }
 
-  private void dismissProjectSelector() {
-    projectSelectorDialogFragment.dismiss();
+  private void showProjectSelector() {
+    if (getCurrentDestinationId() != R.id.projectSelectorDialogFragment) {
+      navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
+    }
   }
 
   private void showOfflineAreas() {
@@ -696,10 +670,8 @@ public class HomeScreenFragment extends AbstractFragment
         .setCancelable(true)
         .setTitle(R.string.feature_properties)
         // TODO(#842): Use custom view to format feature properties as table.
-        .setItems(items.toArray(new String[]{}), (a, b) -> {
-        })
-        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {
-        })
+        .setItems(items.toArray(new String[] {}), (a, b) -> {})
+        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {})
         .create()
         .show();
   }
