@@ -36,8 +36,21 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &copy_build_cache 'Copying build cache'
     waitFor: [ '-' ]
-    # we use rsync and not cp so that this step doesn't fail the first time it's run
-    args: [ 'rsync', 'gs://${_CACHE_BUCKET}/', './' ]
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        #### Calculate md5sum and save to a file.
+        # 1. List all files except hidden dirs.
+        # 2. Filter by filename ending with .gradle
+        # 3. Convert continuous spaces into a single space
+        # 4. Pick 5th column containing file size. This causes a collision if only a number is flipped (eg "v2.4" -> "v2.5"). Look for a better alternative.
+        # 5. Calculate md5sum (for mac, use md5)
+        # 6. Strip ending " -" if present
+        ls -lR | grep -e "\.gradle$" | tr -s " " | cut -d " " -f5 | md5sum | sed 's/  -//' > hashsum
+
+        echo "Hashsum: " $(< hashsum)
+        gsutil cp "gs://${_CACHE_BUCKET}/$(< hashsum)-cache.tgz" ./ || echo "No cache found."
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &extract_build_cache 'Extracting tar'
@@ -46,7 +59,7 @@ steps:
     args:
       - '-c'
       - |
-        tar zxf cache.tgz || echo "No cache found."
+        tar zxf $(< hashsum)-cache.tgz || echo "No cache found."
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &config_google_services 'Load debug google-services.json'
@@ -200,13 +213,25 @@ steps:
     args:
       - '-c'
       - |
-        tar zcf cache.tgz .gradle/caches .gradle/wrapper
+        if [ -f $(< hashsum)-cache.tgz ]; then
+          echo "Cache already exists, skipping build cache"
+        else
+          tar zcf cache.tgz .gradle/caches .gradle/wrapper
+        fi
 
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_cache 'Save gradle cache to GCS'
+    entrypoint: 'bash'
     waitFor:
       - *compress_cache
-    args: [ 'cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz' ]
+    args:
+      - '-c'
+      - |
+        if [ -f $(< hashsum)-cache.tgz ]; then
+          echo "Cache already exists, skipping save cache"
+        else
+          gsutil cp cache.tgz gs://${_CACHE_BUCKET}/$(< hashsum)-cache.tgz
+        fi
 
 options:
   env:

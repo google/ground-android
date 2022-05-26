@@ -108,12 +108,12 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class GoogleMapsFragment extends SupportMapFragment implements MapFragment {
 
+  // TODO(#936): Remove placeholder with appropriate images
   private static final ImmutableList<MapType> MAP_TYPES =
       ImmutableList.<MapType>builder()
-          .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.normal))
-          .add(new MapType(GoogleMap.MAP_TYPE_SATELLITE, R.string.satellite))
-          .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain))
-          .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.hybrid))
+          .add(new MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ground_logo))
+          .add(new MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ground_logo))
+          .add(new MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo))
           .build();
 
   /** Marker click events. */
