@@ -13,43 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.content.pm.PackageManager
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+/** Represents the arguments of an [Activity.onActivityResult] event.  */
+class RequestPermissionsResult internal constructor(
+    val requestCode: Int, permissions: Array<String>, grantResults: IntArray
+) {
+    private val permissionGrantResults: Map<String, Int> =
+        IntRange(0, permissions.size - 1).associate { Pair(permissions[it], grantResults[it]) }
 
-import android.app.Activity;
-import android.content.Intent;
-import androidx.annotation.NonNull;
-import java.util.Map;
-import java8.util.stream.Collectors;
-import java8.util.stream.IntStreams;
-
-/** Represents the arguments of an {@link Activity#onActivityResult(int, int, Intent)} event. */
-public class RequestPermissionsResult {
-
-  private final int requestCode;
-  private final Map<String, Integer> permissionGrantResults;
-
-  RequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    this.requestCode = requestCode;
-    this.permissionGrantResults =
-        IntStreams.range(0, permissions.length)
-            .boxed()
-            .collect(Collectors.toMap(i -> permissions[i], i -> grantResults[i]));
-  }
-
-  /** Returns the permissions request code for which this result applies. */
-  public int getRequestCode() {
-    return requestCode;
-  }
-
-  /**
-   * Returns true iff the event indicated the specified permission is granted to the application.
-   */
-  public boolean isGranted(String permission) {
-    Integer grantResult = permissionGrantResults.get(permission);
-    return grantResult != null && grantResult == PERMISSION_GRANTED;
-  }
+    /**
+     * Returns true iff the event indicated the specified permission is granted to the application.
+     */
+    fun isGranted(permission: String): Boolean =
+        permissionGrantResults[permission] == PackageManager.PERMISSION_GRANTED
 }
