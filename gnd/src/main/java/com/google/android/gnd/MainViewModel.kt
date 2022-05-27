@@ -18,7 +18,7 @@ package com.google.android.gnd
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
-import com.google.android.gnd.model.Project
+import com.google.android.gnd.model.Survey
 import com.google.android.gnd.repository.FeatureRepository
 import com.google.android.gnd.repository.ProjectRepository
 import com.google.android.gnd.repository.TermsOfServiceRepository
@@ -64,7 +64,7 @@ class MainViewModel @Inject constructor(
         // TODO: Move to background service.
         disposeOnClear(
             projectRepository
-                .activeProject
+                .activeSurvey
                 .observeOn(schedulers.io())
                 .switchMapCompletable { syncFeatures(it) }
                 .subscribe()
@@ -83,10 +83,10 @@ class MainViewModel @Inject constructor(
      * Keeps local features in sync with remote when a project is active, does nothing when no project
      * is active. The stream never completes; syncing stops when subscriptions are disposed of.
      *
-     * @param project the currently active project.
+     * @param survey the currently active project.
      */
-    private fun syncFeatures(project: Optional<Project>): @Cold(terminates = false) Completable {
-        return project.map { featureRepository.syncFeatures(it) }
+    private fun syncFeatures(survey: Optional<Survey>): @Cold(terminates = false) Completable {
+        return survey.map { featureRepository.syncFeatures(it) }
             .orElse(Completable.never())
     }
 

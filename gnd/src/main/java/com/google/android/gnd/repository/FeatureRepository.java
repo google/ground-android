@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.mutation.FeatureMutation;
@@ -85,9 +85,9 @@ public class FeatureRepository {
    * subscriptions will only terminate on disposal.
    */
   @Cold
-  public Completable syncFeatures(Project project) {
+  public Completable syncFeatures(Survey survey) {
     return remoteDataStore
-        .loadFeaturesOnceAndStreamChanges(project)
+        .loadFeaturesOnceAndStreamChanges(survey)
         .flatMapCompletable(this::updateLocalFeature);
   }
 
@@ -111,8 +111,8 @@ public class FeatureRepository {
 
   // TODO: Only return feature fields needed to render features on map.
   @Cold(terminates = false)
-  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
-    return localDataStore.getFeaturesOnceAndStream(project);
+  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Survey survey) {
+    return localDataStore.getFeaturesOnceAndStream(survey);
   }
 
   @Cold

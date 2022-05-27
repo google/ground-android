@@ -29,7 +29,7 @@ import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
@@ -53,7 +53,7 @@ import org.robolectric.android.controller.ActivityController;
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @UninstallModules({LocalDataStoreModule.class})
-public class ProjectSelectorDialogFragmentTest extends BaseHiltTest {
+public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
 
   @Inject ProjectRepository projectRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
@@ -61,15 +61,15 @@ public class ProjectSelectorDialogFragmentTest extends BaseHiltTest {
 
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
 
-  private final Project project1 = FakeData.newProject().setId("1").build();
-  private final Project project2 = FakeData.newProject().setId("2").build();
+  private final Survey survey1 = FakeData.newProject().setId("1").build();
+  private final Survey survey2 = FakeData.newProject().setId("2").build();
 
-  private final List<Project> projects = ImmutableList.of(project1, project2);
+  private final List<Survey> surveys = ImmutableList.of(survey1, survey2);
 
   @Before
   public void setUp() {
     super.setUp();
-    fakeRemoteDataStore.setTestProjects(projects);
+    fakeRemoteDataStore.setTestProjects(surveys);
     setUpFragment();
   }
 
@@ -98,12 +98,12 @@ public class ProjectSelectorDialogFragmentTest extends BaseHiltTest {
   public void show_projectSelected_projectIsActivated() {
     ListView listView = (ListView) projectSelectorDialogFragment.getDialog().getCurrentFocus();
 
-    when(mockLocalDataStore.getProjectById(eq(project2.getId()))).thenReturn(Maybe.just(project2));
+    when(mockLocalDataStore.getProjectById(eq(survey2.getId()))).thenReturn(Maybe.just(survey2));
     shadowOf(listView).performItemClick(1);
     shadowOf(getMainLooper()).idle();
 
     // Verify Dialog is dismissed
     assertThat(projectSelectorDialogFragment.getDialog()).isNull();
-    projectRepository.getActiveProject().test().assertValue(Optional.of(project2));
+    projectRepository.getActiveSurvey().test().assertValue(Optional.of(survey2));
   }
 }

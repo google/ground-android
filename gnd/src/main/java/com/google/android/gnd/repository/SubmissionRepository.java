@@ -17,7 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
 import com.google.android.gnd.model.mutation.Mutation.Type;
@@ -195,9 +195,9 @@ public class SubmissionRepository {
    * new list is emitted on each subsequent change.
    */
   public Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
-      Project project, String featureId) {
+      Survey survey, String featureId) {
     return localDataStore.getSubmissionMutationsByFeatureIdOnceAndStream(
-        project,
+        survey,
         featureId,
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS,

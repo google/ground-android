@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -40,14 +40,14 @@ import java.util.List;
 public interface RemoteDataStore {
 
   @Cold
-  Single<List<Project>> loadProjectSummaries(User user);
+  Single<List<Survey>> loadProjectSummaries(User user);
 
   /**
    * Loads the project with the specified id from the remote data store. The return Single fails
    * with if the project is not found, or if the remote data store is not available.
    */
   @Cold
-  Single<Project> loadProject(String projectId);
+  Single<Survey> loadProject(String projectId);
 
   /**
    * Loads the project terms from the remote data store. The returned Maybe is empty if not found,
@@ -61,7 +61,7 @@ public interface RemoteDataStore {
    * set of features in the project until all subscribers have been disposed.
    */
   @Cold(stateful = true, terminates = false)
-  Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
+  Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey);
 
   /**
    * Returns a list of all submissions associated with the specified feature, or an empty list if

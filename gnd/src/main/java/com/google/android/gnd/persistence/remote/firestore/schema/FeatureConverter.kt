@@ -17,7 +17,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema
 
 import kotlin.Throws
 import com.google.android.gnd.persistence.remote.DataStoreException
-import com.google.android.gnd.model.Project
+import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.feature.*
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.GeoPoint
@@ -37,25 +37,25 @@ object FeatureConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toFeature(project: Project, doc: DocumentSnapshot): Feature<*> {
+    fun toFeature(survey: Survey, doc: DocumentSnapshot): Feature<*> {
         val featureDoc = DataStoreException.checkNotNull(
             doc.toObject(FeatureDocument::class.java),
             "feature data"
         )
 
         if (featureDoc.geometry != null && hasNonEmptyVertices(featureDoc)) {
-            return toFeatureFromGeometry(project, doc, featureDoc)
+            return toFeatureFromGeometry(survey, doc, featureDoc)
         }
 
         featureDoc.geoJson?.let {
             val builder = GeoJsonFeature.newBuilder().setGeoJsonString(it)
-            fillFeature(builder, project, doc.id, featureDoc)
+            fillFeature(builder, survey, doc.id, featureDoc)
             return builder.build()
         }
 
         featureDoc.location?.let {
             val builder = PointFeature.newBuilder().setPoint(toPoint(it))
-            fillFeature(builder, project, doc.id, featureDoc)
+            fillFeature(builder, survey, doc.id, featureDoc)
             return builder.build()
         }
 
@@ -77,7 +77,7 @@ object FeatureConverter {
     }
 
     private fun toFeatureFromGeometry(
-        project: Project, doc: DocumentSnapshot, featureDoc: FeatureDocument
+        survey: Survey, doc: DocumentSnapshot, featureDoc: FeatureDocument
     ): PolygonFeature {
         val geometry = featureDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
@@ -104,17 +104,17 @@ object FeatureConverter {
         }
 
         val builder = PolygonFeature.builder().setVertices(vertices.build())
-        fillFeature(builder, project, doc.id, featureDoc)
+        fillFeature(builder, survey, doc.id, featureDoc)
         return builder.build()
     }
 
     private fun fillFeature(
-        builder: Feature.Builder<*>, project: Project, id: String, featureDoc: FeatureDocument
+        builder: Feature.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
     ) {
         val layerId = DataStoreException.checkNotNull(featureDoc.layerId, LAYER_ID)
         val layer =
             DataStoreException.checkNotEmpty(
-                project.getLayer(layerId),
+                survey.getLayer(layerId),
                 "layer ${featureDoc.layerId}"
             )
         // Degrade gracefully when audit info missing in remote db.
@@ -122,7 +122,7 @@ object FeatureConverter {
         val lastModified = featureDoc.lastModified ?: created
         builder
             .setId(id)
-            .setProject(project)
+            .setProject(survey)
             .setCustomId(featureDoc.customId)
             .setCaption(featureDoc.caption)
             .setLayer(layer)

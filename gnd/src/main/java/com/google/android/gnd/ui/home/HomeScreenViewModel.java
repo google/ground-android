@@ -25,7 +25,7 @@ import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
@@ -72,7 +72,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   /**
    * The state and value of the currently active project (loading, loaded, etc.).
    */
-  private final LiveData<Loadable<Project>> projectLoadingState;
+  private final LiveData<Loadable<Survey>> projectLoadingState;
 
   // TODO(#719): Move into FeatureDetailsViewModel.
   @Hot
@@ -126,7 +126,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository
-                .getProjectLoadingState()
+                .getSurveyLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
         addFeatureRequests.switchMapSingle(
@@ -149,11 +149,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   /**
    * Handle state of the UI elements depending upon the active project.
    */
-  private void onProjectLoadingStateChange(Loadable<Project> project) {
+  private void onProjectLoadingStateChange(Loadable<Survey> project) {
     addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
 
-  private boolean shouldShowAddFeatureButton(Loadable<Project> loadingState) {
+  private boolean shouldShowAddFeatureButton(Loadable<Survey> loadingState) {
     // Project must contain at least one layer that the user can modify for add feature button to be
     // shown.
     if (loadingState.value().isEmpty()) {
@@ -179,8 +179,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("No active project");
       return;
     }
-    Project project = getActiveProject().get();
-    ImmutableList<Layer> layers = projectRepository.getModifiableLayers(project);
+    Survey survey = getActiveProject().get();
+    ImmutableList<Layer> layers = projectRepository.getModifiableLayers(survey);
     // TODO: Pause location updates while dialog is open.
     showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
   }
@@ -207,7 +207,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addFeature(Layer layer, Point point) {
     getActiveProject()
-        .map(Project::getId)
+        .map(Survey::getId)
         .ifPresentOrElse(
             projectId ->
                 addFeatureRequests.onNext(
@@ -219,7 +219,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addPolygonFeature(PolygonFeature feature) {
     getActiveProject()
-        .map(Project::getId)
+        .map(Survey::getId)
         .ifPresentOrElse(
             projectId ->
                 addFeatureRequests.onNext(
@@ -252,7 +252,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.onNext(NIL);
   }
 
-  public LiveData<Loadable<Project>> getProjectLoadingState() {
+  public LiveData<Loadable<Survey>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
@@ -300,14 +300,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("No forms in layer");
       return;
     }
-    Project project = feature.getProject();
-    if (project == null) {
+    Survey survey = feature.getProject();
+    if (survey == null) {
       Timber.e("Missing project");
       return;
     }
     navigator.navigate(
         HomeScreenFragmentDirections.addSubmission(
-            project.getId(), feature.getId(), form.get().getId()));
+            survey.getId(), feature.getId(), form.get().getId()));
   }
 
   public void init() {
@@ -343,7 +343,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showFeatureSelectorRequests.onNext(features);
   }
 
-  public Optional<Project> getActiveProject() {
+  public Optional<Survey> getActiveProject() {
     return Loadable.getValue(getProjectLoadingState());
   }
 

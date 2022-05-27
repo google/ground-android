@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.ProjectEntityAndRelations;
 import com.google.auto.value.AutoValue;
@@ -57,19 +57,19 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "acl")
   public abstract JSONObject getAcl();
 
-  public static ProjectEntity fromProject(Project project) {
+  public static ProjectEntity fromProject(Survey survey) {
     return ProjectEntity.builder()
-        .setId(project.getId())
-        .setTitle(project.getTitle())
-        .setDescription(project.getDescription())
-        .setAcl(new JSONObject(project.getAcl()))
+        .setId(survey.getId())
+        .setTitle(survey.getTitle())
+        .setDescription(survey.getDescription())
+        .setAcl(new JSONObject(survey.getAcl()))
         .build();
   }
 
-  public static Project toProject(ProjectEntityAndRelations projectEntityAndRelations) {
+  public static Survey toProject(ProjectEntityAndRelations projectEntityAndRelations) {
     ProjectEntity projectEntity = projectEntityAndRelations.projectEntity;
-    Project.Builder projectBuilder =
-        Project.newBuilder()
+    Survey.Builder projectBuilder =
+        Survey.newBuilder()
             .setId(projectEntity.getId())
             .setTitle(projectEntity.getTitle())
             .setDescription(projectEntity.getDescription())

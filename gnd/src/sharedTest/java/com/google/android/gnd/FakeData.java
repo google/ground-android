@@ -17,7 +17,7 @@
 package com.google.android.gnd;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
@@ -53,10 +53,10 @@ public class FakeData {
   public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Project PROJECT = newProject().build();
+  public static final Survey SURVEY = newProject().build();
 
-  public static Project.Builder newProject() {
-    return Project.newBuilder()
+  public static Survey.Builder newProject() {
+    return Survey.newBuilder()
         .setId("PROJECT")
         .setTitle("Project title")
         .setDescription("Test project description")
@@ -66,7 +66,7 @@ public class FakeData {
   public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
-          .setProject(PROJECT)
+          .setProject(SURVEY)
           .setLayer(LAYER)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(USER))
@@ -82,7 +82,7 @@ public class FakeData {
   public static final PolygonFeature POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
-          .setProject(PROJECT)
+          .setProject(SURVEY)
           .setLayer(LAYER)
           .setVertices(VERTICES)
           .setCreated(AuditInfo.now(USER))
@@ -92,7 +92,7 @@ public class FakeData {
   public static final GeoJsonFeature GEO_JSON_FEATURE =
       GeoJsonFeature.newBuilder()
           .setId("feature id")
-          .setProject(PROJECT)
+          .setProject(SURVEY)
           .setLayer(LAYER)
           .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(USER))

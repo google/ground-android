@@ -75,7 +75,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream() {
     return projectRepository
-        .getActiveProject()
+        .getActiveSurvey()
         .switchMap(
             project ->
                 project

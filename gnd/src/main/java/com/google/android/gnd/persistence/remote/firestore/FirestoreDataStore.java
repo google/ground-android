@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -80,7 +80,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<Project> loadProject(String projectId) {
+  public Single<Survey> loadProject(String projectId) {
     return db.projects()
         .project(projectId)
         .get()
@@ -112,7 +112,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<List<Project>> loadProjectSummaries(User user) {
+  public Single<List<Survey>> loadProjectSummaries(User user) {
     return db.projects()
         .getReadable(user)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
@@ -121,11 +121,11 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold(stateful = true, terminates = false)
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey) {
     return db.projects()
-        .project(project.getId())
+        .project(survey.getId())
         .features()
-        .loadOnceAndStreamChanges(project)
+        .loadOnceAndStreamChanges(survey)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Flowable.never() : Flowable.error(e))
         .subscribeOn(schedulers.io());
   }

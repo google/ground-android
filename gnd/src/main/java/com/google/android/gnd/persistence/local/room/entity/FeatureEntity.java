@@ -27,7 +27,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
@@ -138,25 +138,25 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+  public static Feature toFeature(FeatureEntity featureEntity, Survey survey) {
     if (featureEntity.getGeoJson() != null) {
       GeoJsonFeature.Builder builder =
           GeoJsonFeature.newBuilder().setGeoJsonString(featureEntity.getGeoJson());
-      fillFeature(builder, featureEntity, project);
+      fillFeature(builder, featureEntity, survey);
       return builder.build();
     }
 
     if (featureEntity.getLocation() != null) {
       PointFeature.Builder builder =
           PointFeature.newBuilder().setPoint(featureEntity.getLocation().toPoint());
-      fillFeature(builder, featureEntity, project);
+      fillFeature(builder, featureEntity, survey);
       return builder.build();
     }
 
     if (featureEntity.getPolygonVertices() != null) {
       PolygonFeature.Builder builder =
           PolygonFeature.builder().setVertices(parseVertices(featureEntity.getPolygonVertices()));
-      fillFeature(builder, featureEntity, project);
+      fillFeature(builder, featureEntity, survey);
       return builder.build();
     }
 
@@ -193,11 +193,11 @@ public abstract class FeatureEntity {
 
 
   public static void fillFeature(
-      Feature.Builder builder, FeatureEntity featureEntity, Project project) {
+      Feature.Builder builder, FeatureEntity featureEntity, Survey survey) {
     String id = featureEntity.getId();
     String layerId = featureEntity.getLayerId();
     Layer layer =
-        project
+        survey
             .getLayer(layerId)
             .orElseThrow(
                 () ->
@@ -205,7 +205,7 @@ public abstract class FeatureEntity {
                         "Unknown layerId " + layerId + " in feature " + id));
     builder
         .setId(id)
-        .setProject(project)
+        .setProject(survey)
         .setLayer(layer)
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()));

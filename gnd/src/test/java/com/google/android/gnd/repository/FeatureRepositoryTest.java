@@ -143,7 +143,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     when(mockLocalDataStore.mergeFeature(FakeData.POINT_FEATURE))
         .thenReturn(Completable.complete());
 
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertNoErrors().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertNoErrors().assertComplete();
 
     verify(mockLocalDataStore, times(1)).mergeFeature(FakeData.POINT_FEATURE);
   }
@@ -155,7 +155,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     when(mockLocalDataStore.mergeFeature(FakeData.POINT_FEATURE))
         .thenReturn(Completable.complete());
 
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertNoErrors().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertNoErrors().assertComplete();
 
     verify(mockLocalDataStore, times(1)).mergeFeature(FakeData.POINT_FEATURE);
   }
@@ -165,7 +165,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.removed("entityId"));
     when(mockLocalDataStore.deleteFeature(anyString())).thenReturn(Completable.complete());
 
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertComplete();
 
     verify(mockLocalDataStore, times(1)).deleteFeature("entityId");
   }
@@ -173,16 +173,16 @@ public class FeatureRepositoryTest extends BaseHiltTest {
   @Test
   public void testSyncFeatures_error() {
     fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.error(new Throwable("Foo error")));
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertNoErrors().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertNoErrors().assertComplete();
   }
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    when(mockLocalDataStore.getFeaturesOnceAndStream(FakeData.PROJECT))
+    when(mockLocalDataStore.getFeaturesOnceAndStream(FakeData.SURVEY))
         .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_FEATURE)));
 
     featureRepository
-        .getFeaturesOnceAndStream(FakeData.PROJECT)
+        .getFeaturesOnceAndStream(FakeData.SURVEY)
         .test()
         .assertValue(ImmutableSet.of(FakeData.POINT_FEATURE));
   }
@@ -200,12 +200,12 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetFeature_projectPresent() {
-    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.PROJECT));
-    when(mockLocalDataStore.getFeature(FakeData.PROJECT, FakeData.POINT_FEATURE.getId()))
+    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.SURVEY));
+    when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.just(FakeData.POINT_FEATURE));
 
     featureRepository
-        .getFeature(FakeData.PROJECT.getId(), FakeData.POINT_FEATURE.getId())
+        .getFeature(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
         .test()
         .assertResult(FakeData.POINT_FEATURE);
 
@@ -217,12 +217,12 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetFeature_whenFeatureIsNotPresent() {
-    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.PROJECT));
-    when(mockLocalDataStore.getFeature(FakeData.PROJECT, FakeData.POINT_FEATURE.getId()))
+    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.SURVEY));
+    when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.empty());
 
     featureRepository
-        .getFeature(FakeData.PROJECT.getId(), FakeData.POINT_FEATURE.getId())
+        .getFeature(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
         .test()
         .assertFailureAndMessage(NotFoundException.class, "Feature not found feature id");
   }

@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.projectselector;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -33,7 +33,7 @@ import timber.log.Timber;
 /** Represents view state and behaviors of the project selector dialog. */
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
-  private final LiveData<Loadable<List<Project>>> projectSummaries;
+  private final LiveData<Loadable<List<Survey>>> projectSummaries;
 
   @Inject
   ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
@@ -44,11 +44,11 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
             projectRepository.getProjectSummaries(authManager.getCurrentUser()));
   }
 
-  public LiveData<Loadable<List<Project>>> getProjectSummaries() {
+  public LiveData<Loadable<List<Survey>>> getProjectSummaries() {
     return projectSummaries;
   }
 
-  public Single<ImmutableList<Project>> getOfflineProjects() {
+  public Single<ImmutableList<Survey>> getOfflineProjects() {
     return projectRepository.getOfflineProjects();
   }
 
@@ -58,7 +58,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    * @param idx the index in the project summary list.
    */
   public void activateProject(int idx) {
-    Optional<List<Project>> projects = Loadable.getValue(this.projectSummaries);
+    Optional<List<Survey>> projects = Loadable.getValue(this.projectSummaries);
     if (projects.isEmpty()) {
       Timber.e("Can't activate project before list is loaded");
       return;
@@ -69,8 +69,8 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
           idx, projects.get().size());
       return;
     }
-    Project project = projects.get().get(idx);
-    projectRepository.activateProject(project.getId());
+    Survey survey = projects.get().get(idx);
+    projectRepository.activateProject(survey.getId());
   }
 
   public void activateOfflineProject(String projectId) {

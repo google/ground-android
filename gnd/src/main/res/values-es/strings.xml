@@ -18,7 +18,7 @@
 
 <resources>
 
-  <!-- Message shown while project is loading. -->
+  <!-- Message shown while survey is loading. -->
   <string name="project_loading_please_wait">Cargando proyecto, porfavor espere &#8230;</string>
 
   <!--

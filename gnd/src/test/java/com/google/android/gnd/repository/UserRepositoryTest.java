@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -52,18 +52,18 @@ public class UserRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetUserRole() {
-    Project project =
-        FakeData.PROJECT.toBuilder()
+    Survey survey =
+        FakeData.SURVEY.toBuilder()
             .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
             .build();
 
     // Current user is authorized as contributor.
     fakeAuthenticationManager.setUser(FakeData.USER);
-    assertThat(userRepository.getUserRole(project)).isEqualTo(Role.CONTRIBUTOR);
+    assertThat(userRepository.getUserRole(survey)).isEqualTo(Role.CONTRIBUTOR);
 
     // Current user is unauthorized.
     fakeAuthenticationManager.setUser(FakeData.USER_2);
-    assertThat(userRepository.getUserRole(project)).isEqualTo(Role.UNKNOWN);
+    assertThat(userRepository.getUserRole(survey)).isEqualTo(Role.UNKNOWN);
   }
 
   @Test

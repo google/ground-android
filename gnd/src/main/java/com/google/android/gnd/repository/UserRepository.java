@@ -18,7 +18,7 @@ package com.google.android.gnd.repository;
 
 import static com.google.android.gnd.util.Enums.toEnum;
 
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -57,8 +57,8 @@ public class UserRepository {
     return authenticationManager.getCurrentUser();
   }
 
-  public Role getUserRole(Project project) {
-    String value = project.getAcl().get(getCurrentUser().getEmail());
+  public Role getUserRole(Survey survey) {
+    String value = survey.getAcl().get(getCurrentUser().getEmail());
     return value == null ? Role.UNKNOWN : toEnum(Role.class, value);
   }
 

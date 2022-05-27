@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
@@ -54,25 +54,25 @@ public interface LocalDataStore {
    * Load projects stored in local database.
    */
   @Cold
-  Single<ImmutableList<Project>> getProjects();
+  Single<ImmutableList<Survey>> getProjects();
 
   /**
    * Load last active project, if any.
    */
   @Cold
-  Maybe<Project> getProjectById(String id);
+  Maybe<Survey> getProjectById(String id);
 
   /**
    * Delete stored project from database.
    */
   @Cold
-  Completable deleteProject(Project project);
+  Completable deleteProject(Survey survey);
 
   /**
    * Add project to the database.
    */
   @Cold
-  Completable insertOrUpdateProject(Project project);
+  Completable insertOrUpdateProject(Survey survey);
 
   /**
    * Add user to the database.
@@ -112,7 +112,7 @@ public interface LocalDataStore {
    * continues to return the full set each time a feature is added/changed/removed.
    */
   @Cold(terminates = false)
-  Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
+  Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Survey survey);
 
   /**
    * Returns the list of submissions which are not marked for deletion for the specified feature and
@@ -125,7 +125,7 @@ public interface LocalDataStore {
    * Returns the feature with the specified UUID from the local data store, if found.
    */
   @Cold
-  Maybe<Feature> getFeature(Project project, String featureId);
+  Maybe<Feature> getFeature(Survey survey, String featureId);
 
   /**
    * Returns the submission with the specified UUID from the local data store, if found.
@@ -145,7 +145,7 @@ public interface LocalDataStore {
    * subscribe and a new list on each subsequent change.
    */
   @Cold(terminates = false)
-  Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project);
+  Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Survey survey);
 
   /**
    * Returns all feature and submission mutations in the local mutation queue relating to feature
@@ -263,5 +263,5 @@ public interface LocalDataStore {
    * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
    */
   Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByFeatureIdOnceAndStream(
-      Project project, String featureId, MutationEntitySyncStatus... allowedStates);
+      Survey survey, String featureId, MutationEntitySyncStatus... allowedStates);
 }

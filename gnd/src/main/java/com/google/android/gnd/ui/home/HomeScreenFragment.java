@@ -50,7 +50,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
@@ -120,7 +120,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
-  private List<Project> projects = Collections.emptyList();
+  private List<Survey> surveys = Collections.emptyList();
   private HomeScreenFragBinding binding;
 
   @Override
@@ -320,16 +320,16 @@ public class HomeScreenFragment extends AbstractFragment
     return binding.navView.getMenu().getItem(1);
   }
 
-  private void addProjectToNavDrawer(List<Project> projects) {
-    this.projects = projects;
+  private void addProjectToNavDrawer(List<Survey> surveys) {
+    this.surveys = surveys;
 
     // clear last saved projects list
     getProjectsNavItem().getSubMenu().removeGroup(R.id.group_join_project);
 
-    for (int index = 0; index < projects.size(); index++) {
+    for (int index = 0; index < surveys.size(); index++) {
       getProjectsNavItem()
           .getSubMenu()
-          .add(R.id.group_join_project, Menu.NONE, index, projects.get(index).getTitle())
+          .add(R.id.group_join_project, Menu.NONE, index, surveys.get(index).getTitle())
           .setIcon(R.drawable.ic_menu_project);
     }
 
@@ -498,7 +498,7 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Loadable<Project> project) {
+  private void onActiveProjectChange(Loadable<Survey> project) {
     switch (project.getState()) {
       case NOT_LOADED:
         dismissLoadingDialog();
@@ -522,16 +522,16 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void updateSelectedProjectUI(int selectedIndex) {
     SubMenu subMenu = getProjectsNavItem().getSubMenu();
-    for (int i = 0; i < projects.size(); i++) {
+    for (int i = 0; i < surveys.size(); i++) {
       MenuItem menuItem = subMenu.getItem(i);
       menuItem.setChecked(i == selectedIndex);
     }
   }
 
-  private int getSelectedProjectIndex(Project activeProject) {
-    for (Project project : projects) {
-      if (project.getId().equals(activeProject.getId())) {
-        return projects.indexOf(project);
+  private int getSelectedProjectIndex(Survey activeSurvey) {
+    for (Survey survey : surveys) {
+      if (survey.getId().equals(activeSurvey.getId())) {
+        return surveys.indexOf(survey);
       }
     }
     Timber.e("Selected project not found.");
@@ -622,8 +622,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     if (item.getGroupId() == R.id.group_join_project) {
-      Project selectedProject = projects.get(item.getOrder());
-      projectSelectorViewModel.activateOfflineProject(selectedProject.getId());
+      Survey selectedSurvey = surveys.get(item.getOrder());
+      projectSelectorViewModel.activateOfflineProject(selectedSurvey.getId());
     } else if (item.getItemId() == R.id.nav_join_project) {
       showProjectSelector();
     } else if (item.getItemId() == R.id.sync_status) {

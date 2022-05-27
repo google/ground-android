@@ -21,7 +21,7 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.basemap.BaseMap;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.OfflineArea.State;
@@ -138,9 +138,9 @@ public class OfflineAreaRepository {
 
     // TODO: Simplify this stream.
     return projectRepository
-        .getProjectLoadingState()
+        .getSurveyLoadingState()
         .compose(Loadable::values)
-        .map(Project::getBaseMaps)
+        .map(Survey::getBaseMaps)
         .doOnError(
             throwable -> Timber.e(throwable, "no basemap sources specified for the active project"))
         .map(ImmutableList::asList)
@@ -263,9 +263,9 @@ public class OfflineAreaRepository {
    */
   public Single<ImmutableList<TileSet>> getTileSets() {
     return projectRepository
-        .getProjectLoadingState()
+        .getSurveyLoadingState()
         .compose(Loadable::values)
-        .map(Project::getBaseMaps)
+        .map(Survey::getBaseMaps)
         .doOnError(t -> Timber.e(t, "No basemap sources specified for the active project"))
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)

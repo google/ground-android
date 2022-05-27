@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ProjectSelectorDialogBinding;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -75,7 +75,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     return dialog.create();
   }
 
-  private void updateProjectList(Loadable<List<Project>> projectSummaries) {
+  private void updateProjectList(Loadable<List<Survey>> projectSummaries) {
     switch (projectSummaries.getState()) {
       case LOADING:
         Timber.i("Loading projects");
@@ -99,13 +99,13 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     dismiss();
   }
 
-  private void showProjectList(List<Project> list) {
+  private void showProjectList(List<Survey> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
 
     checkNotNull(listAdapter, "listAdapter was null when attempting to show project list");
 
     listAdapter.clear();
-    stream(list).map(Project::getTitle).forEach(listAdapter::add);
+    stream(list).map(Survey::getTitle).forEach(listAdapter::add);
     binding.projectSelectorListView.setVisibility(View.VISIBLE);
   }
 

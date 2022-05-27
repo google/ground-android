@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.BaseHiltTest;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
@@ -85,8 +85,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final Layer TEST_LAYER =
       Layer.newBuilder().setId("layer id").setName("heading title").setForm(TEST_FORM).build();
 
-  private static final Project TEST_PROJECT =
-      Project.newBuilder()
+  private static final Survey TEST_SURVEY =
+      Survey.newBuilder()
           .setId("project id")
           .setTitle("project 1")
           .setDescription("foo description")
@@ -233,20 +233,20 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testInsertAndGetProjects() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).test().assertComplete();
-    localDataStore.getProjects().test().assertValue(ImmutableList.of(TEST_PROJECT));
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).test().assertComplete();
+    localDataStore.getProjects().test().assertValue(ImmutableList.of(TEST_SURVEY));
   }
 
   @Test
   public void testGetProjectById() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
-    localDataStore.getProjectById("project id").test().assertValue(TEST_PROJECT);
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
+    localDataStore.getProjectById("project id").test().assertValue(TEST_SURVEY);
   }
 
   @Test
   public void testDeleteProject() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
-    localDataStore.deleteProject(TEST_PROJECT).test().assertComplete();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
+    localDataStore.deleteProject(TEST_SURVEY).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
   }
 
@@ -255,23 +255,23 @@ public class LocalDataStoreTest extends BaseHiltTest {
     Layer layer1 = Layer.newBuilder().setId("layer 1").setName("layer 1 name").build();
     Layer layer2 = Layer.newBuilder().setId("layer 2").setName("layer 2 name").build();
 
-    Project project =
-        Project.newBuilder()
+    Survey survey =
+        Survey.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
             .setDescription("foo project description")
             .putLayer(layer1)
             .build();
-    localDataStore.insertOrUpdateProject(project).blockingAwait();
+    localDataStore.insertOrUpdateProject(survey).blockingAwait();
 
-    project =
-        Project.newBuilder()
+    survey =
+        Survey.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
             .setDescription("foo project description")
             .putLayer(layer2)
             .build();
-    localDataStore.insertOrUpdateProject(project).blockingAwait();
+    localDataStore.insertOrUpdateProject(survey).blockingAwait();
 
     localDataStore
         .getProjectById("foo id")
@@ -288,7 +288,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testApplyAndEnqueue_featureMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).test().assertComplete();
 
@@ -299,7 +299,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION));
 
     localDataStore
-        .getFeature(TEST_PROJECT, "feature id")
+        .getFeature(TEST_SURVEY, "feature id")
         .test()
         .assertValue(feature -> ((PointFeature) feature).getPoint().equals(TEST_POINT));
   }
@@ -307,7 +307,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testApplyAndEnqueue_polygonFeatureMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).test().assertComplete();
 
@@ -318,7 +318,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .assertValue(ImmutableList.of(TEST_POLYGON_FEATURE_MUTATION));
 
     localDataStore
-        .getFeature(TEST_PROJECT, "feature id")
+        .getFeature(TEST_SURVEY, "feature id")
         .test()
         .assertValue(feature -> ((PolygonFeature) feature).getVertices().equals(TEST_POLYGON_1));
   }
@@ -326,17 +326,17 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testGetFeaturesOnceAndStream() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
-        localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
+        localDataStore.getFeaturesOnceAndStream(TEST_SURVEY).test();
 
     subscriber.assertValue(ImmutableSet.of());
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     PointFeature feature =
-        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
 
     subscriber.assertValueSet(ImmutableSet.of(ImmutableSet.of(), ImmutableSet.of(feature)));
   }
@@ -344,7 +344,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testUpdateMutations() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     FeatureMutation mutation = createTestFeatureMutation(TEST_POINT_2);
@@ -358,7 +358,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testPolygonUpdateMutations() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).blockingAwait();
 
     FeatureMutation mutation = createTestPolygonFeatureMutation(TEST_POLYGON_2);
@@ -372,7 +372,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testFinalizePendingMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     localDataStore
@@ -389,16 +389,16 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testMergeFeature() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     PointFeature feature =
-        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     feature = feature.toBuilder().setPoint(TEST_POINT_2).build();
     localDataStore.mergeFeature(feature).test().assertComplete();
 
     localDataStore
-        .getFeature(TEST_PROJECT, "feature id")
+        .getFeature(TEST_SURVEY, "feature id")
         .test()
         .assertValue(newFeature -> ((PointFeature) newFeature).getPoint().equals(TEST_POINT_2));
   }
@@ -406,16 +406,16 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testMergePolygonFeature() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).blockingAwait();
 
     PolygonFeature feature =
-        (PolygonFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PolygonFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     feature = feature.toBuilder().setVertices(TEST_POLYGON_2).build();
     localDataStore.mergeFeature(feature).test().assertComplete();
 
     localDataStore
-        .getFeature(TEST_PROJECT, "feature id")
+        .getFeature(TEST_SURVEY, "feature id")
         .test()
         .assertValue(
             newFeature -> ((PolygonFeature) newFeature).getVertices().equals(TEST_POLYGON_2));
@@ -424,7 +424,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testApplyAndEnqueue_submissionMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).test().assertComplete();
@@ -435,7 +435,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION));
 
     PointFeature feature =
-        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     Submission submission =
         localDataStore.getSubmission(feature, "submission id").blockingGet();
     assertEquivalent(TEST_OBSERVATION_MUTATION, submission);
@@ -476,11 +476,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testMergeObservation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
     PointFeature feature =
-        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
 
     ResponseMap responseMap =
         ResponseMap.builder()
@@ -508,7 +508,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   public void testDeleteObservation() {
     // Add test submission
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
 
@@ -526,7 +526,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     // Verify that the local submission doesn't end up in getObservations().
     PointFeature feature =
-        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     localDataStore.getSubmissions(feature, "form id").test().assertValue(ImmutableList.of());
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
@@ -539,17 +539,17 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testDeleteFeature() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_SURVEY).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
-        localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
+        localDataStore.getFeaturesOnceAndStream(TEST_SURVEY).test();
 
     // Assert that one feature is streamed.
     PointFeature feature =
-        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+        (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     subscriber.assertValueAt(0, ImmutableSet.of(feature));
 
     FeatureMutation mutation =
@@ -571,7 +571,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.deleteFeature("feature id").blockingAwait();
 
     // Verify that the feature doesn't exist anymore
-    localDataStore.getFeature(TEST_PROJECT, "feature id").test().assertNoValues();
+    localDataStore.getFeature(TEST_SURVEY, "feature id").test().assertNoValues();
 
     // Verify that the linked submission is also deleted.
     localDataStore.getSubmission(feature, "submission id").test().assertNoValues();

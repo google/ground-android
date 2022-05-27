@@ -33,8 +33,8 @@ import java.util.Date;
  * specific values should explicitly set them in relevant test methods or during test setup.
  */
 public class TestModelBuilders {
-  public static Project.Builder newProject() {
-    return Project.newBuilder().setId("").setTitle("").setDescription("");
+  public static Survey.Builder newProject() {
+    return Survey.newBuilder().setId("").setTitle("").setDescription("");
   }
 
   public static User.Builder newUser() {

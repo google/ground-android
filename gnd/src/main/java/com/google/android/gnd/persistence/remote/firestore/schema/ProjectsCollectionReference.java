@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -44,7 +44,7 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
   }
 
   @Cold
-  public Single<List<Project>> getReadable(User user) {
+  public Single<List<Survey>> getReadable(User user) {
     return runQuery(
         reference().whereIn(FieldPath.of(ACL_FIELD, user.getEmail()), VALID_ROLES),
         ProjectConverter::toProject);

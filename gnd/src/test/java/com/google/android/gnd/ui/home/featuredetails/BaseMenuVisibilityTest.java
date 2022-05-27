@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.home.featuredetails;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -41,8 +41,8 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   static final User TEST_USER_UNKNOWN =
       FakeData.USER.toBuilder().setEmail("user4@gmail.com").build();
 
-  private static final Project TEST_PROJECT =
-      FakeData.PROJECT.toBuilder()
+  private static final Survey TEST_SURVEY =
+      FakeData.SURVEY.toBuilder()
           .setAcl(
               ImmutableMap.<String, String>builder()
                   .put(TEST_USER_OWNER.getEmail(), "owner")
@@ -66,14 +66,14 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
   static PointFeature createPointFeature(User user) {
     return FakeData.POINT_FEATURE.toBuilder()
-        .setProject(TEST_PROJECT)
+        .setProject(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }
 
   static PolygonFeature createPolygonFeature(User user) {
     return FakeData.POLYGON_FEATURE.toBuilder()
-        .setProject(TEST_PROJECT)
+        .setProject(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }

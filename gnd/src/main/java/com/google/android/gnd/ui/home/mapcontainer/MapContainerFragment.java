@@ -31,7 +31,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -239,7 +239,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     }
   }
 
-  private void onProjectChange(Loadable<Project> project) {
+  private void onProjectChange(Loadable<Survey> project) {
     if (project.isLoaded()) {
       enableAddFeatureBtn();
     } else {

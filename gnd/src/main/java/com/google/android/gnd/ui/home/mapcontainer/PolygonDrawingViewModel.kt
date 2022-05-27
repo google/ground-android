@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gnd.R
 import com.google.android.gnd.model.AuditInfo
-import com.google.android.gnd.model.Project
+import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.feature.Point
 import com.google.android.gnd.model.feature.PolygonFeature
 import com.google.android.gnd.model.layer.Layer
@@ -74,7 +74,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
     /** The currently selected layer and project for the polygon drawing.  */
     private val selectedLayer = BehaviorProcessor.create<Layer>()
-    private val selectedProject = BehaviorProcessor.create<Project>()
+    private val selectedSurvey = BehaviorProcessor.create<Survey>()
     private var cameraTarget: Point? = null
 
     /**
@@ -164,14 +164,14 @@ class PolygonDrawingViewModel @Inject internal constructor(
     }
 
     fun onCompletePolygonButtonClick() {
-        check(!(selectedLayer.value == null || selectedProject.value == null)) { "Project or layer is null" }
+        check(!(selectedLayer.value == null || selectedSurvey.value == null)) { "Project or layer is null" }
         val polygon = mapPolygon.get()
         check(polygon.isPolygonComplete) { "Polygon is not complete" }
         val auditInfo = AuditInfo.now(authManager.currentUser)
         val polygonFeature = PolygonFeature.builder()
             .setId(polygon.id)
             .setVertices(polygon.vertices)
-            .setProject(selectedProject.value!!)
+            .setProject(selectedSurvey.value!!)
             .setLayer(selectedLayer.value!!)
             .setCreated(auditInfo)
             .setLastModified(auditInfo)
@@ -198,9 +198,9 @@ class PolygonDrawingViewModel @Inject internal constructor(
     // TODO : current location is not working value is always false.
     fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
 
-    fun startDrawingFlow(selectedProject: Project, selectedLayer: Layer) {
+    fun startDrawingFlow(selectedSurvey: Survey, selectedLayer: Layer) {
         this.selectedLayer.onNext(selectedLayer)
-        this.selectedProject.onNext(selectedProject)
+        this.selectedSurvey.onNext(selectedSurvey)
         polygonDrawingState.onNext(PolygonDrawingState.inProgress())
 
         mapPolygon = Optional.of(

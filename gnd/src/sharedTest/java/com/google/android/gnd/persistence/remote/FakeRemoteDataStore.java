@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote;
 
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -42,7 +42,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   private RemoteDataEvent<Feature> featureEvent;
   // TODO(#1045): Allow default project to be initialized by tests.
-  private List<Project> testProjects = Collections.singletonList(FakeData.PROJECT);
+  private List<Survey> testSurveys = Collections.singletonList(FakeData.SURVEY);
   // TODO(#1045): Allow default ToS to be initialized by tests.
   private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
 
@@ -56,8 +56,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
    * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
    * ActivityScenarioRule.
    */
-  public void setTestProject(Project project) {
-    this.testProjects = Collections.singletonList(project);
+  public void setTestProject(Survey survey) {
+    this.testSurveys = Collections.singletonList(survey);
   }
 
   /**
@@ -66,18 +66,18 @@ public class FakeRemoteDataStore implements RemoteDataStore {
    * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
    * ActivityScenarioRule.
    */
-  public void setTestProjects(List<Project> projects) {
-    this.testProjects = projects;
+  public void setTestProjects(List<Survey> surveys) {
+    this.testSurveys = surveys;
   }
 
   @Override
-  public Single<List<Project>> loadProjectSummaries(User user) {
-    return Single.just(testProjects);
+  public Single<List<Survey>> loadProjectSummaries(User user) {
+    return Single.just(testSurveys);
   }
 
   @Override
-  public Single<Project> loadProject(String projectId) {
-    return Single.just(testProjects.get(0));
+  public Single<Survey> loadProject(String projectId) {
+    return Single.just(testSurveys.get(0));
   }
 
   public void setTermsOfService(Optional<TermsOfService> termsOfService) {
@@ -90,7 +90,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey) {
     return featureEvent == null ? Flowable.empty() : Flowable.just(featureEvent);
   }
 

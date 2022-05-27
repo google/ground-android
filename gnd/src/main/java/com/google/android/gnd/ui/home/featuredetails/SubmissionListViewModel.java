@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.home.featuredetails;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.submission.Submission;
@@ -77,7 +77,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
       return Single.just(ImmutableList.of());
     }
     return submissionRepository
-        .getSubmissions(req.project.getId(), req.featureId, req.formId.get())
+        .getSubmissions(req.survey.getId(), req.featureId, req.formId.get())
         .onErrorResumeNext(this::onGetSubmissionsError);
   }
 
@@ -87,18 +87,18 @@ public class SubmissionListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadSubmissions(Project project, String featureId, Optional<String> formId) {
-    submissionListRequests.onNext(new SubmissionListRequest(project, featureId, formId));
+  private void loadSubmissions(Survey survey, String featureId, Optional<String> formId) {
+    submissionListRequests.onNext(new SubmissionListRequest(survey, featureId, formId));
   }
 
   static class SubmissionListRequest {
 
-    final Project project;
+    final Survey survey;
     final String featureId;
     final Optional<String> formId;
 
-    public SubmissionListRequest(Project project, String featureId, Optional<String> formId) {
-      this.project = project;
+    public SubmissionListRequest(Survey survey, String featureId, Optional<String> formId) {
+      this.survey = survey;
       this.featureId = featureId;
       this.formId = formId;
     }
