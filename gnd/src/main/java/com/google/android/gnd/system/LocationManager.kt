@@ -13,100 +13,91 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.Manifest.permission
+import android.location.Location
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gnd.rx.BooleanOrError
+import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
+import com.google.android.gnd.rx.BooleanOrError.Companion.trueValue
+import com.google.android.gnd.rx.annotations.Hot
+import com.google.android.gnd.system.rx.RxFusedLocationProviderClient
+import com.google.android.gnd.system.rx.RxLocationCallback
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.Single
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
+import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+private const val UPDATE_INTERVAL: Long = 1000 /* 1 sec */
 
-import android.location.Location;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.rx.BooleanOrError;
-import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
-import com.google.android.gnd.system.rx.RxLocationCallback;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import timber.log.Timber;
+private const val FASTEST_INTERVAL: Long = 250 /* 250 ms */
+
+private val FINE_LOCATION_UPDATES_REQUEST = LocationRequest()
+    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+    .setInterval(UPDATE_INTERVAL)
+    .setFastestInterval(FASTEST_INTERVAL)
 
 @Singleton
-public class LocationManager {
-  private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
-  private static final long FASTEST_INTERVAL = 250; /* 250 ms */
-  private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
-      new LocationRequest()
-          .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-          .setInterval(UPDATE_INTERVAL)
-          .setFastestInterval(FASTEST_INTERVAL);
+class LocationManager @Inject constructor(
+    private val permissionsManager: PermissionsManager,
+    private val settingsManager: SettingsManager,
+    private val locationClient: RxFusedLocationProviderClient
+) {
 
-  private final PermissionsManager permissionsManager;
-  private final SettingsManager settingsManager;
-  private final RxFusedLocationProviderClient locationClient;
-  private final RxLocationCallback locationUpdateCallback;
+    private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
+    private val locationUpdateCallback: RxLocationCallback =
+        RxLocationCallback.create(locationUpdates)
 
-  @Hot(replays = true)
-  private final Subject<Location> locationUpdates = BehaviorSubject.create();
+    /**
+     * Returns the location update stream. New subscribers and downstream subscribers that can't keep
+     * up will only see the latest location.
+     */
+    fun getLocationUpdates(): Flowable<Location> {
+        // There sometimes noticeable latency between when location update request succeeds and when
+        // the first location update is received. Requesting the last know location is usually
+        // immediate, so we merge into the stream to reduce perceived latency.
+        return locationUpdates
+            .startWith(locationClient.lastLocation.toObservable())
+            .toFlowable(BackpressureStrategy.LATEST)
+    }
 
-  @Inject
-  public LocationManager(
-      PermissionsManager permissionsManager,
-      SettingsManager settingsManager,
-      RxFusedLocationProviderClient locationClient) {
-    this.permissionsManager = permissionsManager;
-    this.settingsManager = settingsManager;
-    this.locationClient = locationClient;
-    this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
-  }
+    /**
+     * Asynchronously try to enable location permissions and settings, and if successful, turns on
+     * location updates exposed by [.getLocationUpdates].
+     */
+    @Synchronized
+    fun enableLocationUpdates(): Single<BooleanOrError> {
+        Timber.d("Attempting to enable location updates")
+        return permissionsManager
+            .obtainPermission(permission.ACCESS_FINE_LOCATION)
+            .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
+            .andThen(requestLocationUpdates())
+            .toSingle { trueValue() }
+            .onErrorReturn { BooleanOrError.error(it) }
+    }
 
-  public static Point toPoint(Location location) {
-    return Point.newBuilder()
-        .setLatitude(location.getLatitude())
-        .setLongitude(location.getLongitude())
-        .build();
-  }
+    private fun requestLocationUpdates() =
+        locationClient.requestLocationUpdates(
+            FINE_LOCATION_UPDATES_REQUEST,
+            locationUpdateCallback
+        )
 
-  /**
-   * Returns the location update stream. New subscribers and downstream subscribers that can't keep
-   * up will only see the latest location.
-   */
-  public Flowable<Location> getLocationUpdates() {
-    // There sometimes noticeable latency between when location update request succeeds and when
-    // the first location update is received. Requesting the last know location is usually
-    // immediate, so we merge into the stream to reduce perceived latency.
-    return locationUpdates
-        .startWith(locationClient.getLastLocation().toObservable())
-        .toFlowable(BackpressureStrategy.LATEST);
-  }
+    // TODO: Request/remove updates on resume/pause.
+    @Synchronized
+    fun disableLocationUpdates(): Single<BooleanOrError> {
+        // Ignore errors when removing location updates, usually caused by disabling the same callback
+        // multiple times.
+        return removeLocationUpdates()
+            .toSingle { falseValue() }
+            .doOnError { Timber.e(it, "disableLocationUpdates") }
+            .onErrorReturn { falseValue() }
+    }
 
-  /**
-   * Asynchronously try to enable location permissions and settings, and if successful, turns on
-   * location updates exposed by {@link #getLocationUpdates()}.
-   */
-  public synchronized Single<BooleanOrError> enableLocationUpdates() {
-    Timber.d("Attempting to enable location updates");
-    return permissionsManager
-        .obtainPermission(ACCESS_FINE_LOCATION)
-        .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
-        .andThen(
-            locationClient.requestLocationUpdates(
-                FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback))
-        .toSingle(BooleanOrError::trueValue)
-        .onErrorReturn(BooleanOrError::error);
-  }
-
-  // TODO: Request/remove updates on resume/pause.
-  public synchronized Single<BooleanOrError> disableLocationUpdates() {
-    // Ignore errors when removing location updates, usually caused by disabling the same callback
-    // multiple times.
-    return locationClient
-        .removeLocationUpdates(locationUpdateCallback)
-        .toSingle(BooleanOrError::falseValue)
-        .doOnError(t -> Timber.e(t, "disableLocationUpdates"))
-        .onErrorReturn(__ -> BooleanOrError.falseValue());
-  }
+    private fun removeLocationUpdates() =
+        locationClient.removeLocationUpdates(locationUpdateCallback)
 }
