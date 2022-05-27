@@ -132,7 +132,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(survey)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setResponses(
@@ -196,7 +196,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(survey)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setCreated(AUDIT_INFO_1)
@@ -227,7 +227,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(survey)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setCreated(AUDIT_INFO_1)
@@ -260,7 +260,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(survey)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setCreated(AUDIT_INFO_1)
@@ -304,7 +304,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(survey)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setResponses(
@@ -318,7 +318,7 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPointFeature().setId(featureId).setProject(survey).setLayer(layer).build();
+    feature = newPointFeature().setId(featureId).setSurvey(survey).setLayer(layer).build();
   }
 
   /**

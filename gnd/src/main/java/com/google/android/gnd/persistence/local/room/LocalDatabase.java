@@ -115,7 +115,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract OptionDao optionDao();
 
-  public abstract SurveyDao projectDao();
+  public abstract SurveyDao surveyDao();
 
   public abstract BaseMapDao baseMapDao();
 

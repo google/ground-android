@@ -62,7 +62,7 @@ class ObservationConverter {
     AuditInfoNestedObject lastModified = Objects.requireNonNullElse(doc.getLastModified(), created);
     return Submission.newBuilder()
         .setId(snapshot.getId())
-        .setProject(feature.getProject())
+        .setSurvey(feature.getSurvey())
         .setFeature(feature)
         .setForm(form)
         .setResponses(toResponseMap(snapshot.getId(), form, doc.getResponses()))

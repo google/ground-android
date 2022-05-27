@@ -67,7 +67,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
    */
   public void loadSubmissionList(Feature feature) {
     Optional<Form> form = feature.getLayer().getForm();
-    loadSubmissions(feature.getProject(), feature.getId(), form.map(Form::getId));
+    loadSubmissions(feature.getSurvey(), feature.getId(), form.map(Form::getId));
   }
 
   private Single<ImmutableList<Submission>> getSubmissions(SubmissionListRequest req) {

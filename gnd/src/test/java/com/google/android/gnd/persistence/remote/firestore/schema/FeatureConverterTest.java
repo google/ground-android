@@ -224,7 +224,7 @@ public class FeatureConverterTest {
             .setLastModified(AUDIT_INFO_2)
             .setVertices(newPolygonVertices())
             .setId(featureId)
-            .setProject(survey)
+            .setSurvey(survey)
             .setLayer(layer)
             .build();
   }

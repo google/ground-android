@@ -93,7 +93,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Override
   public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
     return db.projects()
-        .project(feature.getProject().getId())
+        .project(feature.getSurvey().getId())
         .observations()
         .observationsByFeatureId(feature)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))

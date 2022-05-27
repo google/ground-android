@@ -24,6 +24,6 @@ import io.reactivex.Completable;
 @Dao
 public interface LayerDao extends BaseDao<LayerEntity> {
 
-  @Query("DELETE FROM layer WHERE survey_id = :projectId")
-  Completable deleteByProjectId(String projectId);
+  @Query("DELETE FROM layer WHERE survey_id = :surveyId")
+  Completable deleteBySurveyId(String surveyId);
 }

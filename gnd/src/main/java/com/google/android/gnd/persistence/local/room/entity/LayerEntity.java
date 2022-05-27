@@ -58,17 +58,17 @@ public abstract class LayerEntity {
   @CopyAnnotations
   @Nullable
   @ColumnInfo(name = "survey_id")
-  public abstract String getProjectId();
+  public abstract String getSurveyId();
 
   @CopyAnnotations
   @Nullable
   @ColumnInfo(name = "contributors_can_add")
   public abstract JSONArray getContributorsCanAdd();
 
-  public static LayerEntity fromLayer(String projectId, Layer layer) {
+  public static LayerEntity fromLayer(String surveyId, Layer layer) {
     return LayerEntity.builder()
         .setId(layer.getId())
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setName(layer.getName())
         .setContributorsCanAdd(new JSONArray(layer.getContributorsCanAdd()))
         .build();
@@ -114,11 +114,11 @@ public abstract class LayerEntity {
   }
 
   public static LayerEntity create(
-      String id, String name, String projectId, JSONArray contributorsCanAdd) {
+      String id, String name, String surveyId, JSONArray contributorsCanAdd) {
     return builder()
         .setId(id)
         .setName(name)
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setContributorsCanAdd(contributorsCanAdd)
         .build();
   }
@@ -134,7 +134,7 @@ public abstract class LayerEntity {
 
     public abstract Builder setName(String name);
 
-    public abstract Builder setProjectId(String projectId);
+    public abstract Builder setSurveyId(String surveyId);
 
     public abstract Builder setContributorsCanAdd(JSONArray contributorsCanAdd);
 

@@ -66,7 +66,7 @@ public class FakeData {
   public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
-          .setProject(SURVEY)
+          .setSurvey(SURVEY)
           .setLayer(LAYER)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(USER))
@@ -82,7 +82,7 @@ public class FakeData {
   public static final PolygonFeature POLYGON_FEATURE =
       PolygonFeature.builder()
           .setId("feature id")
-          .setProject(SURVEY)
+          .setSurvey(SURVEY)
           .setLayer(LAYER)
           .setVertices(VERTICES)
           .setCreated(AuditInfo.now(USER))
@@ -92,7 +92,7 @@ public class FakeData {
   public static final GeoJsonFeature GEO_JSON_FEATURE =
       GeoJsonFeature.newBuilder()
           .setId("feature id")
-          .setProject(SURVEY)
+          .setSurvey(SURVEY)
           .setLayer(LAYER)
           .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(USER))

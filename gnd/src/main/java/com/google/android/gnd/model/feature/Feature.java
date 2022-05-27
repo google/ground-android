@@ -44,7 +44,7 @@ public abstract class Feature<B extends Feature.Builder> {
   @NonNull
   public abstract String getId();
 
-  public abstract Survey getProject();
+  public abstract Survey getSurvey();
 
   public abstract Layer getLayer();
 
@@ -65,7 +65,7 @@ public abstract class Feature<B extends Feature.Builder> {
     return FeatureMutation.builder()
         .setType(type)
         .setSyncStatus(SyncStatus.PENDING)
-        .setSurveyId(getProject().getId())
+        .setSurveyId(getSurvey().getId())
         .setFeatureId(getId())
         .setLayerId(getLayer().getId())
         .setUserId(userId)
@@ -77,7 +77,7 @@ public abstract class Feature<B extends Feature.Builder> {
     // TODO: Use newFoo or foo consistently.
     public abstract T setId(@NonNull String newId);
 
-    public abstract T setProject(@NonNull Survey survey);
+    public abstract T setSurvey(@NonNull Survey survey);
 
     public abstract T setLayer(@NonNull Layer newLayer);
 

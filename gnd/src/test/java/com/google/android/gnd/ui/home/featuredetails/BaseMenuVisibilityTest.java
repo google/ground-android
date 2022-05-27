@@ -66,14 +66,14 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
   static PointFeature createPointFeature(User user) {
     return FakeData.POINT_FEATURE.toBuilder()
-        .setProject(TEST_SURVEY)
+        .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }
 
   static PolygonFeature createPolygonFeature(User user) {
     return FakeData.POLYGON_FEATURE.toBuilder()
-        .setProject(TEST_SURVEY)
+        .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }

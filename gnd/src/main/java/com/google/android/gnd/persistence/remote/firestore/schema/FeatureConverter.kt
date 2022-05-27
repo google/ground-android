@@ -122,7 +122,7 @@ object FeatureConverter {
         val lastModified = featureDoc.lastModified ?: created
         builder
             .setId(id)
-            .setProject(survey)
+            .setSurvey(survey)
             .setCustomId(featureDoc.customId)
             .setCaption(featureDoc.caption)
             .setLayer(layer)

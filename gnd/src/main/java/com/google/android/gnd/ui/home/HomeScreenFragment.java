@@ -233,7 +233,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void addNewSubmission(Feature feature, Form form) {
-    String projectId = feature.getProject().getId();
+    String projectId = feature.getSurvey().getId();
     String featureId = feature.getId();
     String formId = form.getId();
     navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, formId));

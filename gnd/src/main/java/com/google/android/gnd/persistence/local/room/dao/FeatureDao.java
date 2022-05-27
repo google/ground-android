@@ -27,8 +27,8 @@ import java.util.List;
 /** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
 @Dao
 public interface FeatureDao extends BaseDao<FeatureEntity> {
-  @Query("SELECT * FROM feature WHERE project_id = :projectId AND state = :state")
-  Flowable<List<FeatureEntity>> findOnceAndStream(String projectId, EntityState state);
+  @Query("SELECT * FROM feature WHERE survey_id = :surveyId AND state = :state")
+  Flowable<List<FeatureEntity>> findOnceAndStream(String surveyId, EntityState state);
 
   @Query("SELECT * FROM feature WHERE id = :id")
   Maybe<FeatureEntity> findById(String id);

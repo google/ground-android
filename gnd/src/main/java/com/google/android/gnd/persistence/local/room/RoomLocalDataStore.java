@@ -55,9 +55,9 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
-import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
@@ -70,9 +70,9 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
-import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
+import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -112,8 +112,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject FieldDao fieldDao;
   @Inject FormDao formDao;
   @Inject LayerDao layerDao;
-  @Inject
-  SurveyDao surveyDao;
+  @Inject SurveyDao surveyDao;
   @Inject FeatureDao featureDao;
   @Inject FeatureMutationDao featureMutationDao;
   @Inject SubmissionDao submissionDao;
@@ -179,18 +178,18 @@ public class RoomLocalDataStore implements LocalDataStore {
         .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
   }
 
-  private Completable insertOrUpdateLayer(String projectId, Layer layer) {
+  private Completable insertOrUpdateLayer(String surveyId, Layer layer) {
     return layerDao
-        .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
+        .insertOrUpdate(LayerEntity.fromLayer(surveyId, layer))
         .andThen(
             insertOrUpdateForms(
                 layer.getId(), layer.getForm().map(Arrays::asList).orElseGet(ArrayList::new)))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
+  private Completable insertOrUpdateLayers(String surveyId, List<Layer> layers) {
     return Observable.fromIterable(layers)
-        .flatMapCompletable(layer -> insertOrUpdateLayer(projectId, layer));
+        .flatMapCompletable(layer -> insertOrUpdateLayer(surveyId, layer));
   }
 
   private Completable insertOfflineBaseMapSources(Survey survey) {
@@ -204,9 +203,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateSurvey(Survey survey) {
     return surveyDao
         .insertOrUpdate(SurveyEntity.fromSurvey(survey))
-        .andThen(layerDao.deleteByProjectId(survey.getId()))
+        .andThen(layerDao.deleteBySurveyId(survey.getId()))
         .andThen(insertOrUpdateLayers(survey.getId(), survey.getLayers()))
-        .andThen(baseMapDao.deleteByProjectId(survey.getId()))
+        .andThen(baseMapDao.deleteBySurveyId(survey.getId()))
         .andThen(insertOfflineBaseMapSources(survey))
         .subscribeOn(schedulers.io());
   }
@@ -230,14 +229,14 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Single<ImmutableList<Survey>> getSurveys() {
     return surveyDao
-        .getAllProjects()
+        .getAllSurveys()
         .map(list -> stream(list).map(SurveyEntity::toSurvey).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Maybe<Survey> getSurveyById(String id) {
-    return surveyDao.getProjectById(id).map(SurveyEntity::toSurvey).subscribeOn(schedulers.io());
+    return surveyDao.getSurveyById(id).map(SurveyEntity::toSurvey).subscribeOn(schedulers.io());
   }
 
   @Override
@@ -322,14 +321,14 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Cold(terminates = false)
   @Override
   public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Survey survey) {
-    // TODO: Show mutations for all projects, not just current one.
+    // TODO: Show mutations for all surveys, not just current one.
     Flowable<ImmutableList<FeatureMutation>> featureMutations =
         featureMutationDao
             .loadAllOnceAndStream()
             .map(
                 list ->
                     stream(list)
-                        .filter(entity -> entity.getProjectId().equals(survey.getId()))
+                        .filter(entity -> entity.getSurveyId().equals(survey.getId()))
                         .map(FeatureMutationEntity::toMutation)
                         .collect(toImmutableList()))
             .subscribeOn(schedulers.io());
@@ -339,7 +338,7 @@ public class RoomLocalDataStore implements LocalDataStore {
             .map(
                 list ->
                     stream(list)
-                        .filter(entity -> entity.getProjectId().equals(survey.getId()))
+                        .filter(entity -> entity.getSurveyId().equals(survey.getId()))
                         .map(entity -> entity.toMutation(survey))
                         .collect(toImmutableList()))
             .subscribeOn(schedulers.io());
@@ -371,9 +370,9 @@ public class RoomLocalDataStore implements LocalDataStore {
                 .flattenAsObservable(oms -> oms)
                 .flatMap(
                     ome ->
-                        getSurveyById(ome.getProjectId())
+                        getSurveyById(ome.getSurveyId())
                             .toSingle()
-                            .map(project -> ome.toMutation(project))
+                            .map(ome::toMutation)
                             .toObservable()
                             .doOnError(e -> Timber.e(e, "Submission mutation skipped"))
                             .onErrorResumeNext(Observable.empty()))

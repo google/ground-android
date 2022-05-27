@@ -79,8 +79,8 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static SurveyDao projectDao(LocalDatabase localDatabase) {
-    return localDatabase.projectDao();
+  static SurveyDao surveyDao(LocalDatabase localDatabase) {
+    return localDatabase.surveyDao();
   }
 
   @Provides

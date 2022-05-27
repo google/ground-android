@@ -59,7 +59,7 @@ public abstract class BaseMapEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "survey_id") // NOPMD
-  public abstract String getProjectId();
+  public abstract String getSurveyId();
 
   @CopyAnnotations
   @NonNull
@@ -100,18 +100,18 @@ public abstract class BaseMapEntity {
   }
 
   public static BaseMapEntity fromModel(
-      String projectId, BaseMap source) {
+      String surveyId, BaseMap source) {
 
     return BaseMapEntity.builder()
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setUrl(source.getUrl().toString())
         .setType(modelToEntityType(source))
         .build();
   }
 
   public static BaseMapEntity create(
-      @Nullable Integer id, String projectId, String url, BaseMapEntityType type) {
-    return builder().setId(id).setProjectId(projectId).setUrl(url).setType(type).build();
+      @Nullable Integer id, String surveyId, String url, BaseMapEntityType type) {
+    return builder().setId(id).setSurveyId(surveyId).setUrl(url).setType(type).build();
   }
 
   public static Builder builder() {
@@ -123,7 +123,7 @@ public abstract class BaseMapEntity {
 
     public abstract Builder setId(@Nullable Integer newId);
 
-    public abstract Builder setProjectId(@NonNull String newProjectId);
+    public abstract Builder setSurveyId(@NonNull String newSurveyId);
 
     public abstract Builder setUrl(@NonNull String newUrl);
 

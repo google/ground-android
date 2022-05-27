@@ -53,7 +53,7 @@ import java8.util.stream.Collectors;
 @AutoValue
 @Entity(
     tableName = "feature",
-    indices = {@Index("project_id")})
+    indices = {@Index("survey_id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
   @NonNull
@@ -63,8 +63,8 @@ public abstract class FeatureEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
+  @ColumnInfo(name = "survey_id")
+  public abstract String getSurveyId();
 
   @CopyAnnotations
   @NonNull
@@ -108,7 +108,7 @@ public abstract class FeatureEntity {
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
-            .setProjectId(mutation.getSurveyId())
+            .setSurveyId(mutation.getSurveyId())
             .setLayerId(mutation.getLayerId())
             .setState(EntityState.DEFAULT)
             .setCreated(authInfo)
@@ -123,7 +123,7 @@ public abstract class FeatureEntity {
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(feature.getId())
-            .setProjectId(feature.getProject().getId())
+            .setSurveyId(feature.getSurvey().getId())
             .setLayerId(feature.getLayer().getId())
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
@@ -205,7 +205,7 @@ public abstract class FeatureEntity {
                         "Unknown layerId " + layerId + " in feature " + id));
     builder
         .setId(id)
-        .setProject(survey)
+        .setSurvey(survey)
         .setLayer(layer)
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()));
@@ -217,7 +217,7 @@ public abstract class FeatureEntity {
 
   public static FeatureEntity create(
       String id,
-      String projectId,
+      String surveyId,
       String layerId,
       String geoJson,
       String polygonVertices,
@@ -227,7 +227,7 @@ public abstract class FeatureEntity {
       AuditInfoEntity lastModified) {
     return builder()
         .setId(id)
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setLayerId(layerId)
         .setGeoJson(geoJson)
         .setPolygonVertices(polygonVertices)
@@ -247,7 +247,7 @@ public abstract class FeatureEntity {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setProjectId(String newProjectId);
+    public abstract Builder setSurveyId(String newSurveyId);
 
     public abstract Builder setLayerId(String newLayerId);
 

@@ -171,7 +171,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         val polygonFeature = PolygonFeature.builder()
             .setId(polygon.id)
             .setVertices(polygon.vertices)
-            .setProject(selectedSurvey.value!!)
+            .setSurvey(selectedSurvey.value!!)
             .setLayer(selectedLayer.value!!)
             .setCreated(auditInfo)
             .setLastModified(auditInfo)

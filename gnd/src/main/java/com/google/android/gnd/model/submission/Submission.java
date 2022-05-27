@@ -30,7 +30,7 @@ public abstract class Submission {
 
   public abstract String getId();
 
-  public abstract Survey getProject();
+  public abstract Survey getSurvey();
 
   public abstract Feature getFeature();
 
@@ -59,7 +59,7 @@ public abstract class Submission {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setProject(Survey survey);
+    public abstract Builder setSurvey(Survey survey);
 
     public abstract Builder setFeature(Feature feature);
 

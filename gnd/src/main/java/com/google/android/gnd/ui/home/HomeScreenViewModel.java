@@ -300,7 +300,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("No forms in layer");
       return;
     }
-    Survey survey = feature.getProject();
+    Survey survey = feature.getSurvey();
     if (survey == null) {
       Timber.e("Missing project");
       return;

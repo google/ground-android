@@ -30,9 +30,9 @@ public interface SurveyDao extends BaseDao<SurveyEntity> {
 
   @Transaction
   @Query("SELECT * FROM survey")
-  Single<List<SurveyEntityAndRelations>> getAllProjects();
+  Single<List<SurveyEntityAndRelations>> getAllSurveys();
 
   @Transaction
   @Query("SELECT * FROM survey WHERE id = :id")
-  Maybe<SurveyEntityAndRelations> getProjectById(String id);
+  Maybe<SurveyEntityAndRelations> getSurveyById(String id);
 }
