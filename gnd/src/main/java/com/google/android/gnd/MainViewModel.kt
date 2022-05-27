@@ -20,7 +20,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.repository.FeatureRepository
-import com.google.android.gnd.repository.ProjectRepository
+import com.google.android.gnd.repository.SurveyRepository
 import com.google.android.gnd.repository.TermsOfServiceRepository
 import com.google.android.gnd.repository.UserRepository
 import com.google.android.gnd.rx.RxTransformers.switchMapIfPresent
@@ -44,7 +44,7 @@ import javax.inject.Inject
 /** Top-level view model representing state of the [MainActivity] shared by all fragments.  */
 @SharedViewModel
 class MainViewModel @Inject constructor(
-    private val projectRepository: ProjectRepository,
+    private val surveyRepository: SurveyRepository,
     private val featureRepository: FeatureRepository,
     private val userRepository: UserRepository,
     private val termsOfServiceRepository: TermsOfServiceRepository,
@@ -63,7 +63,7 @@ class MainViewModel @Inject constructor(
     init {
         // TODO: Move to background service.
         disposeOnClear(
-            projectRepository
+            surveyRepository
                 .activeSurvey
                 .observeOn(schedulers.io())
                 .switchMapCompletable { syncFeatures(it) }
@@ -110,7 +110,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun onUserSignedOut(): Observable<NavDirections> {
-        projectRepository.clearActiveProject()
+        surveyRepository.clearActiveSurvey()
         userRepository.clearUserPreferences()
         return Observable.just(SignInFragmentDirections.showSignInScreen())
     }

@@ -37,7 +37,7 @@ import timber.log.Timber;
 @Singleton
 public class LocalValueStore {
 
-  public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
+  public static final String ACTIVE_SURVEY_ID_KEY = "activeSurveyId";
   public static final String MAP_TYPE = "map_type";
   public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
   public static final String TOS_ACCEPTED = "tos_accepted";
@@ -52,13 +52,13 @@ public class LocalValueStore {
 
   /** Returns the id of the last project successfully activated by the user, or empty if not set. */
   @NonNull
-  public String getLastActiveProjectId() {
-    return preferences.getString(ACTIVE_PROJECT_ID_KEY, "");
+  public String getLastActiveSurveyId() {
+    return preferences.getString(ACTIVE_SURVEY_ID_KEY, "");
   }
 
   /** Set the id of the last project successfully activated by the user. */
-  public void setLastActiveProjectId(@NonNull String id) {
-    preferences.edit().putString(ACTIVE_PROJECT_ID_KEY, id).apply();
+  public void setLastActiveSurveyId(@NonNull String id) {
+    preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply();
   }
 
   /** Removes all values stored in the local store. */

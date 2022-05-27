@@ -33,7 +33,7 @@ import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.SurveyRepository;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -55,7 +55,8 @@ import org.robolectric.android.controller.ActivityController;
 @UninstallModules({LocalDataStoreModule.class})
 public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
 
-  @Inject ProjectRepository projectRepository;
+  @Inject
+  SurveyRepository surveyRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
   @BindValue @Mock LocalDataStore mockLocalDataStore;
 
@@ -104,6 +105,6 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
 
     // Verify Dialog is dismissed
     assertThat(surveySelectorDialogFragment.getDialog()).isNull();
-    projectRepository.getActiveSurvey().test().assertValue(Optional.of(survey2));
+    surveyRepository.getActiveSurvey().test().assertValue(Optional.of(survey2));
   }
 }

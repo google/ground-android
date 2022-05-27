@@ -34,7 +34,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Nil;
@@ -64,7 +64,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSubmissionButtonVisible = new MutableLiveData<>(false);
 
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
@@ -114,18 +114,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Inject
   HomeScreenViewModel(
-      ProjectRepository projectRepository,
+      SurveyRepository surveyRepository,
       FeatureRepository featureRepository,
       Navigator navigator,
       UserRepository userRepository) {
-    this.projectRepository = projectRepository;
+    this.surveyRepository = surveyRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
     this.userRepository = userRepository;
 
     projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
+            surveyRepository
                 .getSurveyLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
@@ -161,7 +161,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return false;
     }
     ImmutableList<Layer> modifiableLayers =
-        projectRepository.getModifiableLayers(loadingState.value().get());
+        surveyRepository.getModifiableLayers(loadingState.value().get());
     return !modifiableLayers.isEmpty();
   }
 
@@ -180,7 +180,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Survey survey = getActiveProject().get();
-    ImmutableList<Layer> layers = projectRepository.getModifiableLayers(survey);
+    ImmutableList<Layer> layers = surveyRepository.getModifiableLayers(survey);
     // TODO: Pause location updates while dialog is open.
     showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
   }
@@ -241,7 +241,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public boolean shouldShowProjectSelectorOnStart() {
-    return projectRepository.getLastActiveProjectId().isEmpty();
+    return surveyRepository.getLastActiveSurveyId().isEmpty();
   }
 
   public Flowable<Nil> getOpenDrawerRequests() {
@@ -312,7 +312,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void init() {
     // Last active project will be loaded once view subscribes to activeProject.
-    projectRepository.loadLastActiveProject();
+    surveyRepository.loadLastActiveSurvey();
   }
 
   public void showOfflineAreas() {

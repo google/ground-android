@@ -53,7 +53,7 @@ import timber.log.Timber;
 public class OfflineAreaRepository {
   private final TileSetDownloadWorkManager tileSetDownloadWorkManager;
   private final LocalDataStore localDataStore;
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final MbtilesFootprintParser geoJsonParser;
   private final FileUtil fileUtil;
   private final Schedulers schedulers;
@@ -65,7 +65,7 @@ public class OfflineAreaRepository {
   public OfflineAreaRepository(
       TileSetDownloadWorkManager tileSetDownloadWorkManager,
       LocalDataStore localDataStore,
-      ProjectRepository projectRepository,
+      SurveyRepository surveyRepository,
       MbtilesFootprintParser geoJsonParser,
       FileUtil fileUtil,
       Schedulers schedulers,
@@ -74,7 +74,7 @@ public class OfflineAreaRepository {
     this.tileSetDownloadWorkManager = tileSetDownloadWorkManager;
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
-    this.projectRepository = projectRepository;
+    this.surveyRepository = surveyRepository;
     this.fileUtil = fileUtil;
     this.schedulers = schedulers;
     this.geocodingManager = geocodingManager;
@@ -137,7 +137,7 @@ public class OfflineAreaRepository {
     LatLngBounds bounds = offlineArea.getBounds();
 
     // TODO: Simplify this stream.
-    return projectRepository
+    return surveyRepository
         .getSurveyLoadingState()
         .compose(Loadable::values)
         .map(Survey::getBaseMaps)
@@ -262,7 +262,7 @@ public class OfflineAreaRepository {
    * coordinates.
    */
   public Single<ImmutableList<TileSet>> getTileSets() {
-    return projectRepository
+    return surveyRepository
         .getSurveyLoadingState()
         .compose(Loadable::values)
         .map(Survey::getBaseMaps)

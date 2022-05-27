@@ -49,7 +49,8 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   @BindValue @Mock LocalDataStore mockLocalDataStore;
   @BindValue @Mock UserRepository userRepository;
 
-  @Inject ProjectRepository projectRepository;
+  @Inject
+  SurveyRepository surveyRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
   @Test
@@ -57,9 +58,9 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     Survey survey = newProject().build();
     setTestProject(survey);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
-    projectRepository.getActiveSurvey().test().assertValue(Optional.of(survey));
+    surveyRepository.getActiveSurvey().test().assertValue(Optional.of(survey));
   }
 
   @Test
@@ -68,10 +69,10 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     setTestProject(newProject().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
     Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
-    projectRepository
+    surveyRepository
         .getActiveSurvey()
         .test()
         .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
@@ -94,7 +95,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     setTestProject(newProject().putLayers(layer1, layer2, layer3, layer4).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
     ImmutableList<Layer> expectedLayers =
         ImmutableList.of(
@@ -102,7 +103,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
             layer2.toBuilder().setUserCanAdd(ImmutableList.of(FeatureType.POLYGON)).build(),
             layer3.toBuilder().setUserCanAdd(FeatureType.ALL).build(),
             layer4.toBuilder().setUserCanAdd(ImmutableList.of()).build());
-    projectRepository
+    surveyRepository
         .getActiveSurvey()
         .test()
         .assertValue(p -> p.get().getLayers().equals(expectedLayers));

@@ -15,8 +15,8 @@
  */
 package com.google.android.gnd.repository
 
-import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.Role
+import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.User
 import com.google.android.gnd.model.feature.FeatureType
 import com.google.android.gnd.model.layer.Layer
@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val LOAD_REMOTE_PROJECT_TIMEOUT_SECS: Long = 15
-private const val LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS: Long = 30
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
+private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
 
 /**
  * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in
@@ -52,50 +52,50 @@ private const val LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS: Long = 30
  * https://developer.android.com/jetpack/docs/guide.
  */
 @Singleton
-class ProjectRepository @Inject constructor(
+class SurveyRepository @Inject constructor(
     private val userRepository: UserRepository,
     private val localDataStore: LocalDataStore,
     private val remoteDataStore: RemoteDataStore,
     private val localValueStore: LocalValueStore
 ) {
 
-    /** Emits a project id on {@see #activateSurvey} and empty on {@see #clearActiveProject}.  */
-    private val selectProjectEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
+    /** Emits a survey id on {@see #activateSurvey} and empty on {@see #clearActiveSurvey}.  */
+    private val selectSurveyEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
 
-    /** Emits the latest loading state of the current project on subscribe and on change.  */
+    /** Emits the latest loading state of the current survey on subscribe and on change.  */
     val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
         BehaviorProcessor.create()
 
-    var lastActiveProjectId: String
-        get() = localValueStore.lastActiveProjectId
+    var lastActiveSurveyId: String
+        get() = localValueStore.lastActiveSurveyId
         set(value) {
-            localValueStore.lastActiveProjectId = value
+            localValueStore.lastActiveSurveyId = value
         }
 
     val activeSurvey: @Hot(replays = true) Flowable<Optional<Survey>>
         get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
 
-    val offlineProjects: @Cold Single<ImmutableList<Survey>>
+    val offlineSurveys: @Cold Single<ImmutableList<Survey>>
         get() = localDataStore.projects
 
     init {
-        // Kicks off the loading process whenever a new project id is selected.
-        selectProjectEvent
+        // Kicks off the loading process whenever a new survey id is selected.
+        selectSurveyEvent
             .distinctUntilChanged()
-            .switchMap { selectProject(it) }
+            .switchMap { selectSurvey(it) }
             .onBackpressureLatest()
             .subscribe(surveyLoadingState)
     }
 
-    private fun selectProject(projectId: String): @Cold Flowable<Loadable<Survey>> {
+    private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
         // Empty id indicates intent to deactivate the current project. Used on sign out.
-        return if (projectId.isEmpty())
+        return if (surveyId.isEmpty())
             Flowable.just(Loadable.notLoaded())
         else
-            syncProjectWithRemote(projectId)
-                .onErrorResumeNext { getProject(projectId) }
+            syncSurveyWithRemote(surveyId)
+                .onErrorResumeNext { getSurvey(surveyId) }
                 .map { attachLayerPermissions(it) }
-                .doOnSuccess { lastActiveProjectId = projectId }
+                .doOnSuccess { lastActiveSurveyId = surveyId }
                 .toFlowable()
                 .compose { Loadable.loadingOnceAndWrap(it) }
     }
@@ -120,38 +120,38 @@ class ProjectRepository @Inject constructor(
             Role.UNKNOWN -> ImmutableList.of()
         }
 
-    /** This only works if the project is already cached to local db.  */
-    fun getProject(projectId: String): @Cold Single<Survey> =
+    /** This only works if the survey is already cached to local db.  */
+    fun getSurvey(surveyId: String): @Cold Single<Survey> =
         localDataStore
-            .getProjectById(projectId)
-            .switchIfEmpty(Single.error { NotFoundException("Project not found $projectId") })
+            .getProjectById(surveyId)
+            .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
-    private fun syncProjectWithRemote(id: String): @Cold Single<Survey> =
+    private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
         remoteDataStore
             .loadProject(id)
-            .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
             .flatMap { localDataStore.insertOrUpdateProject(it).toSingleDefault(it) }
             .doOnSubscribe { Timber.d("Loading project $id") }
             .doOnError { err -> Timber.d(err, "Error loading project from remote") }
 
-    fun loadLastActiveProject() = activateProject(lastActiveProjectId)
+    fun loadLastActiveSurvey() = activateSurvey(lastActiveSurveyId)
 
-    fun activateProject(projectId: String) = selectProjectEvent.onNext(projectId)
+    fun activateSurvey(surveyId: String) = selectSurveyEvent.onNext(surveyId)
 
-    fun clearActiveProject() = selectProjectEvent.onNext("")
+    fun clearActiveSurvey() = selectSurveyEvent.onNext("")
 
-    fun getProjectSummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
-        loadProjectSummariesFromRemote(user)
-            .doOnSubscribe { Timber.d("Loading project list from remote") }
-            .doOnError { Timber.d(it, "Failed to load project list from remote") }
-            .onErrorResumeNext { offlineProjects }
+    fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
+        loadSurveySummariesFromRemote(user)
+            .doOnSubscribe { Timber.d("Loading survey list from remote") }
+            .doOnError { Timber.d(it, "Failed to load survey list from remote") }
+            .onErrorResumeNext { offlineSurveys }
             .toFlowable()
             .compose { Loadable.loadingOnceAndWrap(it) }
 
-    private fun loadProjectSummariesFromRemote(user: User): @Cold Single<List<Survey>> =
+    private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
         remoteDataStore
             .loadProjectSummaries(user)
-            .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
 
     fun getModifiableLayers(survey: Survey): ImmutableList<Layer> =
         survey.layers
@@ -162,9 +162,9 @@ class ProjectRepository @Inject constructor(
         return localDataStore.getMutationsOnceAndStream(survey)
     }
 
-    fun setCameraPosition(projectId: String, cameraPosition: CameraPosition) =
-        localValueStore.setLastCameraPosition(projectId, cameraPosition)
+    fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
+        localValueStore.setLastCameraPosition(surveyId, cameraPosition)
 
-    fun getLastCameraPosition(projectId: String): Optional<CameraPosition> =
-        localValueStore.getLastCameraPosition(projectId)
+    fun getLastCameraPosition(surveyId: String): Optional<CameraPosition> =
+        localValueStore.getLastCameraPosition(surveyId)
 }

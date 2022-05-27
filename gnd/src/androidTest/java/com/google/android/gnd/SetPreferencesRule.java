@@ -16,7 +16,7 @@
 
 package com.google.android.gnd;
 
-import static com.google.android.gnd.persistence.local.LocalValueStore.ACTIVE_PROJECT_ID_KEY;
+import static com.google.android.gnd.persistence.local.LocalValueStore.ACTIVE_SURVEY_ID_KEY;
 
 import android.content.SharedPreferences;
 import androidx.test.core.app.ApplicationProvider;
@@ -52,7 +52,7 @@ class SetPreferencesRule extends TestWatcher {
     prefs
         .edit()
         .clear()
-        .putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT.getId())
+        .putString(ACTIVE_SURVEY_ID_KEY, FakeData.PROJECT.getId())
         .apply();
   }
 }

@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.surveyselector;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -32,15 +32,15 @@ import timber.log.Timber;
 
 /** Represents view state and behaviors of the project selector dialog. */
 public class SurveySelectorViewModel extends AbstractViewModel {
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final LiveData<Loadable<List<Survey>>> surveySummaries;
 
   @Inject
-  SurveySelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
-    this.projectRepository = projectRepository;
+  SurveySelectorViewModel(SurveyRepository surveyRepository, AuthenticationManager authManager) {
+    this.surveyRepository = surveyRepository;
     this.surveySummaries =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository.getProjectSummaries(authManager.getCurrentUser()));
+            surveyRepository.getSurveySummaries(authManager.getCurrentUser()));
   }
 
   public LiveData<Loadable<List<Survey>>> getSurveySummaries() {
@@ -48,7 +48,7 @@ public class SurveySelectorViewModel extends AbstractViewModel {
   }
 
   public Single<ImmutableList<Survey>> getOfflineSurveys() {
-    return projectRepository.getOfflineProjects();
+    return surveyRepository.getOfflineSurveys();
   }
 
   /**
@@ -68,10 +68,10 @@ public class SurveySelectorViewModel extends AbstractViewModel {
       return;
     }
     Survey survey = surveys.get().get(idx);
-    projectRepository.activateProject(survey.getId());
+    surveyRepository.activateSurvey(survey.getId());
   }
 
   public void activateOfflineSurvey(String surveyId) {
-    projectRepository.activateProject(surveyId);
+    surveyRepository.activateSurvey(surveyId);
   }
 }

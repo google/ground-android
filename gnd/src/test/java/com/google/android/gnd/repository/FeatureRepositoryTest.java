@@ -62,7 +62,8 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class FeatureRepositoryTest extends BaseHiltTest {
   @BindValue @Mock LocalDataStore mockLocalDataStore;
-  @BindValue @Mock ProjectRepository mockProjectRepository;
+  @BindValue @Mock
+  SurveyRepository mockSurveyRepository;
   @BindValue @Mock DataSyncWorkManager mockWorkManager;
 
   @Captor ArgumentCaptor<FeatureMutation> captorFeatureMutation;
@@ -189,7 +190,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetFeature_projectNotPresent() {
-    when(mockProjectRepository.getProject(anyString()))
+    when(mockSurveyRepository.getSurvey(anyString()))
         .thenReturn(Single.error(new NoSuchElementException()));
 
     featureRepository
@@ -200,7 +201,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetFeature_projectPresent() {
-    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.SURVEY));
+    when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
     when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.just(FakeData.POINT_FEATURE));
 
@@ -217,7 +218,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetFeature_whenFeatureIsNotPresent() {
-    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.SURVEY));
+    when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
     when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.empty());
 

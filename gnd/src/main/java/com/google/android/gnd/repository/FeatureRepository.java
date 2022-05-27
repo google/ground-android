@@ -55,7 +55,7 @@ public class FeatureRepository {
   private final LocalDataStore localDataStore;
   private final LocalValueStore localValueStore;
   private final RemoteDataStore remoteDataStore;
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
   private final AuthenticationManager authManager;
   private final OfflineUuidGenerator uuidGenerator;
@@ -65,14 +65,14 @@ public class FeatureRepository {
       LocalDataStore localDataStore,
       LocalValueStore localValueStore,
       RemoteDataStore remoteDataStore,
-      ProjectRepository projectRepository,
+      SurveyRepository surveyRepository,
       DataSyncWorkManager dataSyncWorkManager,
       AuthenticationManager authManager,
       OfflineUuidGenerator uuidGenerator) {
     this.localDataStore = localDataStore;
     this.localValueStore = localValueStore;
     this.remoteDataStore = remoteDataStore;
-    this.projectRepository = projectRepository;
+    this.surveyRepository = surveyRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.authManager = authManager;
     this.uuidGenerator = uuidGenerator;
@@ -123,8 +123,8 @@ public class FeatureRepository {
   /** This only works if the project and feature are already cached to local db. */
   @Cold
   public Single<Feature> getFeature(String projectId, String featureId) {
-    return projectRepository
-        .getProject(projectId)
+    return surveyRepository
+        .getSurvey(projectId)
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature not found " + featureId)));
   }
