@@ -177,7 +177,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch)
       throws DataStoreException {
     db.projects()
-        .project(mutation.getProjectId())
+        .project(mutation.getSurveyId())
         .features()
         .feature(mutation.getFeatureId())
         .addMutationToBatch(mutation, user, batch);
@@ -186,7 +186,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   private void addSubmissionMutationToBatch(
       SubmissionMutation mutation, User user, WriteBatch batch) throws DataStoreException {
     db.projects()
-        .project(mutation.getProjectId())
+        .project(mutation.getSurveyId())
         .observations()
         .observation(mutation.getSubmissionId())
         .addMutationToBatch(mutation, user, batch);

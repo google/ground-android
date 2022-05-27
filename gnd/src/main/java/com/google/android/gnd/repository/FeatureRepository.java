@@ -117,7 +117,7 @@ public class FeatureRepository {
 
   @Cold
   public Single<Feature> getFeature(FeatureMutation featureMutation) {
-    return getFeature(featureMutation.getProjectId(), featureMutation.getFeatureId());
+    return getFeature(featureMutation.getSurveyId(), featureMutation.getFeatureId());
   }
 
   /** This only works if the project and feature are already cached to local db. */
@@ -135,7 +135,7 @@ public class FeatureRepository {
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
-        .setProjectId(projectId)
+        .setSurveyId(projectId)
         .setLayerId(layerId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
@@ -149,7 +149,7 @@ public class FeatureRepository {
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
-        .setProjectId(projectId)
+        .setSurveyId(projectId)
         .setLayerId(layerId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)

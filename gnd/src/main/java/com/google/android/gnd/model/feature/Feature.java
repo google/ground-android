@@ -65,7 +65,7 @@ public abstract class Feature<B extends Feature.Builder> {
     return FeatureMutation.builder()
         .setType(type)
         .setSyncStatus(SyncStatus.PENDING)
-        .setProjectId(getProject().getId())
+        .setSurveyId(getProject().getId())
         .setFeatureId(getId())
         .setLayerId(getLayer().getId())
         .setUserId(userId)

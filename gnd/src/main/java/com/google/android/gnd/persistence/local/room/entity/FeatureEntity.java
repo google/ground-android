@@ -108,7 +108,7 @@ public abstract class FeatureEntity {
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
-            .setProjectId(mutation.getProjectId())
+            .setProjectId(mutation.getSurveyId())
             .setLayerId(mutation.getLayerId())
             .setState(EntityState.DEFAULT)
             .setCreated(authInfo)

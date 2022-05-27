@@ -119,7 +119,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   public static SubmissionMutationEntity fromMutation(SubmissionMutation m) {
     return SubmissionMutationEntity.builder()
         .setId(m.getId())
-        .setProjectId(m.getProjectId())
+        .setProjectId(m.getSurveyId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setFormId(m.getForm().getId())
@@ -160,7 +160,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setForm(form)
         .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setId(getId())
-        .setProjectId(getProjectId())
+        .setSurveyId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setType(getType().toMutationType())

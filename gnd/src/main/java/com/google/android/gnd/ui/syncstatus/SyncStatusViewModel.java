@@ -69,7 +69,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private Single<Pair<Feature, Mutation>> loadFeatureAndPair(Mutation mutation) {
     return featureRepository
-        .getFeature(mutation.getProjectId(), mutation.getFeatureId())
+        .getFeature(mutation.getSurveyId(), mutation.getFeatureId())
         .map(feature -> Pair.create(feature, mutation));
   }
 

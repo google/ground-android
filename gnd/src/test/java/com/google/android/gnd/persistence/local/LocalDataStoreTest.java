@@ -137,7 +137,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setId(1L)
           .setType(Mutation.Type.CREATE)
           .setSyncStatus(SyncStatus.PENDING)
-          .setProjectId("project id")
+          .setSurveyId("project id")
           .setFeatureId("feature id")
           .setLayerId("layer id")
           .setUserId("user id")
@@ -197,7 +197,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setType(Mutation.Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
-        .setProjectId("project id")
+        .setSurveyId("project id")
         .setLayerId("layer id")
         .setClientTimestamp(new Date())
         .build();
@@ -213,7 +213,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setType(Mutation.Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
-        .setProjectId("project id")
+        .setSurveyId("project id")
         .setLayerId("layer id")
         .setClientTimestamp(new Date())
         .build();
@@ -223,7 +223,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     assertThat(mutation.getSubmissionId()).isEqualTo(submission.getId());
     assertThat(mutation.getFeatureId()).isEqualTo(submission.getFeature().getId());
     assertThat(mutation.getForm()).isEqualTo(submission.getForm());
-    assertThat(mutation.getProjectId()).isEqualTo(submission.getProject().getId());
+    assertThat(mutation.getSurveyId()).isEqualTo(submission.getProject().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getLastModified().getUser().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getCreated().getUser().getId());
     MatcherAssert.assertThat(
