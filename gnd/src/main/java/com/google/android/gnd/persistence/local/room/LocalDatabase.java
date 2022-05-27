@@ -32,7 +32,7 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
-import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
@@ -115,7 +115,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract OptionDao optionDao();
 
-  public abstract ProjectDao projectDao();
+  public abstract SurveyDao projectDao();
 
   public abstract BaseMapDao baseMapDao();
 

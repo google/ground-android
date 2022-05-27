@@ -26,7 +26,7 @@ import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+public interface SurveyDao extends BaseDao<ProjectEntity> {
 
   @Transaction
   @Query("SELECT * FROM project")

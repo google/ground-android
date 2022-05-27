@@ -55,7 +55,7 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
-import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
@@ -112,7 +112,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject FieldDao fieldDao;
   @Inject FormDao formDao;
   @Inject LayerDao layerDao;
-  @Inject ProjectDao projectDao;
+  @Inject
+  SurveyDao surveyDao;
   @Inject FeatureDao featureDao;
   @Inject FeatureMutationDao featureMutationDao;
   @Inject SubmissionDao submissionDao;
@@ -201,7 +202,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Transaction
   @Override
   public Completable insertOrUpdateSurvey(Survey survey) {
-    return projectDao
+    return surveyDao
         .insertOrUpdate(ProjectEntity.fromProject(survey))
         .andThen(layerDao.deleteByProjectId(survey.getId()))
         .andThen(insertOrUpdateLayers(survey.getId(), survey.getLayers()))
@@ -228,7 +229,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Single<ImmutableList<Survey>> getSurveys() {
-    return projectDao
+    return surveyDao
         .getAllProjects()
         .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
@@ -236,12 +237,12 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Maybe<Survey> getSurveyById(String id) {
-    return projectDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(schedulers.io());
+    return surveyDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable deleteSurvey(Survey survey) {
-    return projectDao.delete(ProjectEntity.fromProject(survey)).subscribeOn(schedulers.io());
+    return surveyDao.delete(ProjectEntity.fromProject(survey)).subscribeOn(schedulers.io());
   }
 
   @Transaction
