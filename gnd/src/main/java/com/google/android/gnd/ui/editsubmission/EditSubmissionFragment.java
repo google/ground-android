@@ -342,7 +342,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
 
   private void initPhotoField(PhotoFieldViewModel photoFieldViewModel) {
     photoFieldViewModel.setEditable(true);
-    photoFieldViewModel.setProjectId(viewModel.getProjectId());
+    photoFieldViewModel.setSurveyId(viewModel.getSurveyId());
     photoFieldViewModel.setSubmissionId(viewModel.getSubmissionId());
     observeSelectPhotoClicks(photoFieldViewModel);
     observePhotoResults(photoFieldViewModel);

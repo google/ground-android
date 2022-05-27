@@ -189,18 +189,18 @@ public class FeatureRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testGetFeature_projectNotPresent() {
+  public void testGetFeature_surveyNotPresent() {
     when(mockSurveyRepository.getSurvey(anyString()))
         .thenReturn(Single.error(new NoSuchElementException()));
 
     featureRepository
-        .getFeature("non_existent_project_id", "feature_id")
+        .getFeature("non_existent_survey_id", "feature_id")
         .test()
         .assertFailure(NoSuchElementException.class);
   }
 
   @Test
-  public void testGetFeature_projectPresent() {
+  public void testGetFeature_surveyPresent() {
     when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
     when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.just(FakeData.POINT_FEATURE));
@@ -234,11 +234,11 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     Date testDate = new Date();
 
     FeatureMutation newMutation =
-        featureRepository.newMutation("foo_project_id", "foo_layer_id", FakeData.POINT, testDate);
+        featureRepository.newMutation("foo_survey_id", "foo_layer_id", FakeData.POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
-    assertThat(newMutation.getSurveyId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
@@ -252,11 +252,11 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
     FeatureMutation newMutation =
         featureRepository.newPolygonFeatureMutation(
-            "foo_project_id", "foo_layer_id", FakeData.VERTICES, testDate);
+            "foo_survey_id", "foo_layer_id", FakeData.VERTICES, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
-    assertThat(newMutation.getSurveyId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());

@@ -40,25 +40,25 @@ import java.util.List;
 public interface RemoteDataStore {
 
   @Cold
-  Single<List<Survey>> loadProjectSummaries(User user);
+  Single<List<Survey>> loadSurveySummaries(User user);
 
   /**
-   * Loads the project with the specified id from the remote data store. The return Single fails
-   * with if the project is not found, or if the remote data store is not available.
+   * Loads the survey with the specified id from the remote data store. The return Single fails with
+   * if the survey is not found, or if the remote data store is not available.
    */
   @Cold
-  Single<Survey> loadProject(String projectId);
+  Single<Survey> loadSurvey(String surveyId);
 
   /**
-   * Loads the project terms from the remote data store. The returned Maybe is empty if not found,
+   * Loads the survey terms from the remote data store. The returned Maybe is empty if not found,
    * otherwise it completes with the loaded terms of service.
    */
   @Cold
   Maybe<TermsOfService> loadTermsOfService();
 
   /**
-   * Returns all features in the specified project, then continues to emit any remote updates to the
-   * set of features in the project until all subscribers have been disposed.
+   * Returns all features in the specified survey, then continues to emit any remote updates to the
+   * set of features in the survey until all subscribers have been disposed.
    */
   @Cold(stateful = true, terminates = false)
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey);

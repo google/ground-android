@@ -39,6 +39,6 @@ public class ProjectDocumentReference extends FluentDocumentReference {
   }
 
   public Maybe<Survey> get() {
-    return RxFirestore.getDocument(reference()).map(ProjectConverter::toProject);
+    return RxFirestore.getDocument(reference()).map(SurveyConverter::toProject);
   }
 }

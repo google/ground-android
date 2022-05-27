@@ -53,13 +53,13 @@ public class FakeData {
   public static final User USER_2 =
       User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
 
-  public static final Survey SURVEY = newProject().build();
+  public static final Survey SURVEY = newSurvey().build();
 
-  public static Survey.Builder newProject() {
+  public static Survey.Builder newSurvey() {
     return Survey.newBuilder()
-        .setId("PROJECT")
-        .setTitle("Project title")
-        .setDescription("Test project description")
+        .setId("SURVEY")
+        .setTitle("Survey title")
+        .setDescription("Test survey description")
         .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"));
   }
 

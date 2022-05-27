@@ -46,7 +46,7 @@ public abstract class BaseMainActivityTest {
   @Rule(order = 1)
   public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-  // Sets the preferences so no login is required and an active project is selected.
+  // Sets the preferences so no login is required and an active survey is selected.
   @Rule(order = 2)
   public SetPreferencesRule preferencesRule = new SetPreferencesRule();
 

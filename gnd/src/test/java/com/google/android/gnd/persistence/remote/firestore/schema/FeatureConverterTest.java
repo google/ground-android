@@ -23,7 +23,7 @@ import static com.google.android.gnd.model.TestModelBuilders.newGeoPointPolygonV
 import static com.google.android.gnd.model.TestModelBuilders.newLayer;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonVertices;
-import static com.google.android.gnd.model.TestModelBuilders.newProject;
+import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -90,20 +90,20 @@ public class FeatureConverterTest {
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
-  private void setUpTestProject(String layerId, String formId, Field... fields) {
+  private void setUpTestSurvey(String layerId, String formId, Field... fields) {
     Form form =
         newForm()
             .setId(formId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
     layer = newLayer().setId(layerId).setForm(form).build();
-    survey = newProject().putLayer(layer).build();
+    survey = newSurvey().putLayer(layer).build();
   }
 
   @Test
   public void testToFeature() {
     setUpTestGeometry();
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
@@ -142,7 +142,7 @@ public class FeatureConverterTest {
   @Test
   public void testToFeature_nullFeature() {
     setUpTestGeometry();
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
@@ -181,7 +181,7 @@ public class FeatureConverterTest {
   @Test
   public void testToFeature_zeroVertices() {
     setUpTestGeometry();
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),

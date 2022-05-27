@@ -18,7 +18,7 @@
 
 <resources>
   <!-- Message shown while survey is loading. -->
-  <string name="project_loading_please_wait">O projeto esta a ser carregado, por favor
+  <string name="survey_loading_please_wait">O projeto esta a ser carregado, por favor
     aguarde um instante&#8230;</string>
 
   <!--
@@ -117,7 +117,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="add_submission_button_label">Adicionar registro</string>
   <string name="view_submission_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
-  <string name="project_load_error">O projeto não pôde ser carregado</string>
+  <string name="survey_load_error">O projeto não pôde ser carregado</string>
   <string name="survey_list_load_error">Lista de projetos não disponível</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>
   <string name="edit_submission_button_label">Editar</string>

@@ -81,7 +81,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
-  private final LiveData<Loadable<Survey>> projectLoadingState;
+  private final LiveData<Loadable<Survey>> surveyLoadingState;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
@@ -171,7 +171,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.projectLoadingState =
+    this.surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
@@ -363,8 +363,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 
-  public LiveData<Loadable<Survey>> getProjectLoadingState() {
-    return projectLoadingState;
+  public LiveData<Loadable<Survey>> getSurveyLoadingState() {
+    return surveyLoadingState;
   }
 
   public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
@@ -408,7 +408,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     Timber.d("Setting position to %s", newCameraPosition.toString());
     onZoomChange(cameraPosition.getValue().getZoomLevel(), newCameraPosition.getZoomLevel());
     cameraPosition.setValue(newCameraPosition);
-    Loadable.getValue(projectLoadingState)
+    Loadable.getValue(surveyLoadingState)
         .ifPresent(
             project -> surveyRepository.setCameraPosition(project.getId(), newCameraPosition));
   }

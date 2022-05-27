@@ -62,15 +62,15 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
 
   private SurveySelectorDialogFragment surveySelectorDialogFragment;
 
-  private final Survey survey1 = FakeData.newProject().setId("1").build();
-  private final Survey survey2 = FakeData.newProject().setId("2").build();
+  private final Survey survey1 = FakeData.newSurvey().setId("1").build();
+  private final Survey survey2 = FakeData.newSurvey().setId("2").build();
 
   private final List<Survey> surveys = ImmutableList.of(survey1, survey2);
 
   @Before
   public void setUp() {
     super.setUp();
-    fakeRemoteDataStore.setTestProjects(surveys);
+    fakeRemoteDataStore.setTestSurveys(surveys);
     setUpFragment();
   }
 
@@ -87,7 +87,7 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
   }
 
   @Test
-  public void show_projectDialogIsShown() {
+  public void show_surveyDialogIsShown() {
     View listView = surveySelectorDialogFragment.getDialog().getCurrentFocus();
 
     assertThat(listView).isNotNull();
@@ -96,7 +96,7 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
   }
 
   @Test
-  public void show_projectSelected_projectIsActivated() {
+  public void show_surveySelected_surveyIsActivated() {
     ListView listView = (ListView) surveySelectorDialogFragment.getDialog().getCurrentFocus();
 
     when(mockLocalDataStore.getSurveyById(eq(survey2.getId()))).thenReturn(Maybe.just(survey2));

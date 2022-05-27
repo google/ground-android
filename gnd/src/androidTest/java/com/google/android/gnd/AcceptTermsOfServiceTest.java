@@ -40,7 +40,7 @@ public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
   public void setUp() {
     super.setUp();
     fakeAuthenticationManager.setUser(FakeData.USER);
-    fakeRemoteDataStore.setTestProject(FakeData.PROJECT);
+    fakeRemoteDataStore.setTestSurvey(FakeData.SURVEY);
   }
 
   // Given: a logged in user - with terms not accepted.

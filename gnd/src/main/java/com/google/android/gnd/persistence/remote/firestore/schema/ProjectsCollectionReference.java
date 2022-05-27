@@ -47,6 +47,6 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
   public Single<List<Survey>> getReadable(User user) {
     return runQuery(
         reference().whereIn(FieldPath.of(ACL_FIELD, user.getEmail()), VALID_ROLES),
-        ProjectConverter::toProject);
+        SurveyConverter::toProject);
   }
 }

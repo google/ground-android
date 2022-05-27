@@ -30,7 +30,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-/** Represents view state and behaviors of the project selector dialog. */
+/** Represents view state and behaviors of the survey selector dialog. */
 public class SurveySelectorViewModel extends AbstractViewModel {
   private final SurveyRepository surveyRepository;
   private final LiveData<Loadable<List<Survey>>> surveySummaries;
@@ -52,19 +52,19 @@ public class SurveySelectorViewModel extends AbstractViewModel {
   }
 
   /**
-   * Triggers the specified project to be loaded and activated.
+   * Triggers the specified survey to be loaded and activated.
    *
-   * @param idx the index in the project summary list.
+   * @param idx the index in the survey summary list.
    */
   public void activateSurvey(int idx) {
     Optional<List<Survey>> surveys = Loadable.getValue(this.surveySummaries);
     if (surveys.isEmpty()) {
-      Timber.e("Can't activate project before list is loaded");
+      Timber.e("Can't activate survey before list is loaded");
       return;
     }
     if (idx >= surveys.get().size()) {
       Timber.e(
-          "Can't activate project at index %d, only %d surveys in list", idx, surveys.get().size());
+          "Can't activate survey at index %d, only %d surveys in list", idx, surveys.get().size());
       return;
     }
     Survey survey = surveys.get().get(idx);

@@ -28,7 +28,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
- * Rule to be used in tests that sets the SharedPreferences needed to avoid login and project
+ * Rule to be used in tests that sets the SharedPreferences needed to avoid login and survey
  * selection.
  */
 class SetPreferencesRule extends TestWatcher {
@@ -52,7 +52,7 @@ class SetPreferencesRule extends TestWatcher {
     prefs
         .edit()
         .clear()
-        .putString(ACTIVE_SURVEY_ID_KEY, FakeData.PROJECT.getId())
+        .putString(ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.getId())
         .apply();
   }
 }

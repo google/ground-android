@@ -80,12 +80,12 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<Survey> loadProject(String projectId) {
+  public Single<Survey> loadSurvey(String surveyId) {
     return db.projects()
-        .project(projectId)
+        .project(surveyId)
         .get()
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Maybe.never() : Maybe.error(e))
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Survey " + surveyId)))
         .subscribeOn(schedulers.io());
   }
 
@@ -112,7 +112,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<List<Survey>> loadProjectSummaries(User user) {
+  public Single<List<Survey>> loadSurveySummaries(User user) {
     return db.projects()
         .getReadable(user)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))

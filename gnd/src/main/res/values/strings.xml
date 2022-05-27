@@ -19,7 +19,7 @@
 <resources>
 
   <!-- Message shown while survey is loading. -->
-  <string name="project_loading_please_wait">Project loading, please wait &#8230;</string>
+  <string name="survey_loading_please_wait">Project loading, please wait &#8230;</string>
 
   <!--
     ADD/EDIT FEATURE DATA
@@ -125,7 +125,7 @@
   <string name="add_submission_button_label">Add submission</string>
   <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
-  <string name="project_load_error">Project could not be loaded</string>
+  <string name="survey_load_error">Project could not be loaded</string>
   <string name="survey_list_load_error">Survey list not available</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
   <string name="edit_submission_button_label">Edit</string>

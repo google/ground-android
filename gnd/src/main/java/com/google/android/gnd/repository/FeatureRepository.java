@@ -79,7 +79,7 @@ public class FeatureRepository {
   }
 
   /**
-   * Mirrors features in the specified project from the remote db into the local db when the network
+   * Mirrors features in the specified survey from the remote db into the local db when the network
    * is available. When invoked, will first attempt to resync all features from the remote db,
    * subsequently syncing only remote changes. The returned stream never completes, and
    * subscriptions will only terminate on disposal.
@@ -120,22 +120,22 @@ public class FeatureRepository {
     return getFeature(featureMutation.getSurveyId(), featureMutation.getFeatureId());
   }
 
-  /** This only works if the project and feature are already cached to local db. */
+  /** This only works if the survey and feature are already cached to local db. */
   @Cold
-  public Single<Feature> getFeature(String projectId, String featureId) {
+  public Single<Feature> getFeature(String surveyId, String featureId) {
     return surveyRepository
-        .getSurvey(projectId)
-        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
+        .getSurvey(surveyId)
+        .flatMapMaybe(survey -> localDataStore.getFeature(survey, featureId))
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature not found " + featureId)));
   }
 
-  public FeatureMutation newMutation(String projectId, String layerId, Point point, Date date) {
+  public FeatureMutation newMutation(String surveyId, String layerId, Point point, Date date) {
     return FeatureMutation.builder()
         .setLocation(Optional.of(point))
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
-        .setSurveyId(projectId)
+        .setSurveyId(surveyId)
         .setLayerId(layerId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
@@ -143,13 +143,13 @@ public class FeatureRepository {
   }
 
   public FeatureMutation newPolygonFeatureMutation(
-      String projectId, String layerId, ImmutableList<Point> vertices, Date date) {
+      String surveyId, String layerId, ImmutableList<Point> vertices, Date date) {
     return FeatureMutation.builder()
         .setPolygonVertices(vertices)
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
-        .setSurveyId(projectId)
+        .setSurveyId(surveyId)
         .setLayerId(layerId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)

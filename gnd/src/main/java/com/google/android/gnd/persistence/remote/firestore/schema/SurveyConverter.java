@@ -30,38 +30,35 @@ import java8.util.Maps;
 import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Survey} instances. */
-class ProjectConverter {
+class SurveyConverter {
 
   static Survey toProject(DocumentSnapshot doc) throws DataStoreException {
     ProjectDocument pd = doc.toObject(ProjectDocument.class);
-    Survey.Builder project = Survey.newBuilder();
-    project
+    Survey.Builder survey = Survey.newBuilder();
+    survey
         .setId(doc.getId())
         .setTitle(getLocalizedMessage(pd.getTitle()))
         .setDescription(getLocalizedMessage(pd.getDescription()));
     if (pd.getLayers() != null) {
-      Maps.forEach(pd.getLayers(), (id, obj) -> project.putLayer(LayerConverter.toLayer(id, obj)));
+      Maps.forEach(pd.getLayers(), (id, obj) -> survey.putLayer(LayerConverter.toLayer(id, obj)));
     }
-    project.setAcl(ImmutableMap.copyOf(pd.getAcl()));
+    survey.setAcl(ImmutableMap.copyOf(pd.getAcl()));
     if (pd.getBaseMaps() != null) {
-      convertOfflineBaseMapSources(pd, project);
+      convertOfflineBaseMapSources(pd, survey);
     }
-    return project.build();
+    return survey.build();
   }
 
-  private static void convertOfflineBaseMapSources(ProjectDocument pd, Survey.Builder project) {
+  private static void convertOfflineBaseMapSources(ProjectDocument pd, Survey.Builder builder) {
     for (BaseMapNestedObject src : pd.getBaseMaps()) {
       if (src.getUrl() == null) {
-        Timber.d("Skipping base map source in project with missing URL");
+        Timber.d("Skipping base map source in survey with missing URL");
         continue;
       }
       try {
         URL url = new URL(src.getUrl());
-        project.addBaseMap(
-            BaseMap.builder()
-                .setUrl(url)
-                .setType(typeFromExtension(src.getUrl()))
-                .build());
+        builder.addBaseMap(
+            BaseMap.builder().setUrl(url).setType(typeFromExtension(src.getUrl())).build());
       } catch (MalformedURLException e) {
         Timber.d("Skipping base map source in project with malformed URL");
       }

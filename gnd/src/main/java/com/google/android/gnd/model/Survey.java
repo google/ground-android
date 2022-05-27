@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 
-/** Configuration, schema, and ACLs for a single project. */
+/** Configuration, schema, and ACLs for a single survey. */
 @AutoValue
 public abstract class Survey {
 

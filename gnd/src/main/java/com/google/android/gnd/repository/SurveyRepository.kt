@@ -128,7 +128,7 @@ class SurveyRepository @Inject constructor(
 
     private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
         remoteDataStore
-            .loadProject(id)
+            .loadSurvey(id)
             .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
             .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
             .doOnSubscribe { Timber.d("Loading project $id") }
@@ -150,7 +150,7 @@ class SurveyRepository @Inject constructor(
 
     private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
         remoteDataStore
-            .loadProjectSummaries(user)
+            .loadSurveySummaries(user)
             .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
 
     fun getModifiableLayers(survey: Survey): ImmutableList<Layer> =

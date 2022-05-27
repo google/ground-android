@@ -17,7 +17,7 @@
 package com.google.android.gnd.repository;
 
 import static com.google.android.gnd.FakeData.newLayer;
-import static com.google.android.gnd.FakeData.newProject;
+import static com.google.android.gnd.FakeData.newSurvey;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -54,9 +54,9 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
   @Test
-  public void testActivateProject() {
-    Survey survey = newProject().build();
-    setTestProject(survey);
+  public void testActivateSurvey() {
+    Survey survey = newSurvey().build();
+    setTestSurvey(survey);
 
     surveyRepository.activateSurvey("id");
 
@@ -64,9 +64,9 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testActivateProject_managersCanAddFeaturesToAllLayers() {
+  public void testActivateSurvey_managersCanAddFeaturesToAllLayers() {
     Layer layer = newLayer().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestProject(newProject().putLayer(layer).build());
+    setTestSurvey(newSurvey().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
     surveyRepository.activateSurvey("id");
@@ -79,7 +79,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testActivateProject_contributorsCanAddFeaturesIfAllowed() {
+  public void testActivateSurvey_contributorsCanAddFeaturesIfAllowed() {
     Layer layer1 =
         newLayer()
             .setId("Layer 1")
@@ -92,7 +92,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
             .build();
     Layer layer3 = newLayer().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
     Layer layer4 = newLayer().setId("Layer 4").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestProject(newProject().putLayers(layer1, layer2, layer3, layer4).build());
+    setTestSurvey(newSurvey().putLayers(layer1, layer2, layer3, layer4).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
     surveyRepository.activateSurvey("id");
@@ -109,8 +109,8 @@ public class SurveyRepositoryTest extends BaseHiltTest {
         .assertValue(p -> p.get().getLayers().equals(expectedLayers));
   }
 
-  private void setTestProject(Survey survey) {
-    fakeRemoteDataStore.setTestProject(survey);
+  private void setTestSurvey(Survey survey) {
+    fakeRemoteDataStore.setTestSurvey(survey);
     when(mockLocalDataStore.getSurveyById(any())).thenReturn(Maybe.just(survey));
   }
 }

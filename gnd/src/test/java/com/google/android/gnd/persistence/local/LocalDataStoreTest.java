@@ -87,8 +87,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
-          .setId("project id")
-          .setTitle("project 1")
+          .setId("survey id")
+          .setTitle("survey 1")
           .setDescription("foo description")
           .putLayer(TEST_LAYER)
           .build();
@@ -137,7 +137,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setId(1L)
           .setType(Mutation.Type.CREATE)
           .setSyncStatus(SyncStatus.PENDING)
-          .setSurveyId("project id")
+          .setSurveyId("survey id")
           .setFeatureId("feature id")
           .setLayerId("layer id")
           .setUserId("user id")
@@ -197,7 +197,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setType(Mutation.Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
-        .setSurveyId("project id")
+        .setSurveyId("survey id")
         .setLayerId("layer id")
         .setClientTimestamp(new Date())
         .build();
@@ -213,7 +213,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setType(Mutation.Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
-        .setSurveyId("project id")
+        .setSurveyId("survey id")
         .setLayerId("layer id")
         .setClientTimestamp(new Date())
         .build();
@@ -232,34 +232,34 @@ public class LocalDataStoreTest extends BaseHiltTest {
   }
 
   @Test
-  public void testInsertAndGetProjects() {
+  public void testInsertAndGetSurveys() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete();
     localDataStore.getSurveys().test().assertValue(ImmutableList.of(TEST_SURVEY));
   }
 
   @Test
-  public void testGetProjectById() {
+  public void testGetSurveyById() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
-    localDataStore.getSurveyById("project id").test().assertValue(TEST_SURVEY);
+    localDataStore.getSurveyById("survey id").test().assertValue(TEST_SURVEY);
   }
 
   @Test
-  public void testDeleteProject() {
+  public void testDeleteSurvey() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.deleteSurvey(TEST_SURVEY).test().assertComplete();
     localDataStore.getSurveys().test().assertValue(AbstractCollection::isEmpty);
   }
 
   @Test
-  public void testRemovedLayerFromProject() {
+  public void testRemovedLayerFromSurvey() {
     Layer layer1 = Layer.newBuilder().setId("layer 1").setName("layer 1 name").build();
     Layer layer2 = Layer.newBuilder().setId("layer 2").setName("layer 2 name").build();
 
     Survey survey =
         Survey.newBuilder()
             .setId("foo id")
-            .setTitle("foo project")
-            .setDescription("foo project description")
+            .setTitle("foo survey")
+            .setDescription("foo survey description")
             .putLayer(layer1)
             .build();
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
@@ -267,8 +267,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
     survey =
         Survey.newBuilder()
             .setId("foo id")
-            .setTitle("foo project")
-            .setDescription("foo project description")
+            .setTitle("foo survey")
+            .setDescription("foo survey description")
             .putLayer(layer2)
             .build();
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();

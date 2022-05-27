@@ -45,7 +45,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
     fakeAuthenticationManager.setUser(FakeData.USER);
   }
 
-  // Given: a logged in user - with an active project with no map markers.
+  // Given: a logged in user - with an active survey with no map markers.
   // When: they tap on the centre of the map.
   // Then: nothing happens - the feature fragment is not displayed.
   @Test
@@ -65,7 +65,7 @@ public class AddFeatureTest extends BaseMainActivityTest {
     onView(withId(R.id.feature_title)).check(matches(not(isCompletelyDisplayed())));
   }
 
-  // Given: A logged in user with an active project
+  // Given: A logged in user with an active survey
   // When: They tap the "Add feature" FAB and choose a layer which does not contain a form.
   // Then: The feature map pin is displayed on the map screen. Tapping on the map pin displays the
   // feature details.

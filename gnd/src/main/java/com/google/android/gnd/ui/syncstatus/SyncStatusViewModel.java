@@ -77,8 +77,8 @@ public class SyncStatusViewModel extends AbstractViewModel {
     return surveyRepository
         .getActiveSurvey()
         .switchMap(
-            project ->
-                project
+            survey ->
+                survey
                     .map(surveyRepository::getMutationsOnceAndStream)
                     .orElse(Flowable.just(ImmutableList.of())));
   }

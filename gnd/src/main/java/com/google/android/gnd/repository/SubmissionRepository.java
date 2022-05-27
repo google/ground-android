@@ -87,10 +87,10 @@ public class SubmissionRepository {
    */
   @Cold
   public Single<ImmutableList<Submission>> getSubmissions(
-      String projectId, String featureId, String formId) {
+      String surveyId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     return featureRepository
-        .getFeature(projectId, featureId)
+        .getFeature(surveyId, featureId)
         .flatMap(feature -> getSubmissions(feature, formId));
   }
 
@@ -115,10 +115,10 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> getSubmission(String projectId, String featureId, String submissionId) {
+  public Single<Submission> getSubmission(String surveyId, String featureId, String submissionId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return featureRepository
-        .getFeature(projectId, featureId)
+        .getFeature(surveyId, featureId)
         .flatMap(
             feature ->
                 localDataStore
@@ -128,11 +128,11 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> createSubmission(String projectId, String featureId, String formId) {
+  public Single<Submission> createSubmission(String surveyId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
-        .getFeature(projectId, featureId)
+        .getFeature(surveyId, featureId)
         .map(
             feature ->
                 Submission.newBuilder()
