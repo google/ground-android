@@ -46,7 +46,7 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
-import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
+import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
@@ -76,7 +76,7 @@ import com.google.android.gnd.persistence.local.room.models.TileSetEntityState;
         LayerEntity.class,
         MultipleChoiceEntity.class,
         OptionEntity.class,
-        ProjectEntity.class,
+        SurveyEntity.class,
         BaseMapEntity.class,
         SubmissionEntity.class,
         SubmissionMutationEntity.class,

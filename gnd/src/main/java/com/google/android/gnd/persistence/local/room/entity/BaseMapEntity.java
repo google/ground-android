@@ -35,11 +35,11 @@ import java.net.URL;
     tableName = "offline_base_map_source",
     foreignKeys =
         @ForeignKey(
-            entity = ProjectEntity.class,
+            entity = SurveyEntity.class,
             parentColumns = "id",
-            childColumns = "project_id", // NOPMD
+            childColumns = "survey_id", // NOPMD
             onDelete = ForeignKey.CASCADE),
-    indices = {@Index("project_id")}) // NOPMD
+    indices = {@Index("survey_id")}) // NOPMD
 public abstract class BaseMapEntity {
 
   public static BaseMap toModel(BaseMapEntity source)
@@ -58,7 +58,7 @@ public abstract class BaseMapEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "project_id") // NOPMD
+  @ColumnInfo(name = "survey_id") // NOPMD
   public abstract String getProjectId();
 
   @CopyAnnotations

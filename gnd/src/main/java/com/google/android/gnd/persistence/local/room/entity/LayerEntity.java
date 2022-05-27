@@ -37,11 +37,11 @@ import org.json.JSONArray;
     tableName = "layer",
     foreignKeys =
         @ForeignKey(
-            entity = ProjectEntity.class,
+            entity = SurveyEntity.class,
             parentColumns = "id",
-            childColumns = "project_id",
+            childColumns = "survey_id",
             onDelete = ForeignKey.CASCADE),
-    indices = {@Index("project_id")})
+    indices = {@Index("survey_id")})
 public abstract class LayerEntity {
 
   @CopyAnnotations
@@ -57,7 +57,7 @@ public abstract class LayerEntity {
 
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "project_id")
+  @ColumnInfo(name = "survey_id")
   public abstract String getProjectId();
 
   @CopyAnnotations

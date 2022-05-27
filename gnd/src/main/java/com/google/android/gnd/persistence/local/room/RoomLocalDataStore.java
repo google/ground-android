@@ -70,7 +70,7 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
-import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
+import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
@@ -203,7 +203,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Completable insertOrUpdateSurvey(Survey survey) {
     return surveyDao
-        .insertOrUpdate(ProjectEntity.fromProject(survey))
+        .insertOrUpdate(SurveyEntity.fromSurvey(survey))
         .andThen(layerDao.deleteByProjectId(survey.getId()))
         .andThen(insertOrUpdateLayers(survey.getId(), survey.getLayers()))
         .andThen(baseMapDao.deleteByProjectId(survey.getId()))
@@ -231,18 +231,18 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<ImmutableList<Survey>> getSurveys() {
     return surveyDao
         .getAllProjects()
-        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableList()))
+        .map(list -> stream(list).map(SurveyEntity::toSurvey).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Maybe<Survey> getSurveyById(String id) {
-    return surveyDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(schedulers.io());
+    return surveyDao.getProjectById(id).map(SurveyEntity::toSurvey).subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable deleteSurvey(Survey survey) {
-    return surveyDao.delete(ProjectEntity.fromProject(survey)).subscribeOn(schedulers.io());
+    return surveyDao.delete(SurveyEntity.fromSurvey(survey)).subscribeOn(schedulers.io());
   }
 
   @Transaction

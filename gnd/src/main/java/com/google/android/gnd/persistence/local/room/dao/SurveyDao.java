@@ -19,20 +19,20 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.room.Dao;
 import androidx.room.Query;
 import androidx.room.Transaction;
-import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
-import com.google.android.gnd.persistence.local.room.relations.ProjectEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
+import com.google.android.gnd.persistence.local.room.relations.SurveyEntityAndRelations;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface SurveyDao extends BaseDao<ProjectEntity> {
+public interface SurveyDao extends BaseDao<SurveyEntity> {
 
   @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
+  @Query("SELECT * FROM survey")
+  Single<List<SurveyEntityAndRelations>> getAllProjects();
 
   @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+  @Query("SELECT * FROM survey WHERE id = :id")
+  Maybe<SurveyEntityAndRelations> getProjectById(String id);
 }
