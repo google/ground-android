@@ -107,42 +107,25 @@ import timber.log.Timber;
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
 
-  @Inject
-  OptionDao optionDao;
-  @Inject
-  MultipleChoiceDao multipleChoiceDao;
-  @Inject
-  FieldDao fieldDao;
-  @Inject
-  TaskDao taskDao;
-  @Inject
-  LayerDao layerDao;
-  @Inject
-  ProjectDao projectDao;
-  @Inject
-  FeatureDao featureDao;
-  @Inject
-  FeatureMutationDao featureMutationDao;
-  @Inject
-  SubmissionDao submissionDao;
-  @Inject
-  SubmissionMutationDao submissionMutationDao;
-  @Inject
-  TileSetDao tileSetDao;
-  @Inject
-  UserDao userDao;
-  @Inject
-  OfflineAreaDao offlineAreaDao;
-  @Inject
-  BaseMapDao baseMapDao;
-  @Inject
-  Schedulers schedulers;
-  @Inject
-  FileUtil fileUtil;
+  @Inject OptionDao optionDao;
+  @Inject MultipleChoiceDao multipleChoiceDao;
+  @Inject FieldDao fieldDao;
+  @Inject TaskDao taskDao;
+  @Inject LayerDao layerDao;
+  @Inject ProjectDao projectDao;
+  @Inject FeatureDao featureDao;
+  @Inject FeatureMutationDao featureMutationDao;
+  @Inject SubmissionDao submissionDao;
+  @Inject SubmissionMutationDao submissionMutationDao;
+  @Inject TileSetDao tileSetDao;
+  @Inject UserDao userDao;
+  @Inject OfflineAreaDao offlineAreaDao;
+  @Inject BaseMapDao baseMapDao;
+  @Inject Schedulers schedulers;
+  @Inject FileUtil fileUtil;
 
   @Inject
-  RoomLocalDataStore() {
-  }
+  RoomLocalDataStore() {}
 
   private Completable insertOrUpdateOption(String fieldId, Option option) {
     return optionDao
@@ -594,7 +577,7 @@ public class RoomLocalDataStore implements LocalDataStore {
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *     exist, or if type is "CREATE" and entity already exists.
    */
   public Completable apply(SubmissionMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {

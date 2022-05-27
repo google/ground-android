@@ -123,7 +123,7 @@ Each licensee is addressed as "you".
 
   A "library" means a collection of software functions and/or data
 prepared so as to be conveniently linked with application programs
-(which use some of those functions and data) to task executables.
+(which use some of those functions and data) to form executables.
 
   The "Library", below, refers to any such software library or work
 which has been distributed under these terms.  A "work based on the
@@ -133,7 +133,7 @@ portion of it, either verbatim or with modifications and/or translated
 straightforwardly into another language.  (Hereinafter, translation is
 included without limitation in the term "modification".)
 
-  "Source code" for a work means the preferred task of the work for
+  "Source code" for a work means the preferred form of the work for
 making modifications to it.  For a library, complete source code means
 all the source code for all modules it contains, plus any associated
 interface definition files, plus the scripts used to control compilation
@@ -225,7 +225,7 @@ subsequent copies and derivative works made from that copy.
 the Library into a program that is not a library.
 
   4. You may copy and distribute the Library (or a portion or
-derivative of it, under Section 2) in object code or executable task
+derivative of it, under Section 2) in object code or executable form
 under the terms of Sections 1 and 2 above provided that you accompany
 it with the complete corresponding machine-readable source code, which
 must be distributed under the terms of Sections 1 and 2 above on a
@@ -315,11 +315,11 @@ of these things:
     e) Verify that the user has already received a copy of these
     materials or that you have already sent this user a copy.
 
-  For an executable, the required task of the "work that uses the
+  For an executable, the required form of the "work that uses the
 Library" must include any data and utility programs needed for
 reproducing the executable from it.  However, as a special exception,
 the materials to be distributed need not include anything that is
-normally distributed (in either source or binary task) with the major
+normally distributed (in either source or binary form) with the major
 components (compiler, kernel, and so on) of the operating system on
 which the executable runs, unless that component itself accompanies
 the executable.
@@ -344,7 +344,7 @@ permitted, and provided that you do these two things:
 
     b) Give prominent notice with the combined library of the fact
     that part of it is a work based on the Library, and explaining
-    where to find the accompanying uncombined task of the same work.
+    where to find the accompanying uncombined form of the same work.
 
   8. You may not copy, modify, sublicense, link with, or distribute
 the Library except as expressly provided under this License.  Any
