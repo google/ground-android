@@ -64,7 +64,7 @@ public class ProjectRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testActivateProject_managersCanAddFeaturesToAllLayers() {
-    Layer layer = newLayer().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
+    Layer layer = newLayer().setId("Layer").build();
     setTestProject(newProject().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
@@ -78,34 +78,33 @@ public class ProjectRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testActivateProject_contributorsCanAddFeaturesIfAllowed() {
-    Layer layer1 =
-        newLayer()
-            .setId("Layer 1")
-            .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
-            .build();
-    Layer layer2 =
-        newLayer()
-            .setId("Layer 2")
-            .setContributorsCanAdd(ImmutableList.of(FeatureType.POLYGON))
-            .build();
-    Layer layer3 = newLayer().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
-    Layer layer4 = newLayer().setId("Layer 4").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestProject(newProject().putLayers(layer1, layer2, layer3, layer4).build());
+  public void testActivateProject_ownersCanAddFeaturesToAllLayers() {
+    Layer layer = newLayer().setId("Layer").build();
+    setTestProject(newProject().putLayer(layer).build());
+    when(userRepository.getUserRole(any())).thenReturn(Role.OWNER);
+
+    projectRepository.activateProject("id");
+
+    Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    projectRepository
+        .getActiveProject()
+        .test()
+        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
+  }
+
+  @Test
+  public void testActivateProject_contributorsCannotAddFeaturesToAnyLayers() {
+    Layer layer = newLayer().setId("Layer").build();
+    setTestProject(newProject().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
     projectRepository.activateProject("id");
 
-    ImmutableList<Layer> expectedLayers =
-        ImmutableList.of(
-            layer1.toBuilder().setUserCanAdd(ImmutableList.of(FeatureType.POINT)).build(),
-            layer2.toBuilder().setUserCanAdd(ImmutableList.of(FeatureType.POLYGON)).build(),
-            layer3.toBuilder().setUserCanAdd(FeatureType.ALL).build(),
-            layer4.toBuilder().setUserCanAdd(ImmutableList.of()).build());
+    Layer expectedLayer = layer.toBuilder().setUserCanAdd(ImmutableList.of()).build();
     projectRepository
         .getActiveProject()
         .test()
-        .assertValue(p -> p.get().getLayers().equals(expectedLayers));
+        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
 
   private void setTestProject(Project project) {
