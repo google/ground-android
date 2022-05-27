@@ -42,7 +42,7 @@ public class FeatureDataTypeSelectorDialogFragment extends AbstractDialogFragmen
     super.onCreateDialog(savedInstanceState);
 
     ArrayAdapter<String> listAdapter =
-        new ArrayAdapter<>(getContext(), R.layout.project_selector_list_item, R.id.project_name);
+        new ArrayAdapter<>(getContext(), R.layout.survey_selector_list_item, R.id.survey_name);
     listAdapter.add(getString(R.string.point));
     listAdapter.add(getString(R.string.polygon));
     return new Builder(getContext())

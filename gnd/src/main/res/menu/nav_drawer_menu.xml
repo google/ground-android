@@ -20,7 +20,7 @@
   <item
     android:id="@+id/nav_join_project"
     android:icon="@drawable/ic_add"
-    android:title="@string/join_project" />
+    android:title="@string/join_survey" />
   <group
     android:id="@+id/group_projects"
     android:checkableBehavior="single">

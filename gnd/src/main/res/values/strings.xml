@@ -126,7 +126,7 @@
   <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
   <string name="project_load_error">Project could not be loaded</string>
-  <string name="project_list_load_error">Project list not available</string>
+  <string name="survey_list_load_error">Survey list not available</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
   <string name="edit_submission_button_label">Edit</string>
   <string name="save_submission_button_label">Save</string>
@@ -137,7 +137,7 @@
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
   <string name="cancel">Cancel</string>
-  <string name="join_project">Join survey</string>
+  <string name="join_survey">Join survey</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>

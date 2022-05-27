@@ -29,7 +29,7 @@
     android:padding="@dimen/selector_dialog_progress_bar_padding" />
 
   <ListView
-    android:id="@+id/project_selector_list_view"
+    android:id="@+id/survey_selector_list_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:visibility="gone" />

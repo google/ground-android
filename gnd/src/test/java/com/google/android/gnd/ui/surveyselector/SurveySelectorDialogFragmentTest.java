@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.projectselector;
+package com.google.android.gnd.ui.surveyselector;
 
 
 import static android.os.Looper.getMainLooper;
@@ -59,7 +59,7 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
   @BindValue @Mock LocalDataStore mockLocalDataStore;
 
-  private ProjectSelectorDialogFragment projectSelectorDialogFragment;
+  private SurveySelectorDialogFragment surveySelectorDialogFragment;
 
   private final Survey survey1 = FakeData.newProject().setId("1").build();
   private final Survey survey2 = FakeData.newProject().setId("2").build();
@@ -78,32 +78,32 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
         Robolectric.buildActivity(MainActivity.class);
     MainActivity activity = activityController.setup().get();
 
-    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
+    surveySelectorDialogFragment = new SurveySelectorDialogFragment();
 
-    projectSelectorDialogFragment.showNow(activity.getSupportFragmentManager(),
-        ProjectSelectorDialogFragment.class.getSimpleName());
+    surveySelectorDialogFragment.showNow(activity.getSupportFragmentManager(),
+        SurveySelectorDialogFragment.class.getSimpleName());
     shadowOf(getMainLooper()).idle();
   }
 
   @Test
   public void show_projectDialogIsShown() {
-    View listView = projectSelectorDialogFragment.getDialog().getCurrentFocus();
+    View listView = surveySelectorDialogFragment.getDialog().getCurrentFocus();
 
     assertThat(listView).isNotNull();
     assertThat(listView.getVisibility()).isEqualTo(View.VISIBLE);
-    assertThat(listView.findViewById(R.id.project_name).getVisibility()).isEqualTo(View.VISIBLE);
+    assertThat(listView.findViewById(R.id.survey_name).getVisibility()).isEqualTo(View.VISIBLE);
   }
 
   @Test
   public void show_projectSelected_projectIsActivated() {
-    ListView listView = (ListView) projectSelectorDialogFragment.getDialog().getCurrentFocus();
+    ListView listView = (ListView) surveySelectorDialogFragment.getDialog().getCurrentFocus();
 
     when(mockLocalDataStore.getProjectById(eq(survey2.getId()))).thenReturn(Maybe.just(survey2));
     shadowOf(listView).performItemClick(1);
     shadowOf(getMainLooper()).idle();
 
     // Verify Dialog is dismissed
-    assertThat(projectSelectorDialogFragment.getDialog()).isNull();
+    assertThat(surveySelectorDialogFragment.getDialog()).isNull();
     projectRepository.getActiveSurvey().test().assertValue(Optional.of(survey2));
   }
 }

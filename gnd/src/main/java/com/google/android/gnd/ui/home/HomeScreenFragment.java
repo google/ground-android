@@ -74,7 +74,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
+import com.google.android.gnd.ui.surveyselector.SurveySelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.google.common.collect.ImmutableList;
@@ -118,7 +118,7 @@ public class HomeScreenFragment extends AbstractFragment
   private BottomSheetBehavior<View> bottomSheetBehavior;
   @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
   @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
-  private ProjectSelectorViewModel projectSelectorViewModel;
+  private SurveySelectorViewModel surveySelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Survey> surveys = Collections.emptyList();
   private HomeScreenFragBinding binding;
@@ -131,7 +131,7 @@ public class HomeScreenFragment extends AbstractFragment
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
-    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+    surveySelectorViewModel = getViewModel(SurveySelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
@@ -307,8 +307,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
-    projectSelectorViewModel
-        .getOfflineProjects()
+    surveySelectorViewModel
+        .getOfflineSurveys()
         .subscribeOn(schedulers.io())
         .observeOn(schedulers.ui())
         .as(autoDisposable(this))
@@ -455,7 +455,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showProjectSelector() {
-    if (getCurrentDestinationId() != R.id.projectSelectorDialogFragment) {
+    if (getCurrentDestinationId() != R.id.surveySelectorDialogFragment) {
       navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
     }
@@ -623,7 +623,7 @@ public class HomeScreenFragment extends AbstractFragment
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     if (item.getGroupId() == R.id.group_join_project) {
       Survey selectedSurvey = surveys.get(item.getOrder());
-      projectSelectorViewModel.activateOfflineProject(selectedSurvey.getId());
+      surveySelectorViewModel.activateOfflineSurvey(selectedSurvey.getId());
     } else if (item.getItemId() == R.id.nav_join_project) {
       showProjectSelector();
     } else if (item.getItemId() == R.id.sync_status) {

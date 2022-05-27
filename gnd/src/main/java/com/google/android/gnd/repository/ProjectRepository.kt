@@ -59,7 +59,7 @@ class ProjectRepository @Inject constructor(
     private val localValueStore: LocalValueStore
 ) {
 
-    /** Emits a project id on {@see #activateProject} and empty on {@see #clearActiveProject}.  */
+    /** Emits a project id on {@see #activateSurvey} and empty on {@see #clearActiveProject}.  */
     private val selectProjectEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
 
     /** Emits the latest loading state of the current project on subscribe and on change.  */

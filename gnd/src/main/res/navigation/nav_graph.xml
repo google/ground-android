@@ -80,7 +80,7 @@
       app:destination="@id/settings_activity" />
     <action
       android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
-      app:destination="@id/projectSelectorDialogFragment" />
+      app:destination="@id/surveySelectorDialogFragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
       app:destination="@id/featureSelectorFragment" />
@@ -217,8 +217,8 @@
       app:popUpToInclusive="true" />
   </fragment>
   <dialog
-    android:id="@+id/projectSelectorDialogFragment"
-    android:name="com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment"
+    android:id="@+id/surveySelectorDialogFragment"
+    android:name="com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment"
     android:label="ProjectSelectorDialogFragment" />
   <dialog
     android:id="@+id/featureSelectorFragment"

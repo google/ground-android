@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.projectselector;
+package com.google.android.gnd.ui.surveyselector;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -31,24 +31,23 @@ import javax.inject.Inject;
 import timber.log.Timber;
 
 /** Represents view state and behaviors of the project selector dialog. */
-public class ProjectSelectorViewModel extends AbstractViewModel {
+public class SurveySelectorViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
-  private final LiveData<Loadable<List<Survey>>> projectSummaries;
+  private final LiveData<Loadable<List<Survey>>> surveySummaries;
 
   @Inject
-  ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
+  SurveySelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
     this.projectRepository = projectRepository;
-
-    this.projectSummaries =
+    this.surveySummaries =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository.getProjectSummaries(authManager.getCurrentUser()));
   }
 
-  public LiveData<Loadable<List<Survey>>> getProjectSummaries() {
-    return projectSummaries;
+  public LiveData<Loadable<List<Survey>>> getSurveySummaries() {
+    return surveySummaries;
   }
 
-  public Single<ImmutableList<Survey>> getOfflineProjects() {
+  public Single<ImmutableList<Survey>> getOfflineSurveys() {
     return projectRepository.getOfflineProjects();
   }
 
@@ -57,23 +56,22 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    *
    * @param idx the index in the project summary list.
    */
-  public void activateProject(int idx) {
-    Optional<List<Survey>> projects = Loadable.getValue(this.projectSummaries);
-    if (projects.isEmpty()) {
+  public void activateSurvey(int idx) {
+    Optional<List<Survey>> surveys = Loadable.getValue(this.surveySummaries);
+    if (surveys.isEmpty()) {
       Timber.e("Can't activate project before list is loaded");
       return;
     }
-    if (idx >= projects.get().size()) {
+    if (idx >= surveys.get().size()) {
       Timber.e(
-          "Can't activate project at index %d, only %d projects in list",
-          idx, projects.get().size());
+          "Can't activate project at index %d, only %d surveys in list", idx, surveys.get().size());
       return;
     }
-    Survey survey = projects.get().get(idx);
+    Survey survey = surveys.get().get(idx);
     projectRepository.activateProject(survey.getId());
   }
 
-  public void activateOfflineProject(String projectId) {
-    projectRepository.activateProject(projectId);
+  public void activateOfflineSurvey(String surveyId) {
+    projectRepository.activateProject(surveyId);
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.projectselector;
+package com.google.android.gnd.ui.surveyselector;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.ProjectSelectorDialogBinding;
+import com.google.android.gnd.databinding.SurveySelectorDialogBinding;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
@@ -38,22 +38,22 @@ import java.util.List;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-/** User interface implementation of project selector dialog. */
+/** User interface implementation of survey selector dialog. */
 @AndroidEntryPoint
-public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
+public class SurveySelectorDialogFragment extends AbstractDialogFragment {
   @Inject EphemeralPopups popups;
 
-  private ProjectSelectorViewModel viewModel;
+  private SurveySelectorViewModel viewModel;
 
   @SuppressWarnings("NullAway")
-  private ProjectSelectorDialogBinding binding;
+  private SurveySelectorDialogBinding binding;
 
   @Nullable private ArrayAdapter listAdapter;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.viewModel = getViewModel(ProjectSelectorViewModel.class);
+    this.viewModel = getViewModel(SurveySelectorViewModel.class);
   }
 
   @NonNull
@@ -61,56 +61,56 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-    dialog.setTitle(R.string.join_project);
+    dialog.setTitle(R.string.join_survey);
     LayoutInflater inflater = getActivity().getLayoutInflater();
-    binding = ProjectSelectorDialogBinding.inflate(inflater);
+    binding = SurveySelectorDialogBinding.inflate(inflater);
     listAdapter =
-        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
-    binding.projectSelectorListView.setAdapter(listAdapter);
-    viewModel.getProjectSummaries().observe(this, this::updateProjectList);
-    binding.projectSelectorListView.setOnItemClickListener(
+        new ArrayAdapter(getContext(), R.layout.survey_selector_list_item, R.id.survey_name);
+    binding.surveySelectorListView.setAdapter(listAdapter);
+    viewModel.getSurveySummaries().observe(this, this::updateSurveyList);
+    binding.surveySelectorListView.setOnItemClickListener(
         (parent, view, index, id) -> onItemSelected(index));
     dialog.setView(binding.getRoot());
     dialog.setCancelable(false);
     return dialog.create();
   }
 
-  private void updateProjectList(Loadable<List<Survey>> projectSummaries) {
-    switch (projectSummaries.getState()) {
+  private void updateSurveyList(Loadable<List<Survey>> surveySummaries) {
+    switch (surveySummaries.getState()) {
       case LOADING:
-        Timber.i("Loading projects");
+        Timber.i("Loading surveys");
         break;
       case LOADED:
-        projectSummaries.value().ifPresent(this::showProjectList);
+        surveySummaries.value().ifPresent(this::showSurveyList);
         break;
       case NOT_FOUND:
       case ERROR:
-        onProjectListLoadError(projectSummaries.error().orElse(new UnknownError()));
+        onSurveyListLoadError(surveySummaries.error().orElse(new UnknownError()));
         break;
       default:
-        Timber.e("Unhandled state: %s", projectSummaries.getState());
+        Timber.e("Unhandled state: %s", surveySummaries.getState());
         break;
     }
   }
 
-  private void onProjectListLoadError(Throwable t) {
-    Timber.e(t, "Project list not available");
-    popups.showError(R.string.project_list_load_error);
+  private void onSurveyListLoadError(Throwable t) {
+    Timber.e(t, "Survey list not available");
+    popups.showError(R.string.survey_list_load_error);
     dismiss();
   }
 
-  private void showProjectList(List<Survey> list) {
+  private void showSurveyList(List<Survey> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
 
-    checkNotNull(listAdapter, "listAdapter was null when attempting to show project list");
+    checkNotNull(listAdapter, "listAdapter was null when attempting to show survey list");
 
     listAdapter.clear();
     stream(list).map(Survey::getTitle).forEach(listAdapter::add);
-    binding.projectSelectorListView.setVisibility(View.VISIBLE);
+    binding.surveySelectorListView.setVisibility(View.VISIBLE);
   }
 
   private void onItemSelected(int index) {
     dismiss();
-    viewModel.activateProject(index);
+    viewModel.activateSurvey(index);
   }
 }
