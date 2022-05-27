@@ -65,7 +65,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testActivateSurvey_managersCanAddFeaturesToAllLayers() {
-    Layer layer = newLayer().setId("Layer").setContributorsCanAdd(ImmutableList.of()).build();
+    Layer layer = newLayer().setId("Layer").build();
     setTestSurvey(newSurvey().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
@@ -79,34 +79,33 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testActivateSurvey_contributorsCanAddFeaturesIfAllowed() {
-    Layer layer1 =
-        newLayer()
-            .setId("Layer 1")
-            .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
-            .build();
-    Layer layer2 =
-        newLayer()
-            .setId("Layer 2")
-            .setContributorsCanAdd(ImmutableList.of(FeatureType.POLYGON))
-            .build();
-    Layer layer3 = newLayer().setId("Layer 3").setContributorsCanAdd(FeatureType.ALL).build();
-    Layer layer4 = newLayer().setId("Layer 4").setContributorsCanAdd(ImmutableList.of()).build();
-    setTestSurvey(newSurvey().putLayers(layer1, layer2, layer3, layer4).build());
+  public void testActivateProject_ownersCanAddFeaturesToAllLayers() {
+    Layer layer = newLayer().setId("Layer").build();
+    setTestSurvey(newSurvey().putLayer(layer).build());
+    when(userRepository.getUserRole(any())).thenReturn(Role.OWNER);
+
+    surveyRepository.activateSurvey("id");
+
+    Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    surveyRepository
+        .getActiveSurvey()
+        .test()
+        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
+  }
+
+  @Test
+  public void testActivateProject_contributorsCannotAddFeaturesToAnyLayers() {
+    Layer layer = newLayer().setId("Layer").build();
+    setTestSurvey(newSurvey().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
     surveyRepository.activateSurvey("id");
 
-    ImmutableList<Layer> expectedLayers =
-        ImmutableList.of(
-            layer1.toBuilder().setUserCanAdd(ImmutableList.of(FeatureType.POINT)).build(),
-            layer2.toBuilder().setUserCanAdd(ImmutableList.of(FeatureType.POLYGON)).build(),
-            layer3.toBuilder().setUserCanAdd(FeatureType.ALL).build(),
-            layer4.toBuilder().setUserCanAdd(ImmutableList.of()).build());
+    Layer expectedLayer = layer.toBuilder().setUserCanAdd(ImmutableList.of()).build();
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getLayers().equals(expectedLayers));
+        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
 
   private void setTestSurvey(Survey survey) {

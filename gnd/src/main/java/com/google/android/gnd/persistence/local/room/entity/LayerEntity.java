@@ -23,14 +23,11 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
-import org.json.JSONArray;
 
 @AutoValue
 @Entity(
@@ -60,17 +57,11 @@ public abstract class LayerEntity {
   @ColumnInfo(name = "survey_id")
   public abstract String getSurveyId();
 
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "contributors_can_add")
-  public abstract JSONArray getContributorsCanAdd();
-
   public static LayerEntity fromLayer(String surveyId, Layer layer) {
     return LayerEntity.builder()
         .setId(layer.getId())
         .setSurveyId(surveyId)
         .setName(layer.getName())
-        .setContributorsCanAdd(new JSONArray(layer.getContributorsCanAdd()))
         .build();
   }
 
@@ -86,40 +77,14 @@ public abstract class LayerEntity {
       layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
     }
 
-    layerBuilder.setContributorsCanAdd(toFeatureTypes(layerEntity.getContributorsCanAdd()));
-
     return layerBuilder.build();
   }
 
-  private static ImmutableList<FeatureType> toFeatureTypes(JSONArray jsonArray) {
-    ImmutableList.Builder<FeatureType> builder = ImmutableList.builder();
-    for (int i = 0; i < jsonArray.length(); i++) {
-      String value = jsonArray.optString(i, null);
-      if (value != null) {
-        builder.add(toFeatureType(value));
-      }
-    }
-    return builder.build();
-  }
-
-  private static FeatureType toFeatureType(String stringValue) {
-    switch (stringValue) {
-      case "points":
-        return FeatureType.POINT;
-      case "polygons":
-        return FeatureType.POLYGON;
-      default:
-        return FeatureType.UNKNOWN;
-    }
-  }
-
-  public static LayerEntity create(
-      String id, String name, String surveyId, JSONArray contributorsCanAdd) {
+  public static LayerEntity create(String id, String name, String surveyId) {
     return builder()
         .setId(id)
         .setName(name)
         .setSurveyId(surveyId)
-        .setContributorsCanAdd(contributorsCanAdd)
         .build();
   }
 
@@ -135,8 +100,6 @@ public abstract class LayerEntity {
     public abstract Builder setName(String name);
 
     public abstract Builder setSurveyId(String surveyId);
-
-    public abstract Builder setContributorsCanAdd(JSONArray contributorsCanAdd);
 
     public abstract LayerEntity build();
   }

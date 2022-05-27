@@ -107,17 +107,16 @@ class SurveyRepository @Inject constructor(
         for (layer in survey.layers) {
             layers.put(
                 layer.id,
-                layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole, layer)).build()
+                layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole)).build()
             )
         }
         return survey.toBuilder().setLayerMap(layers.build()).build()
     }
 
-    private fun getAddableFeatureTypes(userRole: Role, layer: Layer): ImmutableList<FeatureType> =
+    private fun getAddableFeatureTypes(userRole: Role): ImmutableList<FeatureType> =
         when (userRole) {
             Role.OWNER, Role.MANAGER -> FeatureType.ALL
-            Role.CONTRIBUTOR -> layer.contributorsCanAdd
-            Role.UNKNOWN -> ImmutableList.of()
+            else -> ImmutableList.of()
         }
 
     /** This only works if the survey is already cached to local db.  */
