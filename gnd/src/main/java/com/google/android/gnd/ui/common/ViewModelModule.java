@@ -37,9 +37,9 @@ import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.offlinebasemap.OfflineAreasViewModel;
 import com.google.android.gnd.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel;
 import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import com.google.android.gnd.ui.submissiondetails.SubmissionDetailsViewModel;
+import com.google.android.gnd.ui.surveyselector.SurveySelectorViewModel;
 import com.google.android.gnd.ui.syncstatus.SyncStatusViewModel;
 import com.google.android.gnd.ui.tos.TermsOfServiceViewModel;
 import dagger.Binds;
@@ -115,8 +115,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(ProjectSelectorViewModel.class)
-  abstract ViewModel bindProjectSelectorViewModel(ProjectSelectorViewModel viewModel);
+  @ViewModelKey(SurveySelectorViewModel.class)
+  abstract ViewModel bindProjectSelectorViewModel(SurveySelectorViewModel viewModel);
 
   @Binds
   @IntoMap

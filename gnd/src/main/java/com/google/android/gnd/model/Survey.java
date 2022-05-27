@@ -26,9 +26,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 
-/** Configuration, schema, and ACLs for a single project. */
+/** Configuration, schema, and ACLs for a single survey. */
 @AutoValue
-public abstract class Project {
+public abstract class Survey {
 
   public abstract String getId();
 
@@ -55,7 +55,7 @@ public abstract class Project {
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Project.Builder().setAcl(ImmutableMap.of());
+    return new AutoValue_Survey.Builder().setAcl(ImmutableMap.of());
   }
 
   @AutoValue.Builder
@@ -89,6 +89,6 @@ public abstract class Project {
       return this;
     }
 
-    public abstract Project build();
+    public abstract Survey build();
   }
 }

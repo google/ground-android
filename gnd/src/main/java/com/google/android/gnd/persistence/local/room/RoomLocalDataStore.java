@@ -24,7 +24,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
@@ -55,9 +55,9 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
-import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
@@ -70,9 +70,9 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
-import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
+import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -112,7 +112,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject FieldDao fieldDao;
   @Inject FormDao formDao;
   @Inject LayerDao layerDao;
-  @Inject ProjectDao projectDao;
+  @Inject SurveyDao surveyDao;
   @Inject FeatureDao featureDao;
   @Inject FeatureMutationDao featureMutationDao;
   @Inject SubmissionDao submissionDao;
@@ -178,35 +178,35 @@ public class RoomLocalDataStore implements LocalDataStore {
         .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
   }
 
-  private Completable insertOrUpdateLayer(String projectId, Layer layer) {
+  private Completable insertOrUpdateLayer(String surveyId, Layer layer) {
     return layerDao
-        .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
+        .insertOrUpdate(LayerEntity.fromLayer(surveyId, layer))
         .andThen(
             insertOrUpdateForms(
                 layer.getId(), layer.getForm().map(Arrays::asList).orElseGet(ArrayList::new)))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
+  private Completable insertOrUpdateLayers(String surveyId, List<Layer> layers) {
     return Observable.fromIterable(layers)
-        .flatMapCompletable(layer -> insertOrUpdateLayer(projectId, layer));
+        .flatMapCompletable(layer -> insertOrUpdateLayer(surveyId, layer));
   }
 
-  private Completable insertOfflineBaseMapSources(Project project) {
-    return Observable.fromIterable(project.getBaseMaps())
+  private Completable insertOfflineBaseMapSources(Survey survey) {
+    return Observable.fromIterable(survey.getBaseMaps())
         .flatMapCompletable(
-            source -> baseMapDao.insert(BaseMapEntity.fromModel(project.getId(), source)));
+            source -> baseMapDao.insert(BaseMapEntity.fromModel(survey.getId(), source)));
   }
 
   @Transaction
   @Override
-  public Completable insertOrUpdateProject(Project project) {
-    return projectDao
-        .insertOrUpdate(ProjectEntity.fromProject(project))
-        .andThen(layerDao.deleteByProjectId(project.getId()))
-        .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
-        .andThen(baseMapDao.deleteByProjectId(project.getId()))
-        .andThen(insertOfflineBaseMapSources(project))
+  public Completable insertOrUpdateSurvey(Survey survey) {
+    return surveyDao
+        .insertOrUpdate(SurveyEntity.fromSurvey(survey))
+        .andThen(layerDao.deleteBySurveyId(survey.getId()))
+        .andThen(insertOrUpdateLayers(survey.getId(), survey.getLayers()))
+        .andThen(baseMapDao.deleteBySurveyId(survey.getId()))
+        .andThen(insertOfflineBaseMapSources(survey))
         .subscribeOn(schedulers.io());
   }
 
@@ -227,21 +227,21 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Project>> getProjects() {
-    return projectDao
-        .getAllProjects()
-        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableList()))
+  public Single<ImmutableList<Survey>> getSurveys() {
+    return surveyDao
+        .getAllSurveys()
+        .map(list -> stream(list).map(SurveyEntity::toSurvey).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Maybe<Project> getProjectById(String id) {
-    return projectDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(schedulers.io());
+  public Maybe<Survey> getSurveyById(String id) {
+    return surveyDao.getSurveyById(id).map(SurveyEntity::toSurvey).subscribeOn(schedulers.io());
   }
 
   @Override
-  public Completable deleteProject(Project project) {
-    return projectDao.delete(ProjectEntity.fromProject(project)).subscribeOn(schedulers.io());
+  public Completable deleteSurvey(Survey survey) {
+    return surveyDao.delete(SurveyEntity.fromSurvey(survey)).subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -262,24 +262,24 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
+  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Survey survey) {
     return featureDao
-        .findOnceAndStream(project.getId(), EntityState.DEFAULT)
-        .map(featureEntities -> toFeatures(project, featureEntities))
+        .findOnceAndStream(survey.getId(), EntityState.DEFAULT)
+        .map(featureEntities -> toFeatures(survey, featureEntities))
         .subscribeOn(schedulers.io());
   }
 
-  private ImmutableSet<Feature> toFeatures(Project project, List<FeatureEntity> featureEntities) {
+  private ImmutableSet<Feature> toFeatures(Survey survey, List<FeatureEntity> featureEntities) {
     return stream(featureEntities)
-        .flatMap(f -> logErrorsAndSkip(() -> FeatureEntity.toFeature(f, project)))
+        .flatMap(f -> logErrorsAndSkip(() -> FeatureEntity.toFeature(f, survey)))
         .collect(toImmutableSet());
   }
 
   @Override
-  public Maybe<Feature> getFeature(Project project, String featureId) {
+  public Maybe<Feature> getFeature(Survey survey, String featureId) {
     return featureDao
         .findById(featureId)
-        .map(f -> FeatureEntity.toFeature(f, project))
+        .map(f -> FeatureEntity.toFeature(f, survey))
         .doOnError(e -> Timber.e(e))
         .onErrorComplete()
         .subscribeOn(schedulers.io());
@@ -320,15 +320,15 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Cold(terminates = false)
   @Override
-  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
-    // TODO: Show mutations for all projects, not just current one.
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Survey survey) {
+    // TODO: Show mutations for all surveys, not just current one.
     Flowable<ImmutableList<FeatureMutation>> featureMutations =
         featureMutationDao
             .loadAllOnceAndStream()
             .map(
                 list ->
                     stream(list)
-                        .filter(entity -> entity.getProjectId().equals(project.getId()))
+                        .filter(entity -> entity.getSurveyId().equals(survey.getId()))
                         .map(FeatureMutationEntity::toMutation)
                         .collect(toImmutableList()))
             .subscribeOn(schedulers.io());
@@ -338,8 +338,8 @@ public class RoomLocalDataStore implements LocalDataStore {
             .map(
                 list ->
                     stream(list)
-                        .filter(entity -> entity.getProjectId().equals(project.getId()))
-                        .map(entity -> entity.toMutation(project))
+                        .filter(entity -> entity.getSurveyId().equals(survey.getId()))
+                        .map(entity -> entity.toMutation(survey))
                         .collect(toImmutableList()))
             .subscribeOn(schedulers.io());
     return Flowable.combineLatest(
@@ -370,9 +370,9 @@ public class RoomLocalDataStore implements LocalDataStore {
                 .flattenAsObservable(oms -> oms)
                 .flatMap(
                     ome ->
-                        getProjectById(ome.getProjectId())
+                        getSurveyById(ome.getSurveyId())
                             .toSingle()
-                            .map(project -> ome.toMutation(project))
+                            .map(ome::toMutation)
                             .toObservable()
                             .doOnError(e -> Timber.e(e, "Submission mutation skipped"))
                             .onErrorResumeNext(Observable.empty()))
@@ -730,9 +730,9 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByFeatureIdOnceAndStream(
-      Project project, String featureId, MutationEntitySyncStatus... allowedStates) {
+      Survey survey, String featureId, MutationEntitySyncStatus... allowedStates) {
     return submissionMutationDao
         .findByFeatureIdOnceAndStream(featureId, allowedStates)
-        .map(list -> stream(list).map(e -> e.toMutation(project)).collect(toImmutableList()));
+        .map(list -> stream(list).map(e -> e.toMutation(survey)).collect(toImmutableList()));
   }
 }

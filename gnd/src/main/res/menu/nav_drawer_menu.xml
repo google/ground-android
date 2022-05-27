@@ -18,16 +18,16 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-    android:id="@+id/nav_join_project"
+    android:id="@+id/nav_join_survey"
     android:icon="@drawable/ic_add"
-    android:title="@string/join_project" />
+    android:title="@string/join_survey" />
   <group
     android:id="@+id/group_projects"
     android:checkableBehavior="single">
     <item android:title="@string/select_project_menu_item">
       <menu>
         <group
-          android:id="@+id/group_join_project"
+          android:id="@+id/group_join_survey"
           android:checkableBehavior="single" />
       </menu>
     </item>

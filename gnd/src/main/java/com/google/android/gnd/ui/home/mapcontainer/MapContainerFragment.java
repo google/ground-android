@@ -31,7 +31,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
@@ -154,7 +154,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     mapContainerViewModel
         .getCameraUpdateRequests()
         .observe(this, update -> update.ifUnhandled(data -> onCameraUpdate(data, map)));
-    mapContainerViewModel.getProjectLoadingState().observe(this, this::onProjectChange);
+    mapContainerViewModel.getSurveyLoadingState().observe(this, this::onSurveyChange);
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
@@ -239,8 +239,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     }
   }
 
-  private void onProjectChange(Loadable<Project> project) {
-    if (project.isLoaded()) {
+  private void onSurveyChange(Loadable<Survey> survey) {
+    if (survey.isLoaded()) {
       enableAddFeatureBtn();
     } else {
       disableAddFeatureBtn();

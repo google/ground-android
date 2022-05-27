@@ -21,7 +21,7 @@ import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newForm;
 import static com.google.android.gnd.model.TestModelBuilders.newLayer;
 import static com.google.android.gnd.model.TestModelBuilders.newPointFeature;
-import static com.google.android.gnd.model.TestModelBuilders.newProject;
+import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
@@ -62,7 +62,7 @@ public class SubmissionConverterTest {
 
   private Form form;
   private Layer layer;
-  private Project project;
+  private Survey survey;
   private Feature feature;
 
   private static final AuditInfo AUDIT_INFO_1 =
@@ -93,7 +93,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission() {
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
@@ -132,7 +132,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(project)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setResponses(
@@ -153,7 +153,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_mismatchedFeatureId() {
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
@@ -175,7 +175,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_nullResponses() {
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
@@ -196,7 +196,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(project)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setCreated(AUDIT_INFO_1)
@@ -206,7 +206,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_emptyTextResponse() {
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
@@ -227,7 +227,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(project)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setCreated(AUDIT_INFO_1)
@@ -237,7 +237,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_emptyMultipleChoiceResponse() {
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
@@ -260,7 +260,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(project)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setCreated(AUDIT_INFO_1)
@@ -268,19 +268,19 @@ public class SubmissionConverterTest {
                 .build());
   }
 
-  private void setUpTestProject(String layerId, String formId, Field... fields) {
+  private void setUpTestSurvey(String layerId, String formId, Field... fields) {
     form =
         newForm()
             .setId(formId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
     layer = newLayer().setId(layerId).setForm(form).build();
-    project = newProject().putLayer(layer).build();
+    survey = newSurvey().putLayer(layer).build();
   }
 
   @Test
   public void testToSubmission_unknownFieldType() {
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.UNKNOWN).build(),
@@ -304,7 +304,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId("observation123")
-                .setProject(project)
+                .setSurvey(survey)
                 .setFeature(feature)
                 .setForm(form)
                 .setResponses(
@@ -318,7 +318,7 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPointFeature().setId(featureId).setProject(project).setLayer(layer).build();
+    feature = newPointFeature().setId(featureId).setSurvey(survey).setLayer(layer).build();
   }
 
   /**

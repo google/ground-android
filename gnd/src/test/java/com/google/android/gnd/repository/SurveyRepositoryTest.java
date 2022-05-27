@@ -17,13 +17,13 @@
 package com.google.android.gnd.repository;
 
 import static com.google.android.gnd.FakeData.newLayer;
-import static com.google.android.gnd.FakeData.newProject;
+import static com.google.android.gnd.FakeData.newSurvey;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.BaseHiltTest;
-import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Role;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -44,35 +44,36 @@ import org.robolectric.RobolectricTestRunner;
 @HiltAndroidTest
 @UninstallModules({LocalDataStoreModule.class})
 @RunWith(RobolectricTestRunner.class)
-public class ProjectRepositoryTest extends BaseHiltTest {
+public class SurveyRepositoryTest extends BaseHiltTest {
 
   @BindValue @Mock LocalDataStore mockLocalDataStore;
   @BindValue @Mock UserRepository userRepository;
 
-  @Inject ProjectRepository projectRepository;
+  @Inject
+  SurveyRepository surveyRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
   @Test
-  public void testActivateProject() {
-    Project project = newProject().build();
-    setTestProject(project);
+  public void testActivateSurvey() {
+    Survey survey = newSurvey().build();
+    setTestSurvey(survey);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
-    projectRepository.getActiveProject().test().assertValue(Optional.of(project));
+    surveyRepository.getActiveSurvey().test().assertValue(Optional.of(survey));
   }
 
   @Test
-  public void testActivateProject_managersCanAddFeaturesToAllLayers() {
+  public void testActivateSurvey_managersCanAddFeaturesToAllLayers() {
     Layer layer = newLayer().setId("Layer").build();
-    setTestProject(newProject().putLayer(layer).build());
+    setTestSurvey(newSurvey().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
     Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
-    projectRepository
-        .getActiveProject()
+    surveyRepository
+        .getActiveSurvey()
         .test()
         .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
@@ -80,14 +81,14 @@ public class ProjectRepositoryTest extends BaseHiltTest {
   @Test
   public void testActivateProject_ownersCanAddFeaturesToAllLayers() {
     Layer layer = newLayer().setId("Layer").build();
-    setTestProject(newProject().putLayer(layer).build());
+    setTestSurvey(newSurvey().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.OWNER);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
     Layer expectedLayer = layer.toBuilder().setUserCanAdd(FeatureType.ALL).build();
-    projectRepository
-        .getActiveProject()
+    surveyRepository
+        .getActiveSurvey()
         .test()
         .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
@@ -95,20 +96,20 @@ public class ProjectRepositoryTest extends BaseHiltTest {
   @Test
   public void testActivateProject_contributorsCannotAddFeaturesToAnyLayers() {
     Layer layer = newLayer().setId("Layer").build();
-    setTestProject(newProject().putLayer(layer).build());
+    setTestSurvey(newSurvey().putLayer(layer).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
-    projectRepository.activateProject("id");
+    surveyRepository.activateSurvey("id");
 
     Layer expectedLayer = layer.toBuilder().setUserCanAdd(ImmutableList.of()).build();
-    projectRepository
-        .getActiveProject()
+    surveyRepository
+        .getActiveSurvey()
         .test()
         .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedLayer)));
   }
 
-  private void setTestProject(Project project) {
-    fakeRemoteDataStore.setTestProject(project);
-    when(mockLocalDataStore.getProjectById(any())).thenReturn(Maybe.just(project));
+  private void setTestSurvey(Survey survey) {
+    fakeRemoteDataStore.setTestSurvey(survey);
+    when(mockLocalDataStore.getSurveyById(any())).thenReturn(Maybe.just(survey));
   }
 }

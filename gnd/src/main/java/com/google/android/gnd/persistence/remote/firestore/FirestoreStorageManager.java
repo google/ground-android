@@ -52,14 +52,14 @@ public class FirestoreStorageManager implements RemoteStorageManager {
    * Generates destination path in which an submission attachment is to be stored in to Cloud
    * Storage.
    *
-   * <p>user-media/projects/{project_id}/observations/{observation_id}/{field_id-uuid.jpg}
+   * <p>user-media/surveys/{survey_id}/observations/{observation_id}/{field_id-uuid.jpg}
    */
-  public static String getRemoteMediaPath(String projectId, String observationId, String filename) {
+  public static String getRemoteMediaPath(String surveyId, String observationId, String filename) {
     // TODO: Refactor this into MediaStorageRepository.
     return new StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)
-        .add("projects")
-        .add(projectId)
+        .add("surveys")
+        .add(surveyId)
         .add("observations")
         .add(observationId)
         .add(filename)

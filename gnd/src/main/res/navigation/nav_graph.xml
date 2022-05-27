@@ -80,7 +80,7 @@
       app:destination="@id/settings_activity" />
     <action
       android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
-      app:destination="@id/projectSelectorDialogFragment" />
+      app:destination="@id/surveySelectorDialogFragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
       app:destination="@id/featureSelectorFragment" />
@@ -132,7 +132,7 @@
     android:label="@string/view_submission_details"
     tools:layout="@layout/submission_details_frag">
     <argument
-      android:name="projectId"
+      android:name="surveyId"
       type="string" />
     <argument
       android:name="featureId"
@@ -158,7 +158,7 @@
     android:label="edit_submission_frag"
     tools:layout="@layout/edit_submission_frag">
     <argument
-      android:name="projectId"
+      android:name="surveyId"
       type="string" />
     <argument
       android:name="featureId"
@@ -217,8 +217,8 @@
       app:popUpToInclusive="true" />
   </fragment>
   <dialog
-    android:id="@+id/projectSelectorDialogFragment"
-    android:name="com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment"
+    android:id="@+id/surveySelectorDialogFragment"
+    android:name="com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment"
     android:label="ProjectSelectorDialogFragment" />
   <dialog
     android:id="@+id/featureSelectorFragment"

@@ -142,7 +142,7 @@ public abstract class SubmissionEntity {
     return Submission.newBuilder()
         .setId(id)
         .setForm(form)
-        .setProject(feature.getProject())
+        .setSurvey(feature.getSurvey())
         .setFeature(feature)
         .setResponses(ResponseMapConverter.fromString(form, submission.getResponses()))
         .setCreated(AuditInfoEntity.toObject(submission.getCreated()))

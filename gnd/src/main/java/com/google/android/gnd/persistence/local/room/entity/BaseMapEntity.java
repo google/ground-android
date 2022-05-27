@@ -35,11 +35,11 @@ import java.net.URL;
     tableName = "offline_base_map_source",
     foreignKeys =
         @ForeignKey(
-            entity = ProjectEntity.class,
+            entity = SurveyEntity.class,
             parentColumns = "id",
-            childColumns = "project_id", // NOPMD
+            childColumns = "survey_id", // NOPMD
             onDelete = ForeignKey.CASCADE),
-    indices = {@Index("project_id")}) // NOPMD
+    indices = {@Index("survey_id")}) // NOPMD
 public abstract class BaseMapEntity {
 
   public static BaseMap toModel(BaseMapEntity source)
@@ -58,8 +58,8 @@ public abstract class BaseMapEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "project_id") // NOPMD
-  public abstract String getProjectId();
+  @ColumnInfo(name = "survey_id") // NOPMD
+  public abstract String getSurveyId();
 
   @CopyAnnotations
   @NonNull
@@ -100,18 +100,18 @@ public abstract class BaseMapEntity {
   }
 
   public static BaseMapEntity fromModel(
-      String projectId, BaseMap source) {
+      String surveyId, BaseMap source) {
 
     return BaseMapEntity.builder()
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setUrl(source.getUrl().toString())
         .setType(modelToEntityType(source))
         .build();
   }
 
   public static BaseMapEntity create(
-      @Nullable Integer id, String projectId, String url, BaseMapEntityType type) {
-    return builder().setId(id).setProjectId(projectId).setUrl(url).setType(type).build();
+      @Nullable Integer id, String surveyId, String url, BaseMapEntityType type) {
+    return builder().setId(id).setSurveyId(surveyId).setUrl(url).setType(type).build();
   }
 
   public static Builder builder() {
@@ -123,7 +123,7 @@ public abstract class BaseMapEntity {
 
     public abstract Builder setId(@Nullable Integer newId);
 
-    public abstract Builder setProjectId(@NonNull String newProjectId);
+    public abstract Builder setSurveyId(@NonNull String newSurveyId);
 
     public abstract Builder setUrl(@NonNull String newUrl);
 

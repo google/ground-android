@@ -21,9 +21,9 @@ import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
-import com.google.android.gnd.persistence.local.room.relations.ProjectEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.relations.SurveyEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableMap;
@@ -33,8 +33,8 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 @AutoValue
-@Entity(tableName = "project")
-public abstract class ProjectEntity {
+@Entity(tableName = "survey")
+public abstract class SurveyEntity {
 
   @CopyAnnotations
   @NonNull
@@ -57,38 +57,37 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "acl")
   public abstract JSONObject getAcl();
 
-  public static ProjectEntity fromProject(Project project) {
-    return ProjectEntity.builder()
-        .setId(project.getId())
-        .setTitle(project.getTitle())
-        .setDescription(project.getDescription())
-        .setAcl(new JSONObject(project.getAcl()))
+  public static SurveyEntity fromSurvey(Survey survey) {
+    return SurveyEntity.builder()
+        .setId(survey.getId())
+        .setTitle(survey.getTitle())
+        .setDescription(survey.getDescription())
+        .setAcl(new JSONObject(survey.getAcl()))
         .build();
   }
 
-  public static Project toProject(ProjectEntityAndRelations projectEntityAndRelations) {
-    ProjectEntity projectEntity = projectEntityAndRelations.projectEntity;
-    Project.Builder projectBuilder =
-        Project.newBuilder()
-            .setId(projectEntity.getId())
-            .setTitle(projectEntity.getTitle())
-            .setDescription(projectEntity.getDescription())
-            .setAcl(toStringMap(projectEntity.getAcl()));
+  public static Survey toSurvey(SurveyEntityAndRelations surveyEntityAndRelations) {
+    SurveyEntity surveyEntity = surveyEntityAndRelations.surveyEntity;
+    Survey.Builder surveyBuilder =
+        Survey.newBuilder()
+            .setId(surveyEntity.getId())
+            .setTitle(surveyEntity.getTitle())
+            .setDescription(surveyEntity.getDescription())
+            .setAcl(toStringMap(surveyEntity.getAcl()));
 
     for (LayerEntityAndRelations layerEntityAndRelations :
-        projectEntityAndRelations.layerEntityAndRelations) {
-      projectBuilder.putLayer(LayerEntity.toLayer(layerEntityAndRelations));
+        surveyEntityAndRelations.layerEntityAndRelations) {
+      surveyBuilder.putLayer(LayerEntity.toLayer(layerEntityAndRelations));
     }
-    for (BaseMapEntity source :
-        projectEntityAndRelations.baseMapEntityAndRelations) {
+    for (BaseMapEntity source : surveyEntityAndRelations.baseMapEntityAndRelations) {
       try {
-        projectBuilder.addBaseMap(BaseMapEntity.toModel(source));
+        surveyBuilder.addBaseMap(BaseMapEntity.toModel(source));
       } catch (MalformedURLException e) {
         Timber.d("Skipping basemap source with malformed URL %s", source.getUrl());
       }
     }
 
-    return projectBuilder.build();
+    return surveyBuilder.build();
   }
 
   private static ImmutableMap<String, String> toStringMap(JSONObject jsonObject) {
@@ -104,12 +103,12 @@ public abstract class ProjectEntity {
     return builder.build();
   }
 
-  public static ProjectEntity create(String id, String title, String description, JSONObject acl) {
+  public static SurveyEntity create(String id, String title, String description, JSONObject acl) {
     return builder().setId(id).setTitle(title).setDescription(description).setAcl(acl).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_ProjectEntity.Builder();
+    return new AutoValue_SurveyEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -123,6 +122,6 @@ public abstract class ProjectEntity {
 
     public abstract Builder setAcl(JSONObject acl);
 
-    public abstract ProjectEntity build();
+    public abstract SurveyEntity build();
   }
 }

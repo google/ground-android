@@ -18,9 +18,9 @@ package com.google.android.gnd
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
-import com.google.android.gnd.model.Project
+import com.google.android.gnd.model.Survey
 import com.google.android.gnd.repository.FeatureRepository
-import com.google.android.gnd.repository.ProjectRepository
+import com.google.android.gnd.repository.SurveyRepository
 import com.google.android.gnd.repository.TermsOfServiceRepository
 import com.google.android.gnd.repository.UserRepository
 import com.google.android.gnd.rx.RxTransformers.switchMapIfPresent
@@ -44,7 +44,7 @@ import javax.inject.Inject
 /** Top-level view model representing state of the [MainActivity] shared by all fragments.  */
 @SharedViewModel
 class MainViewModel @Inject constructor(
-    private val projectRepository: ProjectRepository,
+    private val surveyRepository: SurveyRepository,
     private val featureRepository: FeatureRepository,
     private val userRepository: UserRepository,
     private val termsOfServiceRepository: TermsOfServiceRepository,
@@ -63,8 +63,8 @@ class MainViewModel @Inject constructor(
     init {
         // TODO: Move to background service.
         disposeOnClear(
-            projectRepository
-                .activeProject
+            surveyRepository
+                .activeSurvey
                 .observeOn(schedulers.io())
                 .switchMapCompletable { syncFeatures(it) }
                 .subscribe()
@@ -83,10 +83,10 @@ class MainViewModel @Inject constructor(
      * Keeps local features in sync with remote when a project is active, does nothing when no project
      * is active. The stream never completes; syncing stops when subscriptions are disposed of.
      *
-     * @param project the currently active project.
+     * @param survey the currently active project.
      */
-    private fun syncFeatures(project: Optional<Project>): @Cold(terminates = false) Completable {
-        return project.map { featureRepository.syncFeatures(it) }
+    private fun syncFeatures(survey: Optional<Survey>): @Cold(terminates = false) Completable {
+        return survey.map { featureRepository.syncFeatures(it) }
             .orElse(Completable.never())
     }
 
@@ -110,7 +110,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun onUserSignedOut(): Observable<NavDirections> {
-        projectRepository.clearActiveProject()
+        surveyRepository.clearActiveSurvey()
         userRepository.clearUserPreferences()
         return Observable.just(SignInFragmentDirections.showSignInScreen())
     }

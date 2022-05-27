@@ -50,7 +50,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
@@ -74,7 +74,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
+import com.google.android.gnd.ui.surveyselector.SurveySelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.google.common.collect.ImmutableList;
@@ -118,9 +118,9 @@ public class HomeScreenFragment extends AbstractFragment
   private BottomSheetBehavior<View> bottomSheetBehavior;
   @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
   @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
-  private ProjectSelectorViewModel projectSelectorViewModel;
+  private SurveySelectorViewModel surveySelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
-  private List<Project> projects = Collections.emptyList();
+  private List<Survey> surveys = Collections.emptyList();
   private HomeScreenFragBinding binding;
 
   @Override
@@ -131,11 +131,11 @@ public class HomeScreenFragment extends AbstractFragment
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
-    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+    surveySelectorViewModel = getViewModel(SurveySelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
-    viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
+    viewModel.getSurveyLoadingState().observe(this, this::onActiveSurveyChange);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel
         .getShowFeatureSelectorRequests()
@@ -233,10 +233,10 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void addNewSubmission(Feature feature, Form form) {
-    String projectId = feature.getProject().getId();
+    String surveyId = feature.getSurvey().getId();
     String featureId = feature.getId();
     String formId = form.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addSubmission(projectId, featureId, formId));
+    navigator.navigate(HomeScreenFragmentDirections.addSubmission(surveyId, featureId, formId));
   }
 
   /** This is only possible after updating the location of the feature. So, reset the UI. */
@@ -305,37 +305,37 @@ public class HomeScreenFragment extends AbstractFragment
     saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
-  /** Fetches offline saved projects and adds them to navigation drawer. */
+  /** Fetches offline saved surveys and adds them to navigation drawer. */
   private void updateNavDrawer() {
-    projectSelectorViewModel
-        .getOfflineProjects()
+    surveySelectorViewModel
+        .getOfflineSurveys()
         .subscribeOn(schedulers.io())
         .observeOn(schedulers.ui())
         .as(autoDisposable(this))
-        .subscribe(this::addProjectToNavDrawer);
+        .subscribe(this::addSurveyToNavDrawer);
   }
 
-  private MenuItem getProjectsNavItem() {
-    // Below index is the order of the projects item in nav_drawer_menu.xml
+  private MenuItem getSurveysNavItem() {
+    // Below index is the order of the surveys item in nav_drawer_menu.xml
     return binding.navView.getMenu().getItem(1);
   }
 
-  private void addProjectToNavDrawer(List<Project> projects) {
-    this.projects = projects;
+  private void addSurveyToNavDrawer(List<Survey> surveys) {
+    this.surveys = surveys;
 
-    // clear last saved projects list
-    getProjectsNavItem().getSubMenu().removeGroup(R.id.group_join_project);
+    // clear last saved surveys list
+    getSurveysNavItem().getSubMenu().removeGroup(R.id.group_join_survey);
 
-    for (int index = 0; index < projects.size(); index++) {
-      getProjectsNavItem()
+    for (int index = 0; index < surveys.size(); index++) {
+      getSurveysNavItem()
           .getSubMenu()
-          .add(R.id.group_join_project, Menu.NONE, index, projects.get(index).getTitle())
-          .setIcon(R.drawable.ic_menu_project);
+          .add(R.id.group_join_survey, Menu.NONE, index, surveys.get(index).getTitle())
+          .setIcon(R.drawable.ic_menu_survey);
     }
 
-    // Highlight active project
-    Loadable.getValue(viewModel.getProjectLoadingState())
-        .ifPresent(project -> updateSelectedProjectUI(getSelectedProjectIndex(project)));
+    // Highlight active survey
+    Loadable.getValue(viewModel.getSurveyLoadingState())
+        .ifPresent(survey -> updateSelectedSurveyUI(getSelectedSurveyIndex(survey)));
   }
 
   @Override
@@ -428,8 +428,8 @@ public class HomeScreenFragment extends AbstractFragment
   public void onStart() {
     super.onStart();
 
-    if (viewModel.shouldShowProjectSelectorOnStart()) {
-      showProjectSelector();
+    if (viewModel.shouldShowSurveySelectorOnStart()) {
+      showSurveySelector();
     }
 
     viewModel.init();
@@ -454,8 +454,8 @@ public class HomeScreenFragment extends AbstractFragment
     return currentDestination == null ? -1 : currentDestination.getId();
   }
 
-  private void showProjectSelector() {
-    if (getCurrentDestinationId() != R.id.projectSelectorDialogFragment) {
+  private void showSurveySelector() {
+    if (getCurrentDestinationId() != R.id.surveySelectorDialogFragment) {
       navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
     }
@@ -498,8 +498,8 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Loadable<Project> project) {
-    switch (project.getState()) {
+  private void onActiveSurveyChange(Loadable<Survey> loadable) {
+    switch (loadable.getState()) {
       case NOT_LOADED:
         dismissLoadingDialog();
         break;
@@ -508,33 +508,33 @@ public class HomeScreenFragment extends AbstractFragment
         updateNavDrawer();
         break;
       case LOADING:
-        showProjectLoadingDialog();
+        showSurveyLoadingDialog();
         break;
       case NOT_FOUND:
       case ERROR:
-        project.error().ifPresent(this::onActivateProjectFailure);
+        loadable.error().ifPresent(this::onActivateSurveyFailure);
         break;
       default:
-        Timber.e("Unhandled case: %s", project.getState());
+        Timber.e("Unhandled case: %s", loadable.getState());
         break;
     }
   }
 
-  private void updateSelectedProjectUI(int selectedIndex) {
-    SubMenu subMenu = getProjectsNavItem().getSubMenu();
-    for (int i = 0; i < projects.size(); i++) {
+  private void updateSelectedSurveyUI(int selectedIndex) {
+    SubMenu subMenu = getSurveysNavItem().getSubMenu();
+    for (int i = 0; i < surveys.size(); i++) {
       MenuItem menuItem = subMenu.getItem(i);
       menuItem.setChecked(i == selectedIndex);
     }
   }
 
-  private int getSelectedProjectIndex(Project activeProject) {
-    for (Project project : projects) {
-      if (project.getId().equals(activeProject.getId())) {
-        return projects.indexOf(project);
+  private int getSelectedSurveyIndex(Survey activeSurvey) {
+    for (Survey survey : surveys) {
+      if (survey.getId().equals(activeSurvey.getId())) {
+        return surveys.indexOf(survey);
       }
     }
-    Timber.e("Selected project not found.");
+    Timber.e("Selected survey not found.");
     return -1;
   }
 
@@ -560,10 +560,10 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
   }
 
-  private void showProjectLoadingDialog() {
+  private void showSurveyLoadingDialog() {
     if (progressDialog == null) {
       progressDialog =
-          ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
+          ProgressDialogs.modalSpinner(getContext(), R.string.survey_loading_please_wait);
       progressDialog.show();
     }
   }
@@ -588,10 +588,10 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void startPolygonDrawing(Layer layer) {
     viewModel
-        .getActiveProject()
+        .getActiveSurvey()
         .ifPresentOrElse(
-            project -> polygonDrawingViewModel.startDrawingFlow(project, layer),
-            () -> Timber.e("No active project"));
+            survey -> polygonDrawingViewModel.startDrawingFlow(survey, layer),
+            () -> Timber.e("No active survey"));
   }
 
   private void showPolygonInfoDialog(Layer layer) {
@@ -621,11 +621,11 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-    if (item.getGroupId() == R.id.group_join_project) {
-      Project selectedProject = projects.get(item.getOrder());
-      projectSelectorViewModel.activateOfflineProject(selectedProject.getId());
-    } else if (item.getItemId() == R.id.nav_join_project) {
-      showProjectSelector();
+    if (item.getGroupId() == R.id.group_join_survey) {
+      Survey selectedSurvey = surveys.get(item.getOrder());
+      surveySelectorViewModel.activateOfflineSurvey(selectedSurvey.getId());
+    } else if (item.getItemId() == R.id.nav_join_survey) {
+      showSurveySelector();
     } else if (item.getItemId() == R.id.sync_status) {
       viewModel.showSyncStatus();
     } else if (item.getItemId() == R.id.nav_offline_areas) {
@@ -639,11 +639,11 @@ public class HomeScreenFragment extends AbstractFragment
     return true;
   }
 
-  private void onActivateProjectFailure(Throwable throwable) {
-    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating project");
+  private void onActivateSurveyFailure(Throwable throwable) {
+    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating survey");
     dismissLoadingDialog();
-    popups.showError(R.string.project_load_error);
-    showProjectSelector();
+    popups.showError(R.string.survey_load_error);
+    showSurveySelector();
   }
 
   private void showFeatureProperties() {

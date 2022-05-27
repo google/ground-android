@@ -17,7 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
 import com.google.android.gnd.model.mutation.Mutation.Type;
@@ -87,10 +87,10 @@ public class SubmissionRepository {
    */
   @Cold
   public Single<ImmutableList<Submission>> getSubmissions(
-      String projectId, String featureId, String formId) {
+      String surveyId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     return featureRepository
-        .getFeature(projectId, featureId)
+        .getFeature(surveyId, featureId)
         .flatMap(feature -> getSubmissions(feature, formId));
   }
 
@@ -115,10 +115,10 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> getSubmission(String projectId, String featureId, String submissionId) {
+  public Single<Submission> getSubmission(String surveyId, String featureId, String submissionId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return featureRepository
-        .getFeature(projectId, featureId)
+        .getFeature(surveyId, featureId)
         .flatMap(
             feature ->
                 localDataStore
@@ -128,16 +128,16 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> createSubmission(String projectId, String featureId, String formId) {
+  public Single<Submission> createSubmission(String surveyId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
-        .getFeature(projectId, featureId)
+        .getFeature(surveyId, featureId)
         .map(
             feature ->
                 Submission.newBuilder()
                     .setId(uuidGenerator.generateUuid())
-                    .setProject(feature.getProject())
+                    .setSurvey(feature.getSurvey())
                     .setFeature(feature)
                     .setForm(feature.getLayer().getForm(formId).get())
                     .setCreated(auditInfo)
@@ -154,7 +154,7 @@ public class SubmissionRepository {
             .setResponseDeltas(ImmutableList.of())
             .setType(Type.DELETE)
             .setSyncStatus(SyncStatus.PENDING)
-            .setProjectId(submission.getProject().getId())
+            .setSurveyId(submission.getSurvey().getId())
             .setFeatureId(submission.getFeature().getId())
             .setLayerId(submission.getFeature().getLayer().getId())
             .setClientTimestamp(new Date())
@@ -173,7 +173,7 @@ public class SubmissionRepository {
             .setResponseDeltas(responseDeltas)
             .setType(isNew ? SubmissionMutation.Type.CREATE : SubmissionMutation.Type.UPDATE)
             .setSyncStatus(SyncStatus.PENDING)
-            .setProjectId(submission.getProject().getId())
+            .setSurveyId(submission.getSurvey().getId())
             .setFeatureId(submission.getFeature().getId())
             .setLayerId(submission.getFeature().getLayer().getId())
             .setClientTimestamp(new Date())
@@ -195,9 +195,9 @@ public class SubmissionRepository {
    * new list is emitted on each subsequent change.
    */
   public Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
-      Project project, String featureId) {
+      Survey survey, String featureId) {
     return localDataStore.getSubmissionMutationsByFeatureIdOnceAndStream(
-        project,
+        survey,
         featureId,
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS,

@@ -63,7 +63,7 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
             args ->
                 submissionRepository
                     .getSubmission(
-                        args.getProjectId(), args.getFeatureId(), args.getSubmissionId())
+                        args.getSurveyId(), args.getFeatureId(), args.getSubmissionId())
                     .map(Loadable::loaded)
                     .onErrorReturn(Loadable::error));
 
@@ -106,9 +106,9 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
    */
   @Hot
   public Completable deleteCurrentSubmission(
-      String projectId, String featureId, String submissionId) {
+      String surveyId, String featureId, String submissionId) {
     return submissionRepository
-        .getSubmission(projectId, featureId, submissionId)
+        .getSubmission(surveyId, featureId, submissionId)
         .flatMapCompletable(submissionRepository::deleteSubmission);
   }
 }

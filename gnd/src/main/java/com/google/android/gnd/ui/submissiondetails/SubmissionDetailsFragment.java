@@ -156,24 +156,24 @@ public class SubmissionDetailsFragment extends AbstractFragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     SubmissionDetailsFragmentArgs args = getSubmissionDetailsFragmentArgs();
-    String projectId = args.getProjectId();
+    String surveyId = args.getSurveyId();
     String featureId = args.getFeatureId();
     String submissionId = args.getSubmissionId();
 
     if (item.getItemId() == R.id.edit_submission_menu_item) {
       navigator.navigate(
-          SubmissionDetailsFragmentDirections.editSubmission(
-              projectId, featureId, submissionId));
+          SubmissionDetailsFragmentDirections.editSubmission(surveyId, featureId, submissionId));
     } else if (item.getItemId() == R.id.delete_submission_menu_item) {
       new Builder(requireActivity())
           .setTitle(R.string.submission_delete_confirmation_dialog_title)
           .setMessage(R.string.submission_delete_confirmation_dialog_message)
           .setPositiveButton(
               R.string.delete_button_label,
-              (dialog, id) -> viewModel
-                  .deleteCurrentSubmission(projectId, featureId, submissionId)
-                  .as(autoDisposable(this))
-                  .subscribe(() -> navigator.navigateUp()))
+              (dialog, id) ->
+                  viewModel
+                      .deleteCurrentSubmission(surveyId, featureId, submissionId)
+                      .as(autoDisposable(this))
+                      .subscribe(() -> navigator.navigateUp()))
           .setNegativeButton(
               R.string.cancel_button_label,
               (dialog, id) -> {

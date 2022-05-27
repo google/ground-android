@@ -42,7 +42,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final LiveData<Boolean> photoPresent;
 
   @Nullable
-  private String projectId;
+  private String surveyId;
   @Nullable
   private String submissionId;
 
@@ -92,8 +92,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     setResponse(TextResponse.fromString(value));
   }
 
-  public void setProjectId(@Nullable String projectId) {
-    this.projectId = projectId;
+  public void setSurveyId(@Nullable String surveyId) {
+    this.surveyId = surveyId;
   }
 
   public void setSubmissionId(@Nullable String submissionId) {
@@ -104,8 +104,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     if (photoResult.isHandled()) {
       return;
     }
-    if (projectId == null || submissionId == null) {
-      Timber.e("projectId or submissionId not set");
+    if (surveyId == null || submissionId == null) {
+      Timber.e("surveyId or submissionId not set");
       return;
     }
     if (!photoResult.hasFieldId(getField().getId())) {
@@ -127,7 +127,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       userMediaRepository.addImageToGallery(path, filename);
 
       // Update response.
-      String remoteDestinationPath = getRemoteMediaPath(projectId, submissionId, filename);
+      String remoteDestinationPath = getRemoteMediaPath(surveyId, submissionId, filename);
       updateResponse(remoteDestinationPath);
     } catch (IOException e) {
       // TODO: Report error.

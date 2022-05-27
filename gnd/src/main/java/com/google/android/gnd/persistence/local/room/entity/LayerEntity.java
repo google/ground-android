@@ -34,11 +34,11 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     tableName = "layer",
     foreignKeys =
         @ForeignKey(
-            entity = ProjectEntity.class,
+            entity = SurveyEntity.class,
             parentColumns = "id",
-            childColumns = "project_id",
+            childColumns = "survey_id",
             onDelete = ForeignKey.CASCADE),
-    indices = {@Index("project_id")})
+    indices = {@Index("survey_id")})
 public abstract class LayerEntity {
 
   @CopyAnnotations
@@ -54,13 +54,13 @@ public abstract class LayerEntity {
 
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
+  @ColumnInfo(name = "survey_id")
+  public abstract String getSurveyId();
 
-  public static LayerEntity fromLayer(String projectId, Layer layer) {
+  public static LayerEntity fromLayer(String surveyId, Layer layer) {
     return LayerEntity.builder()
         .setId(layer.getId())
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setName(layer.getName())
         .build();
   }
@@ -80,11 +80,11 @@ public abstract class LayerEntity {
     return layerBuilder.build();
   }
 
-  public static LayerEntity create(String id, String name, String projectId) {
+  public static LayerEntity create(String id, String name, String surveyId) {
     return builder()
         .setId(id)
         .setName(name)
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .build();
   }
 
@@ -99,7 +99,7 @@ public abstract class LayerEntity {
 
     public abstract Builder setName(String name);
 
-    public abstract Builder setProjectId(String projectId);
+    public abstract Builder setSurveyId(String surveyId);
 
     public abstract LayerEntity build();
   }

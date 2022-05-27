@@ -26,7 +26,7 @@ import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
+import com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.function.Consumer;
 import org.junit.Before;
@@ -63,7 +63,7 @@ public class FeatureDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
         new FeatureDataTypeSelectorDialogFragment(onSelectFeatureDataType);
 
     featureDataTypeSelectorDialogFragment.showNow(
-        activity.getSupportFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
+        activity.getSupportFragmentManager(), SurveySelectorDialogFragment.class.getSimpleName());
     shadowOf(getMainLooper()).idle();
   }
 
@@ -73,7 +73,7 @@ public class FeatureDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
 
     assertThat(listView).isNotNull();
     assertThat(listView.getVisibility()).isEqualTo(View.VISIBLE);
-    assertThat(listView.findViewById(R.id.project_name).getVisibility()).isEqualTo(View.VISIBLE);
+    assertThat(listView.findViewById(R.id.survey_name).getVisibility()).isEqualTo(View.VISIBLE);
   }
 
   @Test

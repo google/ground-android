@@ -62,7 +62,8 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class FeatureRepositoryTest extends BaseHiltTest {
   @BindValue @Mock LocalDataStore mockLocalDataStore;
-  @BindValue @Mock ProjectRepository mockProjectRepository;
+  @BindValue @Mock
+  SurveyRepository mockSurveyRepository;
   @BindValue @Mock DataSyncWorkManager mockWorkManager;
 
   @Captor ArgumentCaptor<FeatureMutation> captorFeatureMutation;
@@ -143,7 +144,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     when(mockLocalDataStore.mergeFeature(FakeData.POINT_FEATURE))
         .thenReturn(Completable.complete());
 
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertNoErrors().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertNoErrors().assertComplete();
 
     verify(mockLocalDataStore, times(1)).mergeFeature(FakeData.POINT_FEATURE);
   }
@@ -155,7 +156,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     when(mockLocalDataStore.mergeFeature(FakeData.POINT_FEATURE))
         .thenReturn(Completable.complete());
 
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertNoErrors().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertNoErrors().assertComplete();
 
     verify(mockLocalDataStore, times(1)).mergeFeature(FakeData.POINT_FEATURE);
   }
@@ -165,7 +166,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.removed("entityId"));
     when(mockLocalDataStore.deleteFeature(anyString())).thenReturn(Completable.complete());
 
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertComplete();
 
     verify(mockLocalDataStore, times(1)).deleteFeature("entityId");
   }
@@ -173,39 +174,39 @@ public class FeatureRepositoryTest extends BaseHiltTest {
   @Test
   public void testSyncFeatures_error() {
     fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.error(new Throwable("Foo error")));
-    featureRepository.syncFeatures(FakeData.PROJECT).test().assertNoErrors().assertComplete();
+    featureRepository.syncFeatures(FakeData.SURVEY).test().assertNoErrors().assertComplete();
   }
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    when(mockLocalDataStore.getFeaturesOnceAndStream(FakeData.PROJECT))
+    when(mockLocalDataStore.getFeaturesOnceAndStream(FakeData.SURVEY))
         .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_FEATURE)));
 
     featureRepository
-        .getFeaturesOnceAndStream(FakeData.PROJECT)
+        .getFeaturesOnceAndStream(FakeData.SURVEY)
         .test()
         .assertValue(ImmutableSet.of(FakeData.POINT_FEATURE));
   }
 
   @Test
-  public void testGetFeature_projectNotPresent() {
-    when(mockProjectRepository.getProject(anyString()))
+  public void testGetFeature_surveyNotPresent() {
+    when(mockSurveyRepository.getSurvey(anyString()))
         .thenReturn(Single.error(new NoSuchElementException()));
 
     featureRepository
-        .getFeature("non_existent_project_id", "feature_id")
+        .getFeature("non_existent_survey_id", "feature_id")
         .test()
         .assertFailure(NoSuchElementException.class);
   }
 
   @Test
-  public void testGetFeature_projectPresent() {
-    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.PROJECT));
-    when(mockLocalDataStore.getFeature(FakeData.PROJECT, FakeData.POINT_FEATURE.getId()))
+  public void testGetFeature_surveyPresent() {
+    when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
+    when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.just(FakeData.POINT_FEATURE));
 
     featureRepository
-        .getFeature(FakeData.PROJECT.getId(), FakeData.POINT_FEATURE.getId())
+        .getFeature(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
         .test()
         .assertResult(FakeData.POINT_FEATURE);
 
@@ -217,12 +218,12 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetFeature_whenFeatureIsNotPresent() {
-    when(mockProjectRepository.getProject(anyString())).thenReturn(Single.just(FakeData.PROJECT));
-    when(mockLocalDataStore.getFeature(FakeData.PROJECT, FakeData.POINT_FEATURE.getId()))
+    when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
+    when(mockLocalDataStore.getFeature(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.empty());
 
     featureRepository
-        .getFeature(FakeData.PROJECT.getId(), FakeData.POINT_FEATURE.getId())
+        .getFeature(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
         .test()
         .assertFailureAndMessage(NotFoundException.class, "Feature not found feature id");
   }
@@ -233,11 +234,11 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     Date testDate = new Date();
 
     FeatureMutation newMutation =
-        featureRepository.newMutation("foo_project_id", "foo_layer_id", FakeData.POINT, testDate);
+        featureRepository.newMutation("foo_survey_id", "foo_layer_id", FakeData.POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
-    assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
@@ -251,11 +252,11 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
     FeatureMutation newMutation =
         featureRepository.newPolygonFeatureMutation(
-            "foo_project_id", "foo_layer_id", FakeData.VERTICES, testDate);
+            "foo_survey_id", "foo_layer_id", FakeData.VERTICES, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
-    assertThat(newMutation.getProjectId()).isEqualTo("foo_project_id");
+    assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
     assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());

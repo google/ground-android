@@ -26,7 +26,7 @@ import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
-import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
+import com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +67,7 @@ public class PolygonDrawingInfoDialogFragmentTest extends BaseHiltTest {
     polygonDrawingInfoDialogFragment = new PolygonDrawingInfoDialogFragment(onClickRunnable);
 
     polygonDrawingInfoDialogFragment.showNow(
-        activity.getSupportFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
+        activity.getSupportFragmentManager(), SurveySelectorDialogFragment.class.getSimpleName());
     shadowOf(getMainLooper()).idle();
   }
 

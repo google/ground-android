@@ -99,7 +99,7 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   /** Returns true if the user is {@link Role#OWNER} or {@link Role#MANAGER} of the project. */
   private boolean isUserAuthorizedToModifyFeature(Feature feature) {
-    Role role = userRepository.getUserRole(feature.getProject());
+    Role role = userRepository.getUserRole(feature.getSurvey());
     return role == Role.OWNER || role == Role.MANAGER || isFeatureCreatedByUser(feature);
   }
 
@@ -137,7 +137,7 @@ public class FeatureDetailsViewModel extends ViewModel {
         .map(
             feature ->
                 submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(
-                    feature.getProject(), feature.getId()))
+                    feature.getSurvey(), feature.getId()))
         .orElse(Flowable.just(ImmutableList.of()));
   }
 

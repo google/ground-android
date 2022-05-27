@@ -25,7 +25,7 @@ sealed class Mutation {
     abstract val id: Long?
     abstract val type: Type
     abstract val syncStatus: SyncStatus
-    abstract val projectId: String
+    abstract val surveyId: String
     abstract val featureId: String
     abstract val layerId: String
     abstract val userId: String
@@ -79,7 +79,7 @@ sealed class Mutation {
             @JvmSynthetic set
         var syncStatus: SyncStatus = SyncStatus.UNKNOWN
             @JvmSynthetic set
-        var projectId: String = ""
+        var surveyId: String = ""
             @JvmSynthetic set
         var featureId: String = ""
             @JvmSynthetic set
@@ -99,7 +99,7 @@ sealed class Mutation {
         fun setSyncStatus(syncStatus: SyncStatus): Builder<T> =
             apply { this.syncStatus = syncStatus }
 
-        fun setProjectId(projectId: String): Builder<T> = apply { this.projectId = projectId }
+        fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
         fun setFeatureId(featureId: String): Builder<T> = apply { this.featureId = featureId }
         fun setLayerId(layerId: String): Builder<T> = apply { this.layerId = layerId }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
@@ -114,7 +114,7 @@ sealed class Mutation {
                 id = mutation.id
                 type = mutation.type
                 syncStatus = mutation.syncStatus
-                projectId = mutation.projectId
+                surveyId = mutation.surveyId
                 featureId = mutation.featureId
                 layerId = mutation.layerId
                 userId = mutation.userId

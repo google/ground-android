@@ -33,8 +33,8 @@ import java.util.Date;
  * specific values should explicitly set them in relevant test methods or during test setup.
  */
 public class TestModelBuilders {
-  public static Project.Builder newProject() {
-    return Project.newBuilder().setId("").setTitle("").setDescription("");
+  public static Survey.Builder newSurvey() {
+    return Survey.newBuilder().setId("").setTitle("").setDescription("");
   }
 
   public static User.Builder newUser() {
@@ -71,7 +71,7 @@ public class TestModelBuilders {
   public static PointFeature.Builder newPointFeature() {
     return PointFeature.newBuilder()
         .setId("")
-        .setProject(newProject().build())
+        .setSurvey(newSurvey().build())
         .setPoint(newPoint().build())
         .setCreated(newAuditInfo().build())
         .setLastModified(newAuditInfo().build());
@@ -80,7 +80,7 @@ public class TestModelBuilders {
   public static PolygonFeature.Builder newPolygonFeature() {
     return PolygonFeature.builder()
         .setId("")
-        .setProject(newProject().build())
+        .setSurvey(newSurvey().build())
         .setVertices(newPolygonVertices())
         .setCreated(newAuditInfo().build())
         .setLastModified(newAuditInfo().build());

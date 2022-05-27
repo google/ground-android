@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -80,12 +80,12 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<Project> loadProject(String projectId) {
+  public Single<Survey> loadSurvey(String surveyId) {
     return db.projects()
-        .project(projectId)
+        .project(surveyId)
         .get()
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Maybe.never() : Maybe.error(e))
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Survey " + surveyId)))
         .subscribeOn(schedulers.io());
   }
 
@@ -93,7 +93,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Override
   public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
     return db.projects()
-        .project(feature.getProject().getId())
+        .project(feature.getSurvey().getId())
         .observations()
         .observationsByFeatureId(feature)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
@@ -112,7 +112,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<List<Project>> loadProjectSummaries(User user) {
+  public Single<List<Survey>> loadSurveySummaries(User user) {
     return db.projects()
         .getReadable(user)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
@@ -121,11 +121,11 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold(stateful = true, terminates = false)
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey) {
     return db.projects()
-        .project(project.getId())
+        .project(survey.getId())
         .features()
-        .loadOnceAndStreamChanges(project)
+        .loadOnceAndStreamChanges(survey)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Flowable.never() : Flowable.error(e))
         .subscribeOn(schedulers.io());
   }
@@ -177,7 +177,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch)
       throws DataStoreException {
     db.projects()
-        .project(mutation.getProjectId())
+        .project(mutation.getSurveyId())
         .features()
         .feature(mutation.getFeatureId())
         .addMutationToBatch(mutation, user, batch);
@@ -186,7 +186,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   private void addSubmissionMutationToBatch(
       SubmissionMutation mutation, User user, WriteBatch batch) throws DataStoreException {
     db.projects()
-        .project(mutation.getProjectId())
+        .project(mutation.getSurveyId())
         .observations()
         .observation(mutation.getSubmissionId())
         .addMutationToBatch(mutation, user, batch);

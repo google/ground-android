@@ -35,8 +35,8 @@ public abstract class MutationEntity {
   public abstract Long getId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
+  @ColumnInfo(name = "survey_id")
+  public abstract String getSurveyId();
 
   @CopyAnnotations
   @ColumnInfo(name = "type")
@@ -67,7 +67,7 @@ public abstract class MutationEntity {
 
     public abstract T setId(@Nullable Long newId);
 
-    public abstract T setProjectId(String newProjectId);
+    public abstract T setSurveyId(String newSurveyId);
 
     public abstract T setType(MutationEntityType newType);
 

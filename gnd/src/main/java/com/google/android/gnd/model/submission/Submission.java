@@ -17,7 +17,7 @@
 package com.google.android.gnd.model.submission;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
@@ -30,7 +30,7 @@ public abstract class Submission {
 
   public abstract String getId();
 
-  public abstract Project getProject();
+  public abstract Survey getSurvey();
 
   public abstract Feature getFeature();
 
@@ -59,7 +59,7 @@ public abstract class Submission {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setProject(Project project);
+    public abstract Builder setSurvey(Survey survey);
 
     public abstract Builder setFeature(Feature feature);
 

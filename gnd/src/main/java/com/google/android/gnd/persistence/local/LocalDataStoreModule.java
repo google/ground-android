@@ -27,9 +27,9 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
-import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import dagger.Binds;
@@ -79,8 +79,8 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static ProjectDao projectDao(LocalDatabase localDatabase) {
-    return localDatabase.projectDao();
+  static SurveyDao surveyDao(LocalDatabase localDatabase) {
+    return localDatabase.surveyDao();
   }
 
   @Provides
