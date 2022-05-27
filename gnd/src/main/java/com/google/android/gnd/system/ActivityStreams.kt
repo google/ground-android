@@ -13,95 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.app.Activity
+import android.content.Intent
+import com.google.android.gnd.rx.annotations.Hot
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
+import java8.util.function.Consumer
+import javax.inject.Inject
+import javax.inject.Singleton
 
-import android.app.Activity;
-import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.gnd.rx.annotations.Hot;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
-import java8.util.function.Consumer;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-/** Bridge between the {@link Activity} and various {@code Manager} classes. */
+/** Bridge between the [Activity] and various `Manager` classes.  */
 @Singleton
-public class ActivityStreams {
-  /** Emits {@link Consumer}s to be executed in the context of the {@link Activity}. */
-  @Hot private final Subject<Consumer<Activity>> activityRequests = PublishSubject.create();
+class ActivityStreams @Inject constructor() {
 
-  /** Emits {@link Activity#onActivityResult(int, int, Intent)} events. */
-  @Hot private final Subject<ActivityResult> activityResults = PublishSubject.create();
+    /** Emits [Consumer]s to be executed in the context of the [Activity].  */
+    val activityRequests: @Hot Subject<Consumer<Activity>> = PublishSubject.create()
 
-  /** Emits {@link Activity#onRequestPermissionsResult(int, String[], int[])} events. */
-  @Hot
-  private final Subject<RequestPermissionsResult> requestPermissionsResults =
-      PublishSubject.create();
+    /** Emits [Activity.onActivityResult] events.  */
+    private val activityResults: @Hot Subject<ActivityResult> = PublishSubject.create()
 
-  @Inject
-  public ActivityStreams() {}
+    /** Emits [Activity.onRequestPermissionsResult] events.  */
+    private val requestPermissionsResults: @Hot Subject<RequestPermissionsResult> =
+        PublishSubject.create()
 
-  /**
-   * Queues the specified {@link Consumer} for execution. An instance of the current {@link
-   * Activity} is provided to the {@code Consumer} when called.
-   */
-  public void withActivity(Consumer<Activity> callback) {
-    activityRequests.onNext(callback);
-  }
+    /**
+     * Queues the specified [Consumer] for execution. An instance of the current [ ] is provided to the `Consumer` when called.
+     */
+    fun withActivity(callback: Consumer<Activity>) = activityRequests.onNext(callback)
 
-  /**
-   * Callback used to communicate {@link Activity#onActivityResult(int, int, Intent)} events with
-   * various {@code Manager} classes.
-   */
-  public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-    activityResults.onNext(new ActivityResult(requestCode, resultCode, data));
-  }
+    /**
+     * Callback used to communicate [Activity.onActivityResult] events with
+     * various `Manager` classes.
+     */
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) =
+        activityResults.onNext(ActivityResult(requestCode, resultCode, data))
 
-  /**
-   * Callback used to communicate {@link Activity#onRequestPermissionsResult(int, String[], int[])}
-   * events with various {@code Manager} classes.
-   */
-  public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    requestPermissionsResults.onNext(
-        new RequestPermissionsResult(requestCode, permissions, grantResults));
-  }
+    /**
+     * Callback used to communicate [Activity.onRequestPermissionsResult]
+     * events with various `Manager` classes.
+     */
+    fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
+    ) = requestPermissionsResults.onNext(
+        RequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
+    )
 
-  /** Emits {@link Consumer}s to be executed in the context of the {@link Activity}. */
-  @Hot
-  public Observable<Consumer<Activity>> getActivityRequests() {
-    return activityRequests;
-  }
+    /**
+     * Emits [Activity.onActivityResult] events where `requestCode`
+     * matches the specified value.
+     */
+    fun getActivityResults(requestCode: Int): @Hot Observable<ActivityResult> =
+        activityResults.filter { it.requestCode == requestCode }
 
-  /**
-   * Emits {@link Activity#onActivityResult(int, int, Intent)} events where {@code requestCode}
-   * matches the specified value.
-   */
-  @Hot
-  public Observable<ActivityResult> getActivityResults(int requestCode) {
-    return activityResults.filter(r -> r.getRequestCode() == requestCode);
-  }
+    /**
+     * Emits the next [Activity.onActivityResult] event where `requestCode` matches the specified value.
+     */
+    fun getNextActivityResult(requestCode: Int): @Hot Observable<ActivityResult> =
+        getActivityResults(requestCode).take(1) // TODO(#723): Define and handle timeouts.
 
-  /**
-   * Emits the next {@link Activity#onActivityResult(int, int, Intent)} event where {@code
-   * requestCode} matches the specified value.
-   */
-  @Hot
-  public Observable<ActivityResult> getNextActivityResult(int requestCode) {
-    // TODO(#723): Define and handle timeouts.
-    return getActivityResults(requestCode).take(1);
-  }
-
-  /**
-   * Emits the next {@link Activity#onRequestPermissionsResult(int, String[], int[])} event where
-   * {@code requestCode} matches the specified value.
-   */
-  public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
-    // TODO(#723): Define and handle timeouts.
-    return requestPermissionsResults.filter(r -> r.getRequestCode() == requestCode).take(1);
-  }
+    /**
+     * Emits the next [Activity.onRequestPermissionsResult] event where
+     * `requestCode` matches the specified value.
+     */
+    fun getNextRequestPermissionsResult(requestCode: Int): Observable<RequestPermissionsResult> =
+        requestPermissionsResults.filter { it.requestCode == requestCode }
+            .take(1) // TODO(#723): Define and handle timeouts.
 }
