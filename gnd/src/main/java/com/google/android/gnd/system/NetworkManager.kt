@@ -13,48 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.content.Context
+import android.net.ConnectivityManager
+import androidx.annotation.RequiresPermission
+import com.google.android.gnd.rx.RxCompletable.completeOrError
+import io.reactivex.Completable
+import java.net.ConnectException
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import androidx.annotation.RequiresPermission;
-import com.google.android.gnd.GndApplication;
-import com.google.android.gnd.rx.RxCompletable;
-import io.reactivex.Completable;
-import java.net.ConnectException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+/** Abstracts access to network state.  */
+object NetworkManager {
 
-/** Abstracts access to network state. */
-@Singleton
-public class NetworkManager {
-  private final GndApplication application;
+    /** Returns true iff the device has internet connectivity, false otherwise.  */
+    @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = cm.activeNetworkInfo
+        return networkInfo?.isConnected ?: false
+    }
 
-  @Inject
-  public NetworkManager(GndApplication application) {
-    this.application = application;
-  }
-
-  /** Returns true iff the device has internet connectivity, false otherwise. */
-  @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-  private static boolean isNetworkAvailable(Context context) {
-    ConnectivityManager cm =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
-  }
-
-  /**
-   * Returns a Completable that completes immediately on subscribe if network is available, or fails
-   * in error if not.
-   */
-  public static Completable requireActiveNetwork(Context context) {
-    return RxCompletable.completeOrError(() -> isNetworkAvailable(context), ConnectException.class);
-  }
-
-  public boolean isNetworkAvailable() {
-    return isNetworkAvailable(application);
-  }
+    /**
+     * Returns a Completable that completes immediately on subscribe if network is available, or fails
+     * in error if not.
+     */
+    @JvmStatic
+    fun requireActiveNetwork(context: Context): Completable {
+        return completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
+    }
 }
