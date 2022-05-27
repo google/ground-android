@@ -13,84 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import com.google.android.gnd.R
+import com.google.android.gnd.persistence.remote.TransferProgress.UploadState
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.content.Context;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationCompat.Builder;
-import com.google.android.gnd.R;
-import com.google.android.gnd.persistence.remote.TransferProgress.UploadState;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import timber.log.Timber;
+private const val CHANNEL_ID = "channel_id"
+private const val CHANNEL_NAME = "sync channel"
 
 @Singleton
-public class NotificationManager {
+class NotificationManager @Inject internal constructor(
+    @param:ApplicationContext private val context: Context
+) {
 
-  private static final String CHANNEL_ID = "channel_id";
-  private static final String CHANNEL_NAME = "sync channel";
-  private final Context context;
-
-  @Inject
-  NotificationManager(@ApplicationContext Context context) {
-    this.context = context;
-    if (VERSION.SDK_INT >= VERSION_CODES.O) {
-      createNotificationChannels(context);
+    init {
+        if (VERSION.SDK_INT >= VERSION_CODES.O) {
+            createNotificationChannels(context)
+        }
     }
-  }
 
-  @RequiresApi(api = VERSION_CODES.O)
-  private void createNotificationChannels(Context context) {
-    NotificationChannel channel =
-        new NotificationChannel(
-            CHANNEL_ID, CHANNEL_NAME, android.app.NotificationManager.IMPORTANCE_LOW);
-    android.app.NotificationManager manager =
-        context.getSystemService(android.app.NotificationManager.class);
-    manager.createNotificationChannel(channel);
-  }
+    @RequiresApi(api = VERSION_CODES.O)
+    private fun createNotificationChannels(context: Context) {
+        val channel =
+            NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
+        context.getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(channel)
+    }
 
-  public Notification createSyncNotification(
-      UploadState state, String title, int total, int progress) {
-    NotificationCompat.Builder notification =
-        new Builder(context, CHANNEL_ID)
+    fun createSyncNotification(
+        state: UploadState, title: String, total: Int, progress: Int
+    ): Notification {
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
             .setContentTitle(title)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOnlyAlertOnce(false)
             .setOngoing(false)
-            .setProgress(total, progress, false);
-
-    switch (state) {
-      case STARTING:
-        notification.setContentText(context.getString(R.string.starting));
-        break;
-      case IN_PROGRESS:
-        notification
-            .setContentText(context.getString(R.string.in_progress))
-            // only alert once and don't allow cancelling it
-            .setOnlyAlertOnce(true)
-            .setOngoing(true);
-        break;
-      case PAUSED:
-        notification.setContentText(context.getString(R.string.paused));
-        break;
-      case FAILED:
-        notification.setContentText(context.getString(R.string.failed));
-        break;
-      case COMPLETED:
-        notification.setContentText(context.getString(R.string.completed));
-        break;
-      default:
-        Timber.e("Unknown sync state: %s", state.name());
-        break;
+            .setProgress(total, progress, false)
+        when (state) {
+            UploadState.STARTING -> notification.setContentText(context.getString(R.string.starting))
+            UploadState.IN_PROGRESS -> notification
+                .setContentText(context.getString(R.string.in_progress)) // only alert once and don't allow cancelling it
+                .setOnlyAlertOnce(true)
+                .setOngoing(true)
+            UploadState.PAUSED -> notification.setContentText(context.getString(R.string.paused))
+            UploadState.FAILED -> notification.setContentText(context.getString(R.string.failed))
+            UploadState.COMPLETED -> notification.setContentText(context.getString(R.string.completed))
+        }
+        return notification.build()
     }
-    return notification.build();
-  }
 }
