@@ -18,8 +18,8 @@ package com.google.android.gnd.repository;
 
 import static com.google.android.gnd.util.Enums.toEnum;
 
-import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.Role;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;

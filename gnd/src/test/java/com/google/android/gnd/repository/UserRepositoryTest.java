@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.FakeData;
-import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.Role;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;

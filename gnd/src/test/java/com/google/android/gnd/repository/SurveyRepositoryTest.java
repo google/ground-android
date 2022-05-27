@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.BaseHiltTest;
-import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.Role;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
