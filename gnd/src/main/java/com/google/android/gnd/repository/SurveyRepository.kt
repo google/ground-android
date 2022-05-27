@@ -76,7 +76,7 @@ class SurveyRepository @Inject constructor(
         get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
 
     val offlineSurveys: @Cold Single<ImmutableList<Survey>>
-        get() = localDataStore.projects
+        get() = localDataStore.surveys
 
     init {
         // Kicks off the loading process whenever a new survey id is selected.
@@ -123,14 +123,14 @@ class SurveyRepository @Inject constructor(
     /** This only works if the survey is already cached to local db.  */
     fun getSurvey(surveyId: String): @Cold Single<Survey> =
         localDataStore
-            .getProjectById(surveyId)
+            .getSurveyById(surveyId)
             .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
     private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
         remoteDataStore
             .loadProject(id)
             .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .flatMap { localDataStore.insertOrUpdateProject(it).toSingleDefault(it) }
+            .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
             .doOnSubscribe { Timber.d("Loading project $id") }
             .doOnError { err -> Timber.d(err, "Error loading project from remote") }
 

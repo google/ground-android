@@ -111,6 +111,6 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
   private void setTestProject(Survey survey) {
     fakeRemoteDataStore.setTestProject(survey);
-    when(mockLocalDataStore.getProjectById(any())).thenReturn(Maybe.just(survey));
+    when(mockLocalDataStore.getSurveyById(any())).thenReturn(Maybe.just(survey));
   }
 }

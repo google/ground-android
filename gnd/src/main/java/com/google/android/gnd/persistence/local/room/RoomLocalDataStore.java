@@ -200,7 +200,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable insertOrUpdateProject(Survey survey) {
+  public Completable insertOrUpdateSurvey(Survey survey) {
     return projectDao
         .insertOrUpdate(ProjectEntity.fromProject(survey))
         .andThen(layerDao.deleteByProjectId(survey.getId()))
@@ -227,7 +227,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Survey>> getProjects() {
+  public Single<ImmutableList<Survey>> getSurveys() {
     return projectDao
         .getAllProjects()
         .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableList()))
@@ -235,12 +235,12 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Survey> getProjectById(String id) {
+  public Maybe<Survey> getSurveyById(String id) {
     return projectDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(schedulers.io());
   }
 
   @Override
-  public Completable deleteProject(Survey survey) {
+  public Completable deleteSurvey(Survey survey) {
     return projectDao.delete(ProjectEntity.fromProject(survey)).subscribeOn(schedulers.io());
   }
 
@@ -370,7 +370,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                 .flattenAsObservable(oms -> oms)
                 .flatMap(
                     ome ->
-                        getProjectById(ome.getProjectId())
+                        getSurveyById(ome.getProjectId())
                             .toSingle()
                             .map(project -> ome.toMutation(project))
                             .toObservable()

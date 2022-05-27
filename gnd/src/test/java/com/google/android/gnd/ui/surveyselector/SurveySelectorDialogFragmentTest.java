@@ -99,7 +99,7 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
   public void show_projectSelected_projectIsActivated() {
     ListView listView = (ListView) surveySelectorDialogFragment.getDialog().getCurrentFocus();
 
-    when(mockLocalDataStore.getProjectById(eq(survey2.getId()))).thenReturn(Maybe.just(survey2));
+    when(mockLocalDataStore.getSurveyById(eq(survey2.getId()))).thenReturn(Maybe.just(survey2));
     shadowOf(listView).performItemClick(1);
     shadowOf(getMainLooper()).idle();
 

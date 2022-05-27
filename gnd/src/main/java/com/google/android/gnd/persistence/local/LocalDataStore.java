@@ -51,28 +51,28 @@ import io.reactivex.Single;
 public interface LocalDataStore {
 
   /**
-   * Load projects stored in local database.
+   * Load surveys stored in local database.
    */
   @Cold
-  Single<ImmutableList<Survey>> getProjects();
+  Single<ImmutableList<Survey>> getSurveys();
 
   /**
-   * Load last active project, if any.
+   * Load last active survey, if any.
    */
   @Cold
-  Maybe<Survey> getProjectById(String id);
+  Maybe<Survey> getSurveyById(String id);
 
   /**
-   * Delete stored project from database.
+   * Delete stored survey from database.
    */
   @Cold
-  Completable deleteProject(Survey survey);
+  Completable deleteSurvey(Survey survey);
 
   /**
-   * Add project to the database.
+   * Add survey to the database.
    */
   @Cold
-  Completable insertOrUpdateProject(Survey survey);
+  Completable insertOrUpdateSurvey(Survey survey);
 
   /**
    * Add user to the database.
@@ -108,7 +108,7 @@ public interface LocalDataStore {
   Completable apply(SubmissionMutation mutation) throws LocalDataStoreException;
 
   /**
-   * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
+   * Returns a long-lived stream that emits the full set of features for a survey on subscribe, and
    * continues to return the full set each time a feature is added/changed/removed.
    */
   @Cold(terminates = false)
@@ -141,7 +141,7 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<TileSet>> getTileSetsOnceAndStream();
 
   /**
-   * Returns a long-lived stream that emits the full list of mutations for specified project on
+   * Returns a long-lived stream that emits the full list of mutations for specified survey on
    * subscribe and a new list on each subsequent change.
    */
   @Cold(terminates = false)
