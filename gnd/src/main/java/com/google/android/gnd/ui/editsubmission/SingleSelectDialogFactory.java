@@ -18,8 +18,8 @@ package com.google.android.gnd.ui.editsubmission;
 
 import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.gnd.model.task.Option;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.task.Option;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 

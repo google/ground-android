@@ -21,9 +21,6 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.task.Field;
-import com.google.android.gnd.model.task.Task;
-import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.submission.DateResponse;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.NumberResponse;
@@ -32,6 +29,9 @@ import com.google.android.gnd.model.submission.ResponseMap.Builder;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.model.submission.TextResponse;
 import com.google.android.gnd.model.submission.TimeResponse;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;

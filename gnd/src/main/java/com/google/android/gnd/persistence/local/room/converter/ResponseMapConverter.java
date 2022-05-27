@@ -18,9 +18,9 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.Task;
-import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import java.util.Iterator;
 import org.json.JSONException;

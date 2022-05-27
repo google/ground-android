@@ -20,9 +20,9 @@ import static com.google.android.gnd.util.Enums.toEnum;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.Task;
-import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;

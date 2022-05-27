@@ -18,8 +18,8 @@ package com.google.android.gnd.persistence.local.room.relations;
 
 import androidx.room.Embedded;
 import androidx.room.Relation;
-import com.google.android.gnd.persistence.local.room.entity.TaskEntity;
 import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
+import com.google.android.gnd.persistence.local.room.entity.TaskEntity;
 import java.util.List;
 
 /**
