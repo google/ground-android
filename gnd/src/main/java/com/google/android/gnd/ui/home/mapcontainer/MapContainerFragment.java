@@ -38,7 +38,7 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
+import com.google.android.gnd.system.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractMapViewerFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;

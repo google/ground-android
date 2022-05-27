@@ -13,87 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system
 
-package com.google.android.gnd.system;
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
+import com.google.android.gnd.rx.RxCompletable.completeIf
+import com.google.android.gnd.rx.RxCompletable.completeOrError
+import com.google.android.gnd.rx.annotations.Cold
+import com.google.android.gnd.system.PermissionsManager
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.reactivex.Completable
+import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
-import android.content.Context;
-import android.content.pm.PackageManager;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import com.google.android.gnd.rx.RxCompletable;
-import com.google.android.gnd.rx.annotations.Cold;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import io.reactivex.Completable;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import timber.log.Timber;
-
-/** Provides access to obtain and check the app's permissions. */
+/** Provides access to obtain and check the app's permissions.  */
 @Singleton
-public class PermissionsManager {
-  static final int PERMISSIONS_REQUEST_CODE = PermissionsManager.class.hashCode() & 0xffff;
-
-  private final Context context;
-  private final ActivityStreams activityStreams;
-
-  @Inject
-  public PermissionsManager(@ApplicationContext Context context, ActivityStreams activityStreams) {
-    this.context = context;
-    this.activityStreams = activityStreams;
-  }
-
-  /**
-   * Asynchronously requests the app be granted the specified permission. If the permission has
-   * already been granted, completes immediately, otherwise completes once the next permissions
-   * result is received.
-   */
-  @Cold
-  public Completable obtainPermission(String permission) {
-    return RxCompletable.completeIf(() -> requestPermission(permission))
-        .ambWith(getPermissionsResult(permission));
-  }
-
-  /**
-   * Sends the system request that the app be granted the specified permission. Returns {@code true}
-   * if the permission was already granted.
-   */
-  private boolean requestPermission(String permission) {
-    if (isGranted(permission)) {
-      Timber.d("%s already granted", permission);
-      return true;
-    } else {
-      Timber.d("Requesting %s", permission);
-      activityStreams.withActivity(
-          activity ->
-              ActivityCompat.requestPermissions(
-                  activity, new String[] {permission}, PERMISSIONS_REQUEST_CODE));
-      return false;
+class PermissionsManager @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val activityStreams: ActivityStreams
+) {
+    /**
+     * Asynchronously requests the app be granted the specified permission. If the permission has
+     * already been granted, completes immediately, otherwise completes once the next permissions
+     * result is received.
+     */
+    fun obtainPermission(permission: String): @Cold Completable {
+        return completeIf { requestPermission(permission) }.ambWith(getPermissionsResult(permission))
     }
-  }
 
-  /** Returns {@code true} iff the app has been granted the specified permission. */
-  private boolean isGranted(String permission) {
-    return ContextCompat.checkSelfPermission(context, permission)
-        == PackageManager.PERMISSION_GRANTED;
-  }
+    /**
+     * Sends the system request that the app be granted the specified permission. Returns `true`
+     * if the permission was already granted.
+     */
+    private fun requestPermission(permission: String): Boolean {
+        return if (isGranted(permission)) {
+            Timber.d("%s already granted", permission)
+            true
+        } else {
+            Timber.d("Requesting %s", permission)
+            activityStreams.withActivity { activity: Activity ->
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(permission),
+                    PERMISSIONS_REQUEST_CODE
+                )
+            }
+            false
+        }
+    }
 
-  /**
-   * Returns a {@link Completable} that completes once the specified permission is granted or
-   * terminates with error {@link PermissionDeniedException} if the requested permission was denied.
-   */
-  @Cold
-  private Completable getPermissionsResult(String permission) {
-    return activityStreams
-        .getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
-        .flatMapCompletable(
-            r ->
-                RxCompletable.completeOrError(
-                    () -> r.isGranted(permission), PermissionDeniedException.class));
-  }
+    /** Returns `true` iff the app has been granted the specified permission.  */
+    private fun isGranted(permission: String): Boolean {
+        return checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    }
 
-  /**
-   * Indicates a request to grant the app permissions was denied. More specifically, it indicates
-   * the requested permission was not in the list of granted permissions in the system's response.
-   */
-  public static class PermissionDeniedException extends Exception {}
+    /**
+     * Returns a [Completable] that completes once the specified permission is granted or
+     * terminates with error [PermissionDeniedException] if the requested permission was denied.
+     */
+    private fun getPermissionsResult(permission: String): @Cold Completable {
+        return activityStreams
+            .getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
+            .flatMapCompletable { r: RequestPermissionsResult ->
+                completeOrError({ r.isGranted(permission) }, PermissionDeniedException::class.java)
+            }
+    }
+
+    companion object {
+        @JvmField
+        val PERMISSIONS_REQUEST_CODE = PermissionsManager::class.java.hashCode() and 0xffff
+    }
 }
+
+/**
+ * Indicates a request to grant the app permissions was denied. More specifically, it indicates
+ * the requested permission was not in the list of granted permissions in the system's response.
+ */
+class PermissionDeniedException : Exception()
