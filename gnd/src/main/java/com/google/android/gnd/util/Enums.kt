@@ -17,11 +17,11 @@ package com.google.android.gnd.util
 
 object Enums {
     @JvmStatic
-    fun <T : Enum<T>> toEnum(enumClass: Class<T>, value: String): T? {
+    fun <T : Enum<T>> toEnum(enumClass: Class<T>, value: String): T {
         return try {
             java.lang.Enum.valueOf(enumClass, value.uppercase())
         } catch (e: IllegalArgumentException) {
-            enumClass.enumConstants?.get(0)
+            enumClass.enumConstants?.get(0)!!
         }
     }
 }
