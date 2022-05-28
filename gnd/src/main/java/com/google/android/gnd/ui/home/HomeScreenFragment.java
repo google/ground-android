@@ -159,14 +159,6 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onFeatureSelected);
-    mapContainerViewModel
-        .getAddFeatureButtonClicks()
-        .as(autoDisposable(this))
-        .subscribe(viewModel::onAddFeatureButtonClick);
-    viewModel
-        .getShowAddFeatureDialogRequests()
-        .as(autoDisposable(this))
-        .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
   }
 
   private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
@@ -181,6 +173,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
+  // TODO: Cleanup this method and unused dialog fragment. LOIs can only be added by organizers.
   private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
     // Skip layer selection if there's only one layer to which the user can add features.
     // TODO: Refactor and move logic into view model.

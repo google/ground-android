@@ -16,22 +16,16 @@
 
 package com.google.android.gnd;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
 import com.google.android.gnd.system.auth.FakeAuthenticationManager;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
-import org.junit.Ignore;
 import org.junit.Test;
 
 @HiltAndroidTest
@@ -63,40 +57,5 @@ public class AddFeatureTest extends BaseMainActivityTest {
 
     // Verify that the title is not displayed.
     onView(withId(R.id.feature_title)).check(matches(not(isCompletelyDisplayed())));
-  }
-
-  // Given: A logged in user with an active survey
-  // When: They tap the "Add feature" FAB and choose a layer which does not contain a form.
-  // Then: The feature map pin is displayed on the map screen. Tapping on the map pin displays the
-  // feature details.
-  @Test
-  @Ignore("flaky behavior on GCB")
-  public void addFeatureWithNoForm() throws InterruptedException {
-    dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
-
-    // Tap on the checkbox
-    onView(withId(R.id.agreeCheckBox)).perform(click());
-
-    // Tap on Submit on Terms Fragment
-    onView(withId(R.id.agreeButton)).perform(click());
-
-    // Tap on the "Add feature" button.
-    onView(withId(R.id.add_feature_btn)).perform(click());
-
-    // Tap on the layer type.
-    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER.getName())))
-        .perform(click());
-
-    // Tap on the crosshair at the centre of the map.
-    onView(withId(R.id.map_crosshairs_img)).perform(click());
-
-    // TODO: figure out how to remove this.
-    //  See here for more: https://github.com/dturner/ground-android/pull/1
-    Thread.sleep(10);
-
-    // Verify that the feature title matches the layer title and that it is displayed.
-    onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
-    onView(withId(R.id.feature_title))
-        .check(matches(withText(FakeData.LAYER.getName())));
   }
 }

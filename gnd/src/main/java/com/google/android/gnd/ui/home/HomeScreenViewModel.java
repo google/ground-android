@@ -21,7 +21,6 @@ import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -100,14 +99,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot
   private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
-  @Hot(replays = true)
-  private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
-
   @Hot
   private final Subject<ImmutableList<Feature>> showFeatureSelectorRequests =
-      PublishSubject.create();
-
-  private Subject<Pair<ImmutableList<Layer>, Point>> showAddFeatureDialogRequests =
       PublishSubject.create();
 
   @Inject
@@ -144,43 +137,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** Handle state of the UI elements depending upon the active survey. */
   private void onSurveyLoadingStateChange(Loadable<Survey> survey) {
-    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(survey));
-  }
-
-  private boolean shouldShowAddFeatureButton(Loadable<Survey> loadingState) {
-    // Project must contain at least one layer that the user can modify for add feature button to be
-    // shown.
-    if (loadingState.value().isEmpty()) {
-      // Don't show if no active survey.
-      return false;
-    }
-    ImmutableList<Layer> modifiableLayers =
-        surveyRepository.getModifiableLayers(loadingState.value().get());
-    return !modifiableLayers.isEmpty();
-  }
-
-  public LiveData<Boolean> isAddFeatureButtonVisible() {
-    return addFeatureButtonVisible;
+    // TODO: Implement once UX is finalized
   }
 
   @Hot
   public Observable<ImmutableList<Feature>> getShowFeatureSelectorRequests() {
     return showFeatureSelectorRequests;
-  }
-
-  public void onAddFeatureButtonClick(Point point) {
-    if (getActiveSurvey().isEmpty()) {
-      Timber.e("No active survey");
-      return;
-    }
-    Survey survey = getActiveSurvey().get();
-    ImmutableList<Layer> layers = surveyRepository.getModifiableLayers(survey);
-    // TODO: Pause location updates while dialog is open.
-    showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
-  }
-
-  public Observable<Pair<ImmutableList<Layer>, Point>> getShowAddFeatureDialogRequests() {
-    return showAddFeatureDialogRequests;
   }
 
   public Flowable<Feature> getAddFeatureResults() {
