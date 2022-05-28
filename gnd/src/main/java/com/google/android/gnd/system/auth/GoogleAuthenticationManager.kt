@@ -13,158 +13,130 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system.auth
 
-package com.google.android.gnd.system.auth;
+import android.app.Activity
+import android.content.res.Resources
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gnd.R
+import com.google.android.gnd.model.User
+import com.google.android.gnd.rx.annotations.Hot
+import com.google.android.gnd.system.ActivityResult
+import com.google.android.gnd.system.ActivityStreams
+import com.google.android.gnd.system.auth.SignInState
+import com.google.firebase.auth.*
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
+import timber.log.Timber
+import javax.inject.Inject
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.Intent;
-import androidx.annotation.NonNull;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.User;
-import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.ActivityResult;
-import com.google.android.gnd.system.ActivityStreams;
-import com.google.android.gnd.system.auth.SignInState.State;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
-import java8.util.Optional;
-import javax.inject.Inject;
-import timber.log.Timber;
+private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
 
-public class GoogleAuthenticationManager implements AuthenticationManager {
+class GoogleAuthenticationManager @Inject constructor(
+    resources: Resources,
+    private val activityStreams: ActivityStreams
+) : AuthenticationManager {
 
-  private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
-  private final GoogleSignInOptions googleSignInOptions;
+    private val activityResultsSubscription: Disposable
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val googleSignInOptions: GoogleSignInOptions
 
-  @Hot(replays = true)
-  private final Subject<SignInState> signInState = BehaviorSubject.create();
-
-  private final FirebaseAuth firebaseAuth;
-  private final ActivityStreams activityStreams;
-  private final Disposable activityResultsSubscription;
-
-  // TODO: Update Fragments to access via ProjectRepository rather than directly.
-  @Inject
-  public GoogleAuthenticationManager(Application application, ActivityStreams activityStreams) {
-    this.firebaseAuth = FirebaseAuth.getInstance();
-    this.googleSignInOptions =
-        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
+    // TODO: Update Fragments to access via ProjectRepository rather than directly.
+    init {
+        googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(resources.getString(R.string.default_web_client_id))
             .requestEmail()
             .requestProfile()
-            .build();
-    this.activityStreams = activityStreams;
-    this.activityResultsSubscription =
-        activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
-  }
+            .build()
 
-  public Observable<SignInState> getSignInState() {
-    return signInState;
-  }
-
-  public Observable<Optional<User>> getUser() {
-    return getSignInState().map(SignInState::getUser);
-  }
-
-  public void init() {
-    signInState.onNext(getStatus());
-  }
-
-  private SignInState getStatus() {
-    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-    if (firebaseUser == null) {
-      return new SignInState(State.SIGNED_OUT);
-    } else {
-      return new SignInState(toUser(firebaseUser));
+        // TODO: Dispose the subscription when object is destroyed
+        activityResultsSubscription = activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE)
+            .subscribe { onActivityResult(it) }
     }
-  }
 
-  public void signIn() {
-    signInState.onNext(new SignInState(State.SIGNING_IN));
-    activityStreams.withActivity(
-        activity -> {
-          Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
-          activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
-        });
-  }
+    override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
-  public void signOut() {
-    firebaseAuth.signOut();
-    signInState.onNext(new SignInState(State.SIGNED_OUT));
-    activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
-  }
+    /**
+     * Returns the current user, blocking until a user logs in. Only call from code where user is
+     * guaranteed to be authenticated.
+     */
+    override val currentUser: User
+        get() = signInState.map(SignInState::user)
+            .filter { it.isPresent }
+            .map { it.get() }
+            .blockingFirst() // TODO: Should this be blocking?
 
-  @NonNull
-  private GoogleSignInClient getGoogleSignInClient(Activity activity) {
-    // TODO: Use app context instead of activity?
-    return GoogleSignIn.getClient(activity, googleSignInOptions);
-  }
+    override fun init() = signInState.onNext(status)
 
-  private void onActivityResult(ActivityResult activityResult) {
-    // The Task returned from getSignedInAccountFromIntent is always completed, so no need to
-    // attach a listener.
-    try {
-      Task<GoogleSignInAccount> googleSignInTask =
-          GoogleSignIn.getSignedInAccountFromIntent(activityResult.getData());
-      onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
-    } catch (ApiException e) {
-      Timber.e(e, "Sign in failed");
-      signInState.onNext(new SignInState(e));
+    private val status: SignInState
+        get() {
+            val firebaseUser = firebaseAuth.currentUser
+            return if (firebaseUser == null) {
+                SignInState(SignInState.State.SIGNED_OUT)
+            } else {
+                SignInState(firebaseUser.toUser())
+            }
+        }
+
+    override fun signIn() {
+        signInState.onNext(SignInState(SignInState.State.SIGNING_IN))
+        activityStreams.withActivity {
+            val signInIntent = getGoogleSignInClient(it).signInIntent
+            it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
+        }
     }
-  }
 
-  private void onGoogleSignIn(GoogleSignInAccount googleAccount) {
-    firebaseAuth
-        .signInWithCredential(getFirebaseAuthCredential(googleAccount))
-        .addOnSuccessListener(this::onFirebaseAuthSuccess)
-        .addOnFailureListener(t -> signInState.onNext(new SignInState(t)));
-  }
+    override fun signOut() {
+        firebaseAuth.signOut()
+        signInState.onNext(SignInState(SignInState.State.SIGNED_OUT))
+        activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
+    }
 
-  private void onFirebaseAuthSuccess(AuthResult authResult) {
-    // TODO: Store/update user profile in Firestore.
-    // TODO: Store/update user profile and image locally.
-    signInState.onNext(new SignInState(toUser(authResult.getUser())));
-  }
+    private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient {
+        // TODO: Use app context instead of activity?
+        return GoogleSignIn.getClient(activity, googleSignInOptions)
+    }
 
-  @NonNull
-  private static AuthCredential getFirebaseAuthCredential(GoogleSignInAccount googleAccount) {
-    return GoogleAuthProvider.getCredential(googleAccount.getIdToken(), null);
-  }
+    private fun onActivityResult(activityResult: ActivityResult) {
+        // The Task returned from getSignedInAccountFromIntent is always completed, so no need to
+        // attach a listener.
+        try {
+            val googleSignInTask = GoogleSignIn.getSignedInAccountFromIntent(activityResult.data)
+            googleSignInTask.getResult(ApiException::class.java)?.let { onGoogleSignIn(it) }
+        } catch (e: ApiException) {
+            Timber.e(e, "Sign in failed")
+            signInState.onNext(SignInState(e))
+        }
+    }
 
-  @Override
-  protected void finalize() throws Throwable {
-    activityResultsSubscription.dispose();
-    super.finalize();
-  }
+    private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) {
+        firebaseAuth
+            .signInWithCredential(getFirebaseAuthCredential(googleAccount))
+            .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
+            .addOnFailureListener { signInState.onNext(SignInState(it)) }
+    }
 
-  private static User toUser(FirebaseUser firebaseUser) {
-    return User.builder()
-        .setId(firebaseUser.getUid())
-        .setEmail(firebaseUser.getEmail())
-        .setDisplayName(firebaseUser.getDisplayName())
-        .setPhotoUrl(firebaseUser.getPhotoUrl().toString())
-        .build();
-  }
+    private fun onFirebaseAuthSuccess(authResult: AuthResult) {
+        // TODO: Store/update user profile in Firestore.
+        // TODO: Store/update user profile and image locally.
+        signInState.onNext(SignInState(authResult.user!!.toUser()))
+    }
 
-  /**
-   * Returns the current user, blocking until a user logs in. Only call from code where user is
-   * guaranteed to be authenticated.
-   */
-  public User getCurrentUser() {
-    return getUser().filter(Optional::isPresent).map(Optional::get).blockingFirst();
-  }
+    private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential {
+        return GoogleAuthProvider.getCredential(googleAccount.idToken, null)
+    }
+
+    private fun FirebaseUser.toUser(): User {
+        return User.builder()
+            .setId(uid)
+            .setEmail(email)
+            .setDisplayName(displayName)
+            .setPhotoUrl(photoUrl.toString())
+            .build()
+    }
 }

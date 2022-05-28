@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system.auth
 
-package com.google.android.gnd.system.auth;
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
-import javax.inject.Singleton;
-
-@InstallIn(SingletonComponent.class)
+@InstallIn(SingletonComponent::class)
 @Module
-public abstract class AuthenticationModule {
-
-  /** Provides the Google implementation of authentication manager. */
-  @Binds
-  @Singleton
-  abstract AuthenticationManager googleAuthenticationManager(GoogleAuthenticationManager gam);
+abstract class AuthenticationModule {
+    /** Provides the Google implementation of authentication manager.  */
+    @Binds
+    @Singleton
+    abstract fun googleAuthenticationManager(gam: GoogleAuthenticationManager): AuthenticationManager
 }
