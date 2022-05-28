@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.util
 
-package com.google.android.gnd.util;
+import java8.util.function.Supplier
+import java8.util.stream.Stream
+import java8.util.stream.StreamSupport
+import timber.log.Timber
 
-import static java8.util.stream.StreamSupport.stream;
-
-import java.util.Collections;
-import java8.util.function.Supplier;
-import java8.util.stream.Stream;
-import timber.log.Timber;
-
-/** Methods for working with and manipulating {@link java8.util.stream.Stream}s. */
-public class StreamUtil {
-
-  /**
-   * Executes the specified Supplier, writing throw Error exceptions to debug logs. If an error
-   * occurs, an empty Stream is returned, otherwise a Stream with only the result of the Supplier is
-   * returned.
-   */
-  public static <R> Stream<R> logErrorsAndSkip(Supplier<R> supplier) {
-    try {
-      return stream(Collections.singleton(supplier.get()));
-    } catch (RuntimeException e) {
-      Timber.e(e);
-      return stream(Collections.emptySet());
+/** Methods for working with and manipulating [java8.util.stream.Stream].  */
+object StreamUtil {
+    /**
+     * Executes the specified Supplier, writing throw Error exceptions to debug logs. If an error
+     * occurs, an empty Stream is returned, otherwise a Stream with only the result of the Supplier is
+     * returned.
+     */
+    @JvmStatic
+    fun <R> logErrorsAndSkip(supplier: Supplier<R>): Stream<R> {
+        return try {
+            StreamSupport.stream(setOf(supplier.get()))
+        } catch (e: RuntimeException) {
+            Timber.e(e)
+            StreamSupport.stream(emptySet())
+        }
     }
-  }
 }

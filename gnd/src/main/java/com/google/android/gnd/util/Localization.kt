@@ -13,32 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.util
 
-package com.google.android.gnd.util;
-
-import androidx.annotation.Nullable;
-import java.util.Map;
-
-public abstract class Localization {
-  /** Do not instantiate. */
-  private Localization() {}
-
-  public static String getLocalizedMessage(Map<String, String> messages) {
-    if (messages == null) {
-      return "<Untitled>";
+object Localization {
+    @JvmStatic
+    fun getLocalizedMessage(messages: Map<String, String>): String {
+        // TODO(#711): Allow user to select project/form language and use here.
+        // TODO: Return Optional and handle empty strings in client code.
+        return messages["_"] ?: messages["en"] ?: messages["pt"] ?: "<Untitled>"
     }
-    // TODO(#711): Allow user to select project/form language and use here.
-    @Nullable String msg = messages.get("_");
-    if (msg == null) {
-      msg = messages.get("en");
-    }
-    if (msg == null) {
-      msg = messages.get("pt");
-    }
-    if (msg == null) {
-      // TODO: Return Optional and handle empty strings in client code.
-      msg = "<Untitled>";
-    }
-    return msg;
-  }
 }

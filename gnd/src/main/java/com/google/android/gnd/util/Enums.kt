@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.util
 
-package com.google.android.gnd.util;
-
-import java.util.Locale;
-
-public abstract class Enums {
-  /** Do not instantiate. */
-  private Enums() {}
-
-  public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
-    try {
-      return Enum.valueOf(enumClass, value.toUpperCase(Locale.ENGLISH));
-    } catch (IllegalArgumentException e) {
-      return enumClass.getEnumConstants()[0];
+object Enums {
+    @JvmStatic
+    fun <T : Enum<T>> toEnum(enumClass: Class<T>, value: String): T? {
+        return try {
+            java.lang.Enum.valueOf(enumClass, value.uppercase())
+        } catch (e: IllegalArgumentException) {
+            enumClass.enumConstants?.get(0)
+        }
     }
-  }
 }
