@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -54,7 +55,8 @@ public abstract class BaseMainActivityTest {
 
   // Provide location permission.
   @Rule(order = 3)
-  public GrantPermissionRule permissionRule = GrantPermissionRule.grant(ACCESS_FINE_LOCATION);
+  public GrantPermissionRule permissionRule =
+      GrantPermissionRule.grant(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION);
 
   // Load the MainActivity for each test.
   @Rule(order = 4)
