@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.util
 
-package com.google.android.gnd.util;
-
-import java.util.Locale;
-
-public abstract class Enums {
-  /** Do not instantiate. */
-  private Enums() {}
-
-  public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
-    try {
-      return Enum.valueOf(enumClass, value.toUpperCase(Locale.ENGLISH));
-    } catch (IllegalArgumentException e) {
-      return enumClass.getEnumConstants()[0];
+object Localization {
+    @JvmStatic
+    fun getLocalizedMessage(messages: Map<String, String>): String {
+        // TODO(#711): Allow user to select project/form language and use here.
+        // TODO: Return Optional and handle empty strings in client code.
+        return messages["_"] ?: messages["en"] ?: messages["pt"] ?: "<Untitled>"
     }
-  }
 }
