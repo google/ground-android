@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.util
 
-package com.google.android.gnd.util;
+import timber.log.Timber
 
-import timber.log.Timber;
-
-public abstract class Debug {
-  /** Do not instantiate. */
-  private Debug() {}
-
-  public static void logLifecycleEvent(Object instance) {
-    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-    String callingMethod = stackTrace[3].getMethodName() + "()";
-    Timber.tag(instance.getClass().getSimpleName()).v("Lifecycle event: %s", callingMethod);
-  }
+object Debug {
+    fun logLifecycleEvent(instance: Any) {
+        val stackTrace = Thread.currentThread().stackTrace
+        val callingMethod = stackTrace[3].methodName + "()"
+        Timber.tag(instance.javaClass.simpleName).v("Lifecycle event: $callingMethod")
+    }
 }
