@@ -38,7 +38,6 @@ object NetworkManager {
      * in error if not.
      */
     @JvmStatic
-    fun requireActiveNetwork(context: Context): Completable {
-        return completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
-    }
+    fun requireActiveNetwork(context: Context): Completable =
+        completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
 }

@@ -43,11 +43,10 @@ class GeocodingManager @Inject constructor(
      *
      * If no area name is found for the given area, returns a default value.
      */
-    fun getAreaName(bounds: LatLngBounds): @Cold Single<String> {
-        return Single.fromCallable { getAreaNameInternal(bounds) }
+    fun getAreaName(bounds: LatLngBounds): @Cold Single<String> =
+        Single.fromCallable { getAreaNameInternal(bounds) }
             .doOnError { Timber.e(it, "Couldn't get address for bounds: $bounds") }
             .subscribeOn(schedulers.io())
-    }
 
     @Throws(AddressNotFoundException::class, IOException::class)
     private fun getAreaNameInternal(bounds: LatLngBounds): String {

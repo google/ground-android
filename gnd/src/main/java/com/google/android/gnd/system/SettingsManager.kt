@@ -56,20 +56,19 @@ class SettingsManager @Inject constructor(
             .onErrorResumeNext { onCheckSettingsFailure(it) }
     }
 
-    private fun onCheckSettingsFailure(throwable: Throwable): Completable {
-        return if (throwable is ResolvableApiException) {
+    private fun onCheckSettingsFailure(throwable: Throwable): Completable =
+        if (throwable is ResolvableApiException) {
             val requestCode = LOCATION_SETTINGS_REQUEST_CODE
             startResolution(requestCode, throwable).andThen(getNextResult(requestCode))
         } else {
             Completable.error(throwable)
         }
-    }
 
     private fun startResolution(
         requestCode: Int,
         resolvableException: ResolvableApiException
-    ): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
+    ): Completable =
+        Completable.create { emitter: CompletableEmitter ->
             Timber.d("Prompting user to enable settings")
             activityStreams.withActivity {
                 try {
@@ -80,18 +79,15 @@ class SettingsManager @Inject constructor(
                 }
             }
         }
-    }
 
-    private fun getNextResult(requestCode: Int): Completable {
-        return activityStreams
+    private fun getNextResult(requestCode: Int): Completable =
+        activityStreams
             .getNextActivityResult(requestCode)
             .flatMapCompletable {
                 completeOrError({ it.isOk() }, SettingsChangeRequestCanceled::class.java)
             }
             .doOnComplete { Timber.d("Settings change request successful") }
             .doOnError { Timber.e(it, "Settings change request failed") }
-    }
-
 }
 
 class SettingsChangeRequestCanceled : Exception()

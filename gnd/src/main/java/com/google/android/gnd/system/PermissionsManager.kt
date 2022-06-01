@@ -41,16 +41,15 @@ class PermissionsManager @Inject constructor(
      * already been granted, completes immediately, otherwise completes once the next permissions
      * result is received.
      */
-    fun obtainPermission(permission: String): @Cold Completable {
-        return completeIf { requestPermission(permission) }.ambWith(getPermissionsResult(permission))
-    }
+    fun obtainPermission(permission: String): @Cold Completable =
+        completeIf { requestPermission(permission) }.ambWith(getPermissionsResult(permission))
 
     /**
      * Sends the system request that the app be granted the specified permission. Returns `true`
      * if the permission was already granted.
      */
-    private fun requestPermission(permission: String): Boolean {
-        return if (isGranted(permission)) {
+    private fun requestPermission(permission: String): Boolean =
+        if (isGranted(permission)) {
             Timber.d("%s already granted", permission)
             true
         } else {
@@ -64,24 +63,21 @@ class PermissionsManager @Inject constructor(
             }
             false
         }
-    }
 
     /** Returns `true` iff the app has been granted the specified permission.  */
-    private fun isGranted(permission: String): Boolean {
-        return checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
-    }
+    private fun isGranted(permission: String): Boolean =
+        checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
     /**
      * Returns a [Completable] that completes once the specified permission is granted or
      * terminates with error [PermissionDeniedException] if the requested permission was denied.
      */
-    private fun getPermissionsResult(permission: String): @Cold Completable {
-        return activityStreams
+    private fun getPermissionsResult(permission: String): @Cold Completable =
+        activityStreams
             .getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
             .flatMapCompletable { r: RequestPermissionsResult ->
                 completeOrError({ r.isGranted(permission) }, PermissionDeniedException::class.java)
             }
-    }
 
     companion object {
         @JvmField

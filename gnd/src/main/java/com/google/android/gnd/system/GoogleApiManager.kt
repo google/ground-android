@@ -42,8 +42,8 @@ class GoogleApiManager @Inject constructor(
     fun installGooglePlayServices(): Completable =
         requestInstallOrComplete().ambWith(getNextInstallApiResult())
 
-    private fun requestInstallOrComplete(): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
+    private fun requestInstallOrComplete(): Completable =
+        Completable.create { emitter: CompletableEmitter ->
             val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
             if (status == ConnectionResult.SUCCESS) {
                 emitter.onComplete()
@@ -59,8 +59,6 @@ class GoogleApiManager @Inject constructor(
                 emitter.onError(Exception()) // TODO: Throw appropriate Exception.
             }
         }
-    }
-
 
     private fun getNextInstallApiResult(): Completable =
         activityStreams

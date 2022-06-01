@@ -97,10 +97,9 @@ class GoogleAuthenticationManager @Inject constructor(
         activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
     }
 
-    private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient {
+    private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
         // TODO: Use app context instead of activity?
-        return GoogleSignIn.getClient(activity, googleSignInOptions)
-    }
+        GoogleSignIn.getClient(activity, googleSignInOptions)
 
     private fun onActivityResult(activityResult: ActivityResult) {
         // The Task returned from getSignedInAccountFromIntent is always completed, so no need to
@@ -114,29 +113,25 @@ class GoogleAuthenticationManager @Inject constructor(
         }
     }
 
-    private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) {
+    private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
         firebaseAuth
             .signInWithCredential(getFirebaseAuthCredential(googleAccount))
             .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
             .addOnFailureListener { signInState.onNext(SignInState(it)) }
-    }
 
-    private fun onFirebaseAuthSuccess(authResult: AuthResult) {
-        // TODO: Store/update user profile in Firestore.
+    private fun onFirebaseAuthSuccess(authResult: AuthResult) =
+    // TODO: Store/update user profile in Firestore.
         // TODO: Store/update user profile and image locally.
         signInState.onNext(SignInState(authResult.user!!.toUser()))
-    }
 
-    private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential {
-        return GoogleAuthProvider.getCredential(googleAccount.idToken, null)
-    }
+    private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
+        GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-    private fun FirebaseUser.toUser(): User {
-        return User.builder()
+    private fun FirebaseUser.toUser(): User =
+        User.builder()
             .setId(uid)
             .setEmail(email)
             .setDisplayName(displayName)
             .setPhotoUrl(photoUrl.toString())
             .build()
-    }
 }

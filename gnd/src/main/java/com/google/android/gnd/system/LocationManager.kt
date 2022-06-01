@@ -57,14 +57,13 @@ class LocationManager @Inject constructor(
      * Returns the location update stream. New subscribers and downstream subscribers that can't keep
      * up will only see the latest location.
      */
-    fun getLocationUpdates(): Flowable<Location> {
-        // There sometimes noticeable latency between when location update request succeeds and when
-        // the first location update is received. Requesting the last know location is usually
-        // immediate, so we merge into the stream to reduce perceived latency.
-        return locationUpdates
+    fun getLocationUpdates(): Flowable<Location> =
+        locationUpdates
+            // There sometimes noticeable latency between when location update request succeeds and when
+            // the first location update is received. Requesting the last know location is usually
+            // immediate, so we merge into the stream to reduce perceived latency.
             .startWith(locationClient.lastLocation.toObservable())
             .toFlowable(BackpressureStrategy.LATEST)
-    }
 
     /**
      * Asynchronously try to enable location permissions and settings, and if successful, turns on
@@ -82,21 +81,16 @@ class LocationManager @Inject constructor(
     }
 
     private fun requestLocationUpdates() =
-        locationClient.requestLocationUpdates(
-            FINE_LOCATION_UPDATES_REQUEST,
-            locationUpdateCallback
-        )
+        locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback)
 
     // TODO: Request/remove updates on resume/pause.
     @Synchronized
-    fun disableLocationUpdates(): Single<BooleanOrError> {
-        // Ignore errors when removing location updates, usually caused by disabling the same callback
-        // multiple times.
-        return removeLocationUpdates()
+    fun disableLocationUpdates(): Single<BooleanOrError> =
+        removeLocationUpdates()
             .toSingle { falseValue() }
+            // Ignore errors as they are usually caused by disabling the same callback multiple times.
             .doOnError { Timber.e(it, "disableLocationUpdates") }
             .onErrorReturn { falseValue() }
-    }
 
     private fun removeLocationUpdates() =
         locationClient.removeLocationUpdates(locationUpdateCallback)
