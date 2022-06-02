@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.system.auth
 
-package com.google.android.gnd.system.auth;
+import com.google.android.gnd.model.User
+import io.reactivex.Observable
 
-import com.google.android.gnd.model.User;
-import io.reactivex.Observable;
+interface AuthenticationManager {
+    val signInState: Observable<SignInState>
+    val currentUser: User
 
-public interface AuthenticationManager {
-  Observable<SignInState> getSignInState();
-
-  void signOut();
-
-  User getCurrentUser();
-
-  void signIn();
-
-  void init();
+    fun init()
+    fun signIn()
+    fun signOut()
 }
