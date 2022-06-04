@@ -115,8 +115,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.userRepository = userRepository;
 
     surveyLoadingState =
-        LiveDataReactiveStreams.fromPublisher(
-            surveyRepository.getSurveyLoadingState().doAfterNext(this::onSurveyLoadingStateChange));
+        LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
     addFeatureResults =
         addFeatureRequests.switchMapSingle(
             mutation ->
@@ -133,11 +132,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
         updateFeatureRequests.switchMapSingle(
             mutation ->
                 toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
-  }
-
-  /** Handle state of the UI elements depending upon the active survey. */
-  private void onSurveyLoadingStateChange(Loadable<Survey> survey) {
-    // TODO: Implement once UX is finalized
   }
 
   @Hot
