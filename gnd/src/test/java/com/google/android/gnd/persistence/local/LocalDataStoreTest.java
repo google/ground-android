@@ -34,7 +34,7 @@ import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
@@ -82,15 +82,15 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setElements(ImmutableList.of(Element.ofField(TEST_FIELD)))
           .build();
 
-  private static final Layer TEST_LAYER =
-      Layer.newBuilder().setId("layer id").setName("heading title").setForm(TEST_FORM).build();
+  private static final Job TEST_JOB =
+      Job.newBuilder().setId("layer id").setName("heading title").setForm(TEST_FORM).build();
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
           .setId("survey id")
           .setTitle("survey 1")
           .setDescription("foo description")
-          .putLayer(TEST_LAYER)
+          .putLayer(TEST_JOB)
           .build();
 
   private static final Point TEST_POINT =
@@ -252,15 +252,15 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testRemovedLayerFromSurvey() {
-    Layer layer1 = Layer.newBuilder().setId("layer 1").setName("layer 1 name").build();
-    Layer layer2 = Layer.newBuilder().setId("layer 2").setName("layer 2 name").build();
+    Job job1 = Job.newBuilder().setId("layer 1").setName("layer 1 name").build();
+    Job job2 = Job.newBuilder().setId("layer 2").setName("layer 2 name").build();
 
     Survey survey =
         Survey.newBuilder()
             .setId("foo id")
             .setTitle("foo survey")
             .setDescription("foo survey description")
-            .putLayer(layer1)
+            .putLayer(job1)
             .build();
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
 
@@ -269,14 +269,14 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .setId("foo id")
             .setTitle("foo survey")
             .setDescription("foo survey description")
-            .putLayer(layer2)
+            .putLayer(job2)
             .build();
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
 
     localDataStore
         .getSurveyById("foo id")
         .test()
-        .assertValue(result -> result.getLayers().equals(ImmutableList.of(layer2)));
+        .assertValue(result -> result.getLayers().equals(ImmutableList.of(job2)));
   }
 
   @Test

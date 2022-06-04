@@ -39,7 +39,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -84,7 +84,7 @@ public class FeatureConverterTest {
           new Timestamp(new Date(200)),
           new Timestamp(new Date(201)));
 
-  private Layer layer;
+  private Job job;
   private Survey survey;
   private Feature feature;
   private Map<String, Object> geometry;
@@ -96,8 +96,8 @@ public class FeatureConverterTest {
             .setId(formId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
-    layer = newLayer().setId(layerId).setForm(form).build();
-    survey = newSurvey().putLayer(layer).build();
+    job = newLayer().setId(layerId).setForm(form).build();
+    survey = newSurvey().putLayer(job).build();
   }
 
   @Test
@@ -225,7 +225,7 @@ public class FeatureConverterTest {
             .setVertices(newPolygonVertices())
             .setId(featureId)
             .setSurvey(survey)
-            .setLayer(layer)
+            .setLayer(job)
             .build();
   }
 

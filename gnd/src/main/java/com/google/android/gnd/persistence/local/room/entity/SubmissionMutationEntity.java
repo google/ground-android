@@ -25,7 +25,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
@@ -141,7 +141,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   }
 
   public SubmissionMutation toMutation(Survey survey) throws LocalDataConsistencyException {
-    Layer layer =
+    Job job =
         survey
             .getLayer(getLayerId())
             .orElseThrow(
@@ -149,7 +149,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
                     new LocalDataConsistencyException(
                         "Unknown layerId in  in submission mutation " + getId()));
     Form form =
-        layer
+        job
             .getForm(getFormId())
             .orElseThrow(
                 () ->

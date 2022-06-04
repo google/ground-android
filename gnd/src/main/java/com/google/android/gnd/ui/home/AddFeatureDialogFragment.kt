@@ -24,44 +24,43 @@ import com.google.android.gnd.R
 import androidx.appcompat.app.AlertDialog
 import androidx.core.util.Consumer
 import androidx.fragment.app.FragmentManager
-import com.google.android.gnd.model.layer.Layer
+import com.google.android.gnd.model.layer.Job
 
 @AndroidEntryPoint
 class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() {
 
     private val fragmentTag = AddFeatureDialogFragment::class.java.simpleName
-    private lateinit var layerConsumer: Consumer<Layer>
-    private lateinit var layers: List<Layer>
+    private lateinit var jobConsumer: Consumer<Job>
+    private lateinit var jobs: List<Job>
 
     fun show(
-        layers: List<Layer>,
+        jobs: List<Job>,
         fragmentManager: FragmentManager,
-        layerConsumer: Consumer<Layer>
+        jobConsumer: Consumer<Job>
     ) {
-        this.layers = layers
-        this.layerConsumer = layerConsumer
+        this.jobs = jobs
+        this.jobConsumer = jobConsumer
         show(fragmentManager, fragmentTag)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
-
-        return createDialog(sortByName(layers), layerConsumer)
+        return createDialog(sortByName(jobs), jobConsumer)
     }
 
-    private fun sortByName(layers: List<Layer>): List<Layer> = layers.sortedBy { it.name }
+    private fun sortByName(jobs: List<Job>): List<Job> = jobs.sortedBy { it.name }
 
-    private fun getLayerNames(layers: List<Layer>): List<String> = layers.map { it.name }
+    private fun getLayerNames(jobs: List<Job>): List<String> = jobs.map { it.name }
 
     private fun createDialog(
-        layers: List<Layer>,
-        layerConsumer: Consumer<Layer>
+        jobs: List<Job>,
+        jobConsumer: Consumer<Job>
     ): Dialog {
         // TODO: Add icons.
         return AlertDialog.Builder(requireContext())
             .setTitle(R.string.add_feature_select_type_dialog_title)
             .setNegativeButton(R.string.cancel) { _, _ -> dismiss() }
-            .setItems(getLayerNames(layers).toTypedArray()) { _, index -> layerConsumer.accept(layers[index]) }
+            .setItems(getLayerNames(jobs).toTypedArray()) { _, index -> jobConsumer.accept(jobs[index]) }
             .create()
     }
 }

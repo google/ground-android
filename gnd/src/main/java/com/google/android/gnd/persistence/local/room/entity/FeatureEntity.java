@@ -33,7 +33,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
@@ -196,7 +196,7 @@ public abstract class FeatureEntity {
       Feature.Builder builder, FeatureEntity featureEntity, Survey survey) {
     String id = featureEntity.getId();
     String layerId = featureEntity.getLayerId();
-    Layer layer =
+    Job job =
         survey
             .getLayer(layerId)
             .orElseThrow(
@@ -206,7 +206,7 @@ public abstract class FeatureEntity {
     builder
         .setId(id)
         .setSurvey(survey)
-        .setLayer(layer)
+        .setLayer(job)
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()));
   }

@@ -34,7 +34,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
@@ -178,17 +178,17 @@ public class RoomLocalDataStore implements LocalDataStore {
         .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
   }
 
-  private Completable insertOrUpdateLayer(String surveyId, Layer layer) {
+  private Completable insertOrUpdateLayer(String surveyId, Job job) {
     return layerDao
-        .insertOrUpdate(LayerEntity.fromLayer(surveyId, layer))
+        .insertOrUpdate(LayerEntity.fromLayer(surveyId, job))
         .andThen(
             insertOrUpdateForms(
-                layer.getId(), layer.getForm().map(Arrays::asList).orElseGet(ArrayList::new)))
+                job.getId(), job.getForm().map(Arrays::asList).orElseGet(ArrayList::new)))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateLayers(String surveyId, List<Layer> layers) {
-    return Observable.fromIterable(layers)
+  private Completable insertOrUpdateLayers(String surveyId, List<Job> jobs) {
+    return Observable.fromIterable(jobs)
         .flatMapCompletable(layer -> insertOrUpdateLayer(surveyId, layer));
   }
 

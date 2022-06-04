@@ -23,7 +23,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.auto.value.AutoValue;
@@ -57,18 +57,18 @@ public abstract class LayerEntity {
   @ColumnInfo(name = "survey_id")
   public abstract String getSurveyId();
 
-  public static LayerEntity fromLayer(String surveyId, Layer layer) {
+  public static LayerEntity fromLayer(String surveyId, Job job) {
     return LayerEntity.builder()
-        .setId(layer.getId())
+        .setId(job.getId())
         .setSurveyId(surveyId)
-        .setName(layer.getName())
+        .setName(job.getName())
         .build();
   }
 
-  static Layer toLayer(LayerEntityAndRelations layerEntityAndRelations) {
+  static Job toLayer(LayerEntityAndRelations layerEntityAndRelations) {
     LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
-    Layer.Builder layerBuilder =
-        Layer.newBuilder()
+    Job.Builder layerBuilder =
+        Job.newBuilder()
             .setId(layerEntity.getId())
             .setName(layerEntity.getName());
 

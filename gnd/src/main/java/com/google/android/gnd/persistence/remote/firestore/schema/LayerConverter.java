@@ -18,14 +18,14 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Job;
 import timber.log.Timber;
 
-/** Converts between Firestore documents and {@link Layer} instances. */
+/** Converts between Firestore documents and {@link Job} instances. */
 class LayerConverter {
 
-  static Layer toLayer(String id, LayerNestedObject obj) {
-    Layer.Builder layer = Layer.newBuilder();
+  static Job toLayer(String id, LayerNestedObject obj) {
+    Job.Builder layer = Job.newBuilder();
     layer.setId(id).setName(getLocalizedMessage(obj.getName()));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {

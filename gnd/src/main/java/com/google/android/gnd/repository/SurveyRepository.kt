@@ -19,7 +19,7 @@ import com.google.android.gnd.model.Role
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.User
 import com.google.android.gnd.model.feature.FeatureType
-import com.google.android.gnd.model.layer.Layer
+import com.google.android.gnd.model.layer.Job
 import com.google.android.gnd.model.mutation.Mutation
 import com.google.android.gnd.persistence.local.LocalDataStore
 import com.google.android.gnd.persistence.local.LocalValueStore
@@ -103,7 +103,7 @@ class SurveyRepository @Inject constructor(
     private fun attachLayerPermissions(survey: Survey): Survey {
         val userRole = userRepository.getUserRole(survey)
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
-        val layers: ImmutableMap.Builder<String, Layer> = ImmutableMap.builder()
+        val layers: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
         for (layer in survey.layers) {
             layers.put(
                 layer.id,
@@ -152,7 +152,7 @@ class SurveyRepository @Inject constructor(
             .loadSurveySummaries(user)
             .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
 
-    fun getModifiableLayers(survey: Survey): ImmutableList<Layer> =
+    fun getModifiableLayers(survey: Survey): ImmutableList<Job> =
         survey.layers
             .filter { !it.userCanAdd.isEmpty() }
             .toImmutableList()
