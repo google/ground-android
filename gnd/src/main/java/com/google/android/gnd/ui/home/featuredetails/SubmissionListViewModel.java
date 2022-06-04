@@ -66,7 +66,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
    * Loads a list of submissions associated with a given feature.
    */
   public void loadSubmissionList(Feature feature) {
-    Optional<Form> form = feature.getLayer().getForm();
+    Optional<Form> form = feature.getJob().getForm();
     loadSubmissions(feature.getSurvey(), feature.getId(), form.map(Form::getId));
   }
 

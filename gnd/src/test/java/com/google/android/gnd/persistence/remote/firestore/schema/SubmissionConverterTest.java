@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newForm;
-import static com.google.android.gnd.model.TestModelBuilders.newLayer;
+import static com.google.android.gnd.model.TestModelBuilders.newJob;
 import static com.google.android.gnd.model.TestModelBuilders.newPointFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
@@ -37,7 +37,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
@@ -274,8 +274,8 @@ public class SubmissionConverterTest {
             .setId(formId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
-    job = newLayer().setId(layerId).setForm(form).build();
-    survey = newSurvey().putLayer(job).build();
+    job = newJob().setId(layerId).setForm(form).build();
+    survey = newSurvey().putJob(job).build();
   }
 
   @Test
@@ -318,7 +318,7 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPointFeature().setId(featureId).setSurvey(survey).setLayer(job).build();
+    feature = newPointFeature().setId(featureId).setSurvey(survey).setJob(job).build();
   }
 
   /**

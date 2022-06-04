@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.layer;
+package com.google.android.gnd.model.job;
 
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.form.Form;

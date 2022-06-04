@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.repository;
 
-import static com.google.android.gnd.FakeData.newLayer;
+import static com.google.android.gnd.FakeData.newJob;
 import static com.google.android.gnd.FakeData.newSurvey;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -25,7 +25,7 @@ import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.FeatureType;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
@@ -64,9 +64,9 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testActivateSurvey_managersCanAddFeaturesToAllLayers() {
-    Job job = newLayer().setId("Layer").build();
-    setTestSurvey(newSurvey().putLayer(job).build());
+  public void testActivateSurvey_managersCanAddFeaturesToAllJobs() {
+    Job job = newJob().setId("job").build();
+    setTestSurvey(newSurvey().putJob(job).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
 
     surveyRepository.activateSurvey("id");
@@ -75,13 +75,13 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedJob)));
+        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
   }
 
   @Test
-  public void testActivateProject_ownersCanAddFeaturesToAllLayers() {
-    Job job = newLayer().setId("Layer").build();
-    setTestSurvey(newSurvey().putLayer(job).build());
+  public void testActivateProject_ownersCanAddFeaturesToAllJobs() {
+    Job job = newJob().setId("job").build();
+    setTestSurvey(newSurvey().putJob(job).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.OWNER);
 
     surveyRepository.activateSurvey("id");
@@ -90,13 +90,13 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedJob)));
+        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
   }
 
   @Test
-  public void testActivateProject_contributorsCannotAddFeaturesToAnyLayers() {
-    Job job = newLayer().setId("Layer").build();
-    setTestSurvey(newSurvey().putLayer(job).build());
+  public void testActivateProject_contributorsCannotAddFeaturesToAnyJobs() {
+    Job job = newJob().setId("job").build();
+    setTestSurvey(newSurvey().putJob(job).build());
     when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
 
     surveyRepository.activateSurvey("id");
@@ -105,7 +105,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getLayers().equals(ImmutableList.of(expectedJob)));
+        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
   }
 
   private void setTestSurvey(Survey survey) {

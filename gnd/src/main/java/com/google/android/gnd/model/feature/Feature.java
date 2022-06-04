@@ -19,7 +19,7 @@ package com.google.android.gnd.model.feature;
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
 import com.google.android.gnd.model.mutation.Mutation.Type;
@@ -46,7 +46,7 @@ public abstract class Feature<B extends Feature.Builder> {
 
   public abstract Survey getSurvey();
 
-  public abstract Job getLayer();
+  public abstract Job getJob();
 
   @Nullable
   public abstract String getCustomId();
@@ -67,7 +67,7 @@ public abstract class Feature<B extends Feature.Builder> {
         .setSyncStatus(SyncStatus.PENDING)
         .setSurveyId(getSurvey().getId())
         .setFeatureId(getId())
-        .setLayerId(getLayer().getId())
+        .setJobId(getJob().getId())
         .setUserId(userId)
         .setClientTimestamp(new Date())
         .build();
@@ -79,7 +79,7 @@ public abstract class Feature<B extends Feature.Builder> {
 
     public abstract T setSurvey(@NonNull Survey survey);
 
-    public abstract T setLayer(@NonNull Job newJob);
+    public abstract T setJob(@NonNull Job newJob);
 
     public abstract T setCustomId(@Nullable String newCustomId);
 

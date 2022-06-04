@@ -24,7 +24,7 @@ import com.google.android.gnd.R
 import androidx.appcompat.app.AlertDialog
 import androidx.core.util.Consumer
 import androidx.fragment.app.FragmentManager
-import com.google.android.gnd.model.layer.Job
+import com.google.android.gnd.model.job.Job
 
 @AndroidEntryPoint
 class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() {
@@ -50,7 +50,7 @@ class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() 
 
     private fun sortByName(jobs: List<Job>): List<Job> = jobs.sortedBy { it.name }
 
-    private fun getLayerNames(jobs: List<Job>): List<String> = jobs.map { it.name }
+    private fun getJobNames(jobs: List<Job>): List<String> = jobs.map { it.name }
 
     private fun createDialog(
         jobs: List<Job>,
@@ -60,7 +60,7 @@ class AddFeatureDialogFragment @Inject constructor() : AbstractDialogFragment() 
         return AlertDialog.Builder(requireContext())
             .setTitle(R.string.add_feature_select_type_dialog_title)
             .setNegativeButton(R.string.cancel) { _, _ -> dismiss() }
-            .setItems(getLayerNames(jobs).toTypedArray()) { _, index -> jobConsumer.accept(jobs[index]) }
+            .setItems(getJobNames(jobs).toTypedArray()) { _, index -> jobConsumer.accept(jobs[index]) }
             .create()
     }
 }

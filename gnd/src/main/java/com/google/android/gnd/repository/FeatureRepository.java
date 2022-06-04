@@ -136,7 +136,7 @@ public class FeatureRepository {
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setLayerId(layerId)
+        .setJobId(layerId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
@@ -150,7 +150,7 @@ public class FeatureRepository {
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setLayerId(layerId)
+        .setJobId(layerId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();

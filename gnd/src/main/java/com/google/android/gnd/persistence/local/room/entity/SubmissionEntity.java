@@ -133,7 +133,7 @@ public abstract class SubmissionEntity {
     String formId = submission.getFormId();
     Form form =
         feature
-            .getLayer()
+            .getJob()
             .getForm(formId)
             .orElseThrow(
                 () ->

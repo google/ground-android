@@ -30,7 +30,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.repository.FeatureRepository;
@@ -155,7 +155,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return false;
     }
     ImmutableList<Job> modifiableJobs =
-        surveyRepository.getModifiableLayers(loadingState.value().get());
+        surveyRepository.getModifiableJobs(loadingState.value().get());
     return !modifiableJobs.isEmpty();
   }
 
@@ -174,7 +174,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Survey survey = getActiveSurvey().get();
-    ImmutableList<Job> jobs = surveyRepository.getModifiableLayers(survey);
+    ImmutableList<Job> jobs = surveyRepository.getModifiableJobs(survey);
     // TODO: Pause location updates while dialog is open.
     showAddFeatureDialogRequests.onNext(Pair.create(jobs, point));
   }
@@ -218,7 +218,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
             surveyId ->
                 addFeatureRequests.onNext(
                     featureRepository.newPolygonFeatureMutation(
-                        surveyId, feature.getLayer().getId(), feature.getVertices(), new Date())),
+                        surveyId, feature.getJob().getId(), feature.getVertices(), new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -288,7 +288,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = optionalFeature.get();
-    Optional<Form> form = feature.getLayer().getForm();
+    Optional<Form> form = feature.getJob().getForm();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
       Timber.e("No forms in layer");

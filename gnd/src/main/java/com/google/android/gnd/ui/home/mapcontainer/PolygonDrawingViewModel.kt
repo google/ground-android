@@ -23,8 +23,8 @@ import com.google.android.gnd.model.AuditInfo
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.feature.Point
 import com.google.android.gnd.model.feature.PolygonFeature
-import com.google.android.gnd.model.layer.Job
-import com.google.android.gnd.model.layer.Style
+import com.google.android.gnd.model.job.Job
+import com.google.android.gnd.model.job.Style
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
 import com.google.android.gnd.rx.BooleanOrError
 import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
@@ -172,7 +172,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             .setId(polygon.id)
             .setVertices(polygon.vertices)
             .setSurvey(selectedSurvey.value!!)
-            .setLayer(selectedJob.value!!)
+            .setJob(selectedJob.value!!)
             .setCreated(auditInfo)
             .setLastModified(auditInfo)
             .build()

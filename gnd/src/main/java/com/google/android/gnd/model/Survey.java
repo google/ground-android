@@ -16,11 +16,9 @@
 
 package com.google.android.gnd.model;
 
-import static java8.util.J8Arrays.stream;
-
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.basemap.BaseMap;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,17 +35,17 @@ public abstract class Survey {
   public abstract String getDescription();
 
   @NonNull
-  protected abstract ImmutableMap<String, Job> getLayerMap();
+  protected abstract ImmutableMap<String, Job> getJobMap();
 
   @NonNull
   public abstract ImmutableList<BaseMap> getBaseMaps();
 
-  public ImmutableList<Job> getLayers() {
-    return getLayerMap().values().asList();
+  public ImmutableList<Job> getJobs() {
+    return getJobMap().values().asList();
   }
 
-  public Optional<Job> getLayer(String layerId) {
-    return Optional.ofNullable(getLayerMap().get(layerId));
+  public Optional<Job> getJob(String jobId) {
+    return Optional.ofNullable(getJobMap().get(jobId));
   }
 
   public abstract ImmutableMap<String, String> getAcl();
@@ -66,17 +64,12 @@ public abstract class Survey {
 
     public abstract Builder setDescription(String newDescription);
 
-    public abstract Builder setLayerMap(ImmutableMap newLayers);
+    public abstract Builder setJobMap(ImmutableMap newJob);
 
-    public abstract ImmutableMap.Builder<String, Job> layerMapBuilder();
+    public abstract ImmutableMap.Builder<String, Job> jobMapBuilder();
 
-    public Builder putLayer(Job job) {
-      layerMapBuilder().put(job.getId(), job);
-      return this;
-    }
-
-    public Builder putLayers(Job... jobs) {
-      stream(jobs).forEach(this::putLayer);
+    public Builder putJob(Job job) {
+      jobMapBuilder().put(job.getId(), job);
       return this;
     }
 

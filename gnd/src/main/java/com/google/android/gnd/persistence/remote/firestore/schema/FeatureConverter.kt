@@ -111,11 +111,11 @@ object FeatureConverter {
     private fun fillFeature(
         builder: Feature.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
     ) {
-        val layerId = DataStoreException.checkNotNull(featureDoc.layerId, LAYER_ID)
+        val layerId = DataStoreException.checkNotNull(featureDoc.jobId, LAYER_ID)
         val layer =
             DataStoreException.checkNotEmpty(
-                survey.getLayer(layerId),
-                "layer ${featureDoc.layerId}"
+                survey.getJob(layerId),
+                "layer ${featureDoc.jobId}"
             )
         // Degrade gracefully when audit info missing in remote db.
         val created = featureDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
@@ -125,7 +125,7 @@ object FeatureConverter {
             .setSurvey(survey)
             .setCustomId(featureDoc.customId)
             .setCaption(featureDoc.caption)
-            .setLayer(layer)
+            .setJob(layer)
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }

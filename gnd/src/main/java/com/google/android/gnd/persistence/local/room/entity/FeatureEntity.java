@@ -33,7 +33,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
@@ -68,8 +68,8 @@ public abstract class FeatureEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
+  @ColumnInfo(name = "job_id")
+  public abstract String getJobId();
 
   @CopyAnnotations
   @Nullable
@@ -109,7 +109,7 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
             .setSurveyId(mutation.getSurveyId())
-            .setLayerId(mutation.getLayerId())
+            .setJobId(mutation.getJobId())
             .setState(EntityState.DEFAULT)
             .setCreated(authInfo)
             .setLastModified(authInfo);
@@ -124,7 +124,7 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(feature.getId())
             .setSurveyId(feature.getSurvey().getId())
-            .setLayerId(feature.getLayer().getId())
+            .setJobId(feature.getJob().getId())
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
             .setLastModified(AuditInfoEntity.fromObject(feature.getLastModified()));
@@ -195,18 +195,18 @@ public abstract class FeatureEntity {
   public static void fillFeature(
       Feature.Builder builder, FeatureEntity featureEntity, Survey survey) {
     String id = featureEntity.getId();
-    String layerId = featureEntity.getLayerId();
+    String jobId = featureEntity.getJobId();
     Job job =
         survey
-            .getLayer(layerId)
+            .getJob(jobId)
             .orElseThrow(
                 () ->
                     new LocalDataConsistencyException(
-                        "Unknown layerId " + layerId + " in feature " + id));
+                        "Unknown jobId " + jobId + " in feature " + id));
     builder
         .setId(id)
         .setSurvey(survey)
-        .setLayer(job)
+        .setJob(job)
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()));
   }
@@ -218,7 +218,7 @@ public abstract class FeatureEntity {
   public static FeatureEntity create(
       String id,
       String surveyId,
-      String layerId,
+      String jobId,
       String geoJson,
       String polygonVertices,
       EntityState state,
@@ -228,7 +228,7 @@ public abstract class FeatureEntity {
     return builder()
         .setId(id)
         .setSurveyId(surveyId)
-        .setLayerId(layerId)
+        .setJobId(jobId)
         .setGeoJson(geoJson)
         .setPolygonVertices(polygonVertices)
         .setState(state)
@@ -249,7 +249,7 @@ public abstract class FeatureEntity {
 
     public abstract Builder setSurveyId(String newSurveyId);
 
-    public abstract Builder setLayerId(String newLayerId);
+    public abstract Builder setJobId(String newJobId);
 
     public abstract Builder setGeoJson(@Nullable String newGeoJson);
 

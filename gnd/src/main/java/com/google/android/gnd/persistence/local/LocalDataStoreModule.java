@@ -23,7 +23,7 @@ import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
 import com.google.android.gnd.persistence.local.room.dao.FormDao;
-import com.google.android.gnd.persistence.local.room.dao.LayerDao;
+import com.google.android.gnd.persistence.local.room.dao.JobDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
@@ -64,8 +64,8 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static LayerDao layerDao(LocalDatabase localDatabase) {
-    return localDatabase.layerDao();
+  static JobDao jobDao(LocalDatabase localDatabase) {
+    return localDatabase.jobDao();
   }
 
   @Provides

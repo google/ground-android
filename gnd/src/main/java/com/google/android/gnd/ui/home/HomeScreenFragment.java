@@ -55,7 +55,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Job;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -166,7 +166,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
+        .subscribe(args -> showAddFeatureJobSelector(args.first, args.second));
   }
 
   private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
@@ -181,18 +181,18 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showAddFeatureLayerSelector(ImmutableList<Job> jobs, Point mapCenter) {
+  private void showAddFeatureJobSelector(ImmutableList<Job> jobs, Point mapCenter) {
     // Skip layer selection if there's only one layer to which the user can add features.
     // TODO: Refactor and move logic into view model.
     if (jobs.size() == 1) {
-      onAddFeatureLayerSelected(jobs.get(0), mapCenter);
+      onAddFeatureJobSelected(jobs.get(0), mapCenter);
       return;
     }
     addFeatureDialogFragment.show(
-        jobs, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, mapCenter));
+        jobs, getChildFragmentManager(), layer -> onAddFeatureJobSelected(layer, mapCenter));
   }
 
-  private void onAddFeatureLayerSelected(Job job, Point mapCenter) {
+  private void onAddFeatureJobSelected(Job job, Point mapCenter) {
     if (job.getUserCanAdd().isEmpty()) {
       Timber.e(
           "User cannot add features to layer %s - layer list should not have been shown",
@@ -229,7 +229,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewSubmission(feature, form));
+    feature.getJob().getForm().ifPresent(form -> addNewSubmission(feature, form));
   }
 
   private void addNewSubmission(Feature feature, Form form) {
