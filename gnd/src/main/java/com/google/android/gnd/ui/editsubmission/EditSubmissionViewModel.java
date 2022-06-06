@@ -190,12 +190,12 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   }
 
   public @Nullable
-  String getSurveyId() {
+      String getSurveyId() {
     return originalSubmission == null ? null : originalSubmission.getSurvey().getId();
   }
 
   public @Nullable
-  String getSubmissionId() {
+      String getSubmissionId() {
     return originalSubmission == null ? null : originalSubmission.getId();
   }
 
