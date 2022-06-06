@@ -21,7 +21,9 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 import com.google.android.gnd.model.job.Job;
 import timber.log.Timber;
 
-/** Converts between Firestore documents and {@link Job} instances. */
+/**
+ * Converts between Firestore documents and {@link Job} instances.
+ */
 class JobConverter {
 
   static Job toJob(String id, JobNestedObject obj) {
@@ -31,8 +33,8 @@ class JobConverter {
       if (obj.getForms().size() > 1) {
         Timber.e("Multiple forms not supported");
       }
-      String formId = obj.getForms().keySet().iterator().next();
-      builder.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
+      String taskId = obj.getForms().keySet().iterator().next();
+      builder.setTask(FormConverter.toForm(taskId, obj.getForms().get(taskId)));
     }
     return builder.build();
   }

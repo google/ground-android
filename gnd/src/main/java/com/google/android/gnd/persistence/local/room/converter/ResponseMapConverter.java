@@ -18,9 +18,9 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.submission.ResponseMap;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import java.util.Iterator;
 import org.json.JSONException;
@@ -51,7 +51,7 @@ public class ResponseMapConverter {
   }
 
   @NonNull
-  public static ResponseMap fromString(Form form, @Nullable String jsonString) {
+  public static ResponseMap fromString(Task task, @Nullable String jsonString) {
     ResponseMap.Builder map = ResponseMap.builder();
     if (jsonString == null) {
       return map.build();
@@ -63,7 +63,7 @@ public class ResponseMapConverter {
         try {
           String fieldId = keys.next();
           Field field =
-              form.getField(fieldId)
+              task.getField(fieldId)
                   .orElseThrow(
                       () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
           ResponseJsonConverter.toResponse(field, jsonObject.get(fieldId))

@@ -34,11 +34,11 @@ public interface SubmissionDao extends BaseDao<SubmissionEntity> {
   Maybe<SubmissionEntity> findById(String submissionId);
 
   /**
-   * Returns the list submissions associated with the specified feature, form and state.
+   * Returns the list submissions associated with the specified feature, task and state.
    */
   @Query(
       "SELECT * FROM submission "
-          + "WHERE feature_id = :featureId AND form_id = :formId AND state = :state")
+          + "WHERE feature_id = :featureId AND task_id = :taskId AND state = :state")
   Single<List<SubmissionEntity>> findByFeatureId(
-      String featureId, String formId, EntityState state);
+      String featureId, String taskId, EntityState state);
 }

@@ -23,25 +23,25 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.room.relations.FieldEntityAndRelations;
-import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.relations.TaskEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
 
 @AutoValue
 @Entity(
-    tableName = "form",
+    tableName = "task",
     foreignKeys =
-        @ForeignKey(
-            entity = JobEntity.class,
-            parentColumns = "id",
-            childColumns = "job_id",
-            onDelete = ForeignKey.CASCADE),
+    @ForeignKey(
+        entity = JobEntity.class,
+        parentColumns = "id",
+        childColumns = "job_id",
+        onDelete = ForeignKey.CASCADE),
     indices = {@Index("job_id")})
-public abstract class FormEntity {
+public abstract class TaskEntity {
 
   @CopyAnnotations
   @NonNull
@@ -59,29 +59,29 @@ public abstract class FormEntity {
   @ColumnInfo(name = "job_id")
   public abstract String getJobId();
 
-  public static FormEntity fromForm(String jobId, Form form) {
-    return FormEntity.builder().setId(form.getId()).setJobId(jobId).build();
+  public static TaskEntity fromTask(String jobId, Task task) {
+    return TaskEntity.builder().setId(task.getId()).setJobId(jobId).build();
   }
 
-  static Form toForm(FormEntityAndRelations formEntityAndRelations) {
-    FormEntity formEntity = formEntityAndRelations.formEntity;
-    Form.Builder formBuilder = Form.newBuilder().setId(formEntity.getId());
+  static Task toTask(TaskEntityAndRelations taskEntityAndRelations) {
+    TaskEntity taskEntity = taskEntityAndRelations.taskEntity;
+    Task.Builder taskBuilder = Task.newBuilder().setId(taskEntity.getId());
 
     ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
     for (FieldEntityAndRelations fieldEntityAndRelations :
-        formEntityAndRelations.fieldEntityAndRelations) {
+        taskEntityAndRelations.fieldEntityAndRelations) {
       listBuilder.add(FieldEntity.toElement(fieldEntityAndRelations));
     }
 
-    return formBuilder.setElements(listBuilder.build()).build();
+    return taskBuilder.setElements(listBuilder.build()).build();
   }
 
-  public static FormEntity create(String id, String title, String jobId) {
+  public static TaskEntity create(String id, String title, String jobId) {
     return builder().setId(id).setTitle(title).setJobId(jobId).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_FormEntity.Builder();
+    return new AutoValue_TaskEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -93,6 +93,6 @@ public abstract class FormEntity {
 
     public abstract Builder setJobId(String jobId);
 
-    public abstract FormEntity build();
+    public abstract TaskEntity build();
   }
 }

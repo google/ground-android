@@ -28,21 +28,21 @@
   <!-- Title shown above list of jobs when (+) is clicked on map. -->
   <string name="add_feature_select_type_dialog_title">What would you like to add?</string>
 
-  <!-- Shown in toolbar when adding a new feature and form instance. -->
+  <!-- Shown in toolbar when adding a new feature and task instance. -->
   <string name="add_feature_toolbar_title">Add a feature</string>
-  <!-- Shown in toolbar when editing an existing submission (form instance). -->
+  <!-- Shown in toolbar when editing an existing submission (task instance). -->
   <string name="edit_feature_data_toolbar_title">Edit feature data</string>
-  <!-- Shown in toolbar when adding a new submission (form instance) to a feature. -->
+  <!-- Shown in toolbar when adding a new submission (task instance) to a feature. -->
   <string name="add_feature_data_toolbar_title">Add feature data</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Save changes before closing?</string>
   <!--
-    Shown when the user attempts to close the form without saving. If tapped, unsaved
+    Shown when the user attempts to close the task without saving. If tapped, unsaved
     changes will be saved.
   -->
   <string name="continue_editing">Continue editing</string>
   <!--
-    Shown when the user attempts to close the form without saving. If tapped, unsaved
+    Shown when the user attempts to close the task without saving. If tapped, unsaved
     changes will be lost.
   -->
   <string name="discard_changes">Discard changes</string>
@@ -55,7 +55,7 @@
     FEATURE DATA FORMS
   -->
 
-  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to form -->
+  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
   <string name="apply_multiple_choice_changes">Apply</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_field">This field is required</string>
@@ -73,13 +73,13 @@
     This will permanently delete the selected submission. This cannot be undone. Are you sure?
   </string>
   <!--
-    Shown above saved submissions (forms) that have been submitted. %1$s placeholder will already be
+    Shown above saved submissions (tasks) that have been submitted. %1$s placeholder will already be
     translated, and it will contain the "time ago" that the submission was received by the server
     (e.g., "Submitted 2 min ago").
    -->
   <string name="submitted_status">Submitted %1$s</string>
   <!--
-    Shown above saved submissions (forms) that have been submitted and subsequently modified. %1$s
+    Shown above saved submissions (tasks) that have been submitted and subsequently modified. %1$s
     placeholder will already be translated, and it will contain the "time ago" that the changes were
     last received by the server (e.g., "Updated 1 min ago").
    -->
@@ -117,8 +117,8 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Please enable location in system settings</string>
 
-  <!-- Shown when saving a form that contains missing or invalid data -->
-  <string name="invalid_data_warning">The form contains incomplete or invalid data. Please check
+  <!-- Shown when saving a task that contains missing or invalid data -->
+  <string name="invalid_data_warning">The task contains incomplete or invalid data. Please check
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.form;
+package com.google.android.gnd.model.task;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -23,9 +23,12 @@ import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java8.util.Optional;
 
-/** A {@link Field} with pre-defined options for the user to choose from. */
+/**
+ * A {@link Field} with pre-defined options for the user to choose from.
+ */
 @AutoValue
 public abstract class MultipleChoice implements Serializable {
+
   private static final long serialVersionUID = 1L;
 
   public enum Cardinality {
@@ -56,6 +59,7 @@ public abstract class MultipleChoice implements Serializable {
 
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setOptions(ImmutableList<Option> newOptions);
 
     public abstract Builder setCardinality(Cardinality newCardinality);

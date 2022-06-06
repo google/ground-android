@@ -29,10 +29,10 @@ import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -288,7 +288,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = optionalFeature.get();
-    Optional<Form> form = feature.getJob().getForm();
+    Optional<Task> form = feature.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
       Timber.e("No forms in layer");

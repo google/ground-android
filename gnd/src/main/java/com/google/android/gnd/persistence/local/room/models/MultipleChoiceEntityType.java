@@ -19,11 +19,13 @@ package com.google.android.gnd.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
-/** Defines how Room represents cardinality types in the local db. */
+/**
+ * Defines how Room represents cardinality types in the local db.
+ */
 public enum MultipleChoiceEntityType implements IntEnum {
   UNKNOWN(0),
   SELECT_ONE(1),

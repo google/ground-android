@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.form;
+package com.google.android.gnd.model.task;
 
 import com.google.auto.value.AutoValue;
 import java.io.Serializable;
 
-/** Describes a single valid option to a multiple choice question. */
+/**
+ * Describes a single valid option to a multiple choice question.
+ */
 @AutoValue
 public abstract class Option implements Serializable {
+
   private static final long serialVersionUID = 1L;
 
   public abstract String getId();
@@ -36,6 +39,7 @@ public abstract class Option implements Serializable {
 
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setId(String newId);
 
     public abstract Builder setCode(String newCode);

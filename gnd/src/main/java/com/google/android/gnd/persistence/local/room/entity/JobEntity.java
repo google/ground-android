@@ -24,8 +24,8 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.job.Job;
-import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.JobEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.relations.TaskEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -33,11 +33,11 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @Entity(
     tableName = "job",
     foreignKeys =
-        @ForeignKey(
-            entity = SurveyEntity.class,
-            parentColumns = "id",
-            childColumns = "survey_id",
-            onDelete = ForeignKey.CASCADE),
+    @ForeignKey(
+        entity = SurveyEntity.class,
+        parentColumns = "id",
+        childColumns = "survey_id",
+        onDelete = ForeignKey.CASCADE),
     indices = {@Index("survey_id")})
 public abstract class JobEntity {
 
@@ -69,9 +69,9 @@ public abstract class JobEntity {
     JobEntity jobEntity = jobEntityAndRelations.jobEntity;
     Job.Builder builder = Job.newBuilder().setId(jobEntity.getId()).setName(jobEntity.getName());
 
-    for (FormEntityAndRelations formEntityAndRelations :
-        jobEntityAndRelations.formEntityAndRelations) {
-      builder.setForm(FormEntity.toForm(formEntityAndRelations));
+    for (TaskEntityAndRelations taskEntityAndRelations :
+        jobEntityAndRelations.taskEntityAndRelations) {
+      builder.setTask(TaskEntity.toTask(taskEntityAndRelations));
     }
 
     return builder.build();

@@ -29,11 +29,6 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
@@ -43,6 +38,11 @@ import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.ResponseMap.Builder;
 import com.google.android.gnd.model.submission.Submission;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.Option;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
@@ -50,7 +50,6 @@ import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
-import com.google.android.gnd.persistence.local.room.dao.FormDao;
 import com.google.android.gnd.persistence.local.room.dao.JobDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
@@ -58,6 +57,7 @@ import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.SurveyDao;
+import com.google.android.gnd.persistence.local.room.dao.TaskDao;
 import com.google.android.gnd.persistence.local.room.dao.TileSetDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
@@ -65,7 +65,6 @@ import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
-import com.google.android.gnd.persistence.local.room.entity.FormEntity;
 import com.google.android.gnd.persistence.local.room.entity.JobEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
@@ -73,6 +72,7 @@ import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
+import com.google.android.gnd.persistence.local.room.entity.TaskEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -110,7 +110,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject OptionDao optionDao;
   @Inject MultipleChoiceDao multipleChoiceDao;
   @Inject FieldDao fieldDao;
-  @Inject FormDao formDao;
+  @Inject TaskDao taskDao;
   @Inject
   JobDao jobDao;
   @Inject SurveyDao surveyDao;
@@ -147,9 +147,9 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateField(String formId, Element.Type elementType, Field field) {
+  private Completable insertOrUpdateField(String taskId, Element.Type elementType, Field field) {
     return fieldDao
-        .insertOrUpdate(FieldEntity.fromField(formId, elementType, field))
+        .insertOrUpdate(FieldEntity.fromField(taskId, elementType, field))
         .andThen(
             Observable.just(field)
                 .filter(__ -> field.getMultipleChoice() != null)
@@ -160,31 +160,31 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
+  private Completable insertOrUpdateElements(String taskId, ImmutableList<Element> elements) {
     return Observable.fromIterable(elements)
         .filter(element -> element.getType() == Element.Type.FIELD)
         .flatMapCompletable(
-            element -> insertOrUpdateField(formId, element.getType(), element.getField()));
+            element -> insertOrUpdateField(taskId, element.getType(), element.getField()));
   }
 
-  private Completable insertOrUpdateForm(String jobId, Form form) {
-    return formDao
-        .insertOrUpdate(FormEntity.fromForm(jobId, form))
-        .andThen(insertOrUpdateElements(form.getId(), form.getElements()))
+  private Completable insertOrUpdateTask(String jobId, Task task) {
+    return taskDao
+        .insertOrUpdate(TaskEntity.fromTask(jobId, task))
+        .andThen(insertOrUpdateElements(task.getId(), task.getElements()))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateForms(String jobId, List<Form> forms) {
-    return Observable.fromIterable(forms)
-        .flatMapCompletable(form -> insertOrUpdateForm(jobId, form));
+  private Completable insertOrUpdateTasks(String jobId, List<Task> tasks) {
+    return Observable.fromIterable(tasks)
+        .flatMapCompletable(task -> insertOrUpdateTask(jobId, task));
   }
 
   private Completable insertOrUpdateJob(String surveyId, Job job) {
     return jobDao
         .insertOrUpdate(JobEntity.fomJob(surveyId, job))
         .andThen(
-            insertOrUpdateForms(
-                job.getId(), job.getForm().map(Arrays::asList).orElseGet(ArrayList::new)))
+            insertOrUpdateTasks(
+                job.getId(), job.getTask().map(Arrays::asList).orElseGet(ArrayList::new)))
         .subscribeOn(schedulers.io());
   }
 
@@ -297,9 +297,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Submission>> getSubmissions(Feature feature, String formId) {
+  public Single<ImmutableList<Submission>> getSubmissions(Feature feature, String taskId) {
     return submissionDao
-        .findByFeatureId(feature.getId(), formId, EntityState.DEFAULT)
+        .findByFeatureId(feature.getId(), taskId, EntityState.DEFAULT)
         .map(submissionEntities -> toSubmissions(feature, submissionEntities))
         .subscribeOn(schedulers.io());
   }
@@ -465,30 +465,30 @@ public class RoomLocalDataStore implements LocalDataStore {
             MutationEntitySyncStatus.PENDING,
             MutationEntitySyncStatus.IN_PROGRESS)
         .flatMapCompletable(
-            mutations -> mergeSubmission(submission.getForm(), submissionEntity, mutations))
+            mutations -> mergeSubmission(submission.getTask(), submissionEntity, mutations))
         .subscribeOn(schedulers.io());
   }
 
   private Completable mergeSubmission(
-      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
+      Task task, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
     if (mutations.isEmpty()) {
       return submissionDao.insertOrUpdate(submission);
     }
     SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     checkNotNull(lastMutation, "Could not get last mutation");
     return getUser(lastMutation.getUserId())
-        .map(user -> applyMutations(form, submission, mutations, user))
+        .map(user -> applyMutations(task, submission, mutations, user))
         .flatMapCompletable(obs -> submissionDao.insertOrUpdate(obs));
   }
 
   private SubmissionEntity applyMutations(
-      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations, User user) {
+      Task task, SubmissionEntity submission, List<SubmissionMutationEntity> mutations, User user) {
     SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging submission " + this + " with mutations " + mutations);
     SubmissionEntity.Builder builder = submission.toBuilder();
     builder.setResponses(
-        ResponseMapConverter.toString(applyMutations(form, submission, mutations)));
+        ResponseMapConverter.toString(applyMutations(task, submission, mutations)));
     // Update modified user and time.
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
@@ -501,13 +501,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private ResponseMap applyMutations(
-      Form form, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
+      Task task, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
     Builder responseMap =
-        ResponseMapConverter.fromString(form, submission.getResponses()).toBuilder();
+        ResponseMapConverter.fromString(task, submission.getResponses()).toBuilder();
     for (SubmissionMutationEntity mutation : mutations) {
       // Merge changes to responses.
       responseMap.applyDeltas(
-          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
+          ResponseDeltasConverter.fromString(task, mutation.getResponseDeltas()));
     }
     return responseMap.build();
   }
@@ -610,7 +610,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .findById(mutation.getSubmissionId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
         .switchIfEmpty(fallbackSubmission(mutation))
-        .map(obs -> applyMutations(mutation.getForm(), obs, ImmutableList.of(mutationEntity), user))
+        .map(obs -> applyMutations(mutation.getTask(), obs, ImmutableList.of(mutationEntity), user))
         .flatMapCompletable(obs -> submissionDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }

@@ -17,7 +17,7 @@
 package com.google.android.gnd.model.job;
 
 import com.google.android.gnd.model.feature.FeatureType;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
@@ -28,10 +28,10 @@ public abstract class Job {
 
   public abstract String getName();
 
-  public abstract Optional<Form> getForm();
+  public abstract Optional<Task> getTask();
 
-  public Optional<Form> getForm(String formId) {
-    return getForm().filter(form -> form.getId().equals(formId));
+  public Optional<Task> getTask(String taskId) {
+    return getTask().filter(task -> task.getId().equals(taskId));
   }
 
   /** Returns the list of feature types the current user may add to this layer. */
@@ -41,22 +41,23 @@ public abstract class Job {
 
   public static Builder newBuilder() {
     return new AutoValue_Job.Builder()
-        .setForm(Optional.empty())
+        .setTask(Optional.empty())
         .setUserCanAdd(ImmutableList.of());
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setId(String newId);
 
     public abstract Builder setName(String newName);
 
-    public abstract Builder setForm(Optional<Form> form);
+    public abstract Builder setTask(Optional<Task> task);
 
     public abstract Builder setUserCanAdd(ImmutableList<FeatureType> userCanAdd);
 
-    public Builder setForm(Form form) {
-      return setForm(Optional.of(form));
+    public Builder setTask(Task task) {
+      return setTask(Optional.of(task));
     }
 
     public abstract Job build();

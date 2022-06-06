@@ -27,7 +27,7 @@ import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
-import com.google.android.gnd.persistence.local.room.dao.FormDao;
+import com.google.android.gnd.persistence.local.room.dao.TaskDao;
 import com.google.android.gnd.persistence.local.room.dao.JobDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
@@ -41,7 +41,7 @@ import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
-import com.google.android.gnd.persistence.local.room.entity.FormEntity;
+import com.google.android.gnd.persistence.local.room.entity.TaskEntity;
 import com.google.android.gnd.persistence.local.room.entity.JobEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
@@ -72,7 +72,7 @@ import com.google.android.gnd.persistence.local.room.models.TileSetEntityState;
         FeatureEntity.class,
         FeatureMutationEntity.class,
         FieldEntity.class,
-        FormEntity.class,
+        TaskEntity.class,
         JobEntity.class,
         MultipleChoiceEntity.class,
         OptionEntity.class,
@@ -107,7 +107,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FieldDao fieldDao();
 
-  public abstract FormDao formDao();
+  public abstract TaskDao taskDao();
 
   public abstract JobDao jobDao();
 
