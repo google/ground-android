@@ -37,7 +37,7 @@ import timber.log.Timber;
 @Singleton
 public class LocalValueStore {
 
-  public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
+  public static final String ACTIVE_SURVEY_ID_KEY = "activeSurveyId";
   public static final String MAP_TYPE = "map_type";
   public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
   public static final String TOS_ACCEPTED = "tos_accepted";
@@ -50,15 +50,15 @@ public class LocalValueStore {
     this.preferences = preferences;
   }
 
-  /** Returns the id of the last project successfully activated by the user, or empty if not set. */
+  /** Returns the id of the last survey successfully activated by the user, or empty if not set. */
   @NonNull
-  public String getLastActiveProjectId() {
-    return preferences.getString(ACTIVE_PROJECT_ID_KEY, "");
+  public String getLastActiveSurveyId() {
+    return preferences.getString(ACTIVE_SURVEY_ID_KEY, "");
   }
 
-  /** Set the id of the last project successfully activated by the user. */
-  public void setLastActiveProjectId(@NonNull String id) {
-    preferences.edit().putString(ACTIVE_PROJECT_ID_KEY, id).apply();
+  /** Set the id of the last survey successfully activated by the user. */
+  public void setLastActiveSurveyId(@NonNull String id) {
+    preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply();
   }
 
   /** Removes all values stored in the local store. */
@@ -82,19 +82,19 @@ public class LocalValueStore {
     return preferences.getInt(MAP_TYPE, defaultType);
   }
 
-  public void setLastCameraPosition(String projectId, CameraPosition cameraPosition) {
+  public void setLastCameraPosition(String surveyId, CameraPosition cameraPosition) {
     Double[] values = {
       cameraPosition.getTarget().getLatitude(),
       cameraPosition.getTarget().getLongitude(),
       (double) cameraPosition.getZoomLevel()
     };
     String value = stream(values).map(String::valueOf).collect(Collectors.joining(","));
-    preferences.edit().putString(LAST_VIEWPORT_PREFIX + projectId, value).apply();
+    preferences.edit().putString(LAST_VIEWPORT_PREFIX + surveyId, value).apply();
   }
 
-  public Optional<CameraPosition> getLastCameraPosition(String projectId) {
+  public Optional<CameraPosition> getLastCameraPosition(String surveyId) {
     try {
-      String value = preferences.getString(LAST_VIEWPORT_PREFIX + projectId, "");
+      String value = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "");
       if (value == null || value.isEmpty()) {
         return Optional.empty();
       }

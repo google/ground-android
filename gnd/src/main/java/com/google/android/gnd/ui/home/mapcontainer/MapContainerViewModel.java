@@ -31,7 +31,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
@@ -41,7 +41,7 @@ import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineAreaRepository;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
@@ -81,7 +81,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
-  private final LiveData<Loadable<Project>> projectLoadingState;
+  private final LiveData<Loadable<Survey>> surveyLoadingState;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
@@ -91,7 +91,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
 
   private final Resources resources;
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
@@ -141,13 +141,13 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Inject
   MapContainerViewModel(
       Resources resources,
-      ProjectRepository projectRepository,
+      SurveyRepository surveyRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
       OfflineAreaRepository offlineAreaRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.resources = resources;
-    this.projectRepository = projectRepository;
+    this.surveyRepository = surveyRepository;
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
@@ -171,16 +171,16 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.projectLoadingState =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
+    this.surveyLoadingState =
+        LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
     // Features that are persisted to the local and remote dbs.
     Flowable<ImmutableSet<MapFeature>> savedMapFeatures =
         Flowable.combineLatest(
-            projectRepository
-                .getActiveProject()
+            surveyRepository
+                .getActiveSurvey()
                 .switchMap(this::getFeaturesStream)
                 .map(this::toMapFeatures),
             selectedFeature,
@@ -200,7 +200,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             offlineAreaRepository
                 .getDownloadedTileSetsOnceAndStream()
                 .map(set -> stream(set).map(TileSet::getPath).collect(toImmutableSet())));
-    disposeOnClear(projectRepository.getActiveProject().subscribe(this::onProjectChange));
+    disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onProjectChange));
   }
 
   private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
@@ -227,10 +227,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private void onProjectChange(Optional<Project> project) {
+  private void onProjectChange(Optional<Survey> project) {
     project
-        .map(Project::getId)
-        .flatMap(projectRepository::getLastCameraPosition)
+        .map(Survey::getId)
+        .flatMap(surveyRepository::getLastCameraPosition)
         .ifPresent(this::panAndZoomCamera);
   }
 
@@ -338,11 +338,18 @@ public class MapContainerViewModel extends AbstractViewModel {
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
     Flowable<Point> locationUpdates =
-        locationManager.getLocationUpdates().map(LocationManager::toPoint);
+        locationManager.getLocationUpdates().map(MapContainerViewModel::toPoint);
     return locationUpdates
         .take(1)
         .map(CameraUpdate::panAndZoomIn)
         .concatWith(locationUpdates.map(CameraUpdate::pan).skip(1));
+  }
+
+  private static Point toPoint(Location location) {
+    return Point.newBuilder()
+        .setLatitude(location.getLatitude())
+        .setLongitude(location.getLongitude())
+        .build();
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
@@ -355,7 +362,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
-  private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Project> activeProject) {
+  private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Survey> activeProject) {
     // Emit empty set in separate stream to force unsubscribe from Feature updates and update
     // subscribers.
     return activeProject
@@ -363,8 +370,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 
-  public LiveData<Loadable<Project>> getProjectLoadingState() {
-    return projectLoadingState;
+  public LiveData<Loadable<Survey>> getSurveyLoadingState() {
+    return surveyLoadingState;
   }
 
   public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
@@ -408,9 +415,9 @@ public class MapContainerViewModel extends AbstractViewModel {
     Timber.d("Setting position to %s", newCameraPosition.toString());
     onZoomChange(cameraPosition.getValue().getZoomLevel(), newCameraPosition.getZoomLevel());
     cameraPosition.setValue(newCameraPosition);
-    Loadable.getValue(projectLoadingState)
+    Loadable.getValue(surveyLoadingState)
         .ifPresent(
-            project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
+            project -> surveyRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
   private void onZoomChange(float oldZoomLevel, float newZoomLevel) {

@@ -15,21 +15,21 @@
  */
 package com.google.android.gnd.ui.home
 
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import com.google.android.gnd.BaseHiltTest
-import org.junit.Before
-import com.google.android.gnd.MainActivity
-import org.robolectric.Robolectric
-import org.robolectric.Shadows
 import android.os.Looper
 import android.view.View
+import com.google.android.gnd.BaseHiltTest
 import com.google.android.gnd.FakeData
-import com.google.common.truth.Truth.assertThat
+import com.google.android.gnd.MainActivity
 import com.google.android.gnd.model.feature.FeatureType
 import com.google.common.collect.ImmutableList
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -54,11 +54,11 @@ class AddFeatureDialogFragmentTest : BaseHiltTest() {
 
         val layer1 = FakeData.newLayer()
             .setId("Layer 1")
-            .setContributorsCanAdd(ImmutableList.of(FeatureType.POINT))
+            .setUserCanAdd(ImmutableList.of(FeatureType.POINT))
             .build()
         val layer2 = FakeData.newLayer()
             .setId("Layer 2")
-            .setContributorsCanAdd(ImmutableList.of(FeatureType.POLYGON))
+            .setUserCanAdd(ImmutableList.of(FeatureType.POLYGON))
             .build()
         addFeatureDialogFragment.show(listOf(layer1, layer2), activity.supportFragmentManager
         ) { }

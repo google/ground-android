@@ -27,7 +27,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
@@ -53,7 +53,7 @@ import java8.util.stream.Collectors;
 @AutoValue
 @Entity(
     tableName = "feature",
-    indices = {@Index("project_id")})
+    indices = {@Index("survey_id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
   @NonNull
@@ -63,8 +63,8 @@ public abstract class FeatureEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
+  @ColumnInfo(name = "survey_id")
+  public abstract String getSurveyId();
 
   @CopyAnnotations
   @NonNull
@@ -108,7 +108,7 @@ public abstract class FeatureEntity {
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
-            .setProjectId(mutation.getProjectId())
+            .setSurveyId(mutation.getSurveyId())
             .setLayerId(mutation.getLayerId())
             .setState(EntityState.DEFAULT)
             .setCreated(authInfo)
@@ -123,7 +123,7 @@ public abstract class FeatureEntity {
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(feature.getId())
-            .setProjectId(feature.getProject().getId())
+            .setSurveyId(feature.getSurvey().getId())
             .setLayerId(feature.getLayer().getId())
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
@@ -138,25 +138,25 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+  public static Feature toFeature(FeatureEntity featureEntity, Survey survey) {
     if (featureEntity.getGeoJson() != null) {
       GeoJsonFeature.Builder builder =
           GeoJsonFeature.newBuilder().setGeoJsonString(featureEntity.getGeoJson());
-      fillFeature(builder, featureEntity, project);
+      fillFeature(builder, featureEntity, survey);
       return builder.build();
     }
 
     if (featureEntity.getLocation() != null) {
       PointFeature.Builder builder =
           PointFeature.newBuilder().setPoint(featureEntity.getLocation().toPoint());
-      fillFeature(builder, featureEntity, project);
+      fillFeature(builder, featureEntity, survey);
       return builder.build();
     }
 
     if (featureEntity.getPolygonVertices() != null) {
       PolygonFeature.Builder builder =
           PolygonFeature.builder().setVertices(parseVertices(featureEntity.getPolygonVertices()));
-      fillFeature(builder, featureEntity, project);
+      fillFeature(builder, featureEntity, survey);
       return builder.build();
     }
 
@@ -193,11 +193,11 @@ public abstract class FeatureEntity {
 
 
   public static void fillFeature(
-      Feature.Builder builder, FeatureEntity featureEntity, Project project) {
+      Feature.Builder builder, FeatureEntity featureEntity, Survey survey) {
     String id = featureEntity.getId();
     String layerId = featureEntity.getLayerId();
     Layer layer =
-        project
+        survey
             .getLayer(layerId)
             .orElseThrow(
                 () ->
@@ -205,7 +205,7 @@ public abstract class FeatureEntity {
                         "Unknown layerId " + layerId + " in feature " + id));
     builder
         .setId(id)
-        .setProject(project)
+        .setSurvey(survey)
         .setLayer(layer)
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()));
@@ -217,7 +217,7 @@ public abstract class FeatureEntity {
 
   public static FeatureEntity create(
       String id,
-      String projectId,
+      String surveyId,
       String layerId,
       String geoJson,
       String polygonVertices,
@@ -227,7 +227,7 @@ public abstract class FeatureEntity {
       AuditInfoEntity lastModified) {
     return builder()
         .setId(id)
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setLayerId(layerId)
         .setGeoJson(geoJson)
         .setPolygonVertices(polygonVertices)
@@ -247,7 +247,7 @@ public abstract class FeatureEntity {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setProjectId(String newProjectId);
+    public abstract Builder setSurveyId(String newSurveyId);
 
     public abstract Builder setLayerId(String newLayerId);
 

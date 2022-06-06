@@ -25,7 +25,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
@@ -42,16 +42,16 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private final LiveData<ImmutableList<Pair<Feature, Mutation>>> mutations;
   private final Navigator navigator;
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final FeatureRepository featureRepository;
 
   @Inject
   SyncStatusViewModel(
-      ProjectRepository projectRepository,
+      SurveyRepository surveyRepository,
       FeatureRepository featureRepository,
       Navigator navigator) {
     this.navigator = navigator;
-    this.projectRepository = projectRepository;
+    this.surveyRepository = surveyRepository;
     this.featureRepository = featureRepository;
 
     this.mutations =
@@ -69,17 +69,17 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private Single<Pair<Feature, Mutation>> loadFeatureAndPair(Mutation mutation) {
     return featureRepository
-        .getFeature(mutation.getProjectId(), mutation.getFeatureId())
+        .getFeature(mutation.getSurveyId(), mutation.getFeatureId())
         .map(feature -> Pair.create(feature, mutation));
   }
 
   private Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream() {
-    return projectRepository
-        .getActiveProject()
+    return surveyRepository
+        .getActiveSurvey()
         .switchMap(
-            project ->
-                project
-                    .map(projectRepository::getMutationsOnceAndStream)
+            survey ->
+                survey
+                    .map(surveyRepository::getMutationsOnceAndStream)
                     .orElse(Flowable.just(ImmutableList.of())));
   }
 

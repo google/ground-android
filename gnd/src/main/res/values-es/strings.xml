@@ -18,8 +18,8 @@
 
 <resources>
 
-  <!-- Message shown while project is loading. -->
-  <string name="project_loading_please_wait">Cargando proyecto, porfavor espere &#8230;</string>
+  <!-- Message shown while survey is loading. -->
+  <string name="survey_loading_please_wait">Cargando proyecto, porfavor espere &#8230;</string>
 
   <!--
     ADD/EDIT FEATURE DATA
@@ -124,8 +124,8 @@
   <string name="add_submission_button_label">Agregar registro</string>
   <string name="view_submission_details">Ver detalles del registro</string>
   <string name="map_view">Vista del mapa</string>
-  <string name="project_load_error">No se pudo cargar el proyecto</string>
-  <string name="project_list_load_error">Lista de proyectos no disponible</string>
+  <string name="survey_load_error">No se pudo cargar el proyecto</string>
+  <string name="survey_list_load_error">Lista de proyectos no disponible</string>
   <string name="unexpected_error">Ha ocurrido un error inesperado</string>
   <string name="edit_submission_button_label">Editar</string>
   <string name="save_submission_button_label">Guardar</string>
@@ -136,7 +136,7 @@
   <string name="sign_in_unsuccessful">Iniciar sesión sin éxito</string>
   <string name="sign_out">Salir</string>
   <string name="cancel">Cancelar</string>
-  <string name="join_project">Unirse al proyecto</string>
+  <string name="join_survey">Unirse al proyecto</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Mapas base sin conexión</string>

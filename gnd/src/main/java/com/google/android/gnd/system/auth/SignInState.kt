@@ -18,7 +18,7 @@ package com.google.android.gnd.system.auth
 import com.google.android.gnd.model.User
 import com.google.android.gnd.rx.ValueOrError
 
-class SignInState : ValueOrError<User?> {
+class SignInState : ValueOrError<User> {
     val state: State
     val user = value()
 

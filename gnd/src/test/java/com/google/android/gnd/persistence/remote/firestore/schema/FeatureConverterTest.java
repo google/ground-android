@@ -23,7 +23,7 @@ import static com.google.android.gnd.model.TestModelBuilders.newGeoPointPolygonV
 import static com.google.android.gnd.model.TestModelBuilders.newLayer;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonVertices;
-import static com.google.android.gnd.model.TestModelBuilders.newProject;
+import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.task.Element;
@@ -85,25 +85,25 @@ public class FeatureConverterTest {
           new Timestamp(new Date(201)));
 
   private Layer layer;
-  private Project project;
+  private Survey survey;
   private Feature feature;
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
-  private void setUpTestProject(String layerId, String taskId, Field... fields) {
+  private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
     Task task =
         newForm()
             .setId(taskId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
     layer = newLayer().setId(layerId).setTask(task).build();
-    project = newProject().putLayer(layer).build();
+    survey = newSurvey().putLayer(layer).build();
   }
 
   @Test
   public void testToFeature() {
     setUpTestGeometry();
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
@@ -142,7 +142,7 @@ public class FeatureConverterTest {
   @Test
   public void testToFeature_nullFeature() {
     setUpTestGeometry();
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
@@ -181,7 +181,7 @@ public class FeatureConverterTest {
   @Test
   public void testToFeature_zeroVertices() {
     setUpTestGeometry();
-    setUpTestProject(
+    setUpTestSurvey(
         "layer001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
@@ -224,7 +224,7 @@ public class FeatureConverterTest {
             .setLastModified(AUDIT_INFO_2)
             .setVertices(newPolygonVertices())
             .setId(featureId)
-            .setProject(project)
+            .setSurvey(survey)
             .setLayer(layer)
             .build();
   }
@@ -248,6 +248,6 @@ public class FeatureConverterTest {
   }
 
   private Feature toFeature() {
-    return FeatureConverter.toFeature(project, featureDocumentSnapshot);
+    return FeatureConverter.toFeature(survey, featureDocumentSnapshot);
   }
 }

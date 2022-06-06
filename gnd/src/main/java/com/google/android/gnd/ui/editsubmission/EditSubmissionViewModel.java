@@ -190,8 +190,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   }
 
   public @Nullable
-  String getProjectId() {
-    return originalSubmission == null ? null : originalSubmission.getProject().getId();
+  String getSurveyId() {
+    return originalSubmission == null ? null : originalSubmission.getSurvey().getId();
   }
 
   public @Nullable
@@ -269,13 +269,13 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   private Single<Submission> createSubmission(EditSubmissionFragmentArgs args) {
     return submissionRepository
-        .createSubmission(args.getProjectId(), args.getFeatureId(), args.getTaskId())
+        .createSubmission(args.getSurveyId(), args.getFeatureId(), args.getTaskId())
         .onErrorResumeNext(this::onError);
   }
 
   private Single<Submission> loadSubmission(EditSubmissionFragmentArgs args) {
     return submissionRepository
-        .getSubmission(args.getProjectId(), args.getFeatureId(), args.getSubmissionId())
+        .getSubmission(args.getSurveyId(), args.getFeatureId(), args.getSubmissionId())
         .onErrorResumeNext(this::onError);
   }
 

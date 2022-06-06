@@ -25,7 +25,7 @@ import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
@@ -34,7 +34,7 @@ import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Nil;
@@ -64,15 +64,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSubmissionButtonVisible = new MutableLiveData<>(false);
 
-  private final ProjectRepository projectRepository;
+  private final SurveyRepository surveyRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
 
-  /**
-   * The state and value of the currently active project (loading, loaded, etc.).
-   */
-  private final LiveData<Loadable<Project>> projectLoadingState;
+  /** The state and value of the currently active survey (loading, loaded, etc.). */
+  private final LiveData<Loadable<Survey>> surveyLoadingState;
 
   // TODO(#719): Move into FeatureDetailsViewModel.
   @Hot
@@ -114,20 +112,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Inject
   HomeScreenViewModel(
-      ProjectRepository projectRepository,
+      SurveyRepository surveyRepository,
       FeatureRepository featureRepository,
       Navigator navigator,
       UserRepository userRepository) {
-    this.projectRepository = projectRepository;
+    this.surveyRepository = surveyRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
     this.userRepository = userRepository;
 
-    projectLoadingState =
+    surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getProjectLoadingState()
-                .doAfterNext(this::onProjectLoadingStateChange));
+            surveyRepository.getSurveyLoadingState().doAfterNext(this::onSurveyLoadingStateChange));
     addFeatureResults =
         addFeatureRequests.switchMapSingle(
             mutation ->
@@ -146,22 +142,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
   }
 
-  /**
-   * Handle state of the UI elements depending upon the active project.
-   */
-  private void onProjectLoadingStateChange(Loadable<Project> project) {
-    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
+  /** Handle state of the UI elements depending upon the active survey. */
+  private void onSurveyLoadingStateChange(Loadable<Survey> survey) {
+    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(survey));
   }
 
-  private boolean shouldShowAddFeatureButton(Loadable<Project> loadingState) {
+  private boolean shouldShowAddFeatureButton(Loadable<Survey> loadingState) {
     // Project must contain at least one layer that the user can modify for add feature button to be
     // shown.
     if (loadingState.value().isEmpty()) {
-      // Don't show if no active project.
+      // Don't show if no active survey.
       return false;
     }
     ImmutableList<Layer> modifiableLayers =
-        projectRepository.getModifiableLayers(loadingState.value().get());
+        surveyRepository.getModifiableLayers(loadingState.value().get());
     return !modifiableLayers.isEmpty();
   }
 
@@ -175,12 +169,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onAddFeatureButtonClick(Point point) {
-    if (getActiveProject().isEmpty()) {
-      Timber.e("No active project");
+    if (getActiveSurvey().isEmpty()) {
+      Timber.e("No active survey");
       return;
     }
-    Project project = getActiveProject().get();
-    ImmutableList<Layer> layers = projectRepository.getModifiableLayers(project);
+    Survey survey = getActiveSurvey().get();
+    ImmutableList<Layer> layers = surveyRepository.getModifiableLayers(survey);
     // TODO: Pause location updates while dialog is open.
     showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
   }
@@ -206,27 +200,27 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void addFeature(Layer layer, Point point) {
-    getActiveProject()
-        .map(Project::getId)
+    getActiveSurvey()
+        .map(Survey::getId)
         .ifPresentOrElse(
-            projectId ->
+            surveyId ->
                 addFeatureRequests.onNext(
-                    featureRepository.newMutation(projectId, layer.getId(), point, new Date())),
+                    featureRepository.newMutation(surveyId, layer.getId(), point, new Date())),
             () -> {
-              throw new IllegalStateException("Empty project");
+              throw new IllegalStateException("Empty survey");
             });
   }
 
   public void addPolygonFeature(PolygonFeature feature) {
-    getActiveProject()
-        .map(Project::getId)
+    getActiveSurvey()
+        .map(Survey::getId)
         .ifPresentOrElse(
-            projectId ->
+            surveyId ->
                 addFeatureRequests.onNext(
                     featureRepository.newPolygonFeatureMutation(
-                        projectId, feature.getLayer().getId(), feature.getVertices(), new Date())),
+                        surveyId, feature.getLayer().getId(), feature.getVertices(), new Date())),
             () -> {
-              throw new IllegalStateException("Empty project");
+              throw new IllegalStateException("Empty survey");
             });
   }
 
@@ -240,8 +234,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
         feature.toMutation(Type.DELETE, userRepository.getCurrentUser().getId()));
   }
 
-  public boolean shouldShowProjectSelectorOnStart() {
-    return projectRepository.getLastActiveProjectId().isEmpty();
+  public boolean shouldShowSurveySelectorOnStart() {
+    return surveyRepository.getLastActiveSurveyId().isEmpty();
   }
 
   public Flowable<Nil> getOpenDrawerRequests() {
@@ -252,8 +246,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.onNext(NIL);
   }
 
-  public LiveData<Loadable<Project>> getProjectLoadingState() {
-    return projectLoadingState;
+  public LiveData<Loadable<Survey>> getSurveyLoadingState() {
+    return surveyLoadingState;
   }
 
   public LiveData<BottomSheetState> getBottomSheetState() {
@@ -300,19 +294,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("No forms in layer");
       return;
     }
-    Project project = feature.getProject();
-    if (project == null) {
-      Timber.e("Missing project");
+    Survey survey = feature.getSurvey();
+    if (survey == null) {
+      Timber.e("Missing survey");
       return;
     }
     navigator.navigate(
         HomeScreenFragmentDirections.addSubmission(
-            project.getId(), feature.getId(), form.get().getId()));
+            survey.getId(), feature.getId(), form.get().getId()));
   }
 
   public void init() {
-    // Last active project will be loaded once view subscribes to activeProject.
-    projectRepository.loadLastActiveProject();
+    // Last active survey will be loaded once view subscribes to activeProject.
+    surveyRepository.loadLastActiveSurvey();
   }
 
   public void showOfflineAreas() {
@@ -343,8 +337,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showFeatureSelectorRequests.onNext(features);
   }
 
-  public Optional<Project> getActiveProject() {
-    return Loadable.getValue(getProjectLoadingState());
+  public Optional<Survey> getActiveSurvey() {
+    return Loadable.getValue(getSurveyLoadingState());
   }
 
   public void showSyncStatus() {

@@ -90,7 +90,7 @@ public class SubmissionListFragment extends AbstractFragment {
   private void onItemClick(Submission submission) {
     navigator.navigate(
         HomeScreenFragmentDirections.showSubmissionDetails(
-            submission.getProject().getId(),
+            submission.getSurvey().getId(),
             submission.getFeature().getId(),
             submission.getId()));
   }

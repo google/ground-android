@@ -24,6 +24,6 @@ import io.reactivex.Completable;
 @Dao
 public interface BaseMapDao extends BaseDao<BaseMapEntity> {
 
-  @Query("DELETE FROM offline_base_map_source WHERE project_id = :projectId")
-  Completable deleteByProjectId(String projectId);
+  @Query("DELETE FROM offline_base_map_source WHERE survey_id = :surveyId")
+  Completable deleteBySurveyId(String surveyId);
 }

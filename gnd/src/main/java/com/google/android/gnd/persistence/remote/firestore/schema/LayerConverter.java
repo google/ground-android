@@ -16,13 +16,9 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
-import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.common.collect.ImmutableList;
 import timber.log.Timber;
 
 /**
@@ -40,24 +36,6 @@ class LayerConverter {
       String taskId = obj.getForms().keySet().iterator().next();
       layer.setTask(FormConverter.toForm(taskId, obj.getForms().get(taskId)));
     }
-    if (obj.getContributorsCanAdd() != null) {
-      ImmutableList<FeatureType> featureTypes =
-          stream(obj.getContributorsCanAdd())
-              .map(LayerConverter::toFeatureType)
-              .collect(toImmutableList());
-      layer.setContributorsCanAdd(featureTypes);
-    }
     return layer.build();
-  }
-
-  private static FeatureType toFeatureType(String stringValue) {
-    switch (stringValue) {
-      case "points":
-        return FeatureType.POINT;
-      case "polygons":
-        return FeatureType.POLYGON;
-      default:
-        return FeatureType.UNKNOWN;
-    }
   }
 }

@@ -35,16 +35,7 @@ public abstract class Layer {
     return getTask().filter(task -> task.getId().equals(taskId));
   }
 
-  /**
-   * Returns the list of feature types contributors may to add to this layer.
-   */
-  public abstract ImmutableList<FeatureType> getContributorsCanAdd();
-
-  /**
-   * Returns the list of feature types the current user may add to this layer. If the user has
-   * contributor role, this will be equivalent to `getContributorsCanAdd()`. For managers and
-   * owners, all possible `FeatureType`s will be return.
-   */
+  /** Returns the list of feature types the current user may add to this layer. */
   public abstract ImmutableList<FeatureType> getUserCanAdd();
 
   public abstract Builder toBuilder();
@@ -52,7 +43,6 @@ public abstract class Layer {
   public static Builder newBuilder() {
     return new AutoValue_Layer.Builder()
         .setTask(Optional.empty())
-        .setContributorsCanAdd(ImmutableList.of())
         .setUserCanAdd(ImmutableList.of());
   }
 
@@ -64,8 +54,6 @@ public abstract class Layer {
     public abstract Builder setName(String newName);
 
     public abstract Builder setTask(Optional<Task> task);
-
-    public abstract Builder setContributorsCanAdd(ImmutableList<FeatureType> contributorsCanAdd);
 
     public abstract Builder setUserCanAdd(ImmutableList<FeatureType> userCanAdd);
 

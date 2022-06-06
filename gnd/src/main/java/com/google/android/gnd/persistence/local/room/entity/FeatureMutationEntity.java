@@ -80,7 +80,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
-        .setProjectId(m.getProjectId())
+        .setSurveyId(m.getSurveyId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getLocation().map(Coordinates::fromPoint).orElse(null))
@@ -99,7 +99,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setPolygonVertices(parseVertices(getNewPolygonVertices()))
         .setId(getId())
-        .setProjectId(getProjectId())
+        .setSurveyId(getSurveyId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setType(getType().toMutationType())
@@ -113,7 +113,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   public static FeatureMutationEntity create(
       @Nullable Long id,
-      String projectId,
+      String surveyId,
       String featureId,
       String layerId,
       MutationEntityType type,
@@ -126,7 +126,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       long clientTimestamp) {
     return builder()
         .setId(id)
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setFeatureId(featureId)
         .setLayerId(layerId)
         .setType(type)

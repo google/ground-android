@@ -79,6 +79,12 @@
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
     <action
+      android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
+      app:destination="@id/surveySelectorDialogFragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
+      app:destination="@id/featureSelectorFragment" />
+    <action
       android:id="@+id/action_home_screen_fragment_to_mapTypeDialogFragment"
       app:destination="@id/mapTypeDialogFragment" />
   </fragment>
@@ -86,7 +92,7 @@
     android:id="@+id/sync_status_fragment"
     android:name="com.google.android.gnd.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
-    tools:layout="@layout/sync_status_frag"></fragment>
+    tools:layout="@layout/sync_status_frag" />
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragment"
@@ -126,7 +132,7 @@
     android:label="@string/view_submission_details"
     tools:layout="@layout/submission_details_frag">
     <argument
-      android:name="projectId"
+      android:name="surveyId"
       type="string" />
     <argument
       android:name="featureId"
@@ -152,7 +158,7 @@
     android:label="edit_submission_frag"
     tools:layout="@layout/edit_submission_frag">
     <argument
-      android:name="projectId"
+      android:name="surveyId"
       type="string" />
     <argument
       android:name="featureId"
@@ -210,6 +216,14 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
+  <dialog
+    android:id="@+id/surveySelectorDialogFragment"
+    android:name="com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment"
+    android:label="ProjectSelectorDialogFragment" />
+  <dialog
+    android:id="@+id/featureSelectorFragment"
+    android:name="com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment"
+    android:label="FeatureSelectorFragment" />
   <dialog
     android:id="@+id/mapTypeDialogFragment"
     android:name="com.google.android.gnd.ui.home.mapcontainer.MapTypeDialogFragment"

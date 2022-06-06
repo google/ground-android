@@ -23,7 +23,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.task.Task;
@@ -87,7 +87,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
 
   public static SubmissionMutationEntity create(
       long id,
-      String projectId,
+      String surveyId,
       String featureId,
       String layerId,
       String taskId,
@@ -101,7 +101,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
       long clientTimestamp) {
     return builder()
         .setId(id)
-        .setProjectId(projectId)
+        .setSurveyId(surveyId)
         .setFeatureId(featureId)
         .setLayerId(layerId)
         .setTaskId(taskId)
@@ -119,7 +119,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   public static SubmissionMutationEntity fromMutation(SubmissionMutation m) {
     return SubmissionMutationEntity.builder()
         .setId(m.getId())
-        .setProjectId(m.getProjectId())
+        .setSurveyId(m.getSurveyId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setTaskId(m.getTask().getId())
@@ -140,9 +140,9 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
     return new AutoValue_SubmissionMutationEntity.Builder();
   }
 
-  public SubmissionMutation toMutation(Project project) throws LocalDataConsistencyException {
+  public SubmissionMutation toMutation(Survey survey) throws LocalDataConsistencyException {
     Layer layer =
-        project
+        survey
             .getLayer(getLayerId())
             .orElseThrow(
                 () ->
@@ -160,7 +160,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setTask(task)
         .setResponseDeltas(ResponseDeltasConverter.fromString(task, getResponseDeltas()))
         .setId(getId())
-        .setProjectId(getProjectId())
+        .setSurveyId(getSurveyId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
         .setType(getType().toMutationType())

@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.home.featuredetails;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.model.task.Task;
@@ -67,7 +67,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
    */
   public void loadSubmissionList(Feature feature) {
     Optional<Task> form = feature.getLayer().getTask();
-    loadSubmissions(feature.getProject(), feature.getId(), form.map(Task::getId));
+    loadSubmissions(feature.getSurvey(), feature.getId(), form.map(Task::getId));
   }
 
   private Single<ImmutableList<Submission>> getSubmissions(SubmissionListRequest req) {
@@ -77,7 +77,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
       return Single.just(ImmutableList.of());
     }
     return submissionRepository
-        .getSubmissions(req.project.getId(), req.featureId, req.taskId.get())
+        .getSubmissions(req.survey.getId(), req.featureId, req.taskId.get())
         .onErrorResumeNext(this::onGetSubmissionsError);
   }
 
@@ -87,18 +87,18 @@ public class SubmissionListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadSubmissions(Project project, String featureId, Optional<String> taskId) {
-    submissionListRequests.onNext(new SubmissionListRequest(project, featureId, taskId));
+  private void loadSubmissions(Survey survey, String featureId, Optional<String> taskId) {
+    submissionListRequests.onNext(new SubmissionListRequest(survey, featureId, taskId));
   }
 
   static class SubmissionListRequest {
 
-    final Project project;
+    final Survey survey;
     final String featureId;
     final Optional<String> taskId;
 
-    public SubmissionListRequest(Project project, String featureId, Optional<String> taskId) {
-      this.project = project;
+    public SubmissionListRequest(Survey survey, String featureId, Optional<String> taskId) {
+      this.survey = survey;
       this.featureId = featureId;
       this.taskId = taskId;
     }
