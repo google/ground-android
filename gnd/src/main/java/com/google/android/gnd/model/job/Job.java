@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.layer;
+package com.google.android.gnd.model.job;
 
 import com.google.android.gnd.model.feature.FeatureType;
 import com.google.android.gnd.model.task.Task;
@@ -23,8 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 
 @AutoValue
-public abstract class Layer {
-
+public abstract class Job {
   public abstract String getId();
 
   public abstract String getName();
@@ -41,7 +40,7 @@ public abstract class Layer {
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Layer.Builder()
+    return new AutoValue_Job.Builder()
         .setTask(Optional.empty())
         .setUserCanAdd(ImmutableList.of());
   }
@@ -61,6 +60,6 @@ public abstract class Layer {
       return setTask(Optional.of(task));
     }
 
-    public abstract Layer build();
+    public abstract Job build();
   }
 }

@@ -19,7 +19,7 @@ import com.google.android.gnd.model.Role
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.User
 import com.google.android.gnd.model.feature.FeatureType
-import com.google.android.gnd.model.layer.Layer
+import com.google.android.gnd.model.job.Job
 import com.google.android.gnd.model.mutation.Mutation
 import com.google.android.gnd.persistence.local.LocalDataStore
 import com.google.android.gnd.persistence.local.LocalValueStore
@@ -94,23 +94,23 @@ class SurveyRepository @Inject constructor(
         else
             syncSurveyWithRemote(surveyId)
                 .onErrorResumeNext { getSurvey(surveyId) }
-                .map { attachLayerPermissions(it) }
+                .map { attachJobPermissions(it) }
                 .doOnSuccess { lastActiveSurveyId = surveyId }
                 .toFlowable()
                 .compose { Loadable.loadingOnceAndWrap(it) }
     }
 
-    private fun attachLayerPermissions(survey: Survey): Survey {
+    private fun attachJobPermissions(survey: Survey): Survey {
         val userRole = userRepository.getUserRole(survey)
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
-        val layers: ImmutableMap.Builder<String, Layer> = ImmutableMap.builder()
-        for (layer in survey.layers) {
+        val layers: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
+        for (layer in survey.jobs) {
             layers.put(
                 layer.id,
                 layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole)).build()
             )
         }
-        return survey.toBuilder().setLayerMap(layers.build()).build()
+        return survey.toBuilder().setJobMap(layers.build()).build()
     }
 
     private fun getAddableFeatureTypes(userRole: Role): ImmutableList<FeatureType> =
@@ -152,8 +152,8 @@ class SurveyRepository @Inject constructor(
             .loadSurveySummaries(user)
             .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
 
-    fun getModifiableLayers(survey: Survey): ImmutableList<Layer> =
-        survey.layers
+    fun getModifiableJobs(survey: Survey): ImmutableList<Job> =
+        survey.jobs
             .filter { !it.userCanAdd.isEmpty() }
             .toImmutableList()
 

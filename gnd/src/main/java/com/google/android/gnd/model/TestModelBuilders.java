@@ -22,7 +22,7 @@ import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.Field.Type;
 import com.google.android.gnd.model.task.Task;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.GeoPoint;
 import java.util.Date;
@@ -93,8 +93,8 @@ public class TestModelBuilders {
         .setText("");
   }
 
-  public static Layer.Builder newLayer() {
-    return Layer.newBuilder().setId("").setName("");
+  public static Job.Builder newJob() {
+    return Job.newBuilder().setId("").setName("");
   }
 
   public static Task.Builder newForm() {

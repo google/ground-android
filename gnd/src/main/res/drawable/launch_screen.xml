@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+<job-list xmlns:android="http://schemas.android.com/apk/res/android"
   android:opacity="opaque">
 
   <item android:drawable="@android:color/white" />
@@ -33,4 +33,4 @@
       android:src="@drawable/ground_logo" />
   </item>
 
-</layer-list>
+</job-list>

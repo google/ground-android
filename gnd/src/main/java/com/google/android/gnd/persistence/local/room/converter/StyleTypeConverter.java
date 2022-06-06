@@ -18,7 +18,7 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.job.Style;
 
 public class StyleTypeConverter {
 

@@ -239,7 +239,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getJobId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
@@ -257,7 +257,7 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getJobId()).isEqualTo("foo_layer_id");
     assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);

@@ -24,7 +24,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
@@ -66,8 +66,8 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   public abstract String getFeatureId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
+  @ColumnInfo(name = "job_id")
+  public abstract String getJobId();
 
   @CopyAnnotations
   @ColumnInfo(name = "submission_id")
@@ -89,7 +89,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
       long id,
       String surveyId,
       String featureId,
-      String layerId,
+      String jobId,
       String taskId,
       String submissionId,
       MutationEntityType type,
@@ -103,7 +103,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setId(id)
         .setSurveyId(surveyId)
         .setFeatureId(featureId)
-        .setLayerId(layerId)
+        .setJobId(jobId)
         .setTaskId(taskId)
         .setSubmissionId(submissionId)
         .setType(type)
@@ -121,7 +121,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setId(m.getId())
         .setSurveyId(m.getSurveyId())
         .setFeatureId(m.getFeatureId())
-        .setLayerId(m.getLayerId())
+        .setJobId(m.getJobId())
         .setTaskId(m.getTask().getId())
         .setSubmissionId(m.getSubmissionId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
@@ -141,15 +141,15 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   }
 
   public SubmissionMutation toMutation(Survey survey) throws LocalDataConsistencyException {
-    Layer layer =
+    Job job =
         survey
-            .getLayer(getLayerId())
+            .getJob(getJobId())
             .orElseThrow(
                 () ->
                     new LocalDataConsistencyException(
-                        "Unknown layerId in  in submission mutation " + getId()));
+                        "Unknown jobId in  in submission mutation " + getId()));
     Task task =
-        layer
+        job
             .getTask(getTaskId())
             .orElseThrow(
                 () ->
@@ -162,7 +162,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setId(getId())
         .setSurveyId(getSurveyId())
         .setFeatureId(getFeatureId())
-        .setLayerId(getLayerId())
+        .setJobId(getJobId())
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
@@ -177,7 +177,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
 
     public abstract Builder setFeatureId(String newFeatureId);
 
-    public abstract Builder setLayerId(String newLayerId);
+    public abstract Builder setJobId(String newJobId);
 
     public abstract Builder setTaskId(String newTaskId);
 
