@@ -23,7 +23,7 @@ import java.util.Map;
 
 /** Firestore representation of map layers. */
 @IgnoreExtraProperties
-class LayerNestedObject {
+class JobNestedObject {
   @Nullable private Map<String, String> name;
   // TODO(https://github.com/google/ground-platform/issues/402): Delete this field once updated in
   // web client.
@@ -33,10 +33,10 @@ class LayerNestedObject {
   @Nullable private List<String> contributorsCanAdd;
 
   @SuppressWarnings("unused")
-  public LayerNestedObject() {}
+  public JobNestedObject() {}
 
   @SuppressWarnings("unused")
-  LayerNestedObject(
+  JobNestedObject(
       @Nullable Map<String, String> name,
       @Nullable String color,
       @Nullable StyleNestedObject defaultStyle,

@@ -53,7 +53,7 @@ import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
-import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -173,14 +173,14 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewSubmission(feature, form));
+    feature.getJob().getTask().ifPresent(form -> addNewSubmission(feature, form));
   }
 
-  private void addNewSubmission(Feature feature, Form form) {
+  private void addNewSubmission(Feature feature, Task task) {
     String surveyId = feature.getSurvey().getId();
     String featureId = feature.getId();
-    String formId = form.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addSubmission(surveyId, featureId, formId));
+    String taskId = task.getId();
+    navigator.navigate(HomeScreenFragmentDirections.addSubmission(surveyId, featureId, taskId));
   }
 
   /** This is only possible after updating the location of the feature. So, reset the UI. */

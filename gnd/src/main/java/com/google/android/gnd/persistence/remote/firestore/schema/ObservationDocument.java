@@ -29,7 +29,7 @@ class ObservationDocument {
   @Nullable
   private String featureId;
   @Nullable
-  private String formId;
+  private String taskId;
   @Nullable
   private AuditInfoNestedObject created;
   @Nullable
@@ -44,12 +44,12 @@ class ObservationDocument {
   @SuppressWarnings("unused")
   ObservationDocument(
       @Nullable String featureId,
-      @Nullable String formId,
+      @Nullable String taskId,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject lastModified,
       @Nullable Map<String, Object> responses) {
     this.featureId = featureId;
-    this.formId = formId;
+    this.taskId = taskId;
     this.created = created;
     this.lastModified = lastModified;
     this.responses = responses;
@@ -61,8 +61,8 @@ class ObservationDocument {
   }
 
   @Nullable
-  public String getFormId() {
-    return formId;
+  public String getTaskId() {
+    return taskId;
   }
 
   @Nullable

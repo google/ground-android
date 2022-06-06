@@ -16,18 +16,18 @@
 
 package com.google.android.gnd.model.submission;
 
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.task.Field;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
 /**
- * Represents a change to an individual form response in a submission.
+ * Represents a change to an individual task response in a submission.
  */
 @AutoValue
 public abstract class ResponseDelta {
 
   /**
-   * Returns the id of the form field being updated.
+   * Returns the id of the task field being updated.
    */
   public abstract String getFieldId();
 

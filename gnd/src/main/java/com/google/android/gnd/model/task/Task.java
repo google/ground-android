@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.form;
+package com.google.android.gnd.model.task;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
@@ -26,11 +26,11 @@ import java8.util.Comparators;
 import java8.util.Optional;
 
 /**
- * Describes the layout, field types, and validation rules of a user-defined form. Does not contain
- * actual form responses (see {@link Response} instead.
+ * Describes the layout, field types, and validation rules of a user-defined task. Does not contain
+ * actual task responses (see {@link Response} instead.
  */
 @AutoValue
-public abstract class Form {
+public abstract class Task {
 
   public abstract String getId();
 
@@ -50,7 +50,7 @@ public abstract class Form {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Form.Builder().setElements(ImmutableList.of());
+    return new AutoValue_Task.Builder().setElements(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -60,6 +60,6 @@ public abstract class Form {
 
     public abstract Builder setElements(ImmutableList<Element> newElementsList);
 
-    public abstract Form build();
+    public abstract Task build();
   }
 }

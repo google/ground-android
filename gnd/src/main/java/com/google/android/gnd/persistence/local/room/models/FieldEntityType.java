@@ -19,8 +19,8 @@ package com.google.android.gnd.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Field.Type;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 import com.google.common.collect.ImmutableBiMap;
 

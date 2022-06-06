@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.form;
+package com.google.android.gnd.model.task;
 
 import com.google.auto.value.AutoOneOf;
 
 /**
- * Represents an element on a form. The only valid type of form element is currently {@code FIELD};
- * this abstraction exists for future use (e.g., to support headings, subforms).
+ * Represents an element on a task. The only valid type of task element is currently {@code FIELD};
+ * this abstraction exists for future use (e.g., to support headings, subtasks).
  */
 @AutoOneOf(Element.Type.class)
 public abstract class Element {
+
   public enum Type {
     UNKNOWN,
     FIELD

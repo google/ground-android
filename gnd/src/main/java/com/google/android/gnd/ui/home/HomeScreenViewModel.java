@@ -28,10 +28,10 @@ import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -155,13 +155,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(Layer layer, Point point) {
+  public void addFeature(Job job, Point point) {
     getActiveSurvey()
         .map(Survey::getId)
         .ifPresentOrElse(
             surveyId ->
                 addFeatureRequests.onNext(
-                    featureRepository.newMutation(surveyId, layer.getId(), point, new Date())),
+                    featureRepository.newMutation(surveyId, job.getId(), point, new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -174,7 +174,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
             surveyId ->
                 addFeatureRequests.onNext(
                     featureRepository.newPolygonFeatureMutation(
-                        surveyId, feature.getLayer().getId(), feature.getVertices(), new Date())),
+                        surveyId, feature.getJob().getId(), feature.getVertices(), new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -244,7 +244,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = optionalFeature.get();
-    Optional<Form> form = feature.getLayer().getForm();
+    Optional<Task> form = feature.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
       Timber.e("No forms in layer");

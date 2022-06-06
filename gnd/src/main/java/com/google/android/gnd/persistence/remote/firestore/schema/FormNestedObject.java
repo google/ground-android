@@ -22,13 +22,18 @@ import java.util.Collections;
 import java.util.Map;
 import java8.util.Objects;
 
-/** Firestore representation of form definitions. */
+/**
+ * Firestore representation of task definitions.
+ */
 @IgnoreExtraProperties
 class FormNestedObject {
-  @Nullable private Map<String, ElementNestedObject> elements;
+
+  @Nullable
+  private Map<String, ElementNestedObject> elements;
 
   @SuppressWarnings("unused")
-  public FormNestedObject() {}
+  public FormNestedObject() {
+  }
 
   @SuppressWarnings("unused")
   FormNestedObject(@Nullable Map<String, ElementNestedObject> elements) {

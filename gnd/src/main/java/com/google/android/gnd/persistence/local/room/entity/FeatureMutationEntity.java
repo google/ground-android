@@ -60,8 +60,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
+  @ColumnInfo(name = "job_id")
+  public abstract String getJobId();
 
   /** Non-null if the feature's location was updated, null if unchanged. */
   @CopyAnnotations
@@ -82,7 +82,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setId(m.getId())
         .setSurveyId(m.getSurveyId())
         .setFeatureId(m.getFeatureId())
-        .setLayerId(m.getLayerId())
+        .setJobId(m.getJobId())
         .setNewLocation(m.getLocation().map(Coordinates::fromPoint).orElse(null))
         .setNewPolygonVertices(formatVertices(m.getPolygonVertices()))
         .setType(MutationEntityType.fromMutationType(m.getType()))
@@ -101,7 +101,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setId(getId())
         .setSurveyId(getSurveyId())
         .setFeatureId(getFeatureId())
-        .setLayerId(getLayerId())
+        .setJobId(getJobId())
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
@@ -115,7 +115,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       @Nullable Long id,
       String surveyId,
       String featureId,
-      String layerId,
+      String jobId,
       MutationEntityType type,
       MutationEntitySyncStatus syncStatus,
       @Nullable Coordinates newLocation,
@@ -128,7 +128,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setId(id)
         .setSurveyId(surveyId)
         .setFeatureId(featureId)
-        .setLayerId(layerId)
+        .setJobId(jobId)
         .setType(type)
         .setSyncStatus(syncStatus)
         .setNewLocation(newLocation)
@@ -149,7 +149,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
     public abstract Builder setFeatureId(String newFeatureId);
 
-    public abstract Builder setLayerId(String newLayerId);
+    public abstract Builder setJobId(String newJobId);
 
     public abstract Builder setNewLocation(@Nullable Coordinates newNewLocation);
 

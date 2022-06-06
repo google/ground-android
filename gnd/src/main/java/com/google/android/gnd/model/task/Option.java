@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,38 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.layer;
+package com.google.android.gnd.model.task;
 
 import com.google.auto.value.AutoValue;
+import java.io.Serializable;
 
+/**
+ * Describes a single valid option to a multiple choice question.
+ */
 @AutoValue
-public abstract class Style {
+public abstract class Option implements Serializable {
 
-  public static final Style DEFAULT_MAP_STYLE = Style.builder().setColor("#ff9131").build();
+  private static final long serialVersionUID = 1L;
 
-  public abstract String getColor();
+  public abstract String getId();
 
-  public static Builder builder() {
-    return new AutoValue_Style.Builder();
+  public abstract String getCode();
+
+  public abstract String getLabel();
+
+  public static Builder newBuilder() {
+    return new AutoValue_Option.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setColor(String newColor);
 
-    public abstract Style build();
+    public abstract Builder setId(String newId);
+
+    public abstract Builder setCode(String newCode);
+
+    public abstract Builder setLabel(String newLabel);
+
+    public abstract Option build();
   }
 }

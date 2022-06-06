@@ -23,23 +23,23 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRelations;
-import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
+import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.persistence.local.room.relations.JobEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.relations.TaskEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
 @Entity(
-    tableName = "layer",
+    tableName = "job",
     foreignKeys =
-        @ForeignKey(
-            entity = SurveyEntity.class,
-            parentColumns = "id",
-            childColumns = "survey_id",
-            onDelete = ForeignKey.CASCADE),
+    @ForeignKey(
+        entity = SurveyEntity.class,
+        parentColumns = "id",
+        childColumns = "survey_id",
+        onDelete = ForeignKey.CASCADE),
     indices = {@Index("survey_id")})
-public abstract class LayerEntity {
+public abstract class JobEntity {
 
   @CopyAnnotations
   @NonNull
@@ -57,30 +57,27 @@ public abstract class LayerEntity {
   @ColumnInfo(name = "survey_id")
   public abstract String getSurveyId();
 
-  public static LayerEntity fromLayer(String surveyId, Layer layer) {
-    return LayerEntity.builder()
-        .setId(layer.getId())
+  public static JobEntity fomJob(String surveyId, Job job) {
+    return JobEntity.builder()
+        .setId(job.getId())
         .setSurveyId(surveyId)
-        .setName(layer.getName())
+        .setName(job.getName())
         .build();
   }
 
-  static Layer toLayer(LayerEntityAndRelations layerEntityAndRelations) {
-    LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
-    Layer.Builder layerBuilder =
-        Layer.newBuilder()
-            .setId(layerEntity.getId())
-            .setName(layerEntity.getName());
+  static Job toJob(JobEntityAndRelations jobEntityAndRelations) {
+    JobEntity jobEntity = jobEntityAndRelations.jobEntity;
+    Job.Builder builder = Job.newBuilder().setId(jobEntity.getId()).setName(jobEntity.getName());
 
-    for (FormEntityAndRelations formEntityAndRelations :
-        layerEntityAndRelations.formEntityAndRelations) {
-      layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
+    for (TaskEntityAndRelations taskEntityAndRelations :
+        jobEntityAndRelations.taskEntityAndRelations) {
+      builder.setTask(TaskEntity.toTask(taskEntityAndRelations));
     }
 
-    return layerBuilder.build();
+    return builder.build();
   }
 
-  public static LayerEntity create(String id, String name, String surveyId) {
+  public static JobEntity create(String id, String name, String surveyId) {
     return builder()
         .setId(id)
         .setName(name)
@@ -89,7 +86,7 @@ public abstract class LayerEntity {
   }
 
   public static Builder builder() {
-    return new AutoValue_LayerEntity.Builder();
+    return new AutoValue_JobEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -101,6 +98,6 @@ public abstract class LayerEntity {
 
     public abstract Builder setSurveyId(String surveyId);
 
-    public abstract LayerEntity build();
+    public abstract JobEntity build();
   }
 }

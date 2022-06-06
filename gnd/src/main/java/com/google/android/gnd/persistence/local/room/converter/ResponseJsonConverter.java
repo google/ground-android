@@ -19,13 +19,13 @@ package com.google.android.gnd.persistence.local.room.converter;
 import static java8.lang.Iterables.forEach;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.submission.DateResponse;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.NumberResponse;
 import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.model.submission.TextResponse;
 import com.google.android.gnd.model.submission.TimeResponse;
+import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;

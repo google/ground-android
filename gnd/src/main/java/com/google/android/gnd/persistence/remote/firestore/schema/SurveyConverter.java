@@ -39,8 +39,8 @@ class SurveyConverter {
         .setId(doc.getId())
         .setTitle(getLocalizedMessage(pd.getTitle()))
         .setDescription(getLocalizedMessage(pd.getDescription()));
-    if (pd.getLayers() != null) {
-      Maps.forEach(pd.getLayers(), (id, obj) -> survey.putLayer(LayerConverter.toLayer(id, obj)));
+    if (pd.getJobs() != null) {
+      Maps.forEach(pd.getJobs(), (id, obj) -> survey.putJob(JobConverter.toJob(id, obj)));
     }
     survey.setAcl(ImmutableMap.copyOf(pd.getAcl()));
     if (pd.getBaseMaps() != null) {

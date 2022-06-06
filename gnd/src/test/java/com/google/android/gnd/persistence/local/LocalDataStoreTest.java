@@ -31,10 +31,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
@@ -43,6 +40,9 @@ import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.model.submission.TextResponse;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.SubmissionDao;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
@@ -76,21 +76,21 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setType(Field.Type.TEXT_FIELD)
           .build();
 
-  private static final Form TEST_FORM =
-      Form.newBuilder()
-          .setId("form id")
+  private static final Task TEST_TASK =
+      Task.newBuilder()
+          .setId("task id")
           .setElements(ImmutableList.of(Element.ofField(TEST_FIELD)))
           .build();
 
-  private static final Layer TEST_LAYER =
-      Layer.newBuilder().setId("layer id").setName("heading title").setForm(TEST_FORM).build();
+  private static final Job TEST_JOB =
+      Job.newBuilder().setId("layer id").setName("heading title").setTask(TEST_TASK).build();
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
           .setId("survey id")
           .setTitle("survey 1")
           .setDescription("foo description")
-          .putLayer(TEST_LAYER)
+          .putJob(TEST_JOB)
           .build();
 
   private static final Point TEST_POINT =
@@ -126,7 +126,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final SubmissionMutation TEST_OBSERVATION_MUTATION =
       SubmissionMutation.builder()
           .setSubmissionId("submission id")
-          .setForm(TEST_FORM)
+          .setTask(TEST_TASK)
           .setResponseDeltas(
               ImmutableList.of(
                   ResponseDelta.builder()
@@ -139,7 +139,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setSyncStatus(SyncStatus.PENDING)
           .setSurveyId("survey id")
           .setFeatureId("feature id")
-          .setLayerId("layer id")
+          .setJobId("layer id")
           .setUserId("user id")
           .setClientTimestamp(new Date())
           .build();
@@ -198,7 +198,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setLayerId("layer id")
+        .setJobId("layer id")
         .setClientTimestamp(new Date())
         .build();
   }
@@ -214,7 +214,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setLayerId("layer id")
+        .setJobId("layer id")
         .setClientTimestamp(new Date())
         .build();
   }
@@ -222,7 +222,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static void assertEquivalent(SubmissionMutation mutation, Submission submission) {
     assertThat(mutation.getSubmissionId()).isEqualTo(submission.getId());
     assertThat(mutation.getFeatureId()).isEqualTo(submission.getFeature().getId());
-    assertThat(mutation.getForm()).isEqualTo(submission.getForm());
+    assertThat(mutation.getTask()).isEqualTo(submission.getTask());
     assertThat(mutation.getSurveyId()).isEqualTo(submission.getSurvey().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getLastModified().getUser().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getCreated().getUser().getId());
@@ -251,16 +251,16 @@ public class LocalDataStoreTest extends BaseHiltTest {
   }
 
   @Test
-  public void testRemovedLayerFromSurvey() {
-    Layer layer1 = Layer.newBuilder().setId("layer 1").setName("layer 1 name").build();
-    Layer layer2 = Layer.newBuilder().setId("layer 2").setName("layer 2 name").build();
+  public void testRemovedJobFromSurvey() {
+    Job job1 = Job.newBuilder().setId("layer 1").setName("layer 1 name").build();
+    Job job2 = Job.newBuilder().setId("layer 2").setName("layer 2 name").build();
 
     Survey survey =
         Survey.newBuilder()
             .setId("foo id")
             .setTitle("foo survey")
             .setDescription("foo survey description")
-            .putLayer(layer1)
+            .putJob(job1)
             .build();
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
 
@@ -269,14 +269,14 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .setId("foo id")
             .setTitle("foo survey")
             .setDescription("foo survey description")
-            .putLayer(layer2)
+            .putJob(job2)
             .build();
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
 
     localDataStore
         .getSurveyById("foo id")
         .test()
-        .assertValue(result -> result.getLayers().equals(ImmutableList.of(layer2)));
+        .assertValue(result -> result.getJobs().equals(ImmutableList.of(job2)));
   }
 
   @Test
@@ -468,7 +468,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     // also test that getObservations returns the same submission as well
     ImmutableList<Submission> submissions =
-        localDataStore.getSubmissions(feature, "form id").blockingGet();
+        localDataStore.getSubmissions(feature, "task id").blockingGet();
     assertThat(submissions).hasSize(1);
     assertEquivalent(mutation, submissions.get(0));
   }
@@ -527,7 +527,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     // Verify that the local submission doesn't end up in getObservations().
     PointFeature feature =
         (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
-    localDataStore.getSubmissions(feature, "form id").test().assertValue(ImmutableList.of());
+    localDataStore.getSubmissions(feature, "task id").test().assertValue(ImmutableList.of());
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
     localDataStore.deleteSubmission("submission id").blockingAwait();

@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newForm;
-import static com.google.android.gnd.model.TestModelBuilders.newLayer;
+import static com.google.android.gnd.model.TestModelBuilders.newJob;
 import static com.google.android.gnd.model.TestModelBuilders.newPointFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
@@ -32,16 +32,16 @@ import static org.mockito.Mockito.when;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.model.submission.TextResponse;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -60,8 +60,8 @@ public class SubmissionConverterTest {
   @Mock
   private DocumentSnapshot observationDocumentSnapshot;
 
-  private Form form;
-  private Layer layer;
+  private Task task;
+  private Job job;
   private Survey survey;
   private Feature feature;
 
@@ -111,7 +111,7 @@ public class SubmissionConverterTest {
         new ObservationDocument(
             /* featureId */
             "feature001",
-            /* formId */
+            /* taskId */
             "form001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
@@ -134,7 +134,7 @@ public class SubmissionConverterTest {
                 .setId("observation123")
                 .setSurvey(survey)
                 .setFeature(feature)
-                .setForm(form)
+                .setTask(task)
                 .setResponses(
                     ResponseMap.builder()
                         .putResponse("field1", new TextResponse("Text response"))
@@ -161,7 +161,7 @@ public class SubmissionConverterTest {
         new ObservationDocument(
             /* featureId */
             "feature999",
-            /* formId */
+            /* taskId */
             "form001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
@@ -183,7 +183,7 @@ public class SubmissionConverterTest {
         new ObservationDocument(
             /* featureId */
             "feature001",
-            /* formId */
+            /* taskId */
             "form001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
@@ -198,7 +198,7 @@ public class SubmissionConverterTest {
                 .setId("observation123")
                 .setSurvey(survey)
                 .setFeature(feature)
-                .setForm(form)
+                .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
                 .build());
@@ -214,7 +214,7 @@ public class SubmissionConverterTest {
         new ObservationDocument(
             /* featureId */
             "feature001",
-            /* formId */
+            /* taskId */
             "form001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
@@ -229,7 +229,7 @@ public class SubmissionConverterTest {
                 .setId("observation123")
                 .setSurvey(survey)
                 .setFeature(feature)
-                .setForm(form)
+                .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
                 .build());
@@ -247,7 +247,7 @@ public class SubmissionConverterTest {
         new ObservationDocument(
             /* featureId */
             "feature001",
-            /* formId */
+            /* taskId */
             "form001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
@@ -262,20 +262,20 @@ public class SubmissionConverterTest {
                 .setId("observation123")
                 .setSurvey(survey)
                 .setFeature(feature)
-                .setForm(form)
+                .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
                 .build());
   }
 
-  private void setUpTestSurvey(String layerId, String formId, Field... fields) {
-    form =
+  private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
+    task =
         newForm()
-            .setId(formId)
+            .setId(taskId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
-    layer = newLayer().setId(layerId).setForm(form).build();
-    survey = newSurvey().putLayer(layer).build();
+    job = newJob().setId(layerId).setTask(task).build();
+    survey = newSurvey().putJob(job).build();
   }
 
   @Test
@@ -291,7 +291,7 @@ public class SubmissionConverterTest {
         new ObservationDocument(
             /* featureId */
             "feature001",
-            /* formId */
+            /* taskId */
             "form001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
@@ -306,7 +306,7 @@ public class SubmissionConverterTest {
                 .setId("observation123")
                 .setSurvey(survey)
                 .setFeature(feature)
-                .setForm(form)
+                .setTask(task)
                 .setResponses(
                     // Field "field1" with unknown field type ignored.
                     ResponseMap.builder()
@@ -318,7 +318,7 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPointFeature().setId(featureId).setSurvey(survey).setLayer(layer).build();
+    feature = newPointFeature().setId(featureId).setSurvey(survey).setJob(job).build();
   }
 
   /**

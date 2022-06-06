@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.map;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.job.Style;
 import com.google.auto.value.AutoValue;
 
 @AutoValue

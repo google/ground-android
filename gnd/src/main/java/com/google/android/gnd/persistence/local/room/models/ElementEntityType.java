@@ -19,11 +19,13 @@ package com.google.android.gnd.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
+import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Element.Type;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
-/** Defines how Room represents element types in the local db. */
+/**
+ * Defines how Room represents element types in the local db.
+ */
 public enum ElementEntityType implements IntEnum {
   UNKNOWN(0),
   FIELD(1);
