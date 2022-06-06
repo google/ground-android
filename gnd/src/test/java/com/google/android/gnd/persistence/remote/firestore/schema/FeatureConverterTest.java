@@ -20,7 +20,7 @@ import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newForm;
 import static com.google.android.gnd.model.TestModelBuilders.newGeoPointPolygonVertices;
-import static com.google.android.gnd.model.TestModelBuilders.newLayer;
+import static com.google.android.gnd.model.TestModelBuilders.newJob;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonVertices;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
@@ -39,7 +39,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -84,7 +84,7 @@ public class FeatureConverterTest {
           new Timestamp(new Date(200)),
           new Timestamp(new Date(201)));
 
-  private Layer layer;
+  private Job job;
   private Survey survey;
   private Feature feature;
   private Map<String, Object> geometry;
@@ -96,8 +96,8 @@ public class FeatureConverterTest {
             .setId(formId)
             .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
             .build();
-    layer = newLayer().setId(layerId).setForm(form).build();
-    survey = newSurvey().putLayer(layer).build();
+    job = newJob().setId(layerId).setForm(form).build();
+    survey = newSurvey().putJob(job).build();
   }
 
   @Test
@@ -225,7 +225,7 @@ public class FeatureConverterTest {
             .setVertices(newPolygonVertices())
             .setId(featureId)
             .setSurvey(survey)
-            .setLayer(layer)
+            .setJob(job)
             .build();
   }
 

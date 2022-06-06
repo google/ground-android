@@ -24,7 +24,7 @@ import java.util.Map;
 /** Feature entity stored in Firestore. */
 @IgnoreExtraProperties
 class FeatureDocument {
-  @Nullable private String layerId;
+  @Nullable private String jobId;
   @Nullable private String customId;
   @Nullable private String caption;
   @Nullable private GeoPoint location;
@@ -39,7 +39,7 @@ class FeatureDocument {
 
   @SuppressWarnings("unused")
   FeatureDocument(
-      @Nullable String layerId,
+      @Nullable String jobId,
       @Nullable String customId,
       @Nullable String caption,
       @Nullable GeoPoint location,
@@ -47,7 +47,7 @@ class FeatureDocument {
       @Nullable Map<String, Object> geometry,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject lastModified) {
-    this.layerId = layerId;
+    this.jobId = jobId;
     this.customId = customId;
     this.caption = caption;
     this.location = location;
@@ -58,8 +58,8 @@ class FeatureDocument {
   }
 
   @Nullable
-  public String getLayerId() {
-    return layerId;
+  public String getJobId() {
+    return jobId;
   }
 
   @Nullable

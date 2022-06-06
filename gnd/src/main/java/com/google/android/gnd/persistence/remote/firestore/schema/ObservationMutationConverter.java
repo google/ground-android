@@ -63,7 +63,7 @@ class ObservationMutationConverter {
         throw new DataStoreException("Unsupported mutation type: " + mutation.getType());
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
-        .put(LAYER_ID, mutation.getLayerId())
+        .put(LAYER_ID, mutation.getJobId())
         .put(FORM_ID, mutation.getForm().getId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));
     return map.build();

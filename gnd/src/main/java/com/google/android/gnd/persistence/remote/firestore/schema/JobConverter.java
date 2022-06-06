@@ -18,22 +18,22 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import timber.log.Timber;
 
-/** Converts between Firestore documents and {@link Layer} instances. */
-class LayerConverter {
+/** Converts between Firestore documents and {@link Job} instances. */
+class JobConverter {
 
-  static Layer toLayer(String id, LayerNestedObject obj) {
-    Layer.Builder layer = Layer.newBuilder();
-    layer.setId(id).setName(getLocalizedMessage(obj.getName()));
+  static Job toJob(String id, JobNestedObject obj) {
+    Job.Builder builder = Job.newBuilder();
+    builder.setId(id).setName(getLocalizedMessage(obj.getName()));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {
         Timber.e("Multiple forms not supported");
       }
       String formId = obj.getForms().keySet().iterator().next();
-      layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
+      builder.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
     }
-    return layer.build();
+    return builder.build();
   }
 }

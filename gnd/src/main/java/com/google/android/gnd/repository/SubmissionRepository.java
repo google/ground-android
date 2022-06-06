@@ -139,7 +139,7 @@ public class SubmissionRepository {
                     .setId(uuidGenerator.generateUuid())
                     .setSurvey(feature.getSurvey())
                     .setFeature(feature)
-                    .setForm(feature.getLayer().getForm(formId).get())
+                    .setForm(feature.getJob().getForm(formId).get())
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build());
@@ -156,7 +156,7 @@ public class SubmissionRepository {
             .setSyncStatus(SyncStatus.PENDING)
             .setSurveyId(submission.getSurvey().getId())
             .setFeatureId(submission.getFeature().getId())
-            .setLayerId(submission.getFeature().getLayer().getId())
+            .setJobId(submission.getFeature().getJob().getId())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();
@@ -175,7 +175,7 @@ public class SubmissionRepository {
             .setSyncStatus(SyncStatus.PENDING)
             .setSurveyId(submission.getSurvey().getId())
             .setFeatureId(submission.getFeature().getId())
-            .setLayerId(submission.getFeature().getLayer().getId())
+            .setJobId(submission.getFeature().getJob().getId())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();

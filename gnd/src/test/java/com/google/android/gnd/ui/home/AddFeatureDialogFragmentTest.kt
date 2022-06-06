@@ -52,11 +52,11 @@ class AddFeatureDialogFragmentTest : BaseHiltTest() {
 
         val activity = activityController.setup().get()
 
-        val layer1 = FakeData.newLayer()
+        val layer1 = FakeData.newJob()
             .setId("Layer 1")
             .setUserCanAdd(ImmutableList.of(FeatureType.POINT))
             .build()
-        val layer2 = FakeData.newLayer()
+        val layer2 = FakeData.newJob()
             .setId("Layer 2")
             .setUserCanAdd(ImmutableList.of(FeatureType.POLYGON))
             .build()

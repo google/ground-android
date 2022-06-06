@@ -53,14 +53,14 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
         com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapFeatures());
 
     // Initialize polygon drawing
-    viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.LAYER);
+    viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB);
   }
 
   @Test
   public void testStateOnBegin() {
     TestObserver<PolygonDrawingState> stateTestObserver = viewModel.getDrawingState().test();
 
-    viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.LAYER);
+    viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB);
 
     stateTestObserver.assertValue(PolygonDrawingState::isInProgress);
   }

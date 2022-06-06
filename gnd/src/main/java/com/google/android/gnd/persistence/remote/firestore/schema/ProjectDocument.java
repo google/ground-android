@@ -28,7 +28,7 @@ class ProjectDocument {
 
   @Nullable private Map<String, String> description;
 
-  @Nullable private Map<String, LayerNestedObject> layers;
+  @Nullable private Map<String, JobNestedObject> jobs;
 
   @Nullable private Map<String, String> acl;
 
@@ -41,12 +41,12 @@ class ProjectDocument {
   ProjectDocument(
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
-      @Nullable Map<String, LayerNestedObject> layers,
+      @Nullable Map<String, JobNestedObject> jobs,
       @Nullable Map<String, String> acl,
       @Nullable List<BaseMapNestedObject> baseMaps) {
     this.title = title;
     this.description = description;
-    this.layers = layers;
+    this.jobs = jobs;
     this.acl = acl;
     this.baseMaps = baseMaps;
   }
@@ -62,8 +62,8 @@ class ProjectDocument {
   }
 
   @Nullable
-  public Map<String, LayerNestedObject> getLayers() {
-    return layers;
+  public Map<String, JobNestedObject> getJobs() {
+    return jobs;
   }
 
   @Nullable

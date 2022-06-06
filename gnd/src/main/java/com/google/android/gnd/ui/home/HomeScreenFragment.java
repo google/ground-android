@@ -55,7 +55,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -166,7 +166,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .as(autoDisposable(this))
-        .subscribe(args -> showAddFeatureLayerSelector(args.first, args.second));
+        .subscribe(args -> showAddFeatureJobSelector(args.first, args.second));
   }
 
   private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
@@ -181,43 +181,43 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showAddFeatureLayerSelector(ImmutableList<Layer> layers, Point mapCenter) {
+  private void showAddFeatureJobSelector(ImmutableList<Job> jobs, Point mapCenter) {
     // Skip layer selection if there's only one layer to which the user can add features.
     // TODO: Refactor and move logic into view model.
-    if (layers.size() == 1) {
-      onAddFeatureLayerSelected(layers.get(0), mapCenter);
+    if (jobs.size() == 1) {
+      onAddFeatureJobSelected(jobs.get(0), mapCenter);
       return;
     }
     addFeatureDialogFragment.show(
-        layers, getChildFragmentManager(), layer -> onAddFeatureLayerSelected(layer, mapCenter));
+        jobs, getChildFragmentManager(), layer -> onAddFeatureJobSelected(layer, mapCenter));
   }
 
-  private void onAddFeatureLayerSelected(Layer layer, Point mapCenter) {
-    if (layer.getUserCanAdd().isEmpty()) {
+  private void onAddFeatureJobSelected(Job job, Point mapCenter) {
+    if (job.getUserCanAdd().isEmpty()) {
       Timber.e(
           "User cannot add features to layer %s - layer list should not have been shown",
-          layer.getId());
+          job.getId());
       return;
     }
 
-    if (layer.getUserCanAdd().size() > 1) {
-      showAddFeatureTypeSelector(layer, mapCenter);
+    if (job.getUserCanAdd().size() > 1) {
+      showAddFeatureTypeSelector(job, mapCenter);
       return;
     }
 
-    switch (layer.getUserCanAdd().get(0)) {
+    switch (job.getUserCanAdd().get(0)) {
       case POINT:
-        viewModel.addFeature(layer, mapCenter);
+        viewModel.addFeature(job, mapCenter);
         break;
       case POLYGON:
         if (featureRepository.isPolygonDialogInfoShown()) {
-          startPolygonDrawing(layer);
+          startPolygonDrawing(job);
         } else {
-          showPolygonInfoDialog(layer);
+          showPolygonInfoDialog(job);
         }
         break;
       default:
-        Timber.w("Unsupported feature type defined in layer: %s", layer.getUserCanAdd().get(0));
+        Timber.w("Unsupported feature type defined in layer: %s", job.getUserCanAdd().get(0));
         break;
     }
   }
@@ -229,7 +229,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewSubmission(feature, form));
+    feature.getJob().getForm().ifPresent(form -> addNewSubmission(feature, form));
   }
 
   private void addNewSubmission(Feature feature, Form form) {
@@ -568,17 +568,17 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showAddFeatureTypeSelector(Layer layer, Point point) {
+  private void showAddFeatureTypeSelector(Job job, Point point) {
     featureDataTypeSelectorDialogFragment =
         new FeatureDataTypeSelectorDialogFragment(
             featureType -> {
               if (featureType == 0) {
-                viewModel.addFeature(layer, point);
+                viewModel.addFeature(job, point);
               } else if (featureType == 1) {
                 if (featureRepository.isPolygonDialogInfoShown()) {
-                  startPolygonDrawing(layer);
+                  startPolygonDrawing(job);
                 } else {
-                  showPolygonInfoDialog(layer);
+                  showPolygonInfoDialog(job);
                 }
               }
             });
@@ -586,18 +586,18 @@ public class HomeScreenFragment extends AbstractFragment
         getChildFragmentManager(), FeatureDataTypeSelectorDialogFragment.class.getSimpleName());
   }
 
-  private void startPolygonDrawing(Layer layer) {
+  private void startPolygonDrawing(Job job) {
     viewModel
         .getActiveSurvey()
         .ifPresentOrElse(
-            survey -> polygonDrawingViewModel.startDrawingFlow(survey, layer),
+            survey -> polygonDrawingViewModel.startDrawingFlow(survey, job),
             () -> Timber.e("No active survey"));
   }
 
-  private void showPolygonInfoDialog(Layer layer) {
+  private void showPolygonInfoDialog(Job job) {
     featureRepository.setPolygonDialogInfoShown(true);
     polygonDrawingInfoDialogFragment =
-        new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(layer));
+        new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(job));
     polygonDrawingInfoDialogFragment.show(
         getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }

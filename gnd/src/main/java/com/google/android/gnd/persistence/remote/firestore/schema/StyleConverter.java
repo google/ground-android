@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.job.Style;
 
 /** Converts between Firestore documents and {@link Style} instances. */
 class StyleConverter {
