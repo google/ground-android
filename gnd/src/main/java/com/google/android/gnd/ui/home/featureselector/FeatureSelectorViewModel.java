@@ -66,6 +66,6 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
     // TODO: Add icons and custom view layout for list items.
     return featureHelper.getLabel(Optional.of(feature))
         + "\n"
-        + resources.getString(R.string.layer_label_format, feature.getLayer().getName());
+        + resources.getString(R.string.layer_label_format, feature.getJob().getName());
   }
 }

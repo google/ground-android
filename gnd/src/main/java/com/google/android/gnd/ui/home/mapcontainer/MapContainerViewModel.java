@@ -38,7 +38,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.job.Style;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.SurveyRepository;

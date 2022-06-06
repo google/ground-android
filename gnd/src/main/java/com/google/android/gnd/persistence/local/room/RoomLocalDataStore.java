@@ -29,7 +29,7 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
@@ -50,7 +50,7 @@ import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
-import com.google.android.gnd.persistence.local.room.dao.LayerDao;
+import com.google.android.gnd.persistence.local.room.dao.JobDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
@@ -65,7 +65,7 @@ import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
-import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
+import com.google.android.gnd.persistence.local.room.entity.JobEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
@@ -111,7 +111,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject MultipleChoiceDao multipleChoiceDao;
   @Inject FieldDao fieldDao;
   @Inject TaskDao taskDao;
-  @Inject LayerDao layerDao;
+  @Inject
+  JobDao jobDao;
   @Inject SurveyDao surveyDao;
   @Inject FeatureDao featureDao;
   @Inject FeatureMutationDao featureMutationDao;
@@ -166,30 +167,30 @@ public class RoomLocalDataStore implements LocalDataStore {
             element -> insertOrUpdateField(taskId, element.getType(), element.getField()));
   }
 
-  private Completable insertOrUpdateTask(String layerId, Task task) {
+  private Completable insertOrUpdateTask(String jobId, Task task) {
     return taskDao
-        .insertOrUpdate(TaskEntity.fromTask(layerId, task))
+        .insertOrUpdate(TaskEntity.fromTask(jobId, task))
         .andThen(insertOrUpdateElements(task.getId(), task.getElements()))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateTasks(String layerId, List<Task> tasks) {
+  private Completable insertOrUpdateTasks(String jobId, List<Task> tasks) {
     return Observable.fromIterable(tasks)
-        .flatMapCompletable(task -> insertOrUpdateTask(layerId, task));
+        .flatMapCompletable(task -> insertOrUpdateTask(jobId, task));
   }
 
-  private Completable insertOrUpdateLayer(String surveyId, Layer layer) {
-    return layerDao
-        .insertOrUpdate(LayerEntity.fromLayer(surveyId, layer))
+  private Completable insertOrUpdateJob(String surveyId, Job job) {
+    return jobDao
+        .insertOrUpdate(JobEntity.fomJob(surveyId, job))
         .andThen(
             insertOrUpdateTasks(
-                layer.getId(), layer.getTask().map(Arrays::asList).orElseGet(ArrayList::new)))
+                job.getId(), job.getTask().map(Arrays::asList).orElseGet(ArrayList::new)))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateLayers(String surveyId, List<Layer> layers) {
-    return Observable.fromIterable(layers)
-        .flatMapCompletable(layer -> insertOrUpdateLayer(surveyId, layer));
+  private Completable insertOrUpdateJobs(String surveyId, List<Job> jobs) {
+    return Observable.fromIterable(jobs)
+        .flatMapCompletable(job -> insertOrUpdateJob(surveyId, job));
   }
 
   private Completable insertOfflineBaseMapSources(Survey survey) {
@@ -203,8 +204,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateSurvey(Survey survey) {
     return surveyDao
         .insertOrUpdate(SurveyEntity.fromSurvey(survey))
-        .andThen(layerDao.deleteBySurveyId(survey.getId()))
-        .andThen(insertOrUpdateLayers(survey.getId(), survey.getLayers()))
+        .andThen(jobDao.deleteBySurveyId(survey.getId()))
+        .andThen(insertOrUpdateJobs(survey.getId(), survey.getJobs()))
         .andThen(baseMapDao.deleteBySurveyId(survey.getId()))
         .andThen(insertOfflineBaseMapSources(survey))
         .subscribeOn(schedulers.io());

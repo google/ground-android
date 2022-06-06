@@ -55,7 +55,7 @@ class ObservationConverter {
       throw new DataStoreException("Submission doc featureId doesn't match specified feature id");
     }
     String taskId = checkNotNull(doc.getTaskId(), "taskId");
-    Task task = checkNotEmpty(feature.getLayer().getTask(taskId), "task " + taskId);
+    Task task = checkNotEmpty(feature.getJob().getTask(taskId), "task " + taskId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);

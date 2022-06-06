@@ -18,12 +18,12 @@ package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
+import com.google.android.gnd.persistence.local.room.entity.JobEntity;
 import io.reactivex.Completable;
 
 @Dao
-public interface LayerDao extends BaseDao<LayerEntity> {
+public interface JobDao extends BaseDao<JobEntity> {
 
-  @Query("DELETE FROM layer WHERE survey_id = :surveyId")
+  @Query("DELETE FROM job WHERE survey_id = :surveyId")
   Completable deleteBySurveyId(String surveyId);
 }

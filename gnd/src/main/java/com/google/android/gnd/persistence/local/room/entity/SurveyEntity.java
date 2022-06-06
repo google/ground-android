@@ -22,7 +22,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
+import com.google.android.gnd.persistence.local.room.relations.JobEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.SurveyEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -75,9 +75,9 @@ public abstract class SurveyEntity {
             .setDescription(surveyEntity.getDescription())
             .setAcl(toStringMap(surveyEntity.getAcl()));
 
-    for (LayerEntityAndRelations layerEntityAndRelations :
-        surveyEntityAndRelations.layerEntityAndRelations) {
-      surveyBuilder.putLayer(LayerEntity.toLayer(layerEntityAndRelations));
+    for (JobEntityAndRelations jobEntityAndRelations :
+        surveyEntityAndRelations.jobEntityAndRelations) {
+      surveyBuilder.putJob(JobEntity.toJob(jobEntityAndRelations));
     }
     for (BaseMapEntity source : surveyEntityAndRelations.baseMapEntityAndRelations) {
       try {

@@ -133,7 +133,7 @@ public abstract class SubmissionEntity {
     String taskId = submission.getTaskId();
     Task task =
         feature
-            .getLayer()
+            .getJob()
             .getTask(taskId)
             .orElseThrow(
                 () ->

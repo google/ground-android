@@ -39,7 +39,7 @@ class FeatureMutationConverter {
    */
   static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(FeatureConverter.LAYER_ID, mutation.getLayerId());
+    map.put(FeatureConverter.LAYER_ID, mutation.getJobId());
     mutation
         .getLocation()
         .map(FeatureMutationConverter::toGeoPoint)

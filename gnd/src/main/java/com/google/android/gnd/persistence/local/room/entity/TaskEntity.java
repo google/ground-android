@@ -36,11 +36,11 @@ import com.google.common.collect.ImmutableList;
     tableName = "task",
     foreignKeys =
     @ForeignKey(
-        entity = LayerEntity.class,
+        entity = JobEntity.class,
         parentColumns = "id",
-        childColumns = "layer_id",
+        childColumns = "job_id",
         onDelete = ForeignKey.CASCADE),
-    indices = {@Index("layer_id")})
+    indices = {@Index("job_id")})
 public abstract class TaskEntity {
 
   @CopyAnnotations
@@ -56,11 +56,11 @@ public abstract class TaskEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "layer_id")
-  public abstract String getLayerId();
+  @ColumnInfo(name = "job_id")
+  public abstract String getJobId();
 
-  public static TaskEntity fromTask(String layerId, Task task) {
-    return TaskEntity.builder().setId(task.getId()).setLayerId(layerId).build();
+  public static TaskEntity fromTask(String jobId, Task task) {
+    return TaskEntity.builder().setId(task.getId()).setJobId(jobId).build();
   }
 
   static Task toTask(TaskEntityAndRelations taskEntityAndRelations) {
@@ -76,8 +76,8 @@ public abstract class TaskEntity {
     return taskBuilder.setElements(listBuilder.build()).build();
   }
 
-  public static TaskEntity create(String id, String title, String layerId) {
-    return builder().setId(id).setTitle(title).setLayerId(layerId).build();
+  public static TaskEntity create(String id, String title, String jobId) {
+    return builder().setId(id).setTitle(title).setJobId(jobId).build();
   }
 
   public static Builder builder() {
@@ -91,7 +91,7 @@ public abstract class TaskEntity {
 
     public abstract Builder setTitle(String title);
 
-    public abstract Builder setLayerId(String layerId);
+    public abstract Builder setJobId(String jobId);
 
     public abstract TaskEntity build();
   }
