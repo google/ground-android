@@ -53,8 +53,6 @@ import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.rx.Loadable;
@@ -67,11 +65,9 @@ import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
-import com.google.android.gnd.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
-import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingInfoDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
 import com.google.android.gnd.ui.surveyselector.SurveySelectorViewModel;
@@ -102,7 +98,6 @@ public class HomeScreenFragment extends AbstractFragment
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
-  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
@@ -116,8 +111,6 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  @Nullable private FeatureDataTypeSelectorDialogFragment featureDataTypeSelectorDialogFragment;
-  @Nullable private PolygonDrawingInfoDialogFragment polygonDrawingInfoDialogFragment;
   private SurveySelectorViewModel surveySelectorViewModel;
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Survey> surveys = Collections.emptyList();
@@ -159,14 +152,6 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureClicks()
         .as(autoDisposable(this))
         .subscribe(viewModel::onFeatureSelected);
-    mapContainerViewModel
-        .getAddFeatureButtonClicks()
-        .as(autoDisposable(this))
-        .subscribe(viewModel::onAddFeatureButtonClick);
-    viewModel
-        .getShowAddFeatureDialogRequests()
-        .as(autoDisposable(this))
-        .subscribe(args -> showAddFeatureJobSelector(args.first, args.second));
   }
 
   private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
@@ -178,47 +163,6 @@ public class HomeScreenFragment extends AbstractFragment
       if (state.isCompleted()) {
         viewModel.addPolygonFeature(requireNonNull(state.getUnsavedPolygonFeature()));
       }
-    }
-  }
-
-  private void showAddFeatureJobSelector(ImmutableList<Job> jobs, Point mapCenter) {
-    // Skip layer selection if there's only one layer to which the user can add features.
-    // TODO: Refactor and move logic into view model.
-    if (jobs.size() == 1) {
-      onAddFeatureJobSelected(jobs.get(0), mapCenter);
-      return;
-    }
-    addFeatureDialogFragment.show(
-        jobs, getChildFragmentManager(), layer -> onAddFeatureJobSelected(layer, mapCenter));
-  }
-
-  private void onAddFeatureJobSelected(Job job, Point mapCenter) {
-    if (job.getUserCanAdd().isEmpty()) {
-      Timber.e(
-          "User cannot add features to layer %s - layer list should not have been shown",
-          job.getId());
-      return;
-    }
-
-    if (job.getUserCanAdd().size() > 1) {
-      showAddFeatureTypeSelector(job, mapCenter);
-      return;
-    }
-
-    switch (job.getUserCanAdd().get(0)) {
-      case POINT:
-        viewModel.addFeature(job, mapCenter);
-        break;
-      case POLYGON:
-        if (featureRepository.isPolygonDialogInfoShown()) {
-          startPolygonDrawing(job);
-        } else {
-          showPolygonInfoDialog(job);
-        }
-        break;
-      default:
-        Timber.w("Unsupported feature type defined in layer: %s", job.getUserCanAdd().get(0));
-        break;
     }
   }
 
@@ -435,20 +379,6 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.init();
   }
 
-  @Override
-  public void onStop() {
-    super.onStop();
-
-    if (featureDataTypeSelectorDialogFragment != null
-        && featureDataTypeSelectorDialogFragment.isVisible()) {
-      featureDataTypeSelectorDialogFragment.dismiss();
-    }
-
-    if (polygonDrawingInfoDialogFragment != null && polygonDrawingInfoDialogFragment.isVisible()) {
-      polygonDrawingInfoDialogFragment.dismiss();
-    }
-  }
-
   private int getCurrentDestinationId() {
     NavDestination currentDestination = findNavController(this).getCurrentDestination();
     return currentDestination == null ? -1 : currentDestination.getId();
@@ -566,40 +496,6 @@ public class HomeScreenFragment extends AbstractFragment
           ProgressDialogs.modalSpinner(getContext(), R.string.survey_loading_please_wait);
       progressDialog.show();
     }
-  }
-
-  private void showAddFeatureTypeSelector(Job job, Point point) {
-    featureDataTypeSelectorDialogFragment =
-        new FeatureDataTypeSelectorDialogFragment(
-            featureType -> {
-              if (featureType == 0) {
-                viewModel.addFeature(job, point);
-              } else if (featureType == 1) {
-                if (featureRepository.isPolygonDialogInfoShown()) {
-                  startPolygonDrawing(job);
-                } else {
-                  showPolygonInfoDialog(job);
-                }
-              }
-            });
-    featureDataTypeSelectorDialogFragment.show(
-        getChildFragmentManager(), FeatureDataTypeSelectorDialogFragment.class.getSimpleName());
-  }
-
-  private void startPolygonDrawing(Job job) {
-    viewModel
-        .getActiveSurvey()
-        .ifPresentOrElse(
-            survey -> polygonDrawingViewModel.startDrawingFlow(survey, job),
-            () -> Timber.e("No active survey"));
-  }
-
-  private void showPolygonInfoDialog(Job job) {
-    featureRepository.setPolygonDialogInfoShown(true);
-    polygonDrawingInfoDialogFragment =
-        new PolygonDrawingInfoDialogFragment(() -> startPolygonDrawing(job));
-    polygonDrawingInfoDialogFragment.show(
-        getChildFragmentManager(), PolygonDrawingInfoDialogFragment.class.getName());
   }
 
   public void dismissLoadingDialog() {

@@ -131,7 +131,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
-  @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
 
   @Hot private final Subject<Nil> zoomThresholdCrossed = PublishSubject.create();
   // TODO: Move this in FeatureRepositionView and return the final updated feature as the result.
@@ -475,16 +474,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     selectMapTypeClicks.onNext(Nil.NIL);
   }
 
-  public void onAddFeatureBtnClick() {
-    addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
-  }
-
   public Observable<Nil> getSelectMapTypeClicks() {
     return selectMapTypeClicks;
-  }
-
-  public Observable<Point> getAddFeatureButtonClicks() {
-    return addFeatureButtonClicks;
   }
 
   public Observable<Nil> getZoomThresholdCrossed() {
