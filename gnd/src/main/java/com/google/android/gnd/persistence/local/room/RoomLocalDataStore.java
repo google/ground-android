@@ -38,10 +38,10 @@ import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.ResponseMap.Builder;
 import com.google.android.gnd.model.submission.Submission;
-import com.google.android.gnd.model.task.Element;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.task.Option;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
@@ -147,9 +147,9 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateField(String taskId, Element.Type elementType, Field field) {
+  private Completable insertOrUpdateField(String taskId, Step.Type stepType, Field field) {
     return fieldDao
-        .insertOrUpdate(FieldEntity.fromField(taskId, elementType, field))
+        .insertOrUpdate(FieldEntity.fromField(taskId, stepType, field))
         .andThen(
             Observable.just(field)
                 .filter(__ -> field.getMultipleChoice() != null)
@@ -160,17 +160,17 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateElements(String taskId, ImmutableList<Element> elements) {
-    return Observable.fromIterable(elements)
-        .filter(element -> element.getType() == Element.Type.FIELD)
+  private Completable insertOrUpdateSteps(String taskId, ImmutableList<Step> steps) {
+    return Observable.fromIterable(steps)
+        .filter(step -> step.getType() == Step.Type.FIELD)
         .flatMapCompletable(
-            element -> insertOrUpdateField(taskId, element.getType(), element.getField()));
+            step -> insertOrUpdateField(taskId, step.getType(), step.getField()));
   }
 
   private Completable insertOrUpdateTask(String jobId, Task task) {
     return taskDao
         .insertOrUpdate(TaskEntity.fromTask(jobId, task))
-        .andThen(insertOrUpdateElements(task.getId(), task.getElements()))
+        .andThen(insertOrUpdateSteps(task.getId(), task.getSteps()))
         .subscribeOn(schedulers.io());
   }
 

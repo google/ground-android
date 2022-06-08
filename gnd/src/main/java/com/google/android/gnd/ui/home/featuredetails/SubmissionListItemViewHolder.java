@@ -27,9 +27,9 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.SubmissionListItemBinding;
 import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.model.submission.Submission;
-import com.google.android.gnd.model.task.Element;
-import com.google.android.gnd.model.task.Element.Type;
 import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Step;
+import com.google.android.gnd.model.task.Step.Type;
 import com.google.android.gnd.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
@@ -60,11 +60,11 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
 
     Task task = submission.getTask();
     // TODO: Clean this up.
-    ImmutableList<Element> elements = task.getElementsSorted();
-    for (int i = 0; i < MAX_COLUMNS && i < elements.size(); i++) {
-      Element elem = elements.get(i);
-      if (elem.getType() == Type.FIELD) {
-        Field field = elem.getField();
+    ImmutableList<Step> steps = task.getStepsSorted();
+    for (int i = 0; i < MAX_COLUMNS && i < steps.size(); i++) {
+      Step step = steps.get(i);
+      if (step.getType() == Type.FIELD) {
+        Field field = step.getField();
         Optional<Response> response = submission.getResponses().getResponse(field.getId());
         binding.fieldLabelRow.addView(
             newFieldTextView(field.getLabel(), R.style.SubmissionListText_FieldLabel));
@@ -73,7 +73,7 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
                 response.map(Response::getSummaryText).orElse(""),
                 R.style.SubmissionListText_Field));
       } else {
-        Timber.e("Unhandled element type: %s", elem.getType());
+        Timber.e("Unhandled step type: %s", step.getType());
       }
     }
   }

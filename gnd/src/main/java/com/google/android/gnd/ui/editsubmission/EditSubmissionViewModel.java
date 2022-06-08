@@ -31,9 +31,9 @@ import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
-import com.google.android.gnd.model.task.Element;
-import com.google.android.gnd.model.task.Element.Type;
 import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Step;
+import com.google.android.gnd.model.task.Step.Type;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.SubmissionRepository;
 import com.google.android.gnd.rx.Nil;
@@ -320,7 +320,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalSubmission.getResponses();
     Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
-    for (Element e : originalSubmission.getTask().getElements()) {
+    for (Step e : originalSubmission.getTask().getSteps()) {
       if (e.getType() != Type.FIELD) {
         continue;
       }

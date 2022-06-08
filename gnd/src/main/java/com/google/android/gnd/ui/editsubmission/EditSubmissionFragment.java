@@ -54,10 +54,10 @@ import com.google.android.gnd.databinding.PhotoInputFieldBindingImpl;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.databinding.TimeInputFieldBinding;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
-import com.google.android.gnd.model.task.Element;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.task.Option;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Schedulers;
@@ -282,16 +282,16 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();
-    for (Element element : task.getElementsSorted()) {
-      switch (element.getType()) {
+    for (Step step : task.getStepsSorted()) {
+      switch (step.getType()) {
         case FIELD:
-          Field field = element.getField();
+          Field field = step.getField();
           ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
           addFieldViewModel(field, binding);
           break;
         case UNKNOWN:
         default:
-          Timber.e("%s task elements not yet supported", element.getType());
+          Timber.e("%s task steps not yet supported", step.getType());
           break;
       }
     }
