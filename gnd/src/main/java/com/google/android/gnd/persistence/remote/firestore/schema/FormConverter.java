@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import java.util.Map;
@@ -30,12 +30,12 @@ import java.util.Map;
 class FormConverter {
 
   static Task toForm(String taskId, FormNestedObject obj) {
-    return Task.newBuilder().setId(taskId).setElements(toList(obj.getElements())).build();
+    return Task.newBuilder().setId(taskId).setSteps(toList(obj.getElements())).build();
   }
 
-  private static ImmutableList<Element> toList(Map<String, ElementNestedObject> elements) {
+  private static ImmutableList<Step> toList(Map<String, ElementNestedObject> elements) {
     return stream(elements.entrySet())
-        .map(e -> ElementConverter.toElement(e.getKey(), e.getValue()))
+        .map(e -> ElementConverter.toStep(e.getKey(), e.getValue()))
         .collect(toImmutableList());
   }
 }

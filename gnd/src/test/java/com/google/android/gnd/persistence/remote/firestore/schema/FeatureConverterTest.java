@@ -35,7 +35,7 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.job.Job;
-import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
@@ -94,7 +94,7 @@ public class FeatureConverterTest {
     Task task =
         newForm()
             .setId(taskId)
-            .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
+            .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();
     job = newJob().setId(layerId).setTask(task).build();
     survey = newSurvey().putJob(job).build();

@@ -51,7 +51,7 @@ import com.google.android.gnd.persistence.local.room.entity.SubmissionEntity;
 import com.google.android.gnd.persistence.local.room.entity.SubmissionMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileSetEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
-import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
+import com.google.android.gnd.persistence.local.room.models.StepEntityType;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.FieldEntityType;
 import com.google.android.gnd.persistence.local.room.models.MultipleChoiceEntityType;
@@ -87,7 +87,7 @@ import com.google.android.gnd.persistence.local.room.models.TileSetEntityState;
     version = Config.DB_VERSION,
     exportSchema = false)
 @TypeConverters({
-    ElementEntityType.class,
+    StepEntityType.class,
     FieldEntityType.class,
     MultipleChoiceEntityType.class,
     MutationEntityType.class,

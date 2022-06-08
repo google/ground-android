@@ -19,20 +19,20 @@ package com.google.android.gnd.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.model.task.Element;
-import com.google.android.gnd.model.task.Element.Type;
+import com.google.android.gnd.model.task.Step;
+import com.google.android.gnd.model.task.Step.Type;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
 /**
  * Defines how Room represents element types in the local db.
  */
-public enum ElementEntityType implements IntEnum {
+public enum StepEntityType implements IntEnum {
   UNKNOWN(0),
   FIELD(1);
 
   private final int intValue;
 
-  ElementEntityType(int intValue) {
+  StepEntityType(int intValue) {
     this.intValue = intValue;
   }
 
@@ -41,28 +41,28 @@ public enum ElementEntityType implements IntEnum {
     return intValue;
   }
 
-  public static ElementEntityType fromElementType(Element.Type type) {
+  public static StepEntityType fromStepType(Step.Type type) {
     if (type == Type.FIELD) {
       return FIELD;
     }
     return UNKNOWN;
   }
 
-  public Element.Type toElementType() {
-    if (this == ElementEntityType.FIELD) {
+  public Step.Type toStepType() {
+    if (this == StepEntityType.FIELD) {
       return Type.FIELD;
     }
     return Type.UNKNOWN;
   }
 
   @TypeConverter
-  public static int toInt(@Nullable ElementEntityType value) {
+  public static int toInt(@Nullable StepEntityType value) {
     return IntEnum.toInt(value, UNKNOWN);
   }
 
   @NonNull
   @TypeConverter
-  public static ElementEntityType fromInt(int intValue) {
+  public static StepEntityType fromInt(int intValue) {
     return IntEnum.fromInt(values(), intValue, UNKNOWN);
   }
 }

@@ -83,7 +83,7 @@ public abstract class SubmissionEntity {
   public abstract EntityState getState();
 
   /**
-   * Returns a JSON object containing user responses keyed by their respective elementId in the task
+   * Returns a JSON object containing user responses keyed by their respective stepId in the task
    * identified by taskId. Returns null if no responses have been provided.
    */
   @CopyAnnotations

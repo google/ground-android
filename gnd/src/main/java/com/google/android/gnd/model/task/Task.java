@@ -34,23 +34,23 @@ public abstract class Task {
 
   public abstract String getId();
 
-  public abstract ImmutableList<Element> getElements();
+  public abstract ImmutableList<Step> getSteps();
 
-  public ImmutableList<Element> getElementsSorted() {
-    return stream(getElements())
+  public ImmutableList<Step> getStepsSorted() {
+    return stream(getSteps())
         .sorted(Comparators.comparing(e -> e.getIndex()))
         .collect(toImmutableList());
   }
 
   public Optional<Field> getField(String id) {
-    return stream(getElements())
-        .map(Element::getField)
+    return stream(getSteps())
+        .map(Step::getField)
         .filter(f -> f != null && f.getId().equals(id))
         .findFirst();
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Task.Builder().setElements(ImmutableList.of());
+    return new AutoValue_Task.Builder().setSteps(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -58,7 +58,7 @@ public abstract class Task {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setElements(ImmutableList<Element> newElementsList);
+    public abstract Builder setSteps(ImmutableList<Step> newStepsList);
 
     public abstract Task build();
   }

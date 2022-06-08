@@ -19,11 +19,11 @@ package com.google.android.gnd.model.task;
 import com.google.auto.value.AutoOneOf;
 
 /**
- * Represents an element on a task. The only valid type of task element is currently {@code FIELD};
+ * Represents an step of a task. The only valid type of task step is currently {@code FIELD};
  * this abstraction exists for future use (e.g., to support headings, subtasks).
  */
-@AutoOneOf(Element.Type.class)
-public abstract class Element {
+@AutoOneOf(Step.Type.class)
+public abstract class Step {
 
   public enum Type {
     UNKNOWN,
@@ -48,11 +48,11 @@ public abstract class Element {
 
   public abstract Object getUnknown();
 
-  public static Element ofField(Field field) {
-    return AutoOneOf_Element.field(field);
+  public static Step ofField(Field field) {
+    return AutoOneOf_Step.field(field);
   }
 
-  public static Element ofUnknown() {
-    return AutoOneOf_Element.unknown(new Object());
+  public static Step ofUnknown() {
+    return AutoOneOf_Step.unknown(new Object());
   }
 }

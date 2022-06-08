@@ -40,7 +40,7 @@ import com.google.android.gnd.model.submission.ResponseDelta;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.model.submission.TextResponse;
-import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
@@ -79,7 +79,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final Task TEST_TASK =
       Task.newBuilder()
           .setId("task id")
-          .setElements(ImmutableList.of(Element.ofField(TEST_FIELD)))
+          .setSteps(ImmutableList.of(Step.ofField(TEST_FIELD)))
           .build();
 
   private static final Job TEST_JOB =

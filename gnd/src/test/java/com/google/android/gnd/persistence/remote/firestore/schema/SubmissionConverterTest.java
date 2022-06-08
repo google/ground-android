@@ -37,7 +37,7 @@ import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.model.submission.TextResponse;
-import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
@@ -272,7 +272,7 @@ public class SubmissionConverterTest {
     task =
         newForm()
             .setId(taskId)
-            .setElements(stream(fields).map(Element::ofField).collect(toImmutableList()))
+            .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();
     job = newJob().setId(layerId).setTask(task).build();
     survey = newSurvey().putJob(job).build();

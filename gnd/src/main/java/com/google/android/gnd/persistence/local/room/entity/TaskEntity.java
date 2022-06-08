@@ -23,7 +23,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.room.relations.FieldEntityAndRelations;
 import com.google.android.gnd.persistence.local.room.relations.TaskEntityAndRelations;
@@ -67,13 +67,13 @@ public abstract class TaskEntity {
     TaskEntity taskEntity = taskEntityAndRelations.taskEntity;
     Task.Builder taskBuilder = Task.newBuilder().setId(taskEntity.getId());
 
-    ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
+    ImmutableList.Builder<Step> listBuilder = ImmutableList.builder();
     for (FieldEntityAndRelations fieldEntityAndRelations :
         taskEntityAndRelations.fieldEntityAndRelations) {
-      listBuilder.add(FieldEntity.toElement(fieldEntityAndRelations));
+      listBuilder.add(FieldEntity.toStep(fieldEntityAndRelations));
     }
 
-    return taskBuilder.setElements(listBuilder.build()).build();
+    return taskBuilder.setSteps(listBuilder.build()).build();
   }
 
   public static TaskEntity create(String id, String title, String jobId) {

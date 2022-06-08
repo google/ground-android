@@ -37,7 +37,7 @@ import com.google.android.gnd.databinding.SubmissionDetailsFragBinding;
 import com.google.android.gnd.databinding.SubmissionDetailsFragBindingImpl;
 import com.google.android.gnd.model.submission.Response;
 import com.google.android.gnd.model.submission.Submission;
-import com.google.android.gnd.model.task.Element;
+import com.google.android.gnd.model.task.Step;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.Field.Type;
 import com.google.android.gnd.rx.Loadable;
@@ -116,9 +116,9 @@ public class SubmissionDetailsFragment extends AbstractFragment {
 
   private void showSubmission(Submission submission) {
     binding.submissionDetailsLayout.removeAllViews();
-    for (Element element : submission.getTask().getElementsSorted()) {
-      if (element.getType() == Element.Type.FIELD) {
-        addField(element.getField(), submission);
+    for (Step step : submission.getTask().getStepsSorted()) {
+      if (step.getType() == Step.Type.FIELD) {
+        addField(step.getField(), submission);
       }
     }
   }

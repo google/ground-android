@@ -32,7 +32,7 @@ class FieldConverter {
   static Optional<Field> toField(String id, ElementNestedObject em) {
     Field.Type type = toEnum(Field.Type.class, em.getType());
     if (type == Field.Type.UNKNOWN) {
-      Timber.d("Unsupported task element type: " + em.getType());
+      Timber.d("Unsupported task step type: " + em.getType());
       return Optional.empty();
     }
     Field.Builder field = Field.newBuilder();
