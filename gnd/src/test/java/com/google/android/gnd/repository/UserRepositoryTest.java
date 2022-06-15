@@ -59,7 +59,7 @@ public class UserRepositoryTest extends BaseHiltTest {
 
     // Current user is authorized as contributor.
     fakeAuthenticationManager.setUser(FakeData.USER);
-    assertThat(userRepository.getUserRole(survey)).isEqualTo(Role.CONTRIBUTOR);
+    assertThat(userRepository.getUserRole(survey)).isEqualTo(Role.DATA_COLLECTOR);
 
     // Current user is unauthorized.
     fakeAuthenticationManager.setUser(FakeData.USER_2);

@@ -97,10 +97,10 @@ public class FeatureDetailsViewModel extends ViewModel {
                 featureMutations, submissionMutations, (f, o) -> !f.isEmpty() && !o.isEmpty()));
   }
 
-  /** Returns true if the user is {@link Role#OWNER} or {@link Role#MANAGER} of the project. */
+  /** Returns true if the user is {@link Role#OWNER} or {@link Role#SURVEY_ORGANIZER} of the project. */
   private boolean isUserAuthorizedToModifyFeature(Feature feature) {
     Role role = userRepository.getUserRole(feature.getSurvey());
-    return role == Role.OWNER || role == Role.MANAGER || isFeatureCreatedByUser(feature);
+    return role == Role.OWNER || role == Role.SURVEY_ORGANIZER || isFeatureCreatedByUser(feature);
   }
 
   /** Returns true if the {@link User} created the given {@link Feature}. */
