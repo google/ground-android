@@ -46,7 +46,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
           .setAcl(
               ImmutableMap.<String, String>builder()
                   .put(TEST_USER_OWNER.getEmail(), "owner")
-                  .put(TEST_USER_MANAGER.getEmail(), "manager")
+                  .put(TEST_USER_MANAGER.getEmail(), "survey_organizer")
                   .put(TEST_USER_CONTRIBUTOR.getEmail(), "data_collector")
                   .build())
           .build();
