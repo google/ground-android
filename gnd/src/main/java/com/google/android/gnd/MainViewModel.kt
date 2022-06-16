@@ -73,8 +73,8 @@ class MainViewModel @Inject constructor(
         disposeOnClear(
             authenticationManager
                 .signInState
-                .observeOn(schedulers.ui())
                 .compose(switchMapIfPresent(SignInState::user) { userRepository.saveUser(it) })
+                .observeOn(schedulers.ui())
                 .switchMap { signInState: SignInState -> onSignInStateChange(signInState) }
                 .subscribe { directions: NavDirections -> navigator.navigate(directions) })
     }
