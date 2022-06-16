@@ -60,7 +60,7 @@ public class FakeData {
         .setId("SURVEY")
         .setTitle("Survey title")
         .setDescription("Test survey description")
-        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"));
+        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"));
   }
 
   public static final PointFeature POINT_FEATURE =

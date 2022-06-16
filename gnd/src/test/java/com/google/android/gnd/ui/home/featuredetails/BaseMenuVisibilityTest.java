@@ -47,7 +47,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
               ImmutableMap.<String, String>builder()
                   .put(TEST_USER_OWNER.getEmail(), "owner")
                   .put(TEST_USER_MANAGER.getEmail(), "manager")
-                  .put(TEST_USER_CONTRIBUTOR.getEmail(), "contributor")
+                  .put(TEST_USER_CONTRIBUTOR.getEmail(), "data_collector")
                   .build())
           .build();
 
