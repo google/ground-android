@@ -54,7 +54,7 @@ public class UserRepositoryTest extends BaseHiltTest {
   public void testGetUserRole() {
     Survey survey =
         FakeData.SURVEY.toBuilder()
-            .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"))
+            .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"))
             .build();
 
     // Current user is authorized as contributor.
