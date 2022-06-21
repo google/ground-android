@@ -35,7 +35,7 @@ import timber.log.Timber;
 /**
  * Converts between Firestore maps used to merge updates and {@link SubmissionMutation} instances.
  */
-class ObservationMutationConverter {
+class SubmissionMutationConverter {
 
   static final String FEATURE_ID = "featureId";
   private static final String LAYER_ID = "layerId";
@@ -76,7 +76,7 @@ class ObservationMutationConverter {
           delta.getFieldId(),
           delta
               .getNewResponse()
-              .map(ObservationMutationConverter::toObject)
+              .map(SubmissionMutationConverter::toObject)
               .orElse(FieldValue.delete()));
     }
     return map.build();

@@ -108,7 +108,7 @@ public class SubmissionConverterTest {
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
-        new ObservationDocument(
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
@@ -158,7 +158,7 @@ public class SubmissionConverterTest {
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
-        new ObservationDocument(
+        new SubmissionDocument(
             /* featureId */
             "feature999",
             /* taskId */
@@ -180,7 +180,7 @@ public class SubmissionConverterTest {
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
-        new ObservationDocument(
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
@@ -211,7 +211,7 @@ public class SubmissionConverterTest {
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
-        new ObservationDocument(
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
@@ -244,7 +244,7 @@ public class SubmissionConverterTest {
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
-        new ObservationDocument(
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
@@ -288,7 +288,7 @@ public class SubmissionConverterTest {
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
-        new ObservationDocument(
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
@@ -324,12 +324,12 @@ public class SubmissionConverterTest {
   /**
    * Mock submission document snapshot to return the specified id and object representation.
    */
-  private void mockObservationDocumentSnapshot(String id, ObservationDocument doc) {
+  private void mockObservationDocumentSnapshot(String id, SubmissionDocument doc) {
     when(observationDocumentSnapshot.getId()).thenReturn(id);
-    when(observationDocumentSnapshot.toObject(ObservationDocument.class)).thenReturn(doc);
+    when(observationDocumentSnapshot.toObject(SubmissionDocument.class)).thenReturn(doc);
   }
 
   private Submission toSubmission() {
-    return ObservationConverter.toSubmission(feature, observationDocumentSnapshot);
+    return SubmissionConverter.toSubmission(feature, observationDocumentSnapshot);
   }
 }
