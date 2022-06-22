@@ -123,7 +123,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final FeatureMutation TEST_POLYGON_FEATURE_MUTATION =
       createTestPolygonFeatureMutation(TEST_POLYGON_1);
 
-  private static final SubmissionMutation TEST_OBSERVATION_MUTATION =
+  private static final SubmissionMutation TEST_SUBMISSION_MUTATION =
       SubmissionMutation.builder()
           .setSubmissionId("submission id")
           .setTask(TEST_TASK)
@@ -427,18 +427,18 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).test().assertComplete();
+    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete();
 
     localDataStore
         .getPendingMutations("feature id")
         .test()
-        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION));
+        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_SUBMISSION_MUTATION));
 
     PointFeature feature =
         (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     Submission submission =
         localDataStore.getSubmission(feature, "submission id").blockingGet();
-    assertEquivalent(TEST_OBSERVATION_MUTATION, submission);
+    assertEquivalent(TEST_SUBMISSION_MUTATION, submission);
 
     // now update the inserted submission with new responses
     ImmutableList<ResponseDelta> deltas =
@@ -450,7 +450,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
                 .build());
 
     SubmissionMutation mutation =
-        TEST_OBSERVATION_MUTATION.toBuilder()
+        TEST_SUBMISSION_MUTATION.toBuilder()
             .setResponseDeltas(deltas)
             .setId(2L)
             .setType(Mutation.Type.UPDATE)
@@ -460,13 +460,13 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore
         .getPendingMutations("feature id")
         .test()
-        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION, mutation));
+        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_SUBMISSION_MUTATION, mutation));
 
     // check if the submission was updated in the local database
     submission = localDataStore.getSubmission(feature, "submission id").blockingGet();
     assertEquivalent(mutation, submission);
 
-    // also test that getObservations returns the same submission as well
+    // also test that getSubmissions returns the same submission as well
     ImmutableList<Submission> submissions =
         localDataStore.getSubmissions(feature, "task id").blockingGet();
     assertThat(submissions).hasSize(1);
@@ -474,11 +474,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
   }
 
   @Test
-  public void testMergeObservation() {
+  public void testMergeSubmission() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
-    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait();
     PointFeature feature =
         (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
 
@@ -505,15 +505,15 @@ public class LocalDataStoreTest extends BaseHiltTest {
   }
 
   @Test
-  public void testDeleteObservation() {
+  public void testDeleteSubmission() {
     // Add test submission
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
-    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait();
 
     SubmissionMutation mutation =
-        TEST_OBSERVATION_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build();
+        TEST_SUBMISSION_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build();
 
     // Calling applyAndEnqueue marks the local submission as deleted.
     localDataStore.applyAndEnqueue(mutation).blockingAwait();
@@ -522,9 +522,9 @@ public class LocalDataStoreTest extends BaseHiltTest {
     submissionDao
         .findById("submission id")
         .test()
-        .assertValue(observationEntity -> observationEntity.getState() == EntityState.DELETED);
+        .assertValue(submissionEntity -> submissionEntity.getState() == EntityState.DELETED);
 
-    // Verify that the local submission doesn't end up in getObservations().
+    // Verify that the local submission doesn't end up in getSubmissions().
     PointFeature feature =
         (PointFeature) localDataStore.getFeature(TEST_SURVEY, "feature id").blockingGet();
     localDataStore.getSubmissions(feature, "task id").test().assertValue(ImmutableList.of());
@@ -542,7 +542,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
-    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
         localDataStore.getFeaturesOnceAndStream(TEST_SURVEY).test();

@@ -24,7 +24,7 @@ import java.util.Map;
  * Submission entity stored in Firestore.
  */
 @IgnoreExtraProperties
-class ObservationDocument {
+class SubmissionDocument {
 
   @Nullable
   private String featureId;
@@ -38,11 +38,11 @@ class ObservationDocument {
   private Map<String, Object> responses;
 
   @SuppressWarnings("unused")
-  public ObservationDocument() {
+  public SubmissionDocument() {
   }
 
   @SuppressWarnings("unused")
-  ObservationDocument(
+  SubmissionDocument(
       @Nullable String featureId,
       @Nullable String taskId,
       @Nullable AuditInfoNestedObject created,
