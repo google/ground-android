@@ -67,7 +67,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   public void testActivateSurvey_managersCanAddFeaturesToAllJobs() {
     Job job = newJob().setId("job").build();
     setTestSurvey(newSurvey().putJob(job).build());
-    when(userRepository.getUserRole(any())).thenReturn(Role.MANAGER);
+    when(userRepository.getUserRole(any())).thenReturn(Role.SURVEY_ORGANIZER);
 
     surveyRepository.activateSurvey("id");
 
@@ -97,7 +97,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   public void testActivateProject_contributorsCannotAddFeaturesToAnyJobs() {
     Job job = newJob().setId("job").build();
     setTestSurvey(newSurvey().putJob(job).build());
-    when(userRepository.getUserRole(any())).thenReturn(Role.CONTRIBUTOR);
+    when(userRepository.getUserRole(any())).thenReturn(Role.DATA_COLLECTOR);
 
     surveyRepository.activateSurvey("id");
 

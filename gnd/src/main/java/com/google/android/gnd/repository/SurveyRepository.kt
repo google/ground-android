@@ -115,7 +115,7 @@ class SurveyRepository @Inject constructor(
 
     private fun getAddableFeatureTypes(userRole: Role): ImmutableList<FeatureType> =
         when (userRole) {
-            Role.OWNER, Role.MANAGER -> FeatureType.ALL
+            Role.OWNER, Role.SURVEY_ORGANIZER -> FeatureType.ALL
             else -> ImmutableList.of()
         }
 

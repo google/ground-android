@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.model
 
-package com.google.android.gnd.model;
-
-public enum Role {
-  UNKNOWN,
-  OWNER,
-  MANAGER,
-  CONTRIBUTOR
+enum class Role {
+    UNKNOWN, OWNER, SURVEY_ORGANIZER, DATA_COLLECTOR
 }
