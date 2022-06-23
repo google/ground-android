@@ -129,28 +129,28 @@ public class FeatureRepository {
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature not found " + featureId)));
   }
 
-  public FeatureMutation newMutation(String surveyId, String layerId, Point point, Date date) {
+  public FeatureMutation newMutation(String surveyId, String jobId, Point point, Date date) {
     return FeatureMutation.builder()
         .setLocation(Optional.of(point))
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setJobId(layerId)
+        .setJobId(jobId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
   }
 
   public FeatureMutation newPolygonFeatureMutation(
-      String surveyId, String layerId, ImmutableList<Point> vertices, Date date) {
+      String surveyId, String jobId, ImmutableList<Point> vertices, Date date) {
     return FeatureMutation.builder()
         .setPolygonVertices(vertices)
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setFeatureId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setJobId(layerId)
+        .setJobId(jobId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();

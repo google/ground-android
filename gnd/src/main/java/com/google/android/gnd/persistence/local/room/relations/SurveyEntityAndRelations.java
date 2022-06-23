@@ -24,7 +24,7 @@ import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import java.util.List;
 
 /**
- * Represents relationship between SurveyEntity and LayerEntity.
+ * Represents relationship between SurveyEntity and JobEntity.
  *
  * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
  */

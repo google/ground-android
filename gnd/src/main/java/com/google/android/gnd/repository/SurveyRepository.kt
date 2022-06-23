@@ -103,14 +103,14 @@ class SurveyRepository @Inject constructor(
     private fun attachJobPermissions(survey: Survey): Survey {
         val userRole = userRepository.getUserRole(survey)
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
-        val layers: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
-        for (layer in survey.jobs) {
-            layers.put(
-                layer.id,
-                layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole)).build()
+        val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
+        for (job in survey.jobs) {
+            jobs.put(
+                job.id,
+                job.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole)).build()
             )
         }
-        return survey.toBuilder().setJobMap(layers.build()).build()
+        return survey.toBuilder().setJobMap(jobs.build()).build()
     }
 
     private fun getAddableFeatureTypes(userRole: Role): ImmutableList<FeatureType> =

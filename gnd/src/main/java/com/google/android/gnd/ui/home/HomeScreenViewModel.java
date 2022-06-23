@@ -247,7 +247,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Optional<Task> form = feature.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
-      Timber.e("No forms in layer");
+      Timber.e("No tasks in job");
       return;
     }
     Survey survey = feature.getSurvey();
