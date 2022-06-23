@@ -82,7 +82,7 @@ public class OfflineAreaRepository {
   }
 
   /**
-   * Download the offline basemap source for the active project.
+   * Download the offline basemap source for the active survey.
    *
    * <p>Only the first basemap source is used. Sources are always re-downloaded and overwritten on
    * subsequent calls.
@@ -129,7 +129,7 @@ public class OfflineAreaRepository {
   }
 
   /**
-   * Get a list of tile sources specified in the first basemap source of the active project that
+   * Get a list of tile sources specified in the first basemap source of the active survey that
    * intersect a given area.
    */
   @Cold
@@ -142,7 +142,7 @@ public class OfflineAreaRepository {
         .compose(Loadable::values)
         .map(Survey::getBaseMaps)
         .doOnError(
-            throwable -> Timber.e(throwable, "no basemap sources specified for the active project"))
+            throwable -> Timber.e(throwable, "no basemap sources specified for the active survey"))
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)
         .firstOrError()
@@ -150,7 +150,7 @@ public class OfflineAreaRepository {
         .flatMap(json -> geoJsonParser.intersectingTiles(bounds, json))
         .doOnError(
             throwable ->
-                Timber.e(throwable, "couldn't retrieve basemap sources for the active project"));
+                Timber.e(throwable, "couldn't retrieve basemap sources for the active survey"));
   }
 
   @Cold
@@ -266,12 +266,12 @@ public class OfflineAreaRepository {
         .getSurveyLoadingState()
         .compose(Loadable::values)
         .map(Survey::getBaseMaps)
-        .doOnError(t -> Timber.e(t, "No basemap sources specified for the active project"))
+        .doOnError(t -> Timber.e(t, "No basemap sources specified for the active survey"))
         .map(ImmutableList::asList)
         .flatMap(Flowable::fromIterable)
         .firstOrError()
         .flatMap(this::getTileSets)
-        .doOnError(t -> Timber.e(t, "Couldn't retrieve basemap sources for the active project"));
+        .doOnError(t -> Timber.e(t, "Couldn't retrieve basemap sources for the active survey"));
   }
 
   /**

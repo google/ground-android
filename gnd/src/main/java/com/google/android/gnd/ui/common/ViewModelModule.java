@@ -116,7 +116,7 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(SurveySelectorViewModel.class)
-  abstract ViewModel bindProjectSelectorViewModel(SurveySelectorViewModel viewModel);
+  abstract ViewModel bindSurveySelectorViewModel(SurveySelectorViewModel viewModel);
 
   @Binds
   @IntoMap

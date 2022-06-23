@@ -26,7 +26,7 @@ import io.reactivex.Single;
 import java.util.Arrays;
 import java.util.List;
 
-public class ProjectsCollectionReference extends FluentCollectionReference {
+public class SurveysCollectionReference extends FluentCollectionReference {
   private static final String ACL_FIELD = "acl";
   private static final String OWNER_ROLE = "owner";
   private static final String MANAGER_ROLE = "manager";
@@ -35,18 +35,18 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
   private static final List<String> VALID_ROLES =
       Arrays.asList(OWNER_ROLE, MANAGER_ROLE, CONTRIBUTOR_ROLE, VIEWER_ROLE);
 
-  ProjectsCollectionReference(CollectionReference ref) {
+  SurveysCollectionReference(CollectionReference ref) {
     super(ref);
   }
 
-  public ProjectDocumentReference project(String id) {
-    return new ProjectDocumentReference(reference().document(id));
+  public SurveyDocumentReference survey(String id) {
+    return new SurveyDocumentReference(reference().document(id));
   }
 
   @Cold
   public Single<List<Survey>> getReadable(User user) {
     return runQuery(
         reference().whereIn(FieldPath.of(ACL_FIELD, user.getEmail()), VALID_ROLES),
-        SurveyConverter::toProject);
+        SurveyConverter::toSurvey);
   }
 }

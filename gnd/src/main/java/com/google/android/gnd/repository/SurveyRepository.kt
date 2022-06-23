@@ -88,7 +88,7 @@ class SurveyRepository @Inject constructor(
     }
 
     private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
-        // Empty id indicates intent to deactivate the current project. Used on sign out.
+        // Empty id indicates intent to deactivate the current survey. Used on sign out.
         return if (surveyId.isEmpty())
             Flowable.just(Loadable.notLoaded())
         else
@@ -130,8 +130,8 @@ class SurveyRepository @Inject constructor(
             .loadSurvey(id)
             .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
             .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
-            .doOnSubscribe { Timber.d("Loading project $id") }
-            .doOnError { err -> Timber.d(err, "Error loading project from remote") }
+            .doOnSubscribe { Timber.d("Loading survey $id") }
+            .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
     fun loadLastActiveSurvey() = activateSurvey(lastActiveSurveyId)
 

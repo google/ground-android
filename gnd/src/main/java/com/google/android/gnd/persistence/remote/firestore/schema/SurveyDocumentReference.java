@@ -22,11 +22,11 @@ import com.google.firebase.firestore.DocumentReference;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Maybe;
 
-public class ProjectDocumentReference extends FluentDocumentReference {
+public class SurveyDocumentReference extends FluentDocumentReference {
   private static final String FEATURES = "features";
   private static final String SUBMISSIONS = "submissions";
 
-  ProjectDocumentReference(DocumentReference ref) {
+  SurveyDocumentReference(DocumentReference ref) {
     super(ref);
   }
 
@@ -39,6 +39,6 @@ public class ProjectDocumentReference extends FluentDocumentReference {
   }
 
   public Maybe<Survey> get() {
-    return RxFirestore.getDocument(reference()).map(SurveyConverter::toProject);
+    return RxFirestore.getDocument(reference()).map(SurveyConverter::toSurvey);
   }
 }

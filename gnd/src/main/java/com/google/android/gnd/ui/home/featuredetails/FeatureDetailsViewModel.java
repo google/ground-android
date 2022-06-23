@@ -98,8 +98,7 @@ public class FeatureDetailsViewModel extends ViewModel {
   }
 
   /**
-   * Returns true if the user is {@link Role#OWNER} or {@link Role#SURVEY_ORGANIZER} of the
-   * project.
+   * Returns true if the user is {@link Role#OWNER} or {@link Role#SURVEY_ORGANIZER} of the survey.
    */
   private boolean isUserAuthorizedToModifyFeature(Feature feature) {
     Role role = userRepository.getUserRole(feature.getSurvey());

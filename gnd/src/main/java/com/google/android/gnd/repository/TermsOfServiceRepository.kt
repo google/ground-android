@@ -24,7 +24,7 @@ import io.reactivex.Maybe
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-private const val LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS: Long = 30
+private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS: Long = 30
 
 class TermsOfServiceRepository @Inject constructor(
     private val remoteDataStore: RemoteDataStore, private val localValueStore: LocalValueStore) {
@@ -32,7 +32,7 @@ class TermsOfServiceRepository @Inject constructor(
     val termsOfService: @Cold Maybe<TermsOfService>
         get() = remoteDataStore
             .loadTermsOfService()
-            .timeout(LOAD_REMOTE_PROJECT_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
 
     var isTermsOfServiceAccepted: Boolean
         get() = localValueStore.isTermsOfServiceAccepted
