@@ -15,18 +15,17 @@
  */
 package com.google.android.gnd.persistence.remote.firestore.schema
 
-import kotlin.Throws
-import com.google.android.gnd.persistence.remote.DataStoreException
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.feature.*
+import com.google.android.gnd.persistence.remote.DataStoreException
+import com.google.common.collect.ImmutableList
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.GeoPoint
 import timber.log.Timber
-import com.google.common.collect.ImmutableList
 
 /** Converts between Firestore documents and [Feature] instances.  */
 object FeatureConverter {
-    const val LAYER_ID = "layerId"
+    const val JOB_ID = "jobId"
     const val LOCATION = "location"
     const val CREATED = "created"
     const val LAST_MODIFIED = "lastModified"
@@ -111,11 +110,11 @@ object FeatureConverter {
     private fun fillFeature(
         builder: Feature.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
     ) {
-        val layerId = DataStoreException.checkNotNull(featureDoc.jobId, LAYER_ID)
-        val layer =
+        val jobId = DataStoreException.checkNotNull(featureDoc.jobId, JOB_ID)
+        val job =
             DataStoreException.checkNotEmpty(
-                survey.getJob(layerId),
-                "layer ${featureDoc.jobId}"
+                survey.getJob(jobId),
+                "job ${featureDoc.jobId}"
             )
         // Degrade gracefully when audit info missing in remote db.
         val created = featureDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
@@ -125,7 +124,7 @@ object FeatureConverter {
             .setSurvey(survey)
             .setCustomId(featureDoc.customId)
             .setCaption(featureDoc.caption)
-            .setJob(layer)
+            .setJob(job)
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }

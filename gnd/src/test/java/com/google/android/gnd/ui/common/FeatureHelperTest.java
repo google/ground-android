@@ -110,11 +110,9 @@ public class FeatureHelperTest extends BaseHiltTest {
   @Test
   public void testGetSubtitle() {
     PointFeature feature =
-        POINT_FEATURE.toBuilder()
-            .setJob(JOB.toBuilder().setName("some layer").build())
-            .build();
+        POINT_FEATURE.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
 
-    assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Layer: some layer");
+    assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
   }
 
   @Test

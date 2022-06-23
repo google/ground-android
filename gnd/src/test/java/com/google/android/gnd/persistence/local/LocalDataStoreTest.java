@@ -83,7 +83,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .build();
 
   private static final Job TEST_JOB =
-      Job.newBuilder().setId("layer id").setName("heading title").setTask(TEST_TASK).build();
+      Job.newBuilder().setId("job id").setName("heading title").setTask(TEST_TASK).build();
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
@@ -139,7 +139,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setSyncStatus(SyncStatus.PENDING)
           .setSurveyId("survey id")
           .setFeatureId("feature id")
-          .setJobId("layer id")
+          .setJobId("job id")
           .setUserId("user id")
           .setClientTimestamp(new Date())
           .build();
@@ -198,7 +198,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setJobId("layer id")
+        .setJobId("job id")
         .setClientTimestamp(new Date())
         .build();
   }
@@ -214,7 +214,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setJobId("layer id")
+        .setJobId("job id")
         .setClientTimestamp(new Date())
         .build();
   }
@@ -252,8 +252,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testRemovedJobFromSurvey() {
-    Job job1 = Job.newBuilder().setId("layer 1").setName("layer 1 name").build();
-    Job job2 = Job.newBuilder().setId("layer 2").setName("layer 2 name").build();
+    Job job1 = Job.newBuilder().setId("job 1").setName("job 1 name").build();
+    Job job2 = Job.newBuilder().setId("job 2").setName("job 2 name").build();
 
     Survey survey =
         Survey.newBuilder()

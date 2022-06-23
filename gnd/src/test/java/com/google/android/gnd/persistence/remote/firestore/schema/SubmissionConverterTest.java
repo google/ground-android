@@ -96,8 +96,8 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission() {
     setUpTestSurvey(
-        "layer001",
-        "form001",
+        "job001",
+        "task001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
         newField()
             .setId("field2")
@@ -114,7 +114,7 @@ public class SubmissionConverterTest {
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -156,7 +156,7 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_mismatchedFeatureId() {
     setUpTestSurvey(
-        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -164,7 +164,7 @@ public class SubmissionConverterTest {
             /* featureId */
             "feature999",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -178,7 +178,7 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_nullResponses() {
     setUpTestSurvey(
-        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -186,7 +186,7 @@ public class SubmissionConverterTest {
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -209,7 +209,7 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyTextResponse() {
     setUpTestSurvey(
-        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -217,7 +217,7 @@ public class SubmissionConverterTest {
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -240,8 +240,8 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyMultipleChoiceResponse() {
     setUpTestSurvey(
-        "layer001",
-        "form001",
+        "job001",
+        "task001",
         newField().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
@@ -250,7 +250,7 @@ public class SubmissionConverterTest {
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -270,21 +270,21 @@ public class SubmissionConverterTest {
                 .build());
   }
 
-  private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
+  private void setUpTestSurvey(String jobId, String taskId, Field... fields) {
     task =
         newTask()
             .setId(taskId)
             .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();
-    job = newJob().setId(layerId).setTask(task).build();
+    job = newJob().setId(jobId).setTask(task).build();
     survey = newSurvey().putJob(job).build();
   }
 
   @Test
   public void testToSubmission_unknownFieldType() {
     setUpTestSurvey(
-        "layer001",
-        "form001",
+        "job001",
+        "task001",
         newField().setId("field1").setType(Field.Type.UNKNOWN).build(),
         newField().setId("field2").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
@@ -294,7 +294,7 @@ public class SubmissionConverterTest {
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */

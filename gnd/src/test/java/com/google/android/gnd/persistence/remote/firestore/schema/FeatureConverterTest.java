@@ -90,13 +90,13 @@ public class FeatureConverterTest {
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
-  private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
+  private void setUpTestSurvey(String jobId, String taskId, Field... fields) {
     Task task =
         newTask()
             .setId(taskId)
             .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();
-    job = newJob().setId(layerId).setTask(task).build();
+    job = newJob().setId(jobId).setTask(task).build();
     survey = newSurvey().putJob(job).build();
   }
 
@@ -104,7 +104,7 @@ public class FeatureConverterTest {
   public void testToFeature() {
     setUpTestGeometry();
     setUpTestSurvey(
-        "layer001",
+        "job001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
         newField()
@@ -119,8 +119,8 @@ public class FeatureConverterTest {
     mockFeatureDocumentSnapshot(
         "feature123",
         new FeatureDocument(
-            /* layerId */
-            "layer001",
+            /* jobId */
+            "job001",
             /* customId */
             null,
             /* caption */
@@ -143,7 +143,7 @@ public class FeatureConverterTest {
   public void testToFeature_nullFeature() {
     setUpTestGeometry();
     setUpTestSurvey(
-        "layer001",
+        "job001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
         newField()
@@ -158,8 +158,8 @@ public class FeatureConverterTest {
     mockFeatureDocumentSnapshot(
         "feature001",
         new FeatureDocument(
-            /* layerId */
-            "layer001",
+            /* jobId */
+            "job001",
             /* customId */
             null,
             /* caption */
@@ -182,7 +182,7 @@ public class FeatureConverterTest {
   public void testToFeature_zeroVertices() {
     setUpTestGeometry();
     setUpTestSurvey(
-        "layer001",
+        "job001",
         "form001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
         newField()
@@ -197,8 +197,8 @@ public class FeatureConverterTest {
     mockFeatureDocumentSnapshot(
         "feature001",
         new FeatureDocument(
-            /* layerId */
-            "layer001",
+            /* jobId */
+            "job001",
             /* customId */
             null,
             /* caption */

@@ -34,7 +34,7 @@ public abstract class Job {
     return getTask().filter(task -> task.getId().equals(taskId));
   }
 
-  /** Returns the list of feature types the current user may add to this layer. */
+  /** Returns the list of feature types the current user may add to this job. */
   public abstract ImmutableList<FeatureType> getUserCanAdd();
 
   public abstract Builder toBuilder();

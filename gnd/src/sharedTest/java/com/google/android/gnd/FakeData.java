@@ -44,7 +44,7 @@ public class FakeData {
   public static final Job JOB = newJob().build();
 
   public static Builder newJob() {
-    return Job.newBuilder().setId("LAYER").setName("Layer");
+    return Job.newBuilder().setId("JOB").setName("Job");
   }
 
   public static final User USER =

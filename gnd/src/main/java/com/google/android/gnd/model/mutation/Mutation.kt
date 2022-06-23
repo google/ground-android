@@ -101,7 +101,7 @@ sealed class Mutation {
 
         fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
         fun setFeatureId(featureId: String): Builder<T> = apply { this.featureId = featureId }
-        fun setJobId(layerId: String): Builder<T> = apply { this.jobId = layerId }
+        fun setJobId(jobId: String): Builder<T> = apply { this.jobId = jobId }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
         fun setClientTimestamp(timestamp: Date): Builder<T> =
             apply { this.clientTimestamp = timestamp }
