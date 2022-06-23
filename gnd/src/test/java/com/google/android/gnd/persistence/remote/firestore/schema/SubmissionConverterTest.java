@@ -18,10 +18,10 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
-import static com.google.android.gnd.model.TestModelBuilders.newForm;
 import static com.google.android.gnd.model.TestModelBuilders.newJob;
 import static com.google.android.gnd.model.TestModelBuilders.newPointFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
+import static com.google.android.gnd.model.TestModelBuilders.newTask;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -272,7 +272,7 @@ public class SubmissionConverterTest {
 
   private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
     task =
-        newForm()
+        newTask()
             .setId(taskId)
             .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();

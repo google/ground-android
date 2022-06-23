@@ -29,12 +29,12 @@ class JobConverter {
   static Job toJob(String id, JobNestedObject obj) {
     Job.Builder builder = Job.newBuilder();
     builder.setId(id).setName(getLocalizedMessage(obj.getName()));
-    if (obj.getForms() != null && !obj.getForms().isEmpty()) {
-      if (obj.getForms().size() > 1) {
+    if (obj.getTasks() != null && !obj.getTasks().isEmpty()) {
+      if (obj.getTasks().size() > 1) {
         Timber.e("Multiple forms not supported");
       }
-      String taskId = obj.getForms().keySet().iterator().next();
-      builder.setTask(FormConverter.toForm(taskId, obj.getForms().get(taskId)));
+      String taskId = obj.getTasks().keySet().iterator().next();
+      builder.setTask(TaskConverter.toTask(taskId, obj.getTasks().get(taskId)));
     }
     return builder.build();
   }

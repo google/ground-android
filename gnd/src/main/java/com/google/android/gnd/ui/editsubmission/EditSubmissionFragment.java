@@ -170,7 +170,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
-    viewModel.getTask().observe(getViewLifecycleOwner(), this::rebuildForm);
+    viewModel.getTask().observe(getViewLifecycleOwner(), this::rebuildTask);
     viewModel
         .getSaveResults()
         .observeOn(schedulers.ui())
@@ -278,7 +278,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         .subscribe(__ -> showTimeDialog(timeFieldViewModel));
   }
 
-  private void rebuildForm(Task task) {
+  private void rebuildTask(Task task) {
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();

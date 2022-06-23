@@ -84,10 +84,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
-  /**
-   * Task definition, loaded when view is initialized.
-   */
-  private final LiveData<Task> form;
+  /** Task definition, loaded when view is initialized. */
+  private final LiveData<Task> task;
 
   /**
    * Toolbar title, based on whether user is adding new or editing existing submission.
@@ -169,7 +167,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     this.submissionRepository = submissionRepository;
     this.permissionsManager = permissionsManager;
     this.bitmapUtil = bitmapUtil;
-    this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
+    this.task = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
 
@@ -178,7 +176,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   }
 
   public LiveData<Task> getTask() {
-    return form;
+    return task;
   }
 
   public LiveData<String> getToolbarTitle() {
