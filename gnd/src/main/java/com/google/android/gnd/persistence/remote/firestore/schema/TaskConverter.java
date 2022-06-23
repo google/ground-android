@@ -24,12 +24,10 @@ import com.google.android.gnd.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import java.util.Map;
 
-/**
- * Converts between Firestore nested objects and {@link Task} instances.
- */
-class FormConverter {
+/** Converts between Firestore nested objects and {@link Task} instances. */
+class TaskConverter {
 
-  static Task toForm(String taskId, FormNestedObject obj) {
+  static Task toTask(String taskId, TaskNestedObject obj) {
     return Task.newBuilder().setId(taskId).setSteps(toList(obj.getElements())).build();
   }
 

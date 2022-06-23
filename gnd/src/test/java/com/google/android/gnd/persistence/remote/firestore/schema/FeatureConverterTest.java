@@ -18,12 +18,12 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
-import static com.google.android.gnd.model.TestModelBuilders.newForm;
 import static com.google.android.gnd.model.TestModelBuilders.newGeoPointPolygonVertices;
 import static com.google.android.gnd.model.TestModelBuilders.newJob;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonFeature;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonVertices;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
+import static com.google.android.gnd.model.TestModelBuilders.newTask;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -92,7 +92,7 @@ public class FeatureConverterTest {
 
   private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
     Task task =
-        newForm()
+        newTask()
             .setId(taskId)
             .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();
