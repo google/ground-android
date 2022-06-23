@@ -77,7 +77,7 @@ public class SubmissionRepository {
   }
 
   /**
-   * Retrieves the submissions or the specified project, feature, and task.
+   * Retrieves the submissions or the specified survey, feature, and task.
    *
    * <ol>
    *   <li>Attempt to sync remote submission changes to the local data store. If network is not

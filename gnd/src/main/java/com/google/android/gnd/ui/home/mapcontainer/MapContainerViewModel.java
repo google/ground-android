@@ -172,8 +172,8 @@ public class MapContainerViewModel extends AbstractViewModel {
             createCameraUpdateFlowable(locationLockStateFlowable));
     this.surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
-    // TODO: Clear feature markers when project is deactivated.
-    // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
+    // TODO: Clear feature markers when survey is deactivated.
+    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo?
     // Features that are persisted to the local and remote dbs.
     Flowable<ImmutableSet<MapFeature>> savedMapFeatures =
@@ -199,7 +199,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             offlineAreaRepository
                 .getDownloadedTileSetsOnceAndStream()
                 .map(set -> stream(set).map(TileSet::getPath).collect(toImmutableSet())));
-    disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onProjectChange));
+    disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onSurveyChange));
   }
 
   private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
@@ -226,7 +226,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private void onProjectChange(Optional<Survey> project) {
+  private void onSurveyChange(Optional<Survey> project) {
     project
         .map(Survey::getId)
         .flatMap(surveyRepository::getLastCameraPosition)

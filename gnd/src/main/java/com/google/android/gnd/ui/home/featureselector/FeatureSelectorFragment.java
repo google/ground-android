@@ -85,7 +85,7 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
 
   private void showFeatureList(ImmutableList<Feature> features) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
-    checkNotNull(listAdapter, "listAdapter was null when attempting to show project list");
+    checkNotNull(listAdapter, "listAdapter was null when attempting to show survey list");
 
     listAdapter.clear();
     stream(features).map(viewModel::getListItemText).forEach(listAdapter::add);

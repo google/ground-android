@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 /** Object representation of Ground Firestore database. */
 @Singleton
 public class GroundFirestore extends FluentFirestore {
-  private static final String PROJECTS = "projects";
+  private static final String SURVEYS = "surveys";
   private static final String CONFIG = "config";
 
   @Inject
@@ -32,8 +32,8 @@ public class GroundFirestore extends FluentFirestore {
     super(db);
   }
 
-  public ProjectsCollectionReference projects() {
-    return new ProjectsCollectionReference(db().collection(PROJECTS));
+  public SurveysCollectionReference surveys() {
+    return new SurveysCollectionReference(db().collection(SURVEYS));
   }
 
   public TermsOfServiceCollectionReference termsOfService() {

@@ -72,7 +72,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
     private val locationLockState: LiveData<BooleanOrError>
     private val vertices: MutableList<Point> = ArrayList()
 
-    /** The currently selected layer and project for the polygon drawing.  */
+    /** The currently selected layer and survey for the polygon drawing.  */
     private val selectedJob = BehaviorProcessor.create<Job>()
     private val selectedSurvey = BehaviorProcessor.create<Survey>()
     private var cameraTarget: Point? = null

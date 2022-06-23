@@ -18,7 +18,7 @@ package com.google.android.gnd.util
 object Localization {
     @JvmStatic
     fun getLocalizedMessage(messages: Map<String, String>): String {
-        // TODO(#711): Allow user to select project/form language and use here.
+        // TODO(#711): Allow user to select survey/form language and use here.
         // TODO: Return Optional and handle empty strings in client code.
         return messages["_"] ?: messages["en"] ?: messages["pt"] ?: "<Untitled>"
     }
