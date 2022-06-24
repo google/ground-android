@@ -13,67 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.repository
 
-package com.google.android.gnd.repository;
-
-import static com.google.android.gnd.util.Enums.toEnum;
-
-import com.google.android.gnd.model.Role;
-import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.LocalValueStore;
-import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.rx.annotations.Cold;
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import javax.inject.Inject;
+import com.google.android.gnd.model.Role
+import com.google.android.gnd.model.Survey
+import com.google.android.gnd.model.User
+import com.google.android.gnd.persistence.local.LocalDataStore
+import com.google.android.gnd.persistence.local.LocalValueStore
+import com.google.android.gnd.rx.Schedulers
+import com.google.android.gnd.rx.annotations.Cold
+import com.google.android.gnd.system.auth.AuthenticationManager
+import com.google.android.gnd.util.Enums.toEnum
+import io.reactivex.Completable
+import io.reactivex.Single
+import javax.inject.Inject
 
 /**
- * Coordinates persistence of {@link User} instance in local data store. For more details on this
+ * Coordinates persistence of [User] instance in local data store. For more details on this
  * pattern and overall architecture, see * https://developer.android.com/jetpack/docs/guide.
  */
-public class UserRepository {
+class UserRepository @Inject constructor(
+    private val authenticationManager: AuthenticationManager,
+    private val localDataStore: LocalDataStore,
+    private val localValueStore: LocalValueStore,
+    private val schedulers: Schedulers
+) {
 
-  private final AuthenticationManager authenticationManager;
-  private final LocalDataStore localDataStore;
-  private final LocalValueStore localValueStore;
-  private final Schedulers schedulers;
+    val currentUser: User
+        get() = authenticationManager.currentUser
 
-  @Inject
-  public UserRepository(
-      AuthenticationManager authenticationManager,
-      LocalDataStore localDataStore,
-      LocalValueStore localValueStore,
-      Schedulers schedulers) {
-    this.authenticationManager = authenticationManager;
-    this.localDataStore = localDataStore;
-    this.localValueStore = localValueStore;
-    this.schedulers = schedulers;
-  }
+    fun getUserRole(survey: Survey): Role {
+        val value = survey.acl[currentUser.email]
+        return if (value == null) Role.UNKNOWN else toEnum(Role::class.java, value)
+    }
 
-  public User getCurrentUser() {
-    return authenticationManager.getCurrentUser();
-  }
+    fun saveUser(user: User): @Cold Completable =
+        localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io())
 
-  public Role getUserRole(Survey survey) {
-    String value = survey.getAcl().get(getCurrentUser().getEmail());
-    return value == null ? Role.UNKNOWN : toEnum(Role.class, value);
-  }
+    fun getUser(userId: String): @Cold Single<User> =
+        localDataStore.getUser(userId)
 
-  @Cold
-  public Completable saveUser(User user) {
-    return localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io());
-  }
-
-  @Cold
-  public Single<User> getUser(String userId) {
-    return localDataStore.getUser(userId);
-  }
-
-  /** Clears all user-specific preferences and settings. */
-  public void clearUserPreferences() {
-    localValueStore.clear();
-  }
+    /** Clears all user-specific preferences and settings.  */
+    fun clearUserPreferences() =
+        localValueStore.clear()
 }
