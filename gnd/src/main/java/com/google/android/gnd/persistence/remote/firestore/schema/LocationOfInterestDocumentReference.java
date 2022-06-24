@@ -22,8 +22,8 @@ import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentRe
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
 
-public class FeatureDocumentReference extends FluentDocumentReference {
-  FeatureDocumentReference(DocumentReference ref) {
+public class LocationOfInterestDocumentReference extends FluentDocumentReference {
+  LocationOfInterestDocumentReference(DocumentReference ref) {
     super(ref);
   }
 
@@ -32,11 +32,11 @@ public class FeatureDocumentReference extends FluentDocumentReference {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        merge(FeatureMutationConverter.toMap(mutation, user), batch);
+        merge(LocationOfInterestMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
         // The server is expected to do a cascading delete of all submissions for the deleted
-        // feature.
+        // locationOfInterest.
         delete(batch);
         break;
       default:

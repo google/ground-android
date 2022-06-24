@@ -57,15 +57,16 @@ public interface RemoteDataStore {
   Maybe<TermsOfService> loadTermsOfService();
 
   /**
-   * Returns all features in the specified survey, then continues to emit any remote updates to the
-   * set of features in the survey until all subscribers have been disposed.
+   * Returns all locationOfInterests in the specified survey, then continues to emit any remote
+   * updates to the set of locationOfInterests in the survey until all subscribers have been
+   * disposed.
    */
   @Cold(stateful = true, terminates = false)
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey);
 
   /**
-   * Returns a list of all submissions associated with the specified feature, or an empty list if
-   * none are found.
+   * Returns a list of all submissions associated with the specified locationOfInterest, or an empty
+   * list if none are found.
    */
   @Cold
   Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature);

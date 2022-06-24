@@ -24,7 +24,7 @@ import com.google.firebase.firestore.GeoPoint
 import timber.log.Timber
 
 /** Converts between Firestore documents and [Feature] instances.  */
-object FeatureConverter {
+object LocationOfInterestConverter {
     const val JOB_ID = "jobId"
     const val LOCATION = "location"
     const val CREATED = "created"
@@ -36,33 +36,33 @@ object FeatureConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toFeature(survey: Survey, doc: DocumentSnapshot): Feature<*> {
-        val featureDoc = DataStoreException.checkNotNull(
-            doc.toObject(FeatureDocument::class.java),
-            "feature data"
+    fun toLocationOfInterest(survey: Survey, doc: DocumentSnapshot): Feature<*> {
+        val loiDoc = DataStoreException.checkNotNull(
+            doc.toObject(LocationOfInterestDocument::class.java),
+            "locationOfInterest data"
         )
 
-        if (featureDoc.geometry != null && hasNonEmptyVertices(featureDoc)) {
-            return toFeatureFromGeometry(survey, doc, featureDoc)
+        if (loiDoc.geometry != null && hasNonEmptyVertices(loiDoc)) {
+            return toLocationOfInterestFromGeometry(survey, doc, loiDoc)
         }
 
-        featureDoc.geoJson?.let {
+        loiDoc.geoJson?.let {
             val builder = GeoJsonFeature.newBuilder().setGeoJsonString(it)
-            fillFeature(builder, survey, doc.id, featureDoc)
+            fillFeature(builder, survey, doc.id, loiDoc)
             return builder.build()
         }
 
-        featureDoc.location?.let {
+        loiDoc.location?.let {
             val builder = PointFeature.newBuilder().setPoint(toPoint(it))
-            fillFeature(builder, survey, doc.id, featureDoc)
+            fillFeature(builder, survey, doc.id, loiDoc)
             return builder.build()
         }
 
-        throw DataStoreException("No geometry in remote feature ${doc.id}")
+        throw DataStoreException("No geometry in remote locationOfInterest ${doc.id}")
     }
 
-    private fun hasNonEmptyVertices(featureDocument: FeatureDocument): Boolean {
-        val geometry = featureDocument.geometry
+    private fun hasNonEmptyVertices(locationOfInterestDocument: LocationOfInterestDocument): Boolean {
+        val geometry = locationOfInterestDocument.geometry
 
         if (geometry == null
             || geometry[GEOMETRY_COORDINATES] == null
@@ -75,24 +75,24 @@ object FeatureConverter {
         return coordinates?.isNotEmpty() ?: false
     }
 
-    private fun toFeatureFromGeometry(
-        survey: Survey, doc: DocumentSnapshot, featureDoc: FeatureDocument
+    private fun toLocationOfInterestFromGeometry(
+        survey: Survey, doc: DocumentSnapshot, loiDoc: LocationOfInterestDocument
     ): PolygonFeature {
-        val geometry = featureDoc.geometry
+        val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in feature ${doc.id}: $type")
+            throw DataStoreException("Unknown geometry type in locationOfInterest ${doc.id}: $type")
         }
 
         val coordinates = geometry[GEOMETRY_COORDINATES]
         if (coordinates !is List<*>) {
-            throw DataStoreException("Invalid coordinates in feature ${doc.id}: $coordinates")
+            throw DataStoreException("Invalid coordinates in locationOfInterest ${doc.id}: $coordinates")
         }
 
         val vertices = ImmutableList.builder<Point>()
         for (point in coordinates) {
             if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in feature ${doc.id}")
+                Timber.d("Ignoring illegal point type in locationOfInterest ${doc.id}")
                 break
             }
             vertices.add(
@@ -103,27 +103,30 @@ object FeatureConverter {
         }
 
         val builder = PolygonFeature.builder().setVertices(vertices.build())
-        fillFeature(builder, survey, doc.id, featureDoc)
+        fillFeature(builder, survey, doc.id, loiDoc)
         return builder.build()
     }
 
     private fun fillFeature(
-        builder: Feature.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
+        builder: Feature.Builder<*>,
+        survey: Survey,
+        id: String,
+        loiDoc: LocationOfInterestDocument
     ) {
-        val jobId = DataStoreException.checkNotNull(featureDoc.jobId, JOB_ID)
+        val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
         val job =
             DataStoreException.checkNotEmpty(
                 survey.getJob(jobId),
-                "job ${featureDoc.jobId}"
+                "job ${loiDoc.jobId}"
             )
         // Degrade gracefully when audit info missing in remote db.
-        val created = featureDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
-        val lastModified = featureDoc.lastModified ?: created
+        val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
+        val lastModified = loiDoc.lastModified ?: created
         builder
             .setId(id)
             .setSurvey(survey)
-            .setCustomId(featureDoc.customId)
-            .setCaption(featureDoc.caption)
+            .setCustomId(loiDoc.customId)
+            .setCaption(loiDoc.caption)
             .setJob(job)
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))

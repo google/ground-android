@@ -50,9 +50,11 @@ class SubmissionConverter {
   static Submission toSubmission(Feature feature, DocumentSnapshot snapshot)
       throws DataStoreException {
     SubmissionDocument doc = snapshot.toObject(SubmissionDocument.class);
-    String featureId = checkNotNull(doc.getFeatureId(), "featureId");
-    if (!feature.getId().equals(featureId)) {
-      throw new DataStoreException("Submission doc featureId doesn't match specified feature id");
+    String locationOfInterestId =
+        checkNotNull(doc.getLocationOfInterestId(), "locationOfInterestId");
+    if (!feature.getId().equals(locationOfInterestId)) {
+      throw new DataStoreException(
+          "Submission doc featureId doesn't match specified locationOfInterest id");
     }
     String taskId = checkNotNull(doc.getTaskId(), "taskId");
     Task task = checkNotEmpty(feature.getJob().getTask(taskId), "task " + taskId);
