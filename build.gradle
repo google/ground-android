@@ -106,7 +106,7 @@ tasks.dependencyUpdates {
     checkConstraints = true
     gradleReleaseChannel = "current"
     outputFormatter = "json,plain"
-    outputDir = "gnd/build/reports/dependencyUpdates"
+    outputDir = "ground/build/reports/dependencyUpdates"
 }
 
 ext {

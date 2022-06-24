@@ -29,7 +29,7 @@ jacocoAndroidUnitTestReport {
     excludes += [
         '**/databinding/*',
         '**/generated/callback/*',
-        '**/_com_google_android_gnd_*',
+        '**/_com_google_android_ground_*',
         '**/hilt_aggregated_deps',
         '**/local/room/dao/*',
         '**/AutoOneOf_*',

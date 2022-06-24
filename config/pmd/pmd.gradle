@@ -22,7 +22,7 @@
  * For manual run,
  * $ ./gradlew pmd
  *
- * Reports (both html and xml formats) are stored under: gnd/build/reports/pmd/
+ * Reports (both html and xml formats) are stored under: ground/build/reports/pmd/
  */
 
 apply plugin: 'pmd'

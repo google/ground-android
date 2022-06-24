@@ -143,7 +143,7 @@ following the instructions at:
 
   https://developers.google.com/maps/documentation/android-api/signup.
 
-Edit or create `gnd/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` property to your API key.
+Edit or create `ground/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` property to your API key.
 ```
   GOOGLE_MAPS_API_KEY=AIbzvW8e0ub...
 ```
@@ -165,13 +165,13 @@ $ keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebug
 
     https://console.firebase.google.com/
 
-2. Save config file for Android app to `gnd/src/debug/google-services.json`:
+2. Save config file for Android app to `ground/src/debug/google-services.json`:
 
     https://support.google.com/firebase/answer/7015592
 
 This includes the API key and URL for your new Firebase project.
 
-**Note:** Do not overwrite `gnd/google-services.json`, this is used with Google Cloud build and should be left as-is.
+**Note:** Do not overwrite `ground/google-services.json`, this is used with Google Cloud build and should be left as-is.
 
 
 ### Set up Google Cloud Build (optional)
@@ -194,7 +194,7 @@ Used to build with Google Cloud and for running integration tests:
    java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
    ```
     
-  Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by going to Build -> Clean Project.
+  Solution: Ensure `ground/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by going to Build -> Clean Project.
 
 * Gradle Build fails with "License for package Android SDK Platform ... not accepted":
 

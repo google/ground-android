@@ -68,7 +68,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > gnd/google-services.json
+        gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > ground/google-services.json
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &assemble_debug 'Assemble debug apks'
@@ -130,8 +130,8 @@ steps:
       - |
         gcloud --quiet beta firebase test android run \
         --type instrumentation --num-uniform-shards=1 \
-        --app gnd/build/outputs/apk/staging/*.apk \
-        --test gnd/build/outputs/apk/androidTest/staging/*.apk \
+        --app ground/build/outputs/apk/staging/*.apk \
+        --test ground/build/outputs/apk/androidTest/staging/*.apk \
         --device model=Pixel2,version=28,locale=en,orientation=portrait \
         --results-bucket ${_ARTIFACT_BUCKET} \
         --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
@@ -145,7 +145,7 @@ steps:
       - *unit_tests
       - *instrumented_tests
     args: [ 'cp', '-r',
-            'gnd/build/reports',
+            'ground/build/reports',
             'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports' ]
 
   # Update status badge and fail build if errors were found in "build" step
@@ -164,12 +164,12 @@ steps:
         if [[ "${_PUSH_TO_MASTER}" ]]; then
 
           # Gradle Dependencies Status
-          if [[ -f gnd/build/reports/dependencyUpdates/report.json ]]; then
-            python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
+          if [[ -f ground/build/reports/dependencyUpdates/report.json ]]; then
+            python cloud-builder/generate_dependency_health_svg.py ground/build/reports/dependencyUpdates/report.json dependency.svg
 
             # Copy artifacts for Github badge
             gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
-            gsutil cp gnd/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
+            gsutil cp ground/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
 
             # Makes files publicly readable
             gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
@@ -204,7 +204,7 @@ steps:
         # TODO: Add a check for _PUSH_TO_MASTER
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov -t ${_CODECOV_TOKEN} -R gnd/build/jacoco
+        ./codecov -t ${_CODECOV_TOKEN} -R ground/build/jacoco
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'
