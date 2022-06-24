@@ -23,10 +23,10 @@
     <import type="android.view.View" />
     <variable
       name="editSubmissionViewModel"
-      type="com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel" />
+      type="com.google.android.ground.ui.editsubmission.EditSubmissionViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editsubmission.PhotoFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.PhotoFieldViewModel" />
   </data>
 
   <FrameLayout

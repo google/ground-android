@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editsubmission.TextFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.TextFieldViewModel" />
   </data>
 
   <LinearLayout

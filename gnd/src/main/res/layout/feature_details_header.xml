@@ -25,10 +25,10 @@
     <!-- TODO: Refactor and remove reference to Fragment. -->
     <variable
       name="fragment"
-      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment" />
+      type="com.google.android.ground.ui.home.featuredetails.FeatureDetailsFragment" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
+      type="com.google.android.ground.ui.home.featuredetails.FeatureDetailsViewModel" />
   </data>
 
   <FrameLayout

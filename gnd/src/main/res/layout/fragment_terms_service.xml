@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.tos.TermsOfServiceViewModel" />
+      type="com.google.android.ground.ui.tos.TermsOfServiceViewModel" />
   </data>
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.gnd.ui.common.TwoLineToolbar
+        <com.google.android.ground.ui.common.TwoLineToolbar
           android:id="@+id/terms_toolbar"
           android:layout_width="match_parent"
           android:layout_height="?attr/actionBarSize"

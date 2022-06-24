@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
+        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
       <FrameLayout
         android:id="@+id/map_scrim"
@@ -55,7 +55,7 @@
 
         <androidx.fragment.app.FragmentContainerView
           android:id="@+id/feature_details_frag"
-          android:name="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment"
+          android:name="com.google.android.ground.ui.home.featuredetails.FeatureDetailsFragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           tools:layout="@layout/feature_details_frag" />

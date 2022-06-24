@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.signin.SignInViewModel"/>
+      type="com.google.android.ground.ui.signin.SignInViewModel" />
   </data>
 
   <androidx.coordinatorlayout.widget.CoordinatorLayout

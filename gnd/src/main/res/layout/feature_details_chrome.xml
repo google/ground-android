@@ -22,14 +22,14 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
   </data>
 
   <RelativeLayout
     android:id="@+id/bottom_sheet_chrome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsChromeBehavior">
+    app:layout_behavior="com.google.android.ground.ui.home.featuredetails.FeatureDetailsChromeBehavior">
 
     <FrameLayout
       android:id="@+id/toolbar_wrapper"
@@ -38,7 +38,7 @@
       android:layout_alignParentTop="true"
       android:background="@android:color/transparent">
 
-      <com.google.android.gnd.ui.common.TwoLineToolbar
+      <com.google.android.ground.ui.common.TwoLineToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"

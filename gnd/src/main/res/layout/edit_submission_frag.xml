@@ -22,10 +22,10 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel" />
+      type="com.google.android.ground.ui.editsubmission.EditSubmissionViewModel" />
     <variable
       name="fragment"
-      type="com.google.android.gnd.ui.editsubmission.EditSubmissionFragment" />
+      type="com.google.android.ground.ui.editsubmission.EditSubmissionFragment" />
   </data>
 
   <!-- Use CoordinatorLayout to avoid rendering over top system bar. -->
@@ -54,7 +54,7 @@
           android:layout_height="wrap_content"
           android:orientation="vertical">
 
-          <com.google.android.gnd.ui.common.TwoLineToolbar
+          <com.google.android.ground.ui.common.TwoLineToolbar
             android:id="@+id/edit_submission_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"

@@ -20,7 +20,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.submissiondetails.SubmissionDetailsViewModel" />
+      type="com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel" />
   </data>
 
   <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -44,7 +44,7 @@
         app:cardCornerRadius="0dp"
         app:cardElevation="@dimen/toolbar_elevation">
 
-        <com.google.android.gnd.ui.common.TwoLineToolbar
+        <com.google.android.ground.ui.common.TwoLineToolbar
           android:id="@+id/submission_details_toolbar"
           android:layout_width="match_parent"
           android:layout_height="?attr/actionBarSize"

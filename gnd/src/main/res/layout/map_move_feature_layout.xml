@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.FeatureRepositionViewModel" />
+      type="com.google.android.ground.ui.home.mapcontainer.FeatureRepositionViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
