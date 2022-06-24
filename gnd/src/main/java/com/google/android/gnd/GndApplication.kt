@@ -51,16 +51,17 @@ class GndApplication : MultiDexApplication(), Configuration.Provider {
 
             // Log failures when trying to do work in the UI thread.
             setStrictMode()
+        } else {
+            // Prevent RxJava from force-quitting on unhandled errors. Defining an error handler is
+            // necessary even if all errors are handled to avoid UndeliverableException when errors
+            // are triggered on streams with all subscriptions disposed. Read more:
+            // https://medium.com/@bherbst/the-rxjava2-default-error-handler-e50e0cab6f9f
+            RxJavaPlugins.setErrorHandler { t: Throwable? -> RxDebug.logEnhancedStackTrace(t) }
         }
 
         // Enable RxJava assembly stack collection for more useful stack traces.
         RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf(javaClass.getPackage().name))
 
-        // Prevent RxJava from force-quitting on unhandled errors. Defining an error handler is
-        // necessary even if all errors are handled to avoid UndeliverableException when errors are
-        // triggered on streams with all subscriptions disposed. Read more:
-        // https://medium.com/@bherbst/the-rxjava2-default-error-handler-e50e0cab6f9f
-        RxJavaPlugins.setErrorHandler { t: Throwable? -> RxDebug.logEnhancedStackTrace(t) }
         WorkManager.initialize(applicationContext, workManagerConfiguration)
     }
 
