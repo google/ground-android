@@ -98,7 +98,7 @@
     tools:layout="@layout/sync_status_frag" />
   <fragment
     android:id="@+id/data_collection_fragment"
-    android:name="com.google.android.gnd.ui.datacollection.DataCollectionFragment"
+    android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
     android:label="@string/collect_data"
     tools:layout="@layout/data_collection_frag" />
   <fragment

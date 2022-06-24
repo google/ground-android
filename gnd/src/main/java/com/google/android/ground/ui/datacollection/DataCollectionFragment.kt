@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui.datacollection
+package com.google.android.ground.ui.datacollection
 
-import dagger.hilt.android.AndroidEntryPoint
-import com.google.android.gnd.ui.common.AbstractFragment
-import javax.inject.Inject
-import com.google.android.gnd.ui.common.FeatureHelper
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.gnd.MainActivity
-import com.google.android.gnd.databinding.DataCollectionFragBinding
-import com.google.android.gnd.ui.common.Navigator
+import com.google.android.ground.MainActivity
+import com.google.android.ground.databinding.DataCollectionFragBinding
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.FeatureHelper
+import com.google.android.ground.ui.common.Navigator
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task.  */
 @AndroidEntryPoint

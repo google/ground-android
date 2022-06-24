@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui.datacollection
+package com.google.android.ground.ui.datacollection
 
-import com.google.android.gnd.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.AbstractViewModel
 import javax.inject.Inject
 
 /**
