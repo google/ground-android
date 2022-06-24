@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
+import com.google.android.gnd.ui.datacollection.DataCollectionViewModel;
 import com.google.android.gnd.ui.editsubmission.DateFieldViewModel;
 import com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel;
 import com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldViewModel;
@@ -77,6 +78,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SyncStatusViewModel.class)
   abstract ViewModel bindSyncStatusViewModel(SyncStatusViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(DataCollectionViewModel.class)
+  abstract ViewModel bindDataCollectionViewModel(DataCollectionViewModel viewModel);
 
   @Binds
   @IntoMap

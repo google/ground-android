@@ -138,6 +138,9 @@
   <string name="sign_out">Sign out</string>
   <string name="cancel">Cancel</string>
   <string name="join_survey">Join survey</string>
+  <!-- TODO(#1146): Remove temporary button for launching data collection flow once complete  -->
+  <string name="launch_collect_data">Test collect data UI</string>
+  <string name="collect_data">Collect data</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>
