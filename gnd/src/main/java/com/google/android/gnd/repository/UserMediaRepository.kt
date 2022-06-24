@@ -13,111 +13,94 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.repository
 
-package com.google.android.gnd.repository;
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
-import com.google.android.gnd.Config;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.annotations.Cold;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import io.reactivex.Single;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import timber.log.Timber;
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import com.google.android.gnd.Config
+import com.google.android.gnd.persistence.remote.RemoteStorageManager
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
+import com.google.android.gnd.rx.annotations.Cold
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.reactivex.Single
+import timber.log.Timber
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Provides access to user-provided media stored locally and remotely. This currently includes only
  * photos.
  */
 @Singleton
-public class UserMediaRepository {
+class UserMediaRepository @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val remoteStorageManager: RemoteStorageManager,
+    private val uuidGenerator: OfflineUuidGenerator
+) {
 
-  private final Context context;
-  private final RemoteStorageManager remoteStorageManager;
-  private final OfflineUuidGenerator uuidGenerator;
+    private val rootDir: File?
+        get() = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
-  @Inject
-  public UserMediaRepository(
-      @ApplicationContext Context context,
-      RemoteStorageManager remoteStorageManager,
-      OfflineUuidGenerator uuidGenerator) {
-    this.context = context;
-    this.remoteStorageManager = remoteStorageManager;
-    this.uuidGenerator = uuidGenerator;
-  }
+    private fun createImageFilename(fieldId: String): String =
+        fieldId + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT
 
-  private File getRootDir() {
-    return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-  }
+    fun createImageFile(fieldId: String): File = File(rootDir, createImageFilename(fieldId))
 
-  public String createImageFilename(String fieldId) {
-    return fieldId + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT;
-  }
+    /**
+     * Creates a new file from bitmap and saves under external app directory.
+     *
+     * @throws IOException If path is not accessible or error occurs while saving file
+     */
+    @Throws(IOException::class)
+    fun savePhoto(bitmap: Bitmap, fieldId: String): File =
+        createImageFile(fieldId).apply {
+            FileOutputStream(this).use { fos ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            }
+            Timber.d("Photo saved %s : %b", path, exists())
+        }
 
-  public File createImageFile(String fieldId) {
-    return new File(getRootDir(), createImageFilename(fieldId));
-  }
+    @Throws(FileNotFoundException::class)
+    fun addImageToGallery(filePath: String, title: String): String =
+        MediaStore.Images.Media.insertImage(context.contentResolver, filePath, title, "")
 
-  /**
-   * Creates a new file from bitmap and saves under external app directory.
-   *
-   * @throws IOException If path is not accessible or error occurs while saving file
-   */
-  public File savePhoto(Bitmap bitmap, String fieldId) throws IOException {
-    File file = createImageFile(fieldId);
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+    /**
+     * Attempts to load the file from local cache. Else attempts to fetch it from Firestore Storage.
+     * Returns the uri of the file.
+     *
+     * @param path Final destination path of the uploaded file relative to Firestore
+     */
+    fun getDownloadUrl(path: String): @Cold Single<Uri> =
+        if (path.isEmpty()) Single.just(Uri.EMPTY)
+        else getFileUriFromRemotePath(path)
+
+    private fun getFileUriFromRemotePath(destinationPath: String): Single<Uri> {
+        val file = getLocalFileFromRemotePath(destinationPath)
+        return if (file.exists()) {
+            Single.fromCallable { Uri.fromFile(file) }
+        } else {
+            Timber.d("File doesn't exist locally: %s", file.path)
+            remoteStorageManager.getDownloadUrl(destinationPath)
+        }
     }
-    Timber.d("Photo saved %s : %b", file.getPath(), file.exists());
-    return file;
-  }
 
-  public void addImageToGallery(String filePath, String title) throws FileNotFoundException {
-    MediaStore.Images.Media.insertImage(context.getContentResolver(), filePath, title, "");
-  }
-
-  /**
-   * Attempts to load the file from local cache. Else attempts to fetch it from Firestore Storage.
-   * Returns the uri of the file.
-   *
-   * @param path Final destination path of the uploaded file relative to Firestore
-   */
-  @Cold
-  public Single<Uri> getDownloadUrl(String path) {
-    return path.isEmpty() ? Single.just(Uri.EMPTY) : getFileUriFromRemotePath(path);
-  }
-
-  private Single<Uri> getFileUriFromRemotePath(String destinationPath) {
-    File file = getLocalFileFromRemotePath(destinationPath);
-    if (file.exists()) {
-      return Single.fromCallable(() -> Uri.fromFile(file));
-    } else {
-      Timber.d("File doesn't exist locally: %s", file.getPath());
-      return remoteStorageManager.getDownloadUrl(destinationPath);
+    /**
+     * Returns the path of the file saved in the sdcard used for uploading to the provided destination
+     * path.
+     */
+    fun getLocalFileFromRemotePath(destinationPath: String): File {
+        val filename = destinationPath.split('/').last()
+        val file = File(rootDir, filename)
+        if (!file.exists()) {
+            Timber.e("File not found: %s", file.path)
+        }
+        return file
     }
-  }
-
-  /**
-   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
-   * path.
-   */
-  public File getLocalFileFromRemotePath(String destinationPath) {
-    String[] splits = destinationPath.split("/");
-    String filename = splits[splits.length - 1];
-    File file = new File(getRootDir(), filename);
-    if (!file.exists()) {
-      Timber.e("File not found: %s", file.getPath());
-    }
-    return file;
-  }
 }
