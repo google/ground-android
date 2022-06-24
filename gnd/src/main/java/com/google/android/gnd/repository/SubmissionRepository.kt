@@ -13,194 +13,184 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.repository
 
-package com.google.android.gnd.repository;
+import com.google.android.gnd.model.AuditInfo
+import com.google.android.gnd.model.Survey
+import com.google.android.gnd.model.feature.Feature
+import com.google.android.gnd.model.mutation.Mutation
+import com.google.android.gnd.model.mutation.Mutation.SyncStatus
+import com.google.android.gnd.model.mutation.SubmissionMutation
+import com.google.android.gnd.model.mutation.SubmissionMutation.Companion.builder
+import com.google.android.gnd.model.submission.ResponseDelta
+import com.google.android.gnd.model.submission.Submission
+import com.google.android.gnd.persistence.local.LocalDataStore
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.gnd.persistence.remote.NotFoundException
+import com.google.android.gnd.persistence.remote.RemoteDataStore
+import com.google.android.gnd.persistence.sync.DataSyncWorkManager
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
+import com.google.android.gnd.rx.ValueOrError
+import com.google.android.gnd.rx.annotations.Cold
+import com.google.android.gnd.system.auth.AuthenticationManager
+import com.google.common.collect.ImmutableList
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Observable
+import io.reactivex.Single
+import timber.log.Timber
+import java.util.*
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
-import com.google.android.gnd.model.mutation.Mutation.Type;
-import com.google.android.gnd.model.mutation.SubmissionMutation;
-import com.google.android.gnd.model.submission.ResponseDelta;
-import com.google.android.gnd.model.submission.Submission;
-import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
-import com.google.android.gnd.persistence.remote.NotFoundException;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.ValueOrError;
-import com.google.android.gnd.rx.annotations.Cold;
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.common.collect.ImmutableList;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
-import timber.log.Timber;
+private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
 
 /**
- * Coordinates persistence and retrieval of {@link Submission} instances from remote, local, and in
+ * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in
  * memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-public class SubmissionRepository {
+class SubmissionRepository @Inject constructor(
+    private val localDataStore: LocalDataStore,
+    private val remoteDataStore: RemoteDataStore,
+    private val featureRepository: FeatureRepository,
+    private val dataSyncWorkManager: DataSyncWorkManager,
+    private val uuidGenerator: OfflineUuidGenerator,
+    private val authManager: AuthenticationManager
+) {
 
-  private static final long LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS = 15;
+    /**
+     * Retrieves the submissions or the specified survey, feature, and task.
+     *
+     * <ol>
+     *   <li>Attempt to sync remote submission changes to the local data store. If network is not
+     *       available or operation times out, this step is skipped.
+     *   <li>Relevant submissions are returned directly from the local data store.
+     * </ol>
+     */
+    fun getSubmissions(
+        surveyId: String,
+        featureId: String,
+        taskId: String
+    ): @Cold Single<ImmutableList<Submission>> =
+        // TODO: Only fetch first n fields.
+        featureRepository
+            .getFeature(surveyId, featureId)
+            .flatMap { feature: Feature<*> -> getSubmissions(feature, taskId) }
 
-  private final LocalDataStore localDataStore;
-  private final RemoteDataStore remoteDataStore;
-  private final FeatureRepository featureRepository;
-  private final DataSyncWorkManager dataSyncWorkManager;
-  private final OfflineUuidGenerator uuidGenerator;
-  private final AuthenticationManager authManager;
-
-  @Inject
-  public SubmissionRepository(
-      LocalDataStore localDataStore,
-      RemoteDataStore remoteDataStore,
-      FeatureRepository featureRepository,
-      DataSyncWorkManager dataSyncWorkManager,
-      OfflineUuidGenerator uuidGenerator,
-      AuthenticationManager authManager) {
-
-    this.localDataStore = localDataStore;
-    this.remoteDataStore = remoteDataStore;
-    this.featureRepository = featureRepository;
-    this.dataSyncWorkManager = dataSyncWorkManager;
-    this.uuidGenerator = uuidGenerator;
-    this.authManager = authManager;
-  }
-
-  /**
-   * Retrieves the submissions or the specified survey, feature, and task.
-   *
-   * <ol>
-   *   <li>Attempt to sync remote submission changes to the local data store. If network is not
-   *       available or operation times out, this step is skipped.
-   *   <li>Relevant submissions are returned directly from the local data store.
-   * </ol>
-   */
-  @Cold
-  public Single<ImmutableList<Submission>> getSubmissions(
-      String surveyId, String featureId, String taskId) {
-    // TODO: Only fetch first n fields.
-    return featureRepository
-        .getFeature(surveyId, featureId)
-        .flatMap(feature -> getSubmissions(feature, taskId));
-  }
-
-  @Cold
-  private Single<ImmutableList<Submission>> getSubmissions(Feature feature, String taskId) {
-    Completable remoteSync =
-        remoteDataStore
+    private fun getSubmissions(
+        feature: Feature<*>,
+        taskId: String
+    ): @Cold Single<ImmutableList<Submission>> {
+        val remoteSync = remoteDataStore
             .loadSubmissions(feature)
             .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .doOnError(t -> Timber.e(t, "Submission sync timed out"))
-            .flatMapCompletable(this::mergeRemoteSubmissions)
-            .onErrorComplete();
-    return remoteSync.andThen(localDataStore.getSubmissions(feature, taskId));
-  }
+            .doOnError { Timber.e(it, "Submission sync timed out") }
+            .flatMapCompletable { submissions: ImmutableList<ValueOrError<Submission>> ->
+                mergeRemoteSubmissions(submissions)
+            }
+            .onErrorComplete()
+        return remoteSync.andThen(localDataStore.getSubmissions(feature, taskId))
+    }
 
-  @Cold
-  private Completable mergeRemoteSubmissions(ImmutableList<ValueOrError<Submission>> submissions) {
-    return Observable.fromIterable(submissions)
-        .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad submission")))
-        .compose(ValueOrError::ignoreErrors)
-        .flatMapCompletable(localDataStore::mergeSubmission);
-  }
+    private fun mergeRemoteSubmissions(submissions: ImmutableList<ValueOrError<Submission>>): @Cold Completable {
+        return Observable.fromIterable(submissions)
+            .doOnNext { voe: ValueOrError<Submission> ->
+                voe.error().ifPresent { Timber.e(it, "Skipping bad submission") }
+            }
+            .compose { ValueOrError.ignoreErrors(it) }
+            .flatMapCompletable { submission: Submission ->
+                localDataStore.mergeSubmission(submission)
+            }
+    }
 
-  @Cold
-  public Single<Submission> getSubmission(String surveyId, String featureId, String submissionId) {
-    // TODO: Store and retrieve latest edits from cache and/or db.
-    return featureRepository
-        .getFeature(surveyId, featureId)
-        .flatMap(
-            feature ->
+    fun getSubmission(
+        surveyId: String,
+        featureId: String,
+        submissionId: String
+    ): @Cold Single<Submission> =
+        // TODO: Store and retrieve latest edits from cache and/or db.
+        featureRepository
+            .getFeature(surveyId, featureId)
+            .flatMap { feature: Feature<*> ->
                 localDataStore
                     .getSubmission(feature, submissionId)
-                    .switchIfEmpty(
-                        Single.error(() -> new NotFoundException("Submission " + submissionId))));
-  }
+                    .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
+            }
 
-  @Cold
-  public Single<Submission> createSubmission(String surveyId, String featureId, String taskId) {
-    // TODO: Handle invalid taskId.
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return featureRepository
-        .getFeature(surveyId, featureId)
-        .map(
-            feature ->
+    fun createSubmission(
+        surveyId: String,
+        featureId: String,
+        taskId: String
+    ): @Cold Single<Submission> {
+        // TODO: Handle invalid taskId.
+        val auditInfo = AuditInfo.now(authManager.currentUser)
+        return featureRepository
+            .getFeature(surveyId, featureId)
+            .map { feature: Feature<*> ->
                 Submission.newBuilder()
                     .setId(uuidGenerator.generateUuid())
-                    .setSurvey(feature.getSurvey())
+                    .setSurvey(feature.survey)
                     .setFeature(feature)
-                    .setTask(feature.getJob().getTask(taskId).get())
+                    .setTask(feature.job.getTask(taskId).get())
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
-                    .build());
-  }
+                    .build()
+            }
+    }
 
-  @Cold
-  public Completable deleteSubmission(Submission submission) {
-    SubmissionMutation submissionMutation =
-        SubmissionMutation.builder()
-            .setSubmissionId(submission.getId())
-            .setTask(submission.getTask())
-            .setResponseDeltas(ImmutableList.of())
-            .setType(Type.DELETE)
-            .setSyncStatus(SyncStatus.PENDING)
-            .setSurveyId(submission.getSurvey().getId())
-            .setFeatureId(submission.getFeature().getId())
-            .setJobId(submission.getFeature().getJob().getId())
-            .setClientTimestamp(new Date())
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
-    return applyAndEnqueue(submissionMutation);
-  }
+    fun deleteSubmission(submission: Submission): @Cold Completable =
+        applyAndEnqueue(
+            builder()
+                .setSubmissionId(submission.id)
+                .setTask(submission.task)
+                .setResponseDeltas(ImmutableList.of())
+                .setType(Mutation.Type.DELETE)
+                .setSyncStatus(SyncStatus.PENDING)
+                .setSurveyId(submission.survey.id)
+                .setFeatureId(submission.feature.id)
+                .setJobId(submission.feature.job.id)
+                .setClientTimestamp(Date())
+                .setUserId(authManager.currentUser.id)
+                .build()
+        )
 
-  @Cold
-  public Completable createOrUpdateSubmission(
-      Submission submission, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
-    SubmissionMutation submissionMutation =
-        SubmissionMutation.builder()
-            .setSubmissionId(submission.getId())
-            .setTask(submission.getTask())
-            .setResponseDeltas(responseDeltas)
-            .setType(isNew ? SubmissionMutation.Type.CREATE : SubmissionMutation.Type.UPDATE)
-            .setSyncStatus(SyncStatus.PENDING)
-            .setSurveyId(submission.getSurvey().getId())
-            .setFeatureId(submission.getFeature().getId())
-            .setJobId(submission.getFeature().getJob().getId())
-            .setClientTimestamp(new Date())
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
-    return applyAndEnqueue(submissionMutation);
-  }
+    fun createOrUpdateSubmission(
+        submission: Submission, responseDeltas: ImmutableList<ResponseDelta>, isNew: Boolean
+    ): @Cold Completable =
+        applyAndEnqueue(
+            builder()
+                .setSubmissionId(submission.id)
+                .setTask(submission.task)
+                .setResponseDeltas(responseDeltas)
+                .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
+                .setSyncStatus(SyncStatus.PENDING)
+                .setSurveyId(submission.survey.id)
+                .setFeatureId(submission.feature.id)
+                .setJobId(submission.feature.job.id)
+                .setClientTimestamp(Date())
+                .setUserId(authManager.currentUser.id)
+                .build()
+        )
 
-  @Cold
-  private Completable applyAndEnqueue(SubmissionMutation mutation) {
-    return localDataStore
-        .applyAndEnqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
-  }
+    private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
+        localDataStore
+            .applyAndEnqueue(mutation)
+            .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.featureId))
 
-  /**
-   * Returns all {@link SubmissionMutation} instances for a given feature which have not yet been
-   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations. A
-   * new list is emitted on each subsequent change.
-   */
-  public Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
-      Survey survey, String featureId) {
-    return localDataStore.getSubmissionMutationsByFeatureIdOnceAndStream(
-        survey,
-        featureId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED);
-  }
+    /**
+     * Returns all [SubmissionMutation] instances for a given feature which have not yet been
+     * marked as [SyncStatus.COMPLETED], including pending, in progress, and failed mutations. A
+     * new list is emitted on each subsequent change.
+     */
+    fun getIncompleteSubmissionMutationsOnceAndStream(
+        survey: Survey, featureId: String
+    ): Flowable<ImmutableList<SubmissionMutation>> =
+        localDataStore.getSubmissionMutationsByFeatureIdOnceAndStream(
+            survey,
+            featureId,
+            MutationEntitySyncStatus.PENDING,
+            MutationEntitySyncStatus.IN_PROGRESS,
+            MutationEntitySyncStatus.FAILED
+        )
 }
