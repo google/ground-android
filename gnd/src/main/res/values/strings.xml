@@ -138,6 +138,7 @@
   <string name="sign_out">Sign out</string>
   <string name="cancel">Cancel</string>
   <string name="join_survey">Join survey</string>
+  <string name="collect_data">Collect data</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>
