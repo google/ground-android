@@ -28,12 +28,12 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.Point;
 import com.google.android.gnd.model.locationofinterest.PointOfInterest;
 import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
-import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
@@ -47,8 +47,8 @@ import java.util.List;
 import java8.util.stream.Collectors;
 
 /**
- * Defines how Room persists LOIs in the local db. By default, Room uses the name of object
- * fields and their respective types to determine database column names and types.
+ * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields
+ * and their respective types to determine database column names and types.
  */
 @AutoValue
 @Entity(
@@ -103,7 +103,8 @@ public abstract class LocationOfInterestEntity {
   public abstract AuditInfoEntity getLastModified();
 
   @NonNull
-  public static LocationOfInterestEntity fromMutation(LocationOfInterestMutation mutation, AuditInfo created) {
+  public static LocationOfInterestEntity fromMutation(
+      LocationOfInterestMutation mutation, AuditInfo created) {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     LocationOfInterestEntity.Builder entity =
         LocationOfInterestEntity.builder()
@@ -114,12 +115,12 @@ public abstract class LocationOfInterestEntity {
             .setCreated(authInfo)
             .setLastModified(authInfo);
     mutation.getLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
-    entity.setPolygonVertices(formatVertices(
-        mutation.getPolygonVertices()));
+    entity.setPolygonVertices(formatVertices(mutation.getPolygonVertices()));
     return entity.build();
   }
 
-  public static LocationOfInterestEntity fromLocationOfInterest(LocationOfInterest locationOfInterest) {
+  public static LocationOfInterestEntity fromLocationOfInterest(
+      LocationOfInterest locationOfInterest) {
     LocationOfInterestEntity.Builder entity =
         LocationOfInterestEntity.builder()
             .setId(locationOfInterest.getId())
@@ -133,15 +134,18 @@ public abstract class LocationOfInterestEntity {
     } else if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
       entity.setGeoJson(((GeoJsonLocationOfInterest) locationOfInterest).getGeoJsonString());
     } else if (locationOfInterest instanceof PolygonOfInterest) {
-      entity.setPolygonVertices(formatVertices(((PolygonOfInterest) locationOfInterest).getVertices()));
+      entity.setPolygonVertices(
+          formatVertices(((PolygonOfInterest) locationOfInterest).getVertices()));
     }
     return entity.build();
   }
 
-  public static LocationOfInterest toLocationOfInterest(LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
+  public static LocationOfInterest toLocationOfInterest(
+      LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
     if (locationOfInterestEntity.getGeoJson() != null) {
       GeoJsonLocationOfInterest.Builder builder =
-          GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(locationOfInterestEntity.getGeoJson());
+          GeoJsonLocationOfInterest.newBuilder()
+              .setGeoJsonString(locationOfInterestEntity.getGeoJson());
       fillLocationOfInterest(builder, locationOfInterestEntity, survey);
       return builder.build();
     }
@@ -155,7 +159,8 @@ public abstract class LocationOfInterestEntity {
 
     if (locationOfInterestEntity.getPolygonVertices() != null) {
       PolygonOfInterest.Builder builder =
-          PolygonOfInterest.builder().setVertices(parseVertices(locationOfInterestEntity.getPolygonVertices()));
+          PolygonOfInterest.builder()
+              .setVertices(parseVertices(locationOfInterestEntity.getPolygonVertices()));
       fillLocationOfInterest(builder, locationOfInterestEntity, survey);
       return builder.build();
     }
@@ -170,9 +175,10 @@ public abstract class LocationOfInterestEntity {
       return null;
     }
     Gson gson = new Gson();
-    List<List<Double>> verticesArray = stream(vertices)
-        .map(point -> ImmutableList.of(point.getLatitude(),
-            point.getLongitude())).collect(Collectors.toList());
+    List<List<Double>> verticesArray =
+        stream(vertices)
+            .map(point -> ImmutableList.of(point.getLatitude(), point.getLongitude()))
+            .collect(Collectors.toList());
     return gson.toJson(verticesArray);
   }
 
@@ -182,18 +188,19 @@ public abstract class LocationOfInterestEntity {
     }
     Gson gson = new Gson();
     List<List<Double>> verticesArray =
-        gson.fromJson(vertices, new TypeToken<List<List<Double>>>(){}.getType());
+        gson.fromJson(vertices, new TypeToken<List<List<Double>>>() {}.getType());
 
-    return stream(verticesArray).map(vertex -> Point.newBuilder()
-        .setLatitude(vertex.get(0))
-        .setLongitude(vertex.get(1))
-        .build())
+    return stream(verticesArray)
+        .map(
+            vertex ->
+                Point.newBuilder().setLatitude(vertex.get(0)).setLongitude(vertex.get(1)).build())
         .collect(toImmutableList());
   }
 
-
   public static void fillLocationOfInterest(
-      LocationOfInterest.Builder builder, LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
+      LocationOfInterest.Builder builder,
+      LocationOfInterestEntity locationOfInterestEntity,
+      Survey survey) {
     String id = locationOfInterestEntity.getId();
     String jobId = locationOfInterestEntity.getJobId();
     Job job =

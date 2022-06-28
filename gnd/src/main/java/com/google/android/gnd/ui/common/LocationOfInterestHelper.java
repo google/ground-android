@@ -87,7 +87,9 @@ public class LocationOfInterestHelper {
   private String getGeoJsonCaption(GeoJsonLocationOfInterest locationOfInterest) {
     String caption = locationOfInterest.getCaptionFromProperties();
     return caption.isEmpty()
-        ? getLocationOfInterestType(locationOfInterest) + " " + locationOfInterest.getIdFromProperties()
+        ? getLocationOfInterestType(locationOfInterest)
+            + " "
+            + locationOfInterest.getIdFromProperties()
         : caption;
   }
 }

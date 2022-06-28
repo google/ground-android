@@ -21,13 +21,12 @@ import static com.google.android.gnd.FakeData.JOB;
 import static com.google.android.gnd.FakeData.POINT_FEATURE;
 import static com.google.android.gnd.FakeData.POLYGON_FEATURE;
 import static com.google.android.gnd.FakeData.USER;
-import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.feature.GeoJsonFeature;
-import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
+import com.google.android.gnd.model.locationofinterest.PointOfInterest;
+import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -39,13 +38,13 @@ import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
-public class FeatureHelperTest extends BaseHiltTest {
+public class LocationOfInterestHelperTest extends BaseHiltTest {
 
-  @Inject FeatureHelper featureHelper;
+  @Inject LocationOfInterestHelper featureHelper;
 
   @Test
   public void testGetCreatedBy() {
-    PointFeature feature =
+    PointOfInterest feature =
         POINT_FEATURE.toBuilder()
             .setCreated(AuditInfo.now(USER.toBuilder().setDisplayName("Test User").build()))
             .build();
@@ -71,7 +70,7 @@ public class FeatureHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPolygon() {
-    PolygonFeature feature = POLYGON_FEATURE.toBuilder().setCaption("").build();
+    PolygonOfInterest feature = POLYGON_FEATURE.toBuilder().setCaption("").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
   }
 
@@ -79,7 +78,7 @@ public class FeatureHelperTest extends BaseHiltTest {
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsGeoJson() throws JSONException {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
-    GeoJsonFeature feature =
+    GeoJsonLocationOfInterest feature =
         GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon foo id");
@@ -87,13 +86,13 @@ public class FeatureHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
-    PointFeature feature = POINT_FEATURE.toBuilder().setCaption("point caption").build();
+    PointOfInterest feature = POINT_FEATURE.toBuilder().setCaption("point caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
-    PolygonFeature feature = POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
+    PolygonOfInterest feature = POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
   }
 
@@ -101,7 +100,7 @@ public class FeatureHelperTest extends BaseHiltTest {
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsGeoJson() throws JSONException {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "foo caption");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
-    GeoJsonFeature feature =
+    GeoJsonLocationOfInterest feature =
         GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("foo caption");
@@ -109,7 +108,7 @@ public class FeatureHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetSubtitle() {
-    PointFeature feature =
+    PointOfInterest feature =
         POINT_FEATURE.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
 
     assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");

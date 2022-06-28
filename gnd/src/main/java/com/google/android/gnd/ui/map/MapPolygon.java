@@ -17,9 +17,9 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.job.Style;
 import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.Point;
-import com.google.android.gnd.model.job.Style;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
@@ -72,7 +72,8 @@ public abstract class MapPolygon extends MapLocationOfInterest {
 
     public abstract Builder setStyle(Style style);
 
-    public abstract Builder setLocationOfInterest(@Nullable LocationOfInterest newLocationOfInterest);
+    public abstract Builder setLocationOfInterest(
+        @Nullable LocationOfInterest newLocationOfInterest);
 
     public abstract MapPolygon build();
   }

@@ -58,9 +58,9 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.CameraPosition;
-import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapGeoJson;
+import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.android.gnd.ui.map.MapType;
@@ -119,7 +119,9 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
   /** Ambiguous click events. */
-  @Hot private final Subject<ImmutableList<MapLocationOfInterest>> locationOfInterestClicks = PublishSubject.create();
+  @Hot
+  private final Subject<ImmutableList<MapLocationOfInterest>> locationOfInterestClicks =
+      PublishSubject.create();
   /** Map drag events. Emits items when the map drag has started. */
   @Hot private final FlowableProcessor<Nil> startDragEvents = PublishProcessor.create();
   /** Camera move events. Emits items after the camera has stopped moving. */
@@ -253,7 +255,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     Builder<MapLocationOfInterest> candidates = ImmutableList.builder();
     ArrayList<String> processed = new ArrayList<>();
 
-    for (Entry<MapLocationOfInterest, GeometryCollection> geoJsonEntry : geoJsonGeometries.entrySet()) {
+    for (Entry<MapLocationOfInterest, GeometryCollection> geoJsonEntry :
+        geoJsonGeometries.entrySet()) {
       MapGeoJson geoJsonFeature = (MapGeoJson) geoJsonEntry.getKey();
       GeometryCollection geoJsonGeometry = geoJsonEntry.getValue();
       if (processed.contains(geoJsonFeature.getId())) {
@@ -448,7 +451,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     // Update markers list.
     stream(deletedMarkers).forEach(markers::remove);
 
-    Iterator<Entry<MapLocationOfInterest, Polyline>> polylineIterator = polygons.entrySet().iterator();
+    Iterator<Entry<MapLocationOfInterest, Polyline>> polylineIterator =
+        polygons.entrySet().iterator();
     while (polylineIterator.hasNext()) {
       Entry<MapLocationOfInterest, Polyline> entry = polylineIterator.next();
       MapLocationOfInterest mapLocationOfInterest = entry.getKey();
@@ -476,7 +480,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       } else {
         // If GeoJSON isn't present or up-to-date, remove it so it can be added back later.
         Timber.v(
-            "Removing GeoJSON feature %s", Objects.requireNonNull(mapLocationOfInterest.getLocationOfInterest()).getId());
+            "Removing GeoJSON feature %s",
+            Objects.requireNonNull(mapLocationOfInterest.getLocationOfInterest()).getId());
         geoJsonIterator.remove();
         featureGeometries.remove();
       }

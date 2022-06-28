@@ -53,10 +53,8 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class SubmissionDetailsFragment extends AbstractFragment {
 
-  @Inject
-  Navigator navigator;
-  @Inject
-  EphemeralPopups popups;
+  @Inject Navigator navigator;
+  @Inject EphemeralPopups popups;
 
   private SubmissionDetailsViewModel viewModel;
   private SubmissionDetailsFragBinding binding;
@@ -162,7 +160,8 @@ public class SubmissionDetailsFragment extends AbstractFragment {
 
     if (item.getItemId() == R.id.edit_submission_menu_item) {
       navigator.navigate(
-          SubmissionDetailsFragmentDirections.editSubmission(surveyId, locationOfInterestId, submissionId));
+          SubmissionDetailsFragmentDirections.editSubmission(
+              surveyId, locationOfInterestId, submissionId));
     } else if (item.getItemId() == R.id.delete_submission_menu_item) {
       new Builder(requireActivity())
           .setTitle(R.string.submission_delete_confirmation_dialog_title)

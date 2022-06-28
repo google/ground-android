@@ -39,7 +39,8 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
-  SyncStatusListAdapter(@Nullable Context context, LocationOfInterestHelper locationOfInterestHelper) {
+  SyncStatusListAdapter(
+      @Nullable Context context, LocationOfInterestHelper locationOfInterestHelper) {
     this.mutations = ImmutableList.of();
     this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
@@ -66,7 +67,10 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
         new StringBuilder()
             .append(mutation.getType().toString())
             .append(' ')
-            .append(mutation instanceof LocationOfInterestMutation ? "LocationOfInterest" : "Submission")
+            .append(
+                mutation instanceof LocationOfInterestMutation
+                    ? "LocationOfInterest"
+                    : "Submission")
             .append(' ')
             .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')

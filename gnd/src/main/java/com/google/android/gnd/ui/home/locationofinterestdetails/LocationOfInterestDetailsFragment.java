@@ -36,9 +36,7 @@ import java8.util.Optional;
 import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 
-/**
- * Fragment containing the contents of the bottom sheet shown when a LOI is selected.
- */
+/** Fragment containing the contents of the bottom sheet shown when a LOI is selected. */
 @AndroidEntryPoint
 public class LocationOfInterestDetailsFragment extends AbstractFragment {
 
@@ -48,8 +46,7 @@ public class LocationOfInterestDetailsFragment extends AbstractFragment {
   private LocationOfInterestDetailsFragBinding binding;
 
   @Inject
-  public LocationOfInterestDetailsFragment() {
-  }
+  public LocationOfInterestDetailsFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,7 +97,8 @@ public class LocationOfInterestDetailsFragment extends AbstractFragment {
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    viewModel.onLocationOfInterestSelected(state.isVisible() ? state.getLocationOfInterest() : Optional.empty());
+    viewModel.onLocationOfInterestSelected(
+        state.isVisible() ? state.getLocationOfInterest() : Optional.empty());
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

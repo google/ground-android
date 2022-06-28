@@ -169,8 +169,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void attachCustomViews(MapFragment map) {
-    LocationOfInterestRepositionView repositionView = new LocationOfInterestRepositionView(getContext(), map);
-    mapContainerViewModel.getMoveLocationOfInterestVisibility().observe(this, repositionView::setVisibility);
+    LocationOfInterestRepositionView repositionView =
+        new LocationOfInterestRepositionView(getContext(), map);
+    mapContainerViewModel
+        .getMoveLocationOfInterestVisibility()
+        .observe(this, repositionView::setVisibility);
     binding.mapOverlay.addView(repositionView);
 
     PolygonDrawingView polygonDrawingView = new PolygonDrawingView(getContext(), map);
@@ -200,7 +203,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void moveToNewPosition(Point point) {
-    Optional<LocationOfInterest> locationOfInterest = mapContainerViewModel.getReposLocationOfInterest();
+    Optional<LocationOfInterest> locationOfInterest =
+        mapContainerViewModel.getReposLocationOfInterest();
     if (locationOfInterest.isEmpty()) {
       Timber.e("Move point failed: No locationOfInterest selected");
       return;
@@ -209,7 +213,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
       Timber.e("Only point locations of interest can be moved");
       return;
     }
-    PointOfInterest newPointOfInterest = ((PointOfInterest) locationOfInterest.get()).toBuilder().setPoint(point).build();
+    PointOfInterest newPointOfInterest =
+        ((PointOfInterest) locationOfInterest.get()).toBuilder().setPoint(point).build();
     homeScreenViewModel.updateLocationOfInterest(newPointOfInterest);
   }
 
@@ -252,7 +257,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void disableAddLocationOfInterestBtn() {
-    // NOTE: We don't call addLocationOfInterestBtn.setEnabled(false) here since calling it before the fab is
+    // NOTE: We don't call addLocationOfInterestBtn.setEnabled(false) here since calling it before
+    // the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
     mapContainerViewModel.setLocationOfInterestButtonBackgroundTint(R.color.colorGrey500);
   }

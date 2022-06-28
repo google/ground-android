@@ -62,16 +62,14 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   @BindValue @Mock LocalDataStore mockLocalDataStore;
-  @BindValue @Mock
-  SurveyRepository mockSurveyRepository;
+  @BindValue @Mock SurveyRepository mockSurveyRepository;
   @BindValue @Mock DataSyncWorkManager mockWorkManager;
 
   @Captor ArgumentCaptor<LocationOfInterestMutation> captorFeatureMutation;
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
-  @Inject
-  LocationOfInterestRepository locationOfInterestRepository;
+  @Inject LocationOfInterestRepository locationOfInterestRepository;
 
   private void mockApplyAndEnqueue() {
     doReturn(Completable.complete())
@@ -145,7 +143,11 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_FEATURE))
         .thenReturn(Completable.complete());
 
-    locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertNoErrors().assertComplete();
+    locationOfInterestRepository
+        .syncLocationsOfInterest(FakeData.SURVEY)
+        .test()
+        .assertNoErrors()
+        .assertComplete();
 
     verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_FEATURE);
   }
@@ -157,7 +159,11 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_FEATURE))
         .thenReturn(Completable.complete());
 
-    locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertNoErrors().assertComplete();
+    locationOfInterestRepository
+        .syncLocationsOfInterest(FakeData.SURVEY)
+        .test()
+        .assertNoErrors()
+        .assertComplete();
 
     verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_FEATURE);
   }
@@ -165,7 +171,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   @Test
   public void testSyncFeatures_removed() {
     fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.removed("entityId"));
-    when(mockLocalDataStore.deleteLocationOfInterest(anyString())).thenReturn(Completable.complete());
+    when(mockLocalDataStore.deleteLocationOfInterest(anyString()))
+        .thenReturn(Completable.complete());
 
     locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertComplete();
 
@@ -175,7 +182,11 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   @Test
   public void testSyncFeatures_error() {
     fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.error(new Throwable("Foo error")));
-    locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertNoErrors().assertComplete();
+    locationOfInterestRepository
+        .syncLocationsOfInterest(FakeData.SURVEY)
+        .test()
+        .assertNoErrors()
+        .assertComplete();
   }
 
   @Test
@@ -226,7 +237,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     locationOfInterestRepository
         .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
         .test()
-        .assertFailureAndMessage(NotFoundException.class, "LocationOfInterest not found locationOfInterest id");
+        .assertFailureAndMessage(
+            NotFoundException.class, "LocationOfInterest not found locationOfInterest id");
   }
 
   @Test
@@ -235,7 +247,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     Date testDate = new Date();
 
     LocationOfInterestMutation newMutation =
-        locationOfInterestRepository.newMutation("foo_survey_id", "foo_job_id", FakeData.POINT, testDate);
+        locationOfInterestRepository.newMutation(
+            "foo_survey_id", "foo_job_id", FakeData.POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");
@@ -266,7 +279,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetIncompleteFeatureMutationsOnceAndStream() {
-    locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream("feature_id_1");
+    locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(
+        "feature_id_1");
 
     verify(mockLocalDataStore, times(1))
         .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(

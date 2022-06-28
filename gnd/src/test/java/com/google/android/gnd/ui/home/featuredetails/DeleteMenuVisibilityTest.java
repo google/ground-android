@@ -34,7 +34,8 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class DeleteMenuVisibilityTest extends BaseMenuVisibilityTest {
 
-  public DeleteMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
+  public DeleteMenuVisibilityTest(
+      User user, LocationOfInterest locationOfInterest, boolean visible) {
     super(user, locationOfInterest, visible);
   }
 

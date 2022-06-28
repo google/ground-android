@@ -27,10 +27,11 @@ import com.google.android.gnd.ui.home.BottomSheetMetrics;
 import timber.log.Timber;
 
 /**
- * Defines behavior of the LOI details UI elements (bottom sheet and chrome) when the bottom
- * sheet is scrolled, collapsed, or expanded.
+ * Defines behavior of the LOI details UI elements (bottom sheet and chrome) when the bottom sheet
+ * is scrolled, collapsed, or expanded.
  */
-public class LocationOfInterestDetailsChromeBehavior extends BottomSheetDependentBehavior<ViewGroup> {
+public class LocationOfInterestDetailsChromeBehavior
+    extends BottomSheetDependentBehavior<ViewGroup> {
 
   public LocationOfInterestDetailsChromeBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);

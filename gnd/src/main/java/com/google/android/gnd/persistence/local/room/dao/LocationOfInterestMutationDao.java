@@ -35,13 +35,17 @@ public interface LocationOfInterestMutationDao extends BaseDao<LocationOfInteres
   Flowable<List<LocationOfInterestMutationEntity>> loadAllOnceAndStream();
 
   @Query(
-      "SELECT * FROM location_of_interest_mutation WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)")
+      "SELECT * FROM location_of_interest_mutation "
+          + "WHERE location_of_interest_id = :locationOfInterestId "
+          + "AND state IN (:allowedStates)")
   Single<List<LocationOfInterestMutationEntity>> findByLocationOfInterestId(
       String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 
   @Cold(terminates = false)
   @Query(
-      "SELECT * FROM location_of_interest_mutation WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)")
+      "SELECT * FROM location_of_interest_mutation "
+          + "WHERE location_of_interest_id = :locationOfInterestId "
+          + "AND state IN (:allowedStates)")
   Flowable<List<LocationOfInterestMutationEntity>> findByLocationOfInterestIdOnceAndStream(
       String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 }

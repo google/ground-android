@@ -50,33 +50,23 @@ import io.reactivex.Single;
  */
 public interface LocalDataStore {
 
-  /**
-   * Load surveys stored in local database.
-   */
+  /** Load surveys stored in local database. */
   @Cold
   Single<ImmutableList<Survey>> getSurveys();
 
-  /**
-   * Load last active survey, if any.
-   */
+  /** Load last active survey, if any. */
   @Cold
   Maybe<Survey> getSurveyById(String id);
 
-  /**
-   * Delete stored survey from database.
-   */
+  /** Delete stored survey from database. */
   @Cold
   Completable deleteSurvey(Survey survey);
 
-  /**
-   * Add survey to the database.
-   */
+  /** Add survey to the database. */
   @Cold
   Completable insertOrUpdateSurvey(Survey survey);
 
-  /**
-   * Add user to the database.
-   */
+  /** Add user to the database. */
   @Cold
   Completable insertOrUpdateUser(User user);
 
@@ -88,8 +78,8 @@ public interface LocalDataStore {
   Single<User> getUser(String id);
 
   /**
-   * Applies the specified {@link LocationOfInterestMutation} to the local data store, appending the mutation
-   * to the local queue for remote sync.
+   * Applies the specified {@link LocationOfInterestMutation} to the local data store, appending the
+   * mutation to the local queue for remote sync.
    */
   @Cold
   Completable applyAndEnqueue(LocationOfInterestMutation mutation);
@@ -101,9 +91,7 @@ public interface LocalDataStore {
   @Cold
   Completable applyAndEnqueue(SubmissionMutation mutation);
 
-  /**
-   * Applies the specified {@link SubmissionMutation} to the local data store..
-   */
+  /** Applies the specified {@link SubmissionMutation} to the local data store.. */
   @Cold
   Completable apply(SubmissionMutation mutation) throws LocalDataStoreException;
 
@@ -115,21 +103,18 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestOnceAndStream(Survey survey);
 
   /**
-   * Returns the list of submissions which are not marked for deletion for the specified locationOfInterest and
-   * task.
+   * Returns the list of submissions which are not marked for deletion for the specified
+   * locationOfInterest and task.
    */
   @Cold
-  Single<ImmutableList<Submission>> getSubmissions(LocationOfInterest locationOfInterest, String taskId);
+  Single<ImmutableList<Submission>> getSubmissions(
+      LocationOfInterest locationOfInterest, String taskId);
 
-  /**
-   * Returns the LOI with the specified UUID from the local data store, if found.
-   */
+  /** Returns the LOI with the specified UUID from the local data store, if found. */
   @Cold
   Maybe<LocationOfInterest> getLocationOfInterest(Survey survey, String locationOfInterestId);
 
-  /**
-   * Returns the submission with the specified UUID from the local data store, if found.
-   */
+  /** Returns the submission with the specified UUID from the local data store, if found. */
   @Cold
   Maybe<Submission> getSubmission(LocationOfInterest locationOfInterest, String submissionId);
 
@@ -148,15 +133,13 @@ public interface LocalDataStore {
   Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Survey survey);
 
   /**
-   * Returns all LOI and submission mutations in the local mutation queue relating to LOI
-   * with the specified id.
+   * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
+   * specified id.
    */
   @Cold
   Single<ImmutableList<Mutation>> getPendingMutations(String locationOfInterestId);
 
-  /**
-   * Updates the provided list of mutations.
-   */
+  /** Updates the provided list of mutations. */
   @Cold
   Completable updateMutations(ImmutableList<Mutation> mutations);
 
@@ -168,16 +151,14 @@ public interface LocalDataStore {
   Completable finalizePendingMutations(ImmutableList<Mutation> mutations);
 
   /**
-   * Merges the provided locationOfInterest with pending unsynced local mutations, and inserts it into the
-   * local data store. If a locationOfInterest with the same id already exists, it will be overwritten with the
-   * merged instance.
+   * Merges the provided locationOfInterest with pending unsynced local mutations, and inserts it
+   * into the local data store. If a locationOfInterest with the same id already exists, it will be
+   * overwritten with the merged instance.
    */
   @Cold
   Completable mergeLocationOfInterest(LocationOfInterest locationOfInterest);
 
-  /**
-   * Deletes LOI from local database.
-   */
+  /** Deletes LOI from local database. */
   @Cold
   Completable deleteLocationOfInterest(String locationOfInterestId);
 
@@ -189,9 +170,7 @@ public interface LocalDataStore {
   @Cold
   Completable mergeSubmission(Submission submission);
 
-  /**
-   * Deletes submission from local database.
-   */
+  /** Deletes submission from local database. */
   @Cold
   Completable deleteSubmission(String submissionId);
 
@@ -202,15 +181,11 @@ public interface LocalDataStore {
   @Cold
   Completable insertOrUpdateTileSet(TileSet tileSet);
 
-  /**
-   * Returns the tile with the specified URL from the local data store, if found.
-   */
+  /** Returns the tile with the specified URL from the local data store, if found. */
   @Cold
   Maybe<TileSet> getTileSet(String tileUrl);
 
-  /**
-   * Returns all pending tiles from the local data store.
-   */
+  /** Returns all pending tiles from the local data store. */
   @Cold
   Single<ImmutableList<TileSet>> getPendingTileSets();
 
@@ -221,21 +196,15 @@ public interface LocalDataStore {
   @Cold
   Completable insertOrUpdateOfflineArea(OfflineArea area);
 
-  /**
-   * Returns all queued, failed, and completed offline areas from the local data store.
-   */
+  /** Returns all queued, failed, and completed offline areas from the local data store. */
   @Cold(terminates = false)
   Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream();
 
-  /**
-   * Delete an offline area and any associated tiles that are no longer needed.
-   */
+  /** Delete an offline area and any associated tiles that are no longer needed. */
   @Cold
   Completable deleteOfflineArea(String offlineAreaId);
 
-  /**
-   * Returns the offline area with the specified id.
-   */
+  /** Returns the offline area with the specified id. */
   Single<OfflineArea> getOfflineAreaById(String id);
 
   /**
@@ -245,9 +214,7 @@ public interface LocalDataStore {
   @Cold
   Completable updateTileSetOfflineAreaReferenceCountByUrl(int newCount, String url);
 
-  /**
-   * Delete a tile source associated with a given URL from the local data store.
-   */
+  /** Delete a tile source associated with a given URL from the local data store. */
   @Cold
   Completable deleteTileSetByUrl(TileSet tileSet);
 
@@ -255,13 +222,15 @@ public interface LocalDataStore {
    * Emits the list of {@link LocationOfInterestMutation} instances for a given LOI which match the
    * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
    */
-  Flowable<ImmutableList<LocationOfInterestMutation>> getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-      String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
+  Flowable<ImmutableList<LocationOfInterestMutation>>
+      getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+          String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 
   /**
-   * Emits the list of {@link SubmissionMutation} instances for a given LOI which match the
-   * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
+   * Emits the list of {@link SubmissionMutation} instances for a given LOI which match the provided
+   * <code>allowedStates</code>. A new list is emitted on each subsequent change.
    */
-  Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-      Survey survey, String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
+  Flowable<ImmutableList<SubmissionMutation>>
+      getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+          Survey survey, String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 }

@@ -46,8 +46,8 @@ import timber.log.Timber;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
- * specific map location of interest, whose id is provided in the {@link Data} object built by {@link
- * #createInputData} and provided to the worker request while being enqueued.
+ * specific map location of interest, whose id is provided in the {@link Data} object built by
+ * {@link #createInputData} and provided to the worker request while being enqueued.
  */
 @HiltWorker
 public class LocalMutationSyncWorker extends BaseWorker {
@@ -74,18 +74,19 @@ public class LocalMutationSyncWorker extends BaseWorker {
     this.photoSyncWorkManager = photoSyncWorkManager;
   }
 
-  /**
-   * Returns a new work {@link Data} object containing the specified location of interest id.
-   */
+  /** Returns a new work {@link Data} object containing the specified location of interest id. */
   public static Data createInputData(String locationOfInterestId) {
-    return new Data.Builder().putString(LOCATION_OF_INTEREST_ID_PARAM_KEY, locationOfInterestId).build();
+    return new Data.Builder()
+        .putString(LOCATION_OF_INTEREST_ID_PARAM_KEY, locationOfInterestId)
+        .build();
   }
 
   @NonNull
   @Override
   public Result doWork() {
     Timber.d("Connected. Syncing changes to location of interest %s", locationOfInterestId);
-    ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(locationOfInterestId).blockingGet();
+    ImmutableList<Mutation> mutations =
+        localDataStore.getPendingMutations(locationOfInterestId).blockingGet();
     try {
       Timber.v("Mutations: %s", mutations);
       processMutations(mutations).compose(this::notifyTransferState).blockingAwait();
@@ -118,9 +119,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
             });
   }
 
-  /**
-   * Loads each user with specified id, applies mutations, and removes processed mutations.
-   */
+  /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
     return localDataStore
         .getUser(userId)
@@ -129,9 +128,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
         .onErrorComplete();
   }
 
-  /**
-   * Applies mutations to remote data store. Once successful, removes them from the local db.
-   */
+  /** Applies mutations to remote data store. Once successful, removes them from the local db. */
   private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)

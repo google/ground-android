@@ -32,7 +32,8 @@ public class LocationOfInterestDataTypeSelectorDialogFragment extends AbstractDi
 
   private final Consumer<Integer> onSelectLocationOfInterestDataType;
 
-  public LocationOfInterestDataTypeSelectorDialogFragment(Consumer<Integer> onSelectLocationOfInterestDataType) {
+  public LocationOfInterestDataTypeSelectorDialogFragment(
+      Consumer<Integer> onSelectLocationOfInterestDataType) {
     this.onSelectLocationOfInterestDataType = onSelectLocationOfInterestDataType;
   }
 
@@ -48,8 +49,7 @@ public class LocationOfInterestDataTypeSelectorDialogFragment extends AbstractDi
     return new Builder(getContext())
         .setTitle(R.string.select_loi_type)
         .setAdapter(
-            listAdapter,
-            (dialog, position) -> onSelectLocationOfInterestDataType.accept(position))
+            listAdapter, (dialog, position) -> onSelectLocationOfInterestDataType.accept(position))
         .setCancelable(true)
         .create();
   }

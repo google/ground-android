@@ -31,8 +31,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
@@ -57,8 +57,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SubmissionConverterTest {
 
-  @Mock
-  private DocumentSnapshot submissionDocumentSnapshot;
+  @Mock private DocumentSnapshot submissionDocumentSnapshot;
 
   private Task task;
   private Job job;
@@ -320,12 +319,11 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    locationOfInterest = newPointOfInterest().setId(featureId).setSurvey(survey).setJob(job).build();
+    locationOfInterest =
+        newPointOfInterest().setId(featureId).setSurvey(survey).setJob(job).build();
   }
 
-  /**
-   * Mock submission document snapshot to return the specified id and object representation.
-   */
+  /** Mock submission document snapshot to return the specified id and object representation. */
   private void mockSubmissionDocumentSnapshot(String id, SubmissionDocument doc) {
     when(submissionDocumentSnapshot.getId()).thenReturn(id);
     when(submissionDocumentSnapshot.toObject(SubmissionDocument.class)).thenReturn(doc);

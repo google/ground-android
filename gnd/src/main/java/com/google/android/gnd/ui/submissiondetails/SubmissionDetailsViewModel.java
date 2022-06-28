@@ -55,7 +55,8 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
 
   @Inject
   SubmissionDetailsViewModel(
-      SubmissionRepository submissionRepository, LocationOfInterestHelper locationOfInterestHelper) {
+      SubmissionRepository submissionRepository,
+      LocationOfInterestHelper locationOfInterestHelper) {
     this.submissionRepository = submissionRepository;
 
     Flowable<Loadable<Submission>> submissionStream =
@@ -91,7 +92,8 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
     return submission.isLoaded() ? View.GONE : View.VISIBLE;
   }
 
-  private static Optional<LocationOfInterest> getLocationOfInterest(Loadable<Submission> submission) {
+  private static Optional<LocationOfInterest> getLocationOfInterest(
+      Loadable<Submission> submission) {
     return submission.value().map(Submission::getLocationOfInterest);
   }
 

@@ -20,12 +20,12 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.job.Job.Builder;
 import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.Point;
 import com.google.android.gnd.model.locationofinterest.PointOfInterest;
 import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
-import com.google.android.gnd.model.job.Job;
-import com.google.android.gnd.model.job.Job.Builder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 

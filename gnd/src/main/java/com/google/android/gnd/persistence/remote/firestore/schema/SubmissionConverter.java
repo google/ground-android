@@ -42,9 +42,7 @@ import java8.util.Objects;
 import javax.annotation.Nullable;
 import timber.log.Timber;
 
-/**
- * Converts between Firestore documents and {@link Submission} instances.
- */
+/** Converts between Firestore documents and {@link Submission} instances. */
 class SubmissionConverter {
 
   static Submission toSubmission(LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
@@ -52,7 +50,8 @@ class SubmissionConverter {
     SubmissionDocument doc = snapshot.toObject(SubmissionDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
     if (!locationOfInterest.getId().equals(featureId)) {
-      throw new DataStoreException("Submission doc featureId doesn't match specified locationOfInterest id");
+      throw new DataStoreException(
+          "Submission doc featureId doesn't match specified locationOfInterest id");
     }
     String taskId = checkNotNull(doc.getTaskId(), "taskId");
     Task task = checkNotEmpty(locationOfInterest.getJob().getTask(taskId), "task " + taskId);

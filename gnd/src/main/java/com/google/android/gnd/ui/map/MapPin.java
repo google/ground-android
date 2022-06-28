@@ -17,9 +17,9 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.job.Style;
 import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.Point;
-import com.google.android.gnd.model.job.Style;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
@@ -35,7 +35,8 @@ public abstract class MapPin extends MapLocationOfInterest {
 
   public abstract Style getStyle();
 
-  // TODO: Stop embedding entire LocationOfInterest in pins to free up memory. Instead, copy only details
+  // TODO: Stop embedding entire LocationOfInterest in pins to free up memory. Instead, copy only
+  // details
   // relevant to rendering pins and uuid to reference the related LocationOfInterest.
   @Nullable
   @Override
@@ -49,7 +50,8 @@ public abstract class MapPin extends MapLocationOfInterest {
 
     public abstract Builder setStyle(Style style);
 
-    public abstract Builder setLocationOfInterest(@Nullable LocationOfInterest newLocationOfInterest);
+    public abstract Builder setLocationOfInterest(
+        @Nullable LocationOfInterest newLocationOfInterest);
 
     public abstract MapPin build();
   }

@@ -33,8 +33,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
@@ -55,8 +55,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class LocationOfInterestConverterTest {
 
-  @Mock
-  private DocumentSnapshot featureDocumentSnapshot;
+  @Mock private DocumentSnapshot featureDocumentSnapshot;
 
   private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
@@ -239,9 +238,7 @@ public class LocationOfInterestConverterTest {
     noVerticesGeometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
   }
 
-  /**
-   * Mock submission document snapshot to return the specified id and object representation.
-   */
+  /** Mock submission document snapshot to return the specified id and object representation. */
   private void mockFeatureDocumentSnapshot(String id, FeatureDocument doc) {
     when(featureDocumentSnapshot.getId()).thenReturn(id);
     when(featureDocumentSnapshot.toObject(FeatureDocument.class)).thenReturn(doc);

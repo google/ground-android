@@ -62,12 +62,11 @@ public class SubmissionListViewModel extends AbstractViewModel {
     return submissionList;
   }
 
-  /**
-   * Loads a list of submissions associated with a given locationOfInterest.
-   */
+  /** Loads a list of submissions associated with a given locationOfInterest. */
   public void loadSubmissionList(LocationOfInterest locationOfInterest) {
     Optional<Task> form = locationOfInterest.getJob().getTask();
-    loadSubmissions(locationOfInterest.getSurvey(), locationOfInterest.getId(), form.map(Task::getId));
+    loadSubmissions(
+        locationOfInterest.getSurvey(), locationOfInterest.getId(), form.map(Task::getId));
   }
 
   private Single<ImmutableList<Submission>> getSubmissions(SubmissionListRequest req) {
@@ -87,7 +86,8 @@ public class SubmissionListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadSubmissions(Survey survey, String locationOfInterestId, Optional<String> taskId) {
+  private void loadSubmissions(
+      Survey survey, String locationOfInterestId, Optional<String> taskId) {
     submissionListRequests.onNext(new SubmissionListRequest(survey, locationOfInterestId, taskId));
   }
 
@@ -97,7 +97,8 @@ public class SubmissionListViewModel extends AbstractViewModel {
     final String locationOfInterestId;
     final Optional<String> taskId;
 
-    public SubmissionListRequest(Survey survey, String locationOfInterestId, Optional<String> taskId) {
+    public SubmissionListRequest(
+        Survey survey, String locationOfInterestId, Optional<String> taskId) {
       this.survey = survey;
       this.locationOfInterestId = locationOfInterestId;
       this.taskId = taskId;

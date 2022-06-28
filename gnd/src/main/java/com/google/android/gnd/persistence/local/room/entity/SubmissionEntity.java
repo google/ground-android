@@ -38,17 +38,15 @@ import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/**
- * Representation of a {@link Submission} in local db.
- */
+/** Representation of a {@link Submission} in local db. */
 @AutoValue
 @Entity(
     foreignKeys =
-    @ForeignKey(
-        entity = LocationOfInterestEntity.class,
-        parentColumns = "id",
-        childColumns = "location_of_interest_id",
-        onDelete = CASCADE),
+        @ForeignKey(
+            entity = LocationOfInterestEntity.class,
+            parentColumns = "id",
+            childColumns = "location_of_interest_id",
+            onDelete = CASCADE),
     tableName = "submission",
     // Additional index not required for FK constraint since first field in composite index can be
     // used independently.
@@ -61,17 +59,13 @@ public abstract class SubmissionEntity {
   @NonNull
   public abstract String getId();
 
-  /**
-   * Returns the id of the location of interest to which this submission applies.
-   */
+  /** Returns the id of the location of interest to which this submission applies. */
   @CopyAnnotations
   @ColumnInfo(name = "location_of_interest_id")
   @NonNull
   public abstract String getLocationOfInterestId();
 
-  /**
-   * Returns the id of the task to which this submission's responses apply.
-   */
+  /** Returns the id of the task to which this submission's responses apply. */
   @CopyAnnotations
   @ColumnInfo(name = "task_id")
   @NonNull
@@ -128,7 +122,8 @@ public abstract class SubmissionEntity {
         .build();
   }
 
-  public static Submission toSubmission(LocationOfInterest locationOfInterest, SubmissionEntity submission) {
+  public static Submission toSubmission(
+      LocationOfInterest locationOfInterest, SubmissionEntity submission) {
     String id = submission.getId();
     String taskId = submission.getTaskId();
     Task task =

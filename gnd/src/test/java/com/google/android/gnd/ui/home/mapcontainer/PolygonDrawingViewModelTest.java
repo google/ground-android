@@ -41,7 +41,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   @Inject PolygonDrawingViewModel viewModel;
 
   private com.jraska.livedata.TestObserver<Boolean> polygonCompletedTestObserver;
-  private com.jraska.livedata.TestObserver<ImmutableSet<MapLocationOfInterest>> drawnMapFeaturesTestObserver;
+  private com.jraska.livedata.TestObserver<ImmutableSet<MapLocationOfInterest>>
+      drawnMapFeaturesTestObserver;
 
   @Override
   public void setUp() {
@@ -199,7 +200,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
         polygonDrawingState ->
             polygonDrawingState.isCompleted()
                 && polygonDrawingState.getUnsavedPolygonLocationOfInterest() != null
-                && polygonDrawingState.getUnsavedPolygonLocationOfInterest().getVertices().size() == 4);
+                && polygonDrawingState.getUnsavedPolygonLocationOfInterest().getVertices().size()
+                    == 4);
   }
 
   private void validatePolygonCompleted(boolean isVisible) {

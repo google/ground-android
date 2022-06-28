@@ -47,8 +47,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
 
   @Inject
-  FakeRemoteDataStore() {
-  }
+  FakeRemoteDataStore() {}
 
   /**
    * Set this before the test scenario is loaded.
@@ -90,7 +89,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(Survey survey) {
+  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
+      Survey survey) {
     return featureEvent == null ? Flowable.empty() : Flowable.just(featureEvent);
   }
 

@@ -40,7 +40,8 @@ import org.robolectric.android.controller.ActivityController;
 @RunWith(RobolectricTestRunner.class)
 public class LocationOfInterestDataTypeSelectorDialogFragmentTest extends BaseHiltTest {
 
-  private LocationOfInterestDataTypeSelectorDialogFragment locationOfInterestDataTypeSelectorDialogFragment;
+  private LocationOfInterestDataTypeSelectorDialogFragment
+      locationOfInterestDataTypeSelectorDialogFragment;
 
   private Consumer<Integer> onSelectFeatureDataType;
   private int selectedPosition = -1;

@@ -65,7 +65,8 @@ public class LocationOfInterestSelectorFragment extends AbstractDialogFragment {
     LayoutInflater inflater = getActivity().getLayoutInflater();
     binding = LocationOfInterestSelectorDialogBinding.inflate(inflater);
     listAdapter =
-        new ArrayAdapter(getContext(), R.layout.location_of_interest_selector_list_item, R.id.loi_name);
+        new ArrayAdapter(
+            getContext(), R.layout.location_of_interest_selector_list_item, R.id.loi_name);
     binding.locationOfInterestSelectorListView.setAdapter(listAdapter);
     binding.locationOfInterestSelectorListView.setOnItemClickListener(
         (parent, view, index, id) -> onItemSelected(index));

@@ -33,12 +33,12 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.basemap.tile.TileSet;
+import com.google.android.gnd.model.job.Style;
 import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.Point;
 import com.google.android.gnd.model.locationofinterest.PointOfInterest;
 import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
-import com.google.android.gnd.model.job.Style;
 import com.google.android.gnd.repository.LocationOfInterestRepository;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.SurveyRepository;
@@ -51,8 +51,8 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.CameraPosition;
-import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapGeoJson;
+import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
@@ -98,10 +98,13 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
-  /** Temporary set of {@link MapLocationOfInterest} used for displaying on map during add/edit flows. */
+  /**
+   * Temporary set of {@link MapLocationOfInterest} used for displaying on map during add/edit
+   * flows.
+   */
   @Hot
-  private final PublishProcessor<ImmutableSet<MapLocationOfInterest>> unsavedMapLocationsOfInterest =
-      PublishProcessor.create();
+  private final PublishProcessor<ImmutableSet<MapLocationOfInterest>>
+      unsavedMapLocationsOfInterest = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
@@ -109,7 +112,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> moveLocationsOfInterestVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Integer> moveLocationsOfInterestVisibility =
+      new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
@@ -133,7 +137,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
 
   @Hot private final Subject<Nil> zoomThresholdCrossed = PublishSubject.create();
-  // TODO: Move this in LocationOfInterestRepositionView and return the final updated LOI as the result.
+  // TODO: Move this in LocationOfInterestRepositionView and return the final updated LOI as the
+  // result.
   /** LocationOfInterest selected for repositioning. */
   private Optional<LocationOfInterest> reposLocationOfInterest = Optional.empty();
 
@@ -189,8 +194,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
                     Arrays.asList(
-                        savedMapLocationsOfInterest.startWith(ImmutableSet.<MapLocationOfInterest>of()),
-                        unsavedMapLocationsOfInterest.startWith(ImmutableSet.<MapLocationOfInterest>of())),
+                        savedMapLocationsOfInterest.startWith(
+                            ImmutableSet.<MapLocationOfInterest>of()),
+                        unsavedMapLocationsOfInterest.startWith(
+                            ImmutableSet.<MapLocationOfInterest>of())),
                     MapContainerViewModel::concatLocationsOfInterestSets)
                 .distinctUntilChanged());
 
@@ -202,7 +209,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onSurveyChange));
   }
 
-  private static ImmutableSet<MapLocationOfInterest> concatLocationsOfInterestSets(Object[] objects) {
+  private static ImmutableSet<MapLocationOfInterest> concatLocationsOfInterestSets(
+      Object[] objects) {
     return stream(Arrays.asList(objects))
         .flatMap(set -> stream((ImmutableSet<MapLocationOfInterest>) set))
         .collect(toImmutableSet());
@@ -233,12 +241,14 @@ public class MapContainerViewModel extends AbstractViewModel {
         .ifPresent(this::panAndZoomCamera);
   }
 
-  public void setUnsavedMapLocationsOfInterest(ImmutableSet<MapLocationOfInterest> locationsOfInterest) {
+  public void setUnsavedMapLocationsOfInterest(
+      ImmutableSet<MapLocationOfInterest> locationsOfInterest) {
     unsavedMapLocationsOfInterest.onNext(locationsOfInterest);
   }
 
   private ImmutableSet<MapLocationOfInterest> updateSelectedLocationOfInterest(
-      ImmutableSet<MapLocationOfInterest> locationsOfInterest, Optional<LocationOfInterest> selectedLocationOfInterest) {
+      ImmutableSet<MapLocationOfInterest> locationsOfInterest,
+      Optional<LocationOfInterest> selectedLocationOfInterest) {
     Timber.v("Updating selected LOI style");
     if (selectedLocationOfInterest.isEmpty()) {
       return locationsOfInterest;
@@ -248,11 +258,15 @@ public class MapContainerViewModel extends AbstractViewModel {
     for (MapLocationOfInterest locationOfInterest : locationsOfInterest) {
       if (locationOfInterest instanceof MapGeoJson) {
         MapGeoJson geoJsonLocationOfInterest = (MapGeoJson) locationOfInterest;
-        String geoJsonLocationOfInterestId = geoJsonLocationOfInterest.getLocationOfInterest().getId();
+        String geoJsonLocationOfInterestId =
+            geoJsonLocationOfInterest.getLocationOfInterest().getId();
         if (geoJsonLocationOfInterestId.equals(selectedLocationOfInterestId)) {
-          Timber.v("Restyling selected GeoJSON location of interest " + selectedLocationOfInterestId);
+          Timber.v(
+              "Restyling selected GeoJSON location of interest " + selectedLocationOfInterestId);
           updatedLocationsOfInterest.add(
-              geoJsonLocationOfInterest.toBuilder().setStrokeWidth(selectedPolygonStrokeWidth).build());
+              geoJsonLocationOfInterest.toBuilder()
+                  .setStrokeWidth(selectedPolygonStrokeWidth)
+                  .build());
           continue;
         }
       }
@@ -261,7 +275,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return updatedLocationsOfInterest.build();
   }
 
-  private ImmutableSet<MapLocationOfInterest> toMapLocationsOfInterest(ImmutableSet<LocationOfInterest> locationsOfInterest) {
+  private ImmutableSet<MapLocationOfInterest> toMapLocationsOfInterest(
+      ImmutableSet<LocationOfInterest> locationsOfInterest) {
     ImmutableSet<MapLocationOfInterest> mapPins =
         stream(locationsOfInterest)
             .filter(LocationOfInterest::isPoint)
@@ -361,8 +376,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
-  private Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestStream(Optional<Survey> activeProject) {
-    // Emit empty set in separate stream to force unsubscribe from LocationOfInterest updates and update
+  private Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestStream(
+      Optional<Survey> activeProject) {
+    // Emit empty set in separate stream to force unsubscribe from LocationOfInterest updates and
+    // update
     // subscribers.
     return activeProject
         .map(locationOfInterestRepository::getLocationsOfInterestOnceAndStream)
@@ -503,7 +520,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   /** Called when a LOI is (de)selected. */
-  public void setSelectedLocationOfInterest(Optional<LocationOfInterest> selectedLocationOfInterest) {
+  public void setSelectedLocationOfInterest(
+      Optional<LocationOfInterest> selectedLocationOfInterest) {
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest);
   }
 

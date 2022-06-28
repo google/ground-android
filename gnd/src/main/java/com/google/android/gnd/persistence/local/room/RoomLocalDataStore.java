@@ -265,7 +265,8 @@ public class RoomLocalDataStore implements LocalDataStore {
       Survey survey) {
     return locationOfInterestDao
         .findOnceAndStream(survey.getId(), EntityState.DEFAULT)
-        .map(locationOfInterestEntities -> toLocationsOfInterest(survey, locationOfInterestEntities))
+        .map(
+            locationOfInterestEntities -> toLocationsOfInterest(survey, locationOfInterestEntities))
         .subscribeOn(schedulers.io());
   }
 
@@ -541,7 +542,8 @@ public class RoomLocalDataStore implements LocalDataStore {
         .ignoreElement();
   }
 
-  private Completable insertOrUpdateLocationOfInterest(LocationOfInterestMutation mutation, User user) {
+  private Completable insertOrUpdateLocationOfInterest(
+      LocationOfInterestMutation mutation, User user) {
     return locationOfInterestDao
         .insertOrUpdate(LocationOfInterestEntity.fromMutation(mutation, AuditInfo.now(user)))
         .subscribeOn(schedulers.io());
@@ -552,7 +554,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     return locationOfInterestDao
         .findById(locationOfInterestId)
         .toSingle()
-        .doOnSubscribe(__ -> Timber.d("Deleting local location of interest : %s", locationOfInterestId))
+        .doOnSubscribe(
+            __ -> Timber.d("Deleting local location of interest : %s", locationOfInterestId))
         .flatMapCompletable(entity -> locationOfInterestDao.delete(entity))
         .subscribeOn(schedulers.io());
   }

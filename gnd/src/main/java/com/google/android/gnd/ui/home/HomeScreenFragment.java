@@ -86,15 +86,16 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 /**
- * Fragment containing the map container and location of interest sheet fragments and NavigationView side drawer.
- * This is the default view in the application, and gets swapped out for other fragments (e.g., view
- * submission and edit submission) at runtime.
+ * Fragment containing the map container and location of interest sheet fragments and NavigationView
+ * side drawer. This is the default view in the application, and gets swapped out for other
+ * fragments (e.g., view submission and edit submission) at runtime.
  */
 @AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
 
-  // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer; make this more
+  // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer; make this
+  // more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
@@ -102,10 +103,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
-  @Inject
-  LocationOfInterestHelper locationOfInterestHelper;
-  @Inject
-  LocationOfInterestRepository locationOfInterestRepository;
+  @Inject LocationOfInterestHelper locationOfInterestHelper;
+  @Inject LocationOfInterestRepository locationOfInterestRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -142,8 +141,14 @@ public class HomeScreenFragment extends AbstractFragment
         .observeOn(schedulers.ui())
         .as(autoDisposable(this))
         .subscribe(this::onLocationOfInterestAdded);
-    viewModel.getUpdateLocationOfInterestResults().as(autoDisposable(this)).subscribe(this::onLocationOfInterestUpdated);
-    viewModel.getDeleteLocationOfInterestResults().as(autoDisposable(this)).subscribe(this::onLocationOfInterestDeleted);
+    viewModel
+        .getUpdateLocationOfInterestResults()
+        .as(autoDisposable(this))
+        .subscribe(this::onLocationOfInterestUpdated);
+    viewModel
+        .getDeleteLocationOfInterestResults()
+        .as(autoDisposable(this))
+        .subscribe(this::onLocationOfInterestDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     polygonDrawingViewModel
         .getDrawingState()
@@ -168,24 +173,33 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void showLocationOfInterestSelector(ImmutableList<LocationOfInterest> locationsOfInterest) {
+  private void showLocationOfInterestSelector(
+      ImmutableList<LocationOfInterest> locationsOfInterest) {
     locationOfInterestSelectorViewModel.setLocationsOfInterest(locationsOfInterest);
     navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToLocationOfInterestSelectorFragment());
+        HomeScreenFragmentDirections
+            .actionHomeScreenFragmentToLocationOfInterestSelectorFragment());
   }
 
   private void onLocationOfInterestAdded(LocationOfInterest locationOfInterest) {
-    locationOfInterest.getJob().getTask().ifPresent(form -> addNewSubmission(locationOfInterest, form));
+    locationOfInterest
+        .getJob()
+        .getTask()
+        .ifPresent(form -> addNewSubmission(locationOfInterest, form));
   }
 
   private void addNewSubmission(LocationOfInterest locationOfInterest, Task task) {
     String surveyId = locationOfInterest.getSurvey().getId();
     String locationOfInterestId = locationOfInterest.getId();
     String taskId = task.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, taskId));
+    navigator.navigate(
+        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, taskId));
   }
 
-  /** This is only possible after updating the location of the location of interest. So, reset the UI. */
+  /**
+   * This is only possible after updating the location of the location of interest. So, reset the
+   * UI.
+   */
   private void onLocationOfInterestUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
@@ -312,7 +326,8 @@ public class HomeScreenFragment extends AbstractFragment
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
 
-    ((MainActivity) getActivity()).setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false);
+    ((MainActivity) getActivity())
+        .setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false);
   }
 
   private void openDrawer() {
@@ -395,8 +410,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showDataCollection() {
     navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment()
-    );
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment());
   }
 
   private void showOfflineAreas() {
@@ -582,7 +596,8 @@ public class HomeScreenFragment extends AbstractFragment
         .show();
   }
 
-  private ImmutableList<String> getLocationOfInterestProperties(GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
+  private ImmutableList<String> getLocationOfInterestProperties(
+      GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
     String jsonString = geoJsonLocationOfInterest.getGeoJsonString();
     try {
       JSONObject jsonObject = new JSONObject(jsonString);
@@ -600,7 +615,9 @@ public class HomeScreenFragment extends AbstractFragment
       }
       return items.build();
     } catch (JSONException e) {
-      Timber.d("Encountered invalid location of interest GeoJSON in location of interest %s", geoJsonLocationOfInterest.getId());
+      Timber.d(
+          "Encountered invalid location of interest GeoJSON in location of interest %s",
+          geoJsonLocationOfInterest.getId());
       return ImmutableList.of();
     }
   }

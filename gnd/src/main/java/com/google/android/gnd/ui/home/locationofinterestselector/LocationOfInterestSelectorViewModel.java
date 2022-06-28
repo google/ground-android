@@ -33,15 +33,18 @@ import javax.inject.Inject;
 @SharedViewModel
 public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
 
-  private ImmutableList<LocationOfInterest> locationsOfInterest = ImmutableList.<LocationOfInterest>builder().build();
+  private ImmutableList<LocationOfInterest> locationsOfInterest =
+      ImmutableList.<LocationOfInterest>builder().build();
   @Hot private final Subject<Integer> itemClicks = PublishSubject.create();
   @Hot private final Observable<LocationOfInterest> locationOfInterestClicks;
   private final LocationOfInterestHelper locationOfInterestHelper;
   private final Resources resources;
 
   @Inject
-  LocationOfInterestSelectorViewModel(LocationOfInterestHelper locationOfInterestHelper, Resources resources) {
-    this.locationOfInterestClicks = itemClicks.filter(i -> i < locationsOfInterest.size()).map(i -> locationsOfInterest.get(i));
+  LocationOfInterestSelectorViewModel(
+      LocationOfInterestHelper locationOfInterestHelper, Resources resources) {
+    this.locationOfInterestClicks =
+        itemClicks.filter(i -> i < locationsOfInterest.size()).map(i -> locationsOfInterest.get(i));
     this.locationOfInterestHelper = locationOfInterestHelper;
     this.resources = resources;
   }

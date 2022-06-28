@@ -17,8 +17,8 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.annotation.Dimension;
-import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.job.Style;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.auto.value.AutoValue;
 import org.json.JSONObject;
 

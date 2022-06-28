@@ -30,7 +30,10 @@ import java.util.List;
 import java.util.Map;
 import timber.log.Timber;
 
-/** Converts between Firestore maps used to merge updates and {@link LocationOfInterestMutation} instances. */
+/**
+ * Converts between Firestore maps used to merge updates and {@link LocationOfInterestMutation}
+ * instances.
+ */
 class FeatureMutationConverter {
 
   /**

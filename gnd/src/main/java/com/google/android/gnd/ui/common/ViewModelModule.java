@@ -56,13 +56,13 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(LocationOfInterestRepositionViewModel.class)
-  abstract ViewModel bindLocationOfInterestRepositionViewModel(LocationOfInterestRepositionViewModel viewModel);
+  abstract ViewModel bindLocationOfInterestRepositionViewModel(
+      LocationOfInterestRepositionViewModel viewModel);
 
   @Binds
   @IntoMap
   @ViewModelKey(PolygonDrawingViewModel.class)
   abstract ViewModel bindPolygonDrawingViewModel(PolygonDrawingViewModel viewModel);
-
 
   @Binds
   @IntoMap
@@ -117,7 +117,8 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(LocationOfInterestDetailsViewModel.class)
-  abstract ViewModel bindLocationOfInterestDetailsViewModel(LocationOfInterestDetailsViewModel viewModel);
+  abstract ViewModel bindLocationOfInterestDetailsViewModel(
+      LocationOfInterestDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
@@ -177,7 +178,8 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(LocationOfInterestSelectorViewModel.class)
-  abstract ViewModel bindLocationOfInterestSelectorViewModel(LocationOfInterestSelectorViewModel viewModel);
+  abstract ViewModel bindLocationOfInterestSelectorViewModel(
+      LocationOfInterestSelectorViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

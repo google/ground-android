@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.locationofinterest.LocationOfInterestType;
 import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterestType;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
@@ -49,8 +49,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   @BindValue @Mock LocalDataStore mockLocalDataStore;
   @BindValue @Mock UserRepository userRepository;
 
-  @Inject
-  SurveyRepository surveyRepository;
+  @Inject SurveyRepository surveyRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
   @Test

@@ -24,7 +24,10 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import java.util.List;
 
-/** Provides low-level read/write operations of {@link LocationOfInterestEntity} to/from the local db. */
+/**
+ * Provides low-level read/write operations of {@link LocationOfInterestEntity} to/from the local
+ * db.
+ */
 @Dao
 public interface LocationOfInterestDao extends BaseDao<LocationOfInterestEntity> {
   @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")

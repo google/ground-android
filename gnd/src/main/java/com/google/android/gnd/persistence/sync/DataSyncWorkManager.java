@@ -48,7 +48,8 @@ public class DataSyncWorkManager extends BaseWorkManager {
 
   private void enqueueSyncWorkerInternal(String locationOfInterestId) {
     // Rather than having running workers monitor the queue for new mutations for their respective
-    // locationOfInterestId, we instead queue a new worker on each new mutation. This simplifies the worker
+    // locationOfInterestId, we instead queue a new worker on each new mutation. This simplifies the
+    // worker
     // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
     Data inputData = LocalMutationSyncWorker.createInputData(locationOfInterestId);
