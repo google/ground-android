@@ -16,11 +16,14 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.task.Step;
 
-/** Converts between Firestore nested objects and {@link Element} instances. */
+/**
+ * Converts between Firestore nested objects and {@link Step} instances.
+ */
 class ElementConverter {
-  static Element toElement(String id, ElementNestedObject em) {
-    return FieldConverter.toField(id, em).map(Element::ofField).orElse(Element.ofUnknown());
+
+  static Step toStep(String id, ElementNestedObject em) {
+    return FieldConverter.toField(id, em).map(Step::ofField).orElse(Step.ofUnknown());
   }
 }

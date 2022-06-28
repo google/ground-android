@@ -21,8 +21,8 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.task.Option;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.stream.IntStreams;

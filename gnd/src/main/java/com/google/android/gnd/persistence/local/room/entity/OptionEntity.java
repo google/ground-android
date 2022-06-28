@@ -21,7 +21,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-import com.google.android.gnd.model.form.Option;
+import com.google.android.gnd.model.task.Option;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -29,14 +29,15 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @Entity(
     tableName = "option",
     foreignKeys =
-        @ForeignKey(
-            entity = FieldEntity.class,
-            parentColumns = "id",
-            childColumns = "field_id",
-            onDelete = ForeignKey.CASCADE),
+    @ForeignKey(
+        entity = FieldEntity.class,
+        parentColumns = "id",
+        childColumns = "field_id",
+        onDelete = ForeignKey.CASCADE),
     indices = {@Index("field_id")},
     primaryKeys = {"id"})
 public abstract class OptionEntity {
+
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "id")
@@ -84,6 +85,7 @@ public abstract class OptionEntity {
 
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setId(@NonNull String id);
 
     public abstract Builder setCode(String code);

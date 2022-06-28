@@ -23,11 +23,11 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.Step;
+import com.google.android.gnd.model.task.Step.Type;
 import com.google.android.gnd.persistence.local.room.models.FieldEntityType;
+import com.google.android.gnd.persistence.local.room.models.StepEntityType;
 import com.google.android.gnd.persistence.local.room.relations.FieldEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -38,12 +38,12 @@ import timber.log.Timber;
 @Entity(
     tableName = "field",
     foreignKeys =
-        @ForeignKey(
-            entity = FormEntity.class,
-            parentColumns = "id",
-            childColumns = "form_id",
-            onDelete = ForeignKey.CASCADE),
-    indices = {@Index("form_id")})
+    @ForeignKey(
+        entity = TaskEntity.class,
+        parentColumns = "id",
+        childColumns = "task_id",
+        onDelete = ForeignKey.CASCADE),
+    indices = {@Index("task_id")})
 public abstract class FieldEntity {
 
   @CopyAnnotations
@@ -58,8 +58,8 @@ public abstract class FieldEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "element_type")
-  public abstract ElementEntityType getElementType();
+  @ColumnInfo(name = "step_type")
+  public abstract StepEntityType getStepType();
 
   @CopyAnnotations
   @NonNull
@@ -77,25 +77,25 @@ public abstract class FieldEntity {
 
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "form_id")
-  public abstract String getFormId();
+  @ColumnInfo(name = "task_id")
+  public abstract String getTaskId();
 
-  public static FieldEntity fromField(String formId, Type elementType, Field field) {
+  public static FieldEntity fromField(String taskId, Type stepType, Field field) {
     return FieldEntity.builder()
         .setId(field.getId())
         .setIndex(field.getIndex())
         .setLabel(field.getLabel())
         .setRequired(field.isRequired())
-        .setElementType(ElementEntityType.fromElementType(elementType))
+        .setStepType(StepEntityType.fromStepType(stepType))
         .setFieldType(FieldEntityType.fromFieldType(field.getType()))
-        .setFormId(formId)
+        .setTaskId(taskId)
         .build();
   }
 
-  static Element toElement(FieldEntityAndRelations fieldEntityAndRelations) {
-    return fieldEntityAndRelations.fieldEntity.getElementType().toElementType() == Type.FIELD
-        ? Element.ofField(FieldEntity.toField(fieldEntityAndRelations))
-        : Element.ofUnknown();
+  static Step toStep(FieldEntityAndRelations fieldEntityAndRelations) {
+    return fieldEntityAndRelations.fieldEntity.getStepType().toStepType() == Type.FIELD
+        ? Step.ofField(FieldEntity.toField(fieldEntityAndRelations))
+        : Step.ofUnknown();
   }
 
   private static Field toField(FieldEntityAndRelations fieldEntityAndRelations) {
@@ -127,19 +127,19 @@ public abstract class FieldEntity {
   public static FieldEntity create(
       String id,
       Integer index,
-      ElementEntityType elementType,
+      StepEntityType stepType,
       FieldEntityType fieldType,
       String label,
       boolean required,
-      String formId) {
+      String taskId) {
     return builder()
         .setId(id)
         .setIndex(index)
-        .setElementType(elementType)
+        .setStepType(stepType)
         .setFieldType(fieldType)
         .setLabel(label)
         .setRequired(required)
-        .setFormId(formId)
+        .setTaskId(taskId)
         .build();
   }
 
@@ -154,7 +154,7 @@ public abstract class FieldEntity {
 
     public abstract Builder setIndex(int id);
 
-    public abstract Builder setElementType(ElementEntityType elementType);
+    public abstract Builder setStepType(StepEntityType stepType);
 
     public abstract Builder setFieldType(FieldEntityType fieldType);
 
@@ -162,7 +162,7 @@ public abstract class FieldEntity {
 
     public abstract Builder setRequired(boolean required);
 
-    public abstract Builder setFormId(String formId);
+    public abstract Builder setTaskId(String taskId);
 
     public abstract FieldEntity build();
   }

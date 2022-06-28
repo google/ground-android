@@ -27,7 +27,7 @@ sealed class Mutation {
     abstract val syncStatus: SyncStatus
     abstract val surveyId: String
     abstract val featureId: String
-    abstract val layerId: String
+    abstract val jobId: String
     abstract val userId: String
     abstract val clientTimestamp: Date
     abstract val retryCount: Long
@@ -83,7 +83,7 @@ sealed class Mutation {
             @JvmSynthetic set
         var featureId: String = ""
             @JvmSynthetic set
-        var layerId: String = ""
+        var jobId: String = ""
             @JvmSynthetic set
         var userId: String = ""
             @JvmSynthetic set
@@ -101,7 +101,7 @@ sealed class Mutation {
 
         fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
         fun setFeatureId(featureId: String): Builder<T> = apply { this.featureId = featureId }
-        fun setLayerId(layerId: String): Builder<T> = apply { this.layerId = layerId }
+        fun setJobId(jobId: String): Builder<T> = apply { this.jobId = jobId }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
         fun setClientTimestamp(timestamp: Date): Builder<T> =
             apply { this.clientTimestamp = timestamp }
@@ -116,7 +116,7 @@ sealed class Mutation {
                 syncStatus = mutation.syncStatus
                 surveyId = mutation.surveyId
                 featureId = mutation.featureId
-                layerId = mutation.layerId
+                jobId = mutation.jobId
                 userId = mutation.userId
                 clientTimestamp = mutation.clientTimestamp
                 retryCount = mutation.retryCount

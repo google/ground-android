@@ -82,6 +82,9 @@
       android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
       app:destination="@id/surveySelectorDialogFragment" />
     <action
+      android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
+      app:destination="@id/data_collection_fragment" />
+    <action
       android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
       app:destination="@id/featureSelectorFragment" />
     <action
@@ -93,6 +96,11 @@
     android:name="com.google.android.gnd.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
     tools:layout="@layout/sync_status_frag" />
+  <fragment
+    android:id="@+id/data_collection_fragment"
+    android:name="com.google.android.gnd.ui.datacollection.DataCollectionFragment"
+    android:label="@string/collect_data"
+    tools:layout="@layout/data_collection_frag" />
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragment"
@@ -148,7 +156,7 @@
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim">
       <argument
-        android:name="formId"
+        android:name="taskId"
         android:defaultValue="N/A" />
     </action>
   </fragment>
@@ -167,7 +175,7 @@
       android:name="submissionId"
       type="string" />
     <argument
-      android:name="formId"
+      android:name="taskId"
       type="string" />
     <argument
       android:name="restoredResponses"

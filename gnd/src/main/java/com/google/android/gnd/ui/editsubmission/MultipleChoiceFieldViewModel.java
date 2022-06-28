@@ -21,8 +21,8 @@ import static java8.util.Objects.requireNonNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.task.Option;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.common.collect.ImmutableList;

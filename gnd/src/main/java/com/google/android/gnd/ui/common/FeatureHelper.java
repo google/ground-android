@@ -56,7 +56,7 @@ public class FeatureHelper {
 
   public String getSubtitle(Optional<Feature> feature) {
     return feature
-        .map(f -> resources.getString(R.string.layer_label_format, f.getLayer().getName()))
+        .map(f -> resources.getString(R.string.layer_label_format, f.getJob().getName()))
         .orElse("");
   }
 

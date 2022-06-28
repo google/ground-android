@@ -28,10 +28,10 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -52,7 +52,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     tableName = "submission",
     // Additional index not required for FK constraint since first field in composite index can be
     // used independently.
-    indices = {@Index({"feature_id", "form_id", "state"})})
+    indices = {@Index({"feature_id", "task_id", "state"})})
 public abstract class SubmissionEntity {
 
   @CopyAnnotations
@@ -70,12 +70,12 @@ public abstract class SubmissionEntity {
   public abstract String getFeatureId();
 
   /**
-   * Returns the id of the form to which this submission's responses apply.
+   * Returns the id of the task to which this submission's responses apply.
    */
   @CopyAnnotations
-  @ColumnInfo(name = "form_id")
+  @ColumnInfo(name = "task_id")
   @NonNull
-  public abstract String getFormId();
+  public abstract String getTaskId();
 
   @CopyAnnotations
   @ColumnInfo(name = "state")
@@ -83,8 +83,8 @@ public abstract class SubmissionEntity {
   public abstract EntityState getState();
 
   /**
-   * Returns a JSON object containing user responses keyed by their respective elementId in the form
-   * identified by formId. Returns null if no responses have been provided.
+   * Returns a JSON object containing user responses keyed by their respective stepId in the task
+   * identified by taskId. Returns null if no responses have been provided.
    */
   @CopyAnnotations
   @ColumnInfo(name = "responses")
@@ -104,7 +104,7 @@ public abstract class SubmissionEntity {
   public static SubmissionEntity fromSubmission(Submission submission) {
     return SubmissionEntity.builder()
         .setId(submission.getId())
-        .setFormId(submission.getForm().getId())
+        .setTaskId(submission.getTask().getId())
         .setFeatureId(submission.getFeature().getId())
         .setState(EntityState.DEFAULT)
         .setResponses(ResponseMapConverter.toString(submission.getResponses()))
@@ -117,7 +117,7 @@ public abstract class SubmissionEntity {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     return SubmissionEntity.builder()
         .setId(mutation.getSubmissionId())
-        .setFormId(mutation.getForm().getId())
+        .setTaskId(mutation.getTask().getId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)
         .setResponses(
@@ -130,21 +130,21 @@ public abstract class SubmissionEntity {
 
   public static Submission toSubmission(Feature feature, SubmissionEntity submission) {
     String id = submission.getId();
-    String formId = submission.getFormId();
-    Form form =
+    String taskId = submission.getTaskId();
+    Task task =
         feature
-            .getLayer()
-            .getForm(formId)
+            .getJob()
+            .getTask(taskId)
             .orElseThrow(
                 () ->
                     new LocalDataConsistencyException(
-                        "Unknown formId " + formId + " in submission " + id));
+                        "Unknown taskId " + taskId + " in submission " + id));
     return Submission.newBuilder()
         .setId(id)
-        .setForm(form)
+        .setTask(task)
         .setSurvey(feature.getSurvey())
         .setFeature(feature)
-        .setResponses(ResponseMapConverter.fromString(form, submission.getResponses()))
+        .setResponses(ResponseMapConverter.fromString(task, submission.getResponses()))
         .setCreated(AuditInfoEntity.toObject(submission.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(submission.getLastModified()))
         .build();
@@ -155,7 +155,7 @@ public abstract class SubmissionEntity {
   public static SubmissionEntity create(
       String id,
       String featureId,
-      String formId,
+      String taskId,
       EntityState state,
       String responses,
       AuditInfoEntity created,
@@ -163,7 +163,7 @@ public abstract class SubmissionEntity {
     return builder()
         .setId(id)
         .setFeatureId(featureId)
-        .setFormId(formId)
+        .setTaskId(taskId)
         .setState(state)
         .setResponses(responses)
         .setCreated(created)
@@ -184,7 +184,7 @@ public abstract class SubmissionEntity {
 
     public abstract Builder setFeatureId(String newFeatureId);
 
-    public abstract Builder setFormId(String newFormId);
+    public abstract Builder setTaskId(String newTaskId);
 
     public abstract Builder setState(EntityState newState);
 

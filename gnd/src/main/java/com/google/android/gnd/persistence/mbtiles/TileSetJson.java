@@ -28,7 +28,9 @@ import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** Describes a tile set source, including its id, extents, and source URL. */
+/**
+ * Describes a tile set source, including its id, extents, and source URL.
+ */
 class TileSetJson {
 
   private static final String GEOMETRY_KEY = "geometry";
@@ -48,7 +50,7 @@ class TileSetJson {
    * <p>- a geometry describing a polygon. - an id specifying cartesian coordinates. - a URL
    * specifying a source for the tile imagery.
    *
-   * <p>GeoJSON Polygons are described using coordinate arrays that form a linear ring. The first
+   * <p>GeoJSON Polygons are described using coordinate arrays that task a linear ring. The first
    * and last value in a linear ring are equivalent. We assume coordinates are ordered, S/W, S/E,
    * N/E, N/W, (S/W again, closing the ring).
    *

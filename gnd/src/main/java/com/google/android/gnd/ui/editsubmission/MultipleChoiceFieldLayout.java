@@ -45,7 +45,7 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
 
     TextInputEditText editText = findViewById(R.id.multiple_choice_input_edit_text);
 
-    // Clear focus in case it was automatically set when the form was initialized. This prevents the
+    // Clear focus in case it was automatically set when the task was initialized. This prevents the
     // dialog from triggering on rotate.
     editText.clearFocus();
 

@@ -17,7 +17,7 @@
 package com.google.android.gnd.model.submission;
 
 import androidx.annotation.NonNull;
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.task.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

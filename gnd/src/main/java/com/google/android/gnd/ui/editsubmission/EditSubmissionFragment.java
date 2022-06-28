@@ -53,12 +53,12 @@ import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBindingImpl;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.databinding.TimeInputFieldBinding;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
+import com.google.android.gnd.model.task.Field;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.Option;
+import com.google.android.gnd.model.task.Step;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -170,7 +170,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
-    viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
+    viewModel.getTask().observe(getViewLifecycleOwner(), this::rebuildTask);
     viewModel
         .getSaveResults()
         .observeOn(schedulers.ui())
@@ -278,20 +278,20 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         .subscribe(__ -> showTimeDialog(timeFieldViewModel));
   }
 
-  private void rebuildForm(Form form) {
+  private void rebuildTask(Task task) {
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();
-    for (Element element : form.getElementsSorted()) {
-      switch (element.getType()) {
+    for (Step step : task.getStepsSorted()) {
+      switch (step.getType()) {
         case FIELD:
-          Field field = element.getField();
+          Field field = step.getField();
           ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
           addFieldViewModel(field, binding);
           break;
         case UNKNOWN:
         default:
-          Timber.e("%s form elements not yet supported", element.getType());
+          Timber.e("%s task steps not yet supported", step.getType());
           break;
       }
     }

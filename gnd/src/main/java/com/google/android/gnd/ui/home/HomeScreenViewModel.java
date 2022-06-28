@@ -21,7 +21,6 @@ import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -29,10 +28,10 @@ import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.FeatureMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
+import com.google.android.gnd.model.task.Task;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -100,14 +99,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot
   private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
-  @Hot(replays = true)
-  private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
-
   @Hot
   private final Subject<ImmutableList<Feature>> showFeatureSelectorRequests =
-      PublishSubject.create();
-
-  private Subject<Pair<ImmutableList<Layer>, Point>> showAddFeatureDialogRequests =
       PublishSubject.create();
 
   @Inject
@@ -122,8 +115,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.userRepository = userRepository;
 
     surveyLoadingState =
-        LiveDataReactiveStreams.fromPublisher(
-            surveyRepository.getSurveyLoadingState().doAfterNext(this::onSurveyLoadingStateChange));
+        LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
     addFeatureResults =
         addFeatureRequests.switchMapSingle(
             mutation ->
@@ -142,45 +134,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
   }
 
-  /** Handle state of the UI elements depending upon the active survey. */
-  private void onSurveyLoadingStateChange(Loadable<Survey> survey) {
-    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(survey));
-  }
-
-  private boolean shouldShowAddFeatureButton(Loadable<Survey> loadingState) {
-    // Project must contain at least one layer that the user can modify for add feature button to be
-    // shown.
-    if (loadingState.value().isEmpty()) {
-      // Don't show if no active survey.
-      return false;
-    }
-    ImmutableList<Layer> modifiableLayers =
-        surveyRepository.getModifiableLayers(loadingState.value().get());
-    return !modifiableLayers.isEmpty();
-  }
-
-  public LiveData<Boolean> isAddFeatureButtonVisible() {
-    return addFeatureButtonVisible;
-  }
-
   @Hot
   public Observable<ImmutableList<Feature>> getShowFeatureSelectorRequests() {
     return showFeatureSelectorRequests;
-  }
-
-  public void onAddFeatureButtonClick(Point point) {
-    if (getActiveSurvey().isEmpty()) {
-      Timber.e("No active survey");
-      return;
-    }
-    Survey survey = getActiveSurvey().get();
-    ImmutableList<Layer> layers = surveyRepository.getModifiableLayers(survey);
-    // TODO: Pause location updates while dialog is open.
-    showAddFeatureDialogRequests.onNext(Pair.create(layers, point));
-  }
-
-  public Observable<Pair<ImmutableList<Layer>, Point>> getShowAddFeatureDialogRequests() {
-    return showAddFeatureDialogRequests;
   }
 
   public Flowable<Feature> getAddFeatureResults() {
@@ -199,13 +155,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(Layer layer, Point point) {
+  public void addFeature(Job job, Point point) {
     getActiveSurvey()
         .map(Survey::getId)
         .ifPresentOrElse(
             surveyId ->
                 addFeatureRequests.onNext(
-                    featureRepository.newMutation(surveyId, layer.getId(), point, new Date())),
+                    featureRepository.newMutation(surveyId, job.getId(), point, new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -218,7 +174,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
             surveyId ->
                 addFeatureRequests.onNext(
                     featureRepository.newPolygonFeatureMutation(
-                        surveyId, feature.getLayer().getId(), feature.getVertices(), new Date())),
+                        surveyId, feature.getJob().getId(), feature.getVertices(), new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -288,10 +244,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = optionalFeature.get();
-    Optional<Form> form = feature.getLayer().getForm();
+    Optional<Task> form = feature.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
-      Timber.e("No forms in layer");
+      Timber.e("No tasks in job");
       return;
     }
     Survey survey = feature.getSurvey();

@@ -39,7 +39,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.job.Style;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.SurveyRepository;
@@ -124,7 +124,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
-  @Hot private final Subject<Point> addFeatureButtonClicks = PublishSubject.create();
 
   @Hot private final Subject<Nil> zoomThresholdCrossed = PublishSubject.create();
   // TODO: Move this in FeatureRepositionView and return the final updated feature as the result.
@@ -152,8 +151,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         (int) resources.getDimension(R.dimen.selected_polyline_stroke_width);
     this.surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
-    // TODO: Clear feature markers when project is deactivated.
-    // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
+    // TODO: Clear feature markers when survey is deactivated.
+    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo?
     // Features that are persisted to the local and remote dbs.
     Flowable<ImmutableSet<MapFeature>> savedMapFeatures =
@@ -179,7 +178,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             offlineAreaRepository
                 .getDownloadedTileSetsOnceAndStream()
                 .map(set -> stream(set).map(TileSet::getPath).collect(toImmutableSet())));
-    disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onProjectChange));
+    disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onSurveyChange));
   }
 
   private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
@@ -206,7 +205,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private void onProjectChange(Optional<Survey> project) {
+  private void onSurveyChange(Optional<Survey> project) {
     project
         .map(Survey::getId)
         .flatMap(surveyRepository::getLastCameraPosition)
@@ -433,16 +432,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     selectMapTypeClicks.onNext(Nil.NIL);
   }
 
-  public void onAddFeatureBtnClick() {
-    addFeatureButtonClicks.onNext(getCameraPosition().getValue().getTarget());
-  }
-
   public Observable<Nil> getSelectMapTypeClicks() {
     return selectMapTypeClicks;
-  }
-
-  public Observable<Point> getAddFeatureButtonClicks() {
-    return addFeatureButtonClicks;
   }
 
   public Observable<Nil> getZoomThresholdCrossed() {

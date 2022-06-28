@@ -24,8 +24,8 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
-import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Layer.Builder;
+import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.job.Job.Builder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -41,10 +41,10 @@ public class FakeData {
           .setText("Fake Terms of Service text")
           .build();
 
-  public static final Layer LAYER = newLayer().build();
+  public static final Job JOB = newJob().build();
 
-  public static Builder newLayer() {
-    return Layer.newBuilder().setId("LAYER").setName("Layer");
+  public static Builder newJob() {
+    return Job.newBuilder().setId("JOB").setName("Job");
   }
 
   public static final User USER =
@@ -60,14 +60,14 @@ public class FakeData {
         .setId("SURVEY")
         .setTitle("Survey title")
         .setDescription("Test survey description")
-        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"));
+        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"));
   }
 
   public static final PointFeature POINT_FEATURE =
       PointFeature.newBuilder()
           .setId("feature id")
           .setSurvey(SURVEY)
-          .setLayer(LAYER)
+          .setJob(JOB)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
@@ -83,7 +83,7 @@ public class FakeData {
       PolygonFeature.builder()
           .setId("feature id")
           .setSurvey(SURVEY)
-          .setLayer(LAYER)
+          .setJob(JOB)
           .setVertices(VERTICES)
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
@@ -93,7 +93,7 @@ public class FakeData {
       GeoJsonFeature.newBuilder()
           .setId("feature id")
           .setSurvey(SURVEY)
-          .setLayer(LAYER)
+          .setJob(JOB)
           .setGeoJsonString("some data string")
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))

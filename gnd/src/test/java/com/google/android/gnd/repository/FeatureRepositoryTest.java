@@ -234,12 +234,12 @@ public class FeatureRepositoryTest extends BaseHiltTest {
     Date testDate = new Date();
 
     FeatureMutation newMutation =
-        featureRepository.newMutation("foo_survey_id", "foo_layer_id", FakeData.POINT, testDate);
+        featureRepository.newMutation("foo_survey_id", "foo_job_id", FakeData.POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getJobId()).isEqualTo("foo_job_id");
     assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
@@ -252,12 +252,12 @@ public class FeatureRepositoryTest extends BaseHiltTest {
 
     FeatureMutation newMutation =
         featureRepository.newPolygonFeatureMutation(
-            "foo_survey_id", "foo_layer_id", FakeData.VERTICES, testDate);
+            "foo_survey_id", "foo_job_id", FakeData.VERTICES, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getFeatureId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getLayerId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getJobId()).isEqualTo("foo_job_id");
     assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);

@@ -18,8 +18,8 @@ package com.google.android.gnd.model.submission;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.Option;
+import com.google.android.gnd.model.task.MultipleChoice;
+import com.google.android.gnd.model.task.Option;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -68,7 +68,7 @@ public class MultipleChoiceResponse implements Response {
     return getDetailsText();
   }
 
-  // TODO: Make these inner classes non-static and access Form directly.
+  // TODO: Make these inner classes non-static and access Task directly.
   public String getDetailsText() {
     return stream(selectedOptionIds)
         .map(getMultipleChoice()::getOptionById)

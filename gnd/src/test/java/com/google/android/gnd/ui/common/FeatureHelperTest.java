@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.common;
 
 import static com.google.android.gnd.FakeData.GEO_JSON_FEATURE;
-import static com.google.android.gnd.FakeData.LAYER;
+import static com.google.android.gnd.FakeData.JOB;
 import static com.google.android.gnd.FakeData.POINT_FEATURE;
 import static com.google.android.gnd.FakeData.POLYGON_FEATURE;
 import static com.google.android.gnd.FakeData.USER;
@@ -110,11 +110,9 @@ public class FeatureHelperTest extends BaseHiltTest {
   @Test
   public void testGetSubtitle() {
     PointFeature feature =
-        POINT_FEATURE.toBuilder()
-            .setLayer(LAYER.toBuilder().setName("some layer").build())
-            .build();
+        POINT_FEATURE.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
 
-    assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Layer: some layer");
+    assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
   }
 
   @Test

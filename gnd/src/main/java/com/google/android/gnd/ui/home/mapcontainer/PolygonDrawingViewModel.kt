@@ -21,8 +21,8 @@ import com.google.android.gnd.model.AuditInfo
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.feature.Point
 import com.google.android.gnd.model.feature.PolygonFeature
-import com.google.android.gnd.model.layer.Layer
-import com.google.android.gnd.model.layer.Style
+import com.google.android.gnd.model.job.Job
+import com.google.android.gnd.model.job.Style
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
 import com.google.android.gnd.rx.annotations.Hot
 import com.google.android.gnd.system.auth.AuthenticationManager
@@ -58,8 +58,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
     private val vertices: MutableList<Point> = ArrayList()
 
-    /** The currently selected layer and project for the polygon drawing.  */
-    private val selectedLayer = BehaviorProcessor.create<Layer>()
+    /** The currently selected job and survey for the polygon drawing.  */
+    private val selectedJob = BehaviorProcessor.create<Job>()
     private val selectedSurvey = BehaviorProcessor.create<Survey>()
     private var cameraTarget: Point? = null
 
@@ -137,7 +137,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
     }
 
     fun onCompletePolygonButtonClick() {
-        check(!(selectedLayer.value == null || selectedSurvey.value == null)) { "Project or layer is null" }
+        check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
         val polygon = mapPolygon.get()
         check(polygon.isPolygonComplete) { "Polygon is not complete" }
         val auditInfo = AuditInfo.now(authManager.currentUser)
@@ -145,7 +145,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             .setId(polygon.id)
             .setVertices(polygon.vertices)
             .setSurvey(selectedSurvey.value!!)
-            .setLayer(selectedLayer.value!!)
+            .setJob(selectedJob.value!!)
             .setCreated(auditInfo)
             .setLastModified(auditInfo)
             .build()
@@ -163,8 +163,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
     val firstVertex: Optional<Point>
         get() = mapPolygon.map { it.firstVertex }
 
-    fun startDrawingFlow(selectedSurvey: Survey, selectedLayer: Layer) {
-        this.selectedLayer.onNext(selectedLayer)
+    fun startDrawingFlow(selectedSurvey: Survey, selectedJob: Job) {
+        this.selectedJob.onNext(selectedJob)
         this.selectedSurvey.onNext(selectedSurvey)
         polygonDrawingState.onNext(PolygonDrawingState.inProgress())
 

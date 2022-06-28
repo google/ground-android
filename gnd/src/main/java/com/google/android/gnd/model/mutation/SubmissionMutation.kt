@@ -15,7 +15,7 @@
  */
 package com.google.android.gnd.model.mutation
 
-import com.google.android.gnd.model.form.Form
+import com.google.android.gnd.model.task.Task
 import com.google.android.gnd.model.submission.ResponseDelta
 import com.google.android.gnd.util.toImmutableList
 import com.google.common.collect.ImmutableList
@@ -27,20 +27,20 @@ data class SubmissionMutation(
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
     override val surveyId: String = "",
     override val featureId: String = "",
-    override val layerId: String = "",
+    override val jobId: String = "",
     override val userId: String = "",
     override val clientTimestamp: Date = Date(),
     override val retryCount: Long = 0,
     override val lastError: String = "",
     var submissionId: String = "",
-    var form: Form? = null,
+    var task: Task? = null,
     var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
 ) : Mutation() {
 
     override fun toBuilder(): Builder {
         return Builder().also {
             it.submissionId = this.submissionId
-            it.form = this.form
+            it.task = this.task
             it.responseDeltas = this.responseDeltas
         }.fromMutation(this) as Builder
     }
@@ -51,7 +51,7 @@ data class SubmissionMutation(
     inner class Builder : Mutation.Builder<SubmissionMutation>() {
         var submissionId: String = ""
             @JvmSynthetic set
-        var form: Form? = null
+        var task: Task? = null
             @JvmSynthetic set
         var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
             @JvmSynthetic set
@@ -60,8 +60,8 @@ data class SubmissionMutation(
             this.submissionId = id
         }
 
-        fun setForm(form: Form): Builder = apply {
-            this.form = form
+        fun setTask(task: Task): Builder = apply {
+            this.task = task
         }
 
         fun setResponseDeltas(deltas: ImmutableList<ResponseDelta>): Builder = apply {
@@ -74,13 +74,13 @@ data class SubmissionMutation(
             syncStatus,
             surveyId,
             featureId,
-            layerId,
+            jobId,
             userId,
             clientTimestamp,
             retryCount,
             lastError,
             submissionId,
-            form,
+            task,
             responseDeltas
         )
     }

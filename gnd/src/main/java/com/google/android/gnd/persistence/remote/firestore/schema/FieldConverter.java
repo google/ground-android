@@ -19,18 +19,20 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.task.Field;
 import java8.util.Objects;
 import java8.util.Optional;
 import timber.log.Timber;
 
-/** Converts between Firestore nested objects and {@link Field} instances. */
+/**
+ * Converts between Firestore nested objects and {@link Field} instances.
+ */
 class FieldConverter {
 
   static Optional<Field> toField(String id, ElementNestedObject em) {
     Field.Type type = toEnum(Field.Type.class, em.getType());
     if (type == Field.Type.UNKNOWN) {
-      Timber.d("Unsupported form element type: " + em.getType());
+      Timber.d("Unsupported task step type: " + em.getType());
       return Optional.empty();
     }
     Field.Builder field = Field.newBuilder();
@@ -40,7 +42,7 @@ class FieldConverter {
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
     field.setId(id);
-    // Default index to -1 to degrade gracefully on older dev db instances and projects.
+    // Default index to -1 to degrade gracefully on older dev db instances and surveys.
     field.setIndex(Objects.requireNonNullElse(em.getIndex(), -1));
     field.setLabel(getLocalizedMessage(em.getLabel()));
     return Optional.of(field.build());

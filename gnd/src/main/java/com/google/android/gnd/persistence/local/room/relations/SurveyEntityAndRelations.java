@@ -19,12 +19,12 @@ package com.google.android.gnd.persistence.local.room.relations;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 import com.google.android.gnd.persistence.local.room.entity.BaseMapEntity;
-import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
+import com.google.android.gnd.persistence.local.room.entity.JobEntity;
 import com.google.android.gnd.persistence.local.room.entity.SurveyEntity;
 import java.util.List;
 
 /**
- * Represents relationship between SurveyEntity and LayerEntity.
+ * Represents relationship between SurveyEntity and JobEntity.
  *
  * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
  */
@@ -32,8 +32,8 @@ public class SurveyEntityAndRelations {
 
   @Embedded public SurveyEntity surveyEntity;
 
-  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = LayerEntity.class)
-  public List<LayerEntityAndRelations> layerEntityAndRelations;
+  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = JobEntity.class)
+  public List<JobEntityAndRelations> jobEntityAndRelations;
 
   @Relation(
       parentColumn = "id",
