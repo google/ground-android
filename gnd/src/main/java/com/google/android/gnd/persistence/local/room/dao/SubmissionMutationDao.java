@@ -25,9 +25,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
 
-/**
- * Data access object for database operations related to {@link SubmissionMutationEntity}.
- */
+/** Data access object for database operations related to {@link SubmissionMutationEntity}. */
 @Dao
 public interface SubmissionMutationDao extends BaseDao<SubmissionMutationEntity> {
 
@@ -36,9 +34,9 @@ public interface SubmissionMutationDao extends BaseDao<SubmissionMutationEntity>
 
   @Query(
       "SELECT * FROM submission_mutation "
-          + "WHERE feature_id = :featureId AND state IN (:allowedStates)")
-  Single<List<SubmissionMutationEntity>> findByFeatureId(
-      String featureId, MutationEntitySyncStatus... allowedStates);
+          + "WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)")
+  Single<List<SubmissionMutationEntity>> findByLocationOfInterestId(
+      String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 
   @Query(
       "SELECT * FROM submission_mutation "
@@ -49,7 +47,7 @@ public interface SubmissionMutationDao extends BaseDao<SubmissionMutationEntity>
   @Cold(terminates = false)
   @Query(
       "SELECT * FROM submission_mutation "
-          + "WHERE feature_id = :featureId AND state IN (:allowedStates)")
-  Flowable<List<SubmissionMutationEntity>> findByFeatureIdOnceAndStream(
-      String featureId, MutationEntitySyncStatus... allowedStates);
+          + "WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)")
+  Flowable<List<SubmissionMutationEntity>> findByLocationOfInterestIdOnceAndStream(
+      String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 }

@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
@@ -28,7 +28,7 @@ public class FeatureDocumentReference extends FluentDocumentReference {
   }
 
   /** Appends the operation described by the specified mutation to the provided write batch. */
-  public void addMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch) {
+  public void addMutationToBatch(LocationOfInterestMutation mutation, User user, WriteBatch batch) {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:

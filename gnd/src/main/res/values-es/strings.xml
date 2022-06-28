@@ -22,18 +22,18 @@
   <string name="survey_loading_please_wait">Cargando proyecto, porfavor espere &#8230;</string>
 
   <!--
-    ADD/EDIT FEATURE DATA
+    ADD/EDIT LOI DATA
   -->
 
   <!-- Title shown above list of jobs when (+) is clicked on map. -->
-  <string name="add_feature_select_type_dialog_title">Que le gustaría agregar?</string>
+  <string name="add_loi_select_type_dialog_title">Que le gustaría agregar?</string>
 
-  <!-- Shown in toolbar when adding a new feature and task instance. -->
-  <string name="add_feature_toolbar_title">Agregar una característica</string>
+  <!-- Shown in toolbar when adding a new locationOfInterest and task instance. -->
+  <string name="add_loi_toolbar_title">Agregar una característica</string>
   <!-- Shown in toolbar when editing an existing submission (task instance). -->
-  <string name="edit_feature_data_toolbar_title">Editar datos de características</string>
-  <!-- Shown in toolbar when adding a new submission (task instance) to a feature. -->
-  <string name="add_feature_data_toolbar_title">Agregar datos de características</string>
+  <string name="edit_loi_data_toolbar_title">Editar datos de características</string>
+  <!-- Shown in toolbar when adding a new submission (task instance) to a locationOfInterest. -->
+  <string name="add_loi_data_toolbar_title">Agregar datos de características</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Guardar cambios antes de cerrar?</string>
   <!--
@@ -52,7 +52,7 @@
   <string name="saved">Cambios guardados</string>
 
   <!--
-    FEATURE DATA FORMS
+    LOI DATA FORMS
   -->
 
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
@@ -61,10 +61,10 @@
   <string name="required_field">Este campo es obligatorio</string>
 
   <!--
-    VIEW FEATURE DATA
+    VIEW LOI DATA
   -->
 
-  <!-- Shown in submission overflow menu to open popup dialog to edit feature metadata. -->
+  <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
   <string name="edit_submission">Editar registro</string>
   <!-- Shown in submission overflow menu to delete a submission. -->
   <string name="delete_submission">Eliminar registro</string>
@@ -86,21 +86,21 @@
   <string name="updated_status">Actualizado %1$s</string>
 
   <!--
-    IN BOTH ADD/EDIT AND VIEW FEATURE SCREENS
+    IN BOTH ADD/EDIT AND VIEW LOI SCREENS
   -->
 
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a feature. -->
-  <string name="move_feature">Mover característica</string>
-  <!-- Shown in toolbar overflow menu to open popup dialog to edit feature metadata. -->
-  <string name="edit_feature_id_and_caption">Editar ID &amp; caption</string>
-  <!-- Shown in edit id/caption popup (TBD) above feature ID. -->
-  <string name="feature_id">ID</string>
-  <!-- Shown in edit id/caption popup (TBD) above feature caption. -->
-  <string name="feature_caption">Subtítulo</string>
-  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
-  <string name="delete_feature">Eliminar característica</string>
-  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
-  <string name="delete_feature_confirmation">
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a locationOfInterest. -->
+  <string name="move_loi">Mover característica</string>
+  <!-- Shown in toolbar overflow menu to open popup dialog to edit locationOfInterest metadata. -->
+  <string name="edit_loi_id_and_caption">Editar ID &amp; caption</string>
+  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest ID. -->
+  <string name="loi_id">ID</string>
+  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
+  <string name="loi_caption">Subtítulo</string>
+  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
+  <string name="delete_loi">Eliminar característica</string>
+  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
+  <string name="delete_loi_confirmation">
     Esto eliminará la función seleccionada actualmente y todos los datos relacionados. Esto no se puede deshacer.
     ¿Está seguro?
   </string>
@@ -191,15 +191,15 @@
   <string name="point">Punto</string>
   <string name="layer_label_format">Capa: %s</string>
 
-  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
-  <string name="feature_properties">Propiedades de la característica</string>
-  <!-- Label on button shown to dismiss the feature properties dialog. -->
-  <string name="close_feature_properties">OK</string>
+  <!-- Shown in toolbar overflow menu, used to show imported locationOfInterest properties. -->
+  <string name="loi_properties">Propiedades de la característica</string>
+  <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
+  <string name="close_loi_properties">OK</string>
   <string name="config_load_error">Error al cargar la configuración desde el servidor remoto</string>
 
   <string name="add_point">Agregar punto</string>
   <string name="complete_polygon">Completo</string>
-  <string name="select_feature_type">Elija un tipo de característica</string>
+  <string name="select_loi_type">Elija un tipo de característica</string>
   <string name="get_started_button_text">Empezar</string>
   <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
   <string name="location_accuracy">Precisión: %.2f m</string>
@@ -208,6 +208,6 @@
   <string name="cancel_button_label">Cancelar</string>
   <string name="submission_delete_confirmation_dialog_title">Eliminar este registro?"</string>
   <string name="submission_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
-  <string name="feature_delete_confirmation_dialog_title">Borrar %1$s ?"</string>
-  <string name="feature_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todos los registros asociados. Este cambio no se puede deshacer. ¿Está seguro?</string>
+  <string name="loi_delete_confirmation_dialog_title">Borrar %1$s ?"</string>
+  <string name="loi_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todos los registros asociados. Este cambio no se puede deshacer. ¿Está seguro?</string>
 </resources>

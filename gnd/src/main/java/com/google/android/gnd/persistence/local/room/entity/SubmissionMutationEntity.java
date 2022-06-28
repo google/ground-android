@@ -44,9 +44,9 @@ import org.json.JSONObject;
     tableName = "submission_mutation",
     foreignKeys = {
         @ForeignKey(
-            entity = FeatureEntity.class,
+            entity = LocationOfInterestEntity.class,
             parentColumns = "id",
-            childColumns = "feature_id",
+            childColumns = "location_of_interest_id",
             onDelete = CASCADE),
         @ForeignKey(
             entity = SubmissionEntity.class,
@@ -54,7 +54,7 @@ import org.json.JSONObject;
             childColumns = "submission_id",
             onDelete = CASCADE)
     },
-    indices = {@Index("feature_id"), @Index("submission_id")})
+    indices = {@Index("location_of_interest_id"), @Index("submission_id")})
 public abstract class SubmissionMutationEntity extends MutationEntity {
 
   @CopyAnnotations
@@ -62,8 +62,8 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   public abstract String getTaskId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
-  public abstract String getFeatureId();
+  @ColumnInfo(name = "location_of_interest_id")
+  public abstract String getLocationOfInterestId();
 
   @CopyAnnotations
   @ColumnInfo(name = "job_id")
@@ -88,7 +88,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   public static SubmissionMutationEntity create(
       long id,
       String surveyId,
-      String featureId,
+      String locationOfInterestId,
       String jobId,
       String taskId,
       String submissionId,
@@ -102,7 +102,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
     return builder()
         .setId(id)
         .setSurveyId(surveyId)
-        .setFeatureId(featureId)
+        .setLocationOfInterestId(locationOfInterestId)
         .setJobId(jobId)
         .setTaskId(taskId)
         .setSubmissionId(submissionId)
@@ -120,7 +120,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
     return SubmissionMutationEntity.builder()
         .setId(m.getId())
         .setSurveyId(m.getSurveyId())
-        .setFeatureId(m.getFeatureId())
+        .setLocationOfInterestId(m.getLocationOfInterestId())
         .setJobId(m.getJobId())
         .setTaskId(m.getTask().getId())
         .setSubmissionId(m.getSubmissionId())
@@ -161,7 +161,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setResponseDeltas(ResponseDeltasConverter.fromString(task, getResponseDeltas()))
         .setId(getId())
         .setSurveyId(getSurveyId())
-        .setFeatureId(getFeatureId())
+        .setLocationOfInterestId(getLocationOfInterestId())
         .setJobId(getJobId())
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
@@ -175,7 +175,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
   @AutoValue.Builder
   public abstract static class Builder extends MutationEntity.Builder<Builder> {
 
-    public abstract Builder setFeatureId(String newFeatureId);
+    public abstract Builder setLocationOfInterestId(String newLocationOfInterestId);
 
     public abstract Builder setJobId(String newJobId);
 

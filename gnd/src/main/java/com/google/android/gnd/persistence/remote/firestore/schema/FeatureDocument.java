@@ -21,7 +21,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
-/** Feature entity stored in Firestore. */
+/** LocationOfInterest entity stored in Firestore. */
 @IgnoreExtraProperties
 class FeatureDocument {
   @Nullable private String jobId;

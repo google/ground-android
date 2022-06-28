@@ -21,8 +21,8 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.gnd.R
 import com.google.android.gnd.model.AuditInfo
 import com.google.android.gnd.model.Survey
-import com.google.android.gnd.model.feature.Point
-import com.google.android.gnd.model.feature.PolygonFeature
+import com.google.android.gnd.model.locationofinterest.Point
+import com.google.android.gnd.model.locationofinterest.PolygonOfInterest
 import com.google.android.gnd.model.job.Job
 import com.google.android.gnd.model.job.Style
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
@@ -33,7 +33,7 @@ import com.google.android.gnd.system.LocationManager
 import com.google.android.gnd.system.auth.AuthenticationManager
 import com.google.android.gnd.ui.common.AbstractViewModel
 import com.google.android.gnd.ui.common.SharedViewModel
-import com.google.android.gnd.ui.map.MapFeature
+import com.google.android.gnd.ui.map.MapLocationOfInterest
 import com.google.android.gnd.ui.map.MapPin
 import com.google.android.gnd.ui.map.MapPolygon
 import com.google.auto.value.AutoValue
@@ -61,8 +61,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
     /** Denotes whether the drawn polygon is complete or not. This is different from drawing state.  */
     val isPolygonCompleted: @Hot LiveData<Boolean>
 
-    /** Features drawn by the user but not yet saved.  */
-    val unsavedMapFeatures: @Hot LiveData<ImmutableSet<MapFeature>>
+    /** Locations of interest drawn by the user but not yet saved.  */
+    val unsavedMapLocationsOfInterest: @Hot LiveData<ImmutableSet<MapLocationOfInterest>>
 
     private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> =
         MutableLiveData()
@@ -168,7 +168,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         val polygon = mapPolygon.get()
         check(polygon.isPolygonComplete) { "Polygon is not complete" }
         val auditInfo = AuditInfo.now(authManager.currentUser)
-        val polygonFeature = PolygonFeature.builder()
+        val polygonOfInterest = PolygonOfInterest.builder()
             .setId(polygon.id)
             .setVertices(polygon.vertices)
             .setSurvey(selectedSurvey.value!!)
@@ -176,7 +176,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             .setCreated(auditInfo)
             .setLastModified(auditInfo)
             .build()
-        polygonDrawingState.onNext(PolygonDrawingState.completed(polygonFeature))
+        polygonDrawingState.onNext(PolygonDrawingState.completed(polygonOfInterest))
         reset()
     }
 
@@ -229,8 +229,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
         /** Current state of polygon drawing.  */
         abstract val state: State
 
-        /** Final polygon feature.  */
-        abstract val unsavedPolygonFeature: PolygonFeature?
+        /** Final polygon location of interest.  */
+        abstract val unsavedPolygonLocationOfInterest: PolygonOfInterest?
 
         companion object {
             fun canceled(): PolygonDrawingState {
@@ -241,14 +241,14 @@ class PolygonDrawingViewModel @Inject internal constructor(
                 return createDrawingState(State.IN_PROGRESS, null)
             }
 
-            fun completed(unsavedFeature: PolygonFeature?): PolygonDrawingState {
-                return createDrawingState(State.COMPLETED, unsavedFeature)
+            fun completed(unsavedPolygonOfInterest: PolygonOfInterest?): PolygonDrawingState {
+                return createDrawingState(State.COMPLETED, unsavedPolygonOfInterest)
             }
 
             private fun createDrawingState(
-                state: State, unsavedFeature: PolygonFeature?
+                state: State, unsavedPolygonOfInterest: PolygonOfInterest?
             ): PolygonDrawingState {
-                return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, unsavedFeature)
+                return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, unsavedPolygonOfInterest)
             }
         }
     }
@@ -257,8 +257,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
         /** Min. distance in dp between two points for them be considered as overlapping.  */
         const val DISTANCE_THRESHOLD_DP = 24
 
-        /** Returns a set of [MapFeature] to be drawn on map for the given [MapPolygon].  */
-        private fun unsavedFeaturesFromPolygon(mapPolygon: MapPolygon): ImmutableSet<MapFeature> {
+        /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon].  */
+        private fun unsavedLocationsOfInterestFromPolygon(mapPolygon: MapPolygon): ImmutableSet<MapLocationOfInterest> {
             val vertices = mapPolygon.vertices
 
             if (vertices.isEmpty()) {
@@ -266,7 +266,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             }
 
             // Include the given polygon and add 1 MapPin for each of its vertex.
-            return ImmutableSet.builder<MapFeature>()
+            return ImmutableSet.builder<MapLocationOfInterest>()
                 .add(mapPolygon)
                 .addAll(
                     vertices
@@ -304,10 +304,10 @@ class PolygonDrawingViewModel @Inject internal constructor(
                         .orElse(false)
                 }
                 .startWith(false))
-        unsavedMapFeatures = LiveDataReactiveStreams.fromPublisher(
+        unsavedMapLocationsOfInterest = LiveDataReactiveStreams.fromPublisher(
             polygonFlowable.map { polygon ->
                 polygon
-                    .map { unsavedFeaturesFromPolygon(it) }
+                    .map { unsavedLocationsOfInterestFromPolygon(it) }
                     .orElse(ImmutableSet.of())
             })
     }

@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.Role;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.FeatureType;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterestType;
 import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
@@ -71,7 +71,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
     surveyRepository
         .getActiveSurvey()
         .test()
@@ -86,7 +86,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
     surveyRepository
         .getActiveSurvey()
         .test()

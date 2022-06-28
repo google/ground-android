@@ -72,10 +72,10 @@
   <dimen name="field_error_padding_bottom">6dp</dimen>
   <!-- TODO: Make dimensions relative using Android data binding. -->
   <dimen name="bottom_sheet_margin_top">16dp</dimen>
-  <dimen name="feature_details_icon_bg_diameter">58dp</dimen>
-  <dimen name="feature_details_icon_elevation">5dp</dimen>
-  <dimen name="feature_details_header_padding_top">42dp</dimen>
-  <dimen name="feature_details_header_corner_radius">6dp</dimen>
+  <dimen name="loi_details_icon_bg_diameter">58dp</dimen>
+  <dimen name="loi_details_icon_elevation">5dp</dimen>
+  <dimen name="loi_details_header_padding_top">42dp</dimen>
+  <dimen name="loi_details_header_corner_radius">6dp</dimen>
   <dimen name="submission_list_item_horizontal_margin">14dp</dimen>
   <dimen name="submission_list_item_horizontal_vertical">10dp</dimen>
   <dimen name="submission_list_field_label_size">12sp</dimen>
@@ -90,10 +90,10 @@
   <dimen name="chip_toolbar_button_padding">10dp</dimen>
   <dimen name="chip_toolbar_button_min_height">36dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>
-  <dimen name="feature_details_header_padding_bottom">16dp</dimen>
+  <dimen name="loi_details_header_padding_bottom">16dp</dimen>
   <dimen name="submission_list_item_preview_table_right_margin">18dp</dimen>
   <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
-  <dimen name="feature_details_header_height">120dp</dimen>
+  <dimen name="loi_details_header_height">120dp</dimen>
 
   <!-- Photo bottom dialog -->
   <dimen name="add_photo_bottom_sheet_drawable_margin">24dp</dimen>

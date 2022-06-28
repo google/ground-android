@@ -22,18 +22,18 @@
   <string name="survey_loading_please_wait">Project loading, please wait &#8230;</string>
 
   <!--
-    ADD/EDIT FEATURE DATA
+    ADD/EDIT LOI DATA
   -->
 
   <!-- Title shown above list of jobs when (+) is clicked on map. -->
-  <string name="add_feature_select_type_dialog_title">What would you like to add?</string>
+  <string name="add_loi_select_type_dialog_title">What would you like to add?</string>
 
-  <!-- Shown in toolbar when adding a new feature and task instance. -->
-  <string name="add_feature_toolbar_title">Add a feature</string>
+  <!-- Shown in toolbar when adding a new locationOfInterest and task instance. -->
+  <string name="add_loi_toolbar_title">Add a locationOfInterest</string>
   <!-- Shown in toolbar when editing an existing submission (task instance). -->
-  <string name="edit_feature_data_toolbar_title">Edit feature data</string>
-  <!-- Shown in toolbar when adding a new submission (task instance) to a feature. -->
-  <string name="add_feature_data_toolbar_title">Add feature data</string>
+  <string name="edit_loi_data_toolbar_title">Edit locationOfInterest data</string>
+  <!-- Shown in toolbar when adding a new submission (task instance) to a locationOfInterest. -->
+  <string name="add_loi_data_toolbar_title">Add locationOfInterest data</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Save changes before closing?</string>
   <!--
@@ -52,7 +52,7 @@
   <string name="saved">Changes saved</string>
 
   <!--
-    FEATURE DATA FORMS
+    LOI DATA FORMS
   -->
 
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
@@ -61,10 +61,10 @@
   <string name="required_field">This field is required</string>
 
   <!--
-    VIEW FEATURE DATA
+    VIEW LOI DATA
   -->
 
-  <!-- Shown in submission overflow menu to open popup dialog to edit feature metadata. -->
+  <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
   <string name="edit_submission">Edit submission</string>
   <!-- Shown in submission overflow menu to delete a submission. -->
   <string name="delete_submission">Delete submission</string>
@@ -86,22 +86,22 @@
   <string name="updated_status">Updated %1$s</string>
 
   <!--
-    IN BOTH ADD/EDIT AND VIEW FEATURE SCREENS
+    IN BOTH ADD/EDIT AND VIEW LOI SCREENS
   -->
 
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a feature. -->
-  <string name="move_feature">Move feature</string>
-  <!-- Shown in toolbar overflow menu to open popup dialog to edit feature metadata. -->
-  <string name="edit_feature_id_and_caption">Edit ID &amp; caption</string>
-  <!-- Shown in edit id/caption popup (TBD) above feature ID. -->
-  <string name="feature_id">ID</string>
-  <!-- Shown in edit id/caption popup (TBD) above feature caption. -->
-  <string name="feature_caption">Caption</string>
-  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
-  <string name="delete_feature">Delete feature</string>
-  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
-  <string name="delete_feature_confirmation">
-    This will delete the currently selected feature and all related data. This cannot be undone.
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a locationOfInterest. -->
+  <string name="move_loi">Move locationOfInterest</string>
+  <!-- Shown in toolbar overflow menu to open popup dialog to edit locationOfInterest metadata. -->
+  <string name="edit_loi_id_and_caption">Edit ID &amp; caption</string>
+  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest ID. -->
+  <string name="loi_id">ID</string>
+  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
+  <string name="loi_caption">Caption</string>
+  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
+  <string name="delete_loi">Delete locationOfInterest</string>
+  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
+  <string name="delete_loi_confirmation">
+    This will delete the currently selected locationOfInterest and all related data. This cannot be undone.
     Are you sure?
   </string>
 
@@ -192,16 +192,16 @@
   <string name="point">Point</string>
   <string name="layer_label_format">Layer: %s</string>
 
-  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
-  <string name="feature_properties">Feature properties</string>
-  <!-- Label on button shown to dismiss the feature properties dialog. -->
-  <string name="close_feature_properties">OK</string>
+  <!-- Shown in toolbar overflow menu, used to show imported locationOfInterest properties. -->
+  <string name="loi_properties">LOI properties</string>
+  <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
+  <string name="close_loi_properties">OK</string>
   <string name="config_load_error">Error loading config from remote server.</string>
   <string name="permission_denied_error">Permission denied! Check user pass-list.</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
-  <string name="select_feature_type">Choose a feature type</string>
+  <string name="select_loi_type">Choose a locationOfInterest type</string>
   <string name="get_started_button_text">Get started</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
   <string name="location_accuracy">Accuracy: %.2f m</string>
@@ -210,8 +210,8 @@
   <string name="cancel_button_label">Cancel</string>
   <string name="submission_delete_confirmation_dialog_title">Delete this submission?"</string>
   <string name="submission_delete_confirmation_dialog_message">This submission will disappear from the map. This change cannot be undone. Are you sure?</string>
-  <string name="feature_delete_confirmation_dialog_title">Delete %1$s feature?"</string>
-  <string name="feature_delete_confirmation_dialog_message">This feature will disappear from the map along with all associated submissions. This change cannot be undone. Are you sure?</string>
+  <string name="loi_delete_confirmation_dialog_title">Delete %1$s locationOfInterest?"</string>
+  <string name="loi_delete_confirmation_dialog_message">This locationOfInterest will disappear from the map along with all associated submissions. This change cannot be undone. Are you sure?</string>
 
   <string name="road_map">Road Map</string>
   <string name="satellite">Satellite</string>

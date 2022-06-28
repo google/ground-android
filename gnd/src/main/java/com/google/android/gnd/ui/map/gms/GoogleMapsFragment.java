@@ -52,13 +52,13 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.locationofinterest.Point;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.CameraPosition;
-import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
@@ -119,7 +119,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
   /** Ambiguous click events. */
-  @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
+  @Hot private final Subject<ImmutableList<MapLocationOfInterest>> locationOfInterestClicks = PublishSubject.create();
   /** Map drag events. Emits items when the map drag has started. */
   @Hot private final FlowableProcessor<Nil> startDragEvents = PublishProcessor.create();
   /** Camera move events. Emits items after the camera has stopped moving. */
@@ -138,8 +138,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
    */
   private final Set<Marker> markers = new HashSet<>();
 
-  private final Map<MapFeature, GeometryCollection> geoJsonGeometries = new HashMap<>();
-  private final Map<MapFeature, Polyline> polygons = new HashMap<>();
+  private final Map<MapLocationOfInterest, GeometryCollection> geoJsonGeometries = new HashMap<>();
+  private final Map<MapLocationOfInterest, Polyline> polygons = new HashMap<>();
   @Inject BitmapUtil bitmapUtil;
   @Inject MarkerIconFactory markerIconFactory;
   @Nullable private GoogleMap map;
@@ -250,10 +250,10 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
   // Handle taps on ambiguous features.
   private void handleAmbiguity(LatLng latLng) {
-    Builder<MapFeature> candidates = ImmutableList.builder();
+    Builder<MapLocationOfInterest> candidates = ImmutableList.builder();
     ArrayList<String> processed = new ArrayList<>();
 
-    for (Entry<MapFeature, GeometryCollection> geoJsonEntry : geoJsonGeometries.entrySet()) {
+    for (Entry<MapLocationOfInterest, GeometryCollection> geoJsonEntry : geoJsonGeometries.entrySet()) {
       MapGeoJson geoJsonFeature = (MapGeoJson) geoJsonEntry.getKey();
       GeometryCollection geoJsonGeometry = geoJsonEntry.getValue();
       if (processed.contains(geoJsonFeature.getId())) {
@@ -268,21 +268,21 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       processed.add(geoJsonFeature.getId());
     }
 
-    for (Entry<MapFeature, Polyline> entry : polygons.entrySet()) {
+    for (Entry<MapLocationOfInterest, Polyline> entry : polygons.entrySet()) {
       List<LatLng> vertices = entry.getValue().getPoints();
-      MapFeature mapFeature = entry.getKey();
-      if (processed.contains(((MapPolygon) mapFeature).getId())) {
+      MapLocationOfInterest mapLocationOfInterest = entry.getKey();
+      if (processed.contains(((MapPolygon) mapLocationOfInterest).getId())) {
         continue;
       }
 
       if (PolyUtil.containsLocation(latLng, vertices, false)) {
-        candidates.add(mapFeature);
-        processed.add(((MapPolygon) mapFeature).getId());
+        candidates.add(mapLocationOfInterest);
+        processed.add(((MapPolygon) mapLocationOfInterest).getId());
       }
     }
-    ImmutableList<MapFeature> result = candidates.build();
+    ImmutableList<MapLocationOfInterest> result = candidates.build();
     if (!result.isEmpty()) {
-      featureClicks.onNext(result);
+      locationOfInterestClicks.onNext(result);
     }
   }
 
@@ -304,8 +304,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   @Override
-  public @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks() {
-    return featureClicks;
+  public @Hot Observable<ImmutableList<MapLocationOfInterest>> getLocationOfInterestClicks() {
+    return locationOfInterestClicks;
   }
 
   @Hot
@@ -428,9 +428,9 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   @Override
-  public void setMapFeatures(ImmutableSet<MapFeature> features) {
-    Timber.v("setMapFeatures() called with %s features", features.size());
-    Set<MapFeature> featuresToUpdate = new HashSet<>(features);
+  public void setMapLocationsOfInterest(ImmutableSet<MapLocationOfInterest> features) {
+    Timber.v("setMapLocationsOfInterest() called with %s locations of interest", features.size());
+    Set<MapLocationOfInterest> featuresToUpdate = new HashSet<>(features);
 
     List<Marker> deletedMarkers = new ArrayList<>();
     for (Marker marker : markers) {
@@ -448,35 +448,35 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     // Update markers list.
     stream(deletedMarkers).forEach(markers::remove);
 
-    Iterator<Entry<MapFeature, Polyline>> polylineIterator = polygons.entrySet().iterator();
+    Iterator<Entry<MapLocationOfInterest, Polyline>> polylineIterator = polygons.entrySet().iterator();
     while (polylineIterator.hasNext()) {
-      Entry<MapFeature, Polyline> entry = polylineIterator.next();
-      MapFeature mapFeature = entry.getKey();
+      Entry<MapLocationOfInterest, Polyline> entry = polylineIterator.next();
+      MapLocationOfInterest mapLocationOfInterest = entry.getKey();
       Polyline polyline = entry.getValue();
-      if (features.contains(mapFeature)) {
+      if (features.contains(mapLocationOfInterest)) {
         // If polygon already exists on map, don't add it.
-        featuresToUpdate.remove(mapFeature);
+        featuresToUpdate.remove(mapLocationOfInterest);
       } else {
-        // Remove existing polyline not in list of updatedFeatures.
+        // Remove existing polyline not in list of updatedLocationsOfInterest.
         removePolygon(polyline);
         polylineIterator.remove();
       }
     }
 
     // Iterate over all existing GeoJSON on the map.
-    Iterator<Entry<MapFeature, GeometryCollection>> geoJsonIterator =
+    Iterator<Entry<MapLocationOfInterest, GeometryCollection>> geoJsonIterator =
         geoJsonGeometries.entrySet().iterator();
     while (geoJsonIterator.hasNext()) {
-      Entry<MapFeature, GeometryCollection> entry = geoJsonIterator.next();
-      MapFeature mapFeature = entry.getKey();
+      Entry<MapLocationOfInterest, GeometryCollection> entry = geoJsonIterator.next();
+      MapLocationOfInterest mapLocationOfInterest = entry.getKey();
       GeometryCollection featureGeometries = entry.getValue();
-      if (features.contains(mapFeature)) {
+      if (features.contains(mapLocationOfInterest)) {
         // If existing GeoJSON is present and up-to-date, don't update it.
-        featuresToUpdate.remove(mapFeature);
+        featuresToUpdate.remove(mapLocationOfInterest);
       } else {
         // If GeoJSON isn't present or up-to-date, remove it so it can be added back later.
         Timber.v(
-            "Removing GeoJSON feature %s", Objects.requireNonNull(mapFeature.getFeature()).getId());
+            "Removing GeoJSON feature %s", Objects.requireNonNull(mapLocationOfInterest.getLocationOfInterest()).getId());
         geoJsonIterator.remove();
         featureGeometries.remove();
       }
@@ -484,13 +484,13 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
 
     if (!featuresToUpdate.isEmpty()) {
       Timber.v("Updating %d features", featuresToUpdate.size());
-      for (MapFeature mapFeature : featuresToUpdate) {
-        if (mapFeature instanceof MapPin) {
-          addMapPin((MapPin) mapFeature);
-        } else if (mapFeature instanceof MapPolygon) {
-          addMapPolyline((MapPolygon) mapFeature);
-        } else if (mapFeature instanceof MapGeoJson) {
-          addMapGeoJson((MapGeoJson) mapFeature);
+      for (MapLocationOfInterest mapLocationOfInterest : featuresToUpdate) {
+        if (mapLocationOfInterest instanceof MapPin) {
+          addMapPin((MapPin) mapLocationOfInterest);
+        } else if (mapLocationOfInterest instanceof MapPolygon) {
+          addMapPolyline((MapPolygon) mapLocationOfInterest);
+        } else if (mapLocationOfInterest instanceof MapGeoJson) {
+          addMapGeoJson((MapGeoJson) mapLocationOfInterest);
         }
       }
     }

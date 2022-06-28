@@ -22,18 +22,18 @@
     aguarde um instante&#8230;</string>
 
   <!--
-    ADD/EDIT FEATURE DATA
+    ADD/EDIT LOI DATA
   -->
 
   <!-- Title shown above list of jobs when (+) is clicked on map. -->
-  <string name="add_feature_select_type_dialog_title">O que adicionar?</string>
+  <string name="add_loi_select_type_dialog_title">O que adicionar?</string>
 
-  <!-- Shown in toolbar when adding a new feature and task instance. -->
-  <string name="add_feature_toolbar_title">Adicionar local</string>
+  <!-- Shown in toolbar when adding a new locationOfInterest and task instance. -->
+  <string name="add_loi_toolbar_title">Adicionar local</string>
   <!-- Shown in toolbar when editing an existing submission (task instance). -->
-  <string name="edit_feature_data_toolbar_title">Editar dados do local</string>
-  <!-- Shown in toolbar when adding a new submission (task instance) to a feature. -->
-  <string name="add_feature_data_toolbar_title">Adicionar dados ao local</string>
+  <string name="edit_loi_data_toolbar_title">Editar dados do local</string>
+  <!-- Shown in toolbar when adding a new submission (task instance) to a locationOfInterest. -->
+  <string name="add_loi_data_toolbar_title">Adicionar dados ao local</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Deseja salvar os dados antes de fechar?</string>
   <string name="discard_changes">Descartar alterações</string>
@@ -43,7 +43,7 @@
   <string name="saved">Alterações salvas.</string>
 
   <!--
-    FEATURE DATA FORMS
+    LOI DATA FORMS
   -->
 
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
@@ -52,10 +52,10 @@
   <string name="required_field">Obrigatório</string>
 
   <!--
-    VIEW FEATURE DATA
+    VIEW LOI DATA
   -->
 
-  <!-- Shown in submission overflow menu to open popup dialog to edit feature metadata. -->
+  <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
   <string name="edit_submission">Editar registro</string>
   <!-- Shown in submission overflow menu to delete a submission. -->
   <string name="delete_submission">Apagar registro</string>
@@ -77,21 +77,21 @@
   <string name="updated_status">Atualizado %1$s</string>
 
   <!--
-    IN BOTH ADD/EDIT AND VIEW FEATURE SCREENS
+    IN BOTH ADD/EDIT AND VIEW LOI SCREENS
   -->
 
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a feature. -->
-  <string name="move_feature">Reposicionar local</string>
-  <!-- Shown in toolbar overflow menu to open popup dialog to edit feature metadata. -->
-  <string name="edit_feature_id_and_caption">Editar ID e legenda</string>
-  <!-- Shown in edit id/caption popup (TBD) above feature ID. -->
-  <string name="feature_id">ID</string>
-  <!-- Shown in edit id/caption popup (TBD) above feature caption. -->
-  <string name="feature_caption">Legenda</string>
-  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
-  <string name="delete_feature">Apagar local</string>
-  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
-  <string name="delete_feature_confirmation">
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a locationOfInterest. -->
+  <string name="move_loi">Reposicionar local</string>
+  <!-- Shown in toolbar overflow menu to open popup dialog to edit locationOfInterest metadata. -->
+  <string name="edit_loi_id_and_caption">Editar ID e legenda</string>
+  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest ID. -->
+  <string name="loi_id">ID</string>
+  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
+  <string name="loi_caption">Legenda</string>
+  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
+  <string name="delete_loi">Apagar local</string>
+  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
+  <string name="delete_loi_confirmation">
 Tem certeza que deseja apagar o local e todos os dados associados? Isso não pode ser desfeito.
   </string>
 
@@ -180,7 +180,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="complete_polygon">Completa</string>
   <string name="point">Ponto</string>
   <string name="polygon">Polígono</string>
-  <string name="select_feature_type">Escolha um tipo de recurso</string>
+  <string name="select_loi_type">Escolha um tipo de recurso</string>
   <string name="get_started_button_text">Iniciar</string>
   <string name="add_polygon_instructions">Arraste o mapa e toque em “Adicionar ponto“ para adicionar pontos ao seu polígono. Para terminar, volte ao ponto original e toque em “Concluir“.</string>
 </resources>

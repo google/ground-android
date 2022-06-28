@@ -18,7 +18,7 @@ package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.mutation.Mutation.SyncStatus;
 import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
@@ -54,7 +54,7 @@ public class SubmissionRepository {
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
-  private final FeatureRepository featureRepository;
+  private final LocationOfInterestRepository locationOfInterestRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
@@ -63,21 +63,21 @@ public class SubmissionRepository {
   public SubmissionRepository(
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
-      FeatureRepository featureRepository,
+      LocationOfInterestRepository locationOfInterestRepository,
       DataSyncWorkManager dataSyncWorkManager,
       OfflineUuidGenerator uuidGenerator,
       AuthenticationManager authManager) {
 
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
-    this.featureRepository = featureRepository;
+    this.locationOfInterestRepository = locationOfInterestRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.uuidGenerator = uuidGenerator;
     this.authManager = authManager;
   }
 
   /**
-   * Retrieves the submissions or the specified project, feature, and task.
+   * Retrieves the submissions or the specified project, location of interest, and task.
    *
    * <ol>
    *   <li>Attempt to sync remote submission changes to the local data store. If network is not
@@ -87,23 +87,24 @@ public class SubmissionRepository {
    */
   @Cold
   public Single<ImmutableList<Submission>> getSubmissions(
-      String surveyId, String featureId, String taskId) {
+      String surveyId, String locationOfInterestId, String taskId) {
     // TODO: Only fetch first n fields.
-    return featureRepository
-        .getFeature(surveyId, featureId)
-        .flatMap(feature -> getSubmissions(feature, taskId));
+    return locationOfInterestRepository
+        .getLocationOfInterest(surveyId, locationOfInterestId)
+        .flatMap(locationOfInterest -> getSubmissions(locationOfInterest, taskId));
   }
 
   @Cold
-  private Single<ImmutableList<Submission>> getSubmissions(Feature feature, String taskId) {
+  private Single<ImmutableList<Submission>> getSubmissions(
+      LocationOfInterest locationOfInterest, String taskId) {
     Completable remoteSync =
         remoteDataStore
-            .loadSubmissions(feature)
+            .loadSubmissions(locationOfInterest)
             .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
             .doOnError(t -> Timber.e(t, "Submission sync timed out"))
             .flatMapCompletable(this::mergeRemoteSubmissions)
             .onErrorComplete();
-    return remoteSync.andThen(localDataStore.getSubmissions(feature, taskId));
+    return remoteSync.andThen(localDataStore.getSubmissions(locationOfInterest, taskId));
   }
 
   @Cold
@@ -115,31 +116,33 @@ public class SubmissionRepository {
   }
 
   @Cold
-  public Single<Submission> getSubmission(String surveyId, String featureId, String submissionId) {
+  public Single<Submission> getSubmission(
+      String surveyId, String locationOfInterestId, String submissionId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    return featureRepository
-        .getFeature(surveyId, featureId)
+    return locationOfInterestRepository
+        .getLocationOfInterest(surveyId, locationOfInterestId)
         .flatMap(
-            feature ->
+            locationOfInterest ->
                 localDataStore
-                    .getSubmission(feature, submissionId)
+                    .getSubmission(locationOfInterest, submissionId)
                     .switchIfEmpty(
                         Single.error(() -> new NotFoundException("Submission " + submissionId))));
   }
 
   @Cold
-  public Single<Submission> createSubmission(String surveyId, String featureId, String taskId) {
+  public Single<Submission> createSubmission(
+      String surveyId, String locationOfInterestId, String taskId) {
     // TODO: Handle invalid taskId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return featureRepository
-        .getFeature(surveyId, featureId)
+    return locationOfInterestRepository
+        .getLocationOfInterest(surveyId, locationOfInterestId)
         .map(
-            feature ->
+            locationOfInterest ->
                 Submission.newBuilder()
                     .setId(uuidGenerator.generateUuid())
-                    .setSurvey(feature.getSurvey())
-                    .setFeature(feature)
-                    .setTask(feature.getJob().getTask(taskId).get())
+                    .setSurvey(locationOfInterest.getSurvey())
+                    .setLocationOfInterest(locationOfInterest)
+                    .setTask(locationOfInterest.getJob().getTask(taskId).get())
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build());
@@ -155,8 +158,8 @@ public class SubmissionRepository {
             .setType(Type.DELETE)
             .setSyncStatus(SyncStatus.PENDING)
             .setSurveyId(submission.getSurvey().getId())
-            .setFeatureId(submission.getFeature().getId())
-            .setJobId(submission.getFeature().getJob().getId())
+            .setLocationOfInterestId(submission.getLocationOfInterest().getId())
+            .setJobId(submission.getLocationOfInterest().getJob().getId())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();
@@ -174,8 +177,8 @@ public class SubmissionRepository {
             .setType(isNew ? SubmissionMutation.Type.CREATE : SubmissionMutation.Type.UPDATE)
             .setSyncStatus(SyncStatus.PENDING)
             .setSurveyId(submission.getSurvey().getId())
-            .setFeatureId(submission.getFeature().getId())
-            .setJobId(submission.getFeature().getJob().getId())
+            .setLocationOfInterestId(submission.getLocationOfInterest().getId())
+            .setJobId(submission.getLocationOfInterest().getJob().getId())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();
@@ -186,19 +189,19 @@ public class SubmissionRepository {
   private Completable applyAndEnqueue(SubmissionMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getLocationOfInterestId()));
   }
 
   /**
-   * Returns all {@link SubmissionMutation} instances for a given feature which have not yet been
-   * marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed mutations. A
-   * new list is emitted on each subsequent change.
+   * Returns all {@link SubmissionMutation} instances for a given location of interest which have
+   * not yet been marked as {@link SyncStatus#COMPLETED}, including pending, in progress, and failed
+   * mutations. A new list is emitted on each subsequent change.
    */
   public Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
-      Survey survey, String featureId) {
-    return localDataStore.getSubmissionMutationsByFeatureIdOnceAndStream(
+      Survey survey, String locationOfInterestId) {
+    return localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
         survey,
-        featureId,
+        locationOfInterestId,
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS,
         MutationEntitySyncStatus.FAILED);

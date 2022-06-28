@@ -19,7 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.gnd.model.Survey
-import com.google.android.gnd.repository.FeatureRepository
+import com.google.android.gnd.repository.LocationOfInterestRepository
 import com.google.android.gnd.repository.SurveyRepository
 import com.google.android.gnd.repository.TermsOfServiceRepository
 import com.google.android.gnd.repository.UserRepository
@@ -45,7 +45,7 @@ import javax.inject.Inject
 @SharedViewModel
 class MainViewModel @Inject constructor(
     private val surveyRepository: SurveyRepository,
-    private val featureRepository: FeatureRepository,
+    private val locationOfInterestRepository: LocationOfInterestRepository,
     private val userRepository: UserRepository,
     private val termsOfServiceRepository: TermsOfServiceRepository,
     private val popups: EphemeralPopups,
@@ -66,7 +66,7 @@ class MainViewModel @Inject constructor(
             surveyRepository
                 .activeSurvey
                 .observeOn(schedulers.io())
-                .switchMapCompletable { syncFeatures(it) }
+                .switchMapCompletable { syncLocationsOfInterest(it) }
                 .subscribe()
         )
 
@@ -80,13 +80,13 @@ class MainViewModel @Inject constructor(
     }
 
     /**
-     * Keeps local features in sync with remote when a project is active, does nothing when no project
+     * Keeps local LOIs in sync with remote when a project is active, does nothing when no project
      * is active. The stream never completes; syncing stops when subscriptions are disposed of.
      *
      * @param survey the currently active project.
      */
-    private fun syncFeatures(survey: Optional<Survey>): @Cold(terminates = false) Completable {
-        return survey.map { featureRepository.syncFeatures(it) }
+    private fun syncLocationsOfInterest(survey: Optional<Survey>): @Cold(terminates = false) Completable {
+        return survey.map { locationOfInterestRepository.syncLocationsOfInterest(it) }
             .orElse(Completable.never())
     }
 

@@ -21,7 +21,7 @@
 
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuredetails.SubmissionListItemViewModel" />
+      type="com.google.android.gnd.ui.home.locationofinterestdetails.SubmissionListItemViewModel" />
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"

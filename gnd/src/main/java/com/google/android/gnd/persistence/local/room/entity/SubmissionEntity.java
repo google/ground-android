@@ -27,7 +27,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.ResponseMap;
 import com.google.android.gnd.model.submission.Submission;
@@ -45,14 +45,14 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @Entity(
     foreignKeys =
     @ForeignKey(
-        entity = FeatureEntity.class,
+        entity = LocationOfInterestEntity.class,
         parentColumns = "id",
-        childColumns = "feature_id",
+        childColumns = "location_of_interest_id",
         onDelete = CASCADE),
     tableName = "submission",
     // Additional index not required for FK constraint since first field in composite index can be
     // used independently.
-    indices = {@Index({"feature_id", "task_id", "state"})})
+    indices = {@Index({"location_of_interest_id", "task_id", "state"})})
 public abstract class SubmissionEntity {
 
   @CopyAnnotations
@@ -62,12 +62,12 @@ public abstract class SubmissionEntity {
   public abstract String getId();
 
   /**
-   * Returns the id of the feature to which this submission applies.
+   * Returns the id of the location of interest to which this submission applies.
    */
   @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
+  @ColumnInfo(name = "location_of_interest_id")
   @NonNull
-  public abstract String getFeatureId();
+  public abstract String getLocationOfInterestId();
 
   /**
    * Returns the id of the task to which this submission's responses apply.
@@ -105,7 +105,7 @@ public abstract class SubmissionEntity {
     return SubmissionEntity.builder()
         .setId(submission.getId())
         .setTaskId(submission.getTask().getId())
-        .setFeatureId(submission.getFeature().getId())
+        .setLocationOfInterestId(submission.getLocationOfInterest().getId())
         .setState(EntityState.DEFAULT)
         .setResponses(ResponseMapConverter.toString(submission.getResponses()))
         .setCreated(AuditInfoEntity.fromObject(submission.getCreated()))
@@ -118,7 +118,7 @@ public abstract class SubmissionEntity {
     return SubmissionEntity.builder()
         .setId(mutation.getSubmissionId())
         .setTaskId(mutation.getTask().getId())
-        .setFeatureId(mutation.getFeatureId())
+        .setLocationOfInterestId(mutation.getLocationOfInterestId())
         .setState(EntityState.DEFAULT)
         .setResponses(
             ResponseMapConverter.toString(
@@ -128,11 +128,11 @@ public abstract class SubmissionEntity {
         .build();
   }
 
-  public static Submission toSubmission(Feature feature, SubmissionEntity submission) {
+  public static Submission toSubmission(LocationOfInterest locationOfInterest, SubmissionEntity submission) {
     String id = submission.getId();
     String taskId = submission.getTaskId();
     Task task =
-        feature
+        locationOfInterest
             .getJob()
             .getTask(taskId)
             .orElseThrow(
@@ -142,8 +142,8 @@ public abstract class SubmissionEntity {
     return Submission.newBuilder()
         .setId(id)
         .setTask(task)
-        .setSurvey(feature.getSurvey())
-        .setFeature(feature)
+        .setSurvey(locationOfInterest.getSurvey())
+        .setLocationOfInterest(locationOfInterest)
         .setResponses(ResponseMapConverter.fromString(task, submission.getResponses()))
         .setCreated(AuditInfoEntity.toObject(submission.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(submission.getLastModified()))
@@ -154,7 +154,7 @@ public abstract class SubmissionEntity {
 
   public static SubmissionEntity create(
       String id,
-      String featureId,
+      String locationOfInterestId,
       String taskId,
       EntityState state,
       String responses,
@@ -162,7 +162,7 @@ public abstract class SubmissionEntity {
       AuditInfoEntity lastModified) {
     return builder()
         .setId(id)
-        .setFeatureId(featureId)
+        .setLocationOfInterestId(locationOfInterestId)
         .setTaskId(taskId)
         .setState(state)
         .setResponses(responses)
@@ -182,7 +182,7 @@ public abstract class SubmissionEntity {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setFeatureId(String newFeatureId);
+    public abstract Builder setLocationOfInterestId(String newLocationOfInterestId);
 
     public abstract Builder setTaskId(String newTaskId);
 

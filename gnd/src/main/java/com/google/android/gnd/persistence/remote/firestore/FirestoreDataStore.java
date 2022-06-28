@@ -20,8 +20,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.Submission;
@@ -91,11 +91,12 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
+      LocationOfInterest locationOfInterest) {
     return db.projects()
-        .project(feature.getSurvey().getId())
+        .project(locationOfInterest.getSurvey().getId())
         .observations()
-        .observationsByFeatureId(feature)
+        .observationsByFeatureId(locationOfInterest)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
         .subscribeOn(schedulers.io());
   }
@@ -121,7 +122,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold(stateful = true, terminates = false)
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey) {
+  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(Survey survey) {
     return db.projects()
         .project(survey.getId())
         .features()
@@ -155,7 +156,7 @@ public class FirestoreDataStore implements RemoteDataStore {
                 + " for "
                 + (mutation instanceof SubmissionMutation
                 ? ((SubmissionMutation) mutation).getSubmissionId()
-                : mutation.getFeatureId())
+                : mutation.getLocationOfInterestId())
                 + " to batch");
         Timber.e(e, "Skipping invalid mutation");
       }
@@ -165,8 +166,8 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch)
       throws DataStoreException {
-    if (mutation instanceof FeatureMutation) {
-      addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
+    if (mutation instanceof LocationOfInterestMutation) {
+      addFeatureMutationToBatch((LocationOfInterestMutation) mutation, user, batch);
     } else if (mutation instanceof SubmissionMutation) {
       addSubmissionMutationToBatch((SubmissionMutation) mutation, user, batch);
     } else {
@@ -174,12 +175,12 @@ public class FirestoreDataStore implements RemoteDataStore {
     }
   }
 
-  private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch)
+  private void addFeatureMutationToBatch(LocationOfInterestMutation mutation, User user, WriteBatch batch)
       throws DataStoreException {
     db.projects()
         .project(mutation.getSurveyId())
         .features()
-        .feature(mutation.getFeatureId())
+        .feature(mutation.getLocationOfInterestId())
         .addMutationToBatch(mutation, user, batch);
   }
 

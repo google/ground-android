@@ -20,7 +20,7 @@ import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newForm;
 import static com.google.android.gnd.model.TestModelBuilders.newJob;
-import static com.google.android.gnd.model.TestModelBuilders.newPointFeature;
+import static com.google.android.gnd.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.ResponseMap;
@@ -63,7 +63,7 @@ public class SubmissionConverterTest {
   private Task task;
   private Job job;
   private Survey survey;
-  private Feature feature;
+  private LocationOfInterest locationOfInterest;
 
   private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
@@ -133,7 +133,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId("observation123")
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setResponses(
                     ResponseMap.builder()
@@ -197,7 +197,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId("observation123")
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -228,7 +228,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId("observation123")
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -261,7 +261,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId("observation123")
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -305,7 +305,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId("observation123")
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setResponses(
                     // Field "field1" with unknown field type ignored.
@@ -318,7 +318,7 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPointFeature().setId(featureId).setSurvey(survey).setJob(job).build();
+    locationOfInterest = newPointOfInterest().setId(featureId).setSurvey(survey).setJob(job).build();
   }
 
   /**
@@ -330,6 +330,6 @@ public class SubmissionConverterTest {
   }
 
   private Submission toSubmission() {
-    return ObservationConverter.toSubmission(feature, observationDocumentSnapshot);
+    return ObservationConverter.toSubmission(locationOfInterest, observationDocumentSnapshot);
   }
 }

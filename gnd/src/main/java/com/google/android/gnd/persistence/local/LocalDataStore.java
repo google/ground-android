@@ -20,8 +20,8 @@ import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.TileSet;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.Submission;
@@ -88,11 +88,11 @@ public interface LocalDataStore {
   Single<User> getUser(String id);
 
   /**
-   * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
+   * Applies the specified {@link LocationOfInterestMutation} to the local data store, appending the mutation
    * to the local queue for remote sync.
    */
   @Cold
-  Completable applyAndEnqueue(FeatureMutation mutation);
+  Completable applyAndEnqueue(LocationOfInterestMutation mutation);
 
   /**
    * Applies the specified {@link SubmissionMutation} to the local data store, appending the
@@ -108,30 +108,30 @@ public interface LocalDataStore {
   Completable apply(SubmissionMutation mutation) throws LocalDataStoreException;
 
   /**
-   * Returns a long-lived stream that emits the full set of features for a survey on subscribe, and
-   * continues to return the full set each time a feature is added/changed/removed.
+   * Returns a long-lived stream that emits the full set of LOIs for a survey on subscribe, and
+   * continues to return the full set each time a LOI is added/changed/removed.
    */
   @Cold(terminates = false)
-  Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Survey survey);
+  Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestOnceAndStream(Survey survey);
 
   /**
-   * Returns the list of submissions which are not marked for deletion for the specified feature and
+   * Returns the list of submissions which are not marked for deletion for the specified locationOfInterest and
    * task.
    */
   @Cold
-  Single<ImmutableList<Submission>> getSubmissions(Feature feature, String taskId);
+  Single<ImmutableList<Submission>> getSubmissions(LocationOfInterest locationOfInterest, String taskId);
 
   /**
-   * Returns the feature with the specified UUID from the local data store, if found.
+   * Returns the LOI with the specified UUID from the local data store, if found.
    */
   @Cold
-  Maybe<Feature> getFeature(Survey survey, String featureId);
+  Maybe<LocationOfInterest> getLocationOfInterest(Survey survey, String locationOfInterestId);
 
   /**
    * Returns the submission with the specified UUID from the local data store, if found.
    */
   @Cold
-  Maybe<Submission> getSubmission(Feature feature, String submissionId);
+  Maybe<Submission> getSubmission(LocationOfInterest locationOfInterest, String submissionId);
 
   /**
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
@@ -148,11 +148,11 @@ public interface LocalDataStore {
   Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Survey survey);
 
   /**
-   * Returns all feature and submission mutations in the local mutation queue relating to feature
+   * Returns all LOI and submission mutations in the local mutation queue relating to LOI
    * with the specified id.
    */
   @Cold
-  Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
+  Single<ImmutableList<Mutation>> getPendingMutations(String locationOfInterestId);
 
   /**
    * Updates the provided list of mutations.
@@ -162,24 +162,24 @@ public interface LocalDataStore {
 
   /**
    * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
-   * corresponding submission or feature.
+   * corresponding submission or LOI.
    */
   @Cold
   Completable finalizePendingMutations(ImmutableList<Mutation> mutations);
 
   /**
-   * Merges the provided feature with pending unsynced local mutations, and inserts it into the
-   * local data store. If a feature with the same id already exists, it will be overwritten with the
+   * Merges the provided locationOfInterest with pending unsynced local mutations, and inserts it into the
+   * local data store. If a locationOfInterest with the same id already exists, it will be overwritten with the
    * merged instance.
    */
   @Cold
-  Completable mergeFeature(Feature feature);
+  Completable mergeLocationOfInterest(LocationOfInterest locationOfInterest);
 
   /**
-   * Deletes feature from local database.
+   * Deletes LOI from local database.
    */
   @Cold
-  Completable deleteFeature(String featureId);
+  Completable deleteLocationOfInterest(String locationOfInterestId);
 
   /**
    * Merges the provided submission with pending unsynced local mutations, and inserts it into the
@@ -252,16 +252,16 @@ public interface LocalDataStore {
   Completable deleteTileSetByUrl(TileSet tileSet);
 
   /**
-   * Emits the list of {@link FeatureMutation} instances for a given feature which match the
+   * Emits the list of {@link LocationOfInterestMutation} instances for a given LOI which match the
    * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
    */
-  Flowable<ImmutableList<FeatureMutation>> getFeatureMutationsByFeatureIdOnceAndStream(
-      String featureId, MutationEntitySyncStatus... allowedStates);
+  Flowable<ImmutableList<LocationOfInterestMutation>> getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+      String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 
   /**
-   * Emits the list of {@link SubmissionMutation} instances for a given feature which match the
+   * Emits the list of {@link SubmissionMutation} instances for a given LOI which match the
    * provided <code>allowedStates</code>. A new list is emitted on each subsequent change.
    */
-  Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByFeatureIdOnceAndStream(
-      Survey survey, String featureId, MutationEntitySyncStatus... allowedStates);
+  Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      Survey survey, String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
 }

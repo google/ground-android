@@ -20,7 +20,7 @@ import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.rx.ValueOrError;
@@ -40,7 +40,7 @@ import javax.inject.Singleton;
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
 
-  private RemoteDataEvent<Feature> featureEvent;
+  private RemoteDataEvent<LocationOfInterest> featureEvent;
   // TODO(#1045): Allow default survey to be initialized by tests.
   private List<Survey> testSurveys = Collections.singletonList(FakeData.SURVEY);
   // TODO(#1045): Allow default ToS to be initialized by tests.
@@ -90,12 +90,13 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey) {
+  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(Survey survey) {
     return featureEvent == null ? Flowable.empty() : Flowable.just(featureEvent);
   }
 
   @Override
-  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
+      LocationOfInterest locationOfInterest) {
     return null;
   }
 
@@ -104,7 +105,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     return null;
   }
 
-  public void streamFeatureOnce(RemoteDataEvent<Feature> featureEvent) {
+  public void streamFeatureOnce(RemoteDataEvent<LocationOfInterest> featureEvent) {
     this.featureEvent = featureEvent;
   }
 }

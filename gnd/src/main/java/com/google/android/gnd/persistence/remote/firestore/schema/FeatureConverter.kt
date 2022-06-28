@@ -18,13 +18,13 @@ package com.google.android.gnd.persistence.remote.firestore.schema
 import kotlin.Throws
 import com.google.android.gnd.persistence.remote.DataStoreException
 import com.google.android.gnd.model.Survey
-import com.google.android.gnd.model.feature.*
+import com.google.android.gnd.model.locationofinterest.*
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.GeoPoint
 import timber.log.Timber
 import com.google.common.collect.ImmutableList
 
-/** Converts between Firestore documents and [Feature] instances.  */
+/** Converts between Firestore documents and [LocationOfInterest] instances.  */
 object FeatureConverter {
     const val LAYER_ID = "layerId"
     const val LOCATION = "location"
@@ -37,7 +37,7 @@ object FeatureConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toFeature(survey: Survey, doc: DocumentSnapshot): Feature<*> {
+    fun toFeature(survey: Survey, doc: DocumentSnapshot): LocationOfInterest<*> {
         val featureDoc = DataStoreException.checkNotNull(
             doc.toObject(FeatureDocument::class.java),
             "feature data"
@@ -48,13 +48,13 @@ object FeatureConverter {
         }
 
         featureDoc.geoJson?.let {
-            val builder = GeoJsonFeature.newBuilder().setGeoJsonString(it)
+            val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
             fillFeature(builder, survey, doc.id, featureDoc)
             return builder.build()
         }
 
         featureDoc.location?.let {
-            val builder = PointFeature.newBuilder().setPoint(toPoint(it))
+            val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
             fillFeature(builder, survey, doc.id, featureDoc)
             return builder.build()
         }
@@ -78,7 +78,7 @@ object FeatureConverter {
 
     private fun toFeatureFromGeometry(
         survey: Survey, doc: DocumentSnapshot, featureDoc: FeatureDocument
-    ): PolygonFeature {
+    ): PolygonOfInterest {
         val geometry = featureDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
@@ -103,13 +103,13 @@ object FeatureConverter {
             )
         }
 
-        val builder = PolygonFeature.builder().setVertices(vertices.build())
+        val builder = PolygonOfInterest.builder().setVertices(vertices.build())
         fillFeature(builder, survey, doc.id, featureDoc)
         return builder.build()
     }
 
     private fun fillFeature(
-        builder: Feature.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
+        builder: LocationOfInterest.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
     ) {
         val layerId = DataStoreException.checkNotNull(featureDoc.jobId, LAYER_ID)
         val layer =

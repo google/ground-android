@@ -18,7 +18,7 @@ package com.google.android.gnd.repository
 import com.google.android.gnd.model.Role
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.User
-import com.google.android.gnd.model.feature.FeatureType
+import com.google.android.gnd.model.locationofinterest.LocationOfInterestType
 import com.google.android.gnd.model.job.Job
 import com.google.android.gnd.model.mutation.Mutation
 import com.google.android.gnd.persistence.local.LocalDataStore
@@ -107,15 +107,15 @@ class SurveyRepository @Inject constructor(
         for (layer in survey.jobs) {
             layers.put(
                 layer.id,
-                layer.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole)).build()
+                layer.toBuilder().setUserCanAdd(getAddableLocationOfInterestTypes(userRole)).build()
             )
         }
         return survey.toBuilder().setJobMap(layers.build()).build()
     }
 
-    private fun getAddableFeatureTypes(userRole: Role): ImmutableList<FeatureType> =
+    private fun getAddableLocationOfInterestTypes(userRole: Role): ImmutableList<LocationOfInterestType> =
         when (userRole) {
-            Role.OWNER, Role.MANAGER -> FeatureType.ALL
+            Role.OWNER, Role.MANAGER -> LocationOfInterestType.ALL
             else -> ImmutableList.of()
         }
 

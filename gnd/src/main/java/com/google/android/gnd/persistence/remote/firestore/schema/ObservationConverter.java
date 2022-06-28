@@ -20,7 +20,7 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.submission.DateResponse;
 import com.google.android.gnd.model.submission.MultipleChoiceResponse;
 import com.google.android.gnd.model.submission.NumberResponse;
@@ -47,23 +47,23 @@ import timber.log.Timber;
  */
 class ObservationConverter {
 
-  static Submission toSubmission(Feature feature, DocumentSnapshot snapshot)
+  static Submission toSubmission(LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
-    if (!feature.getId().equals(featureId)) {
-      throw new DataStoreException("Submission doc featureId doesn't match specified feature id");
+    if (!locationOfInterest.getId().equals(featureId)) {
+      throw new DataStoreException("Submission doc featureId doesn't match specified locationOfInterest id");
     }
     String taskId = checkNotNull(doc.getTaskId(), "taskId");
-    Task task = checkNotEmpty(feature.getJob().getTask(taskId), "task " + taskId);
+    Task task = checkNotEmpty(locationOfInterest.getJob().getTask(taskId), "task " + taskId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Objects.requireNonNullElse(doc.getLastModified(), created);
     return Submission.newBuilder()
         .setId(snapshot.getId())
-        .setSurvey(feature.getSurvey())
-        .setFeature(feature)
+        .setSurvey(locationOfInterest.getSurvey())
+        .setLocationOfInterest(locationOfInterest)
         .setTask(task)
         .setResponses(toResponseMap(snapshot.getId(), task, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
