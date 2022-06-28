@@ -35,7 +35,7 @@ public class FeaturesCollectionReference extends FluentCollectionReference {
     return new FeatureDocumentReference(reference().document(id));
   }
 
-  /** Retrieves all features in the project, then streams changes to the remote db incrementally. */
+  /** Retrieves all features in the survey, then streams changes to the remote db incrementally. */
   @Cold(terminates = false)
   public Flowable<RemoteDataEvent<LocationOfInterest>> loadOnceAndStreamChanges(Survey survey) {
     return RxFirestore.observeQueryRef(reference())

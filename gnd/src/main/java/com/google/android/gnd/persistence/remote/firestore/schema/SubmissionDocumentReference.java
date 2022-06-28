@@ -27,16 +27,16 @@ import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Maybe;
 
-public class ObservationDocumentReference extends FluentDocumentReference {
+public class SubmissionDocumentReference extends FluentDocumentReference {
 
-  ObservationDocumentReference(DocumentReference ref) {
+  SubmissionDocumentReference(DocumentReference ref) {
     super(ref);
   }
 
   @Cold
   public Maybe<Submission> get(LocationOfInterest locationOfInterest) {
     return RxFirestore.getDocument(reference())
-        .map(doc -> ObservationConverter.toSubmission(locationOfInterest, doc));
+        .map(doc -> SubmissionConverter.toSubmission(locationOfInterest, doc));
   }
 
   /**
@@ -46,7 +46,7 @@ public class ObservationDocumentReference extends FluentDocumentReference {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        merge(ObservationMutationConverter.toMap(mutation, user), batch);
+        merge(SubmissionMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
         delete(batch);

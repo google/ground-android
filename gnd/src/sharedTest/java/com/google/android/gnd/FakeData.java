@@ -44,7 +44,7 @@ public class FakeData {
   public static final Job JOB = newJob().build();
 
   public static Builder newJob() {
-    return Job.newBuilder().setId("LAYER").setName("Layer");
+    return Job.newBuilder().setId("JOB").setName("Job");
   }
 
   public static final User USER =
@@ -60,7 +60,7 @@ public class FakeData {
         .setId("SURVEY")
         .setTitle("Survey title")
         .setDescription("Test survey description")
-        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "contributor"));
+        .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"));
   }
 
   public static final PointOfInterest POINT_FEATURE =

@@ -15,18 +15,17 @@
  */
 package com.google.android.gnd.persistence.remote.firestore.schema
 
-import kotlin.Throws
-import com.google.android.gnd.persistence.remote.DataStoreException
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.locationofinterest.*
+import com.google.android.gnd.persistence.remote.DataStoreException
+import com.google.common.collect.ImmutableList
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.GeoPoint
 import timber.log.Timber
-import com.google.common.collect.ImmutableList
 
-/** Converts between Firestore documents and [LocationOfInterest] instances.  */
+/** Converts between Firestore documents and [Feature] instances.  */
 object FeatureConverter {
-    const val LAYER_ID = "layerId"
+    const val JOB_ID = "jobId"
     const val LOCATION = "location"
     const val CREATED = "created"
     const val LAST_MODIFIED = "lastModified"
@@ -49,13 +48,13 @@ object FeatureConverter {
 
         featureDoc.geoJson?.let {
             val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
-            fillFeature(builder, survey, doc.id, featureDoc)
+            fillLocationOfInterest(builder, survey, doc.id, featureDoc)
             return builder.build()
         }
 
         featureDoc.location?.let {
             val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
-            fillFeature(builder, survey, doc.id, featureDoc)
+            fillLocationOfInterest(builder, survey, doc.id, featureDoc)
             return builder.build()
         }
 
@@ -104,18 +103,21 @@ object FeatureConverter {
         }
 
         val builder = PolygonOfInterest.builder().setVertices(vertices.build())
-        fillFeature(builder, survey, doc.id, featureDoc)
+        fillLocationOfInterest(builder, survey, doc.id, featureDoc)
         return builder.build()
     }
 
-    private fun fillFeature(
-        builder: LocationOfInterest.Builder<*>, survey: Survey, id: String, featureDoc: FeatureDocument
+    private fun fillLocationOfInterest(
+        builder: LocationOfInterest.Builder<*>,
+        survey: Survey,
+        id: String,
+        featureDoc: FeatureDocument
     ) {
-        val layerId = DataStoreException.checkNotNull(featureDoc.jobId, LAYER_ID)
-        val layer =
+        val jobId = DataStoreException.checkNotNull(featureDoc.jobId, JOB_ID)
+        val job =
             DataStoreException.checkNotEmpty(
-                survey.getJob(layerId),
-                "layer ${featureDoc.jobId}"
+                survey.getJob(jobId),
+                "job ${featureDoc.jobId}"
             )
         // Degrade gracefully when audit info missing in remote db.
         val created = featureDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
@@ -125,7 +127,7 @@ object FeatureConverter {
             .setSurvey(survey)
             .setCustomId(featureDoc.customId)
             .setCaption(featureDoc.caption)
-            .setJob(layer)
+            .setJob(job)
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }

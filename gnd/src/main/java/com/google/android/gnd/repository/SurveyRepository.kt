@@ -18,8 +18,8 @@ package com.google.android.gnd.repository
 import com.google.android.gnd.model.Role
 import com.google.android.gnd.model.Survey
 import com.google.android.gnd.model.User
-import com.google.android.gnd.model.locationofinterest.LocationOfInterestType
 import com.google.android.gnd.model.job.Job
+import com.google.android.gnd.model.locationofinterest.LocationOfInterestType
 import com.google.android.gnd.model.mutation.Mutation
 import com.google.android.gnd.persistence.local.LocalDataStore
 import com.google.android.gnd.persistence.local.LocalValueStore
@@ -88,7 +88,7 @@ class SurveyRepository @Inject constructor(
     }
 
     private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
-        // Empty id indicates intent to deactivate the current project. Used on sign out.
+        // Empty id indicates intent to deactivate the current survey. Used on sign out.
         return if (surveyId.isEmpty())
             Flowable.just(Loadable.notLoaded())
         else
@@ -103,19 +103,19 @@ class SurveyRepository @Inject constructor(
     private fun attachJobPermissions(survey: Survey): Survey {
         val userRole = userRepository.getUserRole(survey)
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
-        val layers: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
-        for (layer in survey.jobs) {
-            layers.put(
-                layer.id,
-                layer.toBuilder().setUserCanAdd(getAddableLocationOfInterestTypes(userRole)).build()
+        val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
+        for (job in survey.jobs) {
+            jobs.put(
+                job.id,
+                job.toBuilder().setUserCanAdd(getAddableLocationOfInterestTypes(userRole)).build()
             )
         }
-        return survey.toBuilder().setJobMap(layers.build()).build()
+        return survey.toBuilder().setJobMap(jobs.build()).build()
     }
 
     private fun getAddableLocationOfInterestTypes(userRole: Role): ImmutableList<LocationOfInterestType> =
         when (userRole) {
-            Role.OWNER, Role.MANAGER -> LocationOfInterestType.ALL
+            Role.OWNER, Role.SURVEY_ORGANIZER -> LocationOfInterestType.ALL
             else -> ImmutableList.of()
         }
 
@@ -130,8 +130,8 @@ class SurveyRepository @Inject constructor(
             .loadSurvey(id)
             .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
             .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
-            .doOnSubscribe { Timber.d("Loading project $id") }
-            .doOnError { err -> Timber.d(err, "Error loading project from remote") }
+            .doOnSubscribe { Timber.d("Loading survey $id") }
+            .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
     fun loadLastActiveSurvey() = activateSurvey(lastActiveSurveyId)
 

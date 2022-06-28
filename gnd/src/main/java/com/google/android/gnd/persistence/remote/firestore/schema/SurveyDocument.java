@@ -23,7 +23,7 @@ import java.util.Map;
 
 /** Project entity stored in Firestore. */
 @IgnoreExtraProperties
-class ProjectDocument {
+class SurveyDocument {
   @Nullable private Map<String, String> title;
 
   @Nullable private Map<String, String> description;
@@ -35,10 +35,10 @@ class ProjectDocument {
   @Nullable private List<BaseMapNestedObject> baseMaps;
 
   @SuppressWarnings("unused")
-  public ProjectDocument() {}
+  public SurveyDocument() {}
 
   @SuppressWarnings("unused")
-  ProjectDocument(
+  SurveyDocument(
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
       @Nullable Map<String, JobNestedObject> jobs,

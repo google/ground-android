@@ -531,7 +531,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     try {
       return Color.parseColor(String.valueOf(colorHexCode));
     } catch (IllegalArgumentException e) {
-      Timber.w("Invalid color code in layer style: %s", colorHexCode);
+      Timber.w("Invalid color code in job style: %s", colorHexCode);
       return getResources().getColor(R.color.colorMapAccent);
     }
   }

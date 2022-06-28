@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.gnd.ui.datacollection
 
-package com.google.android.gnd.model;
+import com.google.android.gnd.ui.common.AbstractViewModel
+import javax.inject.Inject
 
-public enum Role {
-  UNKNOWN,
-  OWNER,
-  MANAGER,
-  CONTRIBUTOR
-}
+/**
+ * View model for the Data Collection fragment.
+ */
+class DataCollectionViewModel @Inject internal constructor() : AbstractViewModel()

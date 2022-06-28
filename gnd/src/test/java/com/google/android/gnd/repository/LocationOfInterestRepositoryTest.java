@@ -235,7 +235,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     Date testDate = new Date();
 
     LocationOfInterestMutation newMutation =
-        locationOfInterestRepository.newMutation("foo_survey_id", "foo_layer_id", FakeData.POINT, testDate);
+        locationOfInterestRepository.newMutation("foo_survey_id", "foo_job_id", FakeData.POINT, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");
@@ -252,8 +252,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     Date testDate = new Date();
 
     LocationOfInterestMutation newMutation =
-        locationOfInterestRepository.newPolygonLocationOfInterestMutation(
-            "foo_survey_id", "foo_layer_id", FakeData.VERTICES, testDate);
+        locationOfInterestRepository.newPolygonOfInterestMutation(
+            "foo_survey_id", "foo_job_id", FakeData.VERTICES, testDate);
 
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");

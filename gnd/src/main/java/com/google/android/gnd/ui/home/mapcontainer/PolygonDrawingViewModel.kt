@@ -72,7 +72,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
     private val locationLockState: LiveData<BooleanOrError>
     private val vertices: MutableList<Point> = ArrayList()
 
-    /** The currently selected layer and project for the polygon drawing.  */
+    /** The currently selected job and survey for the polygon drawing.  */
     private val selectedJob = BehaviorProcessor.create<Job>()
     private val selectedSurvey = BehaviorProcessor.create<Survey>()
     private var cameraTarget: Point? = null
@@ -164,7 +164,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
     }
 
     fun onCompletePolygonButtonClick() {
-        check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Project or layer is null" }
+        check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
         val polygon = mapPolygon.get()
         check(polygon.isPolygonComplete) { "Polygon is not complete" }
         val auditInfo = AuditInfo.now(authManager.currentUser)

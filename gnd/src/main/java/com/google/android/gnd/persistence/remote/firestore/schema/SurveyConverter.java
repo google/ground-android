@@ -32,8 +32,8 @@ import timber.log.Timber;
 /** Converts between Firestore documents and {@link Survey} instances. */
 class SurveyConverter {
 
-  static Survey toProject(DocumentSnapshot doc) throws DataStoreException {
-    ProjectDocument pd = doc.toObject(ProjectDocument.class);
+  static Survey toSurvey(DocumentSnapshot doc) throws DataStoreException {
+    SurveyDocument pd = doc.toObject(SurveyDocument.class);
     Survey.Builder survey = Survey.newBuilder();
     survey
         .setId(doc.getId())
@@ -49,7 +49,7 @@ class SurveyConverter {
     return survey.build();
   }
 
-  private static void convertOfflineBaseMapSources(ProjectDocument pd, Survey.Builder builder) {
+  private static void convertOfflineBaseMapSources(SurveyDocument pd, Survey.Builder builder) {
     for (BaseMapNestedObject src : pd.getBaseMaps()) {
       if (src.getUrl() == null) {
         Timber.d("Skipping base map source in survey with missing URL");
@@ -60,7 +60,7 @@ class SurveyConverter {
         builder.addBaseMap(
             BaseMap.builder().setUrl(url).setType(typeFromExtension(src.getUrl())).build());
       } catch (MalformedURLException e) {
-        Timber.d("Skipping base map source in project with malformed URL");
+        Timber.d("Skipping base map source in survey with malformed URL");
       }
     }
   }

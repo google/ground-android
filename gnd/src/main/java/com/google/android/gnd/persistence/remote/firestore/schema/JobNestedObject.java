@@ -18,35 +18,22 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.List;
 import java.util.Map;
 
 /** Firestore representation of map layers. */
 @IgnoreExtraProperties
 class JobNestedObject {
   @Nullable private Map<String, String> name;
-  // TODO(https://github.com/google/ground-platform/issues/402): Delete this field once updated in
-  // web client.
-  @Deprecated @Nullable private String color;
-  @Nullable private StyleNestedObject defaultStyle;
-  @Nullable private Map<String, FormNestedObject> forms;
-  @Nullable private List<String> contributorsCanAdd;
+  @Nullable private Map<String, TaskNestedObject> tasks;
 
   @SuppressWarnings("unused")
   public JobNestedObject() {}
 
   @SuppressWarnings("unused")
   JobNestedObject(
-      @Nullable Map<String, String> name,
-      @Nullable String color,
-      @Nullable StyleNestedObject defaultStyle,
-      @Nullable Map<String, FormNestedObject> forms,
-      @Nullable List<String> contributorsCanAdd) {
+      @Nullable Map<String, String> name, @Nullable Map<String, TaskNestedObject> tasks) {
     this.name = name;
-    this.color = color;
-    this.defaultStyle = defaultStyle;
-    this.forms = forms;
-    this.contributorsCanAdd = contributorsCanAdd;
+    this.tasks = tasks;
   }
 
   @Nullable
@@ -55,23 +42,7 @@ class JobNestedObject {
   }
 
   @Nullable
-  @Deprecated
-  public String getColor() {
-    return color;
-  }
-
-  @Nullable
-  public StyleNestedObject getDefaultStyle() {
-    return defaultStyle;
-  }
-
-  @Nullable
-  public Map<String, FormNestedObject> getForms() {
-    return forms;
-  }
-
-  @Nullable
-  public List<String> getContributorsCanAdd() {
-    return contributorsCanAdd;
+  public Map<String, TaskNestedObject> getTasks() {
+    return tasks;
   }
 }

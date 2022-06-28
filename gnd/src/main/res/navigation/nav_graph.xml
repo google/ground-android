@@ -82,6 +82,9 @@
       android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
       app:destination="@id/surveySelectorDialogFragment" />
     <action
+      android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
+      app:destination="@id/data_collection_fragment" />
+    <action
       android:id="@+id/action_home_screen_fragment_to_locationOfInterestSelectorFragment"
       app:destination="@id/locationOfInterestSelectorFragment" />
     <action
@@ -93,6 +96,11 @@
     android:name="com.google.android.gnd.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
     tools:layout="@layout/sync_status_frag" />
+  <fragment
+    android:id="@+id/data_collection_fragment"
+    android:name="com.google.android.gnd.ui.datacollection.DataCollectionFragment"
+    android:label="@string/collect_data"
+    tools:layout="@layout/data_collection_frag" />
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragment"

@@ -25,10 +25,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Survey;
+import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.locationofinterest.Point;
 import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
-import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.model.task.Task;
@@ -72,14 +72,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Survey>> surveyLoadingState;
 
   // TODO(#719): Move into LocationOfInterestDetailsViewModel.
-  @Hot
-  private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
   @Hot
-  private final FlowableProcessor<LocationOfInterestMutation> addLocationOfInterestRequests = PublishProcessor.create();
+  private final FlowableProcessor<LocationOfInterestMutation> addLocationOfInterestRequests =
+      PublishProcessor.create();
 
   @Hot
   private final FlowableProcessor<LocationOfInterestMutation> updateLocationOfInterestRequests =
@@ -89,15 +89,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<LocationOfInterestMutation> deleteLocationOfInterestRequests =
       PublishProcessor.create();
 
-  @Hot
-  private final Flowable<LocationOfInterest> addLocationOfInterestResults;
-  @Hot
-  private final Flowable<Boolean> updateLocationOfInterestResults;
-  @Hot
-  private final Flowable<Boolean> deleteLocationOfInterestResults;
+  @Hot private final Flowable<LocationOfInterest> addLocationOfInterestResults;
+  @Hot private final Flowable<Boolean> updateLocationOfInterestResults;
+  @Hot private final Flowable<Boolean> deleteLocationOfInterestResults;
 
-  @Hot
-  private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot
   private final Subject<ImmutableList<LocationOfInterest>> showLocationOfInterestSelectorRequests =
@@ -127,11 +123,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     deleteLocationOfInterestResults =
         deleteLocationOfInterestRequests.switchMapSingle(
             mutation ->
-                toBooleanSingle(locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
+                toBooleanSingle(
+                    locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
     updateLocationOfInterestResults =
         updateLocationOfInterestRequests.switchMapSingle(
             mutation ->
-                toBooleanSingle(locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
+                toBooleanSingle(
+                    locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
   }
 
   @Hot
@@ -161,7 +159,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
         .ifPresentOrElse(
             surveyId ->
                 addLocationOfInterestRequests.onNext(
-                    locationOfInterestRepository.newMutation(surveyId, job.getId(), point, new Date())),
+                    locationOfInterestRepository.newMutation(
+                        surveyId, job.getId(), point, new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -173,8 +172,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
         .ifPresentOrElse(
             surveyId ->
                 addLocationOfInterestRequests.onNext(
-                    locationOfInterestRepository.newPolygonLocationOfInterestMutation(
-                        surveyId, polygonOfInterest.getJob().getId(), polygonOfInterest.getVertices(), new Date())),
+                    locationOfInterestRepository.newPolygonOfInterestMutation(
+                        surveyId,
+                        polygonOfInterest.getJob().getId(),
+                        polygonOfInterest.getVertices(),
+                        new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
@@ -247,7 +249,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Optional<Task> form = locationOfInterest.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
-      Timber.e("No forms in layer");
+      Timber.e("No tasks in job");
       return;
     }
     Survey survey = locationOfInterest.getSurvey();
@@ -273,7 +275,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public void onLocationOfInterestClick(ImmutableList<MapLocationOfInterest> mapLocationsOfInterest) {
+  public void onLocationOfInterestClick(
+      ImmutableList<MapLocationOfInterest> mapLocationsOfInterest) {
     ImmutableList<LocationOfInterest> locationsOfInterest =
         stream(mapLocationsOfInterest)
             .map(MapLocationOfInterest::getLocationOfInterest)

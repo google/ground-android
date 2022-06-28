@@ -34,15 +34,13 @@ public abstract class Job {
     return getTask().filter(task -> task.getId().equals(taskId));
   }
 
-  /** Returns the list of location of interest types the current user may add to this layer. */
+  /** Returns the list of location of interest types the current user may add to this job. */
   public abstract ImmutableList<LocationOfInterestType> getUserCanAdd();
 
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Job.Builder()
-        .setTask(Optional.empty())
-        .setUserCanAdd(ImmutableList.of());
+    return new AutoValue_Job.Builder().setTask(Optional.empty()).setUserCanAdd(ImmutableList.of());
   }
 
   @AutoValue.Builder

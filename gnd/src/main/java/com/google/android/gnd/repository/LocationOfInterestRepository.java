@@ -79,10 +79,10 @@ public class LocationOfInterestRepository {
   }
 
   /**
-   * Mirrors LOIs in the specified survey from the remote db into the local db when the network is
-   * available. When invoked, will first attempt to resync all LOIs from the remote db, subsequently
-   * syncing only remote changes. The returned stream never completes, and subscriptions will only
-   * terminate on disposal.
+   * Mirrors locations of interest in the specified survey from the remote db into the local db when
+   * the network is available. When invoked, will first attempt to resync all locations of interest
+   * from the remote db, subsequently syncing only remote changes. The returned stream never
+   * completes, and subscriptions will only terminate on disposal.
    */
   @Cold
   public Completable syncLocationsOfInterest(Survey survey) {
@@ -91,7 +91,7 @@ public class LocationOfInterestRepository {
         .flatMapCompletable(this::updateLocalLocationOfInterest);
   }
 
-  // TODO: Remove "locationOfInterest" qualifier from this and other repository method names.
+  // TODO: Remove "location of interest" qualifier from this and other repository method names.
   @Cold
   private Completable updateLocalLocationOfInterest(RemoteDataEvent<LocationOfInterest> event) {
     switch (event.getEventType()) {
@@ -114,7 +114,7 @@ public class LocationOfInterestRepository {
     }
   }
 
-  // TODO: Only return LOI fields needed to render LOIs on map.
+  // TODO: Only return location of interest fields needed to render locations of interest on map.
   @Cold(terminates = false)
   public Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestOnceAndStream(
       Survey survey) {
@@ -124,47 +124,47 @@ public class LocationOfInterestRepository {
   @Cold
   public Single<LocationOfInterest> getLocationOfInterest(
       LocationOfInterestMutation locationOfInterestMutation) {
-    return getLocationOfInterest(
+    return this.getLocationOfInterest(
         locationOfInterestMutation.getSurveyId(),
         locationOfInterestMutation.getLocationOfInterestId());
   }
 
-  /** This only works if the survey and LOI are already cached to local db. */
+  /** This only works if the survey and location of interests are already cached to local db. */
   @Cold
   public Single<LocationOfInterest> getLocationOfInterest(
-      String surveyId, String locationOfInterestId) {
+      String surveyId, String locationOfInterest) {
     return surveyRepository
         .getSurvey(surveyId)
-        .flatMapMaybe(survey -> localDataStore.getLocationOfInterest(survey, locationOfInterestId))
+        .flatMapMaybe(survey -> localDataStore.getLocationOfInterest(survey, locationOfInterest))
         .switchIfEmpty(
             Single.error(
                 () ->
-                    new NotFoundException("LocationOfInterest not found " + locationOfInterestId)));
+                    new NotFoundException("Location of interest not found " + locationOfInterest)));
   }
 
   public LocationOfInterestMutation newMutation(
-      String surveyId, String layerId, Point point, Date date) {
+      String surveyId, String jobId, Point point, Date date) {
     return LocationOfInterestMutation.builder()
         .setLocation(Optional.of(point))
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setLocationOfInterestId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setJobId(layerId)
+        .setJobId(jobId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
   }
 
-  public LocationOfInterestMutation newPolygonLocationOfInterestMutation(
-      String surveyId, String layerId, ImmutableList<Point> vertices, Date date) {
+  public LocationOfInterestMutation newPolygonOfInterestMutation(
+      String surveyId, String jobId, ImmutableList<Point> vertices, Date date) {
     return LocationOfInterestMutation.builder()
         .setPolygonVertices(vertices)
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setLocationOfInterestId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setJobId(layerId)
+        .setJobId(jobId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
@@ -175,7 +175,7 @@ public class LocationOfInterestRepository {
    * task for remote sync if the local transaction is successful.
    *
    * @param mutation Input {@link LocationOfInterestMutation}
-   * @return If successful, returns the provided LOI wrapped as {@link Loadable}
+   * @return If successful, returns the provided locations of interest wrapped as {@link Loadable}
    */
   @Cold
   public Completable applyAndEnqueue(LocationOfInterestMutation mutation) {

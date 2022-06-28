@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
+import com.google.android.gnd.ui.datacollection.DataCollectionViewModel;
 import com.google.android.gnd.ui.editsubmission.DateFieldViewModel;
 import com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel;
 import com.google.android.gnd.ui.editsubmission.MultipleChoiceFieldViewModel;
@@ -80,6 +81,11 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
+  @ViewModelKey(DataCollectionViewModel.class)
+  abstract ViewModel bindDataCollectionViewModel(DataCollectionViewModel viewModel);
+
+  @Binds
+  @IntoMap
   @ViewModelKey(OfflineAreasViewModel.class)
   abstract ViewModel bindOfflineAreasViewModel(OfflineAreasViewModel viewModel);
 
@@ -116,7 +122,7 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(SurveySelectorViewModel.class)
-  abstract ViewModel bindProjectSelectorViewModel(SurveySelectorViewModel viewModel);
+  abstract ViewModel bindSurveySelectorViewModel(SurveySelectorViewModel viewModel);
 
   @Binds
   @IntoMap

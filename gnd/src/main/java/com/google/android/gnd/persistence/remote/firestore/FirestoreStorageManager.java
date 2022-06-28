@@ -52,16 +52,16 @@ public class FirestoreStorageManager implements RemoteStorageManager {
    * Generates destination path in which an submission attachment is to be stored in to Cloud
    * Storage.
    *
-   * <p>user-media/surveys/{survey_id}/observations/{observation_id}/{field_id-uuid.jpg}
+   * <p>user-media/surveys/{survey_id}/submissions/{submission_id}/{field_id-uuid.jpg}
    */
-  public static String getRemoteMediaPath(String surveyId, String observationId, String filename) {
+  public static String getRemoteMediaPath(String surveyId, String submissionId, String filename) {
     // TODO: Refactor this into MediaStorageRepository.
     return new StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)
         .add("surveys")
         .add(surveyId)
-        .add("observations")
-        .add(observationId)
+        .add("submissions")
+        .add(submissionId)
         .add(filename)
         .toString();
   }
@@ -90,7 +90,7 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                 .addOnCompleteListener(
                     uploadTask -> {
                       // Do not delete the file after successful upload. It is used as a cache
-                      // while viewing observations when network is unavailable.
+                      // while viewing submissions when network is unavailable.
                       emitter.onComplete();
                     })
                 .addOnPausedListener(taskSnapshot -> emitter.onNext(TransferProgress.paused()))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.util
+package com.google.android.gnd.model
 
-object Localization {
-    @JvmStatic
-    fun getLocalizedMessage(messages: Map<String, String>): String {
-        // TODO(#711): Allow user to select survey/form language and use here.
-        // TODO: Return Optional and handle empty strings in client code.
-        return messages["_"] ?: messages["en"] ?: messages["pt"] ?: "<Untitled>"
-    }
+enum class Role {
+    UNKNOWN, OWNER, SURVEY_ORGANIZER, DATA_COLLECTOR
 }

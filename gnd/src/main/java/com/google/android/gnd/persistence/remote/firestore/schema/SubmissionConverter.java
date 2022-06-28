@@ -45,11 +45,11 @@ import timber.log.Timber;
 /**
  * Converts between Firestore documents and {@link Submission} instances.
  */
-class ObservationConverter {
+class SubmissionConverter {
 
   static Submission toSubmission(LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
       throws DataStoreException {
-    ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
+    SubmissionDocument doc = snapshot.toObject(SubmissionDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
     if (!locationOfInterest.getId().equals(featureId)) {
       throw new DataStoreException("Submission doc featureId doesn't match specified locationOfInterest id");
@@ -72,7 +72,7 @@ class ObservationConverter {
   }
 
   private static ResponseMap toResponseMap(
-      String observationId, Task task, @Nullable Map<String, Object> docResponses) {
+      String submissionId, Task task, @Nullable Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     if (docResponses == null) {
       return responses.build();
@@ -82,7 +82,7 @@ class ObservationConverter {
       try {
         putResponse(fieldId, task, entry.getValue(), responses);
       } catch (DataStoreException e) {
-        Timber.e(e, "Field " + fieldId + "in remote db in submission " + observationId);
+        Timber.e(e, "Field " + fieldId + "in remote db in submission " + submissionId);
       }
     }
     return responses.build();

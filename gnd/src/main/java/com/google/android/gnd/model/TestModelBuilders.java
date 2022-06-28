@@ -97,7 +97,7 @@ public class TestModelBuilders {
     return Job.newBuilder().setId("").setName("");
   }
 
-  public static Task.Builder newForm() {
+  public static Task.Builder newTask() {
     return Task.newBuilder().setId("");
   }
 

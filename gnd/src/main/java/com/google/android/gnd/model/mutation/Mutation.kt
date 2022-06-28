@@ -100,8 +100,10 @@ sealed class Mutation {
             apply { this.syncStatus = syncStatus }
 
         fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
-        fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> = apply { this.locationOfInterestId = locationOfInterestId }
-        fun setJobId(layerId: String): Builder<T> = apply { this.jobId = layerId }
+        fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> =
+            apply { this.locationOfInterestId = locationOfInterestId }
+
+        fun setJobId(jobId: String): Builder<T> = apply { this.jobId = jobId }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
         fun setClientTimestamp(timestamp: Date): Builder<T> =
             apply { this.clientTimestamp = timestamp }

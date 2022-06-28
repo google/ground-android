@@ -54,16 +54,12 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
 
-  @Inject
-  ApplicationErrorManager errorManager;
-  @Inject
-  GroundFirestore db;
-  @Inject
-  Schedulers schedulers;
+  @Inject ApplicationErrorManager errorManager;
+  @Inject GroundFirestore db;
+  @Inject Schedulers schedulers;
 
   @Inject
-  FirestoreDataStore() {
-  }
+  FirestoreDataStore() {}
 
   /**
    * Prevents known {@link FirebaseFirestoreException} from propagating downstream. Also, notifies
@@ -81,8 +77,8 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Cold
   @Override
   public Single<Survey> loadSurvey(String surveyId) {
-    return db.projects()
-        .project(surveyId)
+    return db.surveys()
+        .survey(surveyId)
         .get()
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Maybe.never() : Maybe.error(e))
         .switchIfEmpty(Single.error(() -> new NotFoundException("Survey " + surveyId)))
@@ -93,10 +89,10 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Override
   public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
       LocationOfInterest locationOfInterest) {
-    return db.projects()
-        .project(locationOfInterest.getSurvey().getId())
-        .observations()
-        .observationsByFeatureId(locationOfInterest)
+    return db.surveys()
+        .survey(locationOfInterest.getSurvey().getId())
+        .submissions()
+        .submissionsByLocationOfInterestId(locationOfInterest)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
         .subscribeOn(schedulers.io());
   }
@@ -114,7 +110,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Cold
   @Override
   public Single<List<Survey>> loadSurveySummaries(User user) {
-    return db.projects()
+    return db.surveys()
         .getReadable(user)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
         .subscribeOn(schedulers.io());
@@ -122,9 +118,10 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold(stateful = true, terminates = false)
   @Override
-  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(Survey survey) {
-    return db.projects()
-        .project(survey.getId())
+  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
+      Survey survey) {
+    return db.surveys()
+        .survey(survey.getId())
         .features()
         .loadOnceAndStreamChanges(survey)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Flowable.never() : Flowable.error(e))
@@ -155,8 +152,8 @@ public class FirestoreDataStore implements RemoteDataStore {
                 + mutation.getClass().getSimpleName()
                 + " for "
                 + (mutation instanceof SubmissionMutation
-                ? ((SubmissionMutation) mutation).getSubmissionId()
-                : mutation.getLocationOfInterestId())
+                    ? ((SubmissionMutation) mutation).getSubmissionId()
+                    : mutation.getLocationOfInterestId())
                 + " to batch");
         Timber.e(e, "Skipping invalid mutation");
       }
@@ -167,7 +164,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch)
       throws DataStoreException {
     if (mutation instanceof LocationOfInterestMutation) {
-      addFeatureMutationToBatch((LocationOfInterestMutation) mutation, user, batch);
+      addLocationOfInterestMutationToBatch((LocationOfInterestMutation) mutation, user, batch);
     } else if (mutation instanceof SubmissionMutation) {
       addSubmissionMutationToBatch((SubmissionMutation) mutation, user, batch);
     } else {
@@ -175,10 +172,10 @@ public class FirestoreDataStore implements RemoteDataStore {
     }
   }
 
-  private void addFeatureMutationToBatch(LocationOfInterestMutation mutation, User user, WriteBatch batch)
-      throws DataStoreException {
-    db.projects()
-        .project(mutation.getSurveyId())
+  private void addLocationOfInterestMutationToBatch(
+      LocationOfInterestMutation mutation, User user, WriteBatch batch) throws DataStoreException {
+    db.surveys()
+        .survey(mutation.getSurveyId())
         .features()
         .feature(mutation.getLocationOfInterestId())
         .addMutationToBatch(mutation, user, batch);
@@ -186,10 +183,10 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   private void addSubmissionMutationToBatch(
       SubmissionMutation mutation, User user, WriteBatch batch) throws DataStoreException {
-    db.projects()
-        .project(mutation.getSurveyId())
-        .observations()
-        .observation(mutation.getSubmissionId())
+    db.surveys()
+        .survey(mutation.getSurveyId())
+        .submissions()
+        .submission(mutation.getSubmissionId())
         .addMutationToBatch(mutation, user, batch);
   }
 }

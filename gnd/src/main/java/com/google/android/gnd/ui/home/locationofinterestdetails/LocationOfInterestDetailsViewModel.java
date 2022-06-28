@@ -76,31 +76,43 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
         markerIconFactory.getMarkerBitmap(
             drawableUtil.getColor(R.color.colorGrey600), DEFAULT_LOI_ZOOM_LEVEL);
     this.title =
-        LiveDataReactiveStreams.fromPublisher(selectedLocationOfInterest.map(locationOfInterestHelper::getLabel));
+        LiveDataReactiveStreams.fromPublisher(
+            selectedLocationOfInterest.map(locationOfInterestHelper::getLabel));
     this.subtitle =
-        LiveDataReactiveStreams.fromPublisher(selectedLocationOfInterest.map(locationOfInterestHelper::getSubtitle));
+        LiveDataReactiveStreams.fromPublisher(
+            selectedLocationOfInterest.map(locationOfInterestHelper::getSubtitle));
     this.moveMenuOptionVisible =
         LiveDataReactiveStreams.fromPublisher(
             selectedLocationOfInterest.map(
-                locationOfInterest -> locationOfInterest.map(this::isMoveMenuOptionVisible).orElse(true)));
+                locationOfInterest ->
+                    locationOfInterest.map(this::isMoveMenuOptionVisible).orElse(true)));
     this.deleteMenuOptionVisible =
         LiveDataReactiveStreams.fromPublisher(
             selectedLocationOfInterest.map(
-                locationOfInterest -> locationOfInterest.map(this::isDeleteMenuOptionVisible).orElse(true)));
+                locationOfInterest ->
+                    locationOfInterest.map(this::isDeleteMenuOptionVisible).orElse(true)));
     Flowable<ImmutableList<LocationOfInterestMutation>> locationOfInterestMutations =
-        selectedLocationOfInterest.switchMap(this::getIncompleteLocationOfInterestMutationsOnceAndStream);
+        selectedLocationOfInterest.switchMap(
+            this::getIncompleteLocationOfInterestMutationsOnceAndStream);
     Flowable<ImmutableList<SubmissionMutation>> submissionMutations =
         selectedLocationOfInterest.switchMap(this::getIncompleteSubmissionMutationsOnceAndStream);
     this.showUploadPendingIcon =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
-                locationOfInterestMutations, submissionMutations, (f, o) -> !f.isEmpty() && !o.isEmpty()));
+                locationOfInterestMutations,
+                submissionMutations,
+                (f, o) -> !f.isEmpty() && !o.isEmpty()));
   }
 
-  /** Returns true if the user is {@link Role#OWNER} or {@link Role#MANAGER} of the project. */
-  private boolean isUserAuthorizedToModifyLocationOfInterest(LocationOfInterest locationOfInterest) {
+  /**
+   * Returns true if the user is {@link Role#OWNER} or {@link Role#SURVEY_ORGANIZER} of the project.
+   */
+  private boolean isUserAuthorizedToModifyLocationOfInterest(
+      LocationOfInterest locationOfInterest) {
     Role role = userRepository.getUserRole(locationOfInterest.getSurvey());
-    return role == Role.OWNER || role == Role.MANAGER || isLocationOfInterestCreatedByUser(locationOfInterest);
+    return role == Role.OWNER
+        || role == Role.SURVEY_ORGANIZER
+        || isLocationOfInterestCreatedByUser(locationOfInterest);
   }
 
   /** Returns true if the {@link User} created the given {@link LocationOfInterest}. */
@@ -110,11 +122,12 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
   }
 
   /**
-   * Returns true if the selected locationOfInterest is of type {@link LocationOfInterestType#POINT} and the user has
-   * permissions to modify the locationOfInterest.
+   * Returns true if the selected locationOfInterest is of type {@link LocationOfInterestType#POINT}
+   * and the user has permissions to modify the locationOfInterest.
    */
   private boolean isMoveMenuOptionVisible(LocationOfInterest locationOfInterest) {
-    return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest) && locationOfInterest.isPoint();
+    return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest)
+        && locationOfInterest.isPoint();
   }
 
   /** Returns true if the user has permissions to modify the locationOfInterest. */
@@ -122,12 +135,14 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
     return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest);
   }
 
-  private Flowable<ImmutableList<LocationOfInterestMutation>> getIncompleteLocationOfInterestMutationsOnceAndStream(
-      Optional<LocationOfInterest> selectedLocationOfInterest) {
+  private Flowable<ImmutableList<LocationOfInterestMutation>>
+      getIncompleteLocationOfInterestMutationsOnceAndStream(
+          Optional<LocationOfInterest> selectedLocationOfInterest) {
     return selectedLocationOfInterest
         .map(
             locationOfInterest ->
-                locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(locationOfInterest.getId()))
+                locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(
+                    locationOfInterest.getId()))
         .orElse(Flowable.just(ImmutableList.of()));
   }
 
@@ -142,8 +157,8 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
   }
 
   /**
-   * Returns a LiveData that immediately emits the selected LOI (or empty) on if none selected
-   * to each new observer.
+   * Returns a LiveData that immediately emits the selected LOI (or empty) on if none selected to
+   * each new observer.
    */
   public LiveData<Optional<LocationOfInterest>> getSelectedLocationOfInterestOnceAndStream() {
     return LiveDataReactiveStreams.fromPublisher(selectedLocationOfInterest);

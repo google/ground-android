@@ -42,7 +42,7 @@ class FieldConverter {
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
     field.setId(id);
-    // Default index to -1 to degrade gracefully on older dev db instances and projects.
+    // Default index to -1 to degrade gracefully on older dev db instances and surveys.
     field.setIndex(Objects.requireNonNullElse(em.getIndex(), -1));
     field.setLabel(getLocalizedMessage(em.getLabel()));
     return Optional.of(field.build());

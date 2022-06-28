@@ -25,9 +25,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
-import com.google.android.gnd.model.locationofinterest.PointOfInterest;
-import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
+import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -39,87 +39,84 @@ import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
-public class LocationOfInterestHelperTest extends BaseHiltTest {
+public class FeatureHelperTest extends BaseHiltTest {
 
-  @Inject
-  LocationOfInterestHelper locationOfInterestHelper;
+  @Inject FeatureHelper featureHelper;
 
   @Test
   public void testGetCreatedBy() {
-    PointOfInterest feature =
+    PointFeature feature =
         POINT_FEATURE.toBuilder()
             .setCreated(AuditInfo.now(USER.toBuilder().setDisplayName("Test User").build()))
             .build();
 
-    assertThat(locationOfInterestHelper.getCreatedBy(Optional.of(feature))).isEqualTo("Added by Test User");
+    assertThat(featureHelper.getCreatedBy(Optional.of(feature))).isEqualTo("Added by Test User");
   }
 
   @Test
   public void testGetCreatedBy_whenFeatureIsEmpty() {
-    assertThat(locationOfInterestHelper.getCreatedBy(Optional.empty())).isEqualTo("");
+    assertThat(featureHelper.getCreatedBy(Optional.empty())).isEqualTo("");
   }
 
   @Test
   public void testGetLabel_whenFeatureIsEmpty() {
-    assertThat(locationOfInterestHelper.getLabel(Optional.empty())).isEqualTo("");
+    assertThat(featureHelper.getLabel(Optional.empty())).isEqualTo("");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPoint() {
-    PointOfInterest feature = POINT_FEATURE.toBuilder().setCaption("").build();
-    assertThat(locationOfInterestHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
+    PointFeature feature = POINT_FEATURE.toBuilder().setCaption("").build();
+    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPolygon() {
-    PolygonOfInterest feature = POLYGON_FEATURE.toBuilder().setCaption("").build();
-    assertThat(locationOfInterestHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
+    PolygonFeature feature = POLYGON_FEATURE.toBuilder().setCaption("").build();
+    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsGeoJson() throws JSONException {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
-    GeoJsonLocationOfInterest feature =
+    GeoJsonFeature feature =
         GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
-    assertThat(locationOfInterestHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon foo id");
+    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon foo id");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
-    PointOfInterest feature = POINT_FEATURE.toBuilder().setCaption("point caption").build();
-    assertThat(locationOfInterestHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
+    PointFeature feature = POINT_FEATURE.toBuilder().setCaption("point caption").build();
+    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
-    PolygonOfInterest feature = POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
-    assertThat(locationOfInterestHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
+    PolygonFeature feature = POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
+    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsGeoJson() throws JSONException {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "foo caption");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
-    GeoJsonLocationOfInterest feature =
+    GeoJsonFeature feature =
         GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
-    assertThat(locationOfInterestHelper.getLabel(Optional.of(feature))).isEqualTo("foo caption");
+    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("foo caption");
   }
 
   @Test
   public void testGetSubtitle() {
-    PointOfInterest feature =
-        POINT_FEATURE.toBuilder()
-            .setJob(JOB.toBuilder().setName("some layer").build())
-            .build();
+    PointFeature feature =
+        POINT_FEATURE.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
 
-    assertThat(locationOfInterestHelper.getSubtitle(Optional.of(feature))).isEqualTo("Layer: some layer");
+    assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
   }
 
   @Test
   public void testGetSubtitle_whenFeatureIsEmpty() {
-    assertThat(locationOfInterestHelper.getSubtitle(Optional.empty())).isEqualTo("");
+    assertThat(featureHelper.getSubtitle(Optional.empty())).isEqualTo("");
   }
 }

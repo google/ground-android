@@ -80,10 +80,10 @@ class MainViewModel @Inject constructor(
     }
 
     /**
-     * Keeps local LOIs in sync with remote when a project is active, does nothing when no project
+     * Keeps local locations o interest in sync with remote when a survey is active, does nothing when no survey
      * is active. The stream never completes; syncing stops when subscriptions are disposed of.
      *
-     * @param survey the currently active project.
+     * @param survey the currently active survey.
      */
     private fun syncLocationsOfInterest(survey: Optional<Survey>): @Cold(terminates = false) Completable {
         return survey.map { locationOfInterestRepository.syncLocationsOfInterest(it) }

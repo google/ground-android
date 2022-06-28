@@ -33,19 +33,18 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Single;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: Rename to ObservationsCollectionReference once database is migrated.
-public class ObservationsCollectionReference extends FluentCollectionReference {
+public class SubmissionCollectionReference extends FluentCollectionReference {
 
-  ObservationsCollectionReference(CollectionReference ref) {
+  SubmissionCollectionReference(CollectionReference ref) {
     super(ref);
   }
 
-  public ObservationDocumentReference observation(String id) {
-    return new ObservationDocumentReference(reference().document(id));
+  public SubmissionDocumentReference submission(String id) {
+    return new SubmissionDocumentReference(reference().document(id));
   }
 
   @Cold
-  public Single<ImmutableList<ValueOrError<Submission>>> observationsByFeatureId(
+  public Single<ImmutableList<ValueOrError<Submission>>> submissionsByLocationOfInterestId(
       LocationOfInterest locationOfInterest) {
     return RxFirestore.getCollection(byFeatureId(locationOfInterest.getId()))
         .map(querySnapshot -> convert(querySnapshot, locationOfInterest))
@@ -56,12 +55,15 @@ public class ObservationsCollectionReference extends FluentCollectionReference {
   private ImmutableList<ValueOrError<Submission>> convert(
       QuerySnapshot querySnapshot, LocationOfInterest locationOfInterest) {
     return stream(querySnapshot.getDocuments())
-        .map(doc -> ValueOrError.create(() -> ObservationConverter.toSubmission(locationOfInterest, doc)))
+        .map(
+            doc ->
+                ValueOrError.create(
+                    () -> SubmissionConverter.toSubmission(locationOfInterest, doc)))
         .collect(toImmutableList());
   }
 
   private Query byFeatureId(String featureId) {
     return reference()
-        .whereEqualTo(FieldPath.of(ObservationMutationConverter.FEATURE_ID), featureId);
+        .whereEqualTo(FieldPath.of(SubmissionMutationConverter.FEATURE_ID), featureId);
   }
 }

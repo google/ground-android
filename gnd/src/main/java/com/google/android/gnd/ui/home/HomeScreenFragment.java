@@ -393,6 +393,12 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
+  private void showDataCollection() {
+    navigator.navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment()
+    );
+  }
+
   private void showOfflineAreas() {
     viewModel.showOfflineAreas();
   }
@@ -524,6 +530,8 @@ public class HomeScreenFragment extends AbstractFragment
       surveySelectorViewModel.activateOfflineSurvey(selectedSurvey.getId());
     } else if (item.getItemId() == R.id.nav_join_survey) {
       showSurveySelector();
+    } else if (item.getItemId() == R.id.tmp_collect_data) {
+      showDataCollection();
     } else if (item.getItemId() == R.id.sync_status) {
       viewModel.showSyncStatus();
     } else if (item.getItemId() == R.id.nav_offline_areas) {

@@ -18,10 +18,10 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
-import static com.google.android.gnd.model.TestModelBuilders.newForm;
 import static com.google.android.gnd.model.TestModelBuilders.newJob;
 import static com.google.android.gnd.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
+import static com.google.android.gnd.model.TestModelBuilders.newTask;
 import static com.google.android.gnd.model.TestModelBuilders.newUser;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -58,7 +58,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class SubmissionConverterTest {
 
   @Mock
-  private DocumentSnapshot observationDocumentSnapshot;
+  private DocumentSnapshot submissionDocumentSnapshot;
 
   private Task task;
   private Job job;
@@ -91,11 +91,13 @@ public class SubmissionConverterTest {
           new Timestamp(new Date(200)),
           new Timestamp(new Date(201)));
 
+  private static final String SUBMISSION_ID = "submission123";
+
   @Test
   public void testToSubmission() {
     setUpTestSurvey(
-        "layer001",
-        "form001",
+        "job001",
+        "task001",
         newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
         newField()
             .setId("field2")
@@ -106,13 +108,13 @@ public class SubmissionConverterTest {
         newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
         newField().setId("field4").setType(Field.Type.PHOTO).build());
     setUpTestFeature("feature001");
-    mockObservationDocumentSnapshot(
-        "observation123",
-        new ObservationDocument(
+    mockSubmissionDocumentSnapshot(
+        SUBMISSION_ID,
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -131,7 +133,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
-                .setId("observation123")
+                .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
@@ -154,15 +156,15 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_mismatchedFeatureId() {
     setUpTestSurvey(
-        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
-    mockObservationDocumentSnapshot(
-        "observation123",
-        new ObservationDocument(
+    mockSubmissionDocumentSnapshot(
+        SUBMISSION_ID,
+        new SubmissionDocument(
             /* featureId */
             "feature999",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -176,15 +178,15 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_nullResponses() {
     setUpTestSurvey(
-        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
-    mockObservationDocumentSnapshot(
-        "observation123",
-        new ObservationDocument(
+    mockSubmissionDocumentSnapshot(
+        SUBMISSION_ID,
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -195,7 +197,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
-                .setId("observation123")
+                .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
@@ -207,15 +209,15 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyTextResponse() {
     setUpTestSurvey(
-        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
-    mockObservationDocumentSnapshot(
-        "observation123",
-        new ObservationDocument(
+    mockSubmissionDocumentSnapshot(
+        SUBMISSION_ID,
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -226,7 +228,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
-                .setId("observation123")
+                .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
@@ -238,17 +240,17 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyMultipleChoiceResponse() {
     setUpTestSurvey(
-        "layer001",
-        "form001",
+        "job001",
+        "task001",
         newField().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
     setUpTestFeature("feature001");
-    mockObservationDocumentSnapshot(
-        "observation123",
-        new ObservationDocument(
+    mockSubmissionDocumentSnapshot(
+        SUBMISSION_ID,
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -259,7 +261,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
-                .setId("observation123")
+                .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
@@ -268,31 +270,31 @@ public class SubmissionConverterTest {
                 .build());
   }
 
-  private void setUpTestSurvey(String layerId, String taskId, Field... fields) {
+  private void setUpTestSurvey(String jobId, String taskId, Field... fields) {
     task =
-        newForm()
+        newTask()
             .setId(taskId)
             .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
             .build();
-    job = newJob().setId(layerId).setTask(task).build();
+    job = newJob().setId(jobId).setTask(task).build();
     survey = newSurvey().putJob(job).build();
   }
 
   @Test
   public void testToSubmission_unknownFieldType() {
     setUpTestSurvey(
-        "layer001",
-        "form001",
+        "job001",
+        "task001",
         newField().setId("field1").setType(Field.Type.UNKNOWN).build(),
         newField().setId("field2").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
-    mockObservationDocumentSnapshot(
-        "observation123",
-        new ObservationDocument(
+    mockSubmissionDocumentSnapshot(
+        SUBMISSION_ID,
+        new SubmissionDocument(
             /* featureId */
             "feature001",
             /* taskId */
-            "form001",
+            "task001",
             /* created */
             AUDIT_INFO_1_NESTED_OBJECT,
             /* lastModified */
@@ -303,7 +305,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             Submission.newBuilder()
-                .setId("observation123")
+                .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
@@ -324,12 +326,12 @@ public class SubmissionConverterTest {
   /**
    * Mock submission document snapshot to return the specified id and object representation.
    */
-  private void mockObservationDocumentSnapshot(String id, ObservationDocument doc) {
-    when(observationDocumentSnapshot.getId()).thenReturn(id);
-    when(observationDocumentSnapshot.toObject(ObservationDocument.class)).thenReturn(doc);
+  private void mockSubmissionDocumentSnapshot(String id, SubmissionDocument doc) {
+    when(submissionDocumentSnapshot.getId()).thenReturn(id);
+    when(submissionDocumentSnapshot.toObject(SubmissionDocument.class)).thenReturn(doc);
   }
 
   private Submission toSubmission() {
-    return ObservationConverter.toSubmission(locationOfInterest, observationDocumentSnapshot);
+    return SubmissionConverter.toSubmission(locationOfInterest, submissionDocumentSnapshot);
   }
 }
