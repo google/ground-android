@@ -21,9 +21,9 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
-/** LocationOfInterest entity stored in Firestore. */
+/** Loi entity stored in Firestore. */
 @IgnoreExtraProperties
-class LocationOfInterestDocument {
+class LoiDocument {
   @Nullable private String jobId;
   @Nullable private String customId;
   @Nullable private String caption;
@@ -35,10 +35,10 @@ class LocationOfInterestDocument {
   @Nullable private AuditInfoNestedObject lastModified;
 
   @SuppressWarnings("unused")
-  public LocationOfInterestDocument() {}
+  public LoiDocument() {}
 
   @SuppressWarnings("unused")
-  LocationOfInterestDocument(
+  LoiDocument(
       @Nullable String jobId,
       @Nullable String customId,
       @Nullable String caption,

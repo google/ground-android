@@ -53,7 +53,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LocationOfInterestConverterTest {
+public class LoiConverterTest {
 
   @Mock
   private DocumentSnapshot featureDocumentSnapshot;
@@ -118,7 +118,7 @@ public class LocationOfInterestConverterTest {
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature123",
-        new LocationOfInterestDocument(
+        new LoiDocument(
             /* jobId */
             "job001",
             /* customId */
@@ -157,7 +157,7 @@ public class LocationOfInterestConverterTest {
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
-        new LocationOfInterestDocument(
+        new LoiDocument(
             /* jobId */
             "job001",
             /* customId */
@@ -196,7 +196,7 @@ public class LocationOfInterestConverterTest {
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
-        new LocationOfInterestDocument(
+        new LoiDocument(
             /* jobId */
             "job001",
             /* customId */
@@ -231,23 +231,21 @@ public class LocationOfInterestConverterTest {
 
   private void setUpTestGeometry() {
     geometry = new HashMap<>();
-    geometry.put(LocationOfInterestConverter.GEOMETRY_COORDINATES, newGeoPointPolygonVertices());
-    geometry.put(
-        LocationOfInterestConverter.GEOMETRY_TYPE, LocationOfInterestConverter.POLYGON_TYPE);
+    geometry.put(LoiConverter.GEOMETRY_COORDINATES, newGeoPointPolygonVertices());
+    geometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
 
     noVerticesGeometry = new HashMap<>();
-    noVerticesGeometry.put(LocationOfInterestConverter.GEOMETRY_COORDINATES, null);
-    noVerticesGeometry.put(
-        LocationOfInterestConverter.GEOMETRY_TYPE, LocationOfInterestConverter.POLYGON_TYPE);
+    noVerticesGeometry.put(LoiConverter.GEOMETRY_COORDINATES, null);
+    noVerticesGeometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */
-  private void mockFeatureDocumentSnapshot(String id, LocationOfInterestDocument doc) {
+  private void mockFeatureDocumentSnapshot(String id, LoiDocument doc) {
     when(featureDocumentSnapshot.getId()).thenReturn(id);
-    when(featureDocumentSnapshot.toObject(LocationOfInterestDocument.class)).thenReturn(doc);
+    when(featureDocumentSnapshot.toObject(LoiDocument.class)).thenReturn(doc);
   }
 
   private Feature toFeature() {
-    return LocationOfInterestConverter.toLocationOfInterest(survey, featureDocumentSnapshot);
+    return LoiConverter.toLoi(survey, featureDocumentSnapshot);
   }
 }

@@ -31,7 +31,7 @@ import java.util.Map;
 import timber.log.Timber;
 
 /** Converts between Firestore maps used to merge updates and {@link FeatureMutation} instances. */
-class LocationOfInterestMutationConverter {
+class LoiMutationConverter {
 
   /**
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
@@ -39,27 +39,24 @@ class LocationOfInterestMutationConverter {
    */
   static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(LocationOfInterestConverter.JOB_ID, mutation.getJobId());
+    map.put(LoiConverter.JOB_ID, mutation.getJobId());
     mutation
         .getLocation()
-        .map(LocationOfInterestMutationConverter::toGeoPoint)
-        .ifPresent(point -> map.put(LocationOfInterestConverter.LOCATION, point));
+        .map(LoiMutationConverter::toGeoPoint)
+        .ifPresent(point -> map.put(LoiConverter.LOCATION, point));
     Map<String, Object> geometry = new HashMap<>();
-    geometry.put(
-        LocationOfInterestConverter.GEOMETRY_COORDINATES,
-        toGeoPointList(mutation.getPolygonVertices()));
-    geometry.put(
-        LocationOfInterestConverter.GEOMETRY_TYPE, LocationOfInterestConverter.POLYGON_TYPE);
-    map.put(LocationOfInterestConverter.GEOMETRY, geometry);
+    geometry.put(LoiConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getPolygonVertices()));
+    geometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
+    map.put(LoiConverter.GEOMETRY, geometry);
 
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
-        map.put(LocationOfInterestConverter.CREATED, auditInfo);
-        map.put(LocationOfInterestConverter.LAST_MODIFIED, auditInfo);
+        map.put(LoiConverter.CREATED, auditInfo);
+        map.put(LoiConverter.LAST_MODIFIED, auditInfo);
         break;
       case UPDATE:
-        map.put(LocationOfInterestConverter.LAST_MODIFIED, auditInfo);
+        map.put(LoiConverter.LAST_MODIFIED, auditInfo);
         break;
       case DELETE:
       case UNKNOWN:
@@ -77,8 +74,6 @@ class LocationOfInterestMutationConverter {
   }
 
   private static List<GeoPoint> toGeoPointList(ImmutableList<Point> point) {
-    return stream(point)
-        .map(LocationOfInterestMutationConverter::toGeoPoint)
-        .collect(toImmutableList());
+    return stream(point).map(LoiMutationConverter::toGeoPoint).collect(toImmutableList());
   }
 }

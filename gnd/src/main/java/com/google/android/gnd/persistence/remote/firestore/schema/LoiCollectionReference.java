@@ -26,28 +26,24 @@ import com.google.firebase.firestore.QuerySnapshot;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 
-public class LocationOfInterestCollectionReference extends FluentCollectionReference {
-  LocationOfInterestCollectionReference(CollectionReference ref) {
+public class LoiCollectionReference extends FluentCollectionReference {
+  LoiCollectionReference(CollectionReference ref) {
     super(ref);
   }
 
   private static Iterable<RemoteDataEvent<Feature>> toRemoteDataEvents(
       Survey survey, QuerySnapshot snapshot) {
-    return QuerySnapshotConverter.toEvents(
-        snapshot, doc -> LocationOfInterestConverter.toLocationOfInterest(survey, doc));
+    return QuerySnapshotConverter.toEvents(snapshot, doc -> LoiConverter.toLoi(survey, doc));
   }
 
-  /**
-   * Retrieves all locationOfInterests in the survey, then streams changes to the remote db
-   * incrementally.
-   */
+  /** Retrieves all lois in the survey, then streams changes to the remote db incrementally. */
   @Cold(terminates = false)
   public Flowable<RemoteDataEvent<Feature>> loadOnceAndStreamChanges(Survey survey) {
     return RxFirestore.observeQueryRef(reference())
         .flatMapIterable(snapshot -> toRemoteDataEvents(survey, snapshot));
   }
 
-  public LocationOfInterestDocumentReference locationOfInterest(String id) {
-    return new LocationOfInterestDocumentReference(reference().document(id));
+  public LoiDocumentReference loi(String id) {
+    return new LoiDocumentReference(reference().document(id));
   }
 }

@@ -24,7 +24,7 @@ import com.google.firebase.firestore.GeoPoint
 import timber.log.Timber
 
 /** Converts between Firestore documents and [Feature] instances.  */
-object LocationOfInterestConverter {
+object LoiConverter {
     const val JOB_ID = "jobId"
     const val LOCATION = "location"
     const val CREATED = "created"
@@ -36,14 +36,12 @@ object LocationOfInterestConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toLocationOfInterest(survey: Survey, doc: DocumentSnapshot): Feature<*> {
-        val loiDoc = DataStoreException.checkNotNull(
-            doc.toObject(LocationOfInterestDocument::class.java),
-            "locationOfInterest data"
-        )
+    fun toLoi(survey: Survey, doc: DocumentSnapshot): Feature<*> {
+        val loiDoc =
+            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi data")
 
         if (loiDoc.geometry != null && hasNonEmptyVertices(loiDoc)) {
-            return toLocationOfInterestFromGeometry(survey, doc, loiDoc)
+            return toLoiFromGeometry(survey, doc, loiDoc)
         }
 
         loiDoc.geoJson?.let {
@@ -58,11 +56,11 @@ object LocationOfInterestConverter {
             return builder.build()
         }
 
-        throw DataStoreException("No geometry in remote locationOfInterest ${doc.id}")
+        throw DataStoreException("No geometry in remote loi ${doc.id}")
     }
 
-    private fun hasNonEmptyVertices(locationOfInterestDocument: LocationOfInterestDocument): Boolean {
-        val geometry = locationOfInterestDocument.geometry
+    private fun hasNonEmptyVertices(loiDocument: LoiDocument): Boolean {
+        val geometry = loiDocument.geometry
 
         if (geometry == null
             || geometry[GEOMETRY_COORDINATES] == null
@@ -75,24 +73,26 @@ object LocationOfInterestConverter {
         return coordinates?.isNotEmpty() ?: false
     }
 
-    private fun toLocationOfInterestFromGeometry(
-        survey: Survey, doc: DocumentSnapshot, loiDoc: LocationOfInterestDocument
+    private fun toLoiFromGeometry(
+        survey: Survey,
+        doc: DocumentSnapshot,
+        loiDoc: LoiDocument
     ): PolygonFeature {
         val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in locationOfInterest ${doc.id}: $type")
+            throw DataStoreException("Unknown geometry type in loi ${doc.id}: $type")
         }
 
         val coordinates = geometry[GEOMETRY_COORDINATES]
         if (coordinates !is List<*>) {
-            throw DataStoreException("Invalid coordinates in locationOfInterest ${doc.id}: $coordinates")
+            throw DataStoreException("Invalid coordinates in loi ${doc.id}: $coordinates")
         }
 
         val vertices = ImmutableList.builder<Point>()
         for (point in coordinates) {
             if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in locationOfInterest ${doc.id}")
+                Timber.d("Ignoring illegal point type in loi ${doc.id}")
                 break
             }
             vertices.add(
@@ -111,7 +111,7 @@ object LocationOfInterestConverter {
         builder: Feature.Builder<*>,
         survey: Survey,
         id: String,
-        loiDoc: LocationOfInterestDocument
+        loiDoc: LoiDocument
     ) {
         val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
         val job =

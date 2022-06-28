@@ -22,8 +22,8 @@ import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentRe
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
 
-public class LocationOfInterestDocumentReference extends FluentDocumentReference {
-  LocationOfInterestDocumentReference(DocumentReference ref) {
+public class LoiDocumentReference extends FluentDocumentReference {
+  LoiDocumentReference(DocumentReference ref) {
     super(ref);
   }
 
@@ -32,11 +32,10 @@ public class LocationOfInterestDocumentReference extends FluentDocumentReference
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        merge(LocationOfInterestMutationConverter.toMap(mutation, user), batch);
+        merge(LoiMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
-        // The server is expected to do a cascading delete of all submissions for the deleted
-        // locationOfInterest.
+        // The server is expected to do a cascading delete of all submissions for the deleted loi.
         delete(batch);
         break;
       default:
