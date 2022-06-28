@@ -12,7 +12,7 @@ Example:
 - [x] Sort results when returned from SubmissionRepository.
 -->
 
-<!-- Add steps to verify bug/locationOfInterest. -->
+<!-- Add steps to verify bug/feature. -->
 
 <!-- Attach or paste in a screenshot or GIF (optional) to illustrate the proposed change. -->
 

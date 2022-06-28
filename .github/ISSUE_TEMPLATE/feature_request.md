@@ -1,8 +1,8 @@
 ---
 name: Feature request
-about: Request a new locationOfInterest
+about: Request a new feature
 title: "[AppFeatureNameHere] Description"
-labels: 'priority: p2, type: locationOfInterest request'
+labels: 'priority: p2, type: feature request'
 assignees: ''
 
 ---
