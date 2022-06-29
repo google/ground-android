@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import androidx.core.widget.ImageViewCompat;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.PolygonDrawingControlsBinding;
 import com.google.android.gnd.ui.common.AbstractView;
@@ -30,13 +32,37 @@ import dagger.hilt.android.WithFragmentBindings;
 @WithFragmentBindings
 @AndroidEntryPoint
 public class PolygonDrawingView extends AbstractView {
+  private PolygonDrawingControlsBinding binding;
+  private PolygonDrawingViewModel viewModel;
+  private MapFragment mapFragment;
 
   public PolygonDrawingView(Context context, MapFragment mapFragment) {
     super(context);
-    PolygonDrawingViewModel viewModel = getViewModel(PolygonDrawingViewModel.class);
-    PolygonDrawingControlsBinding binding =
+    viewModel = getViewModel(PolygonDrawingViewModel.class);
+    binding =
         (PolygonDrawingControlsBinding) inflate(R.layout.polygon_drawing_controls);
     binding.setViewModel(viewModel);
+    this.mapFragment = mapFragment;
+  }
+
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+
+    viewModel
+        .getLocationLockEnabled()
+        .observe(getActivity(), isLocked -> {
+          binding.currentLocationButton.setEnabled(isLocked ? true : false);
+        });
+
+    viewModel
+        .getIconTint()
+        .observe(getActivity(), tint -> {
+          ImageViewCompat.setImageTintList(
+              binding.currentLocationButton,
+              ColorStateList.valueOf(getResources().getColor(tint))
+          );
+        });
 
     mapFragment
         .getCameraMovedEvents()

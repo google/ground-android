@@ -159,12 +159,20 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addLocalTileOverlays);
-
     // TODO: Do this the RxJava way
     CameraPosition cameraPosition = mapContainerViewModel.getCameraPosition().getValue();
     if (cameraPosition != null) {
       map.moveCamera(cameraPosition.getTarget(), cameraPosition.getZoomLevel());
     }
+
+    polygonDrawingViewModel.getLocationLockState().observe(this, state -> onLocationLockStateChange(state, map));
+    polygonDrawingViewModel
+        .getCameraUpdateRequests()
+        .observe(getActivity(), update -> update.ifUnhandled(data -> {
+          onCameraUpdate(data, map);
+          polygonDrawingViewModel.onCameraUpdate(data.getCenter(), map);
+        }));
+
     map.setMapType(mapsRepository.getSavedMapType());
   }
 
@@ -295,11 +303,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     Toast.makeText(getContext(), resId, Toast.LENGTH_LONG).show();
   }
 
-  private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapFragment map) {
+  private void onCameraUpdate(CameraUpdate update, MapFragment map) {
     Timber.v("Update camera: %s", update);
     if (update.getZoomLevel().isPresent()) {
       float zoomLevel = update.getZoomLevel().get();
-      if (!update.isAllowZoomOut()) {
+      if (!update.allowZoomOut()) {
         zoomLevel = Math.max(zoomLevel, map.getCurrentZoomLevel());
       }
       map.moveCamera(update.getCenter(), zoomLevel);
