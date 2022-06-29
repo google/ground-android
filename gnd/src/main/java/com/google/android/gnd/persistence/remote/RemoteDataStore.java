@@ -57,14 +57,14 @@ public interface RemoteDataStore {
   Maybe<TermsOfService> loadTermsOfService();
 
   /**
-   * Returns all lois in the specified survey, then continues to emit any remote updates to the set
-   * of lois in the survey until all subscribers have been disposed.
+   * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set
+   * of LOIs in the survey until all subscribers have been disposed.
    */
   @Cold(stateful = true, terminates = false)
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey);
 
   /**
-   * Returns a list of all submissions associated with the specified loi, or an empty list if none
+   * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.
    */
   @Cold

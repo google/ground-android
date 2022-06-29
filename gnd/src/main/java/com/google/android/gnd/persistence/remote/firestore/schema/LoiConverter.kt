@@ -38,7 +38,7 @@ object LoiConverter {
     @Throws(DataStoreException::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): Feature<*> {
         val loiDoc =
-            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi data")
+            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
         if (loiDoc.geometry != null && hasNonEmptyVertices(loiDoc)) {
             return toLoiFromGeometry(survey, doc, loiDoc)
@@ -56,7 +56,7 @@ object LoiConverter {
             return builder.build()
         }
 
-        throw DataStoreException("No geometry in remote loi ${doc.id}")
+        throw DataStoreException("No geometry in remote LOI ${doc.id}")
     }
 
     private fun hasNonEmptyVertices(loiDocument: LoiDocument): Boolean {
@@ -81,18 +81,18 @@ object LoiConverter {
         val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in loi ${doc.id}: $type")
+            throw DataStoreException("Unknown geometry type in LOI ${doc.id}: $type")
         }
 
         val coordinates = geometry[GEOMETRY_COORDINATES]
         if (coordinates !is List<*>) {
-            throw DataStoreException("Invalid coordinates in loi ${doc.id}: $coordinates")
+            throw DataStoreException("Invalid coordinates in LOI ${doc.id}: $coordinates")
         }
 
         val vertices = ImmutableList.builder<Point>()
         for (point in coordinates) {
             if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in loi ${doc.id}")
+                Timber.d("Ignoring illegal point type in LOI ${doc.id}")
                 break
             }
             vertices.add(

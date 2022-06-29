@@ -21,7 +21,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
-/** Loi entity stored in Firestore. */
+/** LOI entity stored in Firestore. */
 @IgnoreExtraProperties
 class LoiDocument {
   @Nullable private String jobId;

@@ -35,7 +35,7 @@ public class LoiDocumentReference extends FluentDocumentReference {
         merge(LoiMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
-        // The server is expected to do a cascading delete of all submissions for the deleted loi.
+        // The server is expected to do a cascading delete of all submissions for the deleted LOI.
         delete(batch);
         break;
       default:
