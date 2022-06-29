@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-/** Firestore representation of map feature styles. */
+/** Firestore representation of map LOI styles. */
 class StyleNestedObject {
   private String color;
 

@@ -26,25 +26,24 @@ import com.google.firebase.firestore.QuerySnapshot;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 
-public class FeaturesCollectionReference extends FluentCollectionReference {
-  FeaturesCollectionReference(CollectionReference ref) {
+public class LoiCollectionReference extends FluentCollectionReference {
+  LoiCollectionReference(CollectionReference ref) {
     super(ref);
   }
 
-  public FeatureDocumentReference feature(String id) {
-    return new FeatureDocumentReference(reference().document(id));
+  private static Iterable<RemoteDataEvent<Feature>> toRemoteDataEvents(
+      Survey survey, QuerySnapshot snapshot) {
+    return QuerySnapshotConverter.toEvents(snapshot, doc -> LoiConverter.toLoi(survey, doc));
   }
 
-  /** Retrieves all features in the survey, then streams changes to the remote db incrementally. */
+  /** Retrieves all lois in the survey, then streams changes to the remote db incrementally. */
   @Cold(terminates = false)
   public Flowable<RemoteDataEvent<Feature>> loadOnceAndStreamChanges(Survey survey) {
     return RxFirestore.observeQueryRef(reference())
         .flatMapIterable(snapshot -> toRemoteDataEvents(survey, snapshot));
   }
 
-  private static Iterable<RemoteDataEvent<Feature>> toRemoteDataEvents(
-      Survey survey, QuerySnapshot snapshot) {
-    return QuerySnapshotConverter.toEvents(
-        snapshot, doc -> FeatureConverter.toFeature(survey, doc));
+  public LoiDocumentReference loi(String id) {
+    return new LoiDocumentReference(reference().document(id));
   }
 }

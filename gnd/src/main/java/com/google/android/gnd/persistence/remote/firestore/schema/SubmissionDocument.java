@@ -26,16 +26,11 @@ import java.util.Map;
 @IgnoreExtraProperties
 class SubmissionDocument {
 
-  @Nullable
-  private String featureId;
-  @Nullable
-  private String taskId;
-  @Nullable
-  private AuditInfoNestedObject created;
-  @Nullable
-  private AuditInfoNestedObject lastModified;
-  @Nullable
-  private Map<String, Object> responses;
+  @Nullable private String loiId;
+  @Nullable private String taskId;
+  @Nullable private AuditInfoNestedObject created;
+  @Nullable private AuditInfoNestedObject lastModified;
+  @Nullable private Map<String, Object> responses;
 
   @SuppressWarnings("unused")
   public SubmissionDocument() {
@@ -43,12 +38,12 @@ class SubmissionDocument {
 
   @SuppressWarnings("unused")
   SubmissionDocument(
-      @Nullable String featureId,
+      @Nullable String loiId,
       @Nullable String taskId,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject lastModified,
       @Nullable Map<String, Object> responses) {
-    this.featureId = featureId;
+    this.loiId = loiId;
     this.taskId = taskId;
     this.created = created;
     this.lastModified = lastModified;
@@ -56,8 +51,8 @@ class SubmissionDocument {
   }
 
   @Nullable
-  public String getFeatureId() {
-    return featureId;
+  public String getLoiId() {
+    return loiId;
   }
 
   @Nullable
