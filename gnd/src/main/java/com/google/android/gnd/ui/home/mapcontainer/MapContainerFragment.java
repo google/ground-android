@@ -53,11 +53,14 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-/** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
+/**
+ * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
+ */
 @AndroidEntryPoint
 public class MapContainerFragment extends AbstractMapViewerFragment {
 
-  @Inject MapsRepository mapsRepository;
+  @Inject
+  MapsRepository mapsRepository;
   PolygonDrawingViewModel polygonDrawingViewModel;
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -165,7 +168,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
       map.moveCamera(cameraPosition.getTarget(), cameraPosition.getZoomLevel());
     }
 
-    polygonDrawingViewModel.getLocationLockState().observe(this, state -> onLocationLockStateChange(state, map));
+    polygonDrawingViewModel.getLocationLockState()
+        .observe(this, state -> onLocationLockStateChange(state, map));
     polygonDrawingViewModel
         .getCameraUpdateRequests()
         .observe(getActivity(), update -> update.ifUnhandled(data -> {
