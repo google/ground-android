@@ -53,11 +53,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LocationOfInterestConverterTest.java
-public class LocationOfInterestConverterTest {
-========
 public class LoiConverterTest {
->>>>>>>> 4b42d4533aa953c5e3059363c13ec54f4bdead90:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LoiConverterTest.java
 
   @Mock private DocumentSnapshot featureDocumentSnapshot;
 
@@ -139,7 +135,7 @@ public class LoiConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT));
 
-    assertThat(toFeature()).isEqualTo(locationOfInterest);
+    assertThat(toLocationOfInterest()).isEqualTo(locationOfInterest);
   }
 
   @Test
@@ -178,7 +174,7 @@ public class LoiConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT));
 
-    assertThrows(DataStoreException.class, () -> toFeature());
+    assertThrows(DataStoreException.class, () -> toLocationOfInterest());
   }
 
   @Test
@@ -217,7 +213,7 @@ public class LoiConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT));
 
-    assertThrows(DataStoreException.class, () -> toFeature());
+    assertThrows(DataStoreException.class, () -> toLocationOfInterest());
   }
 
   private void setUpTestFeature(String featureId) {
@@ -243,21 +239,12 @@ public class LoiConverterTest {
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LocationOfInterestConverterTest.java
-  private void mockFeatureDocumentSnapshot(String id, FeatureDocument doc) {
-========
   private void mockFeatureDocumentSnapshot(String id, LoiDocument doc) {
->>>>>>>> 4b42d4533aa953c5e3059363c13ec54f4bdead90:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LoiConverterTest.java
     when(featureDocumentSnapshot.getId()).thenReturn(id);
     when(featureDocumentSnapshot.toObject(LoiDocument.class)).thenReturn(doc);
   }
 
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LocationOfInterestConverterTest.java
-  private LocationOfInterest toFeature() {
-    return FeatureConverter.toFeature(survey, featureDocumentSnapshot);
-========
-  private Feature toFeature() {
+  private LocationOfInterest toLocationOfInterest() {
     return LoiConverter.toLoi(survey, featureDocumentSnapshot);
->>>>>>>> 4b42d4533aa953c5e3059363c13ec54f4bdead90:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LoiConverterTest.java
   }
 }
