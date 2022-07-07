@@ -38,6 +38,7 @@
       when list doesn't extend to bottom of screen.
     -->
     <FrameLayout
+      android:id="@+id/location_of_interest_scrim"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="top"
