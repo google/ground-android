@@ -33,12 +33,12 @@ import javax.inject.Inject;
 @SharedViewModel
 public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
 
-  private ImmutableList<LocationOfInterest> locationsOfInterest =
-      ImmutableList.<LocationOfInterest>builder().build();
   @Hot private final Subject<Integer> itemClicks = PublishSubject.create();
   @Hot private final Observable<LocationOfInterest> locationOfInterestClicks;
   private final LocationOfInterestHelper locationOfInterestHelper;
   private final Resources resources;
+  private ImmutableList<LocationOfInterest> locationsOfInterest =
+      ImmutableList.<LocationOfInterest>builder().build();
 
   @Inject
   LocationOfInterestSelectorViewModel(
@@ -49,16 +49,16 @@ public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
     this.resources = resources;
   }
 
-  public void setLocationsOfInterest(ImmutableList<LocationOfInterest> locationsOfInterest) {
-    this.locationsOfInterest = locationsOfInterest;
-  }
-
   public void onItemClick(int index) {
     itemClicks.onNext(index);
   }
 
   public ImmutableList<LocationOfInterest> getLocationsOfInterest() {
     return locationsOfInterest;
+  }
+
+  public void setLocationsOfInterest(ImmutableList<LocationOfInterest> locationsOfInterest) {
+    this.locationsOfInterest = locationsOfInterest;
   }
 
   public Observable<LocationOfInterest> getLocationOfInterestClicks() {

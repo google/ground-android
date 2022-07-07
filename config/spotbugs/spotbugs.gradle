@@ -26,7 +26,7 @@
  * For manual run,
  * $ ./gradlew spotbugs
  *
- * HTML report is stored under: gnd/build/reports/spotbugs/
+ * HTML report is stored under: ground/build/reports/spotbugs/
  */
 buildscript {
     repositories {
