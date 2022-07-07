@@ -20,8 +20,8 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.locationofinterest.Point;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
@@ -37,7 +37,7 @@ class LoiMutationConverter {
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
    * mutation.
    */
-  static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
+  static ImmutableMap<String, Object> toMap(LocationOfInterestMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     map.put(LoiConverter.JOB_ID, mutation.getJobId());
     mutation

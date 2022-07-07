@@ -15,17 +15,17 @@
  */
 package com.google.android.gnd.ui.datacollection
 
-import dagger.hilt.android.AndroidEntryPoint
-import com.google.android.gnd.ui.common.AbstractFragment
-import javax.inject.Inject
-import com.google.android.gnd.ui.common.FeatureHelper
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.gnd.MainActivity
 import com.google.android.gnd.databinding.DataCollectionFragBinding
+import com.google.android.gnd.ui.common.AbstractFragment
+import com.google.android.gnd.ui.common.LocationOfInterestHelper
 import com.google.android.gnd.ui.common.Navigator
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task.  */
 @AndroidEntryPoint
@@ -34,7 +34,7 @@ class DataCollectionFragment : AbstractFragment() {
     lateinit var navigator: Navigator
 
     @Inject
-    lateinit var featureHelper: FeatureHelper
+    lateinit var locationOfInterestHelper: LocationOfInterestHelper
 
     private lateinit var viewModel: DataCollectionViewModel
 

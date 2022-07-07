@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.rx.ValueOrError;
@@ -61,14 +61,16 @@ public interface RemoteDataStore {
    * of LOIs in the survey until all subscribers have been disposed.
    */
   @Cold(stateful = true, terminates = false)
-  Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey);
+  Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
+      Survey survey);
 
   /**
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.
    */
   @Cold
-  Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature);
+  Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
+      LocationOfInterest locationOfInterest);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

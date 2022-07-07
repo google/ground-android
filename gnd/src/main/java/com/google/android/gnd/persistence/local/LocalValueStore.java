@@ -20,7 +20,7 @@ import static java8.util.J8Arrays.stream;
 
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
-import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.locationofinterest.Point;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.settings.Keys;
 import java8.util.Optional;

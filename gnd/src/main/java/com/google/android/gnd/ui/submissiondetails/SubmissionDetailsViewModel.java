@@ -19,13 +19,13 @@ package com.google.android.gnd.ui.submissiondetails;
 import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.repository.SubmissionRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.FeatureHelper;
+import com.google.android.gnd.ui.common.LocationOfInterestHelper;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
@@ -55,7 +55,8 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
 
   @Inject
   SubmissionDetailsViewModel(
-      SubmissionRepository submissionRepository, FeatureHelper featureHelper) {
+      SubmissionRepository submissionRepository,
+      LocationOfInterestHelper locationOfInterestHelper) {
     this.submissionRepository = submissionRepository;
 
     Flowable<Loadable<Submission>> submissionStream =
@@ -63,7 +64,7 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
             args ->
                 submissionRepository
                     .getSubmission(
-                        args.getSurveyId(), args.getFeatureId(), args.getSubmissionId())
+                        args.getSurveyId(), args.getLocationOfInterestId(), args.getSubmissionId())
                     .map(Loadable::loaded)
                     .onErrorReturn(Loadable::error));
 
@@ -77,22 +78,23 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
     this.title =
         LiveDataReactiveStreams.fromPublisher(
             submissionStream
-                .map(SubmissionDetailsViewModel::getFeature)
-                .map(featureHelper::getLabel));
+                .map(SubmissionDetailsViewModel::getLocationOfInterest)
+                .map(locationOfInterestHelper::getLabel));
 
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(
             submissionStream
-                .map(SubmissionDetailsViewModel::getFeature)
-                .map(featureHelper::getCreatedBy));
+                .map(SubmissionDetailsViewModel::getLocationOfInterest)
+                .map(locationOfInterestHelper::getCreatedBy));
   }
 
   private static Integer getProgressBarVisibility(Loadable<Submission> submission) {
     return submission.isLoaded() ? View.GONE : View.VISIBLE;
   }
 
-  private static Optional<Feature> getFeature(Loadable<Submission> submission) {
-    return submission.value().map(Submission::getFeature);
+  private static Optional<LocationOfInterest> getLocationOfInterest(
+      Loadable<Submission> submission) {
+    return submission.value().map(Submission::getLocationOfInterest);
   }
 
   public void loadSubmissionDetails(SubmissionDetailsFragmentArgs args) {
@@ -106,9 +108,9 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
    */
   @Hot
   public Completable deleteCurrentSubmission(
-      String surveyId, String featureId, String submissionId) {
+      String surveyId, String locationOfInterestId, String submissionId) {
     return submissionRepository
-        .getSubmission(surveyId, featureId, submissionId)
+        .getSubmission(surveyId, locationOfInterestId, submissionId)
         .flatMapCompletable(submissionRepository::deleteSubmission);
   }
 }

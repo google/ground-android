@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.model.job;
 
-import com.google.android.gnd.model.feature.FeatureType;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterestType;
 import com.google.android.gnd.model.task.Task;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -34,15 +34,13 @@ public abstract class Job {
     return getTask().filter(task -> task.getId().equals(taskId));
   }
 
-  /** Returns the list of feature types the current user may add to this job. */
-  public abstract ImmutableList<FeatureType> getUserCanAdd();
+  /** Returns the list of location of interest types the current user may add to this job. */
+  public abstract ImmutableList<LocationOfInterestType> getUserCanAdd();
 
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Job.Builder()
-        .setTask(Optional.empty())
-        .setUserCanAdd(ImmutableList.of());
+    return new AutoValue_Job.Builder().setTask(Optional.empty()).setUserCanAdd(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -54,7 +52,7 @@ public abstract class Job {
 
     public abstract Builder setTask(Optional<Task> task);
 
-    public abstract Builder setUserCanAdd(ImmutableList<FeatureType> userCanAdd);
+    public abstract Builder setUserCanAdd(ImmutableList<LocationOfInterestType> userCanAdd);
 
     public Builder setTask(Task task) {
       return setTask(Optional.of(task));

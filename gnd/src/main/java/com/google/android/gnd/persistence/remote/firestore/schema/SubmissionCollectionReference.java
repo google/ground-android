@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.submission.Submission;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.rx.ValueOrError;
@@ -44,17 +44,21 @@ public class SubmissionCollectionReference extends FluentCollectionReference {
   }
 
   @Cold
-  public Single<ImmutableList<ValueOrError<Submission>>> submissionsByLoiId(Feature feature) {
-    return RxFirestore.getCollection(byLoiId(feature.getId()))
-        .map(querySnapshot -> convert(querySnapshot, feature))
+  public Single<ImmutableList<ValueOrError<Submission>>> submissionsByLocationOfInterestId(
+      LocationOfInterest locationOfInterest) {
+    return RxFirestore.getCollection(byLoiId(locationOfInterest.getId()))
+        .map(querySnapshot -> convert(querySnapshot, locationOfInterest))
         .toSingle(ImmutableList.of());
   }
 
   @NotNull
   private ImmutableList<ValueOrError<Submission>> convert(
-      QuerySnapshot querySnapshot, Feature feature) {
+      QuerySnapshot querySnapshot, LocationOfInterest locationOfInterest) {
     return stream(querySnapshot.getDocuments())
-        .map(doc -> ValueOrError.create(() -> SubmissionConverter.toSubmission(feature, doc)))
+        .map(
+            doc ->
+                ValueOrError.create(
+                    () -> SubmissionConverter.toSubmission(locationOfInterest, doc)))
         .collect(toImmutableList());
   }
 

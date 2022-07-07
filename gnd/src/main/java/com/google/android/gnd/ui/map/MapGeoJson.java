@@ -17,13 +17,13 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.annotation.Dimension;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.job.Style;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.auto.value.AutoValue;
 import org.json.JSONObject;
 
 @AutoValue
-public abstract class MapGeoJson extends MapFeature {
+public abstract class MapGeoJson extends MapLocationOfInterest {
 
   /** Used to generate hash code for instances of this class. */
   private static final int HASH_MULTIPLER = 1_000_003;
@@ -42,7 +42,7 @@ public abstract class MapGeoJson extends MapFeature {
 
   // TODO: Just store the ID and pull the feature when needed.
   @Override
-  public abstract Feature getFeature();
+  public abstract LocationOfInterest getLocationOfInterest();
 
   public abstract Builder toBuilder();
 
@@ -57,7 +57,7 @@ public abstract class MapGeoJson extends MapFeature {
           && this.getGeoJson().toString().equals(that.getGeoJson().toString())
           && this.getStyle().equals(that.getStyle())
           && this.getStrokeWidth() == that.getStrokeWidth()
-          && this.getFeature().equals(that.getFeature());
+          && this.getLocationOfInterest().equals(that.getLocationOfInterest());
     }
     return false;
   }
@@ -74,7 +74,7 @@ public abstract class MapGeoJson extends MapFeature {
     hc *= HASH_MULTIPLER;
     hc ^= getStrokeWidth();
     hc *= HASH_MULTIPLER;
-    hc ^= getFeature().hashCode();
+    hc ^= getLocationOfInterest().hashCode();
     return hc;
   }
 
@@ -88,7 +88,7 @@ public abstract class MapGeoJson extends MapFeature {
 
     public abstract Builder setStrokeWidth(@Dimension int newStrokeWidth);
 
-    public abstract Builder setFeature(Feature feature);
+    public abstract Builder setLocationOfInterest(LocationOfInterest locationOfInterest);
 
     public abstract MapGeoJson build();
   }

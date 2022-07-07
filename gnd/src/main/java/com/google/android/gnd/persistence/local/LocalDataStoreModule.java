@@ -19,10 +19,10 @@ package com.google.android.gnd.persistence.local;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
 import com.google.android.gnd.persistence.local.room.dao.BaseMapDao;
-import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
-import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
 import com.google.android.gnd.persistence.local.room.dao.JobDao;
+import com.google.android.gnd.persistence.local.room.dao.LocationOfInterestDao;
+import com.google.android.gnd.persistence.local.room.dao.LocationOfInterestMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
@@ -44,13 +44,13 @@ import javax.inject.Singleton;
 public abstract class LocalDataStoreModule {
 
   @Provides
-  static FeatureDao featureDao(LocalDatabase localDatabase) {
-    return localDatabase.featureDao();
+  static LocationOfInterestDao locationOfInterestDao(LocalDatabase localDatabase) {
+    return localDatabase.locationOfInterestDao();
   }
 
   @Provides
-  static FeatureMutationDao featureMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.featureMutationDao();
+  static LocationOfInterestMutationDao locationOfInterestMutationDao(LocalDatabase localDatabase) {
+    return localDatabase.locationOfInterestMutationDao();
   }
 
   @Provides
@@ -113,9 +113,7 @@ public abstract class LocalDataStoreModule {
     return localDatabase.userDao();
   }
 
-  /**
-   * Provides the Room implementation of local data store.
-   */
+  /** Provides the Room implementation of local data store. */
   @Binds
   @Singleton
   abstract LocalDataStore localDataStore(RoomLocalDataStore ds);

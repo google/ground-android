@@ -62,7 +62,7 @@ class SubmissionMutationConverter {
       default:
         throw new DataStoreException("Unsupported mutation type: " + mutation.getType());
     }
-    map.put(LOI_ID, mutation.getFeatureId())
+    map.put(LOI_ID, mutation.getLocationOfInterestId())
         .put(JOB_ID, mutation.getJobId())
         .put(TASK_ID, mutation.getTask().getId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));

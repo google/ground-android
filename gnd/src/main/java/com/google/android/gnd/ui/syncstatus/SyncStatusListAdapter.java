@@ -24,26 +24,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.SyncStatusListItemBinding;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.model.mutation.Mutation;
-import com.google.android.gnd.ui.common.FeatureHelper;
+import com.google.android.gnd.ui.common.LocationOfInterestHelper;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
 import java8.util.Optional;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
 
-  private final FeatureHelper featureHelper;
-  private ImmutableList<Pair<Feature, Mutation>> mutations;
+  private final LocationOfInterestHelper locationOfInterestHelper;
+  private ImmutableList<Pair<LocationOfInterest, Mutation>> mutations;
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
-  SyncStatusListAdapter(@Nullable Context context, FeatureHelper featureHelper) {
+  SyncStatusListAdapter(
+      @Nullable Context context, LocationOfInterestHelper locationOfInterestHelper) {
     this.mutations = ImmutableList.of();
     this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
-    this.featureHelper = featureHelper;
+    this.locationOfInterestHelper = locationOfInterestHelper;
   }
 
   @NonNull
@@ -59,22 +60,25 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     // TODO: Use data binding.
     // TODO(#876): Improve L&F and layout.
 
-    Pair<Feature, Mutation> pair = mutations.get(position);
-    Feature feature = pair.first;
+    Pair<LocationOfInterest, Mutation> pair = mutations.get(position);
+    LocationOfInterest locationOfInterest = pair.first;
     Mutation mutation = pair.second;
     String text =
         new StringBuilder()
             .append(mutation.getType().toString())
             .append(' ')
-            .append(mutation instanceof FeatureMutation ? "Feature" : "Submission")
+            .append(
+                mutation instanceof LocationOfInterestMutation
+                    ? "LocationOfInterest"
+                    : "Submission")
             .append(' ')
             .append(dateFormat.format(mutation.getClientTimestamp()))
             .append(' ')
             .append(timeFormat.format(mutation.getClientTimestamp()))
             .append('\n')
-            .append(featureHelper.getLabel(Optional.of(feature)))
+            .append(locationOfInterestHelper.getLabel(Optional.of(locationOfInterest)))
             .append('\n')
-            .append(featureHelper.getSubtitle(Optional.of(feature)))
+            .append(locationOfInterestHelper.getSubtitle(Optional.of(locationOfInterest)))
             .append('\n')
             .append("Sync ")
             .append(mutation.getSyncStatus().toString())
@@ -87,7 +91,7 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     return mutations.size();
   }
 
-  void update(ImmutableList<Pair<Feature, Mutation>> mutations) {
+  void update(ImmutableList<Pair<LocationOfInterest, Mutation>> mutations) {
     this.mutations = mutations;
     notifyDataSetChanged();
   }

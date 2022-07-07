@@ -25,14 +25,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.job.Job;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
+import com.google.android.gnd.model.locationofinterest.Point;
+import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.model.mutation.Mutation.Type;
 import com.google.android.gnd.model.task.Task;
-import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.LocationOfInterestRepository;
 import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Loadable;
@@ -41,7 +41,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
@@ -65,129 +65,131 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private final SurveyRepository surveyRepository;
   private final Navigator navigator;
-  private final FeatureRepository featureRepository;
+  private final LocationOfInterestRepository locationOfInterestRepository;
   private final UserRepository userRepository;
 
   /** The state and value of the currently active survey (loading, loaded, etc.). */
   private final LiveData<Loadable<Survey>> surveyLoadingState;
 
-  // TODO(#719): Move into FeatureDetailsViewModel.
-  @Hot
-  private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
+  // TODO(#719): Move into LocationOfInterestDetailsViewModel.
+  @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
   @Hot
-  private final FlowableProcessor<FeatureMutation> addFeatureRequests = PublishProcessor.create();
-
-  @Hot
-  private final FlowableProcessor<FeatureMutation> updateFeatureRequests =
+  private final FlowableProcessor<LocationOfInterestMutation> addLocationOfInterestRequests =
       PublishProcessor.create();
 
   @Hot
-  private final FlowableProcessor<FeatureMutation> deleteFeatureRequests =
+  private final FlowableProcessor<LocationOfInterestMutation> updateLocationOfInterestRequests =
       PublishProcessor.create();
 
   @Hot
-  private final Flowable<Feature> addFeatureResults;
-  @Hot
-  private final Flowable<Boolean> updateFeatureResults;
-  @Hot
-  private final Flowable<Boolean> deleteFeatureResults;
+  private final FlowableProcessor<LocationOfInterestMutation> deleteLocationOfInterestRequests =
+      PublishProcessor.create();
+
+  @Hot private final Flowable<LocationOfInterest> addLocationOfInterestResults;
+  @Hot private final Flowable<Boolean> updateLocationOfInterestResults;
+  @Hot private final Flowable<Boolean> deleteLocationOfInterestResults;
+
+  @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot
-  private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
-
-  @Hot
-  private final Subject<ImmutableList<Feature>> showFeatureSelectorRequests =
+  private final Subject<ImmutableList<LocationOfInterest>> showLocationOfInterestSelectorRequests =
       PublishSubject.create();
 
   @Inject
   HomeScreenViewModel(
       SurveyRepository surveyRepository,
-      FeatureRepository featureRepository,
+      LocationOfInterestRepository locationOfInterestRepository,
       Navigator navigator,
       UserRepository userRepository) {
     this.surveyRepository = surveyRepository;
-    this.featureRepository = featureRepository;
+    this.locationOfInterestRepository = locationOfInterestRepository;
     this.navigator = navigator;
     this.userRepository = userRepository;
 
     surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
-    addFeatureResults =
-        addFeatureRequests.switchMapSingle(
+    addLocationOfInterestResults =
+        addLocationOfInterestRequests.switchMapSingle(
             mutation ->
-                featureRepository
+                locationOfInterestRepository
                     .applyAndEnqueue(mutation)
-                    .andThen(featureRepository.getFeature(mutation))
+                    .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
                     .doOnError(errors::onNext)
                     .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
-    deleteFeatureResults =
-        deleteFeatureRequests.switchMapSingle(
+    deleteLocationOfInterestResults =
+        deleteLocationOfInterestRequests.switchMapSingle(
             mutation ->
-                toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
-    updateFeatureResults =
-        updateFeatureRequests.switchMapSingle(
+                toBooleanSingle(
+                    locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
+    updateLocationOfInterestResults =
+        updateLocationOfInterestRequests.switchMapSingle(
             mutation ->
-                toBooleanSingle(featureRepository.applyAndEnqueue(mutation), errors::onNext));
+                toBooleanSingle(
+                    locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
   }
 
   @Hot
-  public Observable<ImmutableList<Feature>> getShowFeatureSelectorRequests() {
-    return showFeatureSelectorRequests;
+  public Observable<ImmutableList<LocationOfInterest>> getShowLocationOfInterestSelectorRequests() {
+    return showLocationOfInterestSelectorRequests;
   }
 
-  public Flowable<Feature> getAddFeatureResults() {
-    return addFeatureResults;
+  public Flowable<LocationOfInterest> getAddLocationOfInterestResults() {
+    return addLocationOfInterestResults;
   }
 
-  public Flowable<Boolean> getUpdateFeatureResults() {
-    return updateFeatureResults;
+  public Flowable<Boolean> getUpdateLocationOfInterestResults() {
+    return updateLocationOfInterestResults;
   }
 
-  public Flowable<Boolean> getDeleteFeatureResults() {
-    return deleteFeatureResults;
+  public Flowable<Boolean> getDeleteLocationOfInterestResults() {
+    return deleteLocationOfInterestResults;
   }
 
   public Flowable<Throwable> getErrors() {
     return errors;
   }
 
-  public void addFeature(Job job, Point point) {
+  public void addLocationofInterest(Job job, Point point) {
     getActiveSurvey()
         .map(Survey::getId)
         .ifPresentOrElse(
             surveyId ->
-                addFeatureRequests.onNext(
-                    featureRepository.newMutation(surveyId, job.getId(), point, new Date())),
+                addLocationOfInterestRequests.onNext(
+                    locationOfInterestRepository.newMutation(
+                        surveyId, job.getId(), point, new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
   }
 
-  public void addPolygonFeature(PolygonFeature feature) {
+  public void addPolygonOfInterest(PolygonOfInterest polygonOfInterest) {
     getActiveSurvey()
         .map(Survey::getId)
         .ifPresentOrElse(
             surveyId ->
-                addFeatureRequests.onNext(
-                    featureRepository.newPolygonFeatureMutation(
-                        surveyId, feature.getJob().getId(), feature.getVertices(), new Date())),
+                addLocationOfInterestRequests.onNext(
+                    locationOfInterestRepository.newPolygonOfInterestMutation(
+                        surveyId,
+                        polygonOfInterest.getJob().getId(),
+                        polygonOfInterest.getVertices(),
+                        new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");
             });
   }
 
-  public void updateFeature(Feature feature) {
-    updateFeatureRequests.onNext(
-        feature.toMutation(Type.UPDATE, userRepository.getCurrentUser().getId()));
+  public void updateLocationOfInterest(LocationOfInterest locationOfInterest) {
+    updateLocationOfInterestRequests.onNext(
+        locationOfInterest.toMutation(Type.UPDATE, userRepository.getCurrentUser().getId()));
   }
 
-  public void deleteFeature(Feature feature) {
-    deleteFeatureRequests.onNext(
-        feature.toMutation(Type.DELETE, userRepository.getCurrentUser().getId()));
+  public void deleteLocationOfInterest(LocationOfInterest locationOfInterest) {
+    deleteLocationOfInterestRequests.onNext(
+        locationOfInterest.toMutation(Type.DELETE, userRepository.getCurrentUser().getId()));
   }
 
   public boolean shouldShowSurveySelectorOnStart() {
@@ -211,19 +213,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onMarkerClick(MapPin marker) {
-    if (marker.getFeature() != null) {
-      showBottomSheet(marker.getFeature());
+    if (marker.getLocationOfInterest() != null) {
+      showBottomSheet(marker.getLocationOfInterest());
     }
   }
 
-  public void onFeatureSelected(Feature feature) {
-    showBottomSheet(feature);
+  public void onLocationOfInterestSelected(LocationOfInterest locationOfInterest) {
+    showBottomSheet(locationOfInterest);
   }
 
-  private void showBottomSheet(Feature feature) {
+  private void showBottomSheet(LocationOfInterest locationOfInterest) {
     Timber.d("showing bottom sheet");
     isSubmissionButtonVisible.setValue(true);
-    bottomSheetState.setValue(BottomSheetState.visible(feature));
+    bottomSheetState.setValue(BottomSheetState.visible(locationOfInterest));
   }
 
   public void onBottomSheetHidden() {
@@ -238,26 +240,26 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
 
-    Optional<Feature> optionalFeature = state.getFeature();
-    if (optionalFeature.isEmpty()) {
-      Timber.e("Missing feature");
+    Optional<LocationOfInterest> optionalLocationOfInterest = state.getLocationOfInterest();
+    if (optionalLocationOfInterest.isEmpty()) {
+      Timber.e("Missing locationOfInterest");
       return;
     }
-    Feature feature = optionalFeature.get();
-    Optional<Task> form = feature.getJob().getTask();
+    LocationOfInterest locationOfInterest = optionalLocationOfInterest.get();
+    Optional<Task> form = locationOfInterest.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.
       Timber.e("No tasks in job");
       return;
     }
-    Survey survey = feature.getSurvey();
+    Survey survey = locationOfInterest.getSurvey();
     if (survey == null) {
       Timber.e("Missing survey");
       return;
     }
     navigator.navigate(
         HomeScreenFragmentDirections.addSubmission(
-            survey.getId(), feature.getId(), form.get().getId()));
+            survey.getId(), locationOfInterest.getId(), form.get().getId()));
   }
 
   public void init() {
@@ -273,24 +275,25 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
-    ImmutableList<Feature> features =
-        stream(mapFeatures)
-            .map(MapFeature::getFeature)
+  public void onLocationOfInterestClick(
+      ImmutableList<MapLocationOfInterest> mapLocationsOfInterest) {
+    ImmutableList<LocationOfInterest> locationsOfInterest =
+        stream(mapLocationsOfInterest)
+            .map(MapLocationOfInterest::getLocationOfInterest)
             .filter(Objects::nonNull)
             .collect(toImmutableList());
 
-    if (features.isEmpty()) {
-      Timber.e("onFeatureClick called with empty or null map features");
+    if (locationsOfInterest.isEmpty()) {
+      Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest");
       return;
     }
 
-    if (features.size() == 1) {
-      onFeatureSelected(features.get(0));
+    if (locationsOfInterest.size() == 1) {
+      onLocationOfInterestSelected(locationsOfInterest.get(0));
       return;
     }
 
-    showFeatureSelectorRequests.onNext(features);
+    showLocationOfInterestSelectorRequests.onNext(locationsOfInterest);
   }
 
   public Optional<Survey> getActiveSurvey() {

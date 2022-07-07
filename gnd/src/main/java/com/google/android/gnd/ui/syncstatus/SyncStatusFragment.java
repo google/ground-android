@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.databinding.SyncStatusFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.FeatureHelper;
+import com.google.android.gnd.ui.common.LocationOfInterestHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
@@ -35,7 +35,8 @@ import javax.inject.Inject;
 @AndroidEntryPoint
 public class SyncStatusFragment extends AbstractFragment {
   @Inject Navigator navigator;
-  @Inject FeatureHelper featureHelper;
+  @Inject
+  LocationOfInterestHelper locationOfInterestHelper;
 
   private SyncStatusViewModel viewModel;
 
@@ -57,7 +58,7 @@ public class SyncStatusFragment extends AbstractFragment {
     ((MainActivity) getActivity()).setActionBar(binding.syncStatusToolbar, true);
 
     SyncStatusListAdapter syncStatusListAdapter =
-        new SyncStatusListAdapter(getContext().getApplicationContext(), featureHelper);
+        new SyncStatusListAdapter(getContext().getApplicationContext(), locationOfInterestHelper);
     RecyclerView recyclerView = binding.syncStatusList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

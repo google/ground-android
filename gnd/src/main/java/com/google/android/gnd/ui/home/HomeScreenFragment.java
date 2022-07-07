@@ -51,20 +51,20 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.databinding.NavDrawerHeaderBinding;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.GeoJsonFeature;
+import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.task.Task;
-import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.LocationOfInterestRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.FeatureHelper;
+import com.google.android.gnd.ui.common.LocationOfInterestHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
-import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
+import com.google.android.gnd.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
@@ -86,15 +86,16 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 /**
- * Fragment containing the map container and feature sheet fragments and NavigationView side drawer.
- * This is the default view in the application, and gets swapped out for other fragments (e.g., view
- * submission and edit submission) at runtime.
+ * Fragment containing the map container and location of interest sheet fragments and NavigationView
+ * side drawer. This is the default view in the application, and gets swapped out for other
+ * fragments (e.g., view submission and edit submission) at runtime.
  */
 @AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
 
-  // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
+  // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer; make this
+  // more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
@@ -102,8 +103,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
-  @Inject FeatureHelper featureHelper;
-  @Inject FeatureRepository featureRepository;
+  @Inject LocationOfInterestHelper locationOfInterestHelper;
+  @Inject LocationOfInterestRepository locationOfInterestRepository;
   MapContainerViewModel mapContainerViewModel;
   PolygonDrawingViewModel polygonDrawingViewModel;
 
@@ -112,7 +113,7 @@ public class HomeScreenFragment extends AbstractFragment
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private SurveySelectorViewModel surveySelectorViewModel;
-  private FeatureSelectorViewModel featureSelectorViewModel;
+  private LocationOfInterestSelectorViewModel locationOfInterestSelectorViewModel;
   private List<Survey> surveys = Collections.emptyList();
   private HomeScreenFragBinding binding;
 
@@ -125,33 +126,39 @@ public class HomeScreenFragment extends AbstractFragment
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     surveySelectorViewModel = getViewModel(SurveySelectorViewModel.class);
-    featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
+    locationOfInterestSelectorViewModel = getViewModel(LocationOfInterestSelectorViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getSurveyLoadingState().observe(this, this::onActiveSurveyChange);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel
-        .getShowFeatureSelectorRequests()
+        .getShowLocationOfInterestSelectorRequests()
         .as(autoDisposable(this))
-        .subscribe(this::showFeatureSelector);
+        .subscribe(this::showLocationOfInterestSelector);
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
     viewModel
-        .getAddFeatureResults()
+        .getAddLocationOfInterestResults()
         .observeOn(schedulers.ui())
         .as(autoDisposable(this))
-        .subscribe(this::onFeatureAdded);
-    viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
-    viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
+        .subscribe(this::onLocationOfInterestAdded);
+    viewModel
+        .getUpdateLocationOfInterestResults()
+        .as(autoDisposable(this))
+        .subscribe(this::onLocationOfInterestUpdated);
+    viewModel
+        .getDeleteLocationOfInterestResults()
+        .as(autoDisposable(this))
+        .subscribe(this::onLocationOfInterestDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     polygonDrawingViewModel
         .getDrawingState()
         .distinctUntilChanged()
         .as(autoDisposable(this))
         .subscribe(this::onPolygonDrawingStateUpdated);
-    featureSelectorViewModel
-        .getFeatureClicks()
+    locationOfInterestSelectorViewModel
+        .getLocationOfInterestClicks()
         .as(autoDisposable(this))
-        .subscribe(viewModel::onFeatureSelected);
+        .subscribe(viewModel::onLocationOfInterestSelected);
   }
 
   private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
@@ -161,36 +168,45 @@ public class HomeScreenFragment extends AbstractFragment
     } else {
       mapContainerViewModel.setMode(Mode.DEFAULT);
       if (state.isCompleted()) {
-        viewModel.addPolygonFeature(requireNonNull(state.getUnsavedPolygonFeature()));
+        viewModel.addPolygonOfInterest(requireNonNull(state.getUnsavedPolygonLocationOfInterest()));
       }
     }
   }
 
-  private void showFeatureSelector(ImmutableList<Feature> features) {
-    featureSelectorViewModel.setFeatures(features);
+  private void showLocationOfInterestSelector(
+      ImmutableList<LocationOfInterest> locationsOfInterest) {
+    locationOfInterestSelectorViewModel.setLocationsOfInterest(locationsOfInterest);
     navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToFeatureSelectorFragment());
+        HomeScreenFragmentDirections
+            .actionHomeScreenFragmentToLocationOfInterestSelectorFragment());
   }
 
-  private void onFeatureAdded(Feature feature) {
-    feature.getJob().getTask().ifPresent(form -> addNewSubmission(feature, form));
+  private void onLocationOfInterestAdded(LocationOfInterest locationOfInterest) {
+    locationOfInterest
+        .getJob()
+        .getTask()
+        .ifPresent(form -> addNewSubmission(locationOfInterest, form));
   }
 
-  private void addNewSubmission(Feature feature, Task task) {
-    String surveyId = feature.getSurvey().getId();
-    String featureId = feature.getId();
+  private void addNewSubmission(LocationOfInterest locationOfInterest, Task task) {
+    String surveyId = locationOfInterest.getSurvey().getId();
+    String locationOfInterestId = locationOfInterest.getId();
     String taskId = task.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addSubmission(surveyId, featureId, taskId));
+    navigator.navigate(
+        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, taskId));
   }
 
-  /** This is only possible after updating the location of the feature. So, reset the UI. */
-  private void onFeatureUpdated(Boolean result) {
+  /**
+   * This is only possible after updating the location of the location of interest. So, reset the
+   * UI.
+   */
+  private void onLocationOfInterestUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
     }
   }
 
-  private void onFeatureDeleted(Boolean result) {
+  private void onLocationOfInterestDeleted(Boolean result) {
     if (result) {
       // TODO: Re-position map to default location after successful deletion.
       hideBottomSheet();
@@ -211,7 +227,7 @@ public class HomeScreenFragment extends AbstractFragment
     super.onCreateView(inflater, container, savedInstanceState);
 
     binding = HomeScreenFragBinding.inflate(inflater, container, false);
-    binding.featureDetailsChrome.setViewModel(viewModel);
+    binding.locationOfInterestDetailsChrome.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
@@ -310,7 +326,8 @@ public class HomeScreenFragment extends AbstractFragment
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
 
-    ((MainActivity) getActivity()).setActionBar(binding.featureDetailsChrome.toolbar, false);
+    ((MainActivity) getActivity())
+        .setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false);
   }
 
   private void openDrawer() {
@@ -329,25 +346,25 @@ public class HomeScreenFragment extends AbstractFragment
       return false;
     }
 
-    if (item.getItemId() == R.id.move_feature_menu_item) {
+    if (item.getItemId() == R.id.move_loi_menu_item) {
       hideBottomSheet();
       mapContainerViewModel.setMode(Mode.MOVE_POINT);
-      mapContainerViewModel.setReposFeature(state.getFeature());
+      mapContainerViewModel.setReposLocationOfInterest(state.getLocationOfInterest());
       Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
-    } else if (item.getItemId() == R.id.delete_feature_menu_item) {
-      Optional<Feature> featureToDelete = state.getFeature();
-      if (featureToDelete.isPresent()) {
+    } else if (item.getItemId() == R.id.delete_loi_menu_item) {
+      Optional<LocationOfInterest> locationOfInterestToDelete = state.getLocationOfInterest();
+      if (locationOfInterestToDelete.isPresent()) {
         new Builder(requireActivity())
             .setTitle(
                 getString(
-                    R.string.feature_delete_confirmation_dialog_title,
-                    featureHelper.getLabel(featureToDelete)))
-            .setMessage(R.string.feature_delete_confirmation_dialog_message)
+                    R.string.loi_delete_confirmation_dialog_title,
+                    locationOfInterestHelper.getLabel(locationOfInterestToDelete)))
+            .setMessage(R.string.loi_delete_confirmation_dialog_message)
             .setPositiveButton(
                 R.string.delete_button_label,
                 (dialog, id) -> {
                   hideBottomSheet();
-                  viewModel.deleteFeature(featureToDelete.get());
+                  viewModel.deleteLocationOfInterest(locationOfInterestToDelete.get());
                 })
             .setNegativeButton(
                 R.string.cancel_button_label,
@@ -357,10 +374,10 @@ public class HomeScreenFragment extends AbstractFragment
             .create()
             .show();
       } else {
-        Timber.e("Attempted to delete non-existent feature");
+        Timber.e("Attempted to delete non-existent location of interest");
       }
-    } else if (item.getItemId() == R.id.feature_properties_menu_item) {
-      showFeatureProperties();
+    } else if (item.getItemId() == R.id.loi_properties_menu_item) {
+      showLocationOfInterestProperties();
     } else {
       return false;
     }
@@ -393,8 +410,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showDataCollection() {
     navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment()
-    );
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment());
   }
 
   private void showOfflineAreas() {
@@ -402,9 +418,9 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    binding.featureDetailsChrome.toolbarWrapper.setPadding(
+    binding.locationOfInterestDetailsChrome.toolbarWrapper.setPadding(
         0, insets.getSystemWindowInsetTop(), 0, 0);
-    binding.featureDetailsChrome.bottomSheetBottomInsetScrim.setMinimumHeight(
+    binding.locationOfInterestDetailsChrome.bottomSheetBottomInsetScrim.setMinimumHeight(
         insets.getSystemWindowInsetBottom());
     updateNavViewInsets(insets);
     updateBottomSheetPeekHeight(insets);
@@ -550,38 +566,39 @@ public class HomeScreenFragment extends AbstractFragment
     showSurveySelector();
   }
 
-  private void showFeatureProperties() {
+  private void showLocationOfInterestProperties() {
     // TODO(#841): Move business logic into view model.
     BottomSheetState state = viewModel.getBottomSheetState().getValue();
     if (state == null) {
       Timber.e("BottomSheetState is null");
       return;
     }
-    if (state.getFeature().isEmpty()) {
-      Timber.e("No feature selected");
+    if (state.getLocationOfInterest().isEmpty()) {
+      Timber.e("No locationOfInterest selected");
       return;
     }
-    Feature feature = state.getFeature().get();
+    LocationOfInterest locationOfInterest = state.getLocationOfInterest().get();
     List<String> items = new ArrayList<>();
-    // TODO(#843): Let properties apply to other feature types as well.
-    if (feature instanceof GeoJsonFeature) {
-      items = getFeatureProperties((GeoJsonFeature) feature);
+    // TODO(#843): Let properties apply to other locationOfInterest types as well.
+    if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
+      items = getLocationOfInterestProperties((GeoJsonLocationOfInterest) locationOfInterest);
     }
     if (items.isEmpty()) {
-      items.add("No properties defined for this feature");
+      items.add("No properties defined for this locationOfInterest");
     }
     new AlertDialog.Builder(requireContext())
         .setCancelable(true)
-        .setTitle(R.string.feature_properties)
-        // TODO(#842): Use custom view to format feature properties as table.
+        .setTitle(R.string.loi_properties)
+        // TODO(#842): Use custom view to format locationOfInterest properties as table.
         .setItems(items.toArray(new String[] {}), (a, b) -> {})
-        .setPositiveButton(R.string.close_feature_properties, (a, b) -> {})
+        .setPositiveButton(R.string.close_loi_properties, (a, b) -> {})
         .create()
         .show();
   }
 
-  private ImmutableList<String> getFeatureProperties(GeoJsonFeature feature) {
-    String jsonString = feature.getGeoJsonString();
+  private ImmutableList<String> getLocationOfInterestProperties(
+      GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
+    String jsonString = geoJsonLocationOfInterest.getGeoJsonString();
     try {
       JSONObject jsonObject = new JSONObject(jsonString);
       JSONObject properties = jsonObject.optJSONObject("properties");
@@ -593,12 +610,14 @@ public class HomeScreenFragment extends AbstractFragment
       while (keyIter.hasNext()) {
         String key = keyIter.next();
         Object value = properties.opt(key);
-        // TODO(#842): Use custom view to format feature properties as table.
+        // TODO(#842): Use custom view to format location of interest properties as table.
         items.add(key + ": " + value);
       }
       return items.build();
     } catch (JSONException e) {
-      Timber.d("Encountered invalid feature GeoJSON in feature %s", feature.getId());
+      Timber.d(
+          "Encountered invalid location of interest GeoJSON in location of interest %s",
+          geoJsonLocationOfInterest.getId());
       return ImmutableList.of();
     }
   }

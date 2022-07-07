@@ -20,7 +20,7 @@ import static com.google.android.gnd.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.gnd.model.TestModelBuilders.newField;
 import static com.google.android.gnd.model.TestModelBuilders.newGeoPointPolygonVertices;
 import static com.google.android.gnd.model.TestModelBuilders.newJob;
-import static com.google.android.gnd.model.TestModelBuilders.newPolygonFeature;
+import static com.google.android.gnd.model.TestModelBuilders.newPolygonOfInterest;
 import static com.google.android.gnd.model.TestModelBuilders.newPolygonVertices;
 import static com.google.android.gnd.model.TestModelBuilders.newSurvey;
 import static com.google.android.gnd.model.TestModelBuilders.newTask;
@@ -33,8 +33,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.MultipleChoice;
 import com.google.android.gnd.model.task.MultipleChoice.Cardinality;
@@ -55,8 +55,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class LoiConverterTest {
 
-  @Mock
-  private DocumentSnapshot featureDocumentSnapshot;
+  @Mock private DocumentSnapshot featureDocumentSnapshot;
 
   private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
@@ -86,7 +85,7 @@ public class LoiConverterTest {
 
   private Job job;
   private Survey survey;
-  private Feature feature;
+  private LocationOfInterest locationOfInterest;
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
@@ -136,7 +135,7 @@ public class LoiConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT));
 
-    assertThat(toFeature()).isEqualTo(feature);
+    assertThat(toLocationOfInterest()).isEqualTo(locationOfInterest);
   }
 
   @Test
@@ -175,7 +174,7 @@ public class LoiConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT));
 
-    assertThrows(DataStoreException.class, () -> toFeature());
+    assertThrows(DataStoreException.class, () -> toLocationOfInterest());
   }
 
   @Test
@@ -214,12 +213,12 @@ public class LoiConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT));
 
-    assertThrows(DataStoreException.class, () -> toFeature());
+    assertThrows(DataStoreException.class, () -> toLocationOfInterest());
   }
 
   private void setUpTestFeature(String featureId) {
-    feature =
-        newPolygonFeature()
+    locationOfInterest =
+        newPolygonOfInterest()
             .setCreated(AUDIT_INFO_1)
             .setLastModified(AUDIT_INFO_2)
             .setVertices(newPolygonVertices())
@@ -245,7 +244,7 @@ public class LoiConverterTest {
     when(featureDocumentSnapshot.toObject(LoiDocument.class)).thenReturn(doc);
   }
 
-  private Feature toFeature() {
+  private LocationOfInterest toLocationOfInterest() {
     return LoiConverter.toLoi(survey, featureDocumentSnapshot);
   }
 }

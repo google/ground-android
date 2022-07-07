@@ -16,7 +16,7 @@
 package com.google.android.gnd.persistence.remote.firestore.schema
 
 import com.google.android.gnd.model.Survey
-import com.google.android.gnd.model.feature.*
+import com.google.android.gnd.model.locationofinterest.*
 import com.google.android.gnd.persistence.remote.DataStoreException
 import com.google.common.collect.ImmutableList
 import com.google.firebase.firestore.DocumentSnapshot
@@ -36,7 +36,7 @@ object LoiConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toLoi(survey: Survey, doc: DocumentSnapshot): Feature<*> {
+    fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest<*> {
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
@@ -45,14 +45,14 @@ object LoiConverter {
         }
 
         loiDoc.geoJson?.let {
-            val builder = GeoJsonFeature.newBuilder().setGeoJsonString(it)
-            fillFeature(builder, survey, doc.id, loiDoc)
+            val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
+            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
             return builder.build()
         }
 
         loiDoc.location?.let {
-            val builder = PointFeature.newBuilder().setPoint(toPoint(it))
-            fillFeature(builder, survey, doc.id, loiDoc)
+            val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
+            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
             return builder.build()
         }
 
@@ -77,7 +77,7 @@ object LoiConverter {
         survey: Survey,
         doc: DocumentSnapshot,
         loiDoc: LoiDocument
-    ): PolygonFeature {
+    ): PolygonOfInterest {
         val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
@@ -102,13 +102,13 @@ object LoiConverter {
             )
         }
 
-        val builder = PolygonFeature.builder().setVertices(vertices.build())
-        fillFeature(builder, survey, doc.id, loiDoc)
+        val builder = PolygonOfInterest.builder().setVertices(vertices.build())
+        fillLocationOfInterest(builder, survey, doc.id, loiDoc)
         return builder.build()
     }
 
-    private fun fillFeature(
-        builder: Feature.Builder<*>,
+    private fun fillLocationOfInterest(
+        builder: LocationOfInterest.Builder<*>,
         survey: Survey,
         id: String,
         loiDoc: LoiDocument
