@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.uuid;
+package com.google.android.ground.rx;
 
-import javax.inject.Inject;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.components.SingletonComponent;
+import javax.inject.Singleton;
 
-public class FakeUuidGenerator implements OfflineUuidGenerator {
+@InstallIn(SingletonComponent.class)
+@Module
+public abstract class SchedulersModule {
 
-  @Inject
-  FakeUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return "TEST UUID";
-  }
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
 }

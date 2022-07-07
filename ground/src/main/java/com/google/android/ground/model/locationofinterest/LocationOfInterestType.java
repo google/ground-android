@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.uuid;
+package com.google.android.ground.model.locationofinterest;
 
-import javax.inject.Inject;
+import com.google.common.collect.ImmutableList;
 
-public class FakeUuidGenerator implements OfflineUuidGenerator {
+public enum LocationOfInterestType {
+  UNKNOWN,
+  POINT,
+  POLYGON;
 
-  @Inject
-  FakeUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return "TEST UUID";
-  }
+  public static final ImmutableList<LocationOfInterestType> ALL = ImmutableList.of(POINT, POLYGON);
 }
