@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.Role;
 import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.feature.FeatureType;
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
 import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
@@ -49,8 +49,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
   @BindValue @Mock LocalDataStore mockLocalDataStore;
   @BindValue @Mock UserRepository userRepository;
 
-  @Inject
-  SurveyRepository surveyRepository;
+  @Inject SurveyRepository surveyRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
 
   @Test
@@ -71,7 +70,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
     surveyRepository
         .getActiveSurvey()
         .test()
@@ -86,7 +85,7 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(FeatureType.ALL).build();
+    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
     surveyRepository
         .getActiveSurvey()
         .test()

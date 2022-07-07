@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.TestObservers;
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.feature.Feature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,25 +34,26 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class DeleteMenuVisibilityTest extends BaseMenuVisibilityTest {
 
-  public DeleteMenuVisibilityTest(User user, Feature feature, boolean visible) {
-    super(user, feature, visible);
+  public DeleteMenuVisibilityTest(
+      User user, LocationOfInterest locationOfInterest, boolean visible) {
+    super(user, locationOfInterest, visible);
   }
 
   @Parameters
   public static Collection<Object[]> data() {
     Object[][] data = {
 
-      // Point feature created by some other user
+      // Point locationOfInterest created by some other user
       {TEST_USER_OWNER, createPointFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_MANAGER, createPointFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_UNKNOWN), false},
 
-      // Polygon feature created by some other user
+      // Polygon locationOfInterest created by some other user
       {TEST_USER_OWNER, createPolygonFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_MANAGER, createPolygonFeature(TEST_USER_UNKNOWN), true},
       {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_UNKNOWN), false},
 
-      // Current user created the selected feature
+      // Current user created the selected locationOfInterest
       {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_CONTRIBUTOR), true},
       {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_CONTRIBUTOR), true},
     };
@@ -62,7 +63,7 @@ public class DeleteMenuVisibilityTest extends BaseMenuVisibilityTest {
   @Test
   public void testDeleteMenuVisible() {
     fakeAuthenticationManager.setUser(user);
-    viewModel.onFeatureSelected(Optional.of(feature));
+    viewModel.onLocationOfInterestSelected(Optional.of(locationOfInterest));
 
     TestObservers.observeUntilFirstChange(viewModel.isDeleteMenuOptionVisible());
     assertThat(viewModel.isDeleteMenuOptionVisible().getValue()).isEqualTo(visible);

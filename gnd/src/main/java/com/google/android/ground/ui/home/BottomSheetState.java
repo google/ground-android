@@ -17,8 +17,8 @@
 package com.google.android.ground.ui.home;
 
 import androidx.annotation.Nullable;
-import com.google.android.ground.model.feature.Feature;
-import com.google.android.ground.model.feature.PointFeature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import java8.util.Optional;
 
 public class BottomSheetState {
@@ -29,31 +29,31 @@ public class BottomSheetState {
   }
 
   private final Visibility visibility;
-  private final Optional<Feature> feature;
+  private final Optional<LocationOfInterest> locationOfInterest;
 
-  private BottomSheetState(Visibility visibility, @Nullable Feature feature) {
+  private BottomSheetState(Visibility visibility, @Nullable LocationOfInterest locationOfInterest) {
     this.visibility = visibility;
-    this.feature = Optional.ofNullable(feature);
+    this.locationOfInterest = Optional.ofNullable(locationOfInterest);
   }
 
   private BottomSheetState(Visibility visibility) {
     this(visibility, null);
   }
 
-  public static BottomSheetState visible(Feature feature) {
-    return new BottomSheetState(Visibility.VISIBLE, feature);
+  public static BottomSheetState visible(LocationOfInterest locationOfInterest) {
+    return new BottomSheetState(Visibility.VISIBLE, locationOfInterest);
   }
 
   public static BottomSheetState hidden() {
     return new BottomSheetState(Visibility.HIDDEN);
   }
 
-  public Optional<Feature> getFeature() {
-    return feature;
+  public Optional<LocationOfInterest> getLocationOfInterest() {
+    return locationOfInterest;
   }
 
-  public boolean isPointFeature() {
-    return feature.isPresent() && feature.get() instanceof PointFeature;
+  public boolean isPointOfInterest() {
+    return locationOfInterest.isPresent() && locationOfInterest.get() instanceof PointOfInterest;
   }
 
   public Visibility getVisibility() {

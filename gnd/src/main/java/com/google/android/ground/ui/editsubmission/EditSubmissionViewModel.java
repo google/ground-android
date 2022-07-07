@@ -267,13 +267,13 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   private Single<Submission> createSubmission(EditSubmissionFragmentArgs args) {
     return submissionRepository
-        .createSubmission(args.getSurveyId(), args.getFeatureId(), args.getTaskId())
+        .createSubmission(args.getSurveyId(), args.getLocationOfInterestId(), args.getTaskId())
         .onErrorResumeNext(this::onError);
   }
 
   private Single<Submission> loadSubmission(EditSubmissionFragmentArgs args) {
     return submissionRepository
-        .getSubmission(args.getSurveyId(), args.getFeatureId(), args.getSubmissionId())
+        .getSubmission(args.getSurveyId(), args.getLocationOfInterestId(), args.getSubmissionId())
         .onErrorResumeNext(this::onError);
   }
 

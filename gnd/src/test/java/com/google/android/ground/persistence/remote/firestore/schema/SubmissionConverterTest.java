@@ -19,7 +19,7 @@ package com.google.android.ground.persistence.remote.firestore.schema;
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.ground.model.TestModelBuilders.newField;
 import static com.google.android.ground.model.TestModelBuilders.newJob;
-import static com.google.android.ground.model.TestModelBuilders.newPointFeature;
+import static com.google.android.ground.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
@@ -31,8 +31,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.feature.Feature;
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.MultipleChoiceResponse;
 import com.google.android.ground.model.submission.ResponseMap;
 import com.google.android.ground.model.submission.Submission;
@@ -57,13 +57,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SubmissionConverterTest {
 
-  @Mock
-  private DocumentSnapshot submissionDocumentSnapshot;
+  @Mock private DocumentSnapshot submissionDocumentSnapshot;
 
   private Task task;
   private Job job;
   private Survey survey;
-  private Feature feature;
+  private LocationOfInterest locationOfInterest;
 
   private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
@@ -135,7 +134,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setResponses(
                     ResponseMap.builder()
@@ -199,7 +198,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -230,7 +229,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -263,7 +262,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -307,7 +306,7 @@ public class SubmissionConverterTest {
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
-                .setFeature(feature)
+                .setLocationOfInterest(locationOfInterest)
                 .setTask(task)
                 .setResponses(
                     // Field "field1" with unknown field type ignored.
@@ -320,18 +319,17 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestFeature(String featureId) {
-    feature = newPointFeature().setId(featureId).setSurvey(survey).setJob(job).build();
+    locationOfInterest =
+        newPointOfInterest().setId(featureId).setSurvey(survey).setJob(job).build();
   }
 
-  /**
-   * Mock submission document snapshot to return the specified id and object representation.
-   */
+  /** Mock submission document snapshot to return the specified id and object representation. */
   private void mockSubmissionDocumentSnapshot(String id, SubmissionDocument doc) {
     when(submissionDocumentSnapshot.getId()).thenReturn(id);
     when(submissionDocumentSnapshot.toObject(SubmissionDocument.class)).thenReturn(doc);
   }
 
   private Submission toSubmission() {
-    return SubmissionConverter.toSubmission(feature, submissionDocumentSnapshot);
+    return SubmissionConverter.toSubmission(locationOfInterest, submissionDocumentSnapshot);
   }
 }

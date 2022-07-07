@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.models;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
-import com.google.android.ground.model.feature.Point;
+import com.google.android.ground.model.locationofinterest.Point;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 

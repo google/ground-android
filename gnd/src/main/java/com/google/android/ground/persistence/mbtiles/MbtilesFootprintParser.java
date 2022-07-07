@@ -40,7 +40,9 @@ import timber.log.Timber;
 
 public class MbtilesFootprintParser {
 
-  private static final String FEATURES_KEY = "features";
+  // TODO: s/features/locations_of_interest key once we have changed the MBtiles schema (if this
+  // even sticks around).
+  private static final String LOCATIONS_OF_INTEREST_KEY = "features";
   private static final String JSON_SOURCE_CHARSET = "UTF-8";
 
   private final OfflineUuidGenerator uuidGenerator;
@@ -73,10 +75,10 @@ public class MbtilesFootprintParser {
       String fileContents =
           FileUtils.readFileToString(jsonSource, Charset.forName(JSON_SOURCE_CHARSET));
       JSONObject geoJson = new JSONObject(fileContents);
-      JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
+      JSONArray locationsOfInterest = geoJson.getJSONArray(LOCATIONS_OF_INTEREST_KEY);
 
       ImmutableList<TileSetJson> tilesets =
-          stream(toArrayList(features)).map(TileSetJson::new).collect(toImmutableList());
+          stream(toArrayList(locationsOfInterest)).map(TileSetJson::new).collect(toImmutableList());
 
       return Single.just(tilesets);
     } catch (Exception e) {

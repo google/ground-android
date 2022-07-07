@@ -18,8 +18,8 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.Role
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.feature.FeatureType
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -107,15 +107,15 @@ class SurveyRepository @Inject constructor(
         for (job in survey.jobs) {
             jobs.put(
                 job.id,
-                job.toBuilder().setUserCanAdd(getAddableFeatureTypes(userRole)).build()
+                job.toBuilder().setUserCanAdd(getAddableLocationOfInterestTypes(userRole)).build()
             )
         }
         return survey.toBuilder().setJobMap(jobs.build()).build()
     }
 
-    private fun getAddableFeatureTypes(userRole: Role): ImmutableList<FeatureType> =
+    private fun getAddableLocationOfInterestTypes(userRole: Role): ImmutableList<LocationOfInterestType> =
         when (userRole) {
-            Role.OWNER, Role.SURVEY_ORGANIZER -> FeatureType.ALL
+            Role.OWNER, Role.SURVEY_ORGANIZER -> LocationOfInterestType.ALL
             else -> ImmutableList.of()
         }
 

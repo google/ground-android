@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import com.google.android.ground.MainActivity
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.FeatureHelper
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -34,7 +34,7 @@ class DataCollectionFragment : AbstractFragment() {
     lateinit var navigator: Navigator
 
     @Inject
-    lateinit var featureHelper: FeatureHelper
+    lateinit var locationOfInterestHelper: LocationOfInterestHelper
 
     private lateinit var viewModel: DataCollectionViewModel
 

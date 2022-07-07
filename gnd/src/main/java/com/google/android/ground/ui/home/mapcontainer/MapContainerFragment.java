@@ -32,9 +32,9 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.MapContainerFragBinding;
 import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.feature.Feature;
-import com.google.android.ground.model.feature.Point;
-import com.google.android.ground.model.feature.PointFeature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.repository.MapsRepository;
 import com.google.android.ground.rx.BooleanOrError;
 import com.google.android.ground.rx.Loadable;
@@ -68,8 +68,8 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     super.onCreate(savedInstanceState);
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
-    FeatureRepositionViewModel featureRepositionViewModel =
-        getViewModel(FeatureRepositionViewModel.class);
+    LocationOfInterestRepositionViewModel locationOfInterestRepositionViewModel =
+        getViewModel(LocationOfInterestRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     getMapFragment()
         .getMapPinClicks()
@@ -80,9 +80,9 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onMarkerClick);
     getMapFragment()
-        .getFeatureClicks()
+        .getLocationOfInterestClicks()
         .as(disposeOnDestroy(this))
-        .subscribe(homeScreenViewModel::onFeatureClick);
+        .subscribe(homeScreenViewModel::onLocationOfInterestClick);
     getMapFragment()
         .getStartDragEvents()
         .onBackpressureLatest()
@@ -99,13 +99,13 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         .subscribe(mapContainerViewModel::queueTileProvider);
 
     polygonDrawingViewModel
-        .getUnsavedMapFeatures()
-        .observe(this, mapContainerViewModel::setUnsavedMapFeatures);
-    featureRepositionViewModel
+        .getUnsavedMapLocationsOfInterest()
+        .observe(this, mapContainerViewModel::setUnsavedMapLocationsOfInterest);
+    locationOfInterestRepositionViewModel
         .getConfirmButtonClicks()
         .as(autoDisposable(this))
         .subscribe(this::showConfirmationDialog);
-    featureRepositionViewModel
+    locationOfInterestRepositionViewModel
         .getCancelButtonClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> mapContainerViewModel.setMode(Mode.DEFAULT));
@@ -132,7 +132,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    disableAddFeatureBtn();
+    disableAddLocationOfInterestBtn();
   }
 
   @Override
@@ -147,7 +147,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     polygonDrawingViewModel.setLocationLockEnabled(true);
 
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
+    mapContainerViewModel.getMapLocationsOfInterest().observe(this, map::setMapLocationsOfInterest);
     mapContainerViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));
@@ -169,8 +169,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void attachCustomViews(MapFragment map) {
-    FeatureRepositionView repositionView = new FeatureRepositionView(getContext(), map);
-    mapContainerViewModel.getMoveFeatureVisibility().observe(this, repositionView::setVisibility);
+    LocationOfInterestRepositionView repositionView =
+        new LocationOfInterestRepositionView(getContext(), map);
+    mapContainerViewModel
+        .getMoveLocationOfInterestVisibility()
+        .observe(this, repositionView::setVisibility);
     binding.mapOverlay.addView(repositionView);
 
     PolygonDrawingView polygonDrawingView = new PolygonDrawingView(getContext(), map);
@@ -200,21 +203,23 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void moveToNewPosition(Point point) {
-    Optional<Feature> feature = mapContainerViewModel.getReposFeature();
-    if (feature.isEmpty()) {
-      Timber.e("Move point failed: No feature selected");
+    Optional<LocationOfInterest> locationOfInterest =
+        mapContainerViewModel.getReposLocationOfInterest();
+    if (locationOfInterest.isEmpty()) {
+      Timber.e("Move point failed: No locationOfInterest selected");
       return;
     }
-    if (!(feature.get() instanceof PointFeature)) {
-      Timber.e("Only point features can be moved");
+    if (!(locationOfInterest.get() instanceof PointOfInterest)) {
+      Timber.e("Only point locations of interest can be moved");
       return;
     }
-    PointFeature newFeature = ((PointFeature) feature.get()).toBuilder().setPoint(point).build();
-    homeScreenViewModel.updateFeature(newFeature);
+    PointOfInterest newPointOfInterest =
+        ((PointOfInterest) locationOfInterest.get()).toBuilder().setPoint(point).build();
+    homeScreenViewModel.updateLocationOfInterest(newPointOfInterest);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapFragment map) {
-    mapContainerViewModel.setSelectedFeature(state.getFeature());
+    mapContainerViewModel.setSelectedLocationOfInterest(state.getLocationOfInterest());
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disableGestures();
@@ -222,12 +227,12 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         // selected. This will involve calculating centroid and possibly zoom level based on
         // vertices.
         state
-            .getFeature()
-            .filter(Feature::isPoint)
-            .map(PointFeature.class::cast)
+            .getLocationOfInterest()
+            .filter(LocationOfInterest::isPoint)
+            .map(PointOfInterest.class::cast)
             .ifPresent(
-                feature -> {
-                  mapContainerViewModel.panAndZoomCamera(feature.getPoint());
+                pointOfInterest -> {
+                  mapContainerViewModel.panAndZoomCamera(pointOfInterest.getPoint());
                 });
         break;
       case HIDDEN:
@@ -241,20 +246,21 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
 
   private void onSurveyChange(Loadable<Survey> survey) {
     if (survey.isLoaded()) {
-      enableAddFeatureBtn();
+      enableAddLocationOfInterestBtn();
     } else {
-      disableAddFeatureBtn();
+      disableAddLocationOfInterestBtn();
     }
   }
 
-  private void enableAddFeatureBtn() {
-    mapContainerViewModel.setFeatureButtonBackgroundTint(R.color.colorMapAccent);
+  private void enableAddLocationOfInterestBtn() {
+    mapContainerViewModel.setLocationOfInterestButtonBackgroundTint(R.color.colorMapAccent);
   }
 
-  private void disableAddFeatureBtn() {
-    // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is
+  private void disableAddLocationOfInterestBtn() {
+    // NOTE: We don't call addLocationOfInterestBtn.setEnabled(false) here since calling it before
+    // the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
-    mapContainerViewModel.setFeatureButtonBackgroundTint(R.color.colorGrey500);
+    mapContainerViewModel.setLocationOfInterestButtonBackgroundTint(R.color.colorGrey500);
   }
 
   private void onLocationLockStateChange(BooleanOrError result, MapFragment map) {

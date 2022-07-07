@@ -23,9 +23,7 @@ import com.google.android.ground.persistence.local.room.models.MutationEntitySyn
 import com.google.android.ground.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/**
- * Base class for feature and submission mutation database entities.
- */
+/** Base class for location of interest and submission mutation database entities. */
 public abstract class MutationEntity {
 
   @CopyAnnotations

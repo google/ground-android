@@ -20,7 +20,7 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.featuredetails.SubmissionListViewModel" />
+      type="com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel" />
   </data>
 
   <FrameLayout

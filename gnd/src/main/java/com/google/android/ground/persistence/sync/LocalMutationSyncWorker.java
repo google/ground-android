@@ -46,17 +46,17 @@ import timber.log.Timber;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
- * specific map feature, whose id is provided in the {@link Data} object built by {@link
- * #createInputData} and provided to the worker request while being enqueued.
+ * specific map location of interest, whose id is provided in the {@link Data} object built by
+ * {@link #createInputData} and provided to the worker request while being enqueued.
  */
 @HiltWorker
 public class LocalMutationSyncWorker extends BaseWorker {
 
-  private static final String FEATURE_ID_PARAM_KEY = "featureId";
+  private static final String LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId";
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
-  private final String featureId;
+  private final String locationOfInterestId;
   private final PhotoSyncWorkManager photoSyncWorkManager;
 
   @AssistedInject
@@ -70,31 +70,32 @@ public class LocalMutationSyncWorker extends BaseWorker {
     super(context, params, notificationManager, LocalMutationSyncWorker.class.hashCode());
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
-    this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
+    this.locationOfInterestId = params.getInputData().getString(LOCATION_OF_INTEREST_ID_PARAM_KEY);
     this.photoSyncWorkManager = photoSyncWorkManager;
   }
 
-  /**
-   * Returns a new work {@link Data} object containing the specified feature id.
-   */
-  public static Data createInputData(String featureId) {
-    return new Data.Builder().putString(FEATURE_ID_PARAM_KEY, featureId).build();
+  /** Returns a new work {@link Data} object containing the specified location of interest id. */
+  public static Data createInputData(String locationOfInterestId) {
+    return new Data.Builder()
+        .putString(LOCATION_OF_INTEREST_ID_PARAM_KEY, locationOfInterestId)
+        .build();
   }
 
   @NonNull
   @Override
   public Result doWork() {
-    Timber.d("Connected. Syncing changes to feature %s", featureId);
-    ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
+    Timber.d("Connected. Syncing changes to location of interest %s", locationOfInterestId);
+    ImmutableList<Mutation> mutations =
+        localDataStore.getPendingMutations(locationOfInterestId).blockingGet();
     try {
       Timber.v("Mutations: %s", mutations);
       processMutations(mutations).compose(this::notifyTransferState).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
       FirebaseCrashlytics.getInstance()
-          .log("Error applying remote updates to feature " + featureId);
+          .log("Error applying remote updates to location of interest " + locationOfInterestId);
       FirebaseCrashlytics.getInstance().recordException(t);
-      Timber.e(t, "Remote updates for feature %s failed", featureId);
+      Timber.e(t, "Remote updates for location of interest %s failed", locationOfInterestId);
       localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
     }
@@ -118,9 +119,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
             });
   }
 
-  /**
-   * Loads each user with specified id, applies mutations, and removes processed mutations.
-   */
+  /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
     return localDataStore
         .getUser(userId)
@@ -129,9 +128,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
         .onErrorComplete();
   }
 
-  /**
-   * Applies mutations to remote data store. Once successful, removes them from the local db.
-   */
+  /** Applies mutations to remote data store. Once successful, removes them from the local db. */
   private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)

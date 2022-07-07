@@ -21,7 +21,7 @@ import androidx.annotation.StringRes
 import kotlinx.parcelize.Parcelize
 
 /**
- * MapType refers to the basemap shown below map features and offline satellite imagery. It's called
+ * MapType refers to the basemap shown below map LOIs and offline satellite imagery. It's called
  * "map styles" in Mapbox and "basemaps" in Leaflet.
  */
 @Parcelize

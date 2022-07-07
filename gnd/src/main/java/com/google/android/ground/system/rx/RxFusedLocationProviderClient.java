@@ -30,8 +30,7 @@ import io.reactivex.Maybe;
 import javax.inject.Inject;
 
 /**
- * Thin wrapper around {@link FusedLocationProviderClient} exposing key features as reactive
- * streams.
+ * Thin wrapper around {@link FusedLocationProviderClient} exposing key LOIs as reactive streams.
  */
 public class RxFusedLocationProviderClient {
   private final FusedLocationProviderClient fusedLocationProviderClient;

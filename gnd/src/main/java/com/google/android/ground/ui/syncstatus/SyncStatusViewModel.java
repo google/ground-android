@@ -22,9 +22,9 @@ import static java8.util.stream.StreamSupport.stream;
 import android.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.ground.model.feature.Feature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.repository.FeatureRepository;
+import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.SurveyRepository;
 import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.ui.common.AbstractViewModel;
@@ -40,37 +40,39 @@ import javax.inject.Inject;
  */
 public class SyncStatusViewModel extends AbstractViewModel {
 
-  private final LiveData<ImmutableList<Pair<Feature, Mutation>>> mutations;
+  private final LiveData<ImmutableList<Pair<LocationOfInterest, Mutation>>> mutations;
   private final Navigator navigator;
   private final SurveyRepository surveyRepository;
-  private final FeatureRepository featureRepository;
+  private final LocationOfInterestRepository locationOfInterestRepository;
 
   @Inject
   SyncStatusViewModel(
       SurveyRepository surveyRepository,
-      FeatureRepository featureRepository,
+      LocationOfInterestRepository locationOfInterestRepository,
       Navigator navigator) {
     this.navigator = navigator;
     this.surveyRepository = surveyRepository;
-    this.featureRepository = featureRepository;
+    this.locationOfInterestRepository = locationOfInterestRepository;
 
     this.mutations =
         LiveDataReactiveStreams.fromPublisher(
-            getMutationsOnceAndStream().switchMap(this::loadFeaturesAndPair));
+            getMutationsOnceAndStream().switchMap(this::loadLocationsOfInterestAndPair));
   }
 
-  private Flowable<ImmutableList<Pair<Feature, Mutation>>> loadFeaturesAndPair(
-      ImmutableList<Mutation> mutations) {
-    return Single.merge(stream(mutations).map(this::loadFeatureAndPair).collect(toList()))
+  private Flowable<ImmutableList<Pair<LocationOfInterest, Mutation>>>
+      loadLocationsOfInterestAndPair(ImmutableList<Mutation> mutations) {
+    return Single.merge(
+            stream(mutations).map(this::loadLocationOfInterestAndPair).collect(toList()))
         .toList()
         .map(ImmutableList::copyOf)
         .toFlowable();
   }
 
-  private Single<Pair<Feature, Mutation>> loadFeatureAndPair(Mutation mutation) {
-    return featureRepository
-        .getFeature(mutation.getSurveyId(), mutation.getFeatureId())
-        .map(feature -> Pair.create(feature, mutation));
+  private Single<Pair<LocationOfInterest, Mutation>> loadLocationOfInterestAndPair(
+      Mutation mutation) {
+    return locationOfInterestRepository
+        .getLocationOfInterest(mutation.getSurveyId(), mutation.getLocationOfInterestId())
+        .map(locationOfInterest -> Pair.create(locationOfInterest, mutation));
   }
 
   private Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream() {
@@ -88,7 +90,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
   }
 
   @Cold(replays = true, terminates = false)
-  LiveData<ImmutableList<Pair<Feature, Mutation>>> getMutations() {
+  LiveData<ImmutableList<Pair<LocationOfInterest, Mutation>>> getMutations() {
     return mutations;
   }
 }

@@ -17,15 +17,15 @@
 package com.google.android.ground.ui.map;
 
 import androidx.annotation.Nullable;
-import com.google.android.ground.model.feature.Feature;
-import com.google.android.ground.model.feature.Point;
 import com.google.android.ground.model.job.Style;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.Point;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 @AutoValue
 // TODO: Rename to MapPolyline for correctness.
-public abstract class MapPolygon extends MapFeature {
+public abstract class MapPolygon extends MapLocationOfInterest {
 
   public static Builder newBuilder() {
     return new AutoValue_MapPolygon.Builder();
@@ -39,7 +39,7 @@ public abstract class MapPolygon extends MapFeature {
 
   @Nullable
   @Override
-  public abstract Feature getFeature();
+  public abstract LocationOfInterest getLocationOfInterest();
 
   public abstract Builder toBuilder();
 
@@ -72,7 +72,8 @@ public abstract class MapPolygon extends MapFeature {
 
     public abstract Builder setStyle(Style style);
 
-    public abstract Builder setFeature(@Nullable Feature newFeature);
+    public abstract Builder setLocationOfInterest(
+        @Nullable LocationOfInterest newLocationOfInterest);
 
     public abstract MapPolygon build();
   }

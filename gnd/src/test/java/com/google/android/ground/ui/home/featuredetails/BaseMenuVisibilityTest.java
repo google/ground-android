@@ -21,10 +21,11 @@ import com.google.android.ground.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.feature.Feature;
-import com.google.android.ground.model.feature.PointFeature;
-import com.google.android.ground.model.feature.PolygonFeature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.PointOfInterest;
+import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.android.ground.system.auth.FakeAuthenticationManager;
+import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 
@@ -52,26 +53,27 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
           .build();
 
   protected final User user;
-  protected final Feature feature;
+  protected final LocationOfInterest locationOfInterest;
   protected final boolean visible;
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
-  @Inject FeatureDetailsViewModel viewModel;
+  @Inject
+  LocationOfInterestDetailsViewModel viewModel;
 
-  public BaseMenuVisibilityTest(User user, Feature feature, boolean visible) {
+  public BaseMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
     this.user = user;
-    this.feature = feature;
+    this.locationOfInterest = locationOfInterest;
     this.visible = visible;
   }
 
-  static PointFeature createPointFeature(User user) {
+  static PointOfInterest createPointFeature(User user) {
     return FakeData.POINT_FEATURE.toBuilder()
         .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }
 
-  static PolygonFeature createPolygonFeature(User user) {
+  static PolygonOfInterest createPolygonFeature(User user) {
     return FakeData.POLYGON_FEATURE.toBuilder()
         .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
