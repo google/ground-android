@@ -58,6 +58,6 @@ class DataCollectionFragment : AbstractFragment() {
     }
 
     private fun getDataCollectionFragmentArgs(): DataCollectionFragmentArgs {
-        return DataCollectionFragmentArgs.fromBundle(arguments!!)
+        return DataCollectionFragmentArgs.fromBundle(requireArguments())
     }
 }
