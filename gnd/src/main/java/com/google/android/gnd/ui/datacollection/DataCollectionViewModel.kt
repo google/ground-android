@@ -42,6 +42,7 @@ class DataCollectionViewModel @Inject internal constructor(private val submissio
     ) =
         viewModelScope.launch {
             _submission.value =
-                submissionRepository.getSubmission(surveyId, locationOfInterestId, submissionId).await()
+                submissionRepository.createSubmission(surveyId, locationOfInterestId, submissionId)
+                    .await()
         }
 }
