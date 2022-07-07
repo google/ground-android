@@ -33,13 +33,13 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.basemap.tile.TileSet;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.GeoJsonFeature;
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.job.Style;
-import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
+import com.google.android.gnd.model.locationofinterest.Point;
+import com.google.android.gnd.model.locationofinterest.PointOfInterest;
+import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
+import com.google.android.gnd.repository.LocationOfInterestRepository;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.SurveyRepository;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -51,8 +51,8 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.CameraPosition;
-import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
+import com.google.android.gnd.ui.map.MapLocationOfInterest;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
@@ -77,12 +77,12 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
   public static final float ZOOM_LEVEL_THRESHOLD = 16f;
-  public static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
+  public static final float DEFAULT_LOI_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
   private final LiveData<Loadable<Survey>> surveyLoadingState;
-  private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
+  private final LiveData<ImmutableSet<MapLocationOfInterest>> mapLocationsOfInterest;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
 
@@ -93,15 +93,18 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final Resources resources;
   private final SurveyRepository surveyRepository;
   private final LocationManager locationManager;
-  private final FeatureRepository featureRepository;
+  private final LocationOfInterestRepository locationOfInterestRepository;
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
-  /** Temporary set of {@link MapFeature} used for displaying on map during add/edit flows. */
+  /**
+   * Temporary set of {@link MapLocationOfInterest} used for displaying on map during add/edit
+   * flows.
+   */
   @Hot
-  private final PublishProcessor<ImmutableSet<MapFeature>> unsavedMapFeatures =
-      PublishProcessor.create();
+  private final PublishProcessor<ImmutableSet<MapLocationOfInterest>>
+      unsavedMapLocationsOfInterest = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
@@ -109,13 +112,14 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Integer> moveLocationsOfInterestVisibility =
+      new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> locationLockEnabled = new MutableLiveData<>();
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> featureAddButtonBackgroundTint =
+  private final MutableLiveData<Integer> locationOfInterestAddButtonBackgroundTint =
       new MutableLiveData<>(R.color.colorGrey500);
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
@@ -125,29 +129,30 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
-  /** The currently selected feature on the map. */
-  private final BehaviorProcessor<Optional<Feature>> selectedFeature =
+  /** The currently selected LOI on the map. */
+  private final BehaviorProcessor<Optional<LocationOfInterest>> selectedLocationOfInterest =
       BehaviorProcessor.createDefault(Optional.empty());
 
   /* UI Clicks */
   @Hot private final Subject<Nil> selectMapTypeClicks = PublishSubject.create();
 
   @Hot private final Subject<Nil> zoomThresholdCrossed = PublishSubject.create();
-  // TODO: Move this in FeatureRepositionView and return the final updated feature as the result.
-  /** Feature selected for repositioning. */
-  private Optional<Feature> reposFeature = Optional.empty();
+  // TODO: Move this in LocationOfInterestRepositionView and return the final updated LOI as the
+  // result.
+  /** LocationOfInterest selected for repositioning. */
+  private Optional<LocationOfInterest> reposLocationOfInterest = Optional.empty();
 
   @Inject
   MapContainerViewModel(
       Resources resources,
       SurveyRepository surveyRepository,
-      FeatureRepository featureRepository,
+      LocationOfInterestRepository locationOfInterestRepository,
       LocationManager locationManager,
       OfflineAreaRepository offlineAreaRepository) {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.resources = resources;
     this.surveyRepository = surveyRepository;
-    this.featureRepository = featureRepository;
+    this.locationOfInterestRepository = locationOfInterestRepository;
     this.locationManager = locationManager;
     this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
     this.selectedPolygonStrokeWidth =
@@ -172,26 +177,28 @@ public class MapContainerViewModel extends AbstractViewModel {
             createCameraUpdateFlowable(locationLockStateFlowable));
     this.surveyLoadingState =
         LiveDataReactiveStreams.fromPublisher(surveyRepository.getSurveyLoadingState());
-    // TODO: Clear feature markers when survey is deactivated.
+    // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo?
-    // Features that are persisted to the local and remote dbs.
-    Flowable<ImmutableSet<MapFeature>> savedMapFeatures =
+    // LOIs that are persisted to the local and remote dbs.
+    Flowable<ImmutableSet<MapLocationOfInterest>> savedMapLocationsOfInterest =
         Flowable.combineLatest(
             surveyRepository
                 .getActiveSurvey()
-                .switchMap(this::getFeaturesStream)
-                .map(this::toMapFeatures),
-            selectedFeature,
-            this::updateSelectedFeature);
+                .switchMap(this::getLocationsOfInterestStream)
+                .map(this::toMapLocationsOfInterest),
+            selectedLocationOfInterest,
+            this::updateSelectedLocationOfInterest);
 
-    this.mapFeatures =
+    this.mapLocationsOfInterest =
         LiveDataReactiveStreams.fromPublisher(
             Flowable.combineLatest(
                     Arrays.asList(
-                        savedMapFeatures.startWith(ImmutableSet.<MapFeature>of()),
-                        unsavedMapFeatures.startWith(ImmutableSet.<MapFeature>of())),
-                    MapContainerViewModel::concatFeatureSets)
+                        savedMapLocationsOfInterest.startWith(
+                            ImmutableSet.<MapLocationOfInterest>of()),
+                        unsavedMapLocationsOfInterest.startWith(
+                            ImmutableSet.<MapLocationOfInterest>of())),
+                    MapContainerViewModel::concatLocationsOfInterestSets)
                 .distinctUntilChanged());
 
     this.mbtilesFilePaths =
@@ -202,27 +209,28 @@ public class MapContainerViewModel extends AbstractViewModel {
     disposeOnClear(surveyRepository.getActiveSurvey().subscribe(this::onSurveyChange));
   }
 
-  private static ImmutableSet<MapFeature> concatFeatureSets(Object[] objects) {
+  private static ImmutableSet<MapLocationOfInterest> concatLocationsOfInterestSets(
+      Object[] objects) {
     return stream(Arrays.asList(objects))
-        .flatMap(set -> stream((ImmutableSet<MapFeature>) set))
+        .flatMap(set -> stream((ImmutableSet<MapLocationOfInterest>) set))
         .collect(toImmutableSet());
   }
 
-  private static MapFeature toMapPin(PointFeature feature) {
+  private static MapLocationOfInterest toMapPin(PointOfInterest pointOfInterest) {
     return MapPin.newBuilder()
-        .setId(feature.getId())
-        .setPosition(feature.getPoint())
+        .setId(pointOfInterest.getId())
+        .setPosition(pointOfInterest.getPoint())
         .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setFeature(feature)
+        .setLocationOfInterest(pointOfInterest)
         .build();
   }
 
-  private static MapFeature toMapPolygon(PolygonFeature feature) {
+  private static MapLocationOfInterest toMapPolygon(PolygonOfInterest polygonOfInterest) {
     return MapPolygon.newBuilder()
-        .setId(feature.getId())
-        .setVertices(feature.getVertices())
+        .setId(polygonOfInterest.getId())
+        .setVertices(polygonOfInterest.getVertices())
         .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setFeature(feature)
+        .setLocationOfInterest(polygonOfInterest)
         .build();
   }
 
@@ -233,80 +241,87 @@ public class MapContainerViewModel extends AbstractViewModel {
         .ifPresent(this::panAndZoomCamera);
   }
 
-  public void setUnsavedMapFeatures(ImmutableSet<MapFeature> features) {
-    unsavedMapFeatures.onNext(features);
+  public void setUnsavedMapLocationsOfInterest(
+      ImmutableSet<MapLocationOfInterest> locationsOfInterest) {
+    unsavedMapLocationsOfInterest.onNext(locationsOfInterest);
   }
 
-  private ImmutableSet<MapFeature> updateSelectedFeature(
-      ImmutableSet<MapFeature> features, Optional<Feature> selectedFeature) {
-    Timber.v("Updating selected feature style");
-    if (selectedFeature.isEmpty()) {
-      return features;
+  private ImmutableSet<MapLocationOfInterest> updateSelectedLocationOfInterest(
+      ImmutableSet<MapLocationOfInterest> locationsOfInterest,
+      Optional<LocationOfInterest> selectedLocationOfInterest) {
+    Timber.v("Updating selected LOI style");
+    if (selectedLocationOfInterest.isEmpty()) {
+      return locationsOfInterest;
     }
-    ImmutableSet.Builder updatedFeatures = ImmutableSet.builder();
-    String selectedFeatureId = selectedFeature.get().getId();
-    for (MapFeature feature : features) {
-      if (feature instanceof MapGeoJson) {
-        MapGeoJson geoJsonFeature = (MapGeoJson) feature;
-        String geoJsonFeatureId = geoJsonFeature.getFeature().getId();
-        if (geoJsonFeatureId.equals(selectedFeatureId)) {
-          Timber.v("Restyling selected GeoJSON feature " + selectedFeatureId);
-          updatedFeatures.add(
-              geoJsonFeature.toBuilder().setStrokeWidth(selectedPolygonStrokeWidth).build());
+    ImmutableSet.Builder updatedLocationsOfInterest = ImmutableSet.builder();
+    String selectedLocationOfInterestId = selectedLocationOfInterest.get().getId();
+    for (MapLocationOfInterest locationOfInterest : locationsOfInterest) {
+      if (locationOfInterest instanceof MapGeoJson) {
+        MapGeoJson geoJsonLocationOfInterest = (MapGeoJson) locationOfInterest;
+        String geoJsonLocationOfInterestId =
+            geoJsonLocationOfInterest.getLocationOfInterest().getId();
+        if (geoJsonLocationOfInterestId.equals(selectedLocationOfInterestId)) {
+          Timber.v(
+              "Restyling selected GeoJSON location of interest " + selectedLocationOfInterestId);
+          updatedLocationsOfInterest.add(
+              geoJsonLocationOfInterest.toBuilder()
+                  .setStrokeWidth(selectedPolygonStrokeWidth)
+                  .build());
           continue;
         }
       }
-      updatedFeatures.add(feature);
+      updatedLocationsOfInterest.add(locationOfInterest);
     }
-    return updatedFeatures.build();
+    return updatedLocationsOfInterest.build();
   }
 
-  private ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
-    ImmutableSet<MapFeature> mapPins =
-        stream(features)
-            .filter(Feature::isPoint)
-            .map(PointFeature.class::cast)
+  private ImmutableSet<MapLocationOfInterest> toMapLocationsOfInterest(
+      ImmutableSet<LocationOfInterest> locationsOfInterest) {
+    ImmutableSet<MapLocationOfInterest> mapPins =
+        stream(locationsOfInterest)
+            .filter(LocationOfInterest::isPoint)
+            .map(PointOfInterest.class::cast)
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
     // TODO: Add support for polylines similar to mapPins.
 
-    ImmutableSet<MapFeature> mapGeoJson =
-        stream(features)
-            .filter(Feature::isGeoJson)
-            .map(GeoJsonFeature.class::cast)
+    ImmutableSet<MapLocationOfInterest> mapGeoJson =
+        stream(locationsOfInterest)
+            .filter(LocationOfInterest::isGeoJson)
+            .map(GeoJsonLocationOfInterest.class::cast)
             .map(this::toMapGeoJson)
             .collect(toImmutableSet());
 
-    ImmutableSet<MapFeature> mapPolygons =
-        stream(features)
-            .filter(Feature::isPolygon)
-            .map(PolygonFeature.class::cast)
+    ImmutableSet<MapLocationOfInterest> mapPolygons =
+        stream(locationsOfInterest)
+            .filter(LocationOfInterest::isPolygon)
+            .map(PolygonOfInterest.class::cast)
             .map(MapContainerViewModel::toMapPolygon)
             .collect(toImmutableSet());
 
-    return ImmutableSet.<MapFeature>builder()
+    return ImmutableSet.<MapLocationOfInterest>builder()
         .addAll(mapPins)
         .addAll(mapGeoJson)
         .addAll(mapPolygons)
         .build();
   }
 
-  private MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
+  private MapGeoJson toMapGeoJson(GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
     JSONObject jsonObject;
     try {
-      jsonObject = new JSONObject(feature.getGeoJsonString());
+      jsonObject = new JSONObject(geoJsonLocationOfInterest.getGeoJsonString());
     } catch (JSONException e) {
       Timber.e(e);
       jsonObject = new JSONObject();
     }
 
     return MapGeoJson.newBuilder()
-        .setId(feature.getId())
+        .setId(geoJsonLocationOfInterest.getId())
         .setGeoJson(jsonObject)
         .setStyle(Style.DEFAULT_MAP_STYLE)
         .setStrokeWidth(defaultPolygonStrokeWidth)
-        .setFeature(feature)
+        .setLocationOfInterest(geoJsonLocationOfInterest)
         .build();
   }
 
@@ -361,11 +376,13 @@ public class MapContainerViewModel extends AbstractViewModel {
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
-  private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Survey> activeProject) {
-    // Emit empty set in separate stream to force unsubscribe from Feature updates and update
+  private Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestStream(
+      Optional<Survey> activeProject) {
+    // Emit empty set in separate stream to force unsubscribe from LocationOfInterest updates and
+    // update
     // subscribers.
     return activeProject
-        .map(featureRepository::getFeaturesOnceAndStream)
+        .map(locationOfInterestRepository::getLocationsOfInterestOnceAndStream)
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 
@@ -373,8 +390,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return surveyLoadingState;
   }
 
-  public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
-    return mapFeatures;
+  public LiveData<ImmutableSet<MapLocationOfInterest>> getMapLocationsOfInterest() {
+    return mapLocationsOfInterest;
   }
 
   public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {
@@ -462,11 +479,11 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void setMode(Mode viewMode) {
     mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
-    moveFeaturesVisibility.postValue(viewMode == Mode.MOVE_POINT ? VISIBLE : GONE);
+    moveLocationsOfInterestVisibility.postValue(viewMode == Mode.MOVE_POINT ? VISIBLE : GONE);
     addPolygonVisibility.postValue(viewMode == Mode.DRAW_POLYGON ? VISIBLE : GONE);
 
     if (viewMode == Mode.DEFAULT) {
-      setReposFeature(Optional.empty());
+      setReposLocationOfInterest(Optional.empty());
     }
   }
 
@@ -486,33 +503,34 @@ public class MapContainerViewModel extends AbstractViewModel {
     return mapControlsVisibility;
   }
 
-  public LiveData<Integer> getMoveFeatureVisibility() {
-    return moveFeaturesVisibility;
+  public LiveData<Integer> getMoveLocationOfInterestVisibility() {
+    return moveLocationsOfInterestVisibility;
   }
 
   public LiveData<Integer> getAddPolygonVisibility() {
     return addPolygonVisibility;
   }
 
-  public Optional<Feature> getReposFeature() {
-    return reposFeature;
+  public Optional<LocationOfInterest> getReposLocationOfInterest() {
+    return reposLocationOfInterest;
   }
 
-  public void setReposFeature(Optional<Feature> reposFeature) {
-    this.reposFeature = reposFeature;
+  public void setReposLocationOfInterest(Optional<LocationOfInterest> reposLocationOfInterest) {
+    this.reposLocationOfInterest = reposLocationOfInterest;
   }
 
-  /** Called when a feature is (de)selected. */
-  public void setSelectedFeature(Optional<Feature> selectedFeature) {
-    this.selectedFeature.onNext(selectedFeature);
+  /** Called when a LOI is (de)selected. */
+  public void setSelectedLocationOfInterest(
+      Optional<LocationOfInterest> selectedLocationOfInterest) {
+    this.selectedLocationOfInterest.onNext(selectedLocationOfInterest);
   }
 
-  public void setFeatureButtonBackgroundTint(@ColorRes int colorRes) {
-    featureAddButtonBackgroundTint.postValue(colorRes);
+  public void setLocationOfInterestButtonBackgroundTint(@ColorRes int colorRes) {
+    locationOfInterestAddButtonBackgroundTint.postValue(colorRes);
   }
 
-  public LiveData<Integer> getFeatureAddButtonBackgroundTint() {
-    return featureAddButtonBackgroundTint;
+  public LiveData<Integer> getLocationOfInterestAddButtonBackgroundTint() {
+    return locationOfInterestAddButtonBackgroundTint;
   }
 
   public LiveData<Boolean> getLocationLockEnabled() {
@@ -546,7 +564,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
 
     private static CameraUpdate panAndZoomIn(Point center) {
-      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL), false);
+      return new CameraUpdate(center, Optional.of(DEFAULT_LOI_ZOOM_LEVEL), false);
     }
 
     public static CameraUpdate panAndZoom(CameraPosition cameraPosition) {

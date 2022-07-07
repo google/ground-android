@@ -85,8 +85,8 @@
       android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
       app:destination="@id/data_collection_fragment" />
     <action
-      android:id="@+id/action_home_screen_fragment_to_featureSelectorFragment"
-      app:destination="@id/featureSelectorFragment" />
+      android:id="@+id/action_home_screen_fragment_to_locationOfInterestSelectorFragment"
+      app:destination="@id/locationOfInterestSelectorFragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_mapTypeDialogFragment"
       app:destination="@id/mapTypeDialogFragment" />
@@ -105,7 +105,7 @@
       android:name="surveyId"
       type="string" />
     <argument
-      android:name="featureId"
+      android:name="locationOfInterestId"
       type="string" />
     <argument
       android:name="submissionId"
@@ -153,7 +153,7 @@
       android:name="surveyId"
       type="string" />
     <argument
-      android:name="featureId"
+      android:name="locationOfInterestId"
       type="string" />
     <argument
       android:name="submissionId"
@@ -179,7 +179,7 @@
       android:name="surveyId"
       type="string" />
     <argument
-      android:name="featureId"
+      android:name="locationOfInterestId"
       type="string" />
     <argument
       android:name="submissionId"
@@ -239,9 +239,9 @@
     android:name="com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment"
     android:label="ProjectSelectorDialogFragment" />
   <dialog
-    android:id="@+id/featureSelectorFragment"
-    android:name="com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment"
-    android:label="FeatureSelectorFragment" />
+    android:id="@+id/locationOfInterestSelectorFragment"
+    android:name="com.google.android.gnd.ui.home.locationofinterestselector.LocationOfInterestSelectorFragment"
+    android:label="LocationOfInterestSelectorFragment" />
   <dialog
     android:id="@+id/mapTypeDialogFragment"
     android:name="com.google.android.gnd.ui.home.mapcontainer.MapTypeDialogFragment"

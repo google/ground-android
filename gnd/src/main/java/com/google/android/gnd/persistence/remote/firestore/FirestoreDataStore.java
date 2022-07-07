@@ -20,8 +20,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.mutation.FeatureMutation;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
+import com.google.android.gnd.model.mutation.LocationOfInterestMutation;
 import com.google.android.gnd.model.mutation.Mutation;
 import com.google.android.gnd.model.mutation.SubmissionMutation;
 import com.google.android.gnd.model.submission.Submission;
@@ -54,16 +54,12 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
 
-  @Inject
-  ApplicationErrorManager errorManager;
-  @Inject
-  GroundFirestore db;
-  @Inject
-  Schedulers schedulers;
+  @Inject ApplicationErrorManager errorManager;
+  @Inject GroundFirestore db;
+  @Inject Schedulers schedulers;
 
   @Inject
-  FirestoreDataStore() {
-  }
+  FirestoreDataStore() {}
 
   /**
    * Prevents known {@link FirebaseFirestoreException} from propagating downstream. Also, notifies
@@ -91,11 +87,12 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
+      LocationOfInterest locationOfInterest) {
     return db.surveys()
-        .survey(feature.getSurvey().getId())
+        .survey(locationOfInterest.getSurvey().getId())
         .submissions()
-        .submissionsByFeatureId(feature)
+        .submissionsByLocationOfInterestId(locationOfInterest)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))
         .subscribeOn(schedulers.io());
   }
@@ -121,10 +118,11 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold(stateful = true, terminates = false)
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Survey survey) {
+  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
+      Survey survey) {
     return db.surveys()
         .survey(survey.getId())
-        .features()
+        .lois()
         .loadOnceAndStreamChanges(survey)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Flowable.never() : Flowable.error(e))
         .subscribeOn(schedulers.io());
@@ -154,8 +152,8 @@ public class FirestoreDataStore implements RemoteDataStore {
                 + mutation.getClass().getSimpleName()
                 + " for "
                 + (mutation instanceof SubmissionMutation
-                ? ((SubmissionMutation) mutation).getSubmissionId()
-                : mutation.getFeatureId())
+                    ? ((SubmissionMutation) mutation).getSubmissionId()
+                    : mutation.getLocationOfInterestId())
                 + " to batch");
         Timber.e(e, "Skipping invalid mutation");
       }
@@ -165,8 +163,8 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch)
       throws DataStoreException {
-    if (mutation instanceof FeatureMutation) {
-      addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
+    if (mutation instanceof LocationOfInterestMutation) {
+      addLocationOfInterestMutationToBatch((LocationOfInterestMutation) mutation, user, batch);
     } else if (mutation instanceof SubmissionMutation) {
       addSubmissionMutationToBatch((SubmissionMutation) mutation, user, batch);
     } else {
@@ -174,12 +172,12 @@ public class FirestoreDataStore implements RemoteDataStore {
     }
   }
 
-  private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch)
-      throws DataStoreException {
+  private void addLocationOfInterestMutationToBatch(
+      LocationOfInterestMutation mutation, User user, WriteBatch batch) throws DataStoreException {
     db.surveys()
         .survey(mutation.getSurveyId())
-        .features()
-        .feature(mutation.getFeatureId())
+        .lois()
+        .loi(mutation.getLocationOfInterestId())
         .addMutationToBatch(mutation, user, batch);
   }
 

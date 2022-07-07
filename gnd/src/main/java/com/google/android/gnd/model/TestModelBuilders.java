@@ -16,10 +16,10 @@
 
 package com.google.android.gnd.model;
 
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.job.Job;
+import com.google.android.gnd.model.locationofinterest.Point;
+import com.google.android.gnd.model.locationofinterest.PointOfInterest;
+import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
 import com.google.android.gnd.model.task.Field;
 import com.google.android.gnd.model.task.Field.Type;
 import com.google.android.gnd.model.task.Task;
@@ -66,11 +66,12 @@ public class TestModelBuilders {
     return ImmutableList.<Point>builder()
         .add(newPoint().build())
         .add(newPoint().build())
-        .add(newPoint().build()).build();
+        .add(newPoint().build())
+        .build();
   }
 
-  public static PointFeature.Builder newPointFeature() {
-    return PointFeature.newBuilder()
+  public static PointOfInterest.Builder newPointOfInterest() {
+    return PointOfInterest.newBuilder()
         .setId("")
         .setSurvey(newSurvey().build())
         .setPoint(newPoint().build())
@@ -78,8 +79,8 @@ public class TestModelBuilders {
         .setLastModified(newAuditInfo().build());
   }
 
-  public static PolygonFeature.Builder newPolygonFeature() {
-    return PolygonFeature.builder()
+  public static PolygonOfInterest.Builder newPolygonOfInterest() {
+    return PolygonOfInterest.builder()
         .setId("")
         .setSurvey(newSurvey().build())
         .setVertices(newPolygonVertices())
@@ -88,9 +89,7 @@ public class TestModelBuilders {
   }
 
   public static TermsOfService.Builder newTermsOfService() {
-    return TermsOfService.builder()
-        .setId("")
-        .setText("");
+    return TermsOfService.builder().setId("").setText("");
   }
 
   public static Job.Builder newJob() {

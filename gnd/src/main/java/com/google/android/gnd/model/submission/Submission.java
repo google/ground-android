@@ -18,12 +18,12 @@ package com.google.android.gnd.model.submission;
 
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
-import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.locationofinterest.LocationOfInterest;
 import com.google.android.gnd.model.task.Task;
 import com.google.auto.value.AutoValue;
 
 /**
- * Represents a single instance of data collected about a specific {@link Feature}.
+ * Represents a single instance of data collected about a specific {@link LocationOfInterest}.
  */
 @AutoValue
 public abstract class Submission {
@@ -32,7 +32,7 @@ public abstract class Submission {
 
   public abstract Survey getSurvey();
 
-  public abstract Feature getFeature();
+  public abstract LocationOfInterest getLocationOfInterest();
 
   public abstract Task getTask();
 
@@ -61,7 +61,7 @@ public abstract class Submission {
 
     public abstract Builder setSurvey(Survey survey);
 
-    public abstract Builder setFeature(Feature feature);
+    public abstract Builder setLocationOfInterest(LocationOfInterest locationOfInterest);
 
     public abstract Builder setTask(Task task);
 

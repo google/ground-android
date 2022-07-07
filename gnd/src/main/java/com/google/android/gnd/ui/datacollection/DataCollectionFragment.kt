@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import com.google.android.gnd.MainActivity
 import com.google.android.gnd.databinding.DataCollectionFragBinding
 import com.google.android.gnd.ui.common.AbstractFragment
-import com.google.android.gnd.ui.common.FeatureHelper
 import com.google.android.gnd.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -32,9 +31,6 @@ import javax.inject.Inject
 class DataCollectionFragment : AbstractFragment() {
     @Inject
     lateinit var navigator: Navigator
-
-    @Inject
-    lateinit var featureHelper: FeatureHelper
 
     private lateinit var viewModel: DataCollectionViewModel
 
@@ -50,7 +46,7 @@ class DataCollectionFragment : AbstractFragment() {
         val binding = DataCollectionFragBinding.inflate(inflater, container, false)
 
         val args = getDataCollectionFragmentArgs()
-        viewModel.load(args.surveyId, args.featureId, args.submissionId)
+        viewModel.load(args.surveyId, args.locationOfInterestId, args.submissionId)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 

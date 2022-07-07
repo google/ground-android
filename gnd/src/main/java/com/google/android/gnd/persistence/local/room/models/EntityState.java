@@ -22,7 +22,7 @@ import androidx.room.TypeConverter;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 
 /**
- * Mutually exclusive entity states shared by Features and Submissions.
+ * Mutually exclusive entity states shared by LOIs and Submissions.
  */
 public enum EntityState implements IntEnum {
   UNKNOWN(0),

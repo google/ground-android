@@ -27,18 +27,18 @@ import java.util.List;
 @Dao
 public interface SubmissionDao extends BaseDao<SubmissionEntity> {
 
-  /**
-   * Returns the submission with the specified UUID, if found.
-   */
+  /** Returns the submission with the specified UUID, if found. */
   @Query("SELECT * FROM submission WHERE id = :submissionId")
   Maybe<SubmissionEntity> findById(String submissionId);
 
   /**
-   * Returns the list submissions associated with the specified feature, task and state.
+   * Returns the list submissions associated with the specified location of interest, task and
+   * state.
    */
   @Query(
       "SELECT * FROM submission "
-          + "WHERE feature_id = :featureId AND task_id = :taskId AND state = :state")
-  Single<List<SubmissionEntity>> findByFeatureId(
-      String featureId, String taskId, EntityState state);
+          + "WHERE location_of_interest_id = :locationOfInterestId "
+          + "AND task_id = :taskId AND state = :state")
+  Single<List<SubmissionEntity>> findByLocationOfInterestId(
+      String locationOfInterestId, String taskId, EntityState state);
 }

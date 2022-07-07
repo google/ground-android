@@ -20,12 +20,12 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Survey;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.GeoJsonFeature;
-import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.job.Job;
 import com.google.android.gnd.model.job.Job.Builder;
+import com.google.android.gnd.model.locationofinterest.GeoJsonLocationOfInterest;
+import com.google.android.gnd.model.locationofinterest.Point;
+import com.google.android.gnd.model.locationofinterest.PointOfInterest;
+import com.google.android.gnd.model.locationofinterest.PolygonOfInterest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -63,9 +63,9 @@ public class FakeData {
         .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"));
   }
 
-  public static final PointFeature POINT_FEATURE =
-      PointFeature.newBuilder()
-          .setId("feature id")
+  public static final PointOfInterest POINT_FEATURE =
+      PointOfInterest.newBuilder()
+          .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
@@ -79,9 +79,9 @@ public class FakeData {
           Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
           Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
 
-  public static final PolygonFeature POLYGON_FEATURE =
-      PolygonFeature.builder()
-          .setId("feature id")
+  public static final PolygonOfInterest POLYGON_FEATURE =
+      PolygonOfInterest.builder()
+          .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
           .setVertices(VERTICES)
@@ -89,9 +89,9 @@ public class FakeData {
           .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final GeoJsonFeature GEO_JSON_FEATURE =
-      GeoJsonFeature.newBuilder()
-          .setId("feature id")
+  public static final GeoJsonLocationOfInterest GEO_JSON_FEATURE =
+      GeoJsonLocationOfInterest.newBuilder()
+          .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
           .setGeoJsonString("some data string")

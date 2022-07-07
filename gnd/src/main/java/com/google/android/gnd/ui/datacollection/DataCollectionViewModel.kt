@@ -37,11 +37,11 @@ class DataCollectionViewModel @Inject internal constructor(private val submissio
 
     fun load(
         surveyId: String,
-        featureId: String,
+        locationOfInterestId: String,
         submissionId: String
     ) =
         viewModelScope.launch {
             _submission.value =
-                submissionRepository.getSubmission(surveyId, featureId, submissionId).await()
+                submissionRepository.getSubmission(surveyId, locationOfInterestId, submissionId).await()
         }
 }
