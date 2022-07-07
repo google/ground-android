@@ -16,15 +16,9 @@
 
 package com.google.android.ground.ui.home.mapcontainer;
 
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/ground/ui/home/mapcontainer/FeatureRepositionViewModelTest.java
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.feature.Point;
-import com.google.android.ground.rx.Nil;
-========
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.rx.Nil;
->>>>>>>> master:gnd/src/test/java/com/google/android/ground/ui/home/mapcontainer/LocationOfInterestRepositionViewModelTest.java
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
 import javax.inject.Inject;

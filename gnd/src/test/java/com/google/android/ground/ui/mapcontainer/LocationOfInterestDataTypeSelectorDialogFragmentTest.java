@@ -22,19 +22,11 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.view.View;
 import android.widget.ListView;
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/ground/ui/mapcontainer/FeatureDataTypeSelectorDialogFragmentTest.java
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.MainActivity;
-import com.google.android.ground.R;
-import com.google.android.ground.ui.home.mapcontainer.FeatureDataTypeSelectorDialogFragment;
-import com.google.android.ground.ui.surveyselector.SurveySelectorDialogFragment;
-========
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
 import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestDataTypeSelectorDialogFragment;
 import com.google.android.ground.ui.surveyselector.SurveySelectorDialogFragment;
->>>>>>>> master:gnd/src/test/java/com/google/android/ground/ui/mapcontainer/LocationOfInterestDataTypeSelectorDialogFragmentTest.java
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.function.Consumer;
 import org.junit.Before;

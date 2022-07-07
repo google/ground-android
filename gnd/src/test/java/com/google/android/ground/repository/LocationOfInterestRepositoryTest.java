@@ -24,22 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/ground/repository/FeatureRepositoryTest.java
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.FakeData;
-import com.google.android.ground.model.mutation.FeatureMutation;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.model.mutation.Mutation.SyncStatus;
-import com.google.android.ground.model.mutation.Mutation.Type;
-import com.google.android.ground.persistence.local.LocalDataStore;
-import com.google.android.ground.persistence.local.LocalDataStoreModule;
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus;
-import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
-import com.google.android.ground.persistence.remote.NotFoundException;
-import com.google.android.ground.persistence.remote.RemoteDataEvent;
-import com.google.android.ground.persistence.sync.DataSyncWorkManager;
-import com.google.android.ground.system.auth.FakeAuthenticationManager;
-========
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.FakeData;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
@@ -54,7 +38,6 @@ import com.google.android.ground.persistence.remote.NotFoundException;
 import com.google.android.ground.persistence.remote.RemoteDataEvent;
 import com.google.android.ground.persistence.sync.DataSyncWorkManager;
 import com.google.android.ground.system.auth.FakeAuthenticationManager;
->>>>>>>> master:gnd/src/test/java/com/google/android/ground/repository/LocationOfInterestRepositoryTest.java
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;

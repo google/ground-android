@@ -23,19 +23,11 @@ import static com.google.android.ground.FakeData.POLYGON_FEATURE;
 import static com.google.android.ground.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/ground/ui/common/FeatureHelperTest.java
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.feature.GeoJsonFeature;
-import com.google.android.ground.model.feature.PointFeature;
-import com.google.android.ground.model.feature.PolygonFeature;
-========
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
->>>>>>>> master:gnd/src/test/java/com/google/android/ground/ui/common/LocationOfInterestHelperTest.java
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;

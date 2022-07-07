@@ -16,18 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/ground/persistence/remote/firestore/schema/FeatureConverterTest.java
-import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
-import static com.google.android.ground.model.TestModelBuilders.newField;
-import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
-import static com.google.android.ground.model.TestModelBuilders.newJob;
-import static com.google.android.ground.model.TestModelBuilders.newPolygonFeature;
-import static com.google.android.ground.model.TestModelBuilders.newPolygonVertices;
-import static com.google.android.ground.model.TestModelBuilders.newSurvey;
-import static com.google.android.ground.model.TestModelBuilders.newTask;
-import static com.google.android.ground.model.TestModelBuilders.newUser;
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-========
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.ground.model.TestModelBuilders.newField;
 import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
@@ -38,24 +26,11 @@ import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
 import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
->>>>>>>> master:gnd/src/test/java/com/google/android/ground/persistence/remote/firestore/schema/LoiConverterTest.java
 import static com.google.common.truth.Truth.assertThat;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
-<<<<<<<< HEAD:gnd/src/test/java/com/google/android/ground/persistence/remote/firestore/schema/FeatureConverterTest.java
-import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.feature.Feature;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.MultipleChoice;
-import com.google.android.ground.model.task.MultipleChoice.Cardinality;
-import com.google.android.ground.model.task.Step;
-import com.google.android.ground.model.task.Task;
-import com.google.android.ground.persistence.remote.DataStoreException;
-========
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
@@ -66,7 +41,6 @@ import com.google.android.ground.model.task.MultipleChoice.Cardinality;
 import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
->>>>>>>> master:gnd/src/test/java/com/google/android/ground/persistence/remote/firestore/schema/LoiConverterTest.java
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.Date;
