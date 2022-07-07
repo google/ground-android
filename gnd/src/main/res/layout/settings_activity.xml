@@ -29,7 +29,7 @@
       android:fitsSystemWindows="true"
       android:orientation="vertical">
 
-      <com.google.android.gnd.ui.common.TwoLineToolbar
+      <com.google.android.ground.ui.common.TwoLineToolbar
         android:id="@+id/settings_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
 
       <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
-        android:name="com.google.android.gnd.ui.settings.SettingsFragment"
+        android:name="com.google.android.ground.ui.settings.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

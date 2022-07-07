@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.datacollection.DataCollectionViewModel" />
+      type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <com.google.android.gnd.ui.common.TwoLineToolbar
+    <com.google.android.ground.ui.common.TwoLineToolbar
       android:id="@+id/data_collection_toolbar"
       android:layout_width="0dp"
       android:layout_height="wrap_content"

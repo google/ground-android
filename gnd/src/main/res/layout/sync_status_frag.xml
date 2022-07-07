@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.syncstatus.SyncStatusViewModel" />
+      type="com.google.android.ground.ui.syncstatus.SyncStatusViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <com.google.android.gnd.ui.common.TwoLineToolbar
+    <com.google.android.ground.ui.common.TwoLineToolbar
       android:id="@+id/sync_status_toolbar"
       android:layout_width="0dp"
       android:layout_height="wrap_content"

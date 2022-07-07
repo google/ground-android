@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel" />
+      type="com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

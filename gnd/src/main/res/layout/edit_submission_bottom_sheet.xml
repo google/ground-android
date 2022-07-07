@@ -21,10 +21,10 @@
   <data>
     <variable
       name="field"
-      type="com.google.android.gnd.model.task.Field" />
+      type="com.google.android.ground.model.task.Field" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editsubmission.EditSubmissionViewModel" />
+      type="com.google.android.ground.ui.editsubmission.EditSubmissionViewModel" />
   </data>
 
   <LinearLayout

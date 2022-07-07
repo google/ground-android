@@ -18,7 +18,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
-  package="com.google.android.gnd">
+  package="com.google.android.ground">
 
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -77,7 +77,7 @@
       tools:node="remove" />
     <provider
       android:name="androidx.core.content.FileProvider"
-      android:authorities="com.google.android.gnd"
+      android:authorities="com.google.android.ground"
       android:exported="false"
       android:grantUriPermissions="true">
       <meta-data

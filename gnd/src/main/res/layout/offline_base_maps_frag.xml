@@ -16,14 +16,13 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:tools="http://schemas.android.com/tools"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.offlinebasemap.OfflineAreasViewModel" />
+      type="com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +30,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <com.google.android.gnd.ui.common.TwoLineToolbar
+    <com.google.android.ground.ui.common.TwoLineToolbar
       android:id="@+id/offline_areas_toolbar"
       android:layout_width="0dp"
       android:layout_height="wrap_content"

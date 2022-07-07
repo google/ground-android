@@ -22,14 +22,14 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
+      type="com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel" />
     <variable
       name="homeScreenViewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
 
     <variable
       name="polygonDrawingViewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.PolygonDrawingViewModel" />
+      type="com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel" />
   </data>
 
   <FrameLayout

@@ -25,7 +25,7 @@
   app:startDestination="@id/startup_fragment">
   <fragment
     android:id="@+id/startup_fragment"
-    android:name="com.google.android.gnd.ui.startup.StartupFragment"
+    android:name="com.google.android.ground.ui.startup.StartupFragment"
     android:label="startup_frag"
     tools:layout="@layout/startup_frag">
     <action
@@ -47,7 +47,7 @@
 
   <fragment
     android:id="@+id/home_screen_fragment"
-    android:name="com.google.android.gnd.ui.home.HomeScreenFragment"
+    android:name="com.google.android.ground.ui.home.HomeScreenFragment"
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
@@ -93,17 +93,17 @@
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
-    android:name="com.google.android.gnd.ui.syncstatus.SyncStatusFragment"
+    android:name="com.google.android.ground.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
     tools:layout="@layout/sync_status_frag" />
   <fragment
     android:id="@+id/data_collection_fragment"
-    android:name="com.google.android.gnd.ui.datacollection.DataCollectionFragment"
+    android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
     android:label="@string/collect_data"
     tools:layout="@layout/data_collection_frag" />
   <fragment
     android:id="@+id/offline_areas_fragment"
-    android:name="com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragment"
+    android:name="com.google.android.ground.ui.offlinebasemap.OfflineAreasFragment"
     android:label="@string/offline_base_maps"
     tools:layout="@layout/offline_base_maps_frag">
     <action
@@ -118,7 +118,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_selector_fragment"
-    android:name="com.google.android.gnd.ui.offlinebasemap.selector.OfflineAreaSelectorFragment"
+    android:name="com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorFragment"
     android:label="@string/offline_base_map_selector"
     tools:layout="@layout/offline_base_map_selector_frag">
     <action
@@ -127,7 +127,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_viewer_fragment"
-    android:name="com.google.android.gnd.ui.offlinebasemap.viewer.OfflineAreaViewerFragment"
+    android:name="com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerFragment"
     android:label="@string/offline_base_map_viewer_title"
     tools:layout="@layout/offline_base_map_viewer_frag">
     <argument
@@ -136,7 +136,7 @@
   </fragment>
   <fragment
     android:id="@+id/submission_details_fragment"
-    android:name="com.google.android.gnd.ui.submissiondetails.SubmissionDetailsFragment"
+    android:name="com.google.android.ground.ui.submissiondetails.SubmissionDetailsFragment"
     android:label="@string/view_submission_details"
     tools:layout="@layout/submission_details_frag">
     <argument
@@ -162,7 +162,7 @@
   </fragment>
   <fragment
     android:id="@+id/edit_submission_fragment"
-    android:name="com.google.android.gnd.ui.editsubmission.EditSubmissionFragment"
+    android:name="com.google.android.ground.ui.editsubmission.EditSubmissionFragment"
     android:label="edit_submission_frag"
     tools:layout="@layout/edit_submission_frag">
     <argument
@@ -185,7 +185,7 @@
   </fragment>
   <fragment
     android:id="@+id/sign_in_fragment"
-    android:name="com.google.android.gnd.ui.signin.SignInFragment"
+    android:name="com.google.android.ground.ui.signin.SignInFragment"
     android:label="sign_in_frag"
     tools:layout="@layout/sign_in_frag">
     <action
@@ -196,7 +196,7 @@
   </fragment>
   <activity
     android:id="@+id/settings_activity"
-    android:name="com.google.android.gnd.SettingsActivity"
+    android:name="com.google.android.ground.SettingsActivity"
     android:label="settings_activity"
     tools:layout="@layout/settings_activity" />
   <action
@@ -210,7 +210,7 @@
 
   <fragment
     android:id="@+id/terms_of_service_fragment"
-    android:name="com.google.android.gnd.ui.tos.TermsOfServiceFragment"
+    android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
     android:label="@string/tos_title"
     tools:layout="@layout/fragment_terms_service">
     <argument
@@ -226,19 +226,19 @@
   </fragment>
   <dialog
     android:id="@+id/surveySelectorDialogFragment"
-    android:name="com.google.android.gnd.ui.surveyselector.SurveySelectorDialogFragment"
+    android:name="com.google.android.ground.ui.surveyselector.SurveySelectorDialogFragment"
     android:label="ProjectSelectorDialogFragment" />
   <dialog
     android:id="@+id/locationOfInterestSelectorFragment"
-    android:name="com.google.android.gnd.ui.home.locationofinterestselector.LocationOfInterestSelectorFragment"
+    android:name="com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorFragment"
     android:label="LocationOfInterestSelectorFragment" />
   <dialog
     android:id="@+id/mapTypeDialogFragment"
-    android:name="com.google.android.gnd.ui.home.mapcontainer.MapTypeDialogFragment"
+    android:name="com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragment"
     android:label="MapTypeDialogFragment">
     <argument
       android:name="mapTypes"
-      app:argType="com.google.android.gnd.ui.map.MapType[]" />
+      app:argType="com.google.android.ground.ui.map.MapType[]" />
   </dialog>
 
 </navigation>

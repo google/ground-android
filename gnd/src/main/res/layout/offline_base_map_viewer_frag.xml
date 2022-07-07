@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel" />
+      type="com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <com.google.android.gnd.ui.common.TwoLineToolbar
+    <com.google.android.ground.ui.common.TwoLineToolbar
       android:id="@+id/offline_area_viewer_toolbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
         android:layout_width="220dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior"
+        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapLayoutBehavior"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_toolbar" />

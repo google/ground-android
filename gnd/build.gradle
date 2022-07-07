@@ -61,14 +61,14 @@ def getCommitSha1 = { ->
 android {
     compileSdkVersion rootProject.androidCompileSdk
     defaultConfig {
-        applicationId "com.google.android.gnd"
+        applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
 
         // TODO(https://github.com/google/ground-android/pull/985): Calculate version code manually
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName + " " + getCommitSha1()
-        testInstrumentationRunner "com.google.android.gnd.CustomTestRunner"
+        testInstrumentationRunner "com.google.android.ground.CustomTestRunner"
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
@@ -158,14 +158,14 @@ android {
                 error("NullAway")
 
                 // Specify the packages which NullAway should analyze.
-                option("NullAway:AnnotatedPackages", "com.google.android.gnd")
+                option("NullAway:AnnotatedPackages", "com.google.android.ground")
 
                 // Ignore generated classes from databinding, as well as Room and Firebase classes.
                 option("NullAway:UnannotatedSubPackages",
-                    "com.google.android.gnd.databinding," +
-                        "com.google.android.gnd.persistence.local.room," +
-                        "com.google.android.gnd.persistence.remote.firestore," +
-                        "com.google.android.gnd.persistence.remote.firestore.schema")
+                    "com.google.android.ground.databinding," +
+                        "com.google.android.ground.persistence.local.room," +
+                        "com.google.android.ground.persistence.remote.firestore," +
+                        "com.google.android.ground.persistence.remote.firestore.schema")
 
                 excludedPaths = ".*/build/generated/.*"
             }

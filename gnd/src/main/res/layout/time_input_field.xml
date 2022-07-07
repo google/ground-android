@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editsubmission.TimeFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.TimeFieldViewModel" />
   </data>
 
   <LinearLayout

@@ -23,7 +23,7 @@
   <data>
     <variable
       name="user"
-      type="com.google.android.gnd.model.User" />
+      type="com.google.android.ground.model.User" />
   </data>
 
   <LinearLayout
