@@ -46,7 +46,7 @@ public class SubmissionCollectionReference extends FluentCollectionReference {
   @Cold
   public Single<ImmutableList<ValueOrError<Submission>>> submissionsByLocationOfInterestId(
       LocationOfInterest locationOfInterest) {
-    return RxFirestore.getCollection(byFeatureId(locationOfInterest.getId()))
+    return RxFirestore.getCollection(byLoiId(locationOfInterest.getId()))
         .map(querySnapshot -> convert(querySnapshot, locationOfInterest))
         .toSingle(ImmutableList.of());
   }
@@ -62,8 +62,7 @@ public class SubmissionCollectionReference extends FluentCollectionReference {
         .collect(toImmutableList());
   }
 
-  private Query byFeatureId(String featureId) {
-    return reference()
-        .whereEqualTo(FieldPath.of(SubmissionMutationConverter.FEATURE_ID), featureId);
+  private Query byLoiId(String loiId) {
+    return reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId);
   }
 }

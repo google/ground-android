@@ -122,7 +122,7 @@ public class FirestoreDataStore implements RemoteDataStore {
       Survey survey) {
     return db.surveys()
         .survey(survey.getId())
-        .features()
+        .lois()
         .loadOnceAndStreamChanges(survey)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Flowable.never() : Flowable.error(e))
         .subscribeOn(schedulers.io());
@@ -176,8 +176,8 @@ public class FirestoreDataStore implements RemoteDataStore {
       LocationOfInterestMutation mutation, User user, WriteBatch batch) throws DataStoreException {
     db.surveys()
         .survey(mutation.getSurveyId())
-        .features()
-        .feature(mutation.getLocationOfInterestId())
+        .lois()
+        .loi(mutation.getLocationOfInterestId())
         .addMutationToBatch(mutation, user, batch);
   }
 

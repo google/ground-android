@@ -53,7 +53,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
+<<<<<<<< HEAD:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LocationOfInterestConverterTest.java
 public class LocationOfInterestConverterTest {
+========
+public class LoiConverterTest {
+>>>>>>>> 4b42d4533aa953c5e3059363c13ec54f4bdead90:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LoiConverterTest.java
 
   @Mock private DocumentSnapshot featureDocumentSnapshot;
 
@@ -117,7 +121,7 @@ public class LocationOfInterestConverterTest {
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature123",
-        new FeatureDocument(
+        new LoiDocument(
             /* jobId */
             "job001",
             /* customId */
@@ -156,7 +160,7 @@ public class LocationOfInterestConverterTest {
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
-        new FeatureDocument(
+        new LoiDocument(
             /* jobId */
             "job001",
             /* customId */
@@ -195,7 +199,7 @@ public class LocationOfInterestConverterTest {
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
-        new FeatureDocument(
+        new LoiDocument(
             /* jobId */
             "job001",
             /* customId */
@@ -230,21 +234,30 @@ public class LocationOfInterestConverterTest {
 
   private void setUpTestGeometry() {
     geometry = new HashMap<>();
-    geometry.put(FeatureConverter.GEOMETRY_COORDINATES, newGeoPointPolygonVertices());
-    geometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
+    geometry.put(LoiConverter.GEOMETRY_COORDINATES, newGeoPointPolygonVertices());
+    geometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
 
     noVerticesGeometry = new HashMap<>();
-    noVerticesGeometry.put(FeatureConverter.GEOMETRY_COORDINATES, null);
-    noVerticesGeometry.put(FeatureConverter.GEOMETRY_TYPE, FeatureConverter.POLYGON_TYPE);
+    noVerticesGeometry.put(LoiConverter.GEOMETRY_COORDINATES, null);
+    noVerticesGeometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */
+<<<<<<<< HEAD:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LocationOfInterestConverterTest.java
   private void mockFeatureDocumentSnapshot(String id, FeatureDocument doc) {
+========
+  private void mockFeatureDocumentSnapshot(String id, LoiDocument doc) {
+>>>>>>>> 4b42d4533aa953c5e3059363c13ec54f4bdead90:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LoiConverterTest.java
     when(featureDocumentSnapshot.getId()).thenReturn(id);
-    when(featureDocumentSnapshot.toObject(FeatureDocument.class)).thenReturn(doc);
+    when(featureDocumentSnapshot.toObject(LoiDocument.class)).thenReturn(doc);
   }
 
+<<<<<<<< HEAD:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LocationOfInterestConverterTest.java
   private LocationOfInterest toFeature() {
     return FeatureConverter.toFeature(survey, featureDocumentSnapshot);
+========
+  private Feature toFeature() {
+    return LoiConverter.toLoi(survey, featureDocumentSnapshot);
+>>>>>>>> 4b42d4533aa953c5e3059363c13ec54f4bdead90:gnd/src/test/java/com/google/android/gnd/persistence/remote/firestore/schema/LoiConverterTest.java
   }
 }
