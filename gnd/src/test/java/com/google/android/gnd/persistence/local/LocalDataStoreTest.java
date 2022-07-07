@@ -79,7 +79,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final Task TEST_TASK =
       Task.newBuilder()
           .setId("task id")
-          .setTitle("task title")
           .setSteps(ImmutableList.of(Step.ofField(TEST_FIELD)))
           .build();
 
