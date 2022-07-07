@@ -54,20 +54,20 @@
         app:layout_behavior="@string/bottom_sheet_behavior">
 
         <androidx.fragment.app.FragmentContainerView
-          android:id="@+id/feature_details_frag"
-          android:name="com.google.android.ground.ui.home.featuredetails.FeatureDetailsFragment"
+          android:id="@+id/location_of_interest_details_frag"
+          android:name="com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsFragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          tools:layout="@layout/feature_details_frag" />
+          tools:layout="@layout/location_of_interest_details_frag" />
 
       </FrameLayout>
 
-      <!-- feature_sheet_chrome contains the fixed widgets that don't scroll -
+      <!-- location_of_interest_sheet_chrome contains the fixed widgets that don't scroll -
       in this case the Add Submission button the shim to obscure
       the transparent bottom inset -->
       <include
-        android:id="@+id/feature_details_chrome"
-        layout="@layout/feature_details_chrome" />
+        android:id="@+id/location_of_interest_details_chrome"
+        layout="@layout/location_of_interest_details_chrome" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

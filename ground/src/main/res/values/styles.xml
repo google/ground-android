@@ -30,7 +30,7 @@
     <item name="colorAccent">@color/colorAccent</item>
   </style>
 
-  <style name="FeatureDetailsToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+  <style name="LocationOfInterestDetailsToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     <item name="colorControlNormal">@color/colorBackground</item>
     <item name="android:textColor">@color/colorForeground</item>
   </style>

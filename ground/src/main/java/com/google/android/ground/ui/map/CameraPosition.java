@@ -16,7 +16,7 @@
 
 package com.google.android.ground.ui.map;
 
-import com.google.android.ground.model.feature.Point;
+import com.google.android.ground.model.locationofinterest.Point;
 
 public class CameraPosition {
 

@@ -21,9 +21,9 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.FakeData;
-import com.google.android.ground.model.feature.Point;
+import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.ground.ui.map.MapFeature;
+import com.google.android.ground.ui.map.MapLocationOfInterest;
 import com.google.android.ground.ui.map.MapPin;
 import com.google.android.ground.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
@@ -41,7 +41,8 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   @Inject PolygonDrawingViewModel viewModel;
 
   private com.jraska.livedata.TestObserver<Boolean> polygonCompletedTestObserver;
-  private com.jraska.livedata.TestObserver<ImmutableSet<MapFeature>> drawnMapFeaturesTestObserver;
+  private com.jraska.livedata.TestObserver<ImmutableSet<MapLocationOfInterest>>
+      drawnMapFeaturesTestObserver;
 
   @Override
   public void setUp() {
@@ -50,7 +51,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     polygonCompletedTestObserver =
         com.jraska.livedata.TestObserver.test(viewModel.isPolygonCompleted());
     drawnMapFeaturesTestObserver =
-        com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapFeatures());
+        com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapLocationsOfInterest());
 
     // Initialize polygon drawing
     viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB);
@@ -198,8 +199,9 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     stateTestObserver.assertValue(
         polygonDrawingState ->
             polygonDrawingState.isCompleted()
-                && polygonDrawingState.getUnsavedPolygonFeature() != null
-                && polygonDrawingState.getUnsavedPolygonFeature().getVertices().size() == 4);
+                && polygonDrawingState.getUnsavedPolygonLocationOfInterest() != null
+                && polygonDrawingState.getUnsavedPolygonLocationOfInterest().getVertices().size()
+                    == 4);
   }
 
   private void validatePolygonCompleted(boolean isVisible) {
@@ -212,10 +214,10 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
           int actualMapPolygonCount = 0;
           int actualMapPinCount = 0;
 
-          for (MapFeature mapFeature : mapFeatures) {
-            if (mapFeature instanceof MapPolygon) {
+          for (MapLocationOfInterest mapLocationOfInterest : mapFeatures) {
+            if (mapLocationOfInterest instanceof MapPolygon) {
               actualMapPolygonCount++;
-            } else if (mapFeature instanceof MapPin) {
+            } else if (mapLocationOfInterest instanceof MapPin) {
               actualMapPinCount++;
             }
           }

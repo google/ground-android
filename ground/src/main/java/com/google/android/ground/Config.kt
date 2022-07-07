@@ -25,8 +25,8 @@ object Config {
 
     // Local db settings.
     // TODO(#128): Reset version to 1 before releasing.
-    const val DB_VERSION = 91
-    const val DB_NAME = "ground.db"
+    const val DB_VERSION = 94
+    const val DB_NAME = "gnd.db"
 
     // Firebase Cloud Firestore settings.
     const val FIRESTORE_PERSISTENCE_ENABLED = false

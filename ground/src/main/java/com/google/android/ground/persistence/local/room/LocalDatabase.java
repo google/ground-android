@@ -24,10 +24,10 @@ import com.google.android.ground.persistence.local.room.converter.JsonArrayTypeC
 import com.google.android.ground.persistence.local.room.converter.JsonObjectTypeConverter;
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter;
 import com.google.android.ground.persistence.local.room.dao.BaseMapDao;
-import com.google.android.ground.persistence.local.room.dao.FeatureDao;
-import com.google.android.ground.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.ground.persistence.local.room.dao.FieldDao;
 import com.google.android.ground.persistence.local.room.dao.JobDao;
+import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao;
+import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao;
 import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.ground.persistence.local.room.dao.OptionDao;
@@ -38,10 +38,10 @@ import com.google.android.ground.persistence.local.room.dao.TaskDao;
 import com.google.android.ground.persistence.local.room.dao.TileSetDao;
 import com.google.android.ground.persistence.local.room.dao.UserDao;
 import com.google.android.ground.persistence.local.room.entity.BaseMapEntity;
-import com.google.android.ground.persistence.local.room.entity.FeatureEntity;
-import com.google.android.ground.persistence.local.room.entity.FeatureMutationEntity;
 import com.google.android.ground.persistence.local.room.entity.FieldEntity;
 import com.google.android.ground.persistence.local.room.entity.JobEntity;
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity;
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity;
 import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.ground.persistence.local.room.entity.OptionEntity;
@@ -69,8 +69,8 @@ import com.google.android.ground.persistence.local.room.models.TileSetEntityStat
  */
 @Database(
     entities = {
-      FeatureEntity.class,
-      FeatureMutationEntity.class,
+      LocationOfInterestEntity.class,
+      LocationOfInterestMutationEntity.class,
       FieldEntity.class,
       TaskEntity.class,
       JobEntity.class,
@@ -101,9 +101,9 @@ import com.google.android.ground.persistence.local.room.models.TileSetEntityStat
 })
 public abstract class LocalDatabase extends RoomDatabase {
 
-  public abstract FeatureDao featureDao();
+  public abstract LocationOfInterestDao locationOfInterestDao();
 
-  public abstract FeatureMutationDao featureMutationDao();
+  public abstract LocationOfInterestMutationDao locationOfInterestMutationDao();
 
   public abstract FieldDao fieldDao();
 

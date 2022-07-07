@@ -17,7 +17,7 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.feature.Feature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.SubmissionMutation;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference;
@@ -34,9 +34,9 @@ public class SubmissionDocumentReference extends FluentDocumentReference {
   }
 
   @Cold
-  public Maybe<Submission> get(Feature feature) {
+  public Maybe<Submission> get(LocationOfInterest locationOfInterest) {
     return RxFirestore.getDocument(reference())
-        .map(doc -> SubmissionConverter.toSubmission(feature, doc));
+        .map(doc -> SubmissionConverter.toSubmission(locationOfInterest, doc));
   }
 
   /**

@@ -26,7 +26,7 @@ sealed class Mutation {
     abstract val type: Type
     abstract val syncStatus: SyncStatus
     abstract val surveyId: String
-    abstract val featureId: String
+    abstract val locationOfInterestId: String
     abstract val jobId: String
     abstract val userId: String
     abstract val clientTimestamp: Date
@@ -81,7 +81,7 @@ sealed class Mutation {
             @JvmSynthetic set
         var surveyId: String = ""
             @JvmSynthetic set
-        var featureId: String = ""
+        var locationOfInterestId: String = ""
             @JvmSynthetic set
         var jobId: String = ""
             @JvmSynthetic set
@@ -100,7 +100,9 @@ sealed class Mutation {
             apply { this.syncStatus = syncStatus }
 
         fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
-        fun setFeatureId(featureId: String): Builder<T> = apply { this.featureId = featureId }
+        fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> =
+            apply { this.locationOfInterestId = locationOfInterestId }
+
         fun setJobId(jobId: String): Builder<T> = apply { this.jobId = jobId }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
         fun setClientTimestamp(timestamp: Date): Builder<T> =
@@ -115,7 +117,7 @@ sealed class Mutation {
                 type = mutation.type
                 syncStatus = mutation.syncStatus
                 surveyId = mutation.surveyId
-                featureId = mutation.featureId
+                locationOfInterestId = mutation.locationOfInterestId
                 jobId = mutation.jobId
                 userId = mutation.userId
                 clientTimestamp = mutation.clientTimestamp

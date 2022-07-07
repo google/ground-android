@@ -17,13 +17,13 @@
 package com.google.android.ground.ui.map;
 
 import androidx.annotation.Nullable;
-import com.google.android.ground.model.feature.Feature;
-import com.google.android.ground.model.feature.Point;
 import com.google.android.ground.model.job.Style;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.Point;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class MapPin extends MapFeature {
+public abstract class MapPin extends MapLocationOfInterest {
 
   public static Builder newBuilder() {
     return new AutoValue_MapPin.Builder();
@@ -35,11 +35,12 @@ public abstract class MapPin extends MapFeature {
 
   public abstract Style getStyle();
 
-  // TODO: Stop embedding entire Feature in pins to free up memory. Instead, copy only details
-  // relevant to rendering pins and uuid to reference the related Feature.
+  // TODO: Stop embedding entire LocationOfInterest in pins to free up memory. Instead, copy only
+  // details
+  // relevant to rendering pins and uuid to reference the related LocationOfInterest.
   @Nullable
   @Override
-  public abstract Feature getFeature();
+  public abstract LocationOfInterest getLocationOfInterest();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -49,7 +50,8 @@ public abstract class MapPin extends MapFeature {
 
     public abstract Builder setStyle(Style style);
 
-    public abstract Builder setFeature(@Nullable Feature newFeature);
+    public abstract Builder setLocationOfInterest(
+        @Nullable LocationOfInterest newLocationOfInterest);
 
     public abstract MapPin build();
   }

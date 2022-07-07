@@ -21,7 +21,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.ground.model.feature.Point;
+import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractFragment;
@@ -48,7 +48,7 @@ public interface MapFragment {
   Observable<MapPin> getMapPinClicks();
 
   @Hot
-  Observable<ImmutableList<MapFeature>> getFeatureClicks();
+  Observable<ImmutableList<MapLocationOfInterest>> getLocationOfInterestClicks();
 
   /**
    * Returns map drag events. Emits an empty event when the map starts to move by the user.
@@ -92,7 +92,7 @@ public interface MapFragment {
   void enableCurrentLocationIndicator();
 
   /** Update map pins/polygons shown on map. */
-  void setMapFeatures(ImmutableSet<MapFeature> mapFeatures);
+  void setMapLocationsOfInterest(ImmutableSet<MapLocationOfInterest> mapLocationsOfInterest);
 
   /** Refreshes map pins, updating their size according to the zoom level. */
   void refreshMarkerIcons();

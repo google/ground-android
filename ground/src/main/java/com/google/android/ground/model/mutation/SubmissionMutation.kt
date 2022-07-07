@@ -26,7 +26,7 @@ data class SubmissionMutation(
     override val type: Type = Type.UNKNOWN,
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
     override val surveyId: String = "",
-    override val featureId: String = "",
+    override val locationOfInterestId: String = "",
     override val jobId: String = "",
     override val userId: String = "",
     override val clientTimestamp: Date = Date(),
@@ -73,7 +73,7 @@ data class SubmissionMutation(
             type,
             syncStatus,
             surveyId,
-            featureId,
+            locationOfInterestId,
             jobId,
             userId,
             clientTimestamp,
@@ -93,7 +93,7 @@ data class SubmissionMutation(
         fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> {
             return mutations.toTypedArray().filter {
                 when (it) {
-                    is FeatureMutation -> false
+                    is LocationOfInterestMutation -> false
                     is SubmissionMutation -> true
                     else -> false
                 }

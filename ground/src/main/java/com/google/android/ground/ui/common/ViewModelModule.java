@@ -28,11 +28,11 @@ import com.google.android.ground.ui.editsubmission.PhotoFieldViewModel;
 import com.google.android.ground.ui.editsubmission.TextFieldViewModel;
 import com.google.android.ground.ui.editsubmission.TimeFieldViewModel;
 import com.google.android.ground.ui.home.HomeScreenViewModel;
-import com.google.android.ground.ui.home.featuredetails.FeatureDetailsViewModel;
-import com.google.android.ground.ui.home.featuredetails.SubmissionListItemViewModel;
-import com.google.android.ground.ui.home.featuredetails.SubmissionListViewModel;
-import com.google.android.ground.ui.home.featureselector.FeatureSelectorViewModel;
-import com.google.android.ground.ui.home.mapcontainer.FeatureRepositionViewModel;
+import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
+import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel;
+import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel;
+import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel;
+import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestRepositionViewModel;
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel;
 import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel;
@@ -55,14 +55,14 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(FeatureRepositionViewModel.class)
-  abstract ViewModel bindFeatureRepositionViewModel(FeatureRepositionViewModel viewModel);
+  @ViewModelKey(LocationOfInterestRepositionViewModel.class)
+  abstract ViewModel bindLocationOfInterestRepositionViewModel(
+      LocationOfInterestRepositionViewModel viewModel);
 
   @Binds
   @IntoMap
   @ViewModelKey(PolygonDrawingViewModel.class)
   abstract ViewModel bindPolygonDrawingViewModel(PolygonDrawingViewModel viewModel);
-
 
   @Binds
   @IntoMap
@@ -116,8 +116,9 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(FeatureDetailsViewModel.class)
-  abstract ViewModel bindFeatureDetailsViewModel(FeatureDetailsViewModel viewModel);
+  @ViewModelKey(LocationOfInterestDetailsViewModel.class)
+  abstract ViewModel bindLocationOfInterestDetailsViewModel(
+      LocationOfInterestDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
@@ -176,8 +177,9 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(FeatureSelectorViewModel.class)
-  abstract ViewModel bindFeatureSelectorViewModel(FeatureSelectorViewModel viewModel);
+  @ViewModelKey(LocationOfInterestSelectorViewModel.class)
+  abstract ViewModel bindLocationOfInterestSelectorViewModel(
+      LocationOfInterestSelectorViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

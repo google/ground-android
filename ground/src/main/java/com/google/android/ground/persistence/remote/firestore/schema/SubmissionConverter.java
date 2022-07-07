@@ -20,7 +20,7 @@ import static com.google.android.ground.persistence.remote.DataStoreException.ch
 import static com.google.android.ground.persistence.remote.DataStoreException.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.ground.model.feature.Feature;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.DateResponse;
 import com.google.android.ground.model.submission.MultipleChoiceResponse;
 import com.google.android.ground.model.submission.NumberResponse;
@@ -42,28 +42,26 @@ import java8.util.Objects;
 import javax.annotation.Nullable;
 import timber.log.Timber;
 
-/**
- * Converts between Firestore documents and {@link Submission} instances.
- */
+/** Converts between Firestore documents and {@link Submission} instances. */
 class SubmissionConverter {
 
-  static Submission toSubmission(Feature feature, DocumentSnapshot snapshot)
+  static Submission toSubmission(LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
       throws DataStoreException {
     SubmissionDocument doc = snapshot.toObject(SubmissionDocument.class);
-    String featureId = checkNotNull(doc.getFeatureId(), "featureId");
-    if (!feature.getId().equals(featureId)) {
-      throw new DataStoreException("Submission doc featureId doesn't match specified feature id");
+    String loiId = checkNotNull(doc.getLoiId(), "loiId");
+    if (!locationOfInterest.getId().equals(loiId)) {
+      throw new DataStoreException("Submission doc featureId doesn't match specified loiId");
     }
     String taskId = checkNotNull(doc.getTaskId(), "taskId");
-    Task task = checkNotEmpty(feature.getJob().getTask(taskId), "task " + taskId);
+    Task task = checkNotEmpty(locationOfInterest.getJob().getTask(taskId), "task " + taskId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Objects.requireNonNullElse(doc.getLastModified(), created);
     return Submission.newBuilder()
         .setId(snapshot.getId())
-        .setSurvey(feature.getSurvey())
-        .setFeature(feature)
+        .setSurvey(locationOfInterest.getSurvey())
+        .setLocationOfInterest(locationOfInterest)
         .setTask(task)
         .setResponses(toResponseMap(snapshot.getId(), task, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))

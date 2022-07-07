@@ -42,16 +42,17 @@ public class DataSyncWorkManager extends BaseWorkManager {
    * connection is available. The returned {@code Completable} completes immediately as soon as the
    * worker is added to the work queue (not once the sync job completes).
    */
-  public Completable enqueueSyncWorker(String featureId) {
-    return Completable.fromRunnable(() -> enqueueSyncWorkerInternal(featureId));
+  public Completable enqueueSyncWorker(String locationOfInterestId) {
+    return Completable.fromRunnable(() -> enqueueSyncWorkerInternal(locationOfInterestId));
   }
 
-  private void enqueueSyncWorkerInternal(String featureId) {
+  private void enqueueSyncWorkerInternal(String locationOfInterestId) {
     // Rather than having running workers monitor the queue for new mutations for their respective
-    // featureId, we instead queue a new worker on each new mutation. This simplifies the worker
+    // locationOfInterestId, we instead queue a new worker on each new mutation. This simplifies the
+    // worker
     // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
-    Data inputData = LocalMutationSyncWorker.createInputData(featureId);
+    Data inputData = LocalMutationSyncWorker.createInputData(locationOfInterestId);
     workManager.enqueueUniqueWork(
         LocalMutationSyncWorker.class.getName(),
         ExistingWorkPolicy.APPEND,

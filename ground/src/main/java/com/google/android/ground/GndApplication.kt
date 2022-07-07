@@ -24,10 +24,8 @@ import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.akaita.java.rxjava2debug.RxJava2Debug
-import com.google.android.ground.rx.RxDebug
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
-import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -56,11 +54,6 @@ class GndApplication : MultiDexApplication(), Configuration.Provider {
         // Enable RxJava assembly stack collection for more useful stack traces.
         RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf(javaClass.getPackage().name))
 
-        // Prevent RxJava from force-quitting on unhandled errors. Defining an error handler is
-        // necessary even if all errors are handled to avoid UndeliverableException when errors are
-        // triggered on streams with all subscriptions disposed. Read more:
-        // https://medium.com/@bherbst/the-rxjava2-default-error-handler-e50e0cab6f9f
-        RxJavaPlugins.setErrorHandler { t: Throwable? -> RxDebug.logEnhancedStackTrace(t) }
         WorkManager.initialize(applicationContext, workManagerConfiguration)
     }
 

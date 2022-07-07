@@ -37,7 +37,7 @@ import timber.log.Timber;
  */
 class SubmissionMutationConverter {
 
-  static final String FEATURE_ID = "featureId";
+  static final String LOI_ID = "loiId";
   private static final String JOB_ID = "jobId";
   private static final String TASK_ID = "taskId";
   private static final String RESPONSES = "responses";
@@ -62,7 +62,7 @@ class SubmissionMutationConverter {
       default:
         throw new DataStoreException("Unsupported mutation type: " + mutation.getType());
     }
-    map.put(FEATURE_ID, mutation.getFeatureId())
+    map.put(LOI_ID, mutation.getLocationOfInterestId())
         .put(JOB_ID, mutation.getJobId())
         .put(TASK_ID, mutation.getTask().getId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));

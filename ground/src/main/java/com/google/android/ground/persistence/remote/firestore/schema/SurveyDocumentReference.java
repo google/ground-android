@@ -23,15 +23,15 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Maybe;
 
 public class SurveyDocumentReference extends FluentDocumentReference {
-  private static final String FEATURES = "features";
+  private static final String LOIS = "lois";
   private static final String SUBMISSIONS = "submissions";
 
   SurveyDocumentReference(DocumentReference ref) {
     super(ref);
   }
 
-  public FeaturesCollectionReference features() {
-    return new FeaturesCollectionReference(reference().collection(FEATURES));
+  public LoiCollectionReference lois() {
+    return new LoiCollectionReference(reference().collection(LOIS));
   }
 
   public SubmissionCollectionReference submissions() {
