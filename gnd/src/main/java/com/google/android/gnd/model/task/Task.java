@@ -34,8 +34,6 @@ public abstract class Task {
 
   public abstract String getId();
 
-  public abstract String getTitle();
-
   public abstract ImmutableList<Step> getSteps();
 
   public ImmutableList<Step> getStepsSorted() {
@@ -59,8 +57,6 @@ public abstract class Task {
   public abstract static class Builder {
 
     public abstract Builder setId(String newId);
-
-    public abstract Builder setTitle(String title);
 
     public abstract Builder setSteps(ImmutableList<Step> newStepsList);
 
