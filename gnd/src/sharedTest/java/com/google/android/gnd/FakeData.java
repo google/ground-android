@@ -65,7 +65,7 @@ public class FakeData {
 
   public static final PointOfInterest POINT_FEATURE =
       PointOfInterest.newBuilder()
-          .setId("feature id")
+          .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
@@ -81,7 +81,7 @@ public class FakeData {
 
   public static final PolygonOfInterest POLYGON_FEATURE =
       PolygonOfInterest.builder()
-          .setId("feature id")
+          .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
           .setVertices(VERTICES)
@@ -91,7 +91,7 @@ public class FakeData {
 
   public static final GeoJsonLocationOfInterest GEO_JSON_FEATURE =
       GeoJsonLocationOfInterest.newBuilder()
-          .setId("feature id")
+          .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
           .setGeoJsonString("some data string")

@@ -229,7 +229,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testGetFeature_whenFeatureIsNotPresent() {
+  public void testGetLocationOfInterest_whenLocationOfInterestIsNotPresent() {
     when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
     when(mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
         .thenReturn(Maybe.empty());
@@ -237,12 +237,11 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     locationOfInterestRepository
         .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
         .test()
-        .assertFailureAndMessage(
-            NotFoundException.class, "LocationOfInterest not found locationOfInterest id");
+        .assertFailureAndMessage(NotFoundException.class, "Location of interest not found loi id");
   }
 
   @Test
-  public void testNewFeature() {
+  public void testNewLocationOfInterest() {
     fakeAuthenticationManager.setUser(FakeData.USER);
     Date testDate = new Date();
 
@@ -253,14 +252,14 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getJobId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getJobId()).isEqualTo("foo_job_id");
     assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
   }
 
   @Test
-  public void testNewPolygonFeature() {
+  public void testNewPolygonOfInterest() {
     fakeAuthenticationManager.setUser(FakeData.USER);
     Date testDate = new Date();
 
@@ -271,7 +270,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     assertThat(newMutation.getId()).isNull();
     assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");
     assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getJobId()).isEqualTo("foo_layer_id");
+    assertThat(newMutation.getJobId()).isEqualTo("foo_job_id");
     assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
     assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
     assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);

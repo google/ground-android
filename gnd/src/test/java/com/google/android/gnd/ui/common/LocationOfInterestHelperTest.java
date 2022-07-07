@@ -21,6 +21,7 @@ import static com.google.android.gnd.FakeData.JOB;
 import static com.google.android.gnd.FakeData.POINT_FEATURE;
 import static com.google.android.gnd.FakeData.POLYGON_FEATURE;
 import static com.google.android.gnd.FakeData.USER;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.BaseHiltTest;
 import com.google.android.gnd.model.AuditInfo;
@@ -64,7 +65,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPoint() {
-    PointFeature feature = POINT_FEATURE.toBuilder().setCaption("").build();
+    PointOfInterest feature = POINT_FEATURE.toBuilder().setCaption("").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
   }
 
