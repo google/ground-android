@@ -15,10 +15,33 @@
  */
 package com.google.android.gnd.ui.datacollection
 
+import androidx.lifecycle.viewModelScope
+import com.google.android.gnd.model.submission.Submission
+import com.google.android.gnd.repository.SubmissionRepository
 import com.google.android.gnd.ui.common.AbstractViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
 import javax.inject.Inject
 
 /**
  * View model for the Data Collection fragment.
  */
-class DataCollectionViewModel @Inject internal constructor() : AbstractViewModel()
+class DataCollectionViewModel @Inject internal constructor(private val submissionRepository: SubmissionRepository) :
+    AbstractViewModel() {
+    // Backing property to avoid state updates from other classes
+    private val _submission = MutableStateFlow<Submission?>(null)
+
+    val submission: StateFlow<Submission?> = _submission
+
+    fun load(
+        surveyId: String,
+        featureId: String,
+        submissionId: String
+    ) =
+        viewModelScope.launch {
+            _submission.value =
+                submissionRepository.getSubmission(surveyId, featureId, submissionId).await()
+        }
+}

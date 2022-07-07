@@ -39,7 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/collect_data"
+      app:title="@{viewModel.submission.task.title}"
       app:titleTextColor="@color/colorBackground" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

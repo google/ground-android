@@ -15,17 +15,17 @@
  */
 package com.google.android.gnd.ui.datacollection
 
-import dagger.hilt.android.AndroidEntryPoint
-import com.google.android.gnd.ui.common.AbstractFragment
-import javax.inject.Inject
-import com.google.android.gnd.ui.common.FeatureHelper
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.gnd.MainActivity
 import com.google.android.gnd.databinding.DataCollectionFragBinding
+import com.google.android.gnd.ui.common.AbstractFragment
+import com.google.android.gnd.ui.common.FeatureHelper
 import com.google.android.gnd.ui.common.Navigator
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task.  */
 @AndroidEntryPoint
@@ -49,11 +49,19 @@ class DataCollectionFragment : AbstractFragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         val binding = DataCollectionFragBinding.inflate(inflater, container, false)
 
+        val args = getDataCollectionFragmentArgs()
+        viewModel.load(args.surveyId, args.featureId, args.submissionId)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        (activity as MainActivity?)!!.setActionBar(binding.dataCollectionToolbar, true)
+        (activity as MainActivity?)?.let {
+            it.setActionBar(binding.dataCollectionToolbar, showTitle = false)
+        }
 
         return binding.root
+    }
+
+    private fun getDataCollectionFragmentArgs(): DataCollectionFragmentArgs {
+        return DataCollectionFragmentArgs.fromBundle(arguments!!)
     }
 }

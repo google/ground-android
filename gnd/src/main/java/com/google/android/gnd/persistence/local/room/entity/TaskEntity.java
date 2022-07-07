@@ -65,7 +65,8 @@ public abstract class TaskEntity {
 
   static Task toTask(TaskEntityAndRelations taskEntityAndRelations) {
     TaskEntity taskEntity = taskEntityAndRelations.taskEntity;
-    Task.Builder taskBuilder = Task.newBuilder().setId(taskEntity.getId());
+    Task.Builder taskBuilder = Task.newBuilder().setId(taskEntity.getId())
+        .setTitle(taskEntity.getTitle());
 
     ImmutableList.Builder<Step> listBuilder = ImmutableList.builder();
     for (FieldEntityAndRelations fieldEntityAndRelations :

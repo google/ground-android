@@ -100,7 +100,17 @@
     android:id="@+id/data_collection_fragment"
     android:name="com.google.android.gnd.ui.datacollection.DataCollectionFragment"
     android:label="@string/collect_data"
-    tools:layout="@layout/data_collection_frag" />
+    tools:layout="@layout/data_collection_frag">
+    <argument
+      android:name="surveyId"
+      type="string" />
+    <argument
+      android:name="featureId"
+      type="string" />
+    <argument
+      android:name="submissionId"
+      type="string" />
+  </fragment>
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.OfflineAreasFragment"

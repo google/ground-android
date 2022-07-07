@@ -392,8 +392,15 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showDataCollection() {
+    String dummySurveyId = "123";
+    String dummyJobId = "456";
+    String dummySubmissionId = "789";
     navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment()
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            dummySurveyId,
+            dummyJobId,
+            dummySubmissionId
+        )
     );
   }
 

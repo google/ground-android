@@ -234,10 +234,12 @@ dependencies {
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
     implementation 'com.akaita.java:rxjava2-debug:1.4.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.0-RC'
 
     // Android Arch Lifecycle
     implementation "androidx.lifecycle:lifecycle-runtime:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$project.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$project.lifecycleVersion"
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
 
