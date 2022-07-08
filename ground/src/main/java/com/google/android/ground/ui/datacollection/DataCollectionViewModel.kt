@@ -45,7 +45,7 @@ class DataCollectionViewModel @Inject internal constructor(
     init {
         val submissionStream: Flowable<Loadable<Submission>> =
             argsProcessor.switchMapSingle { args ->
-                submissionRepository.getSubmission(
+                submissionRepository.createSubmission(
                         args.surveyId, args.locationOfInterestId, args.submissionId
                     ).map { Loadable.loaded(it) }.onErrorReturn { Loadable.error(it) }
             }
