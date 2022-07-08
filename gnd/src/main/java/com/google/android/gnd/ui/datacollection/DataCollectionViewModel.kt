@@ -15,34 +15,57 @@
  */
 package com.google.android.gnd.ui.datacollection
 
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.gnd.model.submission.Submission
 import com.google.android.gnd.repository.SubmissionRepository
+import com.google.android.gnd.rx.Loadable
+import com.google.android.gnd.rx.annotations.Hot
 import com.google.android.gnd.ui.common.AbstractViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
+import com.google.android.gnd.ui.common.LocationOfInterestHelper
+import io.reactivex.Flowable
+import io.reactivex.processors.BehaviorProcessor
+import io.reactivex.processors.FlowableProcessor
 import javax.inject.Inject
 
 /**
  * View model for the Data Collection fragment.
  */
-class DataCollectionViewModel @Inject internal constructor(private val submissionRepository: SubmissionRepository) :
-    AbstractViewModel() {
-    // Backing property to avoid state updates from other classes
-    private val _submission = MutableStateFlow<Submission?>(null)
+class DataCollectionViewModel @Inject internal constructor(
+    private val submissionRepository: SubmissionRepository,
+    private val locationOfInterestHelper: LocationOfInterestHelper
+) : AbstractViewModel() {
+    val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
+    val title: @Hot(replays = true) LiveData<String>
+    val subtitle: @Hot(replays = true) LiveData<String>
 
-    val submission: StateFlow<Submission?> = _submission
+    private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
+        BehaviorProcessor.create()
 
-    fun load(
-        surveyId: String,
-        locationOfInterestId: String,
-        submissionId: String
-    ) =
-        viewModelScope.launch {
-            _submission.value =
-                submissionRepository.createSubmission(surveyId, locationOfInterestId, submissionId)
-                    .await()
-        }
+    init {
+        val submissionStream: Flowable<Loadable<Submission>> =
+            argsProcessor.switchMapSingle { args ->
+                submissionRepository.getSubmission(
+                        args.surveyId, args.locationOfInterestId, args.submissionId
+                    ).map { Loadable.loaded(it) }.onErrorReturn { Loadable.error(it) }
+            }
+
+        submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
+
+        title = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
+                submission.value().map { it.locationOfInterest.job.name }.orElse("")
+            })
+
+        subtitle = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
+                submission.value().map { it.locationOfInterest }
+            }.map { locationOfInterest ->
+                locationOfInterestHelper.getLabel(
+                    locationOfInterest
+                )
+            })
+    }
+
+    fun loadSubmissionDetails(
+        args: DataCollectionFragmentArgs
+    ) = argsProcessor.onNext(args)
 }

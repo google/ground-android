@@ -46,7 +46,7 @@ class DataCollectionFragment : AbstractFragment() {
         val binding = DataCollectionFragBinding.inflate(inflater, container, false)
 
         val args = getDataCollectionFragmentArgs()
-        viewModel.load(args.surveyId, args.locationOfInterestId, args.submissionId)
+        viewModel.loadSubmissionDetails(args)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 

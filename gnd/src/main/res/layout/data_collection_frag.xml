@@ -39,8 +39,18 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@{viewModel.submission.locationOfInterest.job.name}"
+      app:title="@{viewModel.title}"
       app:titleTextColor="@color/colorBackground" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:singleLine="true"
+      android:text="@{viewModel.subtitle}"
+      android:textSize="16sp"
+      app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar"
+      app:layout_constraintStart_toStartOf="parent"/>
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
