@@ -25,7 +25,6 @@ import android.content.res.Resources;
 import android.location.Location;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Dimension;
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -528,53 +527,5 @@ public class MapContainerViewModel extends AbstractViewModel {
     DEFAULT,
     DRAW_POLYGON,
     MOVE_POINT,
-  }
-
-  static class CameraUpdate {
-
-    private final Point center;
-    private final Optional<Float> zoomLevel;
-    private final boolean allowZoomOut;
-
-    public CameraUpdate(Point center, Optional<Float> zoomLevel, boolean allowZoomOut) {
-      this.center = center;
-      this.zoomLevel = zoomLevel;
-      this.allowZoomOut = allowZoomOut;
-    }
-
-    private static CameraUpdate pan(Point center) {
-      return new CameraUpdate(center, Optional.empty(), false);
-    }
-
-    private static CameraUpdate panAndZoomIn(Point center) {
-      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL), false);
-    }
-
-    public static CameraUpdate panAndZoom(CameraPosition cameraPosition) {
-      return new CameraUpdate(
-          cameraPosition.getTarget(), Optional.of(cameraPosition.getZoomLevel()), true);
-    }
-
-    public Point getCenter() {
-      return center;
-    }
-
-    public Optional<Float> getZoomLevel() {
-      return zoomLevel;
-    }
-
-    public boolean isAllowZoomOut() {
-      return allowZoomOut;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-      if (zoomLevel.isPresent()) {
-        return "Pan + zoom";
-      } else {
-        return "Pan";
-      }
-    }
   }
 }

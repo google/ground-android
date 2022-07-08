@@ -15,39 +15,41 @@
  */
 package com.google.android.gnd.ui.home.mapcontainer
 
+import android.location.Location
 import androidx.lifecycle.LiveData
-import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
-import com.google.android.gnd.ui.common.SharedViewModel
-import javax.inject.Inject
-import com.google.android.gnd.system.auth.AuthenticationManager
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
-import com.google.android.gnd.ui.common.AbstractViewModel
-import com.google.android.gnd.rx.annotations.Hot
-import io.reactivex.subjects.PublishSubject
-import com.google.android.gnd.ui.map.MapPolygon
-import com.google.android.gnd.ui.map.MapFeature
-import com.google.android.gnd.rx.BooleanOrError
-import io.reactivex.processors.BehaviorProcessor
-import com.google.android.gnd.model.Project
-import io.reactivex.Flowable
-import io.reactivex.BackpressureStrategy
-import timber.log.Timber
-import com.google.android.gnd.model.AuditInfo
-import com.google.android.gnd.model.feature.PolygonFeature
-import com.google.android.gnd.ui.map.MapPin
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gnd.R
+import com.google.android.gnd.model.AuditInfo
+import com.google.android.gnd.model.Project
 import com.google.android.gnd.model.feature.Point
+import com.google.android.gnd.model.feature.PolygonFeature
 import com.google.android.gnd.model.layer.Layer
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator
+import com.google.android.gnd.rx.BooleanOrError
+import com.google.android.gnd.rx.BooleanOrError.Companion.falseValue
+import com.google.android.gnd.rx.Event
+import com.google.android.gnd.rx.annotations.Hot
 import com.google.android.gnd.system.LocationManager
+import com.google.android.gnd.system.auth.AuthenticationManager
+import com.google.android.gnd.ui.common.AbstractViewModel
+import com.google.android.gnd.ui.common.SharedViewModel
+import com.google.android.gnd.ui.map.MapFeature
+import com.google.android.gnd.ui.map.MapFragment
+import com.google.android.gnd.ui.map.MapPin
+import com.google.android.gnd.ui.map.MapPolygon
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.processors.BehaviorProcessor
+import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
-import java.util.ArrayList
+import timber.log.Timber
+import javax.inject.Inject
 
 @SharedViewModel
 class PolygonDrawingViewModel @Inject internal constructor(
@@ -57,6 +59,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
 ) : AbstractViewModel() {
     private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
     private val mapPolygonFlowable: @Hot Subject<Optional<MapPolygon>> = PublishSubject.create()
+    private val cameraUpdateSubject: @Hot Subject<CameraUpdate> =
+        PublishSubject.create()
 
     /** Denotes whether the drawn polygon is complete or not. This is different from drawing state.  */
     val isPolygonCompleted: @Hot LiveData<Boolean>
@@ -70,6 +74,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
     val iconTint: LiveData<Int>
     private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
     private val locationLockState: LiveData<BooleanOrError>
+    private var cameraUpdateRequests: LiveData<Event<CameraUpdate>>
     private val vertices: MutableList<Point> = ArrayList()
 
     /** The currently selected layer and project for the polygon drawing.  */
@@ -91,6 +96,49 @@ class PolygonDrawingViewModel @Inject internal constructor(
             .switchMapSingle { enabled -> if (enabled) locationManager.enableLocationUpdates() else locationManager.disableLocationUpdates() }
             .toFlowable(BackpressureStrategy.LATEST)
 
+    private fun createCameraUpdateFlowable(
+        locationLockStateFlowable: Flowable<BooleanOrError>
+    ): Flowable<Event<CameraUpdate>> {
+        return cameraUpdateSubject
+            .toFlowable(BackpressureStrategy.LATEST)
+            .mergeWith(
+                locationLockStateFlowable.switchMap { lockState: BooleanOrError ->
+                    createLocationLockCameraUpdateFlowable(
+                        lockState
+                    )
+                })
+            .map { obj: CameraUpdate -> Event.create(obj) }
+    }
+
+    fun getCameraUpdateRequests(): LiveData<Event<CameraUpdate>>{
+        return cameraUpdateRequests
+    }
+
+    private fun createLocationLockCameraUpdateFlowable(lockState: BooleanOrError): Flowable<CameraUpdate> {
+        if (!lockState.isTrue) {
+            return Flowable.empty()
+        }
+        // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
+        // only pan the map.
+        val locationUpdates = locationManager.locationUpdates.map { location: Location? ->
+            LocationManager.toPoint(
+                location
+            )
+        }
+        return locationUpdates
+            .take(1)
+            .map { center: Point ->
+                CameraUpdate.panAndZoomIn(
+                    center
+                )
+            }
+            .concatWith(locationUpdates.map { center: Point ->
+                CameraUpdate.pan(
+                    center
+                )
+            }.skip(1))
+    }
+
     val drawingState: @Hot Observable<PolygonDrawingState>
         get() = polygonDrawingState
 
@@ -100,6 +148,23 @@ class PolygonDrawingViewModel @Inject internal constructor(
             Timber.d("User dragged map. Disabling location lock")
             locationLockChangeRequests.onNext(false)
         }
+    }
+
+    fun onCameraUpdate(newTarget: Point, mapFragment: MapFragment) {
+        cameraTarget = newTarget
+        firstVertex
+            .map { firstVertex: Point? ->
+                mapFragment.getDistanceInPixels(
+                    firstVertex,
+                    newTarget
+                )
+            }
+            .ifPresent { dist: Double ->
+                updateLastVertex(
+                    newTarget,
+                    dist,
+                )
+            }
     }
 
     /**
@@ -197,6 +262,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
     // TODO : current location is not working value is always false.
     fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
+
+    fun getLocationLockState(): LiveData<BooleanOrError> = locationLockState
 
     fun startDrawingFlow(selectedProject: Project, selectedLayer: Layer) {
         this.selectedLayer.onNext(selectedLayer)
@@ -310,5 +377,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
                     .map { unsavedFeaturesFromPolygon(it) }
                     .orElse(ImmutableSet.of())
             })
+        cameraUpdateRequests = LiveDataReactiveStreams.fromPublisher(
+            createCameraUpdateFlowable(locationLockStateFlowable)
+        )
     }
 }
