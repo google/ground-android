@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+    <import type="android.view.View" />
+    <!-- TODO: Refactor and remove reference to Fragment. -->
+    <variable
+      name="fragment"
+      type="com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsFragment" />
+    <variable
+      name="viewModel"
+      type="com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel" />
+  </data>
+
+  <FrameLayout
+    android:id="@+id/bottom_sheet_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/loi_details_header_height"
+      android:layout_marginTop="@dimen/bottom_sheet_margin_top"
+      app:cardBackgroundColor="@color/colorBackground"
+      app:cardCornerRadius="@dimen/loi_details_header_corner_radius"
+      app:cardElevation="3dp">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/loi_details_header_padding_top"
+        android:paddingBottom="@dimen/loi_details_header_padding_bottom">
+
+        <TextView
+          android:id="@+id/location_of_interest_title"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center_horizontal"
+          android:text="@{viewModel.title}"
+          android:textAlignment="center"
+          android:textAppearance="@style/TextAppearance.AppCompat.Title"
+          tools:text="Location Of Interest Sheet Title" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center_horizontal"
+          android:text="@{viewModel.subtitle}"
+          android:textAlignment="center"
+          android:textColor="@color/colorGrey600"
+          android:textSize="12sp"
+          tools:text="Location Of Interest Subtitle" />
+      </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:layout_gravity="bottom"
+      android:background="@color/colorGrey300"
+      android:elevation="4dp" />
+
+    <!-- HACK: Scrim to obscure bottom rounded corners -->
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/loi_details_header_corner_radius"
+      android:layout_gravity="bottom"
+      android:background="@color/colorBackground"
+      android:elevation="3dp" />
+
+    <!-- LocationOfInterest icon and upload overlay. -->
+    <FrameLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top|center_horizontal"
+      android:elevation="@dimen/loi_details_icon_elevation">
+
+      <ImageView
+        android:layout_width="@dimen/loi_details_icon_bg_diameter"
+        android:layout_height="@dimen/loi_details_icon_bg_diameter"
+        android:background="@drawable/bg_location_of_interest_details_icon"
+        android:outlineProvider="none"
+        android:scaleType="center"
+        app:src="@{viewModel.getMarkerBitmap()}" />
+
+      <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_gravity="bottom|end"
+        app:tint="@color/colorGrey500"
+        app:srcCompat="@drawable/ic_upload_pending"
+        app:visible="@{viewModel.isUploadPendingIconVisible()}">
+      </ImageView>
+    </FrameLayout>
+  </FrameLayout>
+</layout>

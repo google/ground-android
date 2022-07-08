@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2021 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel" />
+  </data>
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="@color/colorGrey800">
+
+    <!-- TODO: Add highlighted icon overlay when showing locationOfInterest sheet -->
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      android:layout_marginBottom="48dp"
+      android:gravity="center_vertical">
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/undo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:onClick="@{() -> viewModel.removeLastVertex()}"
+        app:backgroundTint="@android:color/white"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_undo_black"
+        app:tint="@color/colorForeground" />
+
+      <Button
+        android:id="@+id/add_polygon_button"
+        android:layout_width="150dp"
+        android:layout_height="64dp"
+        android:backgroundTint="@color/colorBackground"
+        android:onClick="@{() -> viewModel.selectCurrentVertex()}"
+        android:radius="4dp"
+        android:text="@string/add_point"
+        android:textColor="@color/colorAccent" />
+
+      <Button
+        android:id="@+id/complete_polygon_button"
+        android:layout_width="150dp"
+        android:layout_height="64dp"
+        android:backgroundTint="@color/colorAccent"
+        android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
+        android:radius="4dp"
+        android:text="@string/complete_polygon"
+        android:textColor="@color/colorBackground" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/current_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:enabled="@{viewModel.getLocationLockEnabled()}"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_gps_lock"
+        app:tint="@{viewModel.getIconTint()}" />
+    </LinearLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
