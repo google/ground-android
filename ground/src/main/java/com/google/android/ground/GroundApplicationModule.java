@@ -32,7 +32,7 @@ import javax.inject.Singleton;
 
 @InstallIn(SingletonComponent.class)
 @Module(includes = {ViewModelModule.class})
-abstract class GndApplicationModule {
+abstract class GroundApplicationModule {
 
   @Provides
   @Singleton
