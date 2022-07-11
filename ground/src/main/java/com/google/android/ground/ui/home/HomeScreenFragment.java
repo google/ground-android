@@ -409,6 +409,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showDataCollection() {
+    // TODO(#1146): Replace with actual values based on the clicked Task card
     String dummySurveyId = "123";
     String dummyLocationOfInterestId = "456";
     String dummySubmissionId = "789";

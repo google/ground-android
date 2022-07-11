@@ -39,7 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@{viewModel.title}"
+      app:title="@{viewModel.jobName}"
       app:titleTextColor="@color/colorBackground" />
 
     <TextView
@@ -47,10 +47,10 @@
       android:layout_height="wrap_content"
       android:gravity="center_vertical"
       android:singleLine="true"
-      android:text="@{viewModel.subtitle}"
+      android:text="@{viewModel.loiName}"
       android:textSize="16sp"
-      app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar"
-      app:layout_constraintStart_toStartOf="parent"/>
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

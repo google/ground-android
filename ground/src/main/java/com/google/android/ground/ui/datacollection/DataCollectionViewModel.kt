@@ -36,8 +36,8 @@ class DataCollectionViewModel @Inject internal constructor(
     private val locationOfInterestHelper: LocationOfInterestHelper
 ) : AbstractViewModel() {
     val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
-    val title: @Hot(replays = true) LiveData<String>
-    val subtitle: @Hot(replays = true) LiveData<String>
+    val jobName: @Hot(replays = true) LiveData<String>
+    val loiName: @Hot(replays = true) LiveData<String>
 
     private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
         BehaviorProcessor.create()
@@ -46,23 +46,23 @@ class DataCollectionViewModel @Inject internal constructor(
         val submissionStream: Flowable<Loadable<Submission>> =
             argsProcessor.switchMapSingle { args ->
                 submissionRepository.createSubmission(
-                        args.surveyId, args.locationOfInterestId, args.submissionId
-                    ).map { Loadable.loaded(it) }.onErrorReturn { Loadable.error(it) }
+                    args.surveyId, args.locationOfInterestId, args.submissionId
+                ).map { Loadable.loaded(it) }.onErrorReturn { Loadable.error(it) }
             }
 
         submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
 
-        title = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
-                submission.value().map { it.locationOfInterest.job.name }.orElse("")
-            })
+        jobName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
+            submission.value().map { it.locationOfInterest.job.name }.orElse("")
+        })
 
-        subtitle = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
-                submission.value().map { it.locationOfInterest }
-            }.map { locationOfInterest ->
-                locationOfInterestHelper.getLabel(
-                    locationOfInterest
-                )
-            })
+        loiName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
+            submission.value().map { it.locationOfInterest }
+        }.map { locationOfInterest ->
+            locationOfInterestHelper.getLabel(
+                locationOfInterest
+            )
+        })
     }
 
     fun loadSubmissionDetails(
