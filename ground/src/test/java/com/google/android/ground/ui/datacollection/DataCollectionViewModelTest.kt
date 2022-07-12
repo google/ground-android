@@ -107,9 +107,9 @@ class DataCollectionViewModelTest : BaseHiltTest() {
                 any(),
                 any()
             )
-        ).doReturn(Single.create {
+        ).doReturn(Single.just(
             submission
-        })
+        ))
         dataCollectionViewModel =
             DataCollectionViewModel(submissionRepository, locationOfInterestHelper)
     }
