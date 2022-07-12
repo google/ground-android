@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.TestObservers
 import com.google.android.ground.getOrAwaitValue
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders
@@ -29,6 +28,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -92,8 +92,10 @@ class DataCollectionViewModelTest : BaseHiltTest() {
     @Mock
     lateinit var submissionRepository: SubmissionRepository
 
-    @Inject
     lateinit var dataCollectionViewModel: DataCollectionViewModel
+
+    @Inject
+    lateinit var locationOfInterestHelper: LocationOfInterestHelper
 
     @Before
     override fun setUp() {
@@ -108,6 +110,8 @@ class DataCollectionViewModelTest : BaseHiltTest() {
         ).doReturn(Single.create {
             submission
         })
+        dataCollectionViewModel =
+            DataCollectionViewModel(submissionRepository, locationOfInterestHelper)
     }
 
     @Test

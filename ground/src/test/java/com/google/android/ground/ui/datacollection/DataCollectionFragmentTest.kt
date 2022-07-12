@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -35,11 +36,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     private lateinit var dataCollectionFragment: DataCollectionFragment
 
-    private val surveyId: String = "123"
-    private val loiId: String = "456"
-    private val submissionId: String = "789"
-
-    // TODO(jsunde): populate some data for the job and LOI
+    private val surveyId= "123"
+    private val loiId = "456"
+    private val submissionId = "789"
+    private val dataCollectionFragmentArgs = DataCollectionFragmentArgs.Builder(
+        surveyId,
+        loiId,
+        submissionId
+    ).build()
 
     @BindValue
     @Mock
@@ -55,29 +59,16 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         val activityController = Robolectric.buildActivity(
             MainActivity::class.java
         ).setup()
-
         val activity = activityController.get()
-
-        // TODO(jsunde): Figure out the best way to instantiate a DataCollectionFragment here with
-        //  with the DataCollectionFragmentArgs supplied. The navigator.navigate() call doesn't
-        //  seem to work because the HomeScreenFragment isn't currently open.
-        //        navigator.navigate(
-        //            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-        //                surveyId, loiId,
-        //                submissionId
-        //            )
-        //        )
-        activity.supportFragmentManager.beginTransaction().add(dataCollectionFragment, null)
+        dataCollectionFragment = DataCollectionFragment()
+        dataCollectionFragment.arguments = dataCollectionFragmentArgs.toBundle()
+        activity.supportFragmentManager.beginTransaction().add(dataCollectionFragment, null).commitNow()
     }
 
     @Test
     fun created_submissionIsLoaded() {
         verify(dataCollectionViewModel).loadSubmissionDetails(
-            DataCollectionFragmentArgs.Builder(
-                surveyId,
-                loiId,
-                submissionId
-            ).build()
+            eq(dataCollectionFragmentArgs)
         )
     }
 

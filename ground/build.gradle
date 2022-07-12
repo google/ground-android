@@ -243,6 +243,7 @@ dependencies {
 
     // Android Navigation
     implementation "androidx.navigation:navigation-fragment:$project.navigationVersion"
+    implementation "androidx.navigation:navigation-fragment-ktx:$project.navigationVersion"
     implementation "androidx.navigation:navigation-ui:$project.navigationVersion"
 
     // Auto-value
