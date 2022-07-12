@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.TestObservers
+import com.google.android.ground.getOrAwaitValue
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders
 import com.google.android.ground.model.job.Job
@@ -33,6 +36,7 @@ import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Single
 import java8.util.Optional
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -48,9 +52,12 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionViewModelTest : BaseHiltTest() {
 
-    private val surveyId: String = "123"
-    private val loiId: String = "456"
-    private val submissionId: String = "789"
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
+
+    private val surveyId = "123"
+    private val loiId = "456"
+    private val submissionId = "789"
     private val jobName = "jobName"
     private val loiName = "loiName"
     private val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
@@ -107,8 +114,7 @@ class DataCollectionViewModelTest : BaseHiltTest() {
     fun testJobNameIsSetCorrectly() {
         dataCollectionViewModel.loadSubmissionDetails(args)
 
-        dataCollectionViewModel.jobName.observeForever { }
-        assertThat(dataCollectionViewModel.jobName.value)
+        assertThat(dataCollectionViewModel.jobName.getOrAwaitValue())
             .isEqualTo(jobName)
     }
 
@@ -116,8 +122,7 @@ class DataCollectionViewModelTest : BaseHiltTest() {
     fun testLoiNameIsSetCorrectly() {
         dataCollectionViewModel.loadSubmissionDetails(args)
 
-        dataCollectionViewModel.jobName.observeForever { }
-        assertThat(dataCollectionViewModel.loiName.value)
+        assertThat(dataCollectionViewModel.loiName.getOrAwaitValue())
             .isEqualTo(loiName)
     }
 }
