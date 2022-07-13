@@ -19,13 +19,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
+import java8.util.Optional
 import javax.inject.Inject
 
 /**
@@ -35,7 +35,7 @@ class DataCollectionViewModel @Inject internal constructor(
     private val submissionRepository: SubmissionRepository,
     private val locationOfInterestHelper: LocationOfInterestHelper
 ) : AbstractViewModel() {
-    val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
+    val submission: @Hot(replays = true) LiveData<Submission?>
     val jobName: @Hot(replays = true) LiveData<String>
     val loiName: @Hot(replays = true) LiveData<String>
 
@@ -43,24 +43,24 @@ class DataCollectionViewModel @Inject internal constructor(
         BehaviorProcessor.create()
 
     init {
-        val submissionStream: Flowable<Loadable<Submission>> =
+        val submissionStream: Flowable<Submission?> =
             argsProcessor.switchMapSingle { args ->
                 submissionRepository.createSubmission(
                     args.surveyId, args.locationOfInterestId, args.submissionId
-                ).map { Loadable.loaded(it) }.onErrorReturn { Loadable.error(it) }
+                ).map { it }.onErrorReturn { null }
             }
 
         submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
 
-        jobName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
-            submission.value().map { it.locationOfInterest.job.name }.orElse("")
+        jobName = LiveDataReactiveStreams.fromPublisher(submissionStream.map {
+            it.locationOfInterest.job.name ?: ""
         })
 
-        loiName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
-            submission.value().map { it.locationOfInterest }
+        loiName = LiveDataReactiveStreams.fromPublisher(submissionStream.map {
+            it.locationOfInterest
         }.map { locationOfInterest ->
             locationOfInterestHelper.getLabel(
-                locationOfInterest
+                Optional.ofNullable(locationOfInterest)
             )
         })
     }
