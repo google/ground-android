@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import com.google.android.ground.MainActivity
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.LocationOfInterestHelper
+import androidx.navigation.fragment.navArgs
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,10 +33,8 @@ class DataCollectionFragment : AbstractFragment() {
     @Inject
     lateinit var navigator: Navigator
 
-    @Inject
-    lateinit var locationOfInterestHelper: LocationOfInterestHelper
-
     private lateinit var viewModel: DataCollectionViewModel
+    private val args: DataCollectionFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,10 +47,13 @@ class DataCollectionFragment : AbstractFragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         val binding = DataCollectionFragBinding.inflate(inflater, container, false)
 
+        viewModel.loadSubmissionDetails(args)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        (activity as MainActivity?)!!.setActionBar(binding.dataCollectionToolbar, true)
+        (activity as MainActivity?)?.let {
+            it.setActionBar(binding.dataCollectionToolbar, showTitle = false)
+        }
 
         return binding.root
     }
