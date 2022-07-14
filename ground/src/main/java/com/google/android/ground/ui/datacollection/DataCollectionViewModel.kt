@@ -47,7 +47,7 @@ class DataCollectionViewModel @Inject internal constructor(
             argsProcessor.switchMapSingle { args ->
                 submissionRepository.createSubmission(
                     args.surveyId, args.locationOfInterestId, args.submissionId
-                ).map { it }.onErrorReturn { null }
+                )
             }
 
         submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
