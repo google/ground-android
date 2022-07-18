@@ -140,6 +140,8 @@
   <string name="join_survey">Join survey</string>
   <!-- TODO(#1146): Remove temporary button for launching data collection flow once complete  -->
   <string name="launch_collect_data">Test collect data UI</string>
+  <!-- TODO(#1146): Remove temporary step name text and populate from the label of the Step  -->
+  <string name="collect_data_step_name">Test Step Name</string>
   <string name="collect_data">Collect data</string>
 
   <!-- Untranslated strings -->
@@ -221,5 +223,6 @@
   <string name="terrain">Terrain</string>
   <string name="map_type">Map Type</string>
   <string name="close">Close</string>
+  <string name="next">Next</string>
 
 </resources>
