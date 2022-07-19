@@ -71,10 +71,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     @Test
     fun created_submissionIsLoaded_viewPagerAdapterIsSet() {
-        whenever(dataCollectionViewModel.submission).doReturn(
-            MutableLiveData(Loadable.loaded(DataCollectionTestData.submission))
-        )
-
         setupFragment()
 
         val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
@@ -84,10 +80,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     @Test
     fun onNextClicked_viewPagerItemIsUpdated() {
-        whenever(dataCollectionViewModel.submission).doReturn(
-            MutableLiveData(Loadable.loaded(DataCollectionTestData.submission))
-        )
-
         setupFragment()
 
         val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
@@ -99,10 +91,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     @Test
     fun onNextClicked_thenOnBack_viewPagerItemIsUpdated() {
-        whenever(dataCollectionViewModel.submission).doReturn(
-            MutableLiveData(Loadable.loaded(DataCollectionTestData.submission))
-        )
-
         setupFragment()
 
         val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
@@ -116,20 +104,21 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     @Test
     fun onBack_firstViewPagerItem_returnsFalse() {
-        whenever(dataCollectionViewModel.submission).doReturn(
-            MutableLiveData(Loadable.loaded(DataCollectionTestData.submission))
-        )
-
         setupFragment()
 
-        shadowOf(getMainLooper()).idle()
         assertThat(dataCollectionFragment.onBack()).isFalse()
     }
 
     private fun setupFragment() {
+        whenever(dataCollectionViewModel.submission).doReturn(
+            MutableLiveData(Loadable.loaded(DataCollectionTestData.submission))
+        )
+
         dataCollectionFragment = DataCollectionFragment()
         dataCollectionFragment.arguments = DataCollectionTestData.args.toBundle()
         activity.supportFragmentManager.beginTransaction().add(dataCollectionFragment, null)
             .commitNow()
+
+        shadowOf(getMainLooper()).idle()
     }
 }
