@@ -16,8 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.util.Localization.getLocalizedMessage;
-
 import com.google.android.ground.model.task.Option;
 
 /**
@@ -32,7 +30,7 @@ class OptionConverter {
       builder.setCode(option.getCode());
     }
     if (option.getLabel() != null) {
-      builder.setLabel(getLocalizedMessage(option.getLabel()));
+      builder.setLabel(option.getLabel());
     }
     return builder.build();
   }

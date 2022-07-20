@@ -16,8 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.util.Localization.getLocalizedMessage;
-
 import com.google.android.ground.model.job.Job;
 import timber.log.Timber;
 
@@ -28,7 +26,7 @@ class JobConverter {
 
   static Job toJob(String id, JobNestedObject obj) {
     Job.Builder builder = Job.newBuilder();
-    builder.setId(id).setName(getLocalizedMessage(obj.getName()));
+    builder.setId(id).setName(obj.getName());
     if (obj.getTasks() != null && !obj.getTasks().isEmpty()) {
       if (obj.getTasks().size() > 1) {
         Timber.e("Multiple forms not supported");

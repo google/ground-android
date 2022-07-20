@@ -24,9 +24,9 @@ import java.util.Map;
 /** Project entity stored in Firestore. */
 @IgnoreExtraProperties
 class SurveyDocument {
-  @Nullable private Map<String, String> title;
+  @Nullable private String title;
 
-  @Nullable private Map<String, String> description;
+  @Nullable private String description;
 
   @Nullable private Map<String, JobNestedObject> jobs;
 
@@ -39,8 +39,8 @@ class SurveyDocument {
 
   @SuppressWarnings("unused")
   SurveyDocument(
-      @Nullable Map<String, String> title,
-      @Nullable Map<String, String> description,
+      @Nullable String title,
+      @Nullable String description,
       @Nullable Map<String, JobNestedObject> jobs,
       @Nullable Map<String, String> acl,
       @Nullable List<BaseMapNestedObject> baseMaps) {
@@ -52,12 +52,12 @@ class SurveyDocument {
   }
 
   @Nullable
-  public Map<String, String> getTitle() {
+  public String getTitle() {
     return title;
   }
 
   @Nullable
-  public Map<String, String> getDescription() {
+  public String getDescription() {
     return description;
   }
 

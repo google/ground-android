@@ -23,7 +23,7 @@ import java.util.Map;
 /** Firestore representation of map layers. */
 @IgnoreExtraProperties
 class JobNestedObject {
-  @Nullable private Map<String, String> name;
+  @Nullable private String name;
   @Nullable private Map<String, TaskNestedObject> tasks;
 
   @SuppressWarnings("unused")
@@ -31,13 +31,13 @@ class JobNestedObject {
 
   @SuppressWarnings("unused")
   JobNestedObject(
-      @Nullable Map<String, String> name, @Nullable Map<String, TaskNestedObject> tasks) {
+      @Nullable String name, @Nullable Map<String, TaskNestedObject> tasks) {
     this.name = name;
     this.tasks = tasks;
   }
 
   @Nullable
-  public Map<String, String> getName() {
+  public String getName() {
     return name;
   }
 

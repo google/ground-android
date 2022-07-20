@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.util.Enums.toEnum;
-import static com.google.android.ground.util.Localization.getLocalizedMessage;
 
 import com.google.android.ground.model.task.Field;
 import java8.util.Objects;
@@ -44,7 +43,7 @@ class FieldConverter {
     field.setId(id);
     // Default index to -1 to degrade gracefully on older dev db instances and surveys.
     field.setIndex(Objects.requireNonNullElse(em.getIndex(), -1));
-    field.setLabel(getLocalizedMessage(em.getLabel()));
+    field.setLabel(em.getLabel());
     return Optional.of(field.build());
   }
 }
