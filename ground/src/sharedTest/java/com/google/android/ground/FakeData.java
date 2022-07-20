@@ -22,10 +22,10 @@ import com.google.android.ground.model.TermsOfService;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.job.Job.Builder;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -63,7 +63,7 @@ public class FakeData {
         .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"));
   }
 
-  public static final PointOfInterest POINT_FEATURE =
+  public static final PointOfInterest POINT_OF_INTEREST =
       PointOfInterest.newBuilder()
           .setId("loi id")
           .setSurvey(SURVEY)
@@ -79,8 +79,8 @@ public class FakeData {
           Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
           Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
 
-  public static final PolygonOfInterest POLYGON_FEATURE =
-      PolygonOfInterest.builder()
+  public static final AreaOfInterest AREA_OF_INTEREST =
+      AreaOfInterest.newBuilder()
           .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
@@ -89,7 +89,7 @@ public class FakeData {
           .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final GeoJsonLocationOfInterest GEO_JSON_FEATURE =
+  public static final GeoJsonLocationOfInterest GEO_JSON_OF_INTEREST =
       GeoJsonLocationOfInterest.newBuilder()
           .setId("loi id")
           .setSurvey(SURVEY)

@@ -36,7 +36,7 @@ object LoiConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest<*> {
+    fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
@@ -77,7 +77,7 @@ object LoiConverter {
         survey: Survey,
         doc: DocumentSnapshot,
         loiDoc: LoiDocument
-    ): PolygonOfInterest {
+    ): AreaOfInterest {
         val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
@@ -102,13 +102,13 @@ object LoiConverter {
             )
         }
 
-        val builder = PolygonOfInterest.builder().setVertices(vertices.build())
+        val builder = AreaOfInterest.newBuilder().setVertices(vertices.build())
         fillLocationOfInterest(builder, survey, doc.id, loiDoc)
         return builder.build()
     }
 
     private fun fillLocationOfInterest(
-        builder: LocationOfInterest.Builder<*>,
+        builder: LocationOfInterest.Builder,
         survey: Survey,
         id: String,
         loiDoc: LoiDocument

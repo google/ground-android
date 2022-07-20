@@ -21,9 +21,9 @@ import com.google.android.ground.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.android.ground.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.common.collect.ImmutableMap;
@@ -57,8 +57,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   protected final boolean visible;
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
-  @Inject
-  LocationOfInterestDetailsViewModel viewModel;
+  @Inject LocationOfInterestDetailsViewModel viewModel;
 
   public BaseMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
     this.user = user;
@@ -67,14 +66,14 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   }
 
   static PointOfInterest createPointFeature(User user) {
-    return FakeData.POINT_FEATURE.toBuilder()
+    return FakeData.POINT_OF_INTEREST.toBuilder()
         .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }
 
-  static PolygonOfInterest createPolygonFeature(User user) {
-    return FakeData.POLYGON_FEATURE.toBuilder()
+  static AreaOfInterest createPolygonFeature(User user) {
+    return FakeData.AREA_OF_INTEREST.toBuilder()
         .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();

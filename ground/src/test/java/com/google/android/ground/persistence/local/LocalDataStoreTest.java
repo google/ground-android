@@ -28,10 +28,10 @@ import com.google.android.ground.model.basemap.OfflineArea;
 import com.google.android.ground.model.basemap.tile.TileSet;
 import com.google.android.ground.model.basemap.tile.TileSet.State;
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.mutation.Mutation.SyncStatus;
@@ -317,7 +317,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(feature -> ((PolygonOfInterest) feature).getVertices().equals(TEST_POLYGON_1));
+        .assertValue(feature -> ((AreaOfInterest) feature).getVertices().equals(TEST_POLYGON_1));
   }
 
   @Test
@@ -403,9 +403,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).blockingAwait();
 
-    PolygonOfInterest feature =
-        (PolygonOfInterest)
-            localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    AreaOfInterest feature =
+        (AreaOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
     feature = feature.toBuilder().setVertices(TEST_POLYGON_2).build();
     localDataStore.mergeLocationOfInterest(feature).test().assertComplete();
 
@@ -413,7 +412,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
         .assertValue(
-            newFeature -> ((PolygonOfInterest) newFeature).getVertices().equals(TEST_POLYGON_2));
+            newFeature -> ((AreaOfInterest) newFeature).getVertices().equals(TEST_POLYGON_2));
   }
 
   @Test

@@ -34,11 +34,11 @@ import com.google.android.ground.R;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.tile.TileSet;
 import com.google.android.ground.model.job.Style;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.OfflineAreaRepository;
 import com.google.android.ground.repository.SurveyRepository;
@@ -225,12 +225,12 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapLocationOfInterest toMapPolygon(PolygonOfInterest polygonOfInterest) {
+  private static MapLocationOfInterest toMapPolygon(AreaOfInterest areaOfInterest) {
     return MapPolygon.newBuilder()
-        .setId(polygonOfInterest.getId())
-        .setVertices(polygonOfInterest.getVertices())
+        .setId(areaOfInterest.getId())
+        .setVertices(areaOfInterest.getVertices())
         .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setLocationOfInterest(polygonOfInterest)
+        .setLocationOfInterest(areaOfInterest)
         .build();
   }
 
@@ -296,7 +296,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     ImmutableSet<MapLocationOfInterest> mapPolygons =
         stream(locationsOfInterest)
             .filter(LocationOfInterest::isPolygon)
-            .map(PolygonOfInterest.class::cast)
+            .map(AreaOfInterest.class::cast)
             .map(MapContainerViewModel::toMapPolygon)
             .collect(toImmutableSet());
 

@@ -17,9 +17,9 @@
 package com.google.android.ground.model;
 
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.Field.Type;
 import com.google.android.ground.model.task.Task;
@@ -79,8 +79,8 @@ public class TestModelBuilders {
         .setLastModified(newAuditInfo().build());
   }
 
-  public static PolygonOfInterest.Builder newPolygonOfInterest() {
-    return PolygonOfInterest.builder()
+  public static AreaOfInterest.Builder newPolygonOfInterest() {
+    return AreaOfInterest.newBuilder()
         .setId("")
         .setSurvey(newSurvey().build())
         .setVertices(newPolygonVertices())
