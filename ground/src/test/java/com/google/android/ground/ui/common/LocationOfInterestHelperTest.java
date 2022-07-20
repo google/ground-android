@@ -16,10 +16,10 @@
 
 package com.google.android.ground.ui.common;
 
+import static com.google.android.ground.FakeData.AREA_OF_INTEREST;
 import static com.google.android.ground.FakeData.GEO_JSON_OF_INTEREST;
 import static com.google.android.ground.FakeData.JOB;
 import static com.google.android.ground.FakeData.POINT_OF_INTEREST;
-import static com.google.android.ground.FakeData.AREA_OF_INTEREST;
 import static com.google.android.ground.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
