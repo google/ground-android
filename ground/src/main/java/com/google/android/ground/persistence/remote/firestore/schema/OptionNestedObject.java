@@ -17,20 +17,19 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
-import java.util.Map;
 
 /** Firestore representation of multiple choice question options. */
 class OptionNestedObject {
   @Nullable private Integer index;
   @Nullable private String code;
-  @Nullable private Map<String, String> label;
+  @Nullable private String label;
 
   @SuppressWarnings("unused")
   public OptionNestedObject() {}
 
   @SuppressWarnings("unused")
   OptionNestedObject(
-      @Nullable Integer index, @Nullable String code, @Nullable Map<String, String> label) {
+      @Nullable Integer index, @Nullable String code, @Nullable String label) {
     this.index = index;
     this.code = code;
     this.label = label;
@@ -47,7 +46,7 @@ class OptionNestedObject {
   }
 
   @Nullable
-  public Map<String, String> getLabel() {
+  public String getLabel() {
     return label;
   }
 }

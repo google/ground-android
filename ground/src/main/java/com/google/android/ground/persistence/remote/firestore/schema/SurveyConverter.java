@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.basemap.BaseMap.typeFromExtension;
-import static com.google.android.ground.util.Localization.getLocalizedMessage;
 
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.BaseMap;
@@ -37,8 +36,8 @@ class SurveyConverter {
     Survey.Builder survey = Survey.newBuilder();
     survey
         .setId(doc.getId())
-        .setTitle(getLocalizedMessage(pd.getTitle()))
-        .setDescription(getLocalizedMessage(pd.getDescription()));
+        .setTitle(pd.getTitle())
+        .setDescription(pd.getDescription());
     if (pd.getJobs() != null) {
       Maps.forEach(pd.getJobs(), (id, obj) -> survey.putJob(JobConverter.toJob(id, obj)));
     }

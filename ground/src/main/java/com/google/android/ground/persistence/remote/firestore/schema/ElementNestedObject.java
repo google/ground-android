@@ -33,7 +33,7 @@ class ElementNestedObject {
   @Nullable
   private String cardinality;
   @Nullable
-  private Map<String, String> label;
+  private String label;
   @Nullable
   private Map<String, OptionNestedObject> options;
   @Nullable
@@ -48,7 +48,7 @@ class ElementNestedObject {
       @Nullable Integer index,
       @Nullable String type,
       @Nullable String cardinality,
-      @Nullable Map<String, String> label,
+      @Nullable String label,
       @Nullable Map<String, OptionNestedObject> options,
       @Nullable Boolean required) {
     this.index = index;
@@ -75,7 +75,7 @@ class ElementNestedObject {
   }
 
   @Nullable
-  public Map<String, String> getLabel() {
+  public String getLabel() {
     return label;
   }
 
