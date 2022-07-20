@@ -87,7 +87,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     mockEnqueueSyncWorker();
 
     locationOfInterestRepository
-        .applyAndEnqueue(FakeData.POINT_FEATURE.toMutation(Type.CREATE, FakeData.USER.getId()))
+        .applyAndEnqueue(FakeData.POINT_OF_INTEREST.toMutation(Type.CREATE, FakeData.USER.getId()))
         .test()
         .assertNoErrors()
         .assertComplete();
@@ -95,10 +95,10 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
     LocationOfInterestMutation actual = captorFeatureMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.CREATE);
     assertThat(actual.getSyncStatus()).isEqualTo(SyncStatus.PENDING);
-    assertThat(actual.getLocationOfInterestId()).isEqualTo(FakeData.POINT_FEATURE.getId());
+    assertThat(actual.getLocationOfInterestId()).isEqualTo(FakeData.POINT_OF_INTEREST.getId());
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(LocationOfInterestMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_FEATURE.getId());
+    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_OF_INTEREST.getId());
   }
 
   @Test
@@ -110,13 +110,13 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
         .applyAndEnqueue(any(LocationOfInterestMutation.class));
 
     locationOfInterestRepository
-        .applyAndEnqueue(FakeData.POINT_FEATURE.toMutation(Type.CREATE, FakeData.USER.getId()))
+        .applyAndEnqueue(FakeData.POINT_OF_INTEREST.toMutation(Type.CREATE, FakeData.USER.getId()))
         .test()
         .assertError(NullPointerException.class)
         .assertNotComplete();
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(LocationOfInterestMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_FEATURE.getId());
+    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_OF_INTEREST.getId());
   }
 
   @Test
@@ -127,20 +127,20 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
         .thenReturn(Completable.error(new NullPointerException()));
 
     locationOfInterestRepository
-        .applyAndEnqueue(FakeData.POINT_FEATURE.toMutation(Type.CREATE, FakeData.USER.getId()))
+        .applyAndEnqueue(FakeData.POINT_OF_INTEREST.toMutation(Type.CREATE, FakeData.USER.getId()))
         .test()
         .assertError(NullPointerException.class)
         .assertNotComplete();
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(LocationOfInterestMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_FEATURE.getId());
+    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_OF_INTEREST.getId());
   }
 
   @Test
   public void testSyncFeatures_loaded() {
     fakeRemoteDataStore.streamFeatureOnce(
-        RemoteDataEvent.loaded("entityId", FakeData.POINT_FEATURE));
-    when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_FEATURE))
+        RemoteDataEvent.loaded("entityId", FakeData.POINT_OF_INTEREST));
+    when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
         .thenReturn(Completable.complete());
 
     locationOfInterestRepository
@@ -149,14 +149,14 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
         .assertNoErrors()
         .assertComplete();
 
-    verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_FEATURE);
+    verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_OF_INTEREST);
   }
 
   @Test
   public void testSyncFeatures_modified() {
     fakeRemoteDataStore.streamFeatureOnce(
-        RemoteDataEvent.modified("entityId", FakeData.POINT_FEATURE));
-    when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_FEATURE))
+        RemoteDataEvent.modified("entityId", FakeData.POINT_OF_INTEREST));
+    when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
         .thenReturn(Completable.complete());
 
     locationOfInterestRepository
@@ -165,7 +165,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
         .assertNoErrors()
         .assertComplete();
 
-    verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_FEATURE);
+    verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_OF_INTEREST);
   }
 
   @Test
@@ -192,12 +192,12 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   @Test
   public void testGetFeaturesOnceAndStream() {
     when(mockLocalDataStore.getLocationsOfInterestOnceAndStream(FakeData.SURVEY))
-        .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_FEATURE)));
+        .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_OF_INTEREST)));
 
     locationOfInterestRepository
         .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
         .test()
-        .assertValue(ImmutableSet.of(FakeData.POINT_FEATURE));
+        .assertValue(ImmutableSet.of(FakeData.POINT_OF_INTEREST));
   }
 
   @Test
@@ -214,28 +214,30 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   @Test
   public void testGetFeature_surveyPresent() {
     when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
-    when(mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
-        .thenReturn(Maybe.just(FakeData.POINT_FEATURE));
+    when(mockLocalDataStore.getLocationOfInterest(
+            FakeData.SURVEY, FakeData.POINT_OF_INTEREST.getId()))
+        .thenReturn(Maybe.just(FakeData.POINT_OF_INTEREST));
 
     locationOfInterestRepository
-        .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
+        .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_OF_INTEREST.getId())
         .test()
-        .assertResult(FakeData.POINT_FEATURE);
+        .assertResult(FakeData.POINT_OF_INTEREST);
 
     locationOfInterestRepository
-        .getLocationOfInterest(FakeData.POINT_FEATURE.toMutation(Type.UPDATE, "user_id"))
+        .getLocationOfInterest(FakeData.POINT_OF_INTEREST.toMutation(Type.UPDATE, "user_id"))
         .test()
-        .assertResult(FakeData.POINT_FEATURE);
+        .assertResult(FakeData.POINT_OF_INTEREST);
   }
 
   @Test
   public void testGetLocationOfInterest_whenLocationOfInterestIsNotPresent() {
     when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
-    when(mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.POINT_FEATURE.getId()))
+    when(mockLocalDataStore.getLocationOfInterest(
+            FakeData.SURVEY, FakeData.POINT_OF_INTEREST.getId()))
         .thenReturn(Maybe.empty());
 
     locationOfInterestRepository
-        .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_FEATURE.getId())
+        .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_OF_INTEREST.getId())
         .test()
         .assertFailureAndMessage(NotFoundException.class, "Location of interest not found loi id");
   }

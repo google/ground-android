@@ -16,18 +16,18 @@
 
 package com.google.android.ground.ui.common;
 
-import static com.google.android.ground.FakeData.GEO_JSON_FEATURE;
+import static com.google.android.ground.FakeData.GEO_JSON_OF_INTEREST;
 import static com.google.android.ground.FakeData.JOB;
-import static com.google.android.ground.FakeData.POINT_FEATURE;
-import static com.google.android.ground.FakeData.POLYGON_FEATURE;
+import static com.google.android.ground.FakeData.POINT_OF_INTEREST;
+import static com.google.android.ground.FakeData.AREA_OF_INTEREST;
 import static com.google.android.ground.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -46,7 +46,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
   @Test
   public void testGetCreatedBy() {
     PointOfInterest feature =
-        POINT_FEATURE.toBuilder()
+        POINT_OF_INTEREST.toBuilder()
             .setCreated(AuditInfo.now(USER.toBuilder().setDisplayName("Test User").build()))
             .build();
 
@@ -65,13 +65,13 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPoint() {
-    PointOfInterest feature = POINT_FEATURE.toBuilder().setCaption("").build();
+    PointOfInterest feature = POINT_OF_INTEREST.toBuilder().setCaption("").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPolygon() {
-    PolygonOfInterest feature = POLYGON_FEATURE.toBuilder().setCaption("").build();
+    AreaOfInterest feature = AREA_OF_INTEREST.toBuilder().setCaption("").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
   }
 
@@ -80,20 +80,20 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
     GeoJsonLocationOfInterest feature =
-        GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
+        GEO_JSON_OF_INTEREST.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon foo id");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
-    PointOfInterest feature = POINT_FEATURE.toBuilder().setCaption("point caption").build();
+    PointOfInterest feature = POINT_OF_INTEREST.toBuilder().setCaption("point caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
-    PolygonOfInterest feature = POLYGON_FEATURE.toBuilder().setCaption("polygon caption").build();
+    AreaOfInterest feature = AREA_OF_INTEREST.toBuilder().setCaption("polygon caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
   }
 
@@ -102,7 +102,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "foo caption");
     JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
     GeoJsonLocationOfInterest feature =
-        GEO_JSON_FEATURE.toBuilder().setGeoJsonString(jsonObject.toString()).build();
+        GEO_JSON_OF_INTEREST.toBuilder().setGeoJsonString(jsonObject.toString()).build();
 
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("foo caption");
   }
@@ -110,7 +110,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
   @Test
   public void testGetSubtitle() {
     PointOfInterest feature =
-        POINT_FEATURE.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
+        POINT_OF_INTEREST.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
 
     assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
   }

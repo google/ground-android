@@ -29,11 +29,11 @@ import androidx.room.PrimaryKey;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.locationofinterest.PolygonOfInterest;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.local.room.models.Coordinates;
@@ -133,9 +133,9 @@ public abstract class LocationOfInterestEntity {
       entity.setLocation(Coordinates.fromPoint(((PointOfInterest) locationOfInterest).getPoint()));
     } else if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
       entity.setGeoJson(((GeoJsonLocationOfInterest) locationOfInterest).getGeoJsonString());
-    } else if (locationOfInterest instanceof PolygonOfInterest) {
+    } else if (locationOfInterest instanceof AreaOfInterest) {
       entity.setPolygonVertices(
-          formatVertices(((PolygonOfInterest) locationOfInterest).getVertices()));
+          formatVertices(((AreaOfInterest) locationOfInterest).getVertices()));
     }
     return entity.build();
   }
@@ -158,8 +158,8 @@ public abstract class LocationOfInterestEntity {
     }
 
     if (locationOfInterestEntity.getPolygonVertices() != null) {
-      PolygonOfInterest.Builder builder =
-          PolygonOfInterest.builder()
+      AreaOfInterest.Builder builder =
+          AreaOfInterest.newBuilder()
               .setVertices(parseVertices(locationOfInterestEntity.getPolygonVertices()));
       fillLocationOfInterest(builder, locationOfInterestEntity, survey);
       return builder.build();
