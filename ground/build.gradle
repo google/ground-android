@@ -39,6 +39,7 @@ project.ext {
     roomVersion = "2.3.0"
     rxBindingVersion = "2.2.0"
     workVersion = "2.5.0"
+    geotoolsVersion = "27.0"
 }
 
 // Load secrets.properties
@@ -203,6 +204,9 @@ dependencies {
 
     // GeoJSON support
     implementation "com.google.maps.android:android-maps-utils:2.2.0"
+
+    // GeoTools
+    implementation "org.geotools:gt-main:$project.geotoolsVersion"
 
     // Firebase and related libraries.
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
