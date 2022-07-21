@@ -68,6 +68,7 @@ allprojects {
         mavenLocal()
         maven { url "https://maven.google.com" }
         maven { url "https://jitpack.io" }
+        maven { url "https://repo.osgeo.org/repository/release/" } // GeoTools
         jcenter()
     }
 }
