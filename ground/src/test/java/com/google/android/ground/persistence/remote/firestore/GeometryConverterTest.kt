@@ -24,7 +24,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LinearRing
 
 class GeometryConverterTest {
-    val converter = GeometryConverter()
+    private val converter = GeometryConverter()
     lateinit var geometryFactory: GeometryFactory
     lateinit var ring1: LinearRing
     lateinit var ring2: LinearRing
