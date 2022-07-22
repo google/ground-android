@@ -77,7 +77,7 @@ class GeometryConverter {
     }
 
     private fun listToMap(list: List<Any>): Map<Int, Any> {
-        return list.mapIndexedNotNull { index, value -> index to toFirestoreValue(value) }
+        return list.mapIndexed { index, value -> index to toFirestoreValue(value) }
             .toMap()
     }
 }
