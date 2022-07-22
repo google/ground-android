@@ -16,25 +16,23 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.GeometryFactory
-import org.locationtech.jts.geom.LinearRing
+import org.locationtech.jts.geom.*
+
+const val MULTI_POLYGON_GEOJSON =
+    "{type=MultiPolygon, coordinates={0={0={0=GeoPoint { latitude=-89.63410225, longitude=41.89729784 }, 1=GeoPoint { latitude=-89.63805046, longitude=41.89525341 }, 2=GeoPoint { latitude=-89.63659134, longitude=41.8893753 }, 3=GeoPoint { latitude=-89.62886658, longitude=41.88956699 }, 4=GeoPoint { latitude=-89.62800827, longitude=41.89544508 }, 5=GeoPoint { latitude=-89.63410225, longitude=41.89729784 }}, 1={0=GeoPoint { latitude=-89.63453141, longitude=41.89193107 }, 1=GeoPoint { latitude=-89.63118401, longitude=41.89090877 }, 2=GeoPoint { latitude=-89.63066903, longitude=41.89397561 }, 3=GeoPoint { latitude=-89.63358727, longitude=41.89480618 }, 4=GeoPoint { latitude=-89.63453141, longitude=41.89193107 }}}, 1={0={0=GeoPoint { latitude=-89.61006966, longitude=41.8933367 }, 1=GeoPoint { latitude=-89.61479035, longitude=41.89832003 }, 2=GeoPoint { latitude=-89.61719361, longitude=41.89455062 }, 3=GeoPoint { latitude=-89.6152195, longitude=41.89154771 }, 4=GeoPoint { latitude=-89.61006966, longitude=41.8933367 }}, 1={0=GeoPoint { latitude=-89.61393204, longitude=41.89320891 }, 1=GeoPoint { latitude=-89.61290207, longitude=41.89429506 }, 2=GeoPoint { latitude=-89.61418953, longitude=41.89538119 }, 3=GeoPoint { latitude=-89.61513367, longitude=41.89416728 }, 4=GeoPoint { latitude=-89.61393204, longitude=41.89320891 }}}}}"
 
 class GeometryConverterTest {
     private val converter = GeometryConverter()
-    lateinit var geometryFactory: GeometryFactory
-    lateinit var ring1: LinearRing
-    lateinit var ring2: LinearRing
-    lateinit var ring3: LinearRing
-    lateinit var ring4: LinearRing
+    lateinit var point: Point
+    lateinit var multiPolygon: MultiPolygon
 
     @Before
     fun setUp() {
-        geometryFactory = GeometryFactory()
-        ring1 = geometryFactory.createLinearRing(
+        val geometryFactory = GeometryFactory()
+        val ring1 = geometryFactory.createLinearRing(
             arrayOf(
                 Coordinate(-89.63410225291251, 41.897297841913904),
                 Coordinate(-89.63805046458243, 41.895253409968504),
@@ -44,7 +42,7 @@ class GeometryConverterTest {
                 Coordinate(-89.63410225291251, 41.897297841913904)
             )
         )
-        ring2 = geometryFactory.createLinearRing(
+        val ring2 = geometryFactory.createLinearRing(
             arrayOf(
                 Coordinate(-89.6345314063549, 41.89193106847542),
                 Coordinate(-89.63118400950431, 41.890908774787086),
@@ -53,7 +51,7 @@ class GeometryConverterTest {
                 Coordinate(-89.6345314063549, 41.89193106847542)
             )
         )
-        ring3 = geometryFactory.createLinearRing(
+        val ring3 = geometryFactory.createLinearRing(
             arrayOf(
                 Coordinate(-89.61006966013908, 41.89333669558227),
                 Coordinate(-89.61479034800529, 41.89832003334451),
@@ -62,7 +60,7 @@ class GeometryConverterTest {
                 Coordinate(-89.61006966013908, 41.89333669558227)
             )
         )
-        ring4 = geometryFactory.createLinearRing(
+        val ring4 = geometryFactory.createLinearRing(
             arrayOf(
                 Coordinate(-89.61393204112052, 41.89320891257806),
                 Coordinate(-89.6129020728588, 41.89429505996539),
@@ -71,11 +69,16 @@ class GeometryConverterTest {
                 Coordinate(-89.61393204112052, 41.89320891257806)
             )
         )
+        val polygon1 =
+            geometryFactory.createPolygon(ring1, arrayOf(ring2))
+        val polygon2 =
+            geometryFactory.createPolygon(ring3, arrayOf(ring4))
+        point = geometryFactory.createPoint(Coordinate(42.0, 28.0))
+        multiPolygon = geometryFactory.createMultiPolygon(arrayOf(polygon1, polygon2))
     }
 
     @Test
     fun toFirestoreMap_point() {
-        val point = geometryFactory.createPoint(Coordinate(42.0, 28.0))
         assertEquals(
             "{type=Point, coordinates=GeoPoint { latitude=42.0, longitude=28.0 }}",
             converter.toFirestoreMap(point).toString()
@@ -84,13 +87,8 @@ class GeometryConverterTest {
 
     @Test
     fun toFirestoreMap_multiPolygon() {
-        val polygon1 =
-            geometryFactory.createPolygon(ring1, arrayOf(ring2))
-        val polygon2 =
-            geometryFactory.createPolygon(ring3, arrayOf(ring4))
-        val multiPolygon = geometryFactory.createMultiPolygon(arrayOf(polygon1, polygon2))
         assertEquals(
-            "{type=MultiPolygon, coordinates={0={0={0=GeoPoint { latitude=-89.63410225, longitude=41.89729784 }, 1=GeoPoint { latitude=-89.63805046, longitude=41.89525341 }, 2=GeoPoint { latitude=-89.63659134, longitude=41.8893753 }, 3=GeoPoint { latitude=-89.62886658, longitude=41.88956699 }, 4=GeoPoint { latitude=-89.62800827, longitude=41.89544508 }, 5=GeoPoint { latitude=-89.63410225, longitude=41.89729784 }}, 1={0=GeoPoint { latitude=-89.63453141, longitude=41.89193107 }, 1=GeoPoint { latitude=-89.63118401, longitude=41.89090877 }, 2=GeoPoint { latitude=-89.63066903, longitude=41.89397561 }, 3=GeoPoint { latitude=-89.63358727, longitude=41.89480618 }, 4=GeoPoint { latitude=-89.63453141, longitude=41.89193107 }}}, 1={0={0=GeoPoint { latitude=-89.61006966, longitude=41.8933367 }, 1=GeoPoint { latitude=-89.61479035, longitude=41.89832003 }, 2=GeoPoint { latitude=-89.61719361, longitude=41.89455062 }, 3=GeoPoint { latitude=-89.6152195, longitude=41.89154771 }, 4=GeoPoint { latitude=-89.61006966, longitude=41.8933367 }}, 1={0=GeoPoint { latitude=-89.61393204, longitude=41.89320891 }, 1=GeoPoint { latitude=-89.61290207, longitude=41.89429506 }, 2=GeoPoint { latitude=-89.61418953, longitude=41.89538119 }, 3=GeoPoint { latitude=-89.61513367, longitude=41.89416728 }, 4=GeoPoint { latitude=-89.61393204, longitude=41.89320891 }}}}}",
+            MULTI_POLYGON_GEOJSON,
             converter.toFirestoreMap(multiPolygon).toString()
         )
     }
