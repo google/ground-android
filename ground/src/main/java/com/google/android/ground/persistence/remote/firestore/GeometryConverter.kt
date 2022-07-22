@@ -45,7 +45,7 @@ class GeometryConverter {
      * Convert a `Geometry` to a `Map` which may be used to persist
      * the provided geometry in Firestore.
      */
-    fun toFirestoreMap(geometry: Geometry): Map<*, *> {
+    fun toFirestoreMap(geometry: Geometry): Map<String, Any> {
         val writer = GeoJsonWriter()
         writer.setEncodeCRS(false)
         val jsonString = writer.write(geometry)
