@@ -20,9 +20,9 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.getOrAwaitValue
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.PointOfInterest
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStore
@@ -72,9 +72,10 @@ class DataCollectionViewModelTest : BaseHiltTest() {
         .setId(submissionId)
         .setSurvey(survey)
         .setLocationOfInterest(
-            PointOfInterest.newBuilder().setCaption(loiName).setSurvey(survey).setCreated(auditInfo)
+            LocationOfInterest.newBuilder<Point>().setCaption(loiName).setSurvey(survey)
+                .setCreated(auditInfo)
                 .setLastModified(auditInfo)
-                .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
+                .setGeometry(Point(0.0, 0.0))
                 .setJob(Job.newBuilder().setName(jobName).setId("jobId").build())
                 .setId(loiId)
                 .build()
@@ -107,9 +108,11 @@ class DataCollectionViewModelTest : BaseHiltTest() {
                 any(),
                 any()
             )
-        ).doReturn(Single.just(
-            submission
-        ))
+        ).doReturn(
+            Single.just(
+                submission
+            )
+        )
         dataCollectionViewModel =
             DataCollectionViewModel(submissionRepository, locationOfInterestHelper)
     }

@@ -25,10 +25,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation.Type;
 import com.google.android.ground.model.task.Task;
@@ -166,7 +166,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
             });
   }
 
-  public void addPolygonOfInterest(AreaOfInterest areaOfInterest) {
+  public void addPolygonOfInterest(LocationOfInterest<Polygon> areaOfInterest) {
     getActiveSurvey()
         .map(Survey::getId)
         .ifPresentOrElse(
@@ -175,7 +175,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
                     locationOfInterestRepository.newPolygonOfInterestMutation(
                         surveyId,
                         areaOfInterest.getJob().getId(),
-                        areaOfInterest.getVertices(),
+                        areaOfInterest.getGeometry().getVertices(),
                         new Date())),
             () -> {
               throw new IllegalStateException("Empty survey");

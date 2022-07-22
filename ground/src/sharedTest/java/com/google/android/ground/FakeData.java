@@ -20,12 +20,11 @@ import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.TermsOfService;
 import com.google.android.ground.model.User;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.job.Job.Builder;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -63,41 +62,29 @@ public class FakeData {
         .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"));
   }
 
-  public static final PointOfInterest POINT_OF_INTEREST =
-      PointOfInterest.newBuilder()
+  public static final LocationOfInterest<Point> POINT_OF_INTEREST =
+      LocationOfInterest.<Point>newBuilder()
           .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
-          .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
+          .setGeometry(new Point(0.0, 0.0))
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
           .build();
 
   public static final ImmutableList<Point> VERTICES =
       ImmutableList.of(
-          Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
-          Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
-          Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build());
+          new Point(0.0, 0.0), new Point(10.0, 10.0), new Point(20.0, 20.0), new Point(0.0, 0.0));
 
-  public static final AreaOfInterest AREA_OF_INTEREST =
-      AreaOfInterest.newBuilder()
+  public static final LocationOfInterest<Polygon> AREA_OF_INTEREST =
+      LocationOfInterest.<Polygon>newBuilder()
           .setId("loi id")
           .setSurvey(SURVEY)
           .setJob(JOB)
-          .setVertices(VERTICES)
+          .setGeometry(new Polygon(VERTICES))
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
           .build();
 
-  public static final GeoJsonLocationOfInterest GEO_JSON_OF_INTEREST =
-      GeoJsonLocationOfInterest.newBuilder()
-          .setId("loi id")
-          .setSurvey(SURVEY)
-          .setJob(JOB)
-          .setGeoJsonString("some data string")
-          .setCreated(AuditInfo.now(USER))
-          .setLastModified(AuditInfo.now(USER))
-          .build();
-
-  public static final Point POINT = Point.newBuilder().setLatitude(42.0).setLongitude(18.0).build();
+  public static final Point POINT = new Point(42.0, 18.0);
 }

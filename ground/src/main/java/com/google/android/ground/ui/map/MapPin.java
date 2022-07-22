@@ -17,9 +17,9 @@
 package com.google.android.ground.ui.map;
 
 import androidx.annotation.Nullable;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.job.Style;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
@@ -40,7 +40,7 @@ public abstract class MapPin extends MapLocationOfInterest {
   // relevant to rendering pins and uuid to reference the related LocationOfInterest.
   @Nullable
   @Override
-  public abstract LocationOfInterest getLocationOfInterest();
+  public abstract LocationOfInterest<Point> getLocationOfInterest();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -51,7 +51,7 @@ public abstract class MapPin extends MapLocationOfInterest {
     public abstract Builder setStyle(Style style);
 
     public abstract Builder setLocationOfInterest(
-        @Nullable LocationOfInterest newLocationOfInterest);
+        @Nullable LocationOfInterest<Point> newLocationOfInterest);
 
     public abstract MapPin build();
   }

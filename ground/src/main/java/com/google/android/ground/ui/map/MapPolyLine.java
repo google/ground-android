@@ -17,18 +17,18 @@
 package com.google.android.ground.ui.map;
 
 import androidx.annotation.Nullable;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.PolyLine;
 import com.google.android.ground.model.job.Style;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 @AutoValue
-// TODO: Rename to MapPolyline for correctness.
-public abstract class MapPolygon extends MapLocationOfInterest {
+public abstract class MapPolyLine extends MapLocationOfInterest {
 
   public static Builder newBuilder() {
-    return new AutoValue_MapPolygon.Builder();
+    return new AutoValue_MapPolyLine.Builder();
   }
 
   public abstract String getId();
@@ -39,10 +39,11 @@ public abstract class MapPolygon extends MapLocationOfInterest {
 
   @Nullable
   @Override
-  public abstract LocationOfInterest getLocationOfInterest();
+  public abstract LocationOfInterest<PolyLine> getLocationOfInterest();
 
   public abstract Builder toBuilder();
 
+  // TODO: Remove all this extra logic. Rely on [Geometry] object implementations.
   public boolean isPolygonComplete() {
     if (getVertices().size() < 4) {
       return false;
@@ -73,8 +74,8 @@ public abstract class MapPolygon extends MapLocationOfInterest {
     public abstract Builder setStyle(Style style);
 
     public abstract Builder setLocationOfInterest(
-        @Nullable LocationOfInterest newLocationOfInterest);
+        @Nullable LocationOfInterest<PolyLine> newLocationOfInterest);
 
-    public abstract MapPolygon build();
+    public abstract MapPolyLine build();
   }
 }

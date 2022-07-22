@@ -21,10 +21,11 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.locationofinterest.AreaOfInterest
-import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.BooleanOrError
 import com.google.android.ground.rx.BooleanOrError.Companion.falseValue
@@ -35,7 +36,7 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapPin
-import com.google.android.ground.ui.map.MapPolygon
+import com.google.android.ground.ui.map.MapPolyLine
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
@@ -56,7 +57,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
     private val uuidGenerator: OfflineUuidGenerator
 ) : AbstractViewModel() {
     private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
-    private val mapPolygonFlowable: @Hot Subject<Optional<MapPolygon>> = PublishSubject.create()
+    private val mapPolyLineFlowable: @Hot Subject<Optional<MapPolyLine>> = PublishSubject.create()
 
     /** Denotes whether the drawn polygon is complete or not. This is different from drawing state.  */
     val isPolygonCompleted: @Hot LiveData<Boolean>
@@ -84,7 +85,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
      */
     private var isLastVertexNotSelectedByUser = false
 
-    private var mapPolygon = Optional.empty<MapPolygon>()
+    private var mapPolyLine = Optional.empty<MapPolyLine>()
 
     private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
         locationLockChangeRequests
@@ -157,25 +158,27 @@ class PolygonDrawingViewModel @Inject internal constructor(
     }
 
     private fun updateVertices(newVertices: ImmutableList<Point>) {
-        mapPolygon = mapPolygon.map { polygon: MapPolygon ->
+        mapPolyLine = mapPolyLine.map { polygon: MapPolyLine ->
             polygon.toBuilder().setVertices(newVertices).build()
         }
-        mapPolygonFlowable.onNext(mapPolygon)
+        mapPolyLineFlowable.onNext(mapPolyLine)
     }
 
     fun onCompletePolygonButtonClick() {
+        // TODO: Use toPolygon().
         check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
-        val polygon = mapPolygon.get()
-        check(polygon.isPolygonComplete) { "Polygon is not complete" }
+        val polyline = mapPolyLine.get()
+        check(polyline.isPolygonComplete) { "Polygon is not complete" }
         val auditInfo = AuditInfo.now(authManager.currentUser)
-        val areaOfInterest = AreaOfInterest.newBuilder()
-            .setId(polygon.id)
-            .setVertices(polygon.vertices)
-            .setSurvey(selectedSurvey.value!!)
-            .setJob(selectedJob.value!!)
-            .setCreated(auditInfo)
-            .setLastModified(auditInfo)
-            .build()
+        val areaOfInterest =
+            LocationOfInterest.newBuilder<Polygon>()
+                .setId(polyline.id)
+                .setGeometry(Polygon(polyline.vertices))
+                .setSurvey(selectedSurvey.value!!)
+                .setJob(selectedJob.value!!)
+                .setCreated(auditInfo)
+                .setLastModified(auditInfo)
+                .build()
         polygonDrawingState.onNext(PolygonDrawingState.completed(areaOfInterest))
         reset()
     }
@@ -183,12 +186,12 @@ class PolygonDrawingViewModel @Inject internal constructor(
     private fun reset() {
         isLastVertexNotSelectedByUser = false
         vertices.clear()
-        mapPolygon = Optional.empty()
-        mapPolygonFlowable.onNext(Optional.empty())
+        mapPolyLine = Optional.empty()
+        mapPolyLineFlowable.onNext(Optional.empty())
     }
 
     val firstVertex: Optional<Point>
-        get() = mapPolygon.map { it.firstVertex }
+        get() = mapPolyLine.map { it.firstVertex }
 
     fun onLocationLockClick() =
         locationLockChangeRequests.onNext(!isLocationLockEnabled())
@@ -203,8 +206,8 @@ class PolygonDrawingViewModel @Inject internal constructor(
         this.selectedSurvey.onNext(selectedSurvey)
         polygonDrawingState.onNext(PolygonDrawingState.inProgress())
 
-        mapPolygon = Optional.of(
-            MapPolygon.newBuilder()
+        mapPolyLine = Optional.of(
+            MapPolyLine.newBuilder()
                 .setId(uuidGenerator.generateUuid())
                 .setVertices(ImmutableList.of())
                 .setStyle(Style.DEFAULT_MAP_STYLE)
@@ -230,7 +233,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         abstract val state: State
 
         /** Final polygon location of interest.  */
-        abstract val unsavedPolygonLocationOfInterest: AreaOfInterest?
+        abstract val unsavedPolygonLocationOfInterest: LocationOfInterest<Polygon>?
 
         companion object {
             fun canceled(): PolygonDrawingState {
@@ -241,12 +244,12 @@ class PolygonDrawingViewModel @Inject internal constructor(
                 return createDrawingState(State.IN_PROGRESS, null)
             }
 
-            fun completed(unsavedAreaOfInterest: AreaOfInterest?): PolygonDrawingState {
+            fun completed(unsavedAreaOfInterest: LocationOfInterest<Polygon>?): PolygonDrawingState {
                 return createDrawingState(State.COMPLETED, unsavedAreaOfInterest)
             }
 
             private fun createDrawingState(
-                state: State, unsavedAreaOfInterest: AreaOfInterest?
+                state: State, unsavedAreaOfInterest: LocationOfInterest<Polygon>?
             ): PolygonDrawingState {
                 return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(
                     state,
@@ -260,9 +263,9 @@ class PolygonDrawingViewModel @Inject internal constructor(
         /** Min. distance in dp between two points for them be considered as overlapping.  */
         const val DISTANCE_THRESHOLD_DP = 24
 
-        /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon].  */
-        private fun unsavedLocationsOfInterestFromPolygon(mapPolygon: MapPolygon): ImmutableSet<MapLocationOfInterest> {
-            val vertices = mapPolygon.vertices
+        /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolyLine].  */
+        private fun unsavedLocationsOfInterestFromPolygon(mapPolyLine: MapPolyLine): ImmutableSet<MapLocationOfInterest> {
+            val vertices = mapPolyLine.vertices
 
             if (vertices.isEmpty()) {
                 return ImmutableSet.of()
@@ -270,15 +273,15 @@ class PolygonDrawingViewModel @Inject internal constructor(
 
             // Include the given polygon and add 1 MapPin for each of its vertex.
             return ImmutableSet.builder<MapLocationOfInterest>()
-                .add(mapPolygon)
+                .add(mapPolyLine)
                 .addAll(
                     vertices
                         .map { point ->
                             MapPin.newBuilder()
-                                .setId(mapPolygon.id)
+                                .setId(mapPolyLine.id)
                                 .setPosition(point)
                                 // TODO: Use different marker style for unsaved markers.
-                                .setStyle(mapPolygon.style)
+                                .setStyle(mapPolyLine.style)
                                 .build()
                         }
                         .toList())
@@ -296,7 +299,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             locationLockStateFlowable
                 .map { locked -> if (locked.isTrue) R.color.colorMapBlue else R.color.colorGrey800 }
                 .startWith(R.color.colorGrey800))
-        val polygonFlowable = mapPolygonFlowable
+        val polygonFlowable = mapPolyLineFlowable
             .startWith(Optional.empty())
             .toFlowable(BackpressureStrategy.LATEST)
             .share()

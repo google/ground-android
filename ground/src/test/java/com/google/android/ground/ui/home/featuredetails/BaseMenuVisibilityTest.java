@@ -21,9 +21,9 @@ import com.google.android.ground.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.common.collect.ImmutableMap;
@@ -65,14 +65,14 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
     this.visible = visible;
   }
 
-  static PointOfInterest createPointFeature(User user) {
+  static LocationOfInterest<Point> createPointFeature(User user) {
     return FakeData.POINT_OF_INTEREST.toBuilder()
         .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))
         .build();
   }
 
-  static AreaOfInterest createPolygonFeature(User user) {
+  static LocationOfInterest<Polygon> createPolygonFeature(User user) {
     return FakeData.AREA_OF_INTEREST.toBuilder()
         .setSurvey(TEST_SURVEY)
         .setCreated(AuditInfo.now(user))

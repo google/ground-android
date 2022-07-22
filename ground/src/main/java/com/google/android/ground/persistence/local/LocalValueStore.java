@@ -20,7 +20,7 @@ import static java8.util.J8Arrays.stream;
 
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.ui.map.CameraPosition;
 import com.google.android.ground.ui.settings.Keys;
 import java8.util.Optional;
@@ -101,10 +101,7 @@ public class LocalValueStore {
       String[] values = value.split(",");
       return Optional.of(
           new CameraPosition(
-              Point.newBuilder()
-                  .setLatitude(Double.parseDouble(values[0]))
-                  .setLongitude(Double.parseDouble(values[1]))
-                  .build(),
+              new Point(Double.parseDouble(values[0]), Double.parseDouble(values[1])),
               Float.valueOf(values[2])));
     } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
       Timber.e(e, "Invalid camera pos in prefs");

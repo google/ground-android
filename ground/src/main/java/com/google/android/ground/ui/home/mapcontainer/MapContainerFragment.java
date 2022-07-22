@@ -32,9 +32,9 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.MapContainerFragBinding;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.GeometryType;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.repository.MapsRepository;
 import com.google.android.ground.rx.BooleanOrError;
 import com.google.android.ground.rx.Loadable;
@@ -209,12 +209,13 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
       Timber.e("Move point failed: No locationOfInterest selected");
       return;
     }
-    if (!(locationOfInterest.get() instanceof PointOfInterest)) {
+    if (locationOfInterest.get().getGeometry().getType() != GeometryType.POINT) {
       Timber.e("Only point locations of interest can be moved");
       return;
     }
-    PointOfInterest newPointOfInterest =
-        ((PointOfInterest) locationOfInterest.get()).toBuilder().setPoint(point).build();
+    LocationOfInterest<Point> newPointOfInterest =
+        ((LocationOfInterest<Point>) locationOfInterest.get())
+            .toBuilder().setGeometry(point).build();
     homeScreenViewModel.updateLocationOfInterest(newPointOfInterest);
   }
 
@@ -229,10 +230,10 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         state
             .getLocationOfInterest()
             .filter(LocationOfInterest::isPoint)
-            .map(PointOfInterest.class::cast)
+            .map(x -> (LocationOfInterest<Point>) x)
             .ifPresent(
                 pointOfInterest -> {
-                  mapContainerViewModel.panAndZoomCamera(pointOfInterest.getPoint());
+                  mapContainerViewModel.panAndZoomCamera(pointOfInterest.getGeometry());
                 });
         break;
       case HIDDEN:

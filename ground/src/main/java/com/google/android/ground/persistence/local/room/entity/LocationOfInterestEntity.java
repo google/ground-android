@@ -28,12 +28,11 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.GeometryType;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.local.room.models.Coordinates;
@@ -129,38 +128,32 @@ public abstract class LocationOfInterestEntity {
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(locationOfInterest.getCreated()))
             .setLastModified(AuditInfoEntity.fromObject(locationOfInterest.getLastModified()));
-    if (locationOfInterest instanceof PointOfInterest) {
-      entity.setLocation(Coordinates.fromPoint(((PointOfInterest) locationOfInterest).getPoint()));
-    } else if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
-      entity.setGeoJson(((GeoJsonLocationOfInterest) locationOfInterest).getGeoJsonString());
-    } else if (locationOfInterest instanceof AreaOfInterest) {
+    if (locationOfInterest.getGeometry().getType() == GeometryType.POINT) {
+      entity.setLocation(
+          Coordinates.fromPoint(((LocationOfInterest<Point>) locationOfInterest).getGeometry()));
+    } else if (locationOfInterest.getGeometry().getType() == GeometryType.POLYGON) {
       entity.setPolygonVertices(
-          formatVertices(((AreaOfInterest) locationOfInterest).getVertices()));
+          formatVertices(
+              ((LocationOfInterest<Polygon>) locationOfInterest).getGeometry().getVertices()));
     }
     return entity.build();
   }
 
   public static LocationOfInterest toLocationOfInterest(
       LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
-    if (locationOfInterestEntity.getGeoJson() != null) {
-      GeoJsonLocationOfInterest.Builder builder =
-          GeoJsonLocationOfInterest.newBuilder()
-              .setGeoJsonString(locationOfInterestEntity.getGeoJson());
-      fillLocationOfInterest(builder, locationOfInterestEntity, survey);
-      return builder.build();
-    }
-
     if (locationOfInterestEntity.getLocation() != null) {
-      PointOfInterest.Builder builder =
-          PointOfInterest.newBuilder().setPoint(locationOfInterestEntity.getLocation().toPoint());
+      LocationOfInterest.Builder<Point> builder =
+          LocationOfInterest.<Point>newBuilder()
+              .setGeometry(locationOfInterestEntity.getLocation().toPoint());
       fillLocationOfInterest(builder, locationOfInterestEntity, survey);
       return builder.build();
     }
 
     if (locationOfInterestEntity.getPolygonVertices() != null) {
-      AreaOfInterest.Builder builder =
-          AreaOfInterest.newBuilder()
-              .setVertices(parseVertices(locationOfInterestEntity.getPolygonVertices()));
+      LocationOfInterest.Builder<Polygon> builder =
+          LocationOfInterest.<Polygon>newBuilder()
+              .setGeometry(
+                  new Polygon(parseVertices(locationOfInterestEntity.getPolygonVertices())));
       fillLocationOfInterest(builder, locationOfInterestEntity, survey);
       return builder.build();
     }
@@ -191,9 +184,7 @@ public abstract class LocationOfInterestEntity {
         gson.fromJson(vertices, new TypeToken<List<List<Double>>>() {}.getType());
 
     return stream(verticesArray)
-        .map(
-            vertex ->
-                Point.newBuilder().setLatitude(vertex.get(0)).setLongitude(vertex.get(1)).build())
+        .map(vertex -> new Point(vertex.get(0), vertex.get(1)))
         .collect(toImmutableList());
   }
 

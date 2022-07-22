@@ -17,8 +17,8 @@
 package com.google.android.ground.ui.home;
 
 import androidx.annotation.Nullable;
+import com.google.android.ground.model.geometry.GeometryType;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import java8.util.Optional;
 
 public class BottomSheetState {
@@ -53,7 +53,8 @@ public class BottomSheetState {
   }
 
   public boolean isPointOfInterest() {
-    return locationOfInterest.isPresent() && locationOfInterest.get() instanceof PointOfInterest;
+    return locationOfInterest.isPresent()
+        && locationOfInterest.get().getGeometry().getType() == GeometryType.POINT;
   }
 
   public Visibility getVisibility() {

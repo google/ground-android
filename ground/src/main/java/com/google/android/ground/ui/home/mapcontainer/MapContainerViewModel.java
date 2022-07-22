@@ -33,12 +33,10 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.ground.R;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.tile.TileSet;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.PolyLine;
 import com.google.android.ground.model.job.Style;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.OfflineAreaRepository;
 import com.google.android.ground.repository.SurveyRepository;
@@ -54,7 +52,7 @@ import com.google.android.ground.ui.map.CameraPosition;
 import com.google.android.ground.ui.map.MapGeoJson;
 import com.google.android.ground.ui.map.MapLocationOfInterest;
 import com.google.android.ground.ui.map.MapPin;
-import com.google.android.ground.ui.map.MapPolygon;
+import com.google.android.ground.ui.map.MapPolyLine;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -68,8 +66,6 @@ import java.util.Arrays;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
-import org.json.JSONException;
-import org.json.JSONObject;
 import timber.log.Timber;
 
 @SharedViewModel
@@ -79,8 +75,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public static final float ZOOM_LEVEL_THRESHOLD = 16f;
   public static final float DEFAULT_LOI_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
-  private static final Point DEFAULT_MAP_POINT =
-      Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
+  private static final Point DEFAULT_MAP_POINT = new Point(0.0, 0.0);
   private final LiveData<Loadable<Survey>> surveyLoadingState;
   private final LiveData<ImmutableSet<MapLocationOfInterest>> mapLocationsOfInterest;
   private final LiveData<BooleanOrError> locationLockState;
@@ -127,7 +122,6 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Boolean> locationUpdatesEnabled;
   private final LiveData<String> locationAccuracy;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
-  private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
   /** The currently selected LOI on the map. */
   private final BehaviorProcessor<Optional<LocationOfInterest>> selectedLocationOfInterest =
@@ -154,7 +148,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.surveyRepository = surveyRepository;
     this.locationOfInterestRepository = locationOfInterestRepository;
     this.locationManager = locationManager;
-    this.defaultPolygonStrokeWidth = (int) resources.getDimension(R.dimen.polyline_stroke_width);
     this.selectedPolygonStrokeWidth =
         (int) resources.getDimension(R.dimen.selected_polyline_stroke_width);
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
@@ -216,21 +209,22 @@ public class MapContainerViewModel extends AbstractViewModel {
         .collect(toImmutableSet());
   }
 
-  private static MapLocationOfInterest toMapPin(PointOfInterest pointOfInterest) {
+  private static MapLocationOfInterest toMapPin(LocationOfInterest<Point> locationOfInterest) {
     return MapPin.newBuilder()
-        .setId(pointOfInterest.getId())
-        .setPosition(pointOfInterest.getPoint())
+        .setId(locationOfInterest.getId())
+        .setPosition(locationOfInterest.getGeometry())
         .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setLocationOfInterest(pointOfInterest)
+        .setLocationOfInterest(locationOfInterest)
         .build();
   }
 
-  private static MapLocationOfInterest toMapPolygon(AreaOfInterest areaOfInterest) {
-    return MapPolygon.newBuilder()
-        .setId(areaOfInterest.getId())
-        .setVertices(areaOfInterest.getVertices())
+  private static MapLocationOfInterest toMapPolygon(
+      LocationOfInterest<PolyLine> locationOfInterest) {
+    return MapPolyLine.newBuilder()
+        .setId(locationOfInterest.getId())
+        .setVertices(locationOfInterest.getGeometry().getVertices())
         .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setLocationOfInterest(areaOfInterest)
+        .setLocationOfInterest(locationOfInterest)
         .build();
   }
 
@@ -280,48 +274,20 @@ public class MapContainerViewModel extends AbstractViewModel {
     ImmutableSet<MapLocationOfInterest> mapPins =
         stream(locationsOfInterest)
             .filter(LocationOfInterest::isPoint)
-            .map(PointOfInterest.class::cast)
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
     // TODO: Add support for polylines similar to mapPins.
 
-    ImmutableSet<MapLocationOfInterest> mapGeoJson =
-        stream(locationsOfInterest)
-            .filter(LocationOfInterest::isGeoJson)
-            .map(GeoJsonLocationOfInterest.class::cast)
-            .map(this::toMapGeoJson)
-            .collect(toImmutableSet());
-
     ImmutableSet<MapLocationOfInterest> mapPolygons =
         stream(locationsOfInterest)
             .filter(LocationOfInterest::isPolygon)
-            .map(AreaOfInterest.class::cast)
             .map(MapContainerViewModel::toMapPolygon)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapLocationOfInterest>builder()
         .addAll(mapPins)
-        .addAll(mapGeoJson)
         .addAll(mapPolygons)
-        .build();
-  }
-
-  private MapGeoJson toMapGeoJson(GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
-    JSONObject jsonObject;
-    try {
-      jsonObject = new JSONObject(geoJsonLocationOfInterest.getGeoJsonString());
-    } catch (JSONException e) {
-      Timber.e(e);
-      jsonObject = new JSONObject();
-    }
-
-    return MapGeoJson.newBuilder()
-        .setId(geoJsonLocationOfInterest.getId())
-        .setGeoJson(jsonObject)
-        .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setStrokeWidth(defaultPolygonStrokeWidth)
-        .setLocationOfInterest(geoJsonLocationOfInterest)
         .build();
   }
 
@@ -360,10 +326,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static Point toPoint(Location location) {
-    return Point.newBuilder()
-        .setLatitude(location.getLatitude())
-        .setLongitude(location.getLongitude())
-        .build();
+    return new Point(location.getLatitude(), location.getLongitude());
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {

@@ -21,11 +21,11 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.FakeData;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
 import com.google.android.ground.ui.map.MapLocationOfInterest;
 import com.google.android.ground.ui.map.MapPin;
-import com.google.android.ground.ui.map.MapPolygon;
+import com.google.android.ground.ui.map.MapPolyLine;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
@@ -200,7 +200,11 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
         polygonDrawingState ->
             polygonDrawingState.isCompleted()
                 && polygonDrawingState.getUnsavedPolygonLocationOfInterest() != null
-                && polygonDrawingState.getUnsavedPolygonLocationOfInterest().getVertices().size()
+                && polygonDrawingState
+                        .getUnsavedPolygonLocationOfInterest()
+                        .getGeometry()
+                        .getVertices()
+                        .size()
                     == 4);
   }
 
@@ -215,7 +219,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
           int actualMapPinCount = 0;
 
           for (MapLocationOfInterest mapLocationOfInterest : mapFeatures) {
-            if (mapLocationOfInterest instanceof MapPolygon) {
+            if (mapLocationOfInterest instanceof MapPolyLine) {
               actualMapPolygonCount++;
             } else if (mapLocationOfInterest instanceof MapPin) {
               actualMapPinCount++;
@@ -231,6 +235,6 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   }
 
   private Point newPoint(double latitude, double longitude) {
-    return Point.newBuilder().setLatitude(latitude).setLongitude(longitude).build();
+    return new Point(latitude, longitude);
   }
 }

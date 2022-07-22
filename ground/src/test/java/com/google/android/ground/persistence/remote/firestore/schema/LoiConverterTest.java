@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.task.Field;
@@ -221,7 +222,7 @@ public class LoiConverterTest {
         newPolygonOfInterest()
             .setCreated(AUDIT_INFO_1)
             .setLastModified(AUDIT_INFO_2)
-            .setVertices(newPolygonVertices())
+            .setGeometry(new Polygon(newPolygonVertices()))
             .setId(featureId)
             .setSurvey(survey)
             .setJob(job)

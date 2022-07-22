@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map;
+package com.google.android.ground.model.geometry
 
-import com.google.android.ground.model.geometry.Point;
+import org.locationtech.jts.geom.Geometry
 
-public class CameraPosition {
+/** Known kinds of geometry. */
+enum class GeometryType {
+    UNKNOWN,
+    POINT,
+    POLYGON,
+    POLYLINE,
+    MULTIPOLYGON,
+}
 
-  private final Point target;
-  private final Float zoomLevel;
-
-  public CameraPosition(Point target, Float zoomLevel) {
-    this.target = target;
-    this.zoomLevel = zoomLevel;
-  }
-
-  public Point getTarget() {
-    return target;
-  }
-
-  public Float getZoomLevel() {
-    return zoomLevel;
-  }
-
-  public String toString() {
-    return "Position: " + target + " Zoom level: " + zoomLevel;
-  }
+/** Represents a geometric object. */
+sealed interface Geometry {
+    val geometry: Geometry
+    val type: GeometryType // TODO: This isn't C code. Let's get rid of the tagged unions.
+    val isClosed: Boolean
 }

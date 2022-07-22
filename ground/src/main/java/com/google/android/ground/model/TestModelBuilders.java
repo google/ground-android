@@ -16,10 +16,10 @@
 
 package com.google.android.ground.model;
 
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.Field.Type;
 import com.google.android.ground.model.task.Task;
@@ -46,8 +46,8 @@ public class TestModelBuilders {
     return AuditInfo.builder().setClientTimestamp(new Date(0)).setUser(newUser().build());
   }
 
-  public static Point.Builder newPoint() {
-    return Point.newBuilder().setLatitude(0).setLongitude(0);
+  public static Point newPoint() {
+    return new Point(0, 0);
   }
 
   public static GeoPoint newGeoPoint() {
@@ -63,27 +63,23 @@ public class TestModelBuilders {
   }
 
   public static ImmutableList<Point> newPolygonVertices() {
-    return ImmutableList.<Point>builder()
-        .add(newPoint().build())
-        .add(newPoint().build())
-        .add(newPoint().build())
-        .build();
+    return ImmutableList.<Point>builder().add(newPoint()).add(newPoint()).add(newPoint()).build();
   }
 
-  public static PointOfInterest.Builder newPointOfInterest() {
-    return PointOfInterest.newBuilder()
+  public static LocationOfInterest.Builder<Point> newPointOfInterest() {
+    return LocationOfInterest.<Point>newBuilder()
         .setId("")
         .setSurvey(newSurvey().build())
-        .setPoint(newPoint().build())
+        .setGeometry(newPoint())
         .setCreated(newAuditInfo().build())
         .setLastModified(newAuditInfo().build());
   }
 
-  public static AreaOfInterest.Builder newPolygonOfInterest() {
-    return AreaOfInterest.newBuilder()
+  public static LocationOfInterest.Builder<Polygon> newPolygonOfInterest() {
+    return LocationOfInterest.<Polygon>newBuilder()
         .setId("")
         .setSurvey(newSurvey().build())
-        .setVertices(newPolygonVertices())
+        .setGeometry(new Polygon(newPolygonVertices()))
         .setCreated(newAuditInfo().build())
         .setLastModified(newAuditInfo().build());
   }

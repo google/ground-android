@@ -52,7 +52,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.ground.R;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.MarkerIconFactory;
@@ -62,7 +62,7 @@ import com.google.android.ground.ui.map.MapFragment;
 import com.google.android.ground.ui.map.MapGeoJson;
 import com.google.android.ground.ui.map.MapLocationOfInterest;
 import com.google.android.ground.ui.map.MapPin;
-import com.google.android.ground.ui.map.MapPolygon;
+import com.google.android.ground.ui.map.MapPolyLine;
 import com.google.android.ground.ui.map.MapType;
 import com.google.android.ground.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
@@ -155,7 +155,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
   private static Point fromLatLng(LatLng latLng) {
-    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+    return new Point(latLng.latitude, latLng.longitude);
   }
 
   private static LatLng toLatLng(Point point) {
@@ -274,13 +274,13 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     for (Entry<MapLocationOfInterest, Polyline> entry : polygons.entrySet()) {
       List<LatLng> vertices = entry.getValue().getPoints();
       MapLocationOfInterest mapLocationOfInterest = entry.getKey();
-      if (processed.contains(((MapPolygon) mapLocationOfInterest).getId())) {
+      if (processed.contains(((MapPolyLine) mapLocationOfInterest).getId())) {
         continue;
       }
 
       if (PolyUtil.containsLocation(latLng, vertices, false)) {
         candidates.add(mapLocationOfInterest);
-        processed.add(((MapPolygon) mapLocationOfInterest).getId());
+        processed.add(((MapPolyLine) mapLocationOfInterest).getId());
       }
     }
     ImmutableList<MapLocationOfInterest> result = candidates.build();
@@ -383,26 +383,26 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
     return markerIconFactory.getMarkerIcon(parseColor(color), getCurrentZoomLevel());
   }
 
-  private void addMapPolyline(MapPolygon mapPolygon) {
+  private void addMapPolyline(MapPolyLine mapPolyLine) {
     PolylineOptions options = new PolylineOptions();
     options.clickable(false);
     ImmutableList<LatLng> vertices =
-        stream(mapPolygon.getVertices())
+        stream(mapPolyLine.getVertices())
             .map(GoogleMapsFragment::toLatLng)
             .collect(toImmutableList());
     options.addAll(vertices);
 
     Polyline polyline = getMap().addPolyline(options);
-    polyline.setTag(mapPolygon);
-    if (!isPolygonCompleted(mapPolygon.getVertices())) {
+    polyline.setTag(mapPolyLine);
+    if (!isPolygonCompleted(mapPolyLine.getVertices())) {
       polyline.setStartCap(customCap);
       polyline.setEndCap(customCap);
     }
     polyline.setWidth(getPolylineStrokeWidth());
-    polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
+    polyline.setColor(parseColor(mapPolyLine.getStyle().getColor()));
     polyline.setJointType(JointType.ROUND);
 
-    polygons.put(mapPolygon, polyline);
+    polygons.put(mapPolyLine, polyline);
   }
 
   private boolean isPolygonCompleted(List<Point> vertices) {
@@ -492,8 +492,8 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
       for (MapLocationOfInterest mapLocationOfInterest : featuresToUpdate) {
         if (mapLocationOfInterest instanceof MapPin) {
           addMapPin((MapPin) mapLocationOfInterest);
-        } else if (mapLocationOfInterest instanceof MapPolygon) {
-          addMapPolyline((MapPolygon) mapLocationOfInterest);
+        } else if (mapLocationOfInterest instanceof MapPolyLine) {
+          addMapPolyline((MapPolyLine) mapLocationOfInterest);
         } else if (mapLocationOfInterest instanceof MapGeoJson) {
           addMapGeoJson((MapGeoJson) mapLocationOfInterest);
         }

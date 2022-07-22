@@ -16,7 +16,9 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.*
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.common.collect.ImmutableList
 import com.google.firebase.firestore.DocumentSnapshot
@@ -36,7 +38,10 @@ object LoiConverter {
 
     @JvmStatic
     @Throws(DataStoreException::class)
-    fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+    fun toLoi(
+        survey: Survey,
+        doc: DocumentSnapshot
+    ): LocationOfInterest<*> {
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
@@ -44,14 +49,8 @@ object LoiConverter {
             return toLoiFromGeometry(survey, doc, loiDoc)
         }
 
-        loiDoc.geoJson?.let {
-            val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
-            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
-            return builder.build()
-        }
-
         loiDoc.location?.let {
-            val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
+            val builder = LocationOfInterest.newBuilder<Point>().setGeometry(toPoint(it))
             fillLocationOfInterest(builder, survey, doc.id, loiDoc)
             return builder.build()
         }
@@ -77,7 +76,7 @@ object LoiConverter {
         survey: Survey,
         doc: DocumentSnapshot,
         loiDoc: LoiDocument
-    ): AreaOfInterest {
+    ): LocationOfInterest<Polygon> {
         val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
@@ -96,19 +95,21 @@ object LoiConverter {
                 break
             }
             vertices.add(
-                Point.newBuilder().setLongitude(point.longitude).setLatitude(
-                    point.latitude
-                ).build()
+                Point(
+                    point.latitude,
+                    point.longitude,
+                )
             )
         }
 
-        val builder = AreaOfInterest.newBuilder().setVertices(vertices.build())
+        val builder =
+            LocationOfInterest.newBuilder<Polygon>().setGeometry(Polygon(vertices.build()))
         fillLocationOfInterest(builder, survey, doc.id, loiDoc)
         return builder.build()
     }
 
     private fun fillLocationOfInterest(
-        builder: LocationOfInterest.Builder,
+        builder: LocationOfInterest.Builder<*>,
         survey: Survey,
         id: String,
         loiDoc: LoiDocument
@@ -133,8 +134,8 @@ object LoiConverter {
     }
 
     private fun toPoint(geoPoint: GeoPoint): Point =
-        Point.newBuilder()
-            .setLatitude(geoPoint.latitude)
-            .setLongitude(geoPoint.longitude)
-            .build()
+        Point(
+            geoPoint.latitude,
+            geoPoint.longitude,
+        )
 }

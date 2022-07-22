@@ -20,7 +20,7 @@ import static com.google.android.ground.util.ImmutableListCollector.toImmutableL
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

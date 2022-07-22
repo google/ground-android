@@ -17,7 +17,7 @@
 package com.google.android.ground.ui.home.mapcontainer;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.rx.Nil;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
@@ -30,11 +30,9 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class LocationOfInterestRepositionViewModelTest extends BaseHiltTest {
 
-  private static final Point TEST_POINT =
-      Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
+  private static final Point TEST_POINT = new Point(0.0, 0.0);
 
-  @Inject
-  LocationOfInterestRepositionViewModel viewModel;
+  @Inject LocationOfInterestRepositionViewModel viewModel;
 
   @Test
   public void testConfirmButtonClicks_notReplayed() {

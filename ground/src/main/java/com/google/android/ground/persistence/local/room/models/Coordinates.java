@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.models;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -38,7 +38,7 @@ public abstract class Coordinates {
 
   @NonNull
   public Point toPoint() {
-    return Point.newBuilder().setLatitude(getLatitude()).setLongitude(getLongitude()).build();
+    return new Point(getLatitude(), getLongitude());
   }
 
   // Boilerplate generated using Android Studio AutoValue plugin:

@@ -76,7 +76,7 @@ class SubmissionRepository @Inject constructor(
         // TODO: Only fetch first n fields.
         locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
-            .flatMap { locationOfInterest: LocationOfInterest ->
+            .flatMap { locationOfInterest: LocationOfInterest<*> ->
                 getSubmissions(
                     locationOfInterest,
                     taskId
@@ -84,7 +84,7 @@ class SubmissionRepository @Inject constructor(
             }
 
     private fun getSubmissions(
-        locationOfInterest: LocationOfInterest,
+        locationOfInterest: LocationOfInterest<*>,
         taskId: String
     ): @Cold Single<ImmutableList<Submission>> {
         val remoteSync = remoteDataStore
@@ -131,7 +131,7 @@ class SubmissionRepository @Inject constructor(
         val auditInfo = AuditInfo.now(authManager.currentUser)
         return locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
-            .map { locationOfInterest: LocationOfInterest ->
+            .map { locationOfInterest: LocationOfInterest<*> ->
                 Submission.newBuilder()
                     .setId(uuidGenerator.generateUuid())
                     .setSurvey(locationOfInterest.survey)
