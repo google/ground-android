@@ -208,7 +208,6 @@ dependencies {
     // GeoTools
     implementation "org.locationtech.jts:jts-core:1.19.0"
     implementation "org.locationtech.jts.io:jts-io-common:1.19.0"
-    //implementation "org.geotools:gt-geojson-core:$project.geotoolsVersion"
 
     // Firebase and related libraries.
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
