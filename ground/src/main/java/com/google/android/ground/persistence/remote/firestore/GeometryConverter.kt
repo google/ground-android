@@ -49,7 +49,8 @@ class GeometryConverter {
         val writer = GeoJsonWriter()
         writer.setEncodeCRS(false)
         val jsonString = writer.write(geometry)
-        return toFirestoreValue(Gson().fromJson<MutableMap<String, Any>>(jsonString))
+        val jsonMap = Gson().fromJson<MutableMap<String, Any>>(jsonString)
+        return toFirestoreValue(jsonMap)
     }
 
     private fun toFirestoreValue(value: Map<String, Any>): Map<String, Any> {
@@ -64,7 +65,7 @@ class GeometryConverter {
                 if (value.size == 2 && value.all { it is Double }) {
                     GeoPoint(value[0] as Double, value[1] as Double)
                 } else {
-                    listToMap(value)
+                    indexedMap(value)
                 }
             }
             is Map<*, *> -> {
@@ -76,8 +77,6 @@ class GeometryConverter {
         }
     }
 
-    private fun listToMap(list: List<Any>): Map<Int, Any> {
-        return list.mapIndexed { index, value -> index to toFirestoreValue(value) }
-            .toMap()
-    }
+    private fun indexedMap(list: List<Any>): Map<Int, Any> =
+        list.mapIndexed { index, value -> index to toFirestoreValue(value) }.toMap()
 }
