@@ -14,53 +14,38 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.home;
+package com.google.android.ground.ui.home
 
-import androidx.annotation.Nullable;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import java8.util.Optional;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import java8.util.Optional
 
-public class BottomSheetState {
+class BottomSheetState private constructor(
+    val visibility: Visibility,
+    locationOfInterest: LocationOfInterest? = null
+) {
 
-  public enum Visibility {
-    VISIBLE,
-    HIDDEN
-  }
+    enum class Visibility {
+        VISIBLE, HIDDEN
+    }
 
-  private final Visibility visibility;
-  private final Optional<LocationOfInterest> locationOfInterest;
+    val locationOfInterest: Optional<LocationOfInterest?>
 
-  private BottomSheetState(Visibility visibility, @Nullable LocationOfInterest locationOfInterest) {
-    this.visibility = visibility;
-    this.locationOfInterest = Optional.ofNullable(locationOfInterest);
-  }
+    val isVisible: Boolean
+        get() = Visibility.VISIBLE == visibility
 
-  private BottomSheetState(Visibility visibility) {
-    this(visibility, null);
-  }
+    companion object {
+        @JvmStatic
+        fun visible(locationOfInterest: LocationOfInterest): BottomSheetState {
+            return BottomSheetState(Visibility.VISIBLE, locationOfInterest)
+        }
 
-  public static BottomSheetState visible(LocationOfInterest locationOfInterest) {
-    return new BottomSheetState(Visibility.VISIBLE, locationOfInterest);
-  }
+        @JvmStatic
+        fun hidden(): BottomSheetState {
+            return BottomSheetState(Visibility.HIDDEN)
+        }
+    }
 
-  public static BottomSheetState hidden() {
-    return new BottomSheetState(Visibility.HIDDEN);
-  }
-
-  public Optional<LocationOfInterest> getLocationOfInterest() {
-    return locationOfInterest;
-  }
-
-  public boolean isPointOfInterest() {
-    return locationOfInterest.isPresent() && locationOfInterest.get() instanceof PointOfInterest;
-  }
-
-  public Visibility getVisibility() {
-    return visibility;
-  }
-
-  public boolean isVisible() {
-    return Visibility.VISIBLE.equals(visibility);
-  }
+    init {
+        this.locationOfInterest = Optional.ofNullable(locationOfInterest)
+    }
 }
