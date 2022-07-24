@@ -61,7 +61,7 @@ steps:
       - |
         tar zxf $(< hashsum)-cache.tgz || echo "No cache found."
 
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &config_google_services 'Load debug google-services.json'
     waitFor: [ '-' ]
     entrypoint: 'bash'
@@ -70,7 +70,7 @@ steps:
       - |
         gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > ground/google-services.json
 
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &assemble_debug 'Assemble debug apks'
     waitFor:
       - *extract_build_cache
@@ -85,7 +85,7 @@ steps:
         fi
 
   # Run code quality checks
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &code_quality 'Run code quality checks'
     waitFor:
       - *assemble_debug
@@ -99,7 +99,7 @@ steps:
           ./gradlew -PdisablePreDex dependencyUpdates
         fi
 
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &unit_tests 'Run unit tests'
     waitFor:
       - *code_quality
@@ -112,7 +112,7 @@ steps:
         # TODO: Add a check for _PUSH_TO_MASTER
         ./gradlew jacocoTestStagingUnitTestReport
 
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &authenticate_gcloud 'Authorize gcloud'
     waitFor:
       - *assemble_debug
@@ -124,7 +124,7 @@ steps:
         gcloud auth activate-service-account --key-file client-secret.json
 
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &instrumented_tests 'Run instrumented tests'
     waitFor:
       - *authenticate_gcloud
@@ -137,7 +137,7 @@ steps:
           --type instrumentation --num-uniform-shards=1 \
           --app ground/build/outputs/apk/staging/*.apk \
           --test ground/build/outputs/apk/androidTest/staging/*.apk \
-          --device model=Pixel2,version=28,locale=en,orientation=portrait \
+          --device model=Pixel2,version=30,locale=en,orientation=portrait \
           --results-bucket ${_ARTIFACT_BUCKET} \
           --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
           --environment-variables coverage=true,coverageFile=/sdcard/coverage.ec \
