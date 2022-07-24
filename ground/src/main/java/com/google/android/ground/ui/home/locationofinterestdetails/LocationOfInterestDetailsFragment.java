@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.ground.MainViewModel;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.LocationOfInterestDetailsFragBinding;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.ui.common.AbstractFragment;
 import com.google.android.ground.ui.home.BottomSheetState;
 import com.google.android.ground.ui.home.HomeScreenViewModel;
@@ -97,8 +98,8 @@ public class LocationOfInterestDetailsFragment extends AbstractFragment {
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    viewModel.onLocationOfInterestSelected(
-        state.isVisible() ? state.getLocationOfInterest() : Optional.empty());
+    LocationOfInterest loi = state.isVisible() ? state.getLocationOfInterest() : null;
+    viewModel.onLocationOfInterestSelected(Optional.ofNullable(loi));
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

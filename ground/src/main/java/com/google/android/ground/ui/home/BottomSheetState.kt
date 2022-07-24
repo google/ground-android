@@ -17,35 +17,25 @@
 package com.google.android.ground.ui.home
 
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import java8.util.Optional
 
 class BottomSheetState private constructor(
     val visibility: Visibility,
-    locationOfInterest: LocationOfInterest? = null
+    val locationOfInterest: LocationOfInterest? = null
 ) {
 
     enum class Visibility {
         VISIBLE, HIDDEN
     }
 
-    val locationOfInterest: Optional<LocationOfInterest?>
-
     val isVisible: Boolean
         get() = Visibility.VISIBLE == visibility
 
     companion object {
         @JvmStatic
-        fun visible(locationOfInterest: LocationOfInterest): BottomSheetState {
-            return BottomSheetState(Visibility.VISIBLE, locationOfInterest)
-        }
+        fun visible(locationOfInterest: LocationOfInterest) =
+            BottomSheetState(Visibility.VISIBLE, locationOfInterest)
 
         @JvmStatic
-        fun hidden(): BottomSheetState {
-            return BottomSheetState(Visibility.HIDDEN)
-        }
-    }
-
-    init {
-        this.locationOfInterest = Optional.ofNullable(locationOfInterest)
+        fun hidden() = BottomSheetState(Visibility.HIDDEN)
     }
 }

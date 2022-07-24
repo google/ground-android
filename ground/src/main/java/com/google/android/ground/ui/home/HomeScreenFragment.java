@@ -346,25 +346,25 @@ public class HomeScreenFragment extends AbstractFragment
       return false;
     }
 
+    Optional<LocationOfInterest> loi = Optional.ofNullable(state.getLocationOfInterest());
     if (item.getItemId() == R.id.move_loi_menu_item) {
       hideBottomSheet();
       mapContainerViewModel.setMode(Mode.MOVE_POINT);
-      mapContainerViewModel.setReposLocationOfInterest(state.getLocationOfInterest());
+      mapContainerViewModel.setReposLocationOfInterest(loi);
       Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
     } else if (item.getItemId() == R.id.delete_loi_menu_item) {
-      Optional<LocationOfInterest> locationOfInterestToDelete = state.getLocationOfInterest();
-      if (locationOfInterestToDelete.isPresent()) {
+      if (loi.isPresent()) {
         new Builder(requireActivity())
             .setTitle(
                 getString(
                     R.string.loi_delete_confirmation_dialog_title,
-                    locationOfInterestHelper.getLabel(locationOfInterestToDelete)))
+                    locationOfInterestHelper.getLabel(loi)))
             .setMessage(R.string.loi_delete_confirmation_dialog_message)
             .setPositiveButton(
                 R.string.delete_button_label,
                 (dialog, id) -> {
                   hideBottomSheet();
-                  viewModel.deleteLocationOfInterest(locationOfInterestToDelete.get());
+                  viewModel.deleteLocationOfInterest(loi.get());
                 })
             .setNegativeButton(
                 R.string.cancel_button_label,
@@ -581,11 +581,11 @@ public class HomeScreenFragment extends AbstractFragment
       Timber.e("BottomSheetState is null");
       return;
     }
-    if (state.getLocationOfInterest().isEmpty()) {
+    if (state.getLocationOfInterest() == null) {
       Timber.e("No locationOfInterest selected");
       return;
     }
-    LocationOfInterest locationOfInterest = state.getLocationOfInterest().get();
+    LocationOfInterest locationOfInterest = state.getLocationOfInterest();
     List<String> items = new ArrayList<>();
     // TODO(#843): Let properties apply to other locationOfInterest types as well.
     if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
