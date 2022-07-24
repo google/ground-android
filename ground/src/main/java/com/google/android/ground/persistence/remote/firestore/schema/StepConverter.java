@@ -18,12 +18,10 @@ package com.google.android.ground.persistence.remote.firestore.schema;
 
 import com.google.android.ground.model.task.Step;
 
-/**
- * Converts between Firestore nested objects and {@link Step} instances.
- */
-class ElementConverter {
+/** Converts between Firestore nested objects and {@link Step} instances. */
+class StepConverter {
 
-  static Step toStep(String id, ElementNestedObject em) {
+  static Step toStep(String id, StepNestedObject em) {
     return FieldConverter.toField(id, em).map(Step::ofField).orElse(Step.ofUnknown());
   }
 }

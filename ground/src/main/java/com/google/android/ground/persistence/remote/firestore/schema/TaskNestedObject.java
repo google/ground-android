@@ -26,18 +26,17 @@ import java8.util.Objects;
 @IgnoreExtraProperties
 class TaskNestedObject {
 
-  @Nullable
-  private Map<String, ElementNestedObject> elements;
+  @Nullable private Map<String, StepNestedObject> steps;
 
   @SuppressWarnings("unused")
   public TaskNestedObject() {}
 
   @SuppressWarnings("unused")
-  TaskNestedObject(@Nullable Map<String, ElementNestedObject> elements) {
-    this.elements = elements;
+  TaskNestedObject(@Nullable Map<String, StepNestedObject> steps) {
+    this.steps = steps;
   }
 
-  public Map<String, ElementNestedObject> getElements() {
-    return Objects.requireNonNullElse(elements, Collections.emptyMap());
+  public Map<String, StepNestedObject> getSteps() {
+    return Objects.requireNonNullElse(steps, Collections.emptyMap());
   }
 }

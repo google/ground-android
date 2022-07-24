@@ -28,7 +28,7 @@ import timber.log.Timber;
  */
 class FieldConverter {
 
-  static Optional<Field> toField(String id, ElementNestedObject em) {
+  static Optional<Field> toField(String id, StepNestedObject em) {
     Field.Type type = toEnum(Field.Type.class, em.getType());
     if (type == Field.Type.UNKNOWN) {
       Timber.d("Unsupported task step type: " + em.getType());
