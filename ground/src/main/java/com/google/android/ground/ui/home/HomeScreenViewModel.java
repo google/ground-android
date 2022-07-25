@@ -240,12 +240,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
 
-    Optional<LocationOfInterest> optionalLocationOfInterest = state.getLocationOfInterest();
-    if (optionalLocationOfInterest.isEmpty()) {
+    LocationOfInterest locationOfInterest = state.getLocationOfInterest();
+    if (locationOfInterest == null) {
       Timber.e("Missing locationOfInterest");
       return;
     }
-    LocationOfInterest locationOfInterest = optionalLocationOfInterest.get();
     Optional<Task> form = locationOfInterest.getJob().getTask();
     if (form.isEmpty()) {
       // .TODO: Hide Add Submission button if no forms defined.

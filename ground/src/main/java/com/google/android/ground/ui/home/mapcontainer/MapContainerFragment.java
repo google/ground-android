@@ -219,21 +219,19 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapFragment map) {
-    mapContainerViewModel.setSelectedLocationOfInterest(state.getLocationOfInterest());
+    Optional<LocationOfInterest> loi = Optional.ofNullable(state.getLocationOfInterest());
+    mapContainerViewModel.setSelectedLocationOfInterest(loi);
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disableGestures();
         // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
         // selected. This will involve calculating centroid and possibly zoom level based on
         // vertices.
-        state
-            .getLocationOfInterest()
-            .filter(LocationOfInterest::isPoint)
+        loi.filter(LocationOfInterest::isPoint)
             .map(PointOfInterest.class::cast)
             .ifPresent(
-                pointOfInterest -> {
-                  mapContainerViewModel.panAndZoomCamera(pointOfInterest.getPoint());
-                });
+                pointOfInterest ->
+                    mapContainerViewModel.panAndZoomCamera(pointOfInterest.getPoint()));
         break;
       case HIDDEN:
         map.enableGestures();
