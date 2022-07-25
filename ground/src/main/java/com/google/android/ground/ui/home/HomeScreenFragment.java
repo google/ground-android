@@ -25,7 +25,6 @@ import static com.google.android.ground.ui.util.ViewUtil.getScreenWidth;
 import static java.util.Objects.requireNonNull;
 
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -145,10 +144,6 @@ public class HomeScreenFragment extends AbstractFragment
         .getUpdateLocationOfInterestResults()
         .as(autoDisposable(this))
         .subscribe(this::onLocationOfInterestUpdated);
-    viewModel
-        .getDeleteLocationOfInterestResults()
-        .as(autoDisposable(this))
-        .subscribe(this::onLocationOfInterestDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     polygonDrawingViewModel
         .getDrawingState()
@@ -203,13 +198,6 @@ public class HomeScreenFragment extends AbstractFragment
   private void onLocationOfInterestUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
-    }
-  }
-
-  private void onLocationOfInterestDeleted(Boolean result) {
-    if (result) {
-      // TODO: Re-position map to default location after successful deletion.
-      hideBottomSheet();
     }
   }
 
@@ -352,30 +340,6 @@ public class HomeScreenFragment extends AbstractFragment
       mapContainerViewModel.setMode(Mode.MOVE_POINT);
       mapContainerViewModel.setReposLocationOfInterest(loi);
       Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
-    } else if (item.getItemId() == R.id.delete_loi_menu_item) {
-      if (loi.isPresent()) {
-        new Builder(requireActivity())
-            .setTitle(
-                getString(
-                    R.string.loi_delete_confirmation_dialog_title,
-                    locationOfInterestHelper.getLabel(loi)))
-            .setMessage(R.string.loi_delete_confirmation_dialog_message)
-            .setPositiveButton(
-                R.string.delete_button_label,
-                (dialog, id) -> {
-                  hideBottomSheet();
-                  viewModel.deleteLocationOfInterest(loi.get());
-                })
-            .setNegativeButton(
-                R.string.cancel_button_label,
-                (dialog, id) -> {
-                  // Do nothing.
-                })
-            .create()
-            .show();
-      } else {
-        Timber.e("Attempted to delete non-existent location of interest");
-      }
     } else if (item.getItemId() == R.id.loi_properties_menu_item) {
       showLocationOfInterestProperties();
     } else {

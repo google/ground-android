@@ -98,8 +98,6 @@
   <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
   <string name="loi_caption">Caption</string>
   <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
-  <string name="delete_loi">Delete locationOfInterest</string>
-  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
   <string name="delete_loi_confirmation">
     This will delete the currently selected locationOfInterest and all related data. This cannot be undone.
     Are you sure?
@@ -215,8 +213,6 @@
   <string name="cancel_button_label">Cancel</string>
   <string name="submission_delete_confirmation_dialog_title">Delete this submission?"</string>
   <string name="submission_delete_confirmation_dialog_message">This submission will disappear from the map. This change cannot be undone. Are you sure?</string>
-  <string name="loi_delete_confirmation_dialog_title">Delete %1$s locationOfInterest?"</string>
-  <string name="loi_delete_confirmation_dialog_message">This locationOfInterest will disappear from the map along with all associated submissions. This change cannot be undone. Are you sure?</string>
 
   <string name="road_map">Road Map</string>
   <string name="satellite">Satellite</string>

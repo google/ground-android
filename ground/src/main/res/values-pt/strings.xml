@@ -89,8 +89,6 @@
   <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
   <string name="loi_caption">Legenda</string>
   <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
-  <string name="delete_loi">Apagar local</string>
-  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
   <string name="delete_loi_confirmation">
 Tem certeza que deseja apagar o local e todos os dados associados? Isso não pode ser desfeito.
   </string>

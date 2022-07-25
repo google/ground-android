@@ -98,8 +98,6 @@
   <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
   <string name="loi_caption">Subtítulo</string>
   <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
-  <string name="delete_loi">Eliminar característica</string>
-  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
   <string name="delete_loi_confirmation">
     Esto eliminará la función seleccionada actualmente y todos los datos relacionados. Esto no se puede deshacer.
     ¿Está seguro?
@@ -208,6 +206,4 @@
   <string name="cancel_button_label">Cancelar</string>
   <string name="submission_delete_confirmation_dialog_title">Eliminar este registro?"</string>
   <string name="submission_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
-  <string name="loi_delete_confirmation_dialog_title">Borrar %1$s ?"</string>
-  <string name="loi_delete_confirmation_dialog_message">Esta característica desaparecerá del mapa junto con todos los registros asociados. Este cambio no se puede deshacer. ¿Está seguro?</string>
 </resources>

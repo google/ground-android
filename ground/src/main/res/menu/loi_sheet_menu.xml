@@ -22,9 +22,6 @@
     android:id="@+id/move_loi_menu_item"
     android:title="@string/move_loi"/>
   <item
-    android:id="@+id/delete_loi_menu_item"
-    android:title="@string/delete_loi"/>
-  <item
     android:id="@+id/loi_properties_menu_item"
     android:title="@string/loi_properties"/>
 
