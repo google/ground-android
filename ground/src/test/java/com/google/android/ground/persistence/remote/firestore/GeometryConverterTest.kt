@@ -16,82 +16,143 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
-import junit.framework.Assert.assertEquals
-import org.junit.Before
+import com.google.firebase.firestore.GeoPoint
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
-import org.locationtech.jts.geom.LinearRing
+import org.locationtech.jts.geom.Point
+import org.locationtech.jts.geom.Polygon
+
+typealias Path = Array<Pair<Double, Double>>
 
 class GeometryConverterTest {
-    private val converter = GeometryConverter()
-    lateinit var geometryFactory: GeometryFactory
-    lateinit var ring1: LinearRing
-    lateinit var ring2: LinearRing
-    lateinit var ring3: LinearRing
-    lateinit var ring4: LinearRing
+    private val x = -42.121
+    private val y = 28.482
+    private val path1 = arrayOf(
+        -89.63410225 to 41.89729784,
+        -89.63805046 to 41.89525340,
+        -89.63659134 to 41.88937530,
+        -89.62886658 to 41.88956698,
+        -89.62800827 to 41.89544507,
+        -89.63410225 to 41.89729784
+    )
+    private val path2 = arrayOf(
+        -89.63453141 to 41.89193106,
+        -89.63118400 to 41.89090878,
+        -89.63066902 to 41.89397560,
+        -89.63358726 to 41.89480618,
+        -89.63453141 to 41.89193106
+    )
+    private val path3 = arrayOf(
+        -89.61006966 to 41.89333669,
+        -89.61479034 to 41.89832003,
+        -89.61719360 to 41.89455062,
+        -89.61521950 to 41.89154771,
+        -89.61006966 to 41.89333669
+    )
+    private val path4 = arrayOf(
+        -89.61393204 to 41.89320891,
+        -89.61290207 to 41.89429505,
+        -89.61418953 to 41.89538118,
+        -89.61513367 to 41.89416727,
+        -89.61393204 to 41.89320891
+    )
 
-    @Before
-    fun setUp() {
-        geometryFactory = GeometryFactory()
-        ring1 = geometryFactory.createLinearRing(
-            arrayOf(
-                Coordinate(-89.63410225291251, 41.897297841913904),
-                Coordinate(-89.63805046458243, 41.895253409968504),
-                Coordinate(-89.63659134287833, 41.889375303577744),
-                Coordinate(-89.62886658091544, 41.88956698949209),
-                Coordinate(-89.62800827403068, 41.89544507824354),
-                Coordinate(-89.63410225291251, 41.897297841913904)
-            )
-        )
-        ring2 = geometryFactory.createLinearRing(
-            arrayOf(
-                Coordinate(-89.6345314063549, 41.89193106847542),
-                Coordinate(-89.63118400950431, 41.890908774787086),
-                Coordinate(-89.63066902537345, 41.893975606768805),
-                Coordinate(-89.63358726878165, 41.89480618175658),
-                Coordinate(-89.6345314063549, 41.89193106847542)
-            )
-        )
-        ring3 = geometryFactory.createLinearRing(
-            arrayOf(
-                Coordinate(-89.61006966013908, 41.89333669558227),
-                Coordinate(-89.61479034800529, 41.89832003334451),
-                Coordinate(-89.61719360728263, 41.89455062137226),
-                Coordinate(-89.61521950144767, 41.891547710259616),
-                Coordinate(-89.61006966013908, 41.89333669558227)
-            )
-        )
-        ring4 = geometryFactory.createLinearRing(
-            arrayOf(
-                Coordinate(-89.61393204112052, 41.89320891257806),
-                Coordinate(-89.6129020728588, 41.89429505996539),
-                Coordinate(-89.61418953318595, 41.89538118888245),
-                Coordinate(-89.61513367075919, 41.89416727887849),
-                Coordinate(-89.61393204112052, 41.89320891257806)
-            )
-        )
-    }
+    private val converter = GeometryConverter()
+    private val geometryFactory = GeometryFactory()
 
     @Test
     fun toFirestoreMap_point() {
-        val point = geometryFactory.createPoint(Coordinate(42.0, 28.0))
         assertEquals(
-            "{type=Point, coordinates=GeoPoint { latitude=42.0, longitude=28.0 }}",
-            converter.toFirestoreMap(point).toString()
+            mapOf(
+                "type" to "Point",
+                "coordinates" to GeoPoint(x, y)
+            ),
+            converter.toFirestoreMap(
+                point(x, y)
+            )
         )
     }
 
     @Test
     fun toFirestoreMap_multiPolygon() {
-        val polygon1 =
-            geometryFactory.createPolygon(ring1, arrayOf(ring2))
-        val polygon2 =
-            geometryFactory.createPolygon(ring3, arrayOf(ring4))
-        val multiPolygon = geometryFactory.createMultiPolygon(arrayOf(polygon1, polygon2))
         assertEquals(
-            "{type=MultiPolygon, coordinates={0={0={0=GeoPoint { latitude=-89.63410225, longitude=41.89729784 }, 1=GeoPoint { latitude=-89.63805046, longitude=41.89525341 }, 2=GeoPoint { latitude=-89.63659134, longitude=41.8893753 }, 3=GeoPoint { latitude=-89.62886658, longitude=41.88956699 }, 4=GeoPoint { latitude=-89.62800827, longitude=41.89544508 }, 5=GeoPoint { latitude=-89.63410225, longitude=41.89729784 }}, 1={0=GeoPoint { latitude=-89.63453141, longitude=41.89193107 }, 1=GeoPoint { latitude=-89.63118401, longitude=41.89090877 }, 2=GeoPoint { latitude=-89.63066903, longitude=41.89397561 }, 3=GeoPoint { latitude=-89.63358727, longitude=41.89480618 }, 4=GeoPoint { latitude=-89.63453141, longitude=41.89193107 }}}, 1={0={0=GeoPoint { latitude=-89.61006966, longitude=41.8933367 }, 1=GeoPoint { latitude=-89.61479035, longitude=41.89832003 }, 2=GeoPoint { latitude=-89.61719361, longitude=41.89455062 }, 3=GeoPoint { latitude=-89.6152195, longitude=41.89154771 }, 4=GeoPoint { latitude=-89.61006966, longitude=41.8933367 }}, 1={0=GeoPoint { latitude=-89.61393204, longitude=41.89320891 }, 1=GeoPoint { latitude=-89.61290207, longitude=41.89429506 }, 2=GeoPoint { latitude=-89.61418953, longitude=41.89538119 }, 3=GeoPoint { latitude=-89.61513367, longitude=41.89416728 }, 4=GeoPoint { latitude=-89.61393204, longitude=41.89320891 }}}}}",
-            converter.toFirestoreMap(multiPolygon).toString()
+            mapOf(
+                "type" to "MultiPolygon",
+                "coordinates" to mapOf(
+                    0 to mapOf(
+                        0 to indexedGeoPointMap(path1),
+                        1 to indexedGeoPointMap(path2)
+                    ),
+                    1 to mapOf(
+                        0 to indexedGeoPointMap(path3),
+                        1 to indexedGeoPointMap(path4)
+                    )
+                )
+            ),
+            converter.toFirestoreMap(
+                multiPolygon(
+                    polygon(path1, path2),
+                    polygon(path3, path4)
+                )
+            )
         )
     }
+
+    @Test
+    fun fromFirestoreMap_point() {
+        assertEquals(
+            point(x, y),
+            converter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Point",
+                    "coordinates" to GeoPoint(x, y)
+                )
+            )
+        )
+    }
+
+    @Test
+    fun fromFirestoreMap_multiPolygon() {
+        assertEquals(
+            multiPolygon(polygon(path1, path2), polygon(path3, path4)),
+            converter.fromFirestoreMap(
+                mapOf(
+                    "type" to "MultiPolygon",
+                    "coordinates" to mapOf(
+                        0 to mapOf(
+                            0 to indexedGeoPointMap(path1),
+                            1 to indexedGeoPointMap(path2)
+                        ),
+                        1 to mapOf(
+                            0 to indexedGeoPointMap(path3),
+                            1 to indexedGeoPointMap(path4)
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    private fun point(x: Double, y: Double): Point =
+        geometryFactory.createPoint(Coordinate(x, y))
+
+    private fun linearRing(path: Path) =
+        geometryFactory.createLinearRing(coordinateArray(path))
+
+    private fun polygon(shell: Path, vararg holes: Path): Polygon =
+        geometryFactory.createPolygon(
+            linearRing(shell),
+            holes.map(::linearRing).toTypedArray()
+        )
+
+    private fun multiPolygon(vararg polygons: Polygon) =
+        geometryFactory.createMultiPolygon(polygons)
+
+    private fun coordinateArray(path: Path): Array<Coordinate> =
+        path.map { Coordinate(it.first, it.second) }.toTypedArray()
+
+    private fun indexedGeoPointMap(path: Path): Map<Int, Any> =
+        path.mapIndexed { idx, it -> idx to GeoPoint(it.first, it.second) }.toMap()
 }
