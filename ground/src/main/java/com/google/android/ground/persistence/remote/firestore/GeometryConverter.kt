@@ -111,11 +111,7 @@ class GeometryConverter {
         return if (map.entries.all { it.key is Int && it.value != null }) {
             indexedMapToList(map as Map<Int, Any>).map(::fromFirestoreValue)
         } else {
-            map
-                .filter { it.value != null }
-                .mapValues {
-                    fromFirestoreValue(it.value as Any)
-                }
+            map.mapValues { it.value?.let(::fromFirestoreValue) }
         }
     }
 
