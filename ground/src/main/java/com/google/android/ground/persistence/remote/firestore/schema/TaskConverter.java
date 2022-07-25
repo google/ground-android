@@ -28,12 +28,12 @@ import java.util.Map;
 class TaskConverter {
 
   static Task toTask(String taskId, TaskNestedObject obj) {
-    return Task.newBuilder().setId(taskId).setSteps(toList(obj.getElements())).build();
+    return Task.newBuilder().setId(taskId).setSteps(toList(obj.getSteps())).build();
   }
 
-  private static ImmutableList<Step> toList(Map<String, ElementNestedObject> elements) {
-    return stream(elements.entrySet())
-        .map(e -> ElementConverter.toStep(e.getKey(), e.getValue()))
+  private static ImmutableList<Step> toList(Map<String, StepNestedObject> steps) {
+    return stream(steps.entrySet())
+        .map(e -> StepConverter.toStep(e.getKey(), e.getValue()))
         .collect(toImmutableList());
   }
 }

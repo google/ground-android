@@ -20,11 +20,9 @@ import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
-/**
- * Firestore representation of task element definitions.
- */
+/** Firestore representation of step element definitions. */
 @IgnoreExtraProperties
-class ElementNestedObject {
+class StepNestedObject {
 
   @Nullable
   private Integer index;
@@ -40,11 +38,10 @@ class ElementNestedObject {
   private Boolean required;
 
   @SuppressWarnings("unused")
-  public ElementNestedObject() {
-  }
+  public StepNestedObject() {}
 
   @SuppressWarnings("unused")
-  ElementNestedObject(
+  StepNestedObject(
       @Nullable Integer index,
       @Nullable String type,
       @Nullable String cardinality,

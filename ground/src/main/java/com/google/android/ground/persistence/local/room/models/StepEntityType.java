@@ -23,9 +23,7 @@ import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Step.Type;
 import com.google.android.ground.persistence.local.room.IntEnum;
 
-/**
- * Defines how Room represents element types in the local db.
- */
+/** Defines how Room represents step types in the local db. */
 public enum StepEntityType implements IntEnum {
   UNKNOWN(0),
   FIELD(1);
