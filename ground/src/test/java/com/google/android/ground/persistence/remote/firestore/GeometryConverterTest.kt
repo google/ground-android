@@ -100,6 +100,41 @@ class GeometryConverterTest {
         )
     }
 
+    @Test
+    fun fromFirestoreMap_point() {
+        assertEquals(
+            point(x, y),
+            converter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Point",
+                    "coordinates" to GeoPoint(x, y)
+                )
+            )
+        )
+    }
+
+    @Test
+    fun fromFirestoreMap_multiPolygon() {
+        assertEquals(
+            multiPolygon(polygon(path1, path2), polygon(path3, path4)),
+            converter.fromFirestoreMap(
+                mapOf(
+                    "type" to "MultiPolygon",
+                    "coordinates" to mapOf(
+                        0 to mapOf(
+                            0 to indexedGeoPointMap(path1),
+                            1 to indexedGeoPointMap(path2)
+                        ),
+                        1 to mapOf(
+                            0 to indexedGeoPointMap(path3),
+                            1 to indexedGeoPointMap(path4)
+                        )
+                    )
+                )
+            )
+        )
+    }
+
     private fun point(x: Double, y: Double): Point =
         geometryFactory.createPoint(Coordinate(x, y))
 

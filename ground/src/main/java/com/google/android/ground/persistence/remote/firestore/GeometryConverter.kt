@@ -20,6 +20,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.io.geojson.GeoJsonReader
 import org.locationtech.jts.io.geojson.GeoJsonWriter
 
 /**
@@ -79,4 +80,50 @@ class GeometryConverter {
 
     private fun indexedMap(list: List<Any>): Map<Int, Any> =
         list.mapIndexed { index, value -> index to toFirestoreValue(value) }.toMap()
+
+    /**
+     * Converts a `Map` deserialized from Firestore into a `Geometry` instance.
+     */
+    fun fromFirestoreMap(map: Map<String, Any>): Geometry? {
+        val jsonMap = fromFirestoreValue(map)
+        val jsonString = Gson().toJson(jsonMap)
+        val reader = GeoJsonReader()
+        return reader.read(jsonString)
+    }
+
+    private fun fromFirestoreValue(value: Any): Any {
+        return when (value) {
+            is Map<*, *> -> {
+                fromFirestoreValue(value)
+            }
+            is GeoPoint -> {
+                arrayOf(value.latitude, value.longitude)
+            }
+            else -> {
+                value
+            }
+        }
+    }
+
+    private fun fromFirestoreValue(map: Map<*, *>): Any {
+        // If all keys are non-null Ints, assume it refers to an indexed map.
+        // If heuristic breaks, we may also want to check keys are in order starting at 0.
+        return if (map.entries.all { it.key is Int && it.value != null }) {
+            indexedMapToList(map as Map<Int, Any>).map(::fromFirestoreValue)
+        } else {
+            map
+                .filter { it.value != null }
+                .mapValues {
+                    fromFirestoreValue(it.value as Any)
+                }
+        }
+    }
+
+    /**
+     * Converts map representation used to store nested arrays in Firestore into a List. Assumes
+     * keys are consecutive ints starting from 0.
+     */
+    private fun indexedMapToList(map: Map<Int, Any>): List<Any> {
+        return map.entries.sortedBy { it.key }.map { it.value }
+    }
 }
