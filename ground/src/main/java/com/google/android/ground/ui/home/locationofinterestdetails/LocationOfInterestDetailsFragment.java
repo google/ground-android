@@ -91,8 +91,6 @@ public class LocationOfInterestDetailsFragment extends AbstractFragment {
             menuItem -> {
               if (menuItem.getItemId() == R.id.move_loi_menu_item) {
                 viewModel.isMoveMenuOptionVisible().observe(this, menuItem::setVisible);
-              } else if (menuItem.getItemId() == R.id.delete_loi_menu_item) {
-                viewModel.isDeleteMenuOptionVisible().observe(this, menuItem::setVisible);
               }
             });
   }

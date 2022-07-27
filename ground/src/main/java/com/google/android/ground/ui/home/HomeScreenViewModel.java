@@ -85,13 +85,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<LocationOfInterestMutation> updateLocationOfInterestRequests =
       PublishProcessor.create();
 
-  @Hot
-  private final FlowableProcessor<LocationOfInterestMutation> deleteLocationOfInterestRequests =
-      PublishProcessor.create();
-
   @Hot private final Flowable<LocationOfInterest> addLocationOfInterestResults;
   @Hot private final Flowable<Boolean> updateLocationOfInterestResults;
-  @Hot private final Flowable<Boolean> deleteLocationOfInterestResults;
 
   @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
@@ -120,11 +115,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
                     .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
                     .doOnError(errors::onNext)
                     .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
-    deleteLocationOfInterestResults =
-        deleteLocationOfInterestRequests.switchMapSingle(
-            mutation ->
-                toBooleanSingle(
-                    locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
     updateLocationOfInterestResults =
         updateLocationOfInterestRequests.switchMapSingle(
             mutation ->
@@ -143,10 +133,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public Flowable<Boolean> getUpdateLocationOfInterestResults() {
     return updateLocationOfInterestResults;
-  }
-
-  public Flowable<Boolean> getDeleteLocationOfInterestResults() {
-    return deleteLocationOfInterestResults;
   }
 
   public Flowable<Throwable> getErrors() {
@@ -185,11 +171,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public void updateLocationOfInterest(LocationOfInterest locationOfInterest) {
     updateLocationOfInterestRequests.onNext(
         locationOfInterest.toMutation(Type.UPDATE, userRepository.getCurrentUser().getId()));
-  }
-
-  public void deleteLocationOfInterest(LocationOfInterest locationOfInterest) {
-    deleteLocationOfInterestRequests.onNext(
-        locationOfInterest.toMutation(Type.DELETE, userRepository.getCurrentUser().getId()));
   }
 
   public boolean shouldShowSurveySelectorOnStart() {
