@@ -60,7 +60,6 @@ class GeometryConverterTest {
         -89.61393204 to 41.89320891
     )
 
-    private val converter = GeometryConverter()
     private val geometryFactory = GeometryFactory()
 
     @Test
@@ -70,7 +69,7 @@ class GeometryConverterTest {
                 "type" to "Point",
                 "coordinates" to GeoPoint(x, y)
             ),
-            converter.toFirestoreMap(
+            GeometryConverter.toFirestoreMap(
                 point(x, y)
             )
         )
@@ -92,7 +91,7 @@ class GeometryConverterTest {
                     )
                 )
             ),
-            converter.toFirestoreMap(
+            GeometryConverter.toFirestoreMap(
                 multiPolygon(
                     polygon(path1, path2),
                     polygon(path3, path4)
@@ -105,7 +104,7 @@ class GeometryConverterTest {
     fun fromFirestoreMap_point() {
         assertEquals(
             point(x, y),
-            converter.fromFirestoreMap(
+            GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "Point",
                     "coordinates" to GeoPoint(x, y)
@@ -116,7 +115,7 @@ class GeometryConverterTest {
 
     @Test
     fun fromFirestoreMap_nullGeometry() {
-        assertNull(converter.fromFirestoreMap(null))
+        assertNull(GeometryConverter.fromFirestoreMap(null))
     }
 
     @Test
@@ -124,7 +123,7 @@ class GeometryConverterTest {
         assertThrows(
             DataStoreException::class.java
         ) {
-            converter.fromFirestoreMap(
+            GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "Point",
                     "coordinates" to null
@@ -138,7 +137,7 @@ class GeometryConverterTest {
         assertThrows(
             DataStoreException::class.java
         ) {
-            converter.fromFirestoreMap(
+            GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "MultiPolygon",
                     "coordinates" to mapOf(
@@ -156,7 +155,7 @@ class GeometryConverterTest {
     fun fromFirestoreMap_multiPolygon() {
         assertEquals(
             multiPolygon(polygon(path1, path2), polygon(path3, path4)),
-            converter.fromFirestoreMap(
+            GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "MultiPolygon",
                     "coordinates" to mapOf(

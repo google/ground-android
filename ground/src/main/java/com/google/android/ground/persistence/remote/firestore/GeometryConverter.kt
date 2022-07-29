@@ -38,7 +38,7 @@ import org.locationtech.jts.io.geojson.GeoJsonWriter
  * `Point` and `MultiPolygon` are the only supported `Geometry` types. Behavior for other types is
  * undefined.
  */
-class GeometryConverter {
+object GeometryConverter {
     // Reify fromJson() to create type token from generics.
     private inline fun <reified T> Gson.fromJson(json: String) =
         fromJson<T>(json, object : TypeToken<T>() {}.type)
@@ -117,7 +117,7 @@ class GeometryConverter {
         return if (map.entries.all { it.key is Int }) {
             indexedMapToList(map as Map<Int, *>).map(::fromFirestoreValue)
         } else {
-            map.mapValues { it.key to fromFirestoreValue(it.value) }
+            map.mapValues { fromFirestoreValue(it.value) }
         }
     }
 
