@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -84,17 +85,21 @@ class GeometryConverter {
     /**
      * Converts a `Map` deserialized from Firestore into a `Geometry` instance.
      */
-    fun fromFirestoreMap(map: Map<String, Any>): Geometry? {
+    fun fromFirestoreMap(map: Map<String, *>?): Geometry? {
+        if (map == null) return null
         val jsonMap = fromFirestoreValue(map)
         val jsonString = Gson().toJson(jsonMap)
         val reader = GeoJsonReader()
         return reader.read(jsonString)
     }
 
-    private fun fromFirestoreValue(value: Any): Any {
+    private fun fromFirestoreValue(value: Any?): Any {
+        if (value == null) {
+            throw DataStoreException("null value in geometry")
+        }
         return when (value) {
             is Map<*, *> -> {
-                fromFirestoreValue(value)
+                fromFirestoreMapValue(value)
             }
             is GeoPoint -> {
                 arrayOf(value.latitude, value.longitude)
@@ -105,13 +110,14 @@ class GeometryConverter {
         }
     }
 
-    private fun fromFirestoreValue(map: Map<*, *>): Any {
-        // If all keys are non-null Ints, assume it refers to an indexed map.
+    @Suppress("UNCHECKED_CAST")
+    private fun fromFirestoreMapValue(map: Map<*, *>): Any {
+        // If all keys are non-null Ints, assume this refers to an indexed map.
         // If heuristic breaks, we may also want to check keys are in order starting at 0.
-        return if (map.entries.all { it.key is Int && it.value != null }) {
-            indexedMapToList(map as Map<Int, Any>).map(::fromFirestoreValue)
+        return if (map.entries.all { it.key is Int }) {
+            indexedMapToList(map as Map<Int, *>).map(::fromFirestoreValue)
         } else {
-            map.mapValues { it.value?.let(::fromFirestoreValue) }
+            map.mapValues { it.key to fromFirestoreValue(it.value) }
         }
     }
 
@@ -119,7 +125,7 @@ class GeometryConverter {
      * Converts map representation used to store nested arrays in Firestore into a List. Assumes
      * keys are consecutive ints starting from 0.
      */
-    private fun indexedMapToList(map: Map<Int, Any>): List<Any> {
+    private fun indexedMapToList(map: Map<Int, *>): List<*> {
         return map.entries.sortedBy { it.key }.map { it.value }
     }
 }

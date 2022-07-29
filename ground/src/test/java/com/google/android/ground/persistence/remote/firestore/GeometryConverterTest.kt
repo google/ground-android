@@ -16,8 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -111,6 +112,44 @@ class GeometryConverterTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun fromFirestoreMap_nullGeometry() {
+        assertNull(converter.fromFirestoreMap(null))
+    }
+
+    @Test
+    fun fromFirestoreMap_nullCoordinate() {
+        assertThrows(
+            DataStoreException::class.java
+        ) {
+            converter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Point",
+                    "coordinates" to null
+                )
+            )
+        }
+    }
+
+    @Test
+    fun fromFirestoreMap_nullNestedElement() {
+        assertThrows(
+            DataStoreException::class.java
+        ) {
+            converter.fromFirestoreMap(
+                mapOf(
+                    "type" to "MultiPolygon",
+                    "coordinates" to mapOf(
+                        0 to mapOf(
+                            0 to null,
+                            1 to null
+                        )
+                    )
+                )
+            )
+        }
     }
 
     @Test
