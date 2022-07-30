@@ -22,6 +22,7 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
 
+// TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
 object LoiConverter {
     const val JOB_ID = "jobId"
