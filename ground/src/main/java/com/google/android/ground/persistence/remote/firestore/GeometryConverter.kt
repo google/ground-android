@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.remote.firestore
 
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.remote.Datastore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.locationtech.jts.geom.Geometry
@@ -88,9 +89,17 @@ object GeometryConverter {
     fun fromFirestoreMap(map: Map<String, *>?): Geometry? {
         if (map == null) return null
         val jsonMap = fromFirestoreValue(map)
-        val jsonString = Gson().toJson(jsonMap)
-        val reader = GeoJsonReader()
-        return reader.read(jsonString)
+        try {
+            val jsonString = Gson().toJson(jsonMap)
+            val reader = GeoJsonReader()
+            val geometry = reader.read(jsonString)
+            if (geometry.coordinates.isEmpty()) {
+                throw DataStoreException("Empty coordinates in $geometry")
+            }
+            return geometry
+        } catch (e: Throwable) {
+            throw DataStoreException("Invalid geometry")
+        }
     }
 
     private fun fromFirestoreValue(value: Any?): Any {

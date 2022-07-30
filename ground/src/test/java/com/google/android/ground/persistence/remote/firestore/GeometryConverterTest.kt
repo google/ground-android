@@ -152,6 +152,32 @@ class GeometryConverterTest {
     }
 
     @Test
+    fun fromFirestoreMap_invalidGeometryType() {
+        assertThrows(
+            DataStoreException::class.java
+        ) {
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to 123.0
+                )
+            )
+        }
+    }
+
+    @Test
+    fun fromFirestoreMap_missingCoordinates() {
+        assertThrows(
+            DataStoreException::class.java
+        ) {
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Point"
+                )
+            )
+        }
+    }
+
+    @Test
     fun fromFirestoreMap_multiPolygon() {
         assertEquals(
             multiPolygon(polygon(path1, path2), polygon(path3, path4)),
