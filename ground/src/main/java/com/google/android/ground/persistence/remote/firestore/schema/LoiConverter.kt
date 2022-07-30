@@ -16,8 +16,8 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.locationofinterest.GeometryLocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.NewLocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
@@ -41,13 +41,13 @@ object LoiConverter {
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
-        val builder = NewLocationOfInterest.newBuilder()
+        val builder = GeometryLocationOfInterest.newBuilder()
         fillLocationOfInterest(builder, survey, loiId, loiDoc)
         return builder.build()
     }
 
     private fun fillLocationOfInterest(
-        builder: NewLocationOfInterest.Builder,
+        builder: GeometryLocationOfInterest.Builder,
         survey: Survey,
         loiId: String,
         loiDoc: LoiDocument

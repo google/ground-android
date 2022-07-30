@@ -24,7 +24,7 @@ import org.locationtech.jts.geom.Geometry
 
 // TODO: Remove of LOI subclasses and merge into LocationOfInterest.
 /** Location of interest defined by survey organizer. */
-data class NewLocationOfInterest(
+data class GeometryLocationOfInterest(
     override val id: String,
     override val survey: Survey,
     override val job: Job,
@@ -56,13 +56,13 @@ data class NewLocationOfInterest(
 
         fun setGeometry(value: Geometry?) = apply { geometry = value }
 
-        fun build(): NewLocationOfInterest {
+        fun build(): GeometryLocationOfInterest {
             val survey = survey ?: throw Exception("Expected a survey")
             val job = job ?: throw Exception("Expected a job")
             val created = created ?: throw Exception("Expected a creation timestamp")
             val lastModified = lastModified ?: throw Exception("Expected a last modified timestamp")
 
-            return NewLocationOfInterest(
+            return GeometryLocationOfInterest(
                 id,
                 survey,
                 job,
