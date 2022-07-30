@@ -37,26 +37,27 @@ object LoiConverter {
     @JvmStatic
     @Throws(DataStoreException::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+        val loiId = doc.id
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
         if (loiDoc.geometry != null && hasNonEmptyVertices(loiDoc)) {
-            return toLoiFromGeometry(survey, doc, loiDoc)
+            return toLoiFromGeometry(survey, loiId, loiDoc)
         }
 
         loiDoc.geoJson?.let {
             val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
-            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
+            fillLocationOfInterest(builder, survey, loiId, loiDoc)
             return builder.build()
         }
 
         loiDoc.location?.let {
             val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
-            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
+            fillLocationOfInterest(builder, survey, loiId, loiDoc)
             return builder.build()
         }
 
-        throw DataStoreException("No geometry in remote LOI ${doc.id}")
+        throw DataStoreException("No geometry in remote LOI ${loiId}")
     }
 
     private fun hasNonEmptyVertices(loiDocument: LoiDocument): Boolean {
@@ -75,24 +76,24 @@ object LoiConverter {
 
     private fun toLoiFromGeometry(
         survey: Survey,
-        doc: DocumentSnapshot,
+        loiId: String,
         loiDoc: LoiDocument
     ): AreaOfInterest {
         val geometry = loiDoc.geometry
         val type = geometry!![GEOMETRY_TYPE]
         if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in LOI ${doc.id}: $type")
+            throw DataStoreException("Unknown geometry type in LOI ${loiId}: $type")
         }
 
         val coordinates = geometry[GEOMETRY_COORDINATES]
         if (coordinates !is List<*>) {
-            throw DataStoreException("Invalid coordinates in LOI ${doc.id}: $coordinates")
+            throw DataStoreException("Invalid coordinates in LOI ${loiId}: $coordinates")
         }
 
         val vertices = ImmutableList.builder<Point>()
         for (point in coordinates) {
             if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in LOI ${doc.id}")
+                Timber.d("Ignoring illegal point type in LOI ${loiId}")
                 break
             }
             vertices.add(
@@ -103,14 +104,14 @@ object LoiConverter {
         }
 
         val builder = AreaOfInterest.newBuilder().setVertices(vertices.build())
-        fillLocationOfInterest(builder, survey, doc.id, loiDoc)
+        fillLocationOfInterest(builder, survey, loiId, loiDoc)
         return builder.build()
     }
 
     private fun fillLocationOfInterest(
         builder: LocationOfInterest.Builder,
         survey: Survey,
-        id: String,
+        loiId: String,
         loiDoc: LoiDocument
     ) {
         val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
@@ -123,7 +124,7 @@ object LoiConverter {
         val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
         val lastModified = loiDoc.lastModified ?: created
         builder
-            .setId(id)
+            .setId(loiId)
             .setSurvey(survey)
             .setCustomId(loiDoc.customId)
             .setCaption(loiDoc.caption)
