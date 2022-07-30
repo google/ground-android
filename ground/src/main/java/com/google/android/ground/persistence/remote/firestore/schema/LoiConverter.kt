@@ -16,11 +16,15 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.GeometryLocationOfInterest
+import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.locationofinterest.PointOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.DataStoreException.checkNotNull
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
+import org.locationtech.jts.io.geojson.GeoJsonWriter
 
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
@@ -38,21 +42,40 @@ object LoiConverter {
     @Throws(DataStoreException::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiId = doc.id
-        val loiDoc =
-            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
-
-        val builder = GeometryLocationOfInterest.newBuilder()
-        fillLocationOfInterest(builder, survey, loiId, loiDoc)
-        return builder.build()
+        val loiDoc = checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
+        val geometryMap = checkNotNull(loiDoc.geometry, "geometry")
+        val geometry = checkNotNull(GeometryConverter.fromFirestoreMap(geometryMap))
+        // As an interim solution, we map geometries to existing LOI types.
+        // TODO: Get rid of LOI subclasses and just use Geometry on LOI class.
+        when (geometry.geometryType) {
+            "Point" -> {
+                val builder = PointOfInterest.newBuilder()
+                builder.setPoint(
+                    Point.newBuilder().setLatitude(geometry.coordinate.x)
+                        .setLongitude(geometry.coordinate.y).build()
+                )
+                fillLocationOfInterest(builder, survey, loiId, loiDoc)
+                return builder.build()
+            }
+            "Polygon", "MultiPolygon" -> {
+                val builder = GeoJsonLocationOfInterest.newBuilder()
+                builder.setGeoJsonString(GeoJsonWriter().write(geometry))
+                fillLocationOfInterest(builder, survey, loiId, loiDoc)
+                return builder.build()
+            }
+            else -> {
+                throw DataStoreException("Unsupported geometry $geometry")
+            }
+        }
     }
 
     private fun fillLocationOfInterest(
-        builder: GeometryLocationOfInterest.Builder,
+        builder: LocationOfInterest.Builder,
         survey: Survey,
         loiId: String,
         loiDoc: LoiDocument
     ) {
-        val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
+        val jobId = checkNotNull(loiDoc.jobId, JOB_ID)
         val job =
             DataStoreException.checkNotEmpty(
                 survey.getJob(jobId),
@@ -67,7 +90,6 @@ object LoiConverter {
             .setCustomId(loiDoc.customId)
             .setCaption(loiDoc.caption)
             .setJob(job)
-            .setGeometry(GeometryConverter.fromFirestoreMap(loiDoc.geometry))
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }

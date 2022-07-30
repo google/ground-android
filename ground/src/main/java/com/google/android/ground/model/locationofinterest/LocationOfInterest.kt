@@ -29,8 +29,6 @@ import javax.annotation.OverridingMethodsMustInvokeSuper
 /** Base class for user-defined locations of interest shown on the map. */
 sealed class LocationOfInterest {
     // TODO: Once all callers are converted to Kotlin, we don't need these properties.
-    val isGeometry: Boolean
-        get() = this is Geometry
     val isPoint: Boolean
         get() = this is PointOfInterest
     val isGeoJson: Boolean
