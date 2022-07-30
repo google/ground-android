@@ -22,7 +22,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import org.locationtech.jts.geom.Geometry
 import java.util.*
 import javax.annotation.OverridingMethodsMustInvokeSuper
 
@@ -50,8 +49,6 @@ sealed class LocationOfInterest {
 
     /** A human readable caption for this location of interest. */
     abstract val caption: String?
-
-    val geometry: Geometry? = null
 
     /** User and time audit info pertaining to the creation of this LOI. */
     abstract val created: AuditInfo
@@ -87,8 +84,6 @@ sealed class LocationOfInterest {
             @JvmSynthetic set
         var caption: String? = null
             @JvmSynthetic set
-        var geometry: Geometry? = null
-            @JvmSynthetic set
         var created: AuditInfo? = null
             @JvmSynthetic set
         var lastModified: AuditInfo? = null
@@ -99,7 +94,6 @@ sealed class LocationOfInterest {
         open fun setJob(value: Job): Builder = apply { this.job = value }
         open fun setCustomId(value: String?): Builder = apply { this.customId = value }
         open fun setCaption(value: String?): Builder = apply { this.caption = value }
-        open fun setGeometry(value: Geometry?): Builder = apply { this.geometry = value }
         open fun setCreated(value: AuditInfo): Builder = apply { this.created = value }
         open fun setLastModified(value: AuditInfo): Builder = apply { this.lastModified = value }
     }
@@ -116,7 +110,6 @@ sealed class LocationOfInterest {
         job = this@LocationOfInterest.job
         customId = this@LocationOfInterest.customId
         caption = this@LocationOfInterest.caption
-        geometry = this@LocationOfInterest.geometry
         created = this@LocationOfInterest.created
         lastModified = this@LocationOfInterest.lastModified
     }

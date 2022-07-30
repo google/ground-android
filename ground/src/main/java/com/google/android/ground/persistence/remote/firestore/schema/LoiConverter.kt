@@ -16,12 +16,11 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.*
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.NewLocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.common.collect.ImmutableList
+import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.GeoPoint
-import timber.log.Timber
 
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
 object LoiConverter {
@@ -41,75 +40,13 @@ object LoiConverter {
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
 
-        if (loiDoc.geometry != null && hasNonEmptyVertices(loiDoc)) {
-            return toLoiFromGeometry(survey, loiId, loiDoc)
-        }
-
-        loiDoc.geoJson?.let {
-            val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
-            fillLocationOfInterest(builder, survey, loiId, loiDoc)
-            return builder.build()
-        }
-
-        loiDoc.location?.let {
-            val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
-            fillLocationOfInterest(builder, survey, loiId, loiDoc)
-            return builder.build()
-        }
-
-        throw DataStoreException("No geometry in remote LOI ${loiId}")
-    }
-
-    private fun hasNonEmptyVertices(loiDocument: LoiDocument): Boolean {
-        val geometry = loiDocument.geometry
-
-        if (geometry == null
-            || geometry[GEOMETRY_COORDINATES] == null
-            || geometry[GEOMETRY_COORDINATES] !is List<*>
-        ) {
-            return false
-        }
-
-        val coordinates = geometry[GEOMETRY_COORDINATES] as List<*>?
-        return coordinates?.isNotEmpty() ?: false
-    }
-
-    private fun toLoiFromGeometry(
-        survey: Survey,
-        loiId: String,
-        loiDoc: LoiDocument
-    ): AreaOfInterest {
-        val geometry = loiDoc.geometry
-        val type = geometry!![GEOMETRY_TYPE]
-        if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in LOI ${loiId}: $type")
-        }
-
-        val coordinates = geometry[GEOMETRY_COORDINATES]
-        if (coordinates !is List<*>) {
-            throw DataStoreException("Invalid coordinates in LOI ${loiId}: $coordinates")
-        }
-
-        val vertices = ImmutableList.builder<Point>()
-        for (point in coordinates) {
-            if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in LOI ${loiId}")
-                break
-            }
-            vertices.add(
-                Point.newBuilder().setLongitude(point.longitude).setLatitude(
-                    point.latitude
-                ).build()
-            )
-        }
-
-        val builder = AreaOfInterest.newBuilder().setVertices(vertices.build())
+        val builder = NewLocationOfInterest.newBuilder()
         fillLocationOfInterest(builder, survey, loiId, loiDoc)
         return builder.build()
     }
 
     private fun fillLocationOfInterest(
-        builder: LocationOfInterest.Builder,
+        builder: NewLocationOfInterest.Builder,
         survey: Survey,
         loiId: String,
         loiDoc: LoiDocument
@@ -129,13 +66,8 @@ object LoiConverter {
             .setCustomId(loiDoc.customId)
             .setCaption(loiDoc.caption)
             .setJob(job)
+            .setGeometry(GeometryConverter.fromFirestoreMap(loiDoc.geometry))
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }
-
-    private fun toPoint(geoPoint: GeoPoint): Point =
-        Point.newBuilder()
-            .setLatitude(geoPoint.latitude)
-            .setLongitude(geoPoint.longitude)
-            .build()
 }
