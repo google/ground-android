@@ -62,11 +62,11 @@ sealed class LocationOfInterest {
     @OverridingMethodsMustInvokeSuper
     open fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation {
         return builder()
+            .setJobId(job.id)
             .setType(type)
             .setSyncStatus(SyncStatus.PENDING)
             .setSurveyId(survey.id)
             .setLocationOfInterestId(id)
-            .setJob(job)
             .setUserId(userId)
             .setClientTimestamp(Date())
             .build()

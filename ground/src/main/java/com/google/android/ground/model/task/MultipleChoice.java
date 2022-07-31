@@ -23,9 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java8.util.Optional;
 
-/**
- * A {@link Field} with pre-defined options for the user to choose from.
- */
+/** A question task with pre-defined options for the user to choose from. */
 @AutoValue
 public abstract class MultipleChoice implements Serializable {
 

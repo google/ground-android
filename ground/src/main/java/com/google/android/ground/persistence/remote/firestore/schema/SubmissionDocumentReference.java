@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.SubmissionMutation;
@@ -35,9 +34,9 @@ public class SubmissionDocumentReference extends FluentDocumentReference {
   }
 
   @Cold
-  public Maybe<Submission> get(Survey survey, LocationOfInterest locationOfInterest) {
+  public Maybe<Submission> get(LocationOfInterest locationOfInterest) {
     return RxFirestore.getDocument(reference())
-        .map(doc -> SubmissionConverter.toSubmission(survey, locationOfInterest, doc));
+        .map(doc -> SubmissionConverter.toSubmission(locationOfInterest, doc));
   }
 
   /** Appends the operation described by the specified mutation to the provided write batch. */

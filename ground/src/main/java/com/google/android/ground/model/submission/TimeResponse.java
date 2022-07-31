@@ -17,7 +17,6 @@
 package com.google.android.ground.model.submission;
 
 import androidx.annotation.NonNull;
-import com.google.android.ground.model.task.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,7 +24,7 @@ import java.util.Locale;
 import java8.util.Optional;
 
 /**
- * A user-provided time {@link Field} response.
+ * A user-provided time response.
  */
 public class TimeResponse implements Response {
 

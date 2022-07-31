@@ -53,7 +53,7 @@ data class LocationOfInterestMutation(
         var polygonVertices: ImmutableList<Point> = ImmutableList.of()
             @JvmSynthetic set
 
-        fun setJobId(jobId: String): Builder = apply{
+        fun setJobId(jobId: String): Builder = apply {
             this.jobId = jobId
         }
 

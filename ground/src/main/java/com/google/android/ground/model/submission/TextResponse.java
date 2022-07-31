@@ -17,12 +17,9 @@
 package com.google.android.ground.model.submission;
 
 import androidx.annotation.NonNull;
-import com.google.android.ground.model.task.Field;
 import java8.util.Optional;
 
-/**
- * A user provided response to a text {@link Field}.
- */
+/** A user provided response to a text question task. */
 public class TextResponse implements Response {
 
   private static final long serialVersionUID = 1L;
