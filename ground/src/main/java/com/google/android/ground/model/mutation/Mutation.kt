@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.model.mutation
 
+import com.google.android.ground.model.job.Job
 import java.util.*
 
 /**
@@ -27,7 +28,7 @@ sealed class Mutation {
     abstract val syncStatus: SyncStatus
     abstract val surveyId: String
     abstract val locationOfInterestId: String
-    abstract val jobId: String
+    abstract val job: Job?
     abstract val userId: String
     abstract val clientTimestamp: Date
     abstract val retryCount: Long
@@ -83,7 +84,7 @@ sealed class Mutation {
             @JvmSynthetic set
         var locationOfInterestId: String = ""
             @JvmSynthetic set
-        var jobId: String = ""
+        var job: Job? = null
             @JvmSynthetic set
         var userId: String = ""
             @JvmSynthetic set
@@ -103,7 +104,7 @@ sealed class Mutation {
         fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> =
             apply { this.locationOfInterestId = locationOfInterestId }
 
-        fun setJobId(jobId: String): Builder<T> = apply { this.jobId = jobId }
+        fun setJob(job: Job): Builder<T> = apply { this.job = job }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
         fun setClientTimestamp(timestamp: Date): Builder<T> =
             apply { this.clientTimestamp = timestamp }
@@ -118,7 +119,7 @@ sealed class Mutation {
                 syncStatus = mutation.syncStatus
                 surveyId = mutation.surveyId
                 locationOfInterestId = mutation.locationOfInterestId
-                jobId = mutation.jobId
+                job = mutation.job
                 userId = mutation.userId
                 clientTimestamp = mutation.clientTimestamp
                 retryCount = mutation.retryCount

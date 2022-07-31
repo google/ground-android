@@ -66,7 +66,7 @@ sealed class LocationOfInterest {
             .setSyncStatus(SyncStatus.PENDING)
             .setSurveyId(survey.id)
             .setLocationOfInterestId(id)
-            .setJobId(job.id)
+            .setJob(job)
             .setUserId(userId)
             .setClientTimestamp(Date())
             .build()

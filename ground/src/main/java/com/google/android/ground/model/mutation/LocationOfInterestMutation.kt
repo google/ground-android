@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.model.mutation
 
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
@@ -27,7 +28,7 @@ data class LocationOfInterestMutation(
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
     override val surveyId: String = "",
     override val locationOfInterestId: String = "",
-    override val jobId: String = "",
+    override val job: Job? = null,
     override val userId: String = "",
     override val clientTimestamp: Date = Date(),
     override val retryCount: Long = 0,
@@ -65,7 +66,7 @@ data class LocationOfInterestMutation(
                 syncStatus,
                 surveyId,
                 locationOfInterestId,
-                jobId,
+                job,
                 userId,
                 clientTimestamp,
                 retryCount,
