@@ -26,7 +26,6 @@ import androidx.room.Index;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.mutation.SubmissionMutation;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus;
@@ -54,10 +53,6 @@ import org.json.JSONObject;
     },
     indices = {@Index("location_of_interest_id"), @Index("submission_id")})
 public abstract class SubmissionMutationEntity extends MutationEntity {
-
-  @CopyAnnotations
-  @ColumnInfo(name = "task_id")
-  public abstract String getTaskId();
 
   @CopyAnnotations
   @ColumnInfo(name = "location_of_interest_id")
@@ -88,7 +83,6 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
       String surveyId,
       String locationOfInterestId,
       String jobId,
-      String taskId,
       String submissionId,
       MutationEntityType type,
       MutationEntitySyncStatus syncStatus,
@@ -102,7 +96,6 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setSurveyId(surveyId)
         .setLocationOfInterestId(locationOfInterestId)
         .setJobId(jobId)
-        .setTaskId(taskId)
         .setSubmissionId(submissionId)
         .setType(type)
         .setSyncStatus(syncStatus)
@@ -119,8 +112,7 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
         .setId(m.getId())
         .setSurveyId(m.getSurveyId())
         .setLocationOfInterestId(m.getLocationOfInterestId())
-        .setJobId(m.getJobId())
-        .setTaskId(m.getTask().getId())
+        .setJobId(m.getJob().getId())
         .setSubmissionId(m.getSubmissionId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
@@ -145,22 +137,14 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
             .orElseThrow(
                 () ->
                     new LocalDataConsistencyException(
-                        "Unknown jobId in  in submission mutation " + getId()));
-    Task task =
-        job
-            .getTask(getTaskId())
-            .orElseThrow(
-                () ->
-                    new LocalDataConsistencyException(
-                        "Unknown taskId in submission mutation " + getId()));
+                        "Unknown jobId in submission mutation " + getId()));
     return SubmissionMutation.builder()
         .setSubmissionId(getSubmissionId())
-        .setTask(task)
-        .setResponseDeltas(ResponseDeltasConverter.fromString(task, getResponseDeltas()))
+        .setResponseDeltas(ResponseDeltasConverter.fromString(job, getResponseDeltas()))
         .setId(getId())
         .setSurveyId(getSurveyId())
         .setLocationOfInterestId(getLocationOfInterestId())
-        .setJobId(getJobId())
+        .setJob(job)
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
@@ -176,8 +160,6 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
     public abstract Builder setLocationOfInterestId(String newLocationOfInterestId);
 
     public abstract Builder setJobId(String newJobId);
-
-    public abstract Builder setTaskId(String newTaskId);
 
     public abstract Builder setSubmissionId(String newSubmissionId);
 

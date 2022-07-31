@@ -145,7 +145,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation instanceof SubmissionMutation)
         .flatMapIterable(mutation -> ((SubmissionMutation) mutation).getResponseDeltas())
-        .filter(delta -> delta.getFieldType() == Type.PHOTO && delta.getNewResponse().isPresent())
+        .filter(delta -> delta.getTaskType() == Type.PHOTO && delta.getNewResponse().isPresent())
         .map(delta -> delta.getNewResponse().get().toString())
         .flatMapCompletable(
             remotePath ->

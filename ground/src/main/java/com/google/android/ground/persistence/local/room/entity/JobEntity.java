@@ -71,7 +71,7 @@ public abstract class JobEntity {
 
     for (TaskEntityAndRelations taskEntityAndRelations :
         jobEntityAndRelations.taskEntityAndRelations) {
-      builder.setTask(TaskEntity.toTask(taskEntityAndRelations));
+      builder.addTask(TaskEntity.toTask(taskEntityAndRelations));
     }
 
     return builder.build();

@@ -20,8 +20,9 @@ import static com.google.android.ground.util.Enums.toEnum;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.ResponseDelta;
-import com.google.android.ground.model.task.Field;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.remote.DataStoreException;
@@ -36,7 +37,7 @@ import timber.log.Timber;
  */
 public class ResponseDeltasConverter {
 
-  private static final String KEY_FIELD_TYPE = "fieldType";
+  private static final String KEY_TASK_TYPE = "taskType";
   private static final String KEY_NEW_RESPONSE = "newResponse";
 
   @NonNull
@@ -46,14 +47,14 @@ public class ResponseDeltasConverter {
       try {
         JSONObject newJson = new JSONObject();
         newJson
-            .put(KEY_FIELD_TYPE, delta.getFieldType().name())
+            .put(KEY_TASK_TYPE, delta.getTaskType().name())
             .put(
                 KEY_NEW_RESPONSE,
                 delta
                     .getNewResponse()
                     .map(ResponseJsonConverter::toJsonObject)
                     .orElse(JSONObject.NULL));
-        json.put(delta.getFieldId(), newJson);
+        json.put(delta.getTaskId(), newJson);
       } catch (JSONException e) {
         Timber.e(e, "Error building JSON");
       }
@@ -62,7 +63,7 @@ public class ResponseDeltasConverter {
   }
 
   @NonNull
-  public static ImmutableList<ResponseDelta> fromString(Task task, @Nullable String jsonString) {
+  public static ImmutableList<ResponseDelta> fromString(Job job, @Nullable String jsonString) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     if (jsonString == null) {
       return deltas.build();
@@ -72,18 +73,18 @@ public class ResponseDeltasConverter {
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
         try {
-          String fieldId = keys.next();
-          Field field =
-              task.getField(fieldId)
+          String taskId = keys.next();
+          Task task =
+              job.getTask(taskId)
                   .orElseThrow(
-                      () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
-          JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);
+                      () -> new LocalDataConsistencyException("Unknown task id " + taskId));
+          JSONObject jsonDelta = jsonObject.getJSONObject(taskId);
           deltas.add(
               ResponseDelta.builder()
-                  .setFieldId(fieldId)
-                  .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
+                  .setTaskId(taskId)
+                  .setTaskType(toEnum(Task.Type.class, jsonDelta.getString(KEY_TASK_TYPE)))
                   .setNewResponse(
-                      ResponseJsonConverter.toResponse(field, jsonDelta.get(KEY_NEW_RESPONSE)))
+                      ResponseJsonConverter.toResponse(task, jsonDelta.get(KEY_NEW_RESPONSE)))
                   .build());
         } catch (LocalDataConsistencyException | DataStoreException e) {
           Timber.d("Bad response in local db: " + e.getMessage());

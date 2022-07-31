@@ -38,7 +38,7 @@ public interface SubmissionDao extends BaseDao<SubmissionEntity> {
   @Query(
       "SELECT * FROM submission "
           + "WHERE location_of_interest_id = :locationOfInterestId "
-          + "AND task_id = :taskId AND state = :state")
+          + "AND job_id = :jobId AND state = :state")
   Single<List<SubmissionEntity>> findByLocationOfInterestId(
-      String locationOfInterestId, String taskId, EntityState state);
+      String locationOfInterestId, String jobId, EntityState state);
 }

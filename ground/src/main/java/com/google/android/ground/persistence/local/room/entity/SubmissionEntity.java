@@ -27,11 +27,11 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.ground.model.AuditInfo;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.SubmissionMutation;
 import com.google.android.ground.model.submission.ResponseMap;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter;
 import com.google.android.ground.persistence.local.room.models.EntityState;
@@ -50,7 +50,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     tableName = "submission",
     // Additional index not required for FK constraint since first field in composite index can be
     // used independently.
-    indices = {@Index({"location_of_interest_id", "task_id", "state"})})
+    indices = {@Index({"location_of_interest_id", "job_id", "state"})})
 public abstract class SubmissionEntity {
 
   @CopyAnnotations
@@ -65,11 +65,11 @@ public abstract class SubmissionEntity {
   @NonNull
   public abstract String getLocationOfInterestId();
 
-  /** Returns the id of the task to which this submission's responses apply. */
+  /** Returns the id of the job to which this submission's responses apply. */
   @CopyAnnotations
-  @ColumnInfo(name = "task_id")
+  @ColumnInfo(name = "job_id")
   @NonNull
-  public abstract String getTaskId();
+  public abstract String getJobId();
 
   @CopyAnnotations
   @ColumnInfo(name = "state")
@@ -77,8 +77,8 @@ public abstract class SubmissionEntity {
   public abstract EntityState getState();
 
   /**
-   * Returns a JSON object containing user responses keyed by their respective stepId in the task
-   * identified by taskId. Returns null if no responses have been provided.
+   * Returns a JSON object containing user responses keyed by their respective stepId in the job
+   * identified by jobId. Returns null if no responses have been provided.
    */
   @CopyAnnotations
   @ColumnInfo(name = "responses")
@@ -98,7 +98,7 @@ public abstract class SubmissionEntity {
   public static SubmissionEntity fromSubmission(Submission submission) {
     return SubmissionEntity.builder()
         .setId(submission.getId())
-        .setTaskId(submission.getTask().getId())
+        .setJobId(submission.getJob().getId())
         .setLocationOfInterestId(submission.getLocationOfInterest().getId())
         .setState(EntityState.DEFAULT)
         .setResponses(ResponseMapConverter.toString(submission.getResponses()))
@@ -111,7 +111,7 @@ public abstract class SubmissionEntity {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     return SubmissionEntity.builder()
         .setId(mutation.getSubmissionId())
-        .setTaskId(mutation.getTask().getId())
+        .setJobId(mutation.getJob().getId())
         .setLocationOfInterestId(mutation.getLocationOfInterestId())
         .setState(EntityState.DEFAULT)
         .setResponses(
@@ -122,24 +122,20 @@ public abstract class SubmissionEntity {
         .build();
   }
 
-  public static Submission toSubmission(
-      LocationOfInterest locationOfInterest, SubmissionEntity submission) {
+  public static Submission toSubmission(LocationOfInterest loi, SubmissionEntity submission) {
     String id = submission.getId();
-    String taskId = submission.getTaskId();
-    Task task =
-        locationOfInterest
-            .getJob()
-            .getTask(taskId)
-            .orElseThrow(
-                () ->
-                    new LocalDataConsistencyException(
-                        "Unknown taskId " + taskId + " in submission " + id));
+    String jobId = submission.getJobId();
+    Job job = loi.getJob();
+    if (!job.getId().equals(submission.getJobId())) {
+      throw new LocalDataConsistencyException(
+          "LOI job id " + job.getId() + " does not match submission " + submission.getJobId());
+    }
     return Submission.newBuilder()
         .setId(id)
-        .setTask(task)
-        .setSurvey(locationOfInterest.getSurvey())
-        .setLocationOfInterest(locationOfInterest)
-        .setResponses(ResponseMapConverter.fromString(task, submission.getResponses()))
+        .setJob(job)
+        .setSurvey(loi.getSurvey())
+        .setLocationOfInterest(loi)
+        .setResponses(ResponseMapConverter.fromString(job, submission.getResponses()))
         .setCreated(AuditInfoEntity.toObject(submission.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(submission.getLastModified()))
         .build();
@@ -150,7 +146,7 @@ public abstract class SubmissionEntity {
   public static SubmissionEntity create(
       String id,
       String locationOfInterestId,
-      String taskId,
+      String jobId,
       EntityState state,
       String responses,
       AuditInfoEntity created,
@@ -158,7 +154,7 @@ public abstract class SubmissionEntity {
     return builder()
         .setId(id)
         .setLocationOfInterestId(locationOfInterestId)
-        .setTaskId(taskId)
+        .setJobId(jobId)
         .setState(state)
         .setResponses(responses)
         .setCreated(created)
@@ -179,7 +175,7 @@ public abstract class SubmissionEntity {
 
     public abstract Builder setLocationOfInterestId(String newLocationOfInterestId);
 
-    public abstract Builder setTaskId(String newTaskId);
+    public abstract Builder setJobId(String newJobId);
 
     public abstract Builder setState(EntityState newState);
 

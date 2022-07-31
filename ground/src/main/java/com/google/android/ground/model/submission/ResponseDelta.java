@@ -16,7 +16,7 @@
 
 package com.google.android.ground.model.submission;
 
-import com.google.android.ground.model.task.Field;
+import com.google.android.ground.model.task.Task;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
@@ -27,11 +27,11 @@ import java8.util.Optional;
 public abstract class ResponseDelta {
 
   /**
-   * Returns the id of the task field being updated.
+   * Returns the id of the task task being updated.
    */
-  public abstract String getFieldId();
+  public abstract String getTaskId();
 
-  public abstract Field.Type getFieldType();
+  public abstract Task.Type getTaskType();
 
   /**
    * Returns the new value of the response, or empty if removed.
@@ -47,9 +47,9 @@ public abstract class ResponseDelta {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder setFieldId(String newFieldId);
+    public abstract Builder setTaskId(String newTaskId);
 
-    public abstract Builder setFieldType(Field.Type newFieldType);
+    public abstract Builder setTaskType(Task.Type newTaskType);
 
     public abstract Builder setNewResponse(Optional<Response> newNewResponse);
 

@@ -25,12 +25,12 @@ import java8.util.Objects;
 import java8.util.Optional;
 
 /**
- * An immutable map of field ids to related user responses.
+ * An immutable map of task ids to related user responses.
  */
 public class ResponseMap {
 
   /**
-   * A map from field id to user response. This map is mutable and therefore should never be exposed
+   * A map from task id to user response. This map is mutable and therefore should never be exposed
    * outside this class.
    */
   private Map<String, Response> responses;
@@ -43,17 +43,17 @@ public class ResponseMap {
   }
 
   /**
-   * Returns the user response for the given field id, or empty if the user did not specify a
+   * Returns the user response for the given task id, or empty if the user did not specify a
    * response.
    */
-  public Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(responses.get(fieldId));
+  public Optional<Response> getResponse(String taskId) {
+    return Optional.ofNullable(responses.get(taskId));
   }
 
   /**
-   * Returns an Iterable over the field ids in this map.
+   * Returns an Iterable over the task ids in this map.
    */
-  public Iterable<String> fieldIds() {
+  public Iterable<String> taskIds() {
     return responses.keySet();
   }
 
@@ -92,10 +92,10 @@ public class ResponseMap {
     private final Map<String, Response> map = new HashMap<>();
 
     /**
-     * Sets or overwrites the response with the specified field id.
+     * Sets or overwrites the response with the specified task id.
      */
-    public Builder putResponse(String fieldId, Response response) {
-      map.put(fieldId, response);
+    public Builder putResponse(String taskId, Response response) {
+      map.put(taskId, response);
       return this;
     }
 
@@ -105,10 +105,10 @@ public class ResponseMap {
     }
 
     /**
-     * Removes the response with the specified field id.
+     * Removes the response with the specified task id.
      */
-    public Builder removeResponse(String fieldId) {
-      map.remove(fieldId);
+    public Builder removeResponse(String taskId) {
+      map.remove(taskId);
       return this;
     }
 
@@ -125,9 +125,9 @@ public class ResponseMap {
      */
     public Builder applyDelta(ResponseDelta responseDelta) {
       if (responseDelta.getNewResponse().isPresent()) {
-        putResponse(responseDelta.getFieldId(), responseDelta.getNewResponse().get());
+        putResponse(responseDelta.getTaskId(), responseDelta.getNewResponse().get());
       } else {
-        removeResponse(responseDelta.getFieldId());
+        removeResponse(responseDelta.getTaskId());
       }
       return this;
     }
