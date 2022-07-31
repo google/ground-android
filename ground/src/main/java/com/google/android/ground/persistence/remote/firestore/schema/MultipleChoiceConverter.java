@@ -25,7 +25,7 @@ import java8.util.Comparators;
 
 class MultipleChoiceConverter {
 
-  static MultipleChoice toMultipleChoice(StepNestedObject em) {
+  static MultipleChoice toMultipleChoice(TaskNestedObject em) {
     MultipleChoice.Builder mc = MultipleChoice.newBuilder();
     mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.getCardinality()));
     if (em.getOptions() != null) {

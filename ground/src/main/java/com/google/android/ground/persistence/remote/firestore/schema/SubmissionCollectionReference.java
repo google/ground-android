@@ -19,6 +19,7 @@ package com.google.android.ground.persistence.remote.firestore.schema;
 import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference;
@@ -45,20 +46,20 @@ public class SubmissionCollectionReference extends FluentCollectionReference {
 
   @Cold
   public Single<ImmutableList<ValueOrError<Submission>>> submissionsByLocationOfInterestId(
-      LocationOfInterest locationOfInterest) {
+      Survey survey, LocationOfInterest locationOfInterest) {
     return RxFirestore.getCollection(byLoiId(locationOfInterest.getId()))
-        .map(querySnapshot -> convert(querySnapshot, locationOfInterest))
+        .map(querySnapshot -> convert(querySnapshot, survey, locationOfInterest))
         .toSingle(ImmutableList.of());
   }
 
   @NotNull
   private ImmutableList<ValueOrError<Submission>> convert(
-      QuerySnapshot querySnapshot, LocationOfInterest locationOfInterest) {
+      QuerySnapshot querySnapshot, Survey survey, LocationOfInterest locationOfInterest) {
     return stream(querySnapshot.getDocuments())
         .map(
             doc ->
                 ValueOrError.create(
-                    () -> SubmissionConverter.toSubmission(locationOfInterest, doc)))
+                    () -> SubmissionConverter.toSubmission(survey, locationOfInterest, doc)))
         .collect(toImmutableList());
   }
 

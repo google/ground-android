@@ -41,6 +41,10 @@ public abstract class Job {
         .collect(toImmutableList());
   }
 
+  public Optional<Task> getTask(String id) {
+    return Optional.ofNullable(getTasks().get(id));
+  }
+
   /** Returns the list of location of interest types the current user may add to this job. */
   public abstract ImmutableList<LocationOfInterestType> getUserCanAdd();
 
@@ -57,10 +61,14 @@ public abstract class Job {
 
     public abstract Builder setName(String newName);
 
-    public abstract Builder setTasks(ImmutableMap<String, Task> tasks);
+    public abstract ImmutableMap.Builder<String, Task> tasksBuilder();
 
     public abstract Builder setUserCanAdd(ImmutableList<LocationOfInterestType> userCanAdd);
 
     public abstract Job build();
+
+    public void addTask(Task task) {
+      tasksBuilder().put(task.getId(), task);
+    }
   }
 }

@@ -20,6 +20,8 @@ import static com.google.android.ground.persistence.remote.DataStoreException.ch
 import static com.google.android.ground.persistence.remote.DataStoreException.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.DateResponse;
 import com.google.android.ground.model.submission.MultipleChoiceResponse;
@@ -29,7 +31,6 @@ import com.google.android.ground.model.submission.ResponseMap.Builder;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.submission.TextResponse;
 import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
@@ -45,15 +46,16 @@ import timber.log.Timber;
 /** Converts between Firestore documents and {@link Submission} instances. */
 class SubmissionConverter {
 
-  static Submission toSubmission(LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
+  static Submission toSubmission(
+      Survey survey, LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
       throws DataStoreException {
     SubmissionDocument doc = snapshot.toObject(SubmissionDocument.class);
     String loiId = checkNotNull(doc.getLoiId(), "loiId");
     if (!locationOfInterest.getId().equals(loiId)) {
       throw new DataStoreException("Submission doc featureId doesn't match specified loiId");
     }
-    String taskId = checkNotNull(doc.getTaskId(), "taskId");
-    Task task = checkNotEmpty(locationOfInterest.getJob().getTask(taskId), "task " + taskId);
+    String jobId = checkNotNull(doc.getJobId(), "jobId");
+    Job job = checkNotEmpty(survey.getJob(jobId), "job " + jobId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
@@ -62,85 +64,85 @@ class SubmissionConverter {
         .setId(snapshot.getId())
         .setSurvey(locationOfInterest.getSurvey())
         .setLocationOfInterest(locationOfInterest)
-        .setTask(task)
-        .setResponses(toResponseMap(snapshot.getId(), task, doc.getResponses()))
+        .setJob(job)
+        .setResponses(toResponseMap(snapshot.getId(), job, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
         .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 
   private static ResponseMap toResponseMap(
-      String submissionId, Task task, @Nullable Map<String, Object> docResponses) {
+      String submissionId, Job job, @Nullable Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     if (docResponses == null) {
       return responses.build();
     }
     for (Entry<String, Object> entry : docResponses.entrySet()) {
-      String fieldId = entry.getKey();
+      String taskId = entry.getKey();
       try {
-        putResponse(fieldId, task, entry.getValue(), responses);
+        putResponse(taskId, job, entry.getValue(), responses);
       } catch (DataStoreException e) {
-        Timber.e(e, "Field " + fieldId + "in remote db in submission " + submissionId);
+        Timber.e(e, "Task " + taskId + "in remote db in submission " + submissionId);
       }
     }
     return responses.build();
   }
 
   private static void putResponse(
-      String fieldId, Task task, Object obj, ResponseMap.Builder responses) {
-    Field field =
-        task.getField(fieldId).orElseThrow(() -> new DataStoreException("Not defined in task"));
-    switch (field.getType()) {
+      String taskId, Job job, Object obj, ResponseMap.Builder responses) {
+    Task task =
+        job.getTask(taskId).orElseThrow(() -> new DataStoreException("Not defined in task"));
+    switch (task.getType()) {
       case PHOTO:
         // Intentional fall-through.
-        // TODO(#755): Handle photo fields as PhotoResponse instead of TextResponse.
+        // TODO(#755): Handle photo tasks as PhotoResponse instead of TextResponse.
       case TEXT_FIELD:
-        putTextResponse(fieldId, obj, responses);
+        putTextResponse(taskId, obj, responses);
         break;
       case MULTIPLE_CHOICE:
-        putMultipleChoiceResponse(fieldId, field.getMultipleChoice(), obj, responses);
+        putMultipleChoiceResponse(taskId, task.getMultipleChoice(), obj, responses);
         break;
       case NUMBER:
-        putNumberResponse(fieldId, obj, responses);
+        putNumberResponse(taskId, obj, responses);
         break;
       case DATE:
-        putDateResponse(fieldId, obj, responses);
+        putDateResponse(taskId, obj, responses);
         break;
       case TIME:
-        putTimeResponse(fieldId, obj, responses);
+        putTimeResponse(taskId, obj, responses);
         break;
       default:
-        throw new DataStoreException("Unknown type " + field.getType());
+        throw new DataStoreException("Unknown type " + task.getType());
     }
   }
 
-  private static void putNumberResponse(String fieldId, Object obj, Builder responses) {
+  private static void putNumberResponse(String taskId, Object obj, Builder responses) {
     double value = (Double) DataStoreException.checkType(Double.class, obj);
     NumberResponse.fromNumber(Double.toString(value))
-        .ifPresent(r -> responses.putResponse(fieldId, r));
+        .ifPresent(r -> responses.putResponse(taskId, r));
   }
 
-  private static void putTextResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+  private static void putTextResponse(String taskId, Object obj, ResponseMap.Builder responses) {
     String value = (String) DataStoreException.checkType(String.class, obj);
-    TextResponse.fromString(value.trim()).ifPresent(r -> responses.putResponse(fieldId, r));
+    TextResponse.fromString(value.trim()).ifPresent(r -> responses.putResponse(taskId, r));
   }
 
-  private static void putDateResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+  private static void putDateResponse(String taskId, Object obj, ResponseMap.Builder responses) {
     Timestamp value = (Timestamp) DataStoreException.checkType(Timestamp.class, obj);
-    DateResponse.fromDate(value.toDate()).ifPresent(r -> responses.putResponse(fieldId, r));
+    DateResponse.fromDate(value.toDate()).ifPresent(r -> responses.putResponse(taskId, r));
   }
 
-  private static void putTimeResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+  private static void putTimeResponse(String taskId, Object obj, ResponseMap.Builder responses) {
     Timestamp value = (Timestamp) DataStoreException.checkType(Timestamp.class, obj);
-    TimeResponse.fromDate(value.toDate()).ifPresent(r -> responses.putResponse(fieldId, r));
+    TimeResponse.fromDate(value.toDate()).ifPresent(r -> responses.putResponse(taskId, r));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static void putMultipleChoiceResponse(
-      String fieldId, MultipleChoice multipleChoice, Object obj, Builder responses) {
+      String taskId, MultipleChoice multipleChoice, Object obj, Builder responses) {
     List values = (List) DataStoreException.checkType(List.class, obj);
     stream(values).forEach(v -> DataStoreException.checkType(String.class, v));
     MultipleChoiceResponse.fromList(multipleChoice, (List<String>) values)
-        .ifPresent(r -> responses.putResponse(fieldId, r));
+        .ifPresent(r -> responses.putResponse(taskId, r));
   }
 }
