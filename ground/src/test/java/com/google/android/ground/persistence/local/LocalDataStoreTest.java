@@ -46,7 +46,6 @@ import com.google.android.ground.persistence.local.room.dao.SubmissionDao;
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity;
 import com.google.android.ground.persistence.local.room.models.EntityState;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.subscribers.TestSubscriber;
@@ -76,11 +75,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .build();
 
   private static final Job TEST_JOB =
-      Job.newBuilder()
-          .setId("job id")
-          .setName("heading title")
-          .addTask(TEST_TASK)
-          .build();
+      Job.newBuilder().setId("job id").setName("heading title").addTask(TEST_TASK).build();
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
@@ -122,6 +117,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static final SubmissionMutation TEST_SUBMISSION_MUTATION =
       SubmissionMutation.builder()
+          .setJob(TEST_JOB)
           .setSubmissionId("submission id")
           .setResponseDeltas(
               ImmutableList.of(
@@ -137,7 +133,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setLocationOfInterestId("loi id")
           .setUserId("user id")
           .setClientTimestamp(new Date())
-          .setJob(TEST_JOB)
           .build();
 
   private static final TileSet TEST_PENDING_TILE_SOURCE =
@@ -182,6 +177,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static LocationOfInterestMutation createTestLocationOfInterestMutation(Point point) {
     return LocationOfInterestMutation.builder()
+        .setJobId("job id")
         .setLocation(Optional.ofNullable(point))
         .setPolygonVertices(ImmutableList.of())
         .setId(1L)
@@ -190,7 +186,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setJob(Job.newBuilder().build())
         .setClientTimestamp(new Date())
         .build();
   }
@@ -198,6 +193,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static LocationOfInterestMutation createTestPolygonFeatureMutation(
       ImmutableList<Point> polygonVertices) {
     return LocationOfInterestMutation.builder()
+        .setJobId("job id")
         .setLocation(Optional.empty())
         .setPolygonVertices(polygonVertices)
         .setId(1L)
@@ -206,7 +202,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setJob(Job.newBuilder().build())
         .setClientTimestamp(new Date())
         .build();
   }
