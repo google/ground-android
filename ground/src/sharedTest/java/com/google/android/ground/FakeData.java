@@ -83,10 +83,10 @@ public class FakeData {
       AreaOfInterest.newBuilder()
           .setId("loi id")
           .setSurvey(SURVEY)
-          .setJob(JOB)
           .setVertices(VERTICES)
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
+          .setJob(JOB)
           .build();
 
   public static final GeoJsonLocationOfInterest GEO_JSON_OF_INTEREST =

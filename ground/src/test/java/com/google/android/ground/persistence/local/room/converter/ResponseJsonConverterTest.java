@@ -21,8 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.ground.model.submission.DateResponse;
 import com.google.android.ground.model.submission.Response;
 import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.Field.Type;
+import com.google.android.ground.model.task.Task;
 import java.util.Date;
 import java8.util.Optional;
 import org.junit.Test;
@@ -71,12 +70,12 @@ public class ResponseJsonConverterTest {
     Object dateObject = ResponseJsonConverter.toJsonObject(new DateResponse(DATE));
     Optional<Response> response =
         ResponseJsonConverter.toResponse(
-            Field.newBuilder()
+            Task.newBuilder()
                 .setId("1")
                 .setLabel("date")
                 .setIndex(0)
                 .setRequired(true)
-                .setType(Type.DATE)
+                .setType(Task.Type.DATE)
                 .build(),
             dateObject);
     assertThat(((DateResponse) response.get()).getDate()).isEqualTo(DATE);
@@ -87,12 +86,12 @@ public class ResponseJsonConverterTest {
     Object timeObject = ResponseJsonConverter.toJsonObject(new TimeResponse(DATE));
     Optional<Response> response =
         ResponseJsonConverter.toResponse(
-            Field.newBuilder()
+            Task.newBuilder()
                 .setId("2")
                 .setLabel("time")
                 .setIndex(1)
                 .setRequired(true)
-                .setType(Type.TIME)
+                .setType(Task.Type.TIME)
                 .build(),
             timeObject);
     assertThat(((TimeResponse) response.get()).getTime()).isEqualTo(DATE);

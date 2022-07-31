@@ -17,11 +17,10 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
-import static com.google.android.ground.model.TestModelBuilders.newField;
+import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newJob;
 import static com.google.android.ground.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
-import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
 import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
@@ -97,15 +96,15 @@ public class SubmissionConverterTest {
     setUpTestSurvey(
         "job001",
         "task001",
-        newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
-        newField()
+        newTask().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
+        newTask()
             .setId("field2")
             .setType(Field.Type.MULTIPLE_CHOICE)
             .setMultipleChoice(
                 MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
             .build(),
-        newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
-        newField().setId("field4").setType(Field.Type.PHOTO).build());
+        newTask().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
+        newTask().setId("field4").setType(Field.Type.PHOTO).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -155,7 +154,7 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_mismatchedFeatureId() {
     setUpTestSurvey(
-        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newTask().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -177,7 +176,7 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_nullResponses() {
     setUpTestSurvey(
-        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newTask().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -208,7 +207,7 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyTextResponse() {
     setUpTestSurvey(
-        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+        "job001", "task001", newTask().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -241,7 +240,7 @@ public class SubmissionConverterTest {
     setUpTestSurvey(
         "job001",
         "task001",
-        newField().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
+        newTask().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -284,8 +283,8 @@ public class SubmissionConverterTest {
     setUpTestSurvey(
         "job001",
         "task001",
-        newField().setId("field1").setType(Field.Type.UNKNOWN).build(),
-        newField().setId("field2").setType(Field.Type.TEXT_FIELD).build());
+        newTask().setId("field1").setType(Field.Type.UNKNOWN).build(),
+        newTask().setId("field2").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,

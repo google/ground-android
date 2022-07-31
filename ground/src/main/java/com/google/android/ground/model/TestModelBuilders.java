@@ -20,8 +20,6 @@ import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.Field.Type;
 import com.google.android.ground.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.GeoPoint;
@@ -97,14 +95,10 @@ public class TestModelBuilders {
   }
 
   public static Task.Builder newTask() {
-    return Task.newBuilder().setId("");
-  }
-
-  public static Field.Builder newField() {
-    return Field.newBuilder()
+    return Task.newBuilder()
         .setId("")
         .setIndex(0)
-        .setType(Type.TEXT_FIELD)
+        .setType(Task.Type.TEXT_FIELD)
         .setLabel("")
         .setRequired(false);
   }
