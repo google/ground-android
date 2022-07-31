@@ -28,5 +28,5 @@ import dagger.hilt.android.AndroidEntryPoint
 class DataCollectionTaskFragment : AbstractFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.data_collection_step_frag, container, false)
+    ): View = inflater.inflate(R.layout.data_collection_task_frag, container, false)
 }

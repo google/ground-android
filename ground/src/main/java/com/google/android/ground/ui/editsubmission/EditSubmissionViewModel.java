@@ -27,13 +27,11 @@ import android.net.Uri;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.R;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.Response;
 import com.google.android.ground.model.submission.ResponseDelta;
 import com.google.android.ground.model.submission.ResponseMap;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.Step;
-import com.google.android.ground.model.task.Step.Type;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.SubmissionRepository;
 import com.google.android.ground.rx.Nil;
@@ -72,81 +70,57 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   // States.
 
-  /**
-   * True if submission is currently being loaded, otherwise false.
-   */
+  /** True if submission is currently being loaded, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
-  /**
-   * True if submission is currently being saved, otherwise false.
-   */
+  /** True if submission is currently being saved, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
-  /** Task definition, loaded when view is initialized. */
-  private final LiveData<Task> task;
+  /** Job definition, loaded when view is initialized. */
+  private final LiveData<Job> job;
 
-  /**
-   * Toolbar title, based on whether user is adding new or editing existing submission.
-   */
+  /** Toolbar title, based on whether user is adding new or editing existing submission. */
   @Hot(replays = true)
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
-  /**
-   * Current task responses.
-   */
+  /** Current task responses. */
   private final Map<String, Response> responses = new HashMap<>();
 
-  /**
-   * Task validation errors, updated when existing for loaded and when responses change.
-   */
-  @Nullable
-  private Map<String, String> validationErrors;
+  /** Task validation errors, updated when existing for loaded and when responses change. */
+  @Nullable private Map<String, String> validationErrors;
 
-  /**
-   * Arguments passed in from view on initialize().
-   */
+  /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
   private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs = BehaviorProcessor.create();
 
-  /**
-   * Submission state loaded when view is initialized.
-   */
-  @Nullable
-  private Submission originalSubmission;
+  /** Submission state loaded when view is initialized. */
+  @Nullable private Submission originalSubmission;
 
-  /**
-   * True if the submission is being added, false if editing an existing one.
-   */
+  /** True if the submission is being added, false if editing an existing one. */
   private boolean isNew;
 
   /**
-   * Emits the last photo field id updated and either its photo result, or empty if removed. The
-   * last value is emitted on each subscription because {@see #onPhotoResult} is called before
+   * Emits the last photo task id updated and either its photo result, or empty if removed. The last
+   * value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
   private final Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
 
   // Events.
 
-  /**
-   * "Save" button clicks.
-   */
-  @Hot
-  private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+  /** "Save" button clicks. */
+  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
 
-  /**
-   * Outcome of user clicking "Save".
-   */
+  /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
 
   /**
-   * Field id waiting for a photo response. As only 1 photo result is returned at a time, we can
-   * directly map it 1:1 with the field waiting for a photo response.
+   * Task id waiting for a photo response. As only 1 photo result is returned at a time, we can
+   * directly map it 1:1 with the task waiting for a photo response.
    */
-  @Nullable
-  private String fieldWaitingForPhoto;
+  @Nullable private String taskWaitingForPhoto;
 
   /**
    * Full path of the captured photo in local storage. In case of selecting a photo from storage,
@@ -154,8 +128,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
    * result returns true/false based on whether the operation passed or not. As only 1 photo result
    * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
    */
-  @Nullable
-  private String capturedPhotoPath;
+  @Nullable private String capturedPhotoPath;
 
   @Inject
   EditSubmissionViewModel(
@@ -167,7 +140,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     this.submissionRepository = submissionRepository;
     this.permissionsManager = permissionsManager;
     this.bitmapUtil = bitmapUtil;
-    this.task = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
+    this.job = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
   }
 
@@ -175,8 +148,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     return args.getSubmissionId().isEmpty();
   }
 
-  public LiveData<Task> getTask() {
-    return task;
+  public LiveData<Job> getJob() {
+    return job;
   }
 
   public LiveData<String> getToolbarTitle() {
@@ -187,13 +160,11 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     return saveResults;
   }
 
-  public @Nullable
-      String getSurveyId() {
+  public @Nullable String getSurveyId() {
     return originalSubmission == null ? null : originalSubmission.getSurvey().getId();
   }
 
-  public @Nullable
-      String getSubmissionId() {
+  public @Nullable String getSubmissionId() {
     return originalSubmission == null ? null : originalSubmission.getId();
   }
 
@@ -201,17 +172,17 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     viewArgs.onNext(args);
   }
 
-  Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(responses.get(fieldId));
+  Optional<Response> getResponse(String taskId) {
+    return Optional.ofNullable(responses.get(taskId));
   }
 
   /**
-   * Update the current value of a response. Called what fields are initialized and on each
+   * Update the current value of a response. Called what tasks are initialized and on each
    * subsequent change.
    */
-  void setResponse(Field field, Optional<Response> newResponse) {
+  void setResponse(Task task, Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
-        r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
+        r -> responses.put(task.getId(), r), () -> responses.remove(task.getId()));
   }
 
   @Cold
@@ -231,7 +202,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     saveClicks.onNext(Nil.NIL);
   }
 
-  private Single<Task> onInitialize(EditSubmissionFragmentArgs viewArgs) {
+  private Single<Job> onInitialize(EditSubmissionFragmentArgs viewArgs) {
     isLoading.setValue(true);
     isNew = isAddSubmissionRequest(viewArgs);
     Single<Submission> obs;
@@ -245,7 +216,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     HashMap<String, Response> restoredResponses = viewArgs.getRestoredResponses();
     return obs.doOnSuccess(
             loadedSubmission -> onSubmissionLoaded(loadedSubmission, restoredResponses))
-        .map(Submission::getTask);
+        .map(Submission::getJob);
   }
 
   private void onSubmissionLoaded(
@@ -255,8 +226,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     responses.clear();
     if (restoredResponses == null) {
       ResponseMap responseMap = submission.getResponses();
-      for (String fieldId : responseMap.fieldIds()) {
-        responseMap.getResponse(fieldId).ifPresent(r -> responses.put(fieldId, r));
+      for (String taskId : responseMap.taskIds()) {
+        responseMap.getResponse(taskId).ifPresent(r -> responses.put(taskId, r));
       }
     } else {
       Timber.v("Restoring responses from bundle");
@@ -267,7 +238,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   private Single<Submission> createSubmission(EditSubmissionFragmentArgs args) {
     return submissionRepository
-        .createSubmission(args.getSurveyId(), args.getLocationOfInterestId(), args.getTaskId())
+        .createSubmission(args.getSurveyId(), args.getLocationOfInterestId(), args.getJobId())
         .onErrorResumeNext(this::onError);
   }
 
@@ -318,20 +289,17 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalSubmission.getResponses();
     Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
-    for (Step e : originalSubmission.getTask().getSteps()) {
-      if (e.getType() != Type.FIELD) {
-        continue;
-      }
-      String fieldId = e.getField().getId();
-      Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
-      Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
+    for (Task task : originalSubmission.getJob().getTasksSorted()) {
+      String taskId = task.getId();
+      Optional<Response> originalResponse = originalResponses.getResponse(taskId);
+      Optional<Response> currentResponse = getResponse(taskId).filter(r -> !r.isEmpty());
       if (currentResponse.equals(originalResponse)) {
         continue;
       }
       deltas.add(
           ResponseDelta.builder()
-              .setFieldId(fieldId)
-              .setFieldType(e.getField().getType())
+              .setTaskId(taskId)
+              .setTaskType(task.getType())
               .setNewResponse(currentResponse)
               .build());
     }
@@ -353,12 +321,12 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   }
 
   @Nullable
-  public String getFieldWaitingForPhoto() {
-    return fieldWaitingForPhoto;
+  public String getTaskWaitingForPhoto() {
+    return taskWaitingForPhoto;
   }
 
-  public void setFieldWaitingForPhoto(@Nullable String fieldWaitingForPhoto) {
-    this.fieldWaitingForPhoto = fieldWaitingForPhoto;
+  public void setTaskWaitingForPhoto(@Nullable String taskWaitingForPhoto) {
+    this.taskWaitingForPhoto = taskWaitingForPhoto;
   }
 
   @Nullable
@@ -379,12 +347,12 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       Timber.v("Select photo failed or canceled");
       return;
     }
-    if (fieldWaitingForPhoto == null) {
-      Timber.e("Photo captured but no field waiting for the result");
+    if (taskWaitingForPhoto == null) {
+      Timber.e("Photo captured but no task waiting for the result");
       return;
     }
     try {
-      onPhotoResult(PhotoResult.createSelectResult(fieldWaitingForPhoto, bitmapUtil.fromUri(uri)));
+      onPhotoResult(PhotoResult.createSelectResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
     } catch (IOException e) {
       Timber.e(e, "Error getting photo selected from storage");
@@ -397,31 +365,29 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       // TODO: Cleanup created file if it exists.
       return;
     }
-    if (fieldWaitingForPhoto == null) {
-      Timber.e("Photo captured but no field waiting for the result");
+    if (taskWaitingForPhoto == null) {
+      Timber.e("Photo captured but no task waiting for the result");
       return;
     }
     if (capturedPhotoPath == null) {
       Timber.e("Photo captured but no path available to read the result");
       return;
     }
-    onPhotoResult(PhotoResult.createCaptureResult(fieldWaitingForPhoto, capturedPhotoPath));
+    onPhotoResult(PhotoResult.createCaptureResult(taskWaitingForPhoto, capturedPhotoPath));
     Timber.v("Photo capture result returned");
   }
 
   private void onPhotoResult(PhotoResult result) {
     capturedPhotoPath = null;
-    fieldWaitingForPhoto = null;
+    taskWaitingForPhoto = null;
     lastPhotoResult.onNext(result);
   }
 
-  public void clearPhoto(String fieldId) {
-    lastPhotoResult.onNext(PhotoResult.createEmptyResult(fieldId));
+  public void clearPhoto(String taskId) {
+    lastPhotoResult.onNext(PhotoResult.createEmptyResult(taskId));
   }
 
-  /**
-   * Possible outcomes of user clicking "Save".
-   */
+  /** Possible outcomes of user clicking "Save". */
   enum SaveResult {
     HAS_VALIDATION_ERRORS,
     NO_CHANGES_TO_SAVE,
@@ -433,7 +399,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
     boolean isHandled;
 
-    abstract String getFieldId();
+    abstract String getTaskId();
 
     abstract Optional<Bitmap> getBitmap();
 
@@ -443,8 +409,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       return isHandled;
     }
 
-    public boolean hasFieldId(String fieldId) {
-      return getFieldId().equals(fieldId);
+    public boolean hasTaskId(String taskId) {
+      return getTaskId().equals(taskId);
     }
 
     public boolean isEmpty() {
@@ -455,19 +421,19 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       isHandled = handled;
     }
 
-    static PhotoResult createEmptyResult(String fieldId) {
+    static PhotoResult createEmptyResult(String taskId) {
       return new AutoValue_EditSubmissionViewModel_PhotoResult(
-          fieldId, Optional.empty(), Optional.empty());
+          taskId, Optional.empty(), Optional.empty());
     }
 
-    static PhotoResult createSelectResult(String fieldId, Bitmap bitmap) {
+    static PhotoResult createSelectResult(String taskId, Bitmap bitmap) {
       return new AutoValue_EditSubmissionViewModel_PhotoResult(
-          fieldId, Optional.of(bitmap), Optional.empty());
+          taskId, Optional.of(bitmap), Optional.empty());
     }
 
-    static PhotoResult createCaptureResult(String fieldId, String path) {
+    static PhotoResult createCaptureResult(String taskId, String path) {
       return new AutoValue_EditSubmissionViewModel_PhotoResult(
-          fieldId, Optional.empty(), Optional.of(path));
+          taskId, Optional.empty(), Optional.of(path));
     }
   }
 }

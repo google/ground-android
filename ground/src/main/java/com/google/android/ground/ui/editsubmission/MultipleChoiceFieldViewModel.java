@@ -60,7 +60,7 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   public void updateResponse(ImmutableList<Option> options) {
     setResponse(
         MultipleChoiceResponse.fromList(
-            requireNonNull(getField().getMultipleChoice()),
+            requireNonNull(getTask().getMultipleChoice()),
             stream(options).map(Option::getId).collect(toImmutableList())));
   }
 }

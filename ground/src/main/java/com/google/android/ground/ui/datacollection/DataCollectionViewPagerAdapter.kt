@@ -17,7 +17,7 @@ package com.google.android.ground.ui.datacollection
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.ground.model.task.Step
+import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
 
 /**
@@ -26,9 +26,9 @@ import com.google.common.collect.ImmutableList
  */
 class DataCollectionViewPagerAdapter(
     fragment: Fragment,
-    private val steps: ImmutableList<Step>
+    private val tasks: ImmutableList<Task>
 ) : FragmentStateAdapter(fragment) {
-    override fun getItemCount(): Int = steps.size
+    override fun getItemCount(): Int = tasks.size
 
     override fun createFragment(position: Int): Fragment = DataCollectionTaskFragment()
 }

@@ -20,9 +20,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.SubmissionRepository;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractViewModel;
@@ -64,9 +64,10 @@ public class SubmissionListViewModel extends AbstractViewModel {
 
   /** Loads a list of submissions associated with a given locationOfInterest. */
   public void loadSubmissionList(LocationOfInterest locationOfInterest) {
-    Optional<Task> form = locationOfInterest.getJob().getTask();
     loadSubmissions(
-        locationOfInterest.getSurvey(), locationOfInterest.getId(), form.map(Task::getId));
+        locationOfInterest.getSurvey(),
+        locationOfInterest.getId(),
+        Optional.of(locationOfInterest.getJob()).map(Job::getId));
   }
 
   private Single<ImmutableList<Submission>> getSubmissions(SubmissionListRequest req) {

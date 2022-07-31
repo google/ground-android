@@ -25,26 +25,21 @@ import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import com.google.android.ground.BR;
 import com.google.android.ground.R;
-import com.google.android.ground.model.task.Field;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.ui.common.ViewModelFactory;
 import javax.inject.Inject;
 
-/**
- * Inflates a new view and generates a view model for a given {@link Field.Type}.
- */
+/** Inflates a new view and generates a view model for a given {@link Task.Type}. */
 public class FieldViewFactory {
 
-  @Inject
-  Fragment fragment;
-  @Inject
-  ViewModelFactory viewModelFactory;
+  @Inject Fragment fragment;
+  @Inject ViewModelFactory viewModelFactory;
 
   @Inject
-  FieldViewFactory() {
-  }
+  FieldViewFactory() {}
 
-  private static Class<? extends AbstractFieldViewModel> getViewModelClass(Field.Type fieldType) {
-    switch (fieldType) {
+  private static Class<? extends AbstractFieldViewModel> getViewModelClass(Task.Type taskType) {
+    switch (taskType) {
       case TEXT_FIELD:
         return TextFieldViewModel.class;
       case MULTIPLE_CHOICE:
@@ -58,13 +53,13 @@ public class FieldViewFactory {
       case TIME:
         return TimeFieldViewModel.class;
       default:
-        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
+        throw new IllegalArgumentException("Unsupported task type: " + taskType);
     }
   }
 
   @LayoutRes
-  private static int getLayoutId(Field.Type fieldType) {
-    switch (fieldType) {
+  private static int getLayoutId(Task.Type taskType) {
+    switch (taskType) {
       case TEXT_FIELD:
         return R.layout.text_input_field;
       case MULTIPLE_CHOICE:
@@ -78,22 +73,22 @@ public class FieldViewFactory {
       case TIME:
         return R.layout.time_input_field;
       default:
-        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
+        throw new IllegalArgumentException("Unsupported task type: " + taskType);
     }
   }
 
   /**
    * Inflates the view, generates a new view model and binds to the {@link ViewDataBinding}.
    *
-   * @param fieldType Type of the field
+   * @param taskType Type of the task
    * @param root Parent layout
    * @return {@link ViewDataBinding}
    */
-  ViewDataBinding addFieldView(Field.Type fieldType, LinearLayout root) {
+  ViewDataBinding addFieldView(Task.Type taskType, LinearLayout root) {
     ViewDataBinding binding =
-        DataBindingUtil.inflate(fragment.getLayoutInflater(), getLayoutId(fieldType), root, true);
+        DataBindingUtil.inflate(fragment.getLayoutInflater(), getLayoutId(taskType), root, true);
     binding.setLifecycleOwner(fragment);
-    binding.setVariable(BR.viewModel, viewModelFactory.create(getViewModelClass(fieldType)));
+    binding.setVariable(BR.viewModel, viewModelFactory.create(getViewModelClass(taskType)));
     assignGeneratedId(binding.getRoot());
     return binding;
   }
