@@ -51,7 +51,7 @@ public abstract class Job {
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Job.Builder().setTask(Optional.empty()).setUserCanAdd(ImmutableList.of());
+    return new AutoValue_Job.Builder().setUserCanAdd(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -67,8 +67,9 @@ public abstract class Job {
 
     public abstract Job build();
 
-    public void addTask(Task task) {
+    public Builder addTask(Task task) {
       tasksBuilder().put(task.getId(), task);
+      return this;
     }
   }
 }
