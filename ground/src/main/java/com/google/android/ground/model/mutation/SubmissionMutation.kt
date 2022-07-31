@@ -27,19 +27,19 @@ data class SubmissionMutation(
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
     override val surveyId: String = "",
     override val locationOfInterestId: String = "",
-    override val job: Job? = null,
     override val userId: String = "",
     override val clientTimestamp: Date = Date(),
     override val retryCount: Long = 0,
     override val lastError: String = "",
+    val job: Job? = null,
     var submissionId: String = "",
     var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
 ) : Mutation() {
 
     override fun toBuilder(): Builder {
         return Builder().also {
-            it.submissionId = this.submissionId
             it.job = this.job
+            it.submissionId = this.submissionId
             it.responseDeltas = this.responseDeltas
         }.fromMutation(this) as Builder
     }
@@ -48,10 +48,16 @@ data class SubmissionMutation(
         super.toString() + "deltas= $responseDeltas"
 
     inner class Builder : Mutation.Builder<SubmissionMutation>() {
+        var job: Job? = null
+            @JvmSynthetic set
         var submissionId: String = ""
             @JvmSynthetic set
         var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
             @JvmSynthetic set
+
+        fun setJob(job: Job): Builder = apply {
+            this.job = job
+        }
 
         fun setSubmissionId(id: String): Builder = apply {
             this.submissionId = id
@@ -67,11 +73,11 @@ data class SubmissionMutation(
             syncStatus,
             surveyId,
             locationOfInterestId,
-            job,
             userId,
             clientTimestamp,
             retryCount,
             lastError,
+            job,
             submissionId,
             responseDeltas
         )
