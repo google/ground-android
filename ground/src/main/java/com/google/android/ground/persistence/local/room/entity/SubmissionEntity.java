@@ -126,7 +126,7 @@ public abstract class SubmissionEntity {
     String id = submission.getId();
     String jobId = submission.getJobId();
     Job job = loi.getJob();
-    if (!job.getId().equals(submission.getJobId())) {
+    if (!job.getId().equals(jobId)) {
       throw new LocalDataConsistencyException(
           "LOI job id " + job.getId() + " does not match submission " + submission.getJobId());
     }

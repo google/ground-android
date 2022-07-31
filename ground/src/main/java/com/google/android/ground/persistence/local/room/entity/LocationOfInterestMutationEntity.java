@@ -27,10 +27,13 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
+import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.persistence.local.room.models.Coordinates;
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.ground.persistence.local.room.models.MutationEntityType;
+import com.google.android.ground.persistence.remote.DataStoreException;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import java.util.Date;
@@ -96,12 +99,12 @@ public abstract class LocationOfInterestMutationEntity extends MutationEntity {
 
   public LocationOfInterestMutation toMutation() {
     return LocationOfInterestMutation.builder()
+        .setJobId(getJobId())
         .setLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setPolygonVertices(parseVertices(getNewPolygonVertices()))
         .setId(getId())
         .setSurveyId(getSurveyId())
         .setLocationOfInterestId(getLocationOfInterestId())
-        .setJobId(getJobId())
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())

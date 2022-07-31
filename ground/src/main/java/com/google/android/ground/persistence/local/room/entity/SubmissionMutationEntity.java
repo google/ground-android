@@ -139,12 +139,12 @@ public abstract class SubmissionMutationEntity extends MutationEntity {
                     new LocalDataConsistencyException(
                         "Unknown jobId in submission mutation " + getId()));
     return SubmissionMutation.builder()
+        .setJob(job)
         .setSubmissionId(getSubmissionId())
         .setResponseDeltas(ResponseDeltasConverter.fromString(job, getResponseDeltas()))
         .setId(getId())
         .setSurveyId(getSurveyId())
         .setLocationOfInterestId(getLocationOfInterestId())
-        .setJob(job)
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())

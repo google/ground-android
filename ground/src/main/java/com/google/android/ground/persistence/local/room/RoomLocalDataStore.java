@@ -90,7 +90,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import java.util.List;
-import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -490,11 +489,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     Builder responseMap =
         ResponseMapConverter.fromString(job, submission.getResponses()).toBuilder();
     for (SubmissionMutationEntity mutation : mutations) {
-      Optional<Task> task = job.getTask(mutation.getTaskId());
-      if (task.isEmpty()) {
-        Timber.e("Unknown task " + mutation.getTaskId() + " in mutation");
-        continue;
-      }
       // Merge changes to responses.
       ImmutableList<ResponseDelta> deltas =
           ResponseDeltasConverter.fromString(job, mutation.getResponseDeltas());
@@ -502,7 +496,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
     return responseMap.build();
   }
-
 
   private Completable apply(LocationOfInterestMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
