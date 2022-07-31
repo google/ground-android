@@ -16,11 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.persistence.remote.DataStoreException.checkNotEmpty;
 import static com.google.android.ground.persistence.remote.DataStoreException.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.DateResponse;
@@ -46,24 +44,22 @@ import timber.log.Timber;
 /** Converts between Firestore documents and {@link Submission} instances. */
 class SubmissionConverter {
 
-  static Submission toSubmission(
-      Survey survey, LocationOfInterest locationOfInterest, DocumentSnapshot snapshot)
+  static Submission toSubmission(LocationOfInterest loi, DocumentSnapshot snapshot)
       throws DataStoreException {
     SubmissionDocument doc = snapshot.toObject(SubmissionDocument.class);
     String loiId = checkNotNull(doc.getLoiId(), "loiId");
-    if (!locationOfInterest.getId().equals(loiId)) {
+    if (!loi.getId().equals(loiId)) {
       throw new DataStoreException("Submission doc featureId doesn't match specified loiId");
     }
-    String jobId = checkNotNull(doc.getJobId(), "jobId");
-    Job job = checkNotEmpty(survey.getJob(jobId), "job " + jobId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Objects.requireNonNullElse(doc.getLastModified(), created);
+    Job job = loi.getJob();
     return Submission.newBuilder()
         .setId(snapshot.getId())
-        .setSurvey(locationOfInterest.getSurvey())
-        .setLocationOfInterest(locationOfInterest)
+        .setSurvey(loi.getSurvey())
+        .setLocationOfInterest(loi)
         .setJob(job)
         .setResponses(toResponseMap(snapshot.getId(), job, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
