@@ -18,8 +18,8 @@ package com.google.android.ground.model.submission;
 
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.task.Task;
 import com.google.auto.value.AutoValue;
 
 /** Represents a single instance of data collected about a specific {@link LocationOfInterest}. */
@@ -32,11 +32,9 @@ public abstract class Submission {
 
   public abstract LocationOfInterest getLocationOfInterest();
 
-  public abstract Task getTask();
+  public abstract Job getJob();
 
-  /**
-   * Returns the user and time audit info pertaining to the creation of this submission.
-   */
+  /** Returns the user and time audit info pertaining to the creation of this submission. */
   public abstract AuditInfo getCreated();
 
   /**
@@ -61,7 +59,7 @@ public abstract class Submission {
 
     public abstract Builder setLocationOfInterest(LocationOfInterest locationOfInterest);
 
-    public abstract Builder setTask(Task task);
+    public abstract Builder setJob(Job job);
 
     public abstract Builder setCreated(AuditInfo newCreated);
 
