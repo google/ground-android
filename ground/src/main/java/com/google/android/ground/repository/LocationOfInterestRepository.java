@@ -17,6 +17,7 @@
 package com.google.android.ground.repository;
 
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
@@ -145,12 +146,12 @@ public class LocationOfInterestRepository {
   public LocationOfInterestMutation newMutation(
       String surveyId, String jobId, Point point, Date date) {
     return LocationOfInterestMutation.builder()
+        .setJobId(jobId)
         .setLocation(Optional.of(point))
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setLocationOfInterestId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setJobId(jobId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
@@ -159,12 +160,12 @@ public class LocationOfInterestRepository {
   public LocationOfInterestMutation newPolygonOfInterestMutation(
       String surveyId, String jobId, ImmutableList<Point> vertices, Date date) {
     return LocationOfInterestMutation.builder()
+        .setJobId(jobId)
         .setPolygonVertices(vertices)
         .setType(Type.CREATE)
         .setSyncStatus(SyncStatus.PENDING)
         .setLocationOfInterestId(uuidGenerator.generateUuid())
         .setSurveyId(surveyId)
-        .setJobId(jobId)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(date)
         .build();
