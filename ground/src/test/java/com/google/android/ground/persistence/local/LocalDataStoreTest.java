@@ -452,7 +452,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     // also test that getSubmissions returns the same submission as well
     ImmutableList<Submission> submissions =
-        localDataStore.getSubmissions(feature, "task id").blockingGet();
+        localDataStore.getSubmissions(feature, "job id").blockingGet();
     assertThat(submissions).hasSize(1);
     assertEquivalent(mutation, submissions.get(0));
   }

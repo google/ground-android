@@ -155,7 +155,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable insertOrUpdateTasks(String jobId, ImmutableCollection<Task> tasks) {
-    return Observable.fromIterable(tasks).flatMapCompletable(task -> insertOrUpdateTask(jobId, task));
+    return Observable.fromIterable(tasks)
+        .flatMapCompletable(task -> insertOrUpdateTask(jobId, task));
   }
 
   private Completable insertOrUpdateJob(String surveyId, Job job) {
@@ -281,9 +282,9 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Single<ImmutableList<Submission>> getSubmissions(
-      LocationOfInterest locationOfInterest, String taskId) {
+      LocationOfInterest locationOfInterest, String jobId) {
     return submissionDao
-        .findByLocationOfInterestId(locationOfInterest.getId(), taskId, EntityState.DEFAULT)
+        .findByLocationOfInterestId(locationOfInterest.getId(), jobId, EntityState.DEFAULT)
         .map(submissionEntities -> toSubmissions(locationOfInterest, submissionEntities))
         .subscribeOn(schedulers.io());
   }
