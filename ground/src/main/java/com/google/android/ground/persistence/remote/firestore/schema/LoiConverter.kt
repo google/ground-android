@@ -16,13 +16,17 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.*
+import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.locationofinterest.PointOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.common.collect.ImmutableList
+import com.google.android.ground.persistence.remote.DataStoreException.checkNotNull
+import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.GeoPoint
-import timber.log.Timber
+import org.locationtech.jts.io.geojson.GeoJsonWriter
 
+// TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
 object LoiConverter {
     const val JOB_ID = "jobId"
@@ -37,83 +41,43 @@ object LoiConverter {
     @JvmStatic
     @Throws(DataStoreException::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
-        val loiDoc =
-            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
+        val loiId = doc.id
+        val loiDoc = checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
+        val geometryMap = checkNotNull(loiDoc.geometry, "geometry")
+        // TODO: Return `Result` instead of throwing exception.
+        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
 
-        if (loiDoc.geometry != null && hasNonEmptyVertices(loiDoc)) {
-            return toLoiFromGeometry(survey, doc, loiDoc)
-        }
-
-        loiDoc.geoJson?.let {
-            val builder = GeoJsonLocationOfInterest.newBuilder().setGeoJsonString(it)
-            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
-            return builder.build()
-        }
-
-        loiDoc.location?.let {
-            val builder = PointOfInterest.newBuilder().setPoint(toPoint(it))
-            fillLocationOfInterest(builder, survey, doc.id, loiDoc)
-            return builder.build()
-        }
-
-        throw DataStoreException("No geometry in remote LOI ${doc.id}")
-    }
-
-    private fun hasNonEmptyVertices(loiDocument: LoiDocument): Boolean {
-        val geometry = loiDocument.geometry
-
-        if (geometry == null
-            || geometry[GEOMETRY_COORDINATES] == null
-            || geometry[GEOMETRY_COORDINATES] !is List<*>
-        ) {
-            return false
-        }
-
-        val coordinates = geometry[GEOMETRY_COORDINATES] as List<*>?
-        return coordinates?.isNotEmpty() ?: false
-    }
-
-    private fun toLoiFromGeometry(
-        survey: Survey,
-        doc: DocumentSnapshot,
-        loiDoc: LoiDocument
-    ): AreaOfInterest {
-        val geometry = loiDoc.geometry
-        val type = geometry!![GEOMETRY_TYPE]
-        if (POLYGON_TYPE != type) {
-            throw DataStoreException("Unknown geometry type in LOI ${doc.id}: $type")
-        }
-
-        val coordinates = geometry[GEOMETRY_COORDINATES]
-        if (coordinates !is List<*>) {
-            throw DataStoreException("Invalid coordinates in LOI ${doc.id}: $coordinates")
-        }
-
-        val vertices = ImmutableList.builder<Point>()
-        for (point in coordinates) {
-            if (point !is GeoPoint) {
-                Timber.d("Ignoring illegal point type in LOI ${doc.id}")
-                break
+        // As an interim solution, we map geometries to existing LOI types.
+        // TODO: Get rid of LOI subclasses and just use Geometry on LOI class.
+        when (geometry.geometryType) {
+            "Point" -> {
+                val builder = PointOfInterest.newBuilder()
+                builder.setPoint(
+                    Point.newBuilder().setLatitude(geometry.coordinate.x)
+                        .setLongitude(geometry.coordinate.y).build()
+                )
+                fillLocationOfInterest(builder, survey, loiId, loiDoc)
+                return builder.build()
             }
-            vertices.add(
-                Point.newBuilder().setLongitude(point.longitude).setLatitude(
-                    point.latitude
-                ).build()
-            )
+            "Polygon", "MultiPolygon" -> {
+                val builder = GeoJsonLocationOfInterest.newBuilder()
+                builder.setGeoJsonString(GeoJsonWriter().write(geometry))
+                fillLocationOfInterest(builder, survey, loiId, loiDoc)
+                return builder.build()
+            }
+            else -> {
+                throw DataStoreException("Unsupported geometry $geometry")
+            }
         }
-
-        val builder = AreaOfInterest.newBuilder().setVertices(vertices.build())
-        fillLocationOfInterest(builder, survey, doc.id, loiDoc)
-        return builder.build()
     }
 
     private fun fillLocationOfInterest(
         builder: LocationOfInterest.Builder,
         survey: Survey,
-        id: String,
+        loiId: String,
         loiDoc: LoiDocument
     ) {
-        val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
+        val jobId = checkNotNull(loiDoc.jobId, JOB_ID)
         val job =
             DataStoreException.checkNotEmpty(
                 survey.getJob(jobId),
@@ -123,7 +87,7 @@ object LoiConverter {
         val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
         val lastModified = loiDoc.lastModified ?: created
         builder
-            .setId(id)
+            .setId(loiId)
             .setSurvey(survey)
             .setCustomId(loiDoc.customId)
             .setCaption(loiDoc.caption)
@@ -131,10 +95,4 @@ object LoiConverter {
             .setCreated(AuditInfoConverter.toAuditInfo(created))
             .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
     }
-
-    private fun toPoint(geoPoint: GeoPoint): Point =
-        Point.newBuilder()
-            .setLatitude(geoPoint.latitude)
-            .setLongitude(geoPoint.longitude)
-            .build()
 }

@@ -16,8 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
+import com.google.android.ground.assertIsFailure
+import com.google.android.ground.assertIsSuccessWith
 import com.google.firebase.firestore.GeoPoint
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -59,17 +60,16 @@ class GeometryConverterTest {
         -89.61393204 to 41.89320891
     )
 
-    private val converter = GeometryConverter()
     private val geometryFactory = GeometryFactory()
 
     @Test
     fun toFirestoreMap_point() {
-        assertEquals(
+        assertIsSuccessWith(
             mapOf(
                 "type" to "Point",
                 "coordinates" to GeoPoint(x, y)
             ),
-            converter.toFirestoreMap(
+            GeometryConverter.toFirestoreMap(
                 point(x, y)
             )
         )
@@ -77,7 +77,7 @@ class GeometryConverterTest {
 
     @Test
     fun toFirestoreMap_multiPolygon() {
-        assertEquals(
+        assertIsSuccessWith(
             mapOf(
                 "type" to "MultiPolygon",
                 "coordinates" to mapOf(
@@ -91,7 +91,7 @@ class GeometryConverterTest {
                     )
                 )
             ),
-            converter.toFirestoreMap(
+            GeometryConverter.toFirestoreMap(
                 multiPolygon(
                     polygon(path1, path2),
                     polygon(path3, path4)
@@ -102,9 +102,9 @@ class GeometryConverterTest {
 
     @Test
     fun fromFirestoreMap_point() {
-        assertEquals(
+        assertIsSuccessWith(
             point(x, y),
-            converter.fromFirestoreMap(
+            GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "Point",
                     "coordinates" to GeoPoint(x, y)
@@ -114,10 +114,66 @@ class GeometryConverterTest {
     }
 
     @Test
+    fun fromFirestoreMap_nullGeometry() {
+        assertIsFailure(GeometryConverter.fromFirestoreMap(null))
+    }
+
+    @Test
+    fun fromFirestoreMap_nullCoordinate() {
+        assertIsFailure(
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Point",
+                    "coordinates" to null
+                )
+            )
+        )
+    }
+
+    @Test
+    fun fromFirestoreMap_nullNestedElement() {
+        assertIsFailure(
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to "MultiPolygon",
+                    "coordinates" to mapOf(
+                        0 to mapOf(
+                            0 to null,
+                            1 to null
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun fromFirestoreMap_invalidGeometryType() {
+        assertIsFailure(
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to 123.0
+                )
+            )
+        )
+    }
+
+    @Test
+    fun fromFirestoreMap_missingCoordinates() {
+        assertIsFailure(
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Point"
+                )
+            )
+        )
+    }
+
+    @Test
     fun fromFirestoreMap_multiPolygon() {
-        assertEquals(
+        assertIsSuccessWith(
             multiPolygon(polygon(path1, path2), polygon(path3, path4)),
-            converter.fromFirestoreMap(
+            GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "MultiPolygon",
                     "coordinates" to mapOf(

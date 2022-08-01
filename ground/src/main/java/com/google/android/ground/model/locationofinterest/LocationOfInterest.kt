@@ -22,6 +22,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import org.locationtech.jts.geom.Geometry
 import java.util.*
 import javax.annotation.OverridingMethodsMustInvokeSuper
 
