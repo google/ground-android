@@ -24,7 +24,6 @@ import static com.google.android.ground.model.TestModelBuilders.newPolygonVertic
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
-import static com.google.common.truth.Truth.assertThat;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
