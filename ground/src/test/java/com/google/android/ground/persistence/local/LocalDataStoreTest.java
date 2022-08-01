@@ -228,7 +228,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testGetSurveyById() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
-    localDataStore.getSurveyById("survey id").test().assertValue(TEST_SURVEY);
+    localDataStore.getSurveyById(TEST_SURVEY.getId()).test().assertValue(TEST_SURVEY);
   }
 
   @Test

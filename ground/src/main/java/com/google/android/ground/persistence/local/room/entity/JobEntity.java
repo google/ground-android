@@ -57,7 +57,7 @@ public abstract class JobEntity {
   @ColumnInfo(name = "survey_id")
   public abstract String getSurveyId();
 
-  public static JobEntity fomJob(String surveyId, Job job) {
+  public static JobEntity fromJob(String surveyId, Job job) {
     return JobEntity.builder()
         .setId(job.getId())
         .setSurveyId(surveyId)

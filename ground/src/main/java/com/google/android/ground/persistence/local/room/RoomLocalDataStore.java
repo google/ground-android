@@ -160,7 +160,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private Completable insertOrUpdateJob(String surveyId, Job job) {
     return jobDao
-        .insertOrUpdate(JobEntity.fomJob(surveyId, job))
+        .insertOrUpdate(JobEntity.fromJob(surveyId, job))
         .andThen(insertOrUpdateTasks(job.getTasks().values()))
         .subscribeOn(schedulers.io());
   }
