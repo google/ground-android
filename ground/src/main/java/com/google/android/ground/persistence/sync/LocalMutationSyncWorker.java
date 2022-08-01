@@ -29,7 +29,7 @@ import com.google.android.ground.R;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.mutation.SubmissionMutation;
-import com.google.android.ground.model.task.Field.Type;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.system.NotificationManager;
@@ -145,7 +145,8 @@ public class LocalMutationSyncWorker extends BaseWorker {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation instanceof SubmissionMutation)
         .flatMapIterable(mutation -> ((SubmissionMutation) mutation).getResponseDeltas())
-        .filter(delta -> delta.getFieldType() == Type.PHOTO && delta.getNewResponse().isPresent())
+        .filter(
+            delta -> delta.getTaskType() == Task.Type.PHOTO && delta.getNewResponse().isPresent())
         .map(delta -> delta.getNewResponse().get().toString())
         .flatMapCompletable(
             remotePath ->

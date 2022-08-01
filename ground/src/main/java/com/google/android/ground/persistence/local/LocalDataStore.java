@@ -104,11 +104,11 @@ public interface LocalDataStore {
 
   /**
    * Returns the list of submissions which are not marked for deletion for the specified
-   * locationOfInterest and task.
+   * locationOfInterest and job.
    */
   @Cold
   Single<ImmutableList<Submission>> getSubmissions(
-      LocationOfInterest locationOfInterest, String taskId);
+      LocationOfInterest locationOfInterest, String jobId);
 
   /** Returns the LOI with the specified UUID from the local data store, if found. */
   @Cold

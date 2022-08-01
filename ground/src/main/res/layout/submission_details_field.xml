@@ -18,8 +18,8 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
   <data>
     <variable
-      name="field"
-      type="com.google.android.ground.model.task.Field" />
+      name="task"
+      type="com.google.android.ground.model.task.Task" />
   </data>
 
   <LinearLayout
@@ -36,7 +36,7 @@
       android:layout_height="wrap_content"
       android:ellipsize="end"
       android:paddingTop="@dimen/field_top_padding"
-      android:text="@{field.label}" />
+      android:text="@{task.label}" />
 
     <TextView
       android:id="@+id/field_value"

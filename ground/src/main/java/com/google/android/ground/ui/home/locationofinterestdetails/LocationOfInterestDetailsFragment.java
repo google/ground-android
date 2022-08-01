@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.ground.MainViewModel;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.LocationOfInterestDetailsFragBinding;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.ui.common.AbstractFragment;
 import com.google.android.ground.ui.home.BottomSheetState;
 import com.google.android.ground.ui.home.HomeScreenViewModel;
@@ -90,15 +91,13 @@ public class LocationOfInterestDetailsFragment extends AbstractFragment {
             menuItem -> {
               if (menuItem.getItemId() == R.id.move_loi_menu_item) {
                 viewModel.isMoveMenuOptionVisible().observe(this, menuItem::setVisible);
-              } else if (menuItem.getItemId() == R.id.delete_loi_menu_item) {
-                viewModel.isDeleteMenuOptionVisible().observe(this, menuItem::setVisible);
               }
             });
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    viewModel.onLocationOfInterestSelected(
-        state.isVisible() ? state.getLocationOfInterest() : Optional.empty());
+    LocationOfInterest loi = state.isVisible() ? state.getLocationOfInterest() : null;
+    viewModel.onLocationOfInterestSelected(Optional.ofNullable(loi));
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

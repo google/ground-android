@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2022 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
-  <item
-    android:id="@+id/move_loi_menu_item"
-    android:title="@string/move_loi"/>
-  <item
-    android:id="@+id/loi_properties_menu_item"
-    android:title="@string/loi_properties"/>
-
-</menu>
+  <TextView
+    android:id="@+id/data_collection_task_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/collect_data_task_name"
+    android:textSize="16sp" />
+</ScrollView>

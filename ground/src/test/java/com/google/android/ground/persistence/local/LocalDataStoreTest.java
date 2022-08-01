@@ -40,8 +40,6 @@ import com.google.android.ground.model.submission.ResponseDelta;
 import com.google.android.ground.model.submission.ResponseMap;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.submission.TextResponse;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao;
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao;
@@ -67,23 +65,17 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
 
-  private static final Field TEST_FIELD =
-      Field.newBuilder()
-          .setId("field id")
-          .setIndex(1)
-          .setLabel("field label")
-          .setRequired(false)
-          .setType(Field.Type.TEXT_FIELD)
-          .build();
-
   private static final Task TEST_TASK =
       Task.newBuilder()
           .setId("task id")
-          .setSteps(ImmutableList.of(Step.ofField(TEST_FIELD)))
+          .setIndex(1)
+          .setLabel("task label")
+          .setRequired(false)
+          .setType(Task.Type.TEXT_FIELD)
           .build();
 
   private static final Job TEST_JOB =
-      Job.newBuilder().setId("job id").setName("heading title").setTask(TEST_TASK).build();
+      Job.newBuilder().setId("job id").setName("heading title").addTask(TEST_TASK).build();
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
@@ -125,13 +117,13 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static final SubmissionMutation TEST_SUBMISSION_MUTATION =
       SubmissionMutation.builder()
+          .setJob(TEST_JOB)
           .setSubmissionId("submission id")
-          .setTask(TEST_TASK)
           .setResponseDeltas(
               ImmutableList.of(
                   ResponseDelta.builder()
-                      .setFieldId("field id")
-                      .setFieldType(Field.Type.TEXT_FIELD)
+                      .setTaskId("task id")
+                      .setTaskType(Task.Type.TEXT_FIELD)
                       .setNewResponse(TextResponse.fromString("updated response"))
                       .build()))
           .setId(1L)
@@ -139,7 +131,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setSyncStatus(SyncStatus.PENDING)
           .setSurveyId("survey id")
           .setLocationOfInterestId("loi id")
-          .setJobId("job id")
           .setUserId("user id")
           .setClientTimestamp(new Date())
           .build();
@@ -186,6 +177,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   private static LocationOfInterestMutation createTestLocationOfInterestMutation(Point point) {
     return LocationOfInterestMutation.builder()
+        .setJobId("job id")
         .setLocation(Optional.ofNullable(point))
         .setPolygonVertices(ImmutableList.of())
         .setId(1L)
@@ -194,7 +186,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setJobId("job id")
         .setClientTimestamp(new Date())
         .build();
   }
@@ -202,6 +193,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static LocationOfInterestMutation createTestPolygonFeatureMutation(
       ImmutableList<Point> polygonVertices) {
     return LocationOfInterestMutation.builder()
+        .setJobId("job id")
         .setLocation(Optional.empty())
         .setPolygonVertices(polygonVertices)
         .setId(1L)
@@ -210,7 +202,6 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .setSyncStatus(SyncStatus.PENDING)
         .setUserId("user id")
         .setSurveyId("survey id")
-        .setJobId("job id")
         .setClientTimestamp(new Date())
         .build();
   }
@@ -219,7 +210,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     assertThat(mutation.getSubmissionId()).isEqualTo(submission.getId());
     assertThat(mutation.getLocationOfInterestId())
         .isEqualTo(submission.getLocationOfInterest().getId());
-    assertThat(mutation.getTask()).isEqualTo(submission.getTask());
+    assertThat(mutation.getJob()).isEqualTo(submission.getJob());
     assertThat(mutation.getSurveyId()).isEqualTo(submission.getSurvey().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getLastModified().getUser().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getCreated().getUser().getId());
@@ -237,7 +228,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   @Test
   public void testGetSurveyById() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
-    localDataStore.getSurveyById("survey id").test().assertValue(TEST_SURVEY);
+    localDataStore.getSurveyById(TEST_SURVEY.getId()).test().assertValue(TEST_SURVEY);
   }
 
   @Test
@@ -437,9 +428,9 @@ public class LocalDataStoreTest extends BaseHiltTest {
     ImmutableList<ResponseDelta> deltas =
         ImmutableList.of(
             ResponseDelta.builder()
-                .setFieldId("field id")
-                .setFieldType(Field.Type.TEXT_FIELD)
-                .setNewResponse(TextResponse.fromString("value for the really new field"))
+                .setTaskId("task id")
+                .setTaskType(Task.Type.TEXT_FIELD)
+                .setNewResponse(TextResponse.fromString("value for the really new task"))
                 .build());
 
     SubmissionMutation mutation =
@@ -461,7 +452,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     // also test that getSubmissions returns the same submission as well
     ImmutableList<Submission> submissions =
-        localDataStore.getSubmissions(feature, "task id").blockingGet();
+        localDataStore.getSubmissions(feature, "job id").blockingGet();
     assertThat(submissions).hasSize(1);
     assertEquivalent(mutation, submissions.get(0));
   }
@@ -477,7 +468,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     ResponseMap responseMap =
         ResponseMap.builder()
-            .putResponse("field id", TextResponse.fromString("foo value").get())
+            .putResponse("task id", TextResponse.fromString("foo value").get())
             .build();
 
     Submission submission =
@@ -494,7 +485,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .values()
             .get(0)
             .getResponses();
-    assertThat("updated response").isEqualTo(responses.getResponse("field id").get().toString());
+    assertThat("updated response").isEqualTo(responses.getResponse("task id").get().toString());
   }
 
   @Test

@@ -96,12 +96,12 @@ public abstract class LocationOfInterestMutationEntity extends MutationEntity {
 
   public LocationOfInterestMutation toMutation() {
     return LocationOfInterestMutation.builder()
+        .setJobId(getJobId())
         .setLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setPolygonVertices(parseVertices(getNewPolygonVertices()))
         .setId(getId())
         .setSurveyId(getSurveyId())
         .setLocationOfInterestId(getLocationOfInterestId())
-        .setJobId(getJobId())
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())

@@ -19,20 +19,32 @@ package com.google.android.ground.persistence.local.room.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.ground.model.task.Step;
-import com.google.android.ground.model.task.Step.Type;
+import com.google.android.ground.model.task.Task.Type;
 import com.google.android.ground.persistence.local.room.IntEnum;
+import com.google.common.collect.ImmutableBiMap;
 
-/**
- * Defines how Room represents element types in the local db.
- */
-public enum StepEntityType implements IntEnum {
+public enum TaskEntityType implements IntEnum {
   UNKNOWN(0),
-  FIELD(1);
+  TEXT(1),
+  MULTIPLE_CHOICE(2),
+  PHOTO(3),
+  NUMBER(4),
+  DATE(5),
+  TIME(6);
 
   private final int intValue;
 
-  StepEntityType(int intValue) {
+  private static final ImmutableBiMap<TaskEntityType, Type> TASK_TYPES =
+      ImmutableBiMap.<TaskEntityType, Type>builder()
+          .put(TEXT, Type.TEXT_FIELD)
+          .put(MULTIPLE_CHOICE, Type.MULTIPLE_CHOICE)
+          .put(PHOTO, Type.PHOTO)
+          .put(NUMBER, Type.NUMBER)
+          .put(DATE, Type.DATE)
+          .put(TIME, Type.TIME)
+          .build();
+
+  TaskEntityType(int intValue) {
     this.intValue = intValue;
   }
 
@@ -41,28 +53,22 @@ public enum StepEntityType implements IntEnum {
     return intValue;
   }
 
-  public static StepEntityType fromStepType(Step.Type type) {
-    if (type == Type.FIELD) {
-      return FIELD;
-    }
-    return UNKNOWN;
+  public static TaskEntityType fromTaskType(Type type) {
+    return TASK_TYPES.inverse().getOrDefault(type, TaskEntityType.UNKNOWN);
   }
 
-  public Step.Type toStepType() {
-    if (this == StepEntityType.FIELD) {
-      return Type.FIELD;
-    }
-    return Type.UNKNOWN;
+  public Type toTaskType() {
+    return TASK_TYPES.getOrDefault(this, Type.UNKNOWN);
   }
 
   @TypeConverter
-  public static int toInt(@Nullable StepEntityType value) {
+  public static int toInt(@Nullable TaskEntityType value) {
     return IntEnum.toInt(value, UNKNOWN);
   }
 
   @NonNull
   @TypeConverter
-  public static StepEntityType fromInt(int intValue) {
+  public static TaskEntityType fromInt(int intValue) {
     return IntEnum.fromInt(values(), intValue, UNKNOWN);
   }
 }

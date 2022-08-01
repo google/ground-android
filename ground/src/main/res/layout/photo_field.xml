@@ -47,7 +47,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"
-      android:onClick="@{() -> editSubmissionViewModel.clearPhoto(viewModel.getField().getId())}"
+      android:onClick="@{() -> editSubmissionViewModel.clearPhoto(viewModel.getTask().getId())}"
       android:visibility="@{viewModel.isEditable() ? View.VISIBLE : View.GONE}"
       app:backgroundTint="@android:color/transparent"
       app:srcCompat="@drawable/ic_baseline_delete_24"

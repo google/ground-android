@@ -16,41 +16,46 @@
 
 package com.google.android.ground.model.task;
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.android.ground.model.submission.Response;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-import java8.util.Comparators;
-import java8.util.Optional;
+import javax.annotation.Nullable;
 
 /**
- * Describes the layout, field types, and validation rules of a user-defined task. Does not contain
- * actual task responses (see {@link Response} instead.
+ * Describes a user-defined task. Does not contain actual task responses (see {@link Response}
+ * instead.
  */
 @AutoValue
 public abstract class Task {
+  /**
+   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME! TODO: Define
+   * these in data layer!
+   */
+  public enum Type {
+    UNKNOWN,
+    TEXT_FIELD,
+    MULTIPLE_CHOICE,
+    PHOTO,
+    NUMBER,
+    DATE,
+    TIME
+  }
 
   public abstract String getId();
 
-  public abstract ImmutableList<Step> getSteps();
+  /** Returns the sequential index of the task, used by UIs to sort prompts and results. */
+  public abstract int getIndex();
 
-  public ImmutableList<Step> getStepsSorted() {
-    return stream(getSteps())
-        .sorted(Comparators.comparing(e -> e.getIndex()))
-        .collect(toImmutableList());
-  }
+  public abstract Type getType();
 
-  public Optional<Field> getField(String id) {
-    return stream(getSteps())
-        .map(Step::getField)
-        .filter(f -> f != null && f.getId().equals(id))
-        .findFirst();
-  }
+  public abstract String getLabel();
+
+  public abstract boolean isRequired();
+
+  @Nullable
+  public abstract MultipleChoice getMultipleChoice();
 
   public static Builder newBuilder() {
-    return new AutoValue_Task.Builder().setSteps(ImmutableList.of());
+    return new AutoValue_Task.Builder();
   }
 
   @AutoValue.Builder
@@ -58,7 +63,15 @@ public abstract class Task {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setSteps(ImmutableList<Step> newStepsList);
+    public abstract Builder setIndex(int newIndex);
+
+    public abstract Builder setType(Type newType);
+
+    public abstract Builder setLabel(String newLabel);
+
+    public abstract Builder setRequired(boolean newRequired);
+
+    public abstract Builder setMultipleChoice(@Nullable MultipleChoice multipleChoice);
 
     public abstract Task build();
   }

@@ -18,26 +18,65 @@ package com.google.android.ground.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.Collections;
 import java.util.Map;
-import java8.util.Objects;
 
-/** Firestore representation of task definitions. */
+/** Firestore representation of a data collection task. */
 @IgnoreExtraProperties
 class TaskNestedObject {
 
-  @Nullable
-  private Map<String, ElementNestedObject> elements;
+  @Nullable private Integer index;
+  @Nullable private String type;
+  @Nullable private String cardinality;
+  @Nullable private String label;
+  @Nullable private Map<String, OptionNestedObject> options;
+  @Nullable private Boolean required;
 
   @SuppressWarnings("unused")
   public TaskNestedObject() {}
 
   @SuppressWarnings("unused")
-  TaskNestedObject(@Nullable Map<String, ElementNestedObject> elements) {
-    this.elements = elements;
+  TaskNestedObject(
+      @Nullable Integer index,
+      @Nullable String type,
+      @Nullable String cardinality,
+      @Nullable String label,
+      @Nullable Map<String, OptionNestedObject> options,
+      @Nullable Boolean required) {
+    this.index = index;
+    this.type = type;
+    this.cardinality = cardinality;
+    this.label = label;
+    this.options = options;
+    this.required = required;
   }
 
-  public Map<String, ElementNestedObject> getElements() {
-    return Objects.requireNonNullElse(elements, Collections.emptyMap());
+  @Nullable
+  public Integer getIndex() {
+    return index;
+  }
+
+  @Nullable
+  public String getType() {
+    return type;
+  }
+
+  @Nullable
+  public String getCardinality() {
+    return cardinality;
+  }
+
+  @Nullable
+  public String getLabel() {
+    return label;
+  }
+
+  @Nullable
+  public Map<String, OptionNestedObject> getOptions() {
+    return options;
+  }
+
+  @Nullable
+  public Boolean getRequired() {
+    return required;
   }
 }

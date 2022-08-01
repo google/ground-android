@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.local;
 import com.google.android.ground.persistence.local.room.LocalDatabase;
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore;
 import com.google.android.ground.persistence.local.room.dao.BaseMapDao;
-import com.google.android.ground.persistence.local.room.dao.FieldDao;
 import com.google.android.ground.persistence.local.room.dao.JobDao;
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao;
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao;
@@ -51,11 +50,6 @@ public abstract class LocalDataStoreModule {
   @Provides
   static LocationOfInterestMutationDao locationOfInterestMutationDao(LocalDatabase localDatabase) {
     return localDatabase.locationOfInterestMutationDao();
-  }
-
-  @Provides
-  static FieldDao fieldDao(LocalDatabase localDatabase) {
-    return localDatabase.fieldDao();
   }
 
   @Provides

@@ -31,7 +31,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation.Type;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.SurveyRepository;
 import com.google.android.ground.repository.UserRepository;
@@ -85,13 +84,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<LocationOfInterestMutation> updateLocationOfInterestRequests =
       PublishProcessor.create();
 
-  @Hot
-  private final FlowableProcessor<LocationOfInterestMutation> deleteLocationOfInterestRequests =
-      PublishProcessor.create();
-
   @Hot private final Flowable<LocationOfInterest> addLocationOfInterestResults;
   @Hot private final Flowable<Boolean> updateLocationOfInterestResults;
-  @Hot private final Flowable<Boolean> deleteLocationOfInterestResults;
 
   @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
@@ -120,11 +114,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
                     .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
                     .doOnError(errors::onNext)
                     .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
-    deleteLocationOfInterestResults =
-        deleteLocationOfInterestRequests.switchMapSingle(
-            mutation ->
-                toBooleanSingle(
-                    locationOfInterestRepository.applyAndEnqueue(mutation), errors::onNext));
     updateLocationOfInterestResults =
         updateLocationOfInterestRequests.switchMapSingle(
             mutation ->
@@ -143,10 +132,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public Flowable<Boolean> getUpdateLocationOfInterestResults() {
     return updateLocationOfInterestResults;
-  }
-
-  public Flowable<Boolean> getDeleteLocationOfInterestResults() {
-    return deleteLocationOfInterestResults;
   }
 
   public Flowable<Throwable> getErrors() {
@@ -187,11 +172,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
         locationOfInterest.toMutation(Type.UPDATE, userRepository.getCurrentUser().getId()));
   }
 
-  public void deleteLocationOfInterest(LocationOfInterest locationOfInterest) {
-    deleteLocationOfInterestRequests.onNext(
-        locationOfInterest.toMutation(Type.DELETE, userRepository.getCurrentUser().getId()));
-  }
-
   public boolean shouldShowSurveySelectorOnStart() {
     return surveyRepository.getLastActiveSurveyId().isEmpty();
   }
@@ -222,10 +202,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showBottomSheet(locationOfInterest);
   }
 
-  private void showBottomSheet(LocationOfInterest locationOfInterest) {
+  private void showBottomSheet(LocationOfInterest loi) {
     Timber.d("showing bottom sheet");
     isSubmissionButtonVisible.setValue(true);
-    bottomSheetState.setValue(BottomSheetState.visible(locationOfInterest));
+    bottomSheetState.setValue(BottomSheetState.visible(loi));
   }
 
   public void onBottomSheetHidden() {
@@ -240,26 +220,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
 
-    Optional<LocationOfInterest> optionalLocationOfInterest = state.getLocationOfInterest();
-    if (optionalLocationOfInterest.isEmpty()) {
-      Timber.e("Missing locationOfInterest");
+    LocationOfInterest loi = state.getLocationOfInterest();
+    if (loi == null) {
+      Timber.e("Missing loi");
       return;
     }
-    LocationOfInterest locationOfInterest = optionalLocationOfInterest.get();
-    Optional<Task> form = locationOfInterest.getJob().getTask();
-    if (form.isEmpty()) {
-      // .TODO: Hide Add Submission button if no forms defined.
-      Timber.e("No tasks in job");
-      return;
-    }
-    Survey survey = locationOfInterest.getSurvey();
+    Survey survey = loi.getSurvey();
     if (survey == null) {
       Timber.e("Missing survey");
       return;
     }
     navigator.navigate(
         HomeScreenFragmentDirections.addSubmission(
-            survey.getId(), locationOfInterest.getId(), form.get().getId()));
+            survey.getId(), loi.getId(), loi.getJob().getId()));
   }
 
   public void init() {

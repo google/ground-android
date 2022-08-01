@@ -27,7 +27,6 @@ sealed class Mutation {
     abstract val syncStatus: SyncStatus
     abstract val surveyId: String
     abstract val locationOfInterestId: String
-    abstract val jobId: String
     abstract val userId: String
     abstract val clientTimestamp: Date
     abstract val retryCount: Long
@@ -83,8 +82,6 @@ sealed class Mutation {
             @JvmSynthetic set
         var locationOfInterestId: String = ""
             @JvmSynthetic set
-        var jobId: String = ""
-            @JvmSynthetic set
         var userId: String = ""
             @JvmSynthetic set
         var clientTimestamp: Date = Date()
@@ -103,7 +100,6 @@ sealed class Mutation {
         fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> =
             apply { this.locationOfInterestId = locationOfInterestId }
 
-        fun setJobId(jobId: String): Builder<T> = apply { this.jobId = jobId }
         fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
         fun setClientTimestamp(timestamp: Date): Builder<T> =
             apply { this.clientTimestamp = timestamp }
@@ -118,7 +114,6 @@ sealed class Mutation {
                 syncStatus = mutation.syncStatus
                 surveyId = mutation.surveyId
                 locationOfInterestId = mutation.locationOfInterestId
-                jobId = mutation.jobId
                 userId = mutation.userId
                 clientTimestamp = mutation.clientTimestamp
                 retryCount = mutation.retryCount

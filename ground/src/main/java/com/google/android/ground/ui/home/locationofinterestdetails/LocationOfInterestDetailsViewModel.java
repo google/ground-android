@@ -59,7 +59,6 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
   private final LiveData<String> subtitle;
   private final LiveData<Boolean> showUploadPendingIcon;
   private final LiveData<Boolean> moveMenuOptionVisible;
-  private final LiveData<Boolean> deleteMenuOptionVisible;
 
   @Inject
   public LocationOfInterestDetailsViewModel(
@@ -86,11 +85,6 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
             selectedLocationOfInterest.map(
                 locationOfInterest ->
                     locationOfInterest.map(this::isMoveMenuOptionVisible).orElse(true)));
-    this.deleteMenuOptionVisible =
-        LiveDataReactiveStreams.fromPublisher(
-            selectedLocationOfInterest.map(
-                locationOfInterest ->
-                    locationOfInterest.map(this::isDeleteMenuOptionVisible).orElse(true)));
     Flowable<ImmutableList<LocationOfInterestMutation>> locationOfInterestMutations =
         selectedLocationOfInterest.switchMap(
             this::getIncompleteLocationOfInterestMutationsOnceAndStream);
@@ -128,11 +122,6 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
   private boolean isMoveMenuOptionVisible(LocationOfInterest locationOfInterest) {
     return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest)
         && locationOfInterest.isPoint();
-  }
-
-  /** Returns true if the user has permissions to modify the locationOfInterest. */
-  private boolean isDeleteMenuOptionVisible(LocationOfInterest locationOfInterest) {
-    return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest);
   }
 
   private Flowable<ImmutableList<LocationOfInterestMutation>>
@@ -186,9 +175,5 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
 
   public LiveData<Boolean> isMoveMenuOptionVisible() {
     return moveMenuOptionVisible;
-  }
-
-  public LiveData<Boolean> isDeleteMenuOptionVisible() {
-    return deleteMenuOptionVisible;
   }
 }

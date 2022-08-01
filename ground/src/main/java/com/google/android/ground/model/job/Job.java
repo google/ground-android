@@ -16,22 +16,34 @@
 
 package com.google.android.ground.model.job;
 
+import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.model.task.Task;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java8.util.Comparators;
 import java8.util.Optional;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Job {
   public abstract String getId();
 
-  public abstract String getName();
+  public abstract @Nullable String getName();
 
-  public abstract Optional<Task> getTask();
+  public abstract ImmutableMap<String, Task> getTasks();
 
-  public Optional<Task> getTask(String taskId) {
-    return getTask().filter(task -> task.getId().equals(taskId));
+  public ImmutableList<Task> getTasksSorted() {
+    return stream(getTasks().values())
+        .sorted(Comparators.comparing(e -> e.getIndex()))
+        .collect(toImmutableList());
+  }
+
+  public Optional<Task> getTask(String id) {
+    return Optional.ofNullable(getTasks().get(id));
   }
 
   /** Returns the list of location of interest types the current user may add to this job. */
@@ -40,7 +52,7 @@ public abstract class Job {
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Job.Builder().setTask(Optional.empty()).setUserCanAdd(ImmutableList.of());
+    return new AutoValue_Job.Builder().setUserCanAdd(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -48,16 +60,17 @@ public abstract class Job {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setName(String newName);
+    public abstract Builder setName(@Nullable String newName);
 
-    public abstract Builder setTask(Optional<Task> task);
+    public abstract ImmutableMap.Builder<String, Task> tasksBuilder();
 
     public abstract Builder setUserCanAdd(ImmutableList<LocationOfInterestType> userCanAdd);
 
-    public Builder setTask(Task task) {
-      return setTask(Optional.of(task));
-    }
-
     public abstract Job build();
+
+    public Builder addTask(Task task) {
+      tasksBuilder().put(task.getId(), task);
+      return this;
+    }
   }
 }

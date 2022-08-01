@@ -18,8 +18,8 @@ package com.google.android.ground.persistence.local.room.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.ResponseMap;
-import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import java.util.Iterator;
@@ -27,20 +27,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-/**
- * Converts between {@link ResponseMap} and JSON strings used to represent them in the local db.
- */
+/** Converts between {@link ResponseMap} and JSON strings used to represent them in the local db. */
 public class ResponseMapConverter {
 
   @Nullable
   public static String toString(@NonNull ResponseMap responseDeltas) {
     JSONObject json = new JSONObject();
-    for (String fieldId : responseDeltas.fieldIds()) {
+    for (String taskId : responseDeltas.taskIds()) {
       try {
         json.put(
-            fieldId,
+            taskId,
             responseDeltas
-                .getResponse(fieldId)
+                .getResponse(taskId)
                 .map(ResponseJsonConverter::toJsonObject)
                 .orElse(null));
       } catch (JSONException e) {
@@ -51,7 +49,7 @@ public class ResponseMapConverter {
   }
 
   @NonNull
-  public static ResponseMap fromString(Task task, @Nullable String jsonString) {
+  public static ResponseMap fromString(Job job, @Nullable String jsonString) {
     ResponseMap.Builder map = ResponseMap.builder();
     if (jsonString == null) {
       return map.build();
@@ -61,13 +59,13 @@ public class ResponseMapConverter {
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
         try {
-          String fieldId = keys.next();
-          Field field =
-              task.getField(fieldId)
+          String taskId = keys.next();
+          Task task =
+              job.getTask(taskId)
                   .orElseThrow(
-                      () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
-          ResponseJsonConverter.toResponse(field, jsonObject.get(fieldId))
-              .ifPresent(response -> map.putResponse(fieldId, response));
+                      () -> new LocalDataConsistencyException("Unknown task id " + taskId));
+          ResponseJsonConverter.toResponse(task, jsonObject.get(taskId))
+              .ifPresent(response -> map.putResponse(taskId, response));
         } catch (LocalDataConsistencyException e) {
           Timber.d("Bad response in local db: " + e.getMessage());
         }

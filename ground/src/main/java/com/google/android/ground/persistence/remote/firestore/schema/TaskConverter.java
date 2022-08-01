@@ -16,24 +16,32 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
+import static com.google.android.ground.util.Enums.toEnum;
 
-import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
-import com.google.common.collect.ImmutableList;
-import java.util.Map;
+import java8.util.Objects;
+import java8.util.Optional;
+import timber.log.Timber;
 
 /** Converts between Firestore nested objects and {@link Task} instances. */
 class TaskConverter {
 
-  static Task toTask(String taskId, TaskNestedObject obj) {
-    return Task.newBuilder().setId(taskId).setSteps(toList(obj.getElements())).build();
-  }
-
-  private static ImmutableList<Step> toList(Map<String, ElementNestedObject> elements) {
-    return stream(elements.entrySet())
-        .map(e -> ElementConverter.toStep(e.getKey(), e.getValue()))
-        .collect(toImmutableList());
+  static Optional<Task> toTask(String id, TaskNestedObject em) {
+    Task.Type type = toEnum(Task.Type.class, em.getType());
+    if (type == Task.Type.UNKNOWN) {
+      Timber.d("Unsupported task type: " + em.getType());
+      return Optional.empty();
+    }
+    Task.Builder task = Task.newBuilder();
+    task.setType(type);
+    if (type == Task.Type.MULTIPLE_CHOICE) {
+      task.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
+    }
+    task.setRequired(em.getRequired() != null && em.getRequired());
+    task.setId(id);
+    // Default index to -1 to degrade gracefully on older dev db instances and surveys.
+    task.setIndex(Objects.requireNonNullElse(em.getIndex(), -1));
+    task.setLabel(em.getLabel());
+    return Optional.of(task.build());
   }
 }

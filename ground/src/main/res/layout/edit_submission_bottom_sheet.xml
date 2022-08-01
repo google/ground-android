@@ -20,8 +20,8 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.ground.model.task.Field" />
+      name="task"
+      type="com.google.android.ground.model.task.Task" />
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.editsubmission.EditSubmissionViewModel" />

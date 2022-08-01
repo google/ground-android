@@ -18,20 +18,22 @@ package com.google.android.ground.persistence.local.room.relations;
 
 import androidx.room.Embedded;
 import androidx.room.Relation;
-import com.google.android.ground.persistence.local.room.entity.FieldEntity;
+import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity;
+import com.google.android.ground.persistence.local.room.entity.OptionEntity;
 import com.google.android.ground.persistence.local.room.entity.TaskEntity;
 import java.util.List;
 
 /**
- * Represents relationship among TaskEntity and FieldEntity.
+ * Represents relationship between TaskEntity, MultipleChoiceEntity, and OptionEntity.
  *
- * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
+ * <p>Querying any of the below data classes automatically loads the task annotated as @Relation.
  */
 public class TaskEntityAndRelations {
+  @Embedded public TaskEntity taskEntity;
 
-  @Embedded
-  public TaskEntity taskEntity;
+  @Relation(parentColumn = "id", entityColumn = "task_id", entity = MultipleChoiceEntity.class)
+  public List<MultipleChoiceEntity> multipleChoiceEntities;
 
-  @Relation(parentColumn = "id", entityColumn = "task_id", entity = FieldEntity.class)
-  public List<FieldEntityAndRelations> fieldEntityAndRelations;
+  @Relation(parentColumn = "id", entityColumn = "task_id", entity = OptionEntity.class)
+  public List<OptionEntity> optionEntities;
 }

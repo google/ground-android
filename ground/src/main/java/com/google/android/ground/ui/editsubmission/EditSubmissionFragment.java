@@ -53,11 +53,10 @@ import com.google.android.ground.databinding.PhotoInputFieldBinding;
 import com.google.android.ground.databinding.PhotoInputFieldBindingImpl;
 import com.google.android.ground.databinding.TextInputFieldBinding;
 import com.google.android.ground.databinding.TimeInputFieldBinding;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.MultipleChoiceResponse;
-import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Option;
-import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.UserMediaRepository;
 import com.google.android.ground.rx.Schedulers;
@@ -84,39 +83,26 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class EditSubmissionFragment extends AbstractFragment implements BackPressListener {
 
-  /**
-   * String constant keys used for persisting state in {@see Bundle} objects.
-   */
+  /** String constant keys used for persisting state in {@see Bundle} objects. */
   private static final class BundleKeys {
 
-    /**
-     * Key used to store unsaved responses across activity re-creation.
-     */
+    /** Key used to store unsaved responses across activity re-creation. */
     private static final String RESTORED_RESPONSES = "restoredResponses";
 
-    /**
-     * Key used to store field ID waiting for photo response across activity re-creation.
-     */
-    private static final String FIELD_WAITING_FOR_PHOTO = "photoFieldId";
+    /** Key used to store field ID waiting for photo response across activity re-creation. */
+    private static final String TASK_WAITING_FOR_PHOTO = "photoFieldId";
 
-    /**
-     * Key used to store captured photo Uri across activity re-creation.
-     */
+    /** Key used to store captured photo Uri across activity re-creation. */
     private static final String CAPTURED_PHOTO_PATH = "capturedPhotoPath";
   }
 
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
 
-  @Inject
-  Navigator navigator;
-  @Inject
-  FieldViewFactory fieldViewFactory;
-  @Inject
-  EphemeralPopups popups;
-  @Inject
-  Schedulers schedulers;
-  @Inject
-  UserMediaRepository userMediaRepository;
+  @Inject Navigator navigator;
+  @Inject FieldViewFactory fieldViewFactory;
+  @Inject EphemeralPopups popups;
+  @Inject Schedulers schedulers;
+  @Inject UserMediaRepository userMediaRepository;
 
   private EditSubmissionViewModel viewModel;
   private EditSubmissionFragBinding binding;
@@ -170,7 +156,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
-    viewModel.getTask().observe(getViewLifecycleOwner(), this::rebuildTask);
+    viewModel.getJob().observe(getViewLifecycleOwner(), this::rebuildForm);
     viewModel
         .getSaveResults()
         .observeOn(schedulers.ui())
@@ -183,8 +169,8 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       args.putSerializable(
           BundleKeys.RESTORED_RESPONSES,
           savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES));
-      viewModel.setFieldWaitingForPhoto(
-          savedInstanceState.getString(BundleKeys.FIELD_WAITING_FOR_PHOTO));
+      viewModel.setTaskWaitingForPhoto(
+          savedInstanceState.getString(BundleKeys.TASK_WAITING_FOR_PHOTO));
       viewModel.setCapturedPhotoPath(
           savedInstanceState.getParcelable(BundleKeys.CAPTURED_PHOTO_PATH));
     }
@@ -195,7 +181,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
-    outState.putString(BundleKeys.FIELD_WAITING_FOR_PHOTO, viewModel.getFieldWaitingForPhoto());
+    outState.putString(BundleKeys.TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto());
     outState.putString(BundleKeys.CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath());
   }
 
@@ -218,13 +204,13 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     }
   }
 
-  private void addFieldViewModel(Field field, ViewDataBinding binding) {
+  private void addFieldViewModel(Task task, ViewDataBinding binding) {
     if (binding instanceof PhotoInputFieldBindingImpl) {
       ((PhotoInputFieldBindingImpl) binding).setEditSubmissionViewModel(viewModel);
     }
 
     AbstractFieldViewModel fieldViewModel = getViewModel(binding);
-    fieldViewModel.initialize(field, viewModel.getResponse(field.getId()));
+    fieldViewModel.initialize(task, viewModel.getResponse(task.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
@@ -236,7 +222,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       observeTimeDialogClicks((TimeFieldViewModel) fieldViewModel);
     }
 
-    fieldViewModel.getResponse().observe(this, response -> viewModel.setResponse(field, response));
+    fieldViewModel.getResponse().observe(this, response -> viewModel.setResponse(task, response));
 
     fieldViewModelList.add(fieldViewModel);
   }
@@ -259,7 +245,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     for (AbstractFieldViewModel fieldViewModel : fieldViewModelList) {
       fieldViewModel
           .validate()
-          .ifPresent(error -> errors.put(fieldViewModel.getField().getId(), error));
+          .ifPresent(error -> errors.put(fieldViewModel.getTask().getId(), error));
     }
     return errors;
   }
@@ -278,22 +264,13 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         .subscribe(__ -> showTimeDialog(timeFieldViewModel));
   }
 
-  private void rebuildTask(Task task) {
+  private void rebuildForm(Job job) {
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();
-    for (Step step : task.getStepsSorted()) {
-      switch (step.getType()) {
-        case FIELD:
-          Field field = step.getField();
-          ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
-          addFieldViewModel(field, binding);
-          break;
-        case UNKNOWN:
-        default:
-          Timber.e("%s task steps not yet supported", step.getType());
-          break;
-      }
+    for (Task task : job.getTasksSorted()) {
+      ViewDataBinding binding = fieldViewFactory.addFieldView(task.getType(), formLayout);
+      addFieldViewModel(task, binding);
     }
   }
 
@@ -304,22 +281,22 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         .subscribe(
             __ ->
                 createMultipleChoiceDialog(
-                    viewModel.getField(),
-                    viewModel.getCurrentResponse(),
-                    viewModel::updateResponse)
+                        viewModel.getTask(),
+                        viewModel.getCurrentResponse(),
+                        viewModel::updateResponse)
                     .show());
   }
 
   private AlertDialog createMultipleChoiceDialog(
-      Field field,
+      Task task,
       Optional<MultipleChoiceResponse> response,
       Consumer<ImmutableList<Option>> consumer) {
-    MultipleChoice multipleChoice = requireNonNull(field.getMultipleChoice());
+    MultipleChoice multipleChoice = requireNonNull(task.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
         return MultiSelectDialogFactory.builder()
             .setContext(requireContext())
-            .setTitle(field.getLabel())
+            .setTitle(task.getLabel())
             .setMultipleChoice(multipleChoice)
             .setCurrentResponse(response)
             .setValueConsumer(consumer)
@@ -328,7 +305,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       case SELECT_ONE:
         return SingleSelectDialogFactory.builder()
             .setContext(requireContext())
-            .setTitle(field.getLabel())
+            .setTitle(task.getLabel())
             .setMultipleChoice(multipleChoice)
             .setCurrentResponse(response)
             .setValueConsumer(consumer)
@@ -351,7 +328,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
     fieldViewModel
         .getShowDialogClicks()
-        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getField()));
+        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getTask()));
   }
 
   private void observePhotoResults(PhotoFieldViewModel fieldViewModel) {
@@ -361,11 +338,11 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         .subscribe(fieldViewModel::onPhotoResult);
   }
 
-  private void onShowPhotoSelectorDialog(Field field) {
+  private void onShowPhotoSelectorDialog(Task task) {
     EditSubmissionBottomSheetBinding addPhotoBottomSheetBinding =
         EditSubmissionBottomSheetBinding.inflate(getLayoutInflater());
     addPhotoBottomSheetBinding.setViewModel(viewModel);
-    addPhotoBottomSheetBinding.setField(field);
+    addPhotoBottomSheetBinding.setTask(task);
 
     BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
     bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
@@ -379,7 +356,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         new AddPhotoDialogAdapter(
             type -> {
               bottomSheetDialog.dismiss();
-              onSelectPhotoClick(type, field.getId());
+              onSelectPhotoClick(type, task.getId());
             }));
   }
 
@@ -446,17 +423,17 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     }
   }
 
-  private void launchPhotoCapture(String fieldId) {
-    File photoFile = userMediaRepository.createImageFile(fieldId);
+  private void launchPhotoCapture(String taskId) {
+    File photoFile = userMediaRepository.createImageFile(taskId);
     Uri uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile);
-    viewModel.setFieldWaitingForPhoto(fieldId);
+    viewModel.setTaskWaitingForPhoto(taskId);
     viewModel.setCapturedPhotoPath(photoFile.getAbsolutePath());
     capturePhotoLauncher.launch(uri);
     Timber.d("Capture photo intent sent");
   }
 
-  private void launchPhotoSelector(String fieldId) {
-    viewModel.setFieldWaitingForPhoto(fieldId);
+  private void launchPhotoSelector(String taskId) {
+    viewModel.setTaskWaitingForPhoto(taskId);
     selectPhotoLauncher.launch("image/*");
     Timber.d("Select photo intent sent");
   }
@@ -482,8 +459,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     new AlertDialog.Builder(requireContext())
         .setMessage(R.string.unsaved_changes)
         .setPositiveButton(R.string.discard_changes, (d, i) -> navigator.navigateUp())
-        .setNegativeButton(R.string.continue_editing, (d, i) -> {
-        })
+        .setNegativeButton(R.string.continue_editing, (d, i) -> {})
         .create()
         .show();
   }
@@ -491,8 +467,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private void showValidationErrorsAlert() {
     new AlertDialog.Builder(requireContext())
         .setMessage(R.string.invalid_data_warning)
-        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {
-        })
+        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
   }

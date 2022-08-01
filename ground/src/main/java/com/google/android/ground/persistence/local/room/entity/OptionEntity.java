@@ -30,11 +30,11 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     tableName = "option",
     foreignKeys =
     @ForeignKey(
-        entity = FieldEntity.class,
+        entity = TaskEntity.class,
         parentColumns = "id",
-        childColumns = "field_id",
+        childColumns = "task_id",
         onDelete = ForeignKey.CASCADE),
-    indices = {@Index("field_id")},
+    indices = {@Index("task_id")},
     primaryKeys = {"id"})
 public abstract class OptionEntity {
 
@@ -55,13 +55,13 @@ public abstract class OptionEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "field_id")
-  public abstract String getFieldId();
+  @ColumnInfo(name = "task_id")
+  public abstract String getTaskId();
 
-  public static OptionEntity fromOption(String fieldId, Option option) {
+  public static OptionEntity fromOption(String taskId, Option option) {
     return OptionEntity.builder()
         .setId(option.getId())
-        .setFieldId(fieldId)
+        .setTaskId(taskId)
         .setCode(option.getCode())
         .setLabel(option.getLabel())
         .build();
@@ -75,8 +75,8 @@ public abstract class OptionEntity {
         .build();
   }
 
-  public static OptionEntity create(String id, String code, String label, String fieldId) {
-    return builder().setId(id).setCode(code).setLabel(label).setFieldId(fieldId).build();
+  public static OptionEntity create(String id, String code, String label, String taskId) {
+    return builder().setId(id).setCode(code).setLabel(label).setTaskId(taskId).build();
   }
 
   public static Builder builder() {
@@ -92,7 +92,7 @@ public abstract class OptionEntity {
 
     public abstract Builder setLabel(String label);
 
-    public abstract Builder setFieldId(String fieldId);
+    public abstract Builder setTaskId(String taskId);
 
     public abstract OptionEntity build();
   }

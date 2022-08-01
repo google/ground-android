@@ -23,23 +23,23 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
-import com.google.android.ground.persistence.local.room.relations.FieldEntityAndRelations;
+import com.google.android.ground.persistence.local.room.models.TaskEntityType;
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
+import timber.log.Timber;
 
 @AutoValue
 @Entity(
     tableName = "task",
     foreignKeys =
-    @ForeignKey(
-        entity = JobEntity.class,
-        parentColumns = "id",
-        childColumns = "job_id",
-        onDelete = ForeignKey.CASCADE),
+        @ForeignKey(
+            entity = JobEntity.class,
+            parentColumns = "id",
+            childColumns = "job_id",
+            onDelete = ForeignKey.CASCADE),
     indices = {@Index("job_id")})
 public abstract class TaskEntity {
 
@@ -50,34 +50,80 @@ public abstract class TaskEntity {
   public abstract String getId();
 
   @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "title")
-  public abstract String getTitle();
+  @ColumnInfo(name = "index")
+  public abstract int getIndex();
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "task_type")
+  public abstract TaskEntityType getTaskType();
+
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "label")
+  public abstract String getLabel();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "is_required")
+  public abstract boolean isRequired();
+
+  @CopyAnnotations
+  @Nullable
   @ColumnInfo(name = "job_id")
   public abstract String getJobId();
 
   public static TaskEntity fromTask(String jobId, Task task) {
-    return TaskEntity.builder().setId(task.getId()).setJobId(jobId).build();
+    return TaskEntity.builder()
+        .setId(task.getId())
+        .setJobId(jobId)
+        .setIndex(task.getIndex())
+        .setLabel(task.getLabel())
+        .setRequired(task.isRequired())
+        .setTaskType(TaskEntityType.fromTaskType(task.getType()))
+        .build();
   }
 
   static Task toTask(TaskEntityAndRelations taskEntityAndRelations) {
     TaskEntity taskEntity = taskEntityAndRelations.taskEntity;
-    Task.Builder taskBuilder = Task.newBuilder().setId(taskEntity.getId());
+    Task.Builder taskBuilder =
+        Task.newBuilder()
+            .setId(taskEntity.getId())
+            .setIndex(taskEntity.getIndex())
+            .setLabel(taskEntity.getLabel())
+            .setRequired(taskEntity.isRequired())
+            .setType(taskEntity.getTaskType().toTaskType());
 
-    ImmutableList.Builder<Step> listBuilder = ImmutableList.builder();
-    for (FieldEntityAndRelations fieldEntityAndRelations :
-        taskEntityAndRelations.fieldEntityAndRelations) {
-      listBuilder.add(FieldEntity.toStep(fieldEntityAndRelations));
+    List<MultipleChoiceEntity> multipleChoiceEntities =
+        taskEntityAndRelations.multipleChoiceEntities;
+
+    if (!multipleChoiceEntities.isEmpty()) {
+      if (multipleChoiceEntities.size() > 1) {
+        Timber.e("More than 1 multiple choice found for task");
+      }
+
+      taskBuilder.setMultipleChoice(
+          MultipleChoiceEntity.toMultipleChoice(
+              multipleChoiceEntities.get(0), taskEntityAndRelations.optionEntities));
     }
 
-    return taskBuilder.setSteps(listBuilder.build()).build();
+    return taskBuilder.build();
   }
 
-  public static TaskEntity create(String id, String title, String jobId) {
-    return builder().setId(id).setTitle(title).setJobId(jobId).build();
+  public static TaskEntity create(
+      String id,
+      Integer index,
+      TaskEntityType taskType,
+      String label,
+      boolean required,
+      String jobId) {
+    return builder()
+        .setId(id)
+        .setIndex(index)
+        .setTaskType(taskType)
+        .setLabel(label)
+        .setRequired(required)
+        .setJobId(jobId)
+        .build();
   }
 
   public static Builder builder() {
@@ -89,7 +135,13 @@ public abstract class TaskEntity {
 
     public abstract Builder setId(String id);
 
-    public abstract Builder setTitle(String title);
+    public abstract Builder setIndex(int id);
+
+    public abstract Builder setTaskType(TaskEntityType taskType);
+
+    public abstract Builder setLabel(String label);
+
+    public abstract Builder setRequired(boolean required);
 
     public abstract Builder setJobId(String jobId);
 

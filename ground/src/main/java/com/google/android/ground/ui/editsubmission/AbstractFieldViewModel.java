@@ -22,7 +22,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.R;
 import com.google.android.ground.model.submission.Response;
-import com.google.android.ground.model.task.Field;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractViewModel;
@@ -31,7 +31,7 @@ import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
 /**
- * Defines the state of an inflated {@link Field} and controls its UI.
+ * Defines the state of an inflated {@link Task} and controls its UI.
  */
 public class AbstractFieldViewModel extends AbstractViewModel {
 
@@ -57,7 +57,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final Resources resources;
 
   @SuppressWarnings("NullAway.Init")
-  private Field field;
+  private Task task;
 
   AbstractFieldViewModel(Resources resources) {
     this.resources = resources;
@@ -65,9 +65,9 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     responseText = LiveDataReactiveStreams.fromPublisher(getDetailsTextFlowable());
   }
 
-  // TODO: Add a reference of Field in Response for simplification.
-  void initialize(Field field, Optional<Response> response) {
-    this.field = field;
+  // TODO: Add a reference of Task in Response for simplification.
+  void initialize(Task task, Optional<Response> response) {
+    this.task = task;
     setResponse(response);
   }
 
@@ -82,26 +82,26 @@ public class AbstractFieldViewModel extends AbstractViewModel {
    * Checks if the current response is valid and updates error value.
    */
   public Optional<String> validate() {
-    Optional<String> result = validate(field, responseSubject.getValue());
+    Optional<String> result = validate(task, responseSubject.getValue());
     error.postValue(result.orElse(null));
     return result;
   }
 
   // TODO: Check valid response values
-  private Optional<String> validate(Field field, Optional<Response> response) {
-    if (field.isRequired() && (response == null || response.isEmpty())) {
-      return Optional.of(resources.getString(R.string.required_field));
+  private Optional<String> validate(Task task, Optional<Response> response) {
+    if (task.isRequired() && (response == null || response.isEmpty())) {
+      return Optional.of(resources.getString(R.string.required_task));
     }
     return Optional.empty();
   }
 
-  public Field getField() {
-    return field;
+  public Task getTask() {
+    return task;
   }
 
-  public String fieldLabel() {
-    StringBuilder label = new StringBuilder(field.getLabel());
-    if (field.isRequired()) {
+  public String taskLabel() {
+    StringBuilder label = new StringBuilder(task.getLabel());
+    if (task.isRequired()) {
       label.append(" *");
     }
     return label.toString();

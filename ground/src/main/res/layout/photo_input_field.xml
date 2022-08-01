@@ -40,7 +40,7 @@
       style="@style/EditSubmission.Field.Label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@{viewModel.fieldLabel()}" />
+      android:text="@{viewModel.taskLabel()}" />
 
     <include
       layout="@layout/photo_field"

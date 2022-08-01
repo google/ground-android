@@ -36,21 +36,33 @@
       android:layout_height="wrap_content"
       android:elevation="@dimen/toolbar_elevation"
       android:theme="@style/PrimaryToolbarTheme"
+      app:layout_constraintBottom_toTopOf="@+id/pager"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      app:subtitle="@{viewModel.loiName}"
       app:title="@{viewModel.jobName}"
       app:titleTextColor="@color/colorBackground" />
 
-    <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:gravity="center_vertical"
-      android:singleLine="true"
-      android:text="@{viewModel.loiName}"
-      android:textSize="16sp"
+    <androidx.viewpager2.widget.ViewPager2
+      android:id="@+id/pager"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      app:layout_constraintBottom_toTopOf="@+id/data_collection_next_button"
+      app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar" />
+
+    <Button
+      android:id="@+id/data_collection_next_button"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="28dp"
+      android:text="@string/next"
+      app:backgroundTint="@color/colorAccent"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/pager" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

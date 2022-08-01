@@ -37,9 +37,7 @@ import com.google.android.ground.databinding.SubmissionDetailsFragBinding;
 import com.google.android.ground.databinding.SubmissionDetailsFragBindingImpl;
 import com.google.android.ground.model.submission.Response;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.Field.Type;
-import com.google.android.ground.model.task.Step;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.rx.Loadable;
 import com.google.android.ground.ui.common.AbstractFragment;
 import com.google.android.ground.ui.common.EphemeralPopups;
@@ -114,26 +112,24 @@ public class SubmissionDetailsFragment extends AbstractFragment {
 
   private void showSubmission(Submission submission) {
     binding.submissionDetailsLayout.removeAllViews();
-    for (Step step : submission.getTask().getStepsSorted()) {
-      if (step.getType() == Step.Type.FIELD) {
-        addField(step.getField(), submission);
-      }
+    for (Task task : submission.getJob().getTasksSorted()) {
+      addField(task, submission);
     }
   }
 
-  private void addField(Field field, Submission submission) {
+  private void addField(Task task, Submission submission) {
     SubmissionDetailsFieldBinding fieldBinding =
         SubmissionDetailsFieldBindingImpl.inflate(getLayoutInflater());
-    fieldBinding.setField(field);
+    fieldBinding.setTask(task);
     fieldBinding.setLifecycleOwner(this);
     binding.submissionDetailsLayout.addView(fieldBinding.getRoot());
 
     submission
         .getResponses()
-        .getResponse(field.getId())
+        .getResponse(task.getId())
         .ifPresent(
             response -> {
-              if (field.getType() == Type.PHOTO) {
+              if (task.getType() == Task.Type.PHOTO) {
                 fieldBinding.fieldValue.setVisibility(View.GONE);
                 addPhotoField((ViewGroup) fieldBinding.getRoot(), response);
               } else {

@@ -25,7 +25,6 @@ import static com.google.android.ground.ui.util.ViewUtil.getScreenWidth;
 import static java.util.Objects.requireNonNull;
 
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -51,9 +50,9 @@ import com.google.android.ground.R;
 import com.google.android.ground.databinding.HomeScreenFragBinding;
 import com.google.android.ground.databinding.NavDrawerHeaderBinding;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.rx.Loadable;
 import com.google.android.ground.rx.Schedulers;
@@ -145,10 +144,6 @@ public class HomeScreenFragment extends AbstractFragment
         .getUpdateLocationOfInterestResults()
         .as(autoDisposable(this))
         .subscribe(this::onLocationOfInterestUpdated);
-    viewModel
-        .getDeleteLocationOfInterestResults()
-        .as(autoDisposable(this))
-        .subscribe(this::onLocationOfInterestDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     polygonDrawingViewModel
         .getDrawingState()
@@ -182,18 +177,15 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onLocationOfInterestAdded(LocationOfInterest locationOfInterest) {
-    locationOfInterest
-        .getJob()
-        .getTask()
-        .ifPresent(form -> addNewSubmission(locationOfInterest, form));
+    addNewSubmission(locationOfInterest, locationOfInterest.getJob());
   }
 
-  private void addNewSubmission(LocationOfInterest locationOfInterest, Task task) {
+  private void addNewSubmission(LocationOfInterest locationOfInterest, Job job) {
     String surveyId = locationOfInterest.getSurvey().getId();
     String locationOfInterestId = locationOfInterest.getId();
-    String taskId = task.getId();
+    String jobId = job.getId();
     navigator.navigate(
-        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, taskId));
+        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, jobId));
   }
 
   /**
@@ -203,13 +195,6 @@ public class HomeScreenFragment extends AbstractFragment
   private void onLocationOfInterestUpdated(Boolean result) {
     if (result) {
       mapContainerViewModel.setMode(Mode.DEFAULT);
-    }
-  }
-
-  private void onLocationOfInterestDeleted(Boolean result) {
-    if (result) {
-      // TODO: Re-position map to default location after successful deletion.
-      hideBottomSheet();
     }
   }
 
@@ -346,36 +331,12 @@ public class HomeScreenFragment extends AbstractFragment
       return false;
     }
 
+    Optional<LocationOfInterest> loi = Optional.ofNullable(state.getLocationOfInterest());
     if (item.getItemId() == R.id.move_loi_menu_item) {
       hideBottomSheet();
       mapContainerViewModel.setMode(Mode.MOVE_POINT);
-      mapContainerViewModel.setReposLocationOfInterest(state.getLocationOfInterest());
+      mapContainerViewModel.setReposLocationOfInterest(loi);
       Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
-    } else if (item.getItemId() == R.id.delete_loi_menu_item) {
-      Optional<LocationOfInterest> locationOfInterestToDelete = state.getLocationOfInterest();
-      if (locationOfInterestToDelete.isPresent()) {
-        new Builder(requireActivity())
-            .setTitle(
-                getString(
-                    R.string.loi_delete_confirmation_dialog_title,
-                    locationOfInterestHelper.getLabel(locationOfInterestToDelete)))
-            .setMessage(R.string.loi_delete_confirmation_dialog_message)
-            .setPositiveButton(
-                R.string.delete_button_label,
-                (dialog, id) -> {
-                  hideBottomSheet();
-                  viewModel.deleteLocationOfInterest(locationOfInterestToDelete.get());
-                })
-            .setNegativeButton(
-                R.string.cancel_button_label,
-                (dialog, id) -> {
-                  // Do nothing.
-                })
-            .create()
-            .show();
-      } else {
-        Timber.e("Attempted to delete non-existent location of interest");
-      }
     } else if (item.getItemId() == R.id.loi_properties_menu_item) {
       showLocationOfInterestProperties();
     } else {
@@ -415,10 +376,7 @@ public class HomeScreenFragment extends AbstractFragment
     String dummySubmissionId = "789";
     navigator.navigate(
         HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            dummySurveyId,
-            dummyLocationOfInterestId,
-            dummySubmissionId
-        ));
+            dummySurveyId, dummyLocationOfInterestId, dummySubmissionId));
   }
 
   private void showOfflineAreas() {
@@ -581,11 +539,11 @@ public class HomeScreenFragment extends AbstractFragment
       Timber.e("BottomSheetState is null");
       return;
     }
-    if (state.getLocationOfInterest().isEmpty()) {
+    if (state.getLocationOfInterest() == null) {
       Timber.e("No locationOfInterest selected");
       return;
     }
-    LocationOfInterest locationOfInterest = state.getLocationOfInterest().get();
+    LocationOfInterest locationOfInterest = state.getLocationOfInterest();
     List<String> items = new ArrayList<>();
     // TODO(#843): Let properties apply to other locationOfInterest types as well.
     if (locationOfInterest instanceof GeoJsonLocationOfInterest) {

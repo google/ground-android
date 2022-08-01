@@ -19,26 +19,33 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.MainActivity
-import com.google.android.ground.databinding.DataCollectionFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
 import androidx.navigation.fragment.navArgs
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.ground.MainActivity
+import com.google.android.ground.R
+import com.google.android.ground.databinding.DataCollectionFragBinding
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.rx.Loadable
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task.  */
 @AndroidEntryPoint
-class DataCollectionFragment : AbstractFragment() {
+class DataCollectionFragment : AbstractFragment(), BackPressListener {
     @Inject
     lateinit var navigator: Navigator
 
     private lateinit var viewModel: DataCollectionViewModel
     private val args: DataCollectionFragmentArgs by navArgs()
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = getViewModel(DataCollectionViewModel::class.java)
+
     }
 
     override fun onCreateView(
@@ -46,9 +53,18 @@ class DataCollectionFragment : AbstractFragment() {
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
         val binding = DataCollectionFragBinding.inflate(inflater, container, false)
+        viewPager = binding.root.findViewById(R.id.pager)
+        viewPager.isUserInputEnabled = false
 
         viewModel.loadSubmissionDetails(args)
+        viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
+            submission.value().ifPresent {
+                viewPager.adapter = DataCollectionViewPagerAdapter(this, it.job.tasksSorted)
+            }
+        }
+
         binding.viewModel = viewModel
+        binding.dataCollectionNextButton.setOnClickListener { onNextClick() }
         binding.lifecycleOwner = this
 
         (activity as MainActivity?)?.let {
@@ -56,5 +72,22 @@ class DataCollectionFragment : AbstractFragment() {
         }
 
         return binding.root
+    }
+
+    override fun onBack(): Boolean {
+        return if (viewPager.currentItem == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            false
+        } else {
+            // Otherwise, select the previous step.
+            viewPager.currentItem = viewPager.currentItem - 1
+            true
+        }
+    }
+
+    private fun onNextClick() {
+        // TODO(#1146): Handle the scenario when the user clicks next on the last step.
+        viewPager.currentItem = viewPager.currentItem + 1
     }
 }
