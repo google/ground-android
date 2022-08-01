@@ -93,44 +93,6 @@ public class LoiConverterTest {
   }
 
   @Test
-  public void testToFeature() {
-    setUpTestGeometry();
-    setUpTestSurvey(
-        "job001",
-        newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build(),
-        newTask()
-            .setId("task2")
-            .setType(Task.Type.MULTIPLE_CHOICE)
-            .setMultipleChoice(
-                MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
-            .build(),
-        newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
-        newTask().setId("task4").setType(Task.Type.PHOTO).build());
-    setUpTestFeature("feature123");
-    mockFeatureDocumentSnapshot(
-        "feature123",
-        new LoiDocument(
-            /* jobId */
-            "job001",
-            /* customId */
-            null,
-            /* caption */
-            null,
-            /* location */
-            null,
-            /* geoJson */
-            null,
-            /* geometry */
-            geometry,
-            /* created */
-            AUDIT_INFO_1_NESTED_OBJECT,
-            /* lastModified */
-            AUDIT_INFO_2_NESTED_OBJECT));
-
-    assertThat(toLocationOfInterest()).isEqualTo(locationOfInterest);
-  }
-
-  @Test
   public void testToFeature_nullFeature() {
     setUpTestGeometry();
     setUpTestSurvey(
