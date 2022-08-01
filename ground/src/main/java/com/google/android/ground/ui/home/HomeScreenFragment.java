@@ -50,9 +50,9 @@ import com.google.android.ground.R;
 import com.google.android.ground.databinding.HomeScreenFragBinding;
 import com.google.android.ground.databinding.NavDrawerHeaderBinding;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.rx.Loadable;
 import com.google.android.ground.rx.Schedulers;
@@ -177,18 +177,15 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onLocationOfInterestAdded(LocationOfInterest locationOfInterest) {
-    locationOfInterest
-        .getJob()
-        .getTask()
-        .ifPresent(form -> addNewSubmission(locationOfInterest, form));
+    addNewSubmission(locationOfInterest, locationOfInterest.getJob());
   }
 
-  private void addNewSubmission(LocationOfInterest locationOfInterest, Task task) {
+  private void addNewSubmission(LocationOfInterest locationOfInterest, Job job) {
     String surveyId = locationOfInterest.getSurvey().getId();
     String locationOfInterestId = locationOfInterest.getId();
-    String taskId = task.getId();
+    String jobId = job.getId();
     navigator.navigate(
-        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, taskId));
+        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, jobId));
   }
 
   /**
@@ -379,10 +376,7 @@ public class HomeScreenFragment extends AbstractFragment
     String dummySubmissionId = "789";
     navigator.navigate(
         HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            dummySurveyId,
-            dummyLocationOfInterestId,
-            dummySubmissionId
-        ));
+            dummySurveyId, dummyLocationOfInterestId, dummySubmissionId));
   }
 
   private void showOfflineAreas() {

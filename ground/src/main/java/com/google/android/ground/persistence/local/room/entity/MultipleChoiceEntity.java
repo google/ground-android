@@ -34,12 +34,12 @@ import java.util.List;
 @Entity(
     tableName = "multiple_choice",
     foreignKeys =
-    @ForeignKey(
-        entity = FieldEntity.class,
-        parentColumns = "id",
-        childColumns = "field_id",
-        onDelete = ForeignKey.CASCADE),
-    indices = {@Index("field_id")})
+        @ForeignKey(
+            entity = TaskEntity.class,
+            parentColumns = "id",
+            childColumns = "task_id",
+            onDelete = ForeignKey.CASCADE),
+    indices = {@Index("task_id")})
 public abstract class MultipleChoiceEntity {
 
   @CopyAnnotations
@@ -50,13 +50,13 @@ public abstract class MultipleChoiceEntity {
   @CopyAnnotations
   @PrimaryKey
   @NonNull
-  @ColumnInfo(name = "field_id")
-  public abstract String getFieldId();
+  @ColumnInfo(name = "task_id")
+  public abstract String getTaskId();
 
   public static MultipleChoiceEntity fromMultipleChoice(
-      String fieldId, MultipleChoice multipleChoice) {
+      String taskId, MultipleChoice multipleChoice) {
     return MultipleChoiceEntity.builder()
-        .setFieldId(fieldId)
+        .setTaskId(taskId)
         .setType(MultipleChoiceEntityType.fromCardinality(multipleChoice.getCardinality()))
         .build();
   }
@@ -74,8 +74,8 @@ public abstract class MultipleChoiceEntity {
     return multipleChoiceBuilder.setOptions(listBuilder.build()).build();
   }
 
-  public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String fieldId) {
-    return builder().setType(type).setFieldId(fieldId).build();
+  public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String taskId) {
+    return builder().setType(type).setTaskId(taskId).build();
   }
 
   public static Builder builder() {
@@ -87,7 +87,7 @@ public abstract class MultipleChoiceEntity {
 
     public abstract Builder setType(MultipleChoiceEntityType type);
 
-    public abstract Builder setFieldId(String fieldId);
+    public abstract Builder setTaskId(String taskId);
 
     public abstract MultipleChoiceEntity build();
   }

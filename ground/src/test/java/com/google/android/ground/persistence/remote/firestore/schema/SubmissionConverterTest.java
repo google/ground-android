@@ -17,13 +17,10 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
-import static com.google.android.ground.model.TestModelBuilders.newField;
-import static com.google.android.ground.model.TestModelBuilders.newJob;
 import static com.google.android.ground.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
@@ -37,10 +34,8 @@ import com.google.android.ground.model.submission.MultipleChoiceResponse;
 import com.google.android.ground.model.submission.ResponseMap;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.submission.TextResponse;
-import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.MultipleChoice.Cardinality;
-import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
@@ -59,7 +54,6 @@ public class SubmissionConverterTest {
 
   @Mock private DocumentSnapshot submissionDocumentSnapshot;
 
-  private Task task;
   private Job job;
   private Survey survey;
   private LocationOfInterest locationOfInterest;
@@ -96,16 +90,15 @@ public class SubmissionConverterTest {
   public void testToSubmission() {
     setUpTestSurvey(
         "job001",
-        "task001",
-        newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
-        newField()
-            .setId("field2")
-            .setType(Field.Type.MULTIPLE_CHOICE)
+        newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build(),
+        newTask()
+            .setId("task2")
+            .setType(Task.Type.MULTIPLE_CHOICE)
             .setMultipleChoice(
                 MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
             .build(),
-        newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
-        newField().setId("field4").setType(Field.Type.PHOTO).build());
+        newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
+        newTask().setId("task4").setType(Task.Type.PHOTO).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -120,13 +113,13 @@ public class SubmissionConverterTest {
             AUDIT_INFO_2_NESTED_OBJECT,
             /* responses */
             ImmutableMap.of(
-                "field1",
+                "task1",
                 "Text response",
-                "field2",
+                "task2",
                 ImmutableList.of("option2"),
-                "field3",
+                "task3",
                 ImmutableList.of("optionA", "optionB"),
-                "field4",
+                "task4",
                 "Photo URL")));
 
     assertThat(toSubmission())
@@ -135,17 +128,17 @@ public class SubmissionConverterTest {
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
-                .setTask(task)
+                .setJob(job)
                 .setResponses(
                     ResponseMap.builder()
-                        .putResponse("field1", new TextResponse("Text response"))
+                        .putResponse("task1", new TextResponse("Text response"))
                         .putResponse(
-                            "field2", new MultipleChoiceResponse(null, ImmutableList.of("option2")))
+                            "task2", new MultipleChoiceResponse(null, ImmutableList.of("option2")))
                         .putResponse(
-                            "field3",
+                            "task3",
                             new MultipleChoiceResponse(
                                 null, ImmutableList.of("optionA", "optionB")))
-                        .putResponse("field4", new TextResponse("Photo URL"))
+                        .putResponse("task4", new TextResponse("Photo URL"))
                         .build())
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
@@ -154,8 +147,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_mismatchedFeatureId() {
-    setUpTestSurvey(
-        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -169,15 +161,14 @@ public class SubmissionConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT,
             /* responses */
-            ImmutableMap.of("field1", "")));
+            ImmutableMap.of("task1", "")));
 
     assertThrows(DataStoreException.class, this::toSubmission);
   }
 
   @Test
   public void testToSubmission_nullResponses() {
-    setUpTestSurvey(
-        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -199,7 +190,7 @@ public class SubmissionConverterTest {
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
-                .setTask(task)
+                .setJob(job)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
                 .build());
@@ -207,8 +198,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_emptyTextResponse() {
-    setUpTestSurvey(
-        "job001", "task001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -222,7 +212,7 @@ public class SubmissionConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT,
             /* responses */
-            ImmutableMap.of("field1", "")));
+            ImmutableMap.of("task1", "")));
 
     assertThat(toSubmission())
         .isEqualTo(
@@ -230,7 +220,7 @@ public class SubmissionConverterTest {
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
-                .setTask(task)
+                .setJob(job)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
                 .build());
@@ -238,10 +228,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_emptyMultipleChoiceResponse() {
-    setUpTestSurvey(
-        "job001",
-        "task001",
-        newField().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
+    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.MULTIPLE_CHOICE).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -255,7 +242,7 @@ public class SubmissionConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT,
             /* responses */
-            ImmutableMap.of("field1", ImmutableList.of())));
+            ImmutableMap.of("task1", ImmutableList.of())));
 
     assertThat(toSubmission())
         .isEqualTo(
@@ -263,19 +250,16 @@ public class SubmissionConverterTest {
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
-                .setTask(task)
+                .setJob(job)
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)
                 .build());
   }
 
-  private void setUpTestSurvey(String jobId, String taskId, Field... fields) {
-    task =
-        newTask()
-            .setId(taskId)
-            .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
-            .build();
-    job = newJob().setId(jobId).setTask(task).build();
+  private void setUpTestSurvey(String jobId, Task... tasks) {
+    Job.Builder builder = Job.newBuilder().setId(jobId);
+    stream(tasks).forEach(builder::addTask);
+    job = builder.build();
     survey = newSurvey().putJob(job).build();
   }
 
@@ -283,9 +267,8 @@ public class SubmissionConverterTest {
   public void testToSubmission_unknownFieldType() {
     setUpTestSurvey(
         "job001",
-        "task001",
-        newField().setId("field1").setType(Field.Type.UNKNOWN).build(),
-        newField().setId("field2").setType(Field.Type.TEXT_FIELD).build());
+        newTask().setId("task1").setType(Task.Type.UNKNOWN).build(),
+        newTask().setId("task2").setType(Task.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -299,7 +282,7 @@ public class SubmissionConverterTest {
             /* lastModified */
             AUDIT_INFO_2_NESTED_OBJECT,
             /* responses */
-            ImmutableMap.of("field1", "Unknown", "field2", "Text response")));
+            ImmutableMap.of("task1", "Unknown", "task2", "Text response")));
 
     assertThat(toSubmission())
         .isEqualTo(
@@ -307,11 +290,11 @@ public class SubmissionConverterTest {
                 .setId(SUBMISSION_ID)
                 .setSurvey(survey)
                 .setLocationOfInterest(locationOfInterest)
-                .setTask(task)
+                .setJob(job)
                 .setResponses(
-                    // Field "field1" with unknown field type ignored.
+                    // Field "task1" with unknown field type ignored.
                     ResponseMap.builder()
-                        .putResponse("field2", new TextResponse("Text response"))
+                        .putResponse("task2", new TextResponse("Text response"))
                         .build())
                 .setCreated(AUDIT_INFO_1)
                 .setLastModified(AUDIT_INFO_2)

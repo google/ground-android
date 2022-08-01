@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.model.mutation
 
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.ResponseDelta
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import java.util.*
@@ -27,20 +27,19 @@ data class SubmissionMutation(
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
     override val surveyId: String = "",
     override val locationOfInterestId: String = "",
-    override val jobId: String = "",
     override val userId: String = "",
     override val clientTimestamp: Date = Date(),
     override val retryCount: Long = 0,
     override val lastError: String = "",
+    val job: Job? = null,
     var submissionId: String = "",
-    var task: Task? = null,
     var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
 ) : Mutation() {
 
     override fun toBuilder(): Builder {
         return Builder().also {
+            it.job = this.job
             it.submissionId = this.submissionId
-            it.task = this.task
             it.responseDeltas = this.responseDeltas
         }.fromMutation(this) as Builder
     }
@@ -49,19 +48,19 @@ data class SubmissionMutation(
         super.toString() + "deltas= $responseDeltas"
 
     inner class Builder : Mutation.Builder<SubmissionMutation>() {
-        var submissionId: String = ""
+        var job: Job? = null
             @JvmSynthetic set
-        var task: Task? = null
+        var submissionId: String = ""
             @JvmSynthetic set
         var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
             @JvmSynthetic set
 
-        fun setSubmissionId(id: String): Builder = apply {
-            this.submissionId = id
+        fun setJob(job: Job): Builder = apply {
+            this.job = job
         }
 
-        fun setTask(task: Task): Builder = apply {
-            this.task = task
+        fun setSubmissionId(id: String): Builder = apply {
+            this.submissionId = id
         }
 
         fun setResponseDeltas(deltas: ImmutableList<ResponseDelta>): Builder = apply {
@@ -74,13 +73,12 @@ data class SubmissionMutation(
             syncStatus,
             surveyId,
             locationOfInterestId,
-            jobId,
             userId,
             clientTimestamp,
             retryCount,
             lastError,
+            job,
             submissionId,
-            task,
             responseDeltas
         )
     }

@@ -58,7 +58,7 @@
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
   <string name="apply_multiple_choice_changes">Apply</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
-  <string name="required_field">This field is required</string>
+  <string name="required_task">This field is required</string>
 
   <!--
     VIEW LOI DATA
@@ -139,7 +139,7 @@
   <!-- TODO(#1146): Remove temporary button for launching data collection flow once complete  -->
   <string name="launch_collect_data">Test collect data UI</string>
   <!-- TODO(#1146): Remove temporary step name text and populate from the label of the Step  -->
-  <string name="collect_data_step_name">Test Step Name</string>
+  <string name="collect_data_task_name">Test Step Name</string>
   <string name="collect_data">Collect data</string>
 
   <!-- Untranslated strings -->

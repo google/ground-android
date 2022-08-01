@@ -25,15 +25,12 @@ import androidx.annotation.StyleRes;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.SubmissionListItemBinding;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.Response;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.task.Field;
-import com.google.android.ground.model.task.Step;
-import com.google.android.ground.model.task.Step.Type;
 import com.google.android.ground.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
-import timber.log.Timber;
 
 class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
 
@@ -58,23 +55,17 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 
-    Task task = submission.getTask();
+    Job job = submission.getJob();
     // TODO: Clean this up.
-    ImmutableList<Step> steps = task.getStepsSorted();
-    for (int i = 0; i < MAX_COLUMNS && i < steps.size(); i++) {
-      Step step = steps.get(i);
-      if (step.getType() == Type.FIELD) {
-        Field field = step.getField();
-        Optional<Response> response = submission.getResponses().getResponse(field.getId());
-        binding.fieldLabelRow.addView(
-            newFieldTextView(field.getLabel(), R.style.SubmissionListText_FieldLabel));
-        binding.fieldValueRow.addView(
-            newFieldTextView(
-                response.map(Response::getSummaryText).orElse(""),
-                R.style.SubmissionListText_Field));
-      } else {
-        Timber.e("Unhandled step type: %s", step.getType());
-      }
+    ImmutableList<Task> tasks = job.getTasksSorted();
+    for (int i = 0; i < MAX_COLUMNS && i < tasks.size(); i++) {
+      Task task = tasks.get(i);
+      Optional<Response> response = submission.getResponses().getResponse(task.getId());
+      binding.fieldLabelRow.addView(
+          newFieldTextView(task.getLabel(), R.style.SubmissionListText_FieldLabel));
+      binding.fieldValueRow.addView(
+          newFieldTextView(
+              response.map(Response::getSummaryText).orElse(""), R.style.SubmissionListText_Field));
     }
   }
 

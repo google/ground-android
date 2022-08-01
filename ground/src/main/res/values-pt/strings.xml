@@ -49,7 +49,7 @@
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
   <string name="apply_multiple_choice_changes">Aplicar</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
-  <string name="required_field">Obrigatório</string>
+  <string name="required_task">Obrigatório</string>
 
   <!--
     VIEW LOI DATA

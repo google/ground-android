@@ -59,7 +59,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         viewModel.loadSubmissionDetails(args)
         viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
             submission.value().ifPresent {
-                viewPager.adapter = DataCollectionViewPagerAdapter(this, it.task.steps)
+                viewPager.adapter = DataCollectionViewPagerAdapter(this, it.job.tasksSorted)
             }
         }
 

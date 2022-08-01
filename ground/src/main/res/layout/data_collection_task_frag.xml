@@ -21,9 +21,9 @@
   android:layout_height="match_parent">
 
   <TextView
-    android:id="@+id/data_collection_step_name"
+    android:id="@+id/data_collection_task_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/collect_data_step_name"
+    android:text="@string/collect_data_task_name"
     android:textSize="16sp" />
 </ScrollView>

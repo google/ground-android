@@ -16,13 +16,10 @@
 
 package com.google.android.ground.model.submission;
 
-import com.google.android.ground.model.task.Field;
 import java.io.Serializable;
 import java8.util.Optional;
 
-/**
- * A user-provided response to a single {@link Field}.
- */
+/** A user-provided response to a single {@link Task}. */
 public interface Response extends Serializable {
 
   String getSummaryText();

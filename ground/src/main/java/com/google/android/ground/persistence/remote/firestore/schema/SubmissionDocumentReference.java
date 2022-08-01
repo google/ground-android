@@ -39,9 +39,7 @@ public class SubmissionDocumentReference extends FluentDocumentReference {
         .map(doc -> SubmissionConverter.toSubmission(locationOfInterest, doc));
   }
 
-  /**
-   * Appends the operation described by the specified mutation to the provided write batch.
-   */
+  /** Appends the operation described by the specified mutation to the provided write batch. */
   public void addMutationToBatch(SubmissionMutation mutation, User user, WriteBatch batch) {
     switch (mutation.getType()) {
       case CREATE:

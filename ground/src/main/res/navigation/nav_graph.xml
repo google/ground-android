@@ -166,7 +166,7 @@
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim">
       <argument
-        android:name="taskId"
+        android:name="jobId"
         android:defaultValue="N/A" />
     </action>
   </fragment>
@@ -185,7 +185,7 @@
       android:name="submissionId"
       type="string" />
     <argument
-      android:name="taskId"
+      android:name="jobId"
       type="string" />
     <argument
       android:name="restoredResponses"

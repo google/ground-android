@@ -125,9 +125,9 @@ class SubmissionRepository @Inject constructor(
 
     fun createSubmission(
         surveyId: String, locationOfInterestId: String,
-        taskId: String
+        jobId: String
     ): @Cold Single<Submission> {
-        // TODO: Handle invalid taskId.
+        // TODO: Very jobId == loi job id.
         val auditInfo = AuditInfo.now(authManager.currentUser)
         return locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
@@ -136,7 +136,7 @@ class SubmissionRepository @Inject constructor(
                     .setId(uuidGenerator.generateUuid())
                     .setSurvey(locationOfInterest.survey)
                     .setLocationOfInterest(locationOfInterest)
-                    .setTask(locationOfInterest.job.getTask(taskId).get())
+                    .setJob(locationOfInterest.job)
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build()
@@ -146,14 +146,13 @@ class SubmissionRepository @Inject constructor(
     fun deleteSubmission(submission: Submission): @Cold Completable =
         applyAndEnqueue(
             builder()
+                .setJob(submission.job)
                 .setSubmissionId(submission.id)
-                .setTask(submission.task)
                 .setResponseDeltas(ImmutableList.of())
                 .setType(Mutation.Type.DELETE)
                 .setSyncStatus(SyncStatus.PENDING)
                 .setSurveyId(submission.survey.id)
                 .setLocationOfInterestId(submission.locationOfInterest.id)
-                .setJobId(submission.locationOfInterest.job.id)
                 .setClientTimestamp(Date())
                 .setUserId(authManager.currentUser.id)
                 .build()
@@ -164,14 +163,13 @@ class SubmissionRepository @Inject constructor(
     ): @Cold Completable =
         applyAndEnqueue(
             builder()
+                .setJob(submission.job)
                 .setSubmissionId(submission.id)
-                .setTask(submission.task)
                 .setResponseDeltas(responseDeltas)
                 .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
                 .setSyncStatus(SyncStatus.PENDING)
                 .setSurveyId(submission.survey.id)
                 .setLocationOfInterestId(submission.locationOfInterest.id)
-                .setJobId(submission.locationOfInterest.job.id)
                 .setClientTimestamp(Date())
                 .setUserId(authManager.currentUser.id)
                 .build()

@@ -27,17 +27,18 @@ data class LocationOfInterestMutation(
     override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
     override val surveyId: String = "",
     override val locationOfInterestId: String = "",
-    override val jobId: String = "",
     override val userId: String = "",
     override val clientTimestamp: Date = Date(),
     override val retryCount: Long = 0,
     override val lastError: String = "",
+    val jobId: String = "",
     val location: Optional<Point> = Optional.empty(),
     val polygonVertices: ImmutableList<Point> = ImmutableList.of(),
 ) : Mutation() {
 
     override fun toBuilder(): Builder {
         return Builder().also {
+            it.jobId = this.jobId
             it.location = this.location
             it.polygonVertices = this.polygonVertices
         }.fromMutation(this) as Builder
@@ -45,10 +46,16 @@ data class LocationOfInterestMutation(
 
     // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
     inner class Builder : Mutation.Builder<LocationOfInterestMutation>() {
+        var jobId: String = ""
+            @JvmSynthetic set
         var location: Optional<Point> = Optional.empty()
             @JvmSynthetic set
         var polygonVertices: ImmutableList<Point> = ImmutableList.of()
             @JvmSynthetic set
+
+        fun setJobId(jobId: String): Builder = apply {
+            this.jobId = jobId
+        }
 
         fun setLocation(newLocation: Optional<Point>): Builder = apply {
             this.location = newLocation
@@ -65,11 +72,11 @@ data class LocationOfInterestMutation(
                 syncStatus,
                 surveyId,
                 locationOfInterestId,
-                jobId,
                 userId,
                 clientTimestamp,
                 retryCount,
                 lastError,
+                jobId,
                 location,
                 polygonVertices
             )

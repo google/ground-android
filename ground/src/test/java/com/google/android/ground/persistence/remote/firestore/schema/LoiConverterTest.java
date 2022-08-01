@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
-import static com.google.android.ground.model.TestModelBuilders.newField;
 import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
 import static com.google.android.ground.model.TestModelBuilders.newJob;
 import static com.google.android.ground.model.TestModelBuilders.newPolygonOfInterest;
@@ -25,7 +24,6 @@ import static com.google.android.ground.model.TestModelBuilders.newPolygonVertic
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
@@ -35,10 +33,8 @@ import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.task.Field;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.MultipleChoice.Cardinality;
-import com.google.android.ground.model.task.Step;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
@@ -89,13 +85,10 @@ public class LoiConverterTest {
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
-  private void setUpTestSurvey(String jobId, String taskId, Field... fields) {
-    Task task =
-        newTask()
-            .setId(taskId)
-            .setSteps(stream(fields).map(Step::ofField).collect(toImmutableList()))
-            .build();
-    job = newJob().setId(jobId).setTask(task).build();
+  private void setUpTestSurvey(String jobId, Task... tasks) {
+    Job.Builder builder = newJob().setId(jobId);
+    stream(tasks).forEach(builder::addTask);
+    job = builder.build();
     survey = newSurvey().putJob(job).build();
   }
 
@@ -104,16 +97,15 @@ public class LoiConverterTest {
     setUpTestGeometry();
     setUpTestSurvey(
         "job001",
-        "form001",
-        newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
-        newField()
-            .setId("field2")
-            .setType(Field.Type.MULTIPLE_CHOICE)
+        newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build(),
+        newTask()
+            .setId("task2")
+            .setType(Task.Type.MULTIPLE_CHOICE)
             .setMultipleChoice(
                 MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
             .build(),
-        newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
-        newField().setId("field4").setType(Field.Type.PHOTO).build());
+        newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
+        newTask().setId("task4").setType(Task.Type.PHOTO).build());
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature123",
@@ -143,16 +135,15 @@ public class LoiConverterTest {
     setUpTestGeometry();
     setUpTestSurvey(
         "job001",
-        "form001",
-        newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
-        newField()
-            .setId("field2")
-            .setType(Field.Type.MULTIPLE_CHOICE)
+        newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build(),
+        newTask()
+            .setId("task2")
+            .setType(Task.Type.MULTIPLE_CHOICE)
             .setMultipleChoice(
                 MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
             .build(),
-        newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
-        newField().setId("field4").setType(Field.Type.PHOTO).build());
+        newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
+        newTask().setId("task4").setType(Task.Type.PHOTO).build());
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
@@ -182,16 +173,15 @@ public class LoiConverterTest {
     setUpTestGeometry();
     setUpTestSurvey(
         "job001",
-        "form001",
-        newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
-        newField()
-            .setId("field2")
-            .setType(Field.Type.MULTIPLE_CHOICE)
+        newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build(),
+        newTask()
+            .setId("task2")
+            .setType(Task.Type.MULTIPLE_CHOICE)
             .setMultipleChoice(
                 MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
             .build(),
-        newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
-        newField().setId("field4").setType(Field.Type.PHOTO).build());
+        newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
+        newTask().setId("task4").setType(Task.Type.PHOTO).build());
     setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",

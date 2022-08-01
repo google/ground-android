@@ -17,11 +17,10 @@
 package com.google.android.ground.model.submission;
 
 import androidx.annotation.NonNull;
-import com.google.android.ground.model.task.Field;
 import java8.util.Optional;
 
 /**
- * A user provided response to a number {@link Field}.
+ * A user provided response to a number question task.
  */
 public class NumberResponse implements Response {
 

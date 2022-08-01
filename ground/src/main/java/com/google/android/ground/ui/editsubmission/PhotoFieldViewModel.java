@@ -24,7 +24,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.model.submission.TextResponse;
-import com.google.android.ground.model.task.Field;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.UserMediaRepository;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel.PhotoResult;
@@ -41,13 +41,11 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final LiveData<Uri> uri;
   private final LiveData<Boolean> photoPresent;
 
-  @Nullable
-  private String surveyId;
-  @Nullable
-  private String submissionId;
+  @Nullable private String surveyId;
+  @Nullable private String submissionId;
 
   @Hot(replays = true)
-  private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
+  private final MutableLiveData<Task> showDialogClicks = new MutableLiveData<>();
 
   @Hot(replays = true)
   private final MutableLiveData<Boolean> editable = new MutableLiveData<>(false);
@@ -69,10 +67,10 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void onShowPhotoSelectorDialog() {
-    showDialogClicks.setValue(getField());
+    showDialogClicks.setValue(getTask());
   }
 
-  LiveData<Field> getShowDialogClicks() {
+  LiveData<Task> getShowDialogClicks() {
     return showDialogClicks;
   }
 
@@ -108,8 +106,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
       Timber.e("surveyId or submissionId not set");
       return;
     }
-    if (!photoResult.hasFieldId(getField().getId())) {
-      // Update belongs to another field.
+    if (!photoResult.hasTaskId(getTask().getId())) {
+      // Update belongs to another task.
       return;
     }
     photoResult.setHandled(true);
@@ -137,7 +135,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private File getFileFromResult(PhotoResult result) throws IOException {
     if (result.getBitmap().isPresent()) {
-      return userMediaRepository.savePhoto(result.getBitmap().get(), result.getFieldId());
+      return userMediaRepository.savePhoto(result.getBitmap().get(), result.getTaskId());
     }
     if (result.getPath().isPresent()) {
       return new File(result.getPath().get());

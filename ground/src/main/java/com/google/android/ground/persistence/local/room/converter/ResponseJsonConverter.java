@@ -25,7 +25,7 @@ import com.google.android.ground.model.submission.NumberResponse;
 import com.google.android.ground.model.submission.Response;
 import com.google.android.ground.model.submission.TextResponse;
 import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.model.task.Field;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
@@ -94,8 +94,8 @@ class ResponseJsonConverter {
     return array;
   }
 
-  static Optional<Response> toResponse(Field field, Object obj) {
-    switch (field.getType()) {
+  static Optional<Response> toResponse(Task task, Object obj) {
+    switch (task.getType()) {
       case TEXT_FIELD:
       case PHOTO:
         if (obj == JSONObject.NULL) {
@@ -106,10 +106,10 @@ class ResponseJsonConverter {
       case MULTIPLE_CHOICE:
         if (obj == JSONObject.NULL) {
           return MultipleChoiceResponse.fromList(
-              field.getMultipleChoice(), Collections.emptyList());
+              task.getMultipleChoice(), Collections.emptyList());
         }
         DataStoreException.checkType(JSONArray.class, obj);
-        return MultipleChoiceResponse.fromList(field.getMultipleChoice(), toList((JSONArray) obj));
+        return MultipleChoiceResponse.fromList(task.getMultipleChoice(), toList((JSONArray) obj));
       case NUMBER:
         if (JSONObject.NULL == obj) {
           return NumberResponse.fromNumber("");
@@ -124,7 +124,7 @@ class ResponseJsonConverter {
         return TimeResponse.fromDate(ResponseJsonConverter.isoStringToDate((String) obj));
       case UNKNOWN:
       default:
-        throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());
+        throw new DataStoreException("Unknown type in task: " + obj.getClass().getName());
     }
   }
 
