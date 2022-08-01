@@ -26,12 +26,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java8.util.Comparators;
 import java8.util.Optional;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Job {
   public abstract String getId();
 
-  public abstract String getName();
+  public abstract @Nullable String getName();
 
   public abstract ImmutableMap<String, Task> getTasks();
 
@@ -59,7 +60,7 @@ public abstract class Job {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setName(String newName);
+    public abstract Builder setName(@Nullable String newName);
 
     public abstract ImmutableMap.Builder<String, Task> tasksBuilder();
 
