@@ -19,8 +19,6 @@ package com.google.android.ground.persistence.remote.firestore.schema;
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
 import static com.google.android.ground.model.TestModelBuilders.newJob;
-import static com.google.android.ground.model.TestModelBuilders.newPolygonOfInterest;
-import static com.google.android.ground.model.TestModelBuilders.newPolygonVertices;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
@@ -80,7 +78,6 @@ public class LoiConverterTest {
 
   private Job job;
   private Survey survey;
-  private LocationOfInterest locationOfInterest;
   private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
@@ -105,7 +102,6 @@ public class LoiConverterTest {
             .build(),
         newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
         newTask().setId("task4").setType(Task.Type.PHOTO).build());
-    setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
         new LoiDocument(
@@ -143,7 +139,6 @@ public class LoiConverterTest {
             .build(),
         newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
         newTask().setId("task4").setType(Task.Type.PHOTO).build());
-    setUpTestFeature("feature123");
     mockFeatureDocumentSnapshot(
         "feature001",
         new LoiDocument(
@@ -165,18 +160,6 @@ public class LoiConverterTest {
             AUDIT_INFO_2_NESTED_OBJECT));
 
     assertThrows(DataStoreException.class, () -> toLocationOfInterest());
-  }
-
-  private void setUpTestFeature(String featureId) {
-    locationOfInterest =
-        newPolygonOfInterest()
-            .setCreated(AUDIT_INFO_1)
-            .setLastModified(AUDIT_INFO_2)
-            .setVertices(newPolygonVertices())
-            .setId(featureId)
-            .setSurvey(survey)
-            .setJob(job)
-            .build();
   }
 
   private void setUpTestGeometry() {
