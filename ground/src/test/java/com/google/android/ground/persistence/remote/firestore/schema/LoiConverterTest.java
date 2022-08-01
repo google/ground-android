@@ -86,9 +86,10 @@ public class LoiConverterTest {
   private Map<String, Object> noVerticesGeometry;
 
   private void setUpTestSurvey(String jobId, Task... tasks) {
-    Job.Builder job = newJob().setId(jobId);
-    stream(tasks).forEach(job::addTask);
-    survey = newSurvey().putJob(job.build()).build();
+    Job.Builder builder = newJob().setId(jobId);
+    stream(tasks).forEach(builder::addTask);
+    job = builder.build();
+    survey = newSurvey().putJob(job).build();
   }
 
   @Test
