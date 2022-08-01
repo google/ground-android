@@ -72,9 +72,10 @@ public abstract class TaskEntity {
   @ColumnInfo(name = "job_id")
   public abstract String getJobId();
 
-  public static TaskEntity fromTask(Task task) {
+  public static TaskEntity fromTask(String jobId, Task task) {
     return TaskEntity.builder()
         .setId(task.getId())
+        .setJobId(jobId)
         .setIndex(task.getIndex())
         .setLabel(task.getLabel())
         .setRequired(task.isRequired())

@@ -141,9 +141,9 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateTask(Task task) {
+  private Completable insertOrUpdateTask(String jobId, Task task) {
     return taskDao
-        .insertOrUpdate(TaskEntity.fromTask(task))
+        .insertOrUpdate(TaskEntity.fromTask(jobId, task))
         .andThen(
             Observable.just(task)
                 .filter(__ -> task.getMultipleChoice() != null)
@@ -154,14 +154,14 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateTasks(ImmutableCollection<Task> tasks) {
-    return Observable.fromIterable(tasks).flatMapCompletable(task -> insertOrUpdateTask(task));
+  private Completable insertOrUpdateTasks(String jobId, ImmutableCollection<Task> tasks) {
+    return Observable.fromIterable(tasks).flatMapCompletable(task -> insertOrUpdateTask(jobId, task));
   }
 
   private Completable insertOrUpdateJob(String surveyId, Job job) {
     return jobDao
         .insertOrUpdate(JobEntity.fromJob(surveyId, job))
-        .andThen(insertOrUpdateTasks(job.getTasks().values()))
+        .andThen(insertOrUpdateTasks(job.getId(), job.getTasks().values()))
         .subscribeOn(schedulers.io());
   }
 
