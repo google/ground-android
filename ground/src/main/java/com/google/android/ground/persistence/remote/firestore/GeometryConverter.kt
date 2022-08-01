@@ -18,12 +18,13 @@ package com.google.android.ground.persistence.remote.firestore
 
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.firestore.remote.Datastore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.io.geojson.GeoJsonReader
 import org.locationtech.jts.io.geojson.GeoJsonWriter
+import kotlin.Result.Companion.failure
+import kotlin.Result.Companion.success
 
 /**
  * Converts between Geometry model objects and their equivalent representation in Firestore.
@@ -48,12 +49,16 @@ object GeometryConverter {
      * Convert a `Geometry` to a `Map` which may be used to persist
      * the provided geometry in Firestore.
      */
-    fun toFirestoreMap(geometry: Geometry): Map<String, Any> {
-        val writer = GeoJsonWriter()
-        writer.setEncodeCRS(false)
-        val jsonString = writer.write(geometry)
-        val jsonMap = Gson().fromJson<MutableMap<String, Any>>(jsonString)
-        return toFirestoreValue(jsonMap)
+    fun toFirestoreMap(geometry: Geometry): Result<Map<String, Any>> {
+        return try {
+            val writer = GeoJsonWriter()
+            writer.setEncodeCRS(false)
+            val jsonString = writer.write(geometry)
+            val jsonMap = Gson().fromJson<MutableMap<String, Any>>(jsonString)
+            success(toFirestoreValue(jsonMap))
+        } catch (e: Throwable) {
+            failure(e)
+        }
     }
 
     private fun toFirestoreValue(value: Map<String, Any>): Map<String, Any> {
@@ -86,19 +91,19 @@ object GeometryConverter {
     /**
      * Converts a `Map` deserialized from Firestore into a `Geometry` instance.
      */
-    fun fromFirestoreMap(map: Map<String, *>?): Geometry? {
-        if (map == null) return null
-        val jsonMap = fromFirestoreValue(map)
-        try {
+    fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> {
+        return try {
+            if (map == null) throw DataStoreException("Null geometry")
+            val jsonMap = fromFirestoreValue(map)
             val jsonString = Gson().toJson(jsonMap)
             val reader = GeoJsonReader()
             val geometry = reader.read(jsonString)
             if (geometry.coordinates.isEmpty()) {
                 throw DataStoreException("Empty coordinates in $geometry")
             }
-            return geometry
+            success(geometry)
         } catch (e: Throwable) {
-            throw DataStoreException("Invalid geometry")
+            failure(e)
         }
     }
 

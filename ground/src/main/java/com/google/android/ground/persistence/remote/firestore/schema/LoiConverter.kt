@@ -44,7 +44,9 @@ object LoiConverter {
         val loiId = doc.id
         val loiDoc = checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
         val geometryMap = checkNotNull(loiDoc.geometry, "geometry")
-        val geometry = checkNotNull(GeometryConverter.fromFirestoreMap(geometryMap))
+        // TODO: Return `Result` instead of throwing exception.
+        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
+
         // As an interim solution, we map geometries to existing LOI types.
         // TODO: Get rid of LOI subclasses and just use Geometry on LOI class.
         when (geometry.geometryType) {

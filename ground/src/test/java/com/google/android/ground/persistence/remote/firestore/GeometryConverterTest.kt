@@ -16,9 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
-import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.assertIsFailure
+import com.google.android.ground.assertIsSuccessWith
 import com.google.firebase.firestore.GeoPoint
-import org.junit.Assert.*
 import org.junit.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -64,7 +64,7 @@ class GeometryConverterTest {
 
     @Test
     fun toFirestoreMap_point() {
-        assertEquals(
+        assertIsSuccessWith(
             mapOf(
                 "type" to "Point",
                 "coordinates" to GeoPoint(x, y)
@@ -77,7 +77,7 @@ class GeometryConverterTest {
 
     @Test
     fun toFirestoreMap_multiPolygon() {
-        assertEquals(
+        assertIsSuccessWith(
             mapOf(
                 "type" to "MultiPolygon",
                 "coordinates" to mapOf(
@@ -102,7 +102,7 @@ class GeometryConverterTest {
 
     @Test
     fun fromFirestoreMap_point() {
-        assertEquals(
+        assertIsSuccessWith(
             point(x, y),
             GeometryConverter.fromFirestoreMap(
                 mapOf(
@@ -115,28 +115,24 @@ class GeometryConverterTest {
 
     @Test
     fun fromFirestoreMap_nullGeometry() {
-        assertNull(GeometryConverter.fromFirestoreMap(null))
+        assertIsFailure(GeometryConverter.fromFirestoreMap(null))
     }
 
     @Test
     fun fromFirestoreMap_nullCoordinate() {
-        assertThrows(
-            DataStoreException::class.java
-        ) {
+        assertIsFailure(
             GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "Point",
                     "coordinates" to null
                 )
             )
-        }
+        )
     }
 
     @Test
     fun fromFirestoreMap_nullNestedElement() {
-        assertThrows(
-            DataStoreException::class.java
-        ) {
+        assertIsFailure(
             GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "MultiPolygon",
@@ -148,38 +144,34 @@ class GeometryConverterTest {
                     )
                 )
             )
-        }
+        )
     }
 
     @Test
     fun fromFirestoreMap_invalidGeometryType() {
-        assertThrows(
-            DataStoreException::class.java
-        ) {
+        assertIsFailure(
             GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to 123.0
                 )
             )
-        }
+        )
     }
 
     @Test
     fun fromFirestoreMap_missingCoordinates() {
-        assertThrows(
-            DataStoreException::class.java
-        ) {
+        assertIsFailure(
             GeometryConverter.fromFirestoreMap(
                 mapOf(
                     "type" to "Point"
                 )
             )
-        }
+        )
     }
 
     @Test
     fun fromFirestoreMap_multiPolygon() {
-        assertEquals(
+        assertIsSuccessWith(
             multiPolygon(polygon(path1, path2), polygon(path3, path4)),
             GeometryConverter.fromFirestoreMap(
                 mapOf(
