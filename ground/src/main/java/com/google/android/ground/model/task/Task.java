@@ -16,14 +16,8 @@
 
 package com.google.android.ground.model.task;
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.android.ground.model.submission.Response;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-import java8.util.Comparators;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -33,8 +27,8 @@ import javax.annotation.Nullable;
 @AutoValue
 public abstract class Task {
   /**
-   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME!
-   * TODO: Define these in data layer!
+   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME! TODO: Define
+   * these in data layer!
    */
   public enum Type {
     UNKNOWN,
@@ -48,9 +42,7 @@ public abstract class Task {
 
   public abstract String getId();
 
-  /**
-   * Returns the sequential index of the task, used by UIs to sort prompts and results.
-   */
+  /** Returns the sequential index of the task, used by UIs to sort prompts and results. */
   public abstract int getIndex();
 
   public abstract Type getType();

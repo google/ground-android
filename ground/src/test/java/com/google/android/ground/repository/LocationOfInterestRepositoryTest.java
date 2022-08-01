@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.FakeData;
-import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.mutation.Mutation.SyncStatus;

@@ -39,7 +39,6 @@ class SubmissionMutationConverter {
 
   static final String LOI_ID = "loiId";
   private static final String JOB_ID = "jobId";
-  private static final String TASK_ID = "taskId";
   private static final String RESPONSES = "responses";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";

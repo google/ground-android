@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.ResponseDelta;
 import com.google.android.ground.model.task.Task;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;

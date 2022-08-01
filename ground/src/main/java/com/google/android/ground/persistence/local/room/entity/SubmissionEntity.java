@@ -123,13 +123,13 @@ public abstract class SubmissionEntity {
   }
 
   public static Submission toSubmission(LocationOfInterest loi, SubmissionEntity submission) {
-    String id = submission.getId();
     String jobId = submission.getJobId();
     Job job = loi.getJob();
     if (!job.getId().equals(jobId)) {
       throw new LocalDataConsistencyException(
           "LOI job id " + job.getId() + " does not match submission " + submission.getJobId());
     }
+    String id = submission.getId();
     return Submission.newBuilder()
         .setId(id)
         .setJob(job)
