@@ -16,17 +16,14 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
 import static com.google.android.ground.model.TestModelBuilders.newJob;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
-import static com.google.android.ground.model.TestModelBuilders.newUser;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
@@ -39,7 +36,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java8.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,20 +45,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class LoiConverterTest {
 
   @Mock private DocumentSnapshot featureDocumentSnapshot;
-
-  private static final AuditInfo AUDIT_INFO_1 =
-      newAuditInfo()
-          .setUser(newUser().setId("user1").build())
-          .setClientTimestamp(new Date(100))
-          .setServerTimestamp(Optional.of(new Date(101)))
-          .build();
-
-  private static final AuditInfo AUDIT_INFO_2 =
-      newAuditInfo()
-          .setUser(newUser().setId("user2").build())
-          .setClientTimestamp(new Date(200))
-          .setServerTimestamp(Optional.of(new Date(201)))
-          .build();
 
   private static final AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
       new AuditInfoNestedObject(
@@ -76,15 +58,13 @@ public class LoiConverterTest {
           new Timestamp(new Date(200)),
           new Timestamp(new Date(201)));
 
-  private Job job;
   private Survey survey;
-  private Map<String, Object> geometry;
   private Map<String, Object> noVerticesGeometry;
 
   private void setUpTestSurvey(String jobId, Task... tasks) {
     Job.Builder builder = newJob().setId(jobId);
     stream(tasks).forEach(builder::addTask);
-    job = builder.build();
+    Job job = builder.build();
     survey = newSurvey().putJob(job).build();
   }
 
@@ -163,7 +143,7 @@ public class LoiConverterTest {
   }
 
   private void setUpTestGeometry() {
-    geometry = new HashMap<>();
+    Map<String, Object> geometry = new HashMap<>();
     geometry.put(LoiConverter.GEOMETRY_COORDINATES, newGeoPointPolygonVertices());
     geometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
 
