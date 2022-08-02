@@ -129,9 +129,6 @@ android {
         }
         animationsDisabled = true
     }
-    hilt {
-        enableTransformForLocalTests = true
-    }
 
     // ErrorProne and NullAway configuration.
     // ErrorProne: https://github.com/google/error-prone.

@@ -31,10 +31,6 @@ android {
         animationsDisabled = true
     }
 
-    hilt {
-        enableTransformForLocalTests = true
-    }
-
     buildTypes {
         staging {
         }
