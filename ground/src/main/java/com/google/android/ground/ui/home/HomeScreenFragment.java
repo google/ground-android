@@ -51,7 +51,6 @@ import com.google.android.ground.databinding.HomeScreenFragBinding;
 import com.google.android.ground.databinding.NavDrawerHeaderBinding;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.rx.Loadable;
@@ -76,12 +75,9 @@ import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
-import org.json.JSONException;
-import org.json.JSONObject;
 import timber.log.Timber;
 
 /**
@@ -543,12 +539,8 @@ public class HomeScreenFragment extends AbstractFragment
       Timber.e("No locationOfInterest selected");
       return;
     }
-    LocationOfInterest locationOfInterest = state.getLocationOfInterest();
     List<String> items = new ArrayList<>();
     // TODO(#843): Let properties apply to other locationOfInterest types as well.
-    if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
-      items = getLocationOfInterestProperties((GeoJsonLocationOfInterest) locationOfInterest);
-    }
     if (items.isEmpty()) {
       items.add("No properties defined for this locationOfInterest");
     }
@@ -560,32 +552,6 @@ public class HomeScreenFragment extends AbstractFragment
         .setPositiveButton(R.string.close_loi_properties, (a, b) -> {})
         .create()
         .show();
-  }
-
-  private ImmutableList<String> getLocationOfInterestProperties(
-      GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
-    String jsonString = geoJsonLocationOfInterest.getGeoJsonString();
-    try {
-      JSONObject jsonObject = new JSONObject(jsonString);
-      JSONObject properties = jsonObject.optJSONObject("properties");
-      if (properties == null) {
-        return ImmutableList.of();
-      }
-      ImmutableList.Builder items = new ImmutableList.Builder();
-      Iterator<String> keyIter = properties.keys();
-      while (keyIter.hasNext()) {
-        String key = keyIter.next();
-        Object value = properties.opt(key);
-        // TODO(#842): Use custom view to format location of interest properties as table.
-        items.add(key + ": " + value);
-      }
-      return items.build();
-    } catch (JSONException e) {
-      Timber.d(
-          "Encountered invalid location of interest GeoJSON in location of interest %s",
-          geoJsonLocationOfInterest.getId());
-      return ImmutableList.of();
-    }
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
