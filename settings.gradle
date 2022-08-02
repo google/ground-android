@@ -1,4 +1,4 @@
-include ':ground', ':android-gmaps-addons'
+include ':ground', ':android-gmaps-addons', ':sharedTestCode'
 
 project(':android-gmaps-addons').projectDir = new File('third_party/android-gmaps-addons')
-
+project(':sharedTestCode').projectDir = new File('sharedTestCode')
