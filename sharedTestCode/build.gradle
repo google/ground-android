@@ -12,7 +12,7 @@ apply from: '../config/jacoco/jacoco.gradle'
 
 // TODO: Consolidate gradle versions for all modules in a single file
 project.ext {
-    hiltVersion = "2.43.1"
+    hiltVersion = "2.40.1"
     hiltJetpackVersion = "1.0.0"
 }
 
