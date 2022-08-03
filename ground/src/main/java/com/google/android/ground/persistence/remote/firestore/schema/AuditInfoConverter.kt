@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.persistence.remote.DataStoreException.checkNotNull;
+import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.User
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.firebase.Timestamp
+import java8.util.Optional
 
-import androidx.annotation.NonNull;
-import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.firebase.Timestamp;
-import java8.util.Optional;
+/** Converts between Firestore nested objects and [AuditInfo] instances.  */
+internal object AuditInfoConverter {
 
-/** Converts between Firestore nested objects and {@link AuditInfo} instances. */
-class AuditInfoConverter {
+    @Throws(DataStoreException::class)
+    fun toAuditInfo(doc: AuditInfoNestedObject): AuditInfo {
+        DataStoreException.checkNotNull(doc.clientTimestamp, "clientTimestamp")
+        return AuditInfo.builder()
+            .setUser(UserConverter.toUser(doc.user))
+            .setClientTimestamp(doc.clientTimestamp!!.toDate())
+            .setServerTimestamp(Optional.ofNullable(doc.serverTimestamp?.toDate()))
+            .build()
+    }
 
-  @NonNull
-  static AuditInfo toAuditInfo(@NonNull AuditInfoNestedObject doc) throws DataStoreException {
-    checkNotNull(doc.getClientTimestamp(), "clientTimestamp");
-    return AuditInfo.builder()
-        .setUser(UserConverter.toUser(doc.getUser()))
-        .setClientTimestamp(doc.getClientTimestamp().toDate())
-        .setServerTimestamp(Optional.ofNullable(doc.getServerTimestamp()).map(Timestamp::toDate))
-        .build();
-  }
-
-  @NonNull
-  static AuditInfoNestedObject fromMutationAndUser(Mutation mutation, User user) {
-    return new AuditInfoNestedObject(
-        UserConverter.toNestedObject(user), new Timestamp(mutation.getClientTimestamp()), null);
-  }
+    @JvmStatic
+    fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject {
+        return AuditInfoNestedObject(
+            UserConverter.toNestedObject(user),
+            Timestamp(mutation.clientTimestamp),
+            null
+        )
+    }
 }

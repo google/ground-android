@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.ground.model.User;
+import com.google.android.ground.model.User
 
-/** Converts between Firestore objects and {@link User} instances. */
-class UserConverter {
-
-  @NonNull
-  static UserNestedObject toNestedObject(@NonNull User user) {
-    return new UserNestedObject(user.getId(), user.getEmail(), user.getDisplayName());
-  }
-
-  @NonNull
-  static User toUser(@Nullable UserNestedObject ud) {
-    // Degrade gracefully when user missing in remote db.
-    if (ud == null || ud.getId() == null) {
-      ud = UserNestedObject.UNKNOWN_USER;
+/** Converts between Firestore objects and [User] instances.  */
+internal object UserConverter {
+    fun toNestedObject(user: User): UserNestedObject {
+        return UserNestedObject(user.id, user.email, user.displayName)
     }
-    return User.builder()
-        .setId(ud.getId())
-        .setEmail(ud.getEmail() == null ? "" : ud.getEmail())
-        .setDisplayName(ud.getDisplayName() == null ? "" : ud.getDisplayName())
-        .build();
-  }
+
+    fun toUser(ud: UserNestedObject?): User {
+        // Degrade gracefully when user missing in remote db.
+        val ud2 = if (ud?.id == null) UserNestedObject.UNKNOWN_USER else ud
+        return User.builder()
+            .setId(ud2.id)
+            .setEmail(ud2.email)
+            .setDisplayName(ud2.displayName)
+            .build()
+    }
 }

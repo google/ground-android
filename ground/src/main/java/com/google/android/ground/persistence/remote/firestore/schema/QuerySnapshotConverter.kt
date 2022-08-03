@@ -14,51 +14,50 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.android.ground.persistence.remote.RemoteDataEvent;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import java8.util.function.Function;
-import timber.log.Timber;
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.RemoteDataEvent
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.error
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.loaded
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
+import com.google.android.ground.util.toImmutableList
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.QuerySnapshot
+import java8.util.function.Function
+import timber.log.Timber
 
 /**
- * Converts Firestore {@link com.google.firebase.firestore.QuerySnapshot} to application-specific
+ * Converts Firestore [com.google.firebase.firestore.QuerySnapshot] to application-specific
  * objects.
  */
-class QuerySnapshotConverter {
+internal object QuerySnapshotConverter {
 
-  /** Applies a converter function to document change events in the specified query snapshot. */
-  static <T> Iterable<RemoteDataEvent<T>> toEvents(
-      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    return stream(snapshot.getDocumentChanges())
-        .map(dc -> toEvent(dc, converter))
-        .collect(toImmutableList());
-  }
-
-  private static <T> RemoteDataEvent<T> toEvent(
-      DocumentChange dc, Function<DocumentSnapshot, T> converter) {
-    try {
-      Timber.v(dc.getDocument().getReference().getPath() + " " + dc.getType());
-      String id = dc.getDocument().getId();
-      switch (dc.getType()) {
-        case ADDED:
-          return RemoteDataEvent.loaded(id, converter.apply(dc.getDocument()));
-        case MODIFIED:
-          return RemoteDataEvent.modified(id, converter.apply(dc.getDocument()));
-        case REMOVED:
-          return RemoteDataEvent.removed(id);
-        default:
-          return RemoteDataEvent.error(
-              new DataStoreException("Unknown DocumentChange type: " + dc.getType()));
-      }
-    } catch (DataStoreException e) {
-      return RemoteDataEvent.error(e);
+    /** Applies a converter function to document change events in the specified query snapshot.  */
+    fun <T> toEvents(
+        snapshot: QuerySnapshot, converter: Function<DocumentSnapshot, T>
+    ): Iterable<RemoteDataEvent<T?>> {
+        return snapshot.documentChanges
+            .map { dc: DocumentChange -> toEvent(dc, converter) }
+            .toImmutableList()
     }
-  }
+
+    private fun <T> toEvent(
+        dc: DocumentChange, converter: Function<DocumentSnapshot, T>
+    ): RemoteDataEvent<T?> {
+        Timber.v("${dc.document.reference.path}  ${dc.type}")
+        val id = dc.document.id
+        return when (dc.type) {
+            DocumentChange.Type.ADDED ->
+                loaded(id, converter.apply(dc.document))
+            DocumentChange.Type.MODIFIED ->
+                modified(id, converter.apply(dc.document))
+            DocumentChange.Type.REMOVED ->
+                removed<T>(id)
+            else ->
+                error(DataStoreException("Unknown DocumentChange type: ${dc.type}"))
+        }
+    }
 }

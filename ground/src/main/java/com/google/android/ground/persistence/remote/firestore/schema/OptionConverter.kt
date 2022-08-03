@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.task.Option;
+import com.google.android.ground.model.task.Option
 
 /**
- * Converts between Firestore nested objects and {@link Option} instances.
+ * Converts between Firestore nested objects and [Option] instances.
  */
-class OptionConverter {
-
-  static Option toOption(String id, OptionNestedObject option) {
-    Option.Builder builder = Option.newBuilder();
-    builder.setId(id);
-    if (option.getCode() != null) {
-      builder.setCode(option.getCode());
+internal object OptionConverter {
+    fun toOption(id: String, option: OptionNestedObject): Option {
+        val builder = Option.newBuilder()
+        builder.setId(id)
+        if (option.code != null) {
+            builder.setCode(option.code)
+        }
+        if (option.label != null) {
+            builder.setLabel(option.label)
+        }
+        return builder.build()
     }
-    if (option.getLabel() != null) {
-      builder.setLabel(option.getLabel());
-    }
-    return builder.build();
-  }
 }

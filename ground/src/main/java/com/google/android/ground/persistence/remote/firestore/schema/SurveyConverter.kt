@@ -14,53 +14,56 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.model.basemap.BaseMap.typeFromExtension;
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.firestore.schema.JobConverter.toJob
+import com.google.common.collect.ImmutableMap
+import com.google.firebase.firestore.DocumentSnapshot
+import java8.util.Maps
+import timber.log.Timber
+import java.net.MalformedURLException
+import java.net.URL
 
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.basemap.BaseMap;
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.DocumentSnapshot;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java8.util.Maps;
-import timber.log.Timber;
+/** Converts between Firestore documents and [Survey] instances.  */
+internal object SurveyConverter {
 
-/** Converts between Firestore documents and {@link Survey} instances. */
-class SurveyConverter {
-
-  static Survey toSurvey(DocumentSnapshot doc) throws DataStoreException {
-    SurveyDocument pd = doc.toObject(SurveyDocument.class);
-    Survey.Builder survey = Survey.newBuilder();
-    survey
-        .setId(doc.getId())
-        .setTitle(pd.getTitle())
-        .setDescription(pd.getDescription());
-    if (pd.getJobs() != null) {
-      Maps.forEach(pd.getJobs(), (id, obj) -> survey.putJob(JobConverter.toJob(id, obj)));
+    @Throws(DataStoreException::class)
+    fun toSurvey(doc: DocumentSnapshot): Survey {
+        val pd = doc.toObject(SurveyDocument::class.java)
+        val survey = Survey.newBuilder()
+        survey
+            .setId(doc.id)
+            .setTitle(pd!!.title)
+            .setDescription(pd.description)
+        if (pd.jobs != null) {
+            Maps.forEach(pd.jobs) { id: String, obj: JobNestedObject ->
+                survey.putJob(toJob(id, obj))
+            }
+        }
+        survey.setAcl(ImmutableMap.copyOf(pd.acl))
+        if (pd.baseMaps != null) {
+            convertOfflineBaseMapSources(pd, survey)
+        }
+        return survey.build()
     }
-    survey.setAcl(ImmutableMap.copyOf(pd.getAcl()));
-    if (pd.getBaseMaps() != null) {
-      convertOfflineBaseMapSources(pd, survey);
-    }
-    return survey.build();
-  }
 
-  private static void convertOfflineBaseMapSources(SurveyDocument pd, Survey.Builder builder) {
-    for (BaseMapNestedObject src : pd.getBaseMaps()) {
-      if (src.getUrl() == null) {
-        Timber.d("Skipping base map source in survey with missing URL");
-        continue;
-      }
-      try {
-        URL url = new URL(src.getUrl());
-        builder.addBaseMap(
-            BaseMap.builder().setUrl(url).setType(typeFromExtension(src.getUrl())).build());
-      } catch (MalformedURLException e) {
-        Timber.d("Skipping base map source in survey with malformed URL");
-      }
+    private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: Survey.Builder) {
+        for ((url) in pd.baseMaps!!) {
+            if (url == null) {
+                Timber.d("Skipping base map source in survey with missing URL")
+                continue
+            }
+            try {
+                builder.addBaseMap(
+                    BaseMap.builder().setUrl(URL(url)).setType(BaseMap.typeFromExtension(url))
+                        .build()
+                )
+            } catch (e: MalformedURLException) {
+                Timber.d("Skipping base map source in survey with malformed URL")
+            }
+        }
     }
-  }
 }

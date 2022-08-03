@@ -14,86 +14,80 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.mutation.SubmissionMutation;
-import com.google.android.ground.model.submission.DateResponse;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
-import com.google.android.ground.model.submission.NumberResponse;
-import com.google.android.ground.model.submission.Response;
-import com.google.android.ground.model.submission.ResponseDelta;
-import com.google.android.ground.model.submission.TextResponse;
-import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.FieldValue;
-import java.util.Map;
-import timber.log.Timber;
+import com.google.android.ground.model.User
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.*
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.firestore.schema.AuditInfoConverter.fromMutationAndUser
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
+import com.google.firebase.firestore.FieldValue
+import timber.log.Timber
 
 /**
- * Converts between Firestore maps used to merge updates and {@link SubmissionMutation} instances.
+ * Converts between Firestore maps used to merge updates and [SubmissionMutation] instances.
  */
-class SubmissionMutationConverter {
+internal object SubmissionMutationConverter {
 
-  static final String LOI_ID = "loiId";
-  private static final String JOB_ID = "jobId";
-  private static final String RESPONSES = "responses";
-  private static final String CREATED = "created";
-  private static final String LAST_MODIFIED = "lastModified";
+    const val LOI_ID = "loiId"
+    private const val JOB_ID = "jobId"
+    private const val RESPONSES = "responses"
+    private const val CREATED = "created"
+    private const val LAST_MODIFIED = "lastModified"
 
-  static ImmutableMap<String, Object> toMap(SubmissionMutation mutation, User user)
-      throws DataStoreException {
-    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
-    switch (mutation.getType()) {
-      case CREATE:
-        map.put(CREATED, auditInfo);
-        map.put(LAST_MODIFIED, auditInfo);
-        break;
-      case UPDATE:
-        map.put(LAST_MODIFIED, auditInfo);
-        break;
-      case DELETE:
-        // TODO.
-      case UNKNOWN:
-      default:
-        throw new DataStoreException("Unsupported mutation type: " + mutation.getType());
+    @Throws(DataStoreException::class)
+    fun toMap(mutation: SubmissionMutation, user: User): ImmutableMap<String, Any> {
+        val map = ImmutableMap.builder<String, Any>()
+        val auditInfo = fromMutationAndUser(mutation, user)
+        when (mutation.type) {
+            Mutation.Type.CREATE -> {
+                map.put(CREATED, auditInfo)
+                map.put(LAST_MODIFIED, auditInfo)
+            }
+            Mutation.Type.UPDATE ->
+                map.put(LAST_MODIFIED, auditInfo)
+            Mutation.Type.DELETE, Mutation.Type.UNKNOWN ->
+                throw DataStoreException("Unsupported mutation type: ${mutation.type}")
+        }
+        map.put(LOI_ID, mutation.locationOfInterestId)
+        map.put(JOB_ID, mutation.job!!.id)
+        map.put(RESPONSES, toMap(mutation.responseDeltas))
+        return map.build()
     }
-    map.put(LOI_ID, mutation.getLocationOfInterestId())
-        .put(JOB_ID, mutation.getJob().getId())
-        .put(RESPONSES, toMap(mutation.getResponseDeltas()));
-    return map.build();
-  }
 
-  private static Map<String, Object> toMap(ImmutableList<ResponseDelta> responseDeltas) {
-    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    for (ResponseDelta delta : responseDeltas) {
-      map.put(
-          delta.getTaskId(),
-          delta
-              .getNewResponse()
-              .map(SubmissionMutationConverter::toObject)
-              .orElse(FieldValue.delete()));
+    private fun toMap(responseDeltas: ImmutableList<ResponseDelta>): Map<String, Any> {
+        val map = ImmutableMap.builder<String, Any>()
+        for (delta in responseDeltas) {
+            delta
+                .newResponse
+                .map { obj: Response -> toObject(obj) }
+                .orElse(FieldValue.delete())
+                ?.let {
+                    map.put(delta.taskId, it)
+                }
+        }
+        return map.build()
     }
-    return map.build();
-  }
 
-  private static Object toObject(Response response) {
-    if (response instanceof TextResponse) {
-      return ((TextResponse) response).getText();
-    } else if (response instanceof MultipleChoiceResponse) {
-      return ((MultipleChoiceResponse) response).getSelectedOptionIds();
-    } else if (response instanceof NumberResponse) {
-      return ((NumberResponse) response).getValue();
-    } else if (response instanceof TimeResponse) {
-      return ((TimeResponse) response).getTime();
-    } else if (response instanceof DateResponse) {
-      return ((DateResponse) response).getDate();
-    } else {
-      Timber.e("Unknown response type: %s", response.getClass().getName());
-      return null;
+    private fun toObject(response: Response): Any? {
+        return when (response) {
+            is TextResponse ->
+                response.text
+            is MultipleChoiceResponse ->
+                response.selectedOptionIds
+            is NumberResponse ->
+                response.value
+            is TimeResponse ->
+                response.time
+            is DateResponse ->
+                response.date
+            else -> {
+                Timber.e("Unknown response type: %s", response.javaClass.name)
+                null
+            }
+        }
     }
-  }
 }

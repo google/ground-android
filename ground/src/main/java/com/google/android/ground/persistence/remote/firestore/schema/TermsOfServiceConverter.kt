@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.TermsOfService;
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.firebase.firestore.DocumentSnapshot
 
-/** Converts between Firestore documents and {@link TermsOfService} instances. */
-public class TermsOfServiceConverter {
+/** Converts between Firestore documents and [TermsOfService] instances.  */
+object TermsOfServiceConverter {
 
-  static TermsOfService toTerms(DocumentSnapshot doc) throws DataStoreException {
-    TermsOfServiceDocument pd = doc.toObject(TermsOfServiceDocument.class);
-    TermsOfService.Builder terms = TermsOfService.builder();
-    terms.setId(doc.getId()).setText(pd.getText());
-    return terms.build();
-  }
+    @JvmStatic
+    @Throws(DataStoreException::class)
+    fun toTerms(doc: DocumentSnapshot): TermsOfService {
+        val pd = doc.toObject(TermsOfServiceDocument::class.java)
+        return TermsOfService.builder().setId(doc.id).setText(pd!!.text).build()
+    }
 }

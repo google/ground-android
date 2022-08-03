@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.util.Enums.toEnum;
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.util.Enums.toEnum
+import com.google.android.ground.util.toImmutableList
 
-import com.google.android.ground.model.task.MultipleChoice;
-import java8.util.Comparators;
+internal object MultipleChoiceConverter {
 
-class MultipleChoiceConverter {
-
-  static MultipleChoice toMultipleChoice(TaskNestedObject em) {
-    MultipleChoice.Builder mc = MultipleChoice.newBuilder();
-    mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.getCardinality()));
-    if (em.getOptions() != null) {
-      mc.setOptions(
-          stream(em.getOptions().entrySet())
-              .sorted(Comparators.comparing(e -> e.getValue().getIndex()))
-              .map(e -> OptionConverter.toOption(e.getKey(), e.getValue()))
-              .collect(toImmutableList()));
+    @JvmStatic
+    fun toMultipleChoice(em: TaskNestedObject): MultipleChoice {
+        val mc = MultipleChoice.newBuilder()
+        mc.setCardinality(toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!))
+        if (em.options != null) {
+            mc.setOptions(
+                em.options.entries.sortedBy { it.value.index }
+                    .map { (key, value): Map.Entry<String, OptionNestedObject> ->
+                        OptionConverter.toOption(
+                            key, value
+                        )
+                    }.toImmutableList()
+            )
+        }
+        return mc.build()
     }
-    return mc.build();
-  }
 }

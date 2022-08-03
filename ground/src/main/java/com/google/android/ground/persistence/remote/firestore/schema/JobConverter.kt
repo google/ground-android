@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static java8.util.stream.StreamSupport.stream;
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.task.Task
 
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.job.Job.Builder;
+/** Converts between Firestore documents and [Job] instances.  */
+internal object JobConverter {
 
-/** Converts between Firestore documents and {@link Job} instances. */
-class JobConverter {
-
-  static Job toJob(String id, JobNestedObject obj) {
-    Builder builder = Job.newBuilder();
-    builder.setId(id).setName(obj.getName());
-    if (obj.getTasks() != null) {
-      stream(obj.getTasks().entrySet())
-          .map(it -> TaskConverter.toTask(it.getKey(), it.getValue()))
-          .forEach(it -> it.ifPresent(builder::addTask));
+    @JvmStatic
+    fun toJob(id: String, obj: JobNestedObject): Job {
+        val builder = Job.newBuilder()
+        builder.setId(id).setName(obj.name)
+        if (obj.tasks != null) {
+            obj.tasks.entries.map { (key, value): Map.Entry<String, TaskNestedObject> ->
+                TaskConverter.toTask(key, value)
+            }.forEach { it.ifPresent { task: Task -> builder.addTask(task) } }
+        }
+        return builder.build()
     }
-    return builder.build();
-  }
 }

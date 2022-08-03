@@ -14,69 +14,62 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.mutation.LocationOfInterestMutation;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.GeoPoint;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import timber.log.Timber;
+import com.google.android.ground.model.User
+import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.persistence.remote.firestore.schema.AuditInfoConverter.fromMutationAndUser
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
+import com.google.firebase.firestore.GeoPoint
 
 /**
- * Converts between Firestore maps used to merge updates and {@link LocationOfInterestMutation}
+ * Converts between Firestore maps used to merge updates and [LocationOfInterestMutation]
  * instances.
  */
-class LoiMutationConverter {
+internal object LoiMutationConverter {
 
-  /**
-   * Returns a map containing key-value pairs usable by Firestore constructed from the provided
-   * mutation.
-   */
-  static ImmutableMap<String, Object> toMap(LocationOfInterestMutation mutation, User user) {
-    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(LoiConverter.JOB_ID, mutation.getJobId());
-    mutation
-        .getLocation()
-        .map(LoiMutationConverter::toGeoPoint)
-        .ifPresent(point -> map.put(LoiConverter.LOCATION, point));
-    Map<String, Object> geometry = new HashMap<>();
-    geometry.put(LoiConverter.GEOMETRY_COORDINATES, toGeoPointList(mutation.getPolygonVertices()));
-    geometry.put(LoiConverter.GEOMETRY_TYPE, LoiConverter.POLYGON_TYPE);
-    map.put(LoiConverter.GEOMETRY, geometry);
+    /**
+     * Returns a map containing key-value pairs usable by Firestore constructed from the provided
+     * mutation.
+     */
+    fun toMap(mutation: LocationOfInterestMutation, user: User): ImmutableMap<String, Any> {
+        val map = ImmutableMap.builder<String, Any>()
 
-    AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
-    switch (mutation.getType()) {
-      case CREATE:
-        map.put(LoiConverter.CREATED, auditInfo);
-        map.put(LoiConverter.LAST_MODIFIED, auditInfo);
-        break;
-      case UPDATE:
-        map.put(LoiConverter.LAST_MODIFIED, auditInfo);
-        break;
-      case DELETE:
-      case UNKNOWN:
-        // TODO.
-        throw new UnsupportedOperationException();
-      default:
-        Timber.e("Unhandled state: %s", mutation.getType());
-        break;
+        map.put(LoiConverter.JOB_ID, mutation.jobId)
+
+        mutation
+            .location
+            .map { toGeoPoint(it) }
+            .ifPresent { point: GeoPoint -> map.put(LoiConverter.LOCATION, point) }
+
+        val geometry: MutableMap<String, Any> = HashMap()
+        geometry[LoiConverter.GEOMETRY_COORDINATES] = toGeoPointList(mutation.polygonVertices)
+        geometry[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
+        map.put(LoiConverter.GEOMETRY, geometry)
+
+        val auditInfo = fromMutationAndUser(mutation, user)
+        when (mutation.type) {
+            Mutation.Type.CREATE -> {
+                map.put(LoiConverter.CREATED, auditInfo)
+                map.put(LoiConverter.LAST_MODIFIED, auditInfo)
+            }
+            Mutation.Type.UPDATE ->
+                map.put(LoiConverter.LAST_MODIFIED, auditInfo)
+            Mutation.Type.DELETE, Mutation.Type.UNKNOWN ->
+                throw UnsupportedOperationException()
+        }
+        return map.build()
     }
-    return map.build();
-  }
 
-  private static GeoPoint toGeoPoint(Point point) {
-    return new GeoPoint(point.getLatitude(), point.getLongitude());
-  }
+    private fun toGeoPoint(point: Point): GeoPoint {
+        return GeoPoint(point.latitude, point.longitude)
+    }
 
-  private static List<GeoPoint> toGeoPointList(ImmutableList<Point> point) {
-    return stream(point).map(LoiMutationConverter::toGeoPoint).collect(toImmutableList());
-  }
+    private fun toGeoPointList(point: ImmutableList<Point>): List<GeoPoint> {
+        return point.map { toGeoPoint(it) }.toImmutableList()
+    }
 }

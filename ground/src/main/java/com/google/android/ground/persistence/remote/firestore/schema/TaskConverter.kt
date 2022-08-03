@@ -14,34 +14,35 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.util.Enums.toEnum;
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.remote.firestore.schema.MultipleChoiceConverter.toMultipleChoice
+import com.google.android.ground.util.Enums.toEnum
+import java8.util.Optional
+import timber.log.Timber
 
-import com.google.android.ground.model.task.Task;
-import java8.util.Objects;
-import java8.util.Optional;
-import timber.log.Timber;
+/** Converts between Firestore nested objects and [Task] instances.  */
+internal object TaskConverter {
 
-/** Converts between Firestore nested objects and {@link Task} instances. */
-class TaskConverter {
-
-  static Optional<Task> toTask(String id, TaskNestedObject em) {
-    Task.Type type = toEnum(Task.Type.class, em.getType());
-    if (type == Task.Type.UNKNOWN) {
-      Timber.d("Unsupported task type: " + em.getType());
-      return Optional.empty();
+    fun toTask(id: String, em: TaskNestedObject): Optional<Task> {
+        val type = toEnum(
+            Task.Type::class.java, em.type!!
+        )
+        if (type == Task.Type.UNKNOWN) {
+            Timber.d("Unsupported task type: ${em.type}")
+            return Optional.empty()
+        }
+        val task = Task.newBuilder()
+        task.setType(type)
+        if (type == Task.Type.MULTIPLE_CHOICE) {
+            task.setMultipleChoice(toMultipleChoice(em))
+        }
+        task.setRequired(em.required != null && em.required)
+        task.setId(id)
+        // Default index to -1 to degrade gracefully on older dev db instances and surveys.
+        task.setIndex(em.index ?: -1)
+        task.setLabel(em.label)
+        return Optional.of(task.build())
     }
-    Task.Builder task = Task.newBuilder();
-    task.setType(type);
-    if (type == Task.Type.MULTIPLE_CHOICE) {
-      task.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
-    }
-    task.setRequired(em.getRequired() != null && em.getRequired());
-    task.setId(id);
-    // Default index to -1 to degrade gracefully on older dev db instances and surveys.
-    task.setIndex(Objects.requireNonNullElse(em.getIndex(), -1));
-    task.setLabel(em.getLabel());
-    return Optional.of(task.build());
-  }
 }
