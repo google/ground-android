@@ -25,12 +25,10 @@ internal object UserConverter {
     }
 
     fun toUser(ud: UserNestedObject?): User {
-        // Degrade gracefully when user missing in remote db.
-        val ud2 = if (ud?.id == null) UserNestedObject.UNKNOWN_USER else ud
         return User.builder()
-            .setId(ud2.id)
-            .setEmail(ud2.email)
-            .setDisplayName(ud2.displayName)
+            .setId(ud?.id.orEmpty())
+            .setEmail(ud?.email.orEmpty())
+            .setDisplayName(ud?.displayName.orEmpty())
             .build()
     }
 }
