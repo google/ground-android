@@ -55,6 +55,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         val binding = DataCollectionFragBinding.inflate(inflater, container, false)
         viewPager = binding.root.findViewById(R.id.pager)
         viewPager.isUserInputEnabled = false
+        viewPager.offscreenPageLimit = 3
 
         viewModel.loadSubmissionDetails(args)
         viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
