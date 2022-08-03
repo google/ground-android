@@ -14,40 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-
-/** User details nested for nesting inside entities for audit purposes. */
-class UserNestedObject {
-  /** Fallback value when reading invalid or legacy schemas. */
-  static final UserNestedObject UNKNOWN_USER = new UserNestedObject("", "", "Unknown user");
-
-  @Nullable private String id;
-  @Nullable private String email;
-  @Nullable private String displayName;
-
-  @SuppressWarnings("unused")
-  public UserNestedObject() {}
-
-  UserNestedObject(@Nullable String id, @Nullable String email, @Nullable String displayName) {
-    this.id = id;
-    this.email = email;
-    this.displayName = displayName;
-  }
-
-  @Nullable
-  public String getId() {
-    return id;
-  }
-
-  @Nullable
-  public String getEmail() {
-    return email;
-  }
-
-  @Nullable
-  public String getDisplayName() {
-    return displayName;
-  }
+/** User details nested for nesting inside entities for audit purposes.  */
+data class UserNestedObject(
+    val id: String?,
+    val email: String?,
+    val displayName: String?
+) {
+    companion object {
+        /** Fallback value when reading invalid or legacy schemas.  */
+        @JvmField
+        val UNKNOWN_USER = UserNestedObject("", "", "Unknown user")
+    }
 }

@@ -14,64 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.Map;
+import com.google.firebase.firestore.IgnoreExtraProperties
 
 /**
  * Submission entity stored in Firestore.
  */
 @IgnoreExtraProperties
-class SubmissionDocument {
-
-  @Nullable private String loiId;
-  @Nullable private String jobId;
-  @Nullable private AuditInfoNestedObject created;
-  @Nullable private AuditInfoNestedObject lastModified;
-  @Nullable private Map<String, Object> responses;
-
-  @SuppressWarnings("unused")
-  public SubmissionDocument() {
-  }
-
-  @SuppressWarnings("unused")
-  SubmissionDocument(
-      @Nullable String loiId,
-      @Nullable String jobId,
-      @Nullable AuditInfoNestedObject created,
-      @Nullable AuditInfoNestedObject lastModified,
-      @Nullable Map<String, Object> responses) {
-    this.loiId = loiId;
-    this.jobId = jobId;
-    this.created = created;
-    this.lastModified = lastModified;
-    this.responses = responses;
-  }
-
-  @Nullable
-  public String getLoiId() {
-    return loiId;
-  }
-
-  @Nullable
-  public String getJobId() {
-    return jobId;
-  }
-
-  @Nullable
-  public AuditInfoNestedObject getCreated() {
-    return created;
-  }
-
-  @Nullable
-  public AuditInfoNestedObject getLastModified() {
-    return lastModified;
-  }
-
-  @Nullable
-  public Map<String, Object> getResponses() {
-    return responses;
-  }
-}
+data class SubmissionDocument(
+    val loiId: String?,
+    val jobId: String?,
+    val created: AuditInfoNestedObject?,
+    val lastModified: AuditInfoNestedObject?,
+    val responses: Map<String, Any>?
+)

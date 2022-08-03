@@ -14,35 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.Map;
+import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Firestore representation of map layers. */
+/** Firestore representation of map layers.  */
 @IgnoreExtraProperties
-class JobNestedObject {
-  @Nullable private String name;
-  @Nullable private Map<String, TaskNestedObject> tasks;
-
-  @SuppressWarnings("unused")
-  public JobNestedObject() {}
-
-  @SuppressWarnings("unused")
-  JobNestedObject(
-      @Nullable String name, @Nullable Map<String, TaskNestedObject> tasks) {
-    this.name = name;
-    this.tasks = tasks;
-  }
-
-  @Nullable
-  public String getName() {
-    return name;
-  }
-
-  @Nullable
-  public Map<String, TaskNestedObject> getTasks() {
-    return tasks;
-  }
-}
+data class JobNestedObject(val name: String?, val tasks: Map<String, TaskNestedObject>?)

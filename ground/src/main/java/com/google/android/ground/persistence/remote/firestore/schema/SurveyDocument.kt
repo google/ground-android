@@ -14,65 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.List;
-import java.util.Map;
+import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Project entity stored in Firestore. */
+/** Project entity stored in Firestore.  */
 @IgnoreExtraProperties
-class SurveyDocument {
-  @Nullable private String title;
-
-  @Nullable private String description;
-
-  @Nullable private Map<String, JobNestedObject> jobs;
-
-  @Nullable private Map<String, String> acl;
-
-  @Nullable private List<BaseMapNestedObject> baseMaps;
-
-  @SuppressWarnings("unused")
-  public SurveyDocument() {}
-
-  @SuppressWarnings("unused")
-  SurveyDocument(
-      @Nullable String title,
-      @Nullable String description,
-      @Nullable Map<String, JobNestedObject> jobs,
-      @Nullable Map<String, String> acl,
-      @Nullable List<BaseMapNestedObject> baseMaps) {
-    this.title = title;
-    this.description = description;
-    this.jobs = jobs;
-    this.acl = acl;
-    this.baseMaps = baseMaps;
-  }
-
-  @Nullable
-  public String getTitle() {
-    return title;
-  }
-
-  @Nullable
-  public String getDescription() {
-    return description;
-  }
-
-  @Nullable
-  public Map<String, JobNestedObject> getJobs() {
-    return jobs;
-  }
-
-  @Nullable
-  public Map<String, String> getAcl() {
-    return acl;
-  }
-
-  @Nullable
-  public List<BaseMapNestedObject> getBaseMaps() {
-    return baseMaps;
-  }
-}
+data class SurveyDocument(
+    val title: String?,
+    val description: String?,
+    val jobs: Map<String, JobNestedObject>?,
+    val acl: Map<String, String>?,
+    val baseMaps: List<BaseMapNestedObject>?
+)

@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-
-class BaseMapNestedObject {
-  @Nullable private String url;
-
-  @SuppressWarnings("unused")
-  BaseMapNestedObject() {}
-
-  @SuppressWarnings("unused")
-  BaseMapNestedObject(@Nullable String url) {
-    this.url = url;
-  }
-
-  @Nullable
-  public String getUrl() {
-    return url;
-  }
-}
+data class BaseMapNestedObject(val url: String?)

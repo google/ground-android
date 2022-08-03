@@ -14,69 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.Map;
+import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Firestore representation of a data collection task. */
+/** Firestore representation of a data collection task.  */
 @IgnoreExtraProperties
-class TaskNestedObject {
-
-  @Nullable private Integer index;
-  @Nullable private String type;
-  @Nullable private String cardinality;
-  @Nullable private String label;
-  @Nullable private Map<String, OptionNestedObject> options;
-  @Nullable private Boolean required;
-
-  @SuppressWarnings("unused")
-  public TaskNestedObject() {}
-
-  @SuppressWarnings("unused")
-  TaskNestedObject(
-      @Nullable Integer index,
-      @Nullable String type,
-      @Nullable String cardinality,
-      @Nullable String label,
-      @Nullable Map<String, OptionNestedObject> options,
-      @Nullable Boolean required) {
-    this.index = index;
-    this.type = type;
-    this.cardinality = cardinality;
-    this.label = label;
-    this.options = options;
-    this.required = required;
-  }
-
-  @Nullable
-  public Integer getIndex() {
-    return index;
-  }
-
-  @Nullable
-  public String getType() {
-    return type;
-  }
-
-  @Nullable
-  public String getCardinality() {
-    return cardinality;
-  }
-
-  @Nullable
-  public String getLabel() {
-    return label;
-  }
-
-  @Nullable
-  public Map<String, OptionNestedObject> getOptions() {
-    return options;
-  }
-
-  @Nullable
-  public Boolean getRequired() {
-    return required;
-  }
-}
+data class TaskNestedObject(
+    val index: Int?,
+    val type: String?,
+    val cardinality: String?,
+    val label: String?,
+    val options: Map<String, OptionNestedObject>?,
+    val required: Boolean?
+)

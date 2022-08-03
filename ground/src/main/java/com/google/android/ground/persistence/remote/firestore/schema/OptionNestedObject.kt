@@ -14,39 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import androidx.annotation.Nullable;
-
-/** Firestore representation of multiple choice question options. */
-class OptionNestedObject {
-  @Nullable private Integer index;
-  @Nullable private String code;
-  @Nullable private String label;
-
-  @SuppressWarnings("unused")
-  public OptionNestedObject() {}
-
-  @SuppressWarnings("unused")
-  OptionNestedObject(
-      @Nullable Integer index, @Nullable String code, @Nullable String label) {
-    this.index = index;
-    this.code = code;
-    this.label = label;
-  }
-
-  public int getIndex() {
-    // Degrade gracefully if Options missing index in remote db.
-    return index == null ? -1 : index;
-  }
-
-  @Nullable
-  public String getCode() {
-    return code;
-  }
-
-  @Nullable
-  public String getLabel() {
-    return label;
-  }
-}
+/** Firestore representation of multiple choice question options.  */
+data class OptionNestedObject(
+    val index: Int? = -1,
+    val code: String?,
+    val label: String?
+)

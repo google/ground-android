@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.google.firebase.firestore.IgnoreExtraProperties
 
 @IgnoreExtraProperties
-public class TermsOfServiceDocument {
-  private String text;
-
-  @SuppressWarnings("unused")
-  public TermsOfServiceDocument() {}
-
-  @SuppressWarnings("unused")
-  TermsOfServiceDocument(String text) {
-    this.text = text;
-  }
-
-  public String getText() {
-    return text;
-  }
-}
+data class TermsOfServiceDocument constructor(val text: String?)

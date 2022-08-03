@@ -13,65 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote.firestore.schema
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.ServerTimestamp
 
-import androidx.annotation.Nullable;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.ServerTimestamp;
+/** User details and timestamp for creation or modification of a model object.  */
+data class AuditInfoNestedObject(
+    /**
+     * The user initiating the related action. This should never be missing, but we handle null
+     * values anyway since the Firestore is schema-less.
+     */
+    val user: UserNestedObject?,
 
-/** User details and timestamp for creation or modification of a model object. */
-class AuditInfoNestedObject {
+    /**
+     * The time at which the user action was initiated, according to the user's device. See
+     * [System.currentTimestamp] for details. This should never be missing, but we handle null
+     * values anyway since the Firestore is schema-less.
+     */
+    val clientTimestamp: Timestamp?,
 
-  private static final Timestamp EPOCH = new Timestamp(0, 0);
+    /**
+     * The time at which the server received the requested change according to the server's internal
+     * clock, or the updated server time was not yet received. See [System.currentTimestamp] for
+     * details. This will be null until the server updates the write time and syncs it back to the
+     * client.
+     */
+    @ServerTimestamp
+    val serverTimestamp: Timestamp?
+) {
+    companion object {
+        private val EPOCH = Timestamp(0, 0)
 
-  /** Value used to degrade gracefully when missing in remote db. */
-  public static final AuditInfoNestedObject FALLBACK_VALUE =
-      new AuditInfoNestedObject(UserNestedObject.UNKNOWN_USER, EPOCH, EPOCH);
-
-  @Nullable private UserNestedObject user;
-  @Nullable private Timestamp clientTimestamp;
-  @Nullable @ServerTimestamp private Timestamp serverTimestamp;
-
-  @SuppressWarnings("unused")
-  public AuditInfoNestedObject() {}
-
-  AuditInfoNestedObject(
-      @Nullable UserNestedObject user,
-      @Nullable Timestamp clientTimestamp,
-      @Nullable Timestamp serverTimestamp) {
-    this.user = user;
-    this.clientTimestamp = clientTimestamp;
-    this.serverTimestamp = serverTimestamp;
-  }
-
-  /**
-   * The user initiating the related action. This should never be missing, but we handle null values
-   * anyway since the Firestore is schema-less.
-   */
-  @Nullable
-  public UserNestedObject getUser() {
-    return user;
-  }
-
-  /**
-   * The time at which the user action was initiated, according to the user's device. See {@link
-   * System#currentTimestamp} for details. This should never be missing, but we handle null values
-   * anyway since the Firestore is schema-less.
-   */
-  @Nullable
-  public Timestamp getClientTimestamp() {
-    return clientTimestamp;
-  }
-
-  /**
-   * The time at which the server received the requested change according to the server's internal
-   * clock, or the updated server time was not yet received. See {@link System#currentTimestamp} for
-   * details. This will be null until the server updates the write time and syncs it back to the
-   * client.
-   */
-  @Nullable
-  public Timestamp getServerTimestamp() {
-    return serverTimestamp;
-  }
+        /** Value used to degrade gracefully when missing in remote db.  */
+        @JvmField
+        val FALLBACK_VALUE = AuditInfoNestedObject(UserNestedObject.UNKNOWN_USER, EPOCH, EPOCH)
+    }
 }
