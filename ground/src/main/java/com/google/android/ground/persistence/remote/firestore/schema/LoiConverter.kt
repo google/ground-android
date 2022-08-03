@@ -39,7 +39,7 @@ object LoiConverter {
     const val GEOMETRY = "geometry"
 
     @JvmStatic
-    @Throws(DataStoreException::class)
+    @Throws(DataStoreException::class, NotImplementedError::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiId = doc.id
         val loiDoc = checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
@@ -59,13 +59,16 @@ object LoiConverter {
                 fillLocationOfInterest(builder, survey, loiId, loiDoc)
                 return builder.build()
             }
-            "Polygon", "MultiPolygon" -> {
+            "Polygon" -> {
                 val builder = AreaOfInterest.newBuilder()
                 builder.setVertices(geometry.coordinates.map {
                     Point.newBuilder().setLatitude(it.x).setLongitude(it.y).build()
                 }.toImmutableList())
                 fillLocationOfInterest(builder, survey, loiId, loiDoc)
                 return builder.build()
+            }
+            "MultiPolygon" -> {
+                TODO("Implement model for multipolygons.")
             }
             else -> {
                 throw DataStoreException("Unsupported geometry $geometry")
