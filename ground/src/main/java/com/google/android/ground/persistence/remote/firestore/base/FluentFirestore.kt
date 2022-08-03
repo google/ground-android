@@ -14,50 +14,42 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.base;
+package com.google.android.ground.persistence.remote.firestore.base
 
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
+import com.google.android.ground.rx.annotations.Cold
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.WriteBatch
+import io.reactivex.Maybe
+import io.reactivex.Single
+import java8.util.function.Function
 
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.WriteBatch;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.Collections;
-import java.util.List;
-import java8.util.function.Function;
+/** Base class for representing Firestore databases as object hierarchies.  */
+abstract class FluentFirestore protected constructor(private val db: FirebaseFirestore) {
 
-/** Base class for representing Firestore databases as object hierarchies. */
-public abstract class FluentFirestore {
-  private final FirebaseFirestore db;
+    protected fun db(): FirebaseFirestore {
+        return db
+    }
 
-  protected FluentFirestore(FirebaseFirestore db) {
-    this.db = db;
-  }
+    // TODO: Wrap in fluent version of WriteBatch.
+    fun batch(): WriteBatch {
+        return db.batch()
+    }
 
-  protected FirebaseFirestore db() {
-    return db;
-  }
-
-  /**
-   * Applies the provided mapping function to each document in the specified query snapshot, if
-   * present. If no results are present, completes with an empty list.
-   */
-  @Cold
-  static <T> Single<List<T>> toSingleList(
-      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
-    return result
-        .map(
-            querySnapshot ->
-                stream(querySnapshot.getDocuments()).map(mappingFunction).collect(toList()))
-        .toSingle(Collections.emptyList());
-  }
-
-  // TODO: Wrap in fluent version of WriteBatch.
-  public WriteBatch batch() {
-    return db.batch();
-  }
+    companion object {
+        /**
+         * Applies the provided mapping function to each document in the specified query snapshot, if
+         * present. If no results are present, completes with an empty list.
+         */
+        fun <T> toSingleList(
+            result: Maybe<QuerySnapshot>, mappingFunction: Function<DocumentSnapshot, T>
+        ): @Cold Single<List<T>> {
+            return result
+                .map { querySnapshot: QuerySnapshot ->
+                    querySnapshot.documents.map { mappingFunction.apply(it) }
+                }
+                .toSingle(emptyList())
+        }
+    }
 }
