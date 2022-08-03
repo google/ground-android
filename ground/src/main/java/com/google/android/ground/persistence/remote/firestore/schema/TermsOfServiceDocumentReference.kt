@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.TermsOfService;
-import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference;
-import com.google.firebase.firestore.DocumentReference;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Maybe;
+import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
+import durdinapps.rxfirebase2.RxFirestore
+import io.reactivex.Maybe
 
-public class TermsOfServiceDocumentReference extends FluentDocumentReference {
+class TermsOfServiceDocumentReference internal constructor(ref: DocumentReference) :
+    FluentDocumentReference(ref) {
 
-  TermsOfServiceDocumentReference(DocumentReference ref) {
-    super(ref);
-  }
+    fun terms(): TermsOfServiceDocumentReference {
+        return TermsOfServiceDocumentReference(reference())
+    }
 
-  public TermsOfServiceDocumentReference terms() {
-    return new TermsOfServiceDocumentReference(reference());
-  }
-
-  public Maybe<TermsOfService> get() {
-    return RxFirestore.getDocument(reference()).map(TermsOfServiceConverter::toTerms);
-  }
+    fun get(): Maybe<TermsOfService> {
+        return RxFirestore.getDocument(reference())
+            .map { doc: DocumentSnapshot -> TermsOfServiceConverter.toTerms(doc) }
+    }
 }

@@ -14,39 +14,34 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.User;
-import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldPath;
-import io.reactivex.Single;
-import java.util.Arrays;
-import java.util.List;
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.User
+import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
+import com.google.android.ground.rx.annotations.Cold
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldPath
+import io.reactivex.Single
 
-public class SurveysCollectionReference extends FluentCollectionReference {
-  private static final String ACL_FIELD = "acl";
-  private static final String OWNER_ROLE = "owner";
-  private static final String MANAGER_ROLE = "manager";
-  private static final String CONTRIBUTOR_ROLE = "contributor";
-  private static final String VIEWER_ROLE = "viewer";
-  private static final List<String> VALID_ROLES =
-      Arrays.asList(OWNER_ROLE, MANAGER_ROLE, CONTRIBUTOR_ROLE, VIEWER_ROLE);
+private const val ACL_FIELD = "acl"
+private const val OWNER_ROLE = "owner"
+private const val MANAGER_ROLE = "manager"
+private const val CONTRIBUTOR_ROLE = "contributor"
+private const val VIEWER_ROLE = "viewer"
+private val VALID_ROLES = listOf(OWNER_ROLE, MANAGER_ROLE, CONTRIBUTOR_ROLE, VIEWER_ROLE)
 
-  SurveysCollectionReference(CollectionReference ref) {
-    super(ref);
-  }
+class SurveysCollectionReference internal constructor(ref: CollectionReference) :
+    FluentCollectionReference(ref) {
 
-  public SurveyDocumentReference survey(String id) {
-    return new SurveyDocumentReference(reference().document(id));
-  }
+    fun survey(id: String): SurveyDocumentReference {
+        return SurveyDocumentReference(reference().document(id))
+    }
 
-  @Cold
-  public Single<List<Survey>> getReadable(User user) {
-    return runQuery(
-        reference().whereIn(FieldPath.of(ACL_FIELD, user.getEmail()), VALID_ROLES),
-        SurveyConverter::toSurvey);
-  }
+    fun getReadable(user: User): @Cold Single<List<Survey>> {
+        return runQuery(
+            reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)
+        ) { doc: DocumentSnapshot -> SurveyConverter.toSurvey(doc) }
+    }
 }

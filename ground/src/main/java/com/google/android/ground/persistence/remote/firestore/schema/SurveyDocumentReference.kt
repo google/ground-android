@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference;
-import com.google.firebase.firestore.DocumentReference;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Maybe;
+import com.google.android.ground.model.Survey
+import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
+import durdinapps.rxfirebase2.RxFirestore
+import io.reactivex.Maybe
 
-public class SurveyDocumentReference extends FluentDocumentReference {
-  private static final String LOIS = "lois";
-  private static final String SUBMISSIONS = "submissions";
+private const val LOIS = "lois"
+private const val SUBMISSIONS = "submissions"
 
-  SurveyDocumentReference(DocumentReference ref) {
-    super(ref);
-  }
+class SurveyDocumentReference internal constructor(ref: DocumentReference) :
+    FluentDocumentReference(ref) {
 
-  public LoiCollectionReference lois() {
-    return new LoiCollectionReference(reference().collection(LOIS));
-  }
+    fun lois(): LoiCollectionReference {
+        return LoiCollectionReference(reference().collection(LOIS))
+    }
 
-  public SubmissionCollectionReference submissions() {
-    return new SubmissionCollectionReference(reference().collection(SUBMISSIONS));
-  }
+    fun submissions(): SubmissionCollectionReference {
+        return SubmissionCollectionReference(reference().collection(SUBMISSIONS))
+    }
 
-  public Maybe<Survey> get() {
-    return RxFirestore.getDocument(reference()).map(SurveyConverter::toSurvey);
-  }
+    fun get(): Maybe<Survey> {
+        return RxFirestore.getDocument(reference())
+            .map { doc: DocumentSnapshot -> SurveyConverter.toSurvey(doc) }
+    }
 }

@@ -14,41 +14,33 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.base;
+package com.google.android.ground.persistence.remote.firestore.base
 
-import androidx.annotation.NonNull;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.WriteBatch;
+import com.google.common.collect.ImmutableMap
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.WriteBatch
 
-public class FluentDocumentReference {
-  private final DocumentReference reference;
+open class FluentDocumentReference protected constructor(private val reference: DocumentReference) {
 
-  protected FluentDocumentReference(DocumentReference reference) {
-    this.reference = reference;
-  }
+    /**
+     * Adds a request to the specified batch to merge the provided key-value pairs into the remote
+     * database. If the document does not yet exist, one is created on commit.
+     */
+    protected fun merge(values: ImmutableMap<String, Any>, batch: WriteBatch) {
+        batch[reference, values] = SetOptions.merge()
+    }
 
-  /**
-   * Adds a request to the specified batch to merge the provided key-value pairs into the remote
-   * database. If the document does not yet exist, one is created on commit.
-   */
-  protected void merge(ImmutableMap<String, Object> values, WriteBatch batch) {
-    batch.set(reference, values, SetOptions.merge());
-  }
+    /** Adds a request to the specified batch to delete the current DocumentReference.  */
+    protected fun delete(batch: WriteBatch) {
+        batch.delete(reference)
+    }
 
-  /** Adds a request to the specified batch to delete the current DocumentReference. */
-  protected void delete(WriteBatch batch) {
-    batch.delete(reference);
-  }
+    protected fun reference(): DocumentReference {
+        return reference
+    }
 
-  protected DocumentReference reference() {
-    return reference;
-  }
-
-  @NonNull
-  @Override
-  public String toString() {
-    return reference.getPath();
-  }
+    override fun toString(): String {
+        return reference.path
+    }
 }

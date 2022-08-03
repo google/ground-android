@@ -13,33 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote.firestore.schema
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+import com.google.android.ground.model.User
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.WriteBatch
 
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.mutation.LocationOfInterestMutation;
-import com.google.android.ground.persistence.remote.firestore.base.FluentDocumentReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.WriteBatch;
+class LoiDocumentReference internal constructor(ref: DocumentReference) :
+    FluentDocumentReference(ref) {
 
-public class LoiDocumentReference extends FluentDocumentReference {
-  LoiDocumentReference(DocumentReference ref) {
-    super(ref);
-  }
-
-  /** Appends the operation described by the specified mutation to the provided write batch. */
-  public void addMutationToBatch(LocationOfInterestMutation mutation, User user, WriteBatch batch) {
-    switch (mutation.getType()) {
-      case CREATE:
-      case UPDATE:
-        merge(LoiMutationConverter.toMap(mutation, user), batch);
-        break;
-      case DELETE:
-        // The server is expected to do a cascading delete of all submissions for the deleted LOI.
-        delete(batch);
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
+    /** Appends the operation described by the specified mutation to the provided write batch.  */
+    fun addMutationToBatch(mutation: LocationOfInterestMutation, user: User, batch: WriteBatch) {
+        when (mutation.type) {
+            Mutation.Type.CREATE, Mutation.Type.UPDATE ->
+                merge(LoiMutationConverter.toMap(mutation, user), batch)
+            Mutation.Type.DELETE ->
+                // The server is expected to do a cascading delete of all submissions for the deleted LOI.
+                delete(batch)
+            else ->
+                throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
+        }
     }
-  }
 }

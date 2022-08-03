@@ -14,54 +14,52 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.base;
+package com.google.android.ground.persistence.remote.firestore.base
 
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.android.ground.system.NetworkManager;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import java.util.List;
-import java8.util.function.Function;
+import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.system.NetworkManager.requireActiveNetwork
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Query
+import durdinapps.rxfirebase2.RxFirestore
+import io.reactivex.Completable
+import io.reactivex.Single
+import java8.util.function.Function
 
-public abstract class FluentCollectionReference {
-  private final CollectionReference reference;
+abstract class FluentCollectionReference protected constructor(private val reference: CollectionReference) {
 
-  protected FluentCollectionReference(CollectionReference reference) {
-    this.reference = reference;
-  }
+    /**
+     * Returns a Completable that completes immediately on subscribe if network is available, or fails
+     * in error if not.
+     */
+    private fun requireActiveNetwork(): @Cold Completable {
+        return requireActiveNetwork(
+            reference.firestore.app.applicationContext
+        )
+    }
 
-  /**
-   * Returns a Completable that completes immediately on subscribe if network is available, or fails
-   * in error if not.
-   */
-  @Cold
-  private Completable requireActiveNetwork() {
-    return NetworkManager.requireActiveNetwork(
-        reference.getFirestore().getApp().getApplicationContext());
-  }
+    /**
+     * Runs the specified query, returning a Single containing a List of values created by applying
+     * the mappingFunction to all results. Fails immediately with an error if an active network is not
+     * available.
+     */
+    protected fun <T> runQuery(
+        query: Query, mappingFunction: Function<DocumentSnapshot, T>
+    ): @Cold Single<List<T>> {
+        return requireActiveNetwork()
+            .andThen(
+                FluentFirestore.toSingleList(
+                    RxFirestore.getCollection(query),
+                    mappingFunction
+                )
+            )
+    }
 
-  /**
-   * Runs the specified query, returning a Single containing a List of values created by applying
-   * the mappingFunction to all results. Fails immediately with an error if an active network is not
-   * available.
-   */
-  @Cold
-  protected <T> Single<List<T>> runQuery(
-      Query query, Function<DocumentSnapshot, T> mappingFunction) {
-    return requireActiveNetwork()
-        .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction));
-  }
+    protected fun reference(): CollectionReference {
+        return reference
+    }
 
-  protected CollectionReference reference() {
-    return reference;
-  }
-
-  @Override
-  public String toString() {
-    return reference.getPath();
-  }
+    override fun toString(): String {
+        return reference.path
+    }
 }

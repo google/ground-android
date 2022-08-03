@@ -14,36 +14,39 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.persistence.remote.RemoteDataEvent;
-import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.QuerySnapshot;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Flowable;
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.persistence.remote.RemoteDataEvent
+import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
+import com.google.android.ground.persistence.remote.firestore.schema.LoiConverter.toLoi
+import com.google.android.ground.rx.annotations.Cold
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.QuerySnapshot
+import durdinapps.rxfirebase2.RxFirestore
+import io.reactivex.Flowable
 
-public class LoiCollectionReference extends FluentCollectionReference {
-  LoiCollectionReference(CollectionReference ref) {
-    super(ref);
-  }
+class LoiCollectionReference internal constructor(ref: CollectionReference) :
+    FluentCollectionReference(ref) {
 
-  private static Iterable<RemoteDataEvent<LocationOfInterest>> toRemoteDataEvents(
-      Survey survey, QuerySnapshot snapshot) {
-    return QuerySnapshotConverter.toEvents(snapshot, doc -> LoiConverter.toLoi(survey, doc));
-  }
+    /** Retrieves all lois in the survey, then streams changes to the remote db incrementally.  */
+    fun loadOnceAndStreamChanges(survey: Survey): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> {
+        return RxFirestore.observeQueryRef(reference())
+            .flatMapIterable { snapshot: QuerySnapshot -> toRemoteDataEvents(survey, snapshot) }
+    }
 
-  /** Retrieves all lois in the survey, then streams changes to the remote db incrementally. */
-  @Cold(terminates = false)
-  public Flowable<RemoteDataEvent<LocationOfInterest>> loadOnceAndStreamChanges(Survey survey) {
-    return RxFirestore.observeQueryRef(reference())
-        .flatMapIterable(snapshot -> toRemoteDataEvents(survey, snapshot));
-  }
+    fun loi(id: String): LoiDocumentReference {
+        return LoiDocumentReference(reference().document(id))
+    }
 
-  public LoiDocumentReference loi(String id) {
-    return new LoiDocumentReference(reference().document(id));
-  }
+    private fun toRemoteDataEvents(
+        survey: Survey,
+        snapshot: QuerySnapshot
+    ): Iterable<RemoteDataEvent<LocationOfInterest>> {
+        return QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot ->
+            toLoi(survey, doc)
+        }
+    }
 }

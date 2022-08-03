@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
+import com.google.firebase.firestore.CollectionReference
 
-public class TermsOfServiceCollectionReference extends FluentCollectionReference {
+private const val TOS = "tos"
 
-  private static final String TOS = "tos";
+class TermsOfServiceCollectionReference internal constructor(ref: CollectionReference) :
+    FluentCollectionReference(ref) {
 
-  TermsOfServiceCollectionReference(CollectionReference ref) {
-    super(ref);
-  }
-
-  public TermsOfServiceDocumentReference getTerm() {
-    return new TermsOfServiceDocumentReference(reference().document(TOS));
-  }
+    val term: TermsOfServiceDocumentReference
+        get() = TermsOfServiceDocumentReference(reference().document(TOS))
 }

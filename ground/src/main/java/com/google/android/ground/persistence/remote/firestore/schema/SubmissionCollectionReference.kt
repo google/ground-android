@@ -14,55 +14,48 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+package com.google.android.ground.persistence.remote.firestore.schema
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
+import com.google.android.ground.rx.ValueOrError
+import com.google.android.ground.rx.ValueOrError.Companion.create
+import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
+import com.google.firebase.firestore.*
+import durdinapps.rxfirebase2.RxFirestore
+import io.reactivex.Single
 
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference;
-import com.google.android.ground.rx.ValueOrError;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.common.collect.ImmutableList;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Single;
-import org.jetbrains.annotations.NotNull;
+class SubmissionCollectionReference internal constructor(ref: CollectionReference) :
+    FluentCollectionReference(ref) {
 
-public class SubmissionCollectionReference extends FluentCollectionReference {
+    fun submission(id: String): SubmissionDocumentReference {
+        return SubmissionDocumentReference(reference().document(id))
+    }
 
-  SubmissionCollectionReference(CollectionReference ref) {
-    super(ref);
-  }
+    fun submissionsByLocationOfInterestId(
+        locationOfInterest: LocationOfInterest
+    ): @Cold Single<ImmutableList<ValueOrError<Submission?>>> {
+        return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
+            .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
+            .toSingle(ImmutableList.of())
+    }
 
-  public SubmissionDocumentReference submission(String id) {
-    return new SubmissionDocumentReference(reference().document(id));
-  }
+    private fun convert(
+        querySnapshot: QuerySnapshot, locationOfInterest: LocationOfInterest
+    ): ImmutableList<ValueOrError<Submission?>> {
+        return querySnapshot.documents
+            .map { doc: DocumentSnapshot ->
+                create {
+                    SubmissionConverter.toSubmission(locationOfInterest, doc)
+                }
+            }
+            .toImmutableList()
+    }
 
-  @Cold
-  public Single<ImmutableList<ValueOrError<Submission>>> submissionsByLocationOfInterestId(
-      LocationOfInterest locationOfInterest) {
-    return RxFirestore.getCollection(byLoiId(locationOfInterest.getId()))
-        .map(querySnapshot -> convert(querySnapshot, locationOfInterest))
-        .toSingle(ImmutableList.of());
-  }
-
-  @NotNull
-  private ImmutableList<ValueOrError<Submission>> convert(
-      QuerySnapshot querySnapshot, LocationOfInterest locationOfInterest) {
-    return stream(querySnapshot.getDocuments())
-        .map(
-            doc ->
-                ValueOrError.create(
-                    () -> SubmissionConverter.toSubmission(locationOfInterest, doc)))
-        .collect(toImmutableList());
-  }
-
-  private Query byLoiId(String loiId) {
-    return reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId);
-  }
+    private fun byLoiId(loiId: String): Query {
+        return reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId)
+    }
 }
