@@ -152,11 +152,6 @@ class SurveyRepository @Inject constructor(
             .loadSurveySummaries(user)
             .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
 
-    fun getModifiableJobs(survey: Survey): ImmutableList<Job> =
-        survey.jobs
-            .filter { !it.userCanAdd.isEmpty() }
-            .toImmutableList()
-
     fun getMutationsOnceAndStream(survey: Survey): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
         return localDataStore.getMutationsOnceAndStream(survey)
     }
