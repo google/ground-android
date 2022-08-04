@@ -17,7 +17,6 @@
 package com.google.android.ground.ui.common;
 
 import static com.google.android.ground.FakeData.AREA_OF_INTEREST;
-import static com.google.android.ground.FakeData.GEO_JSON_OF_INTEREST;
 import static com.google.android.ground.FakeData.JOB;
 import static com.google.android.ground.FakeData.POINT_OF_INTEREST;
 import static com.google.android.ground.FakeData.USER;
@@ -26,13 +25,10 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -76,16 +72,6 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
   }
 
   @Test
-  public void testGetLabel_whenCaptionIsEmptyAndFeatureIsGeoJson() throws JSONException {
-    JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "");
-    JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
-    GeoJsonLocationOfInterest feature =
-        GEO_JSON_OF_INTEREST.toBuilder().setGeoJsonString(jsonObject.toString()).build();
-
-    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon foo id");
-  }
-
-  @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
     PointOfInterest feature = POINT_OF_INTEREST.toBuilder().setCaption("point caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
@@ -95,16 +81,6 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
     AreaOfInterest feature = AREA_OF_INTEREST.toBuilder().setCaption("polygon caption").build();
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
-  }
-
-  @Test
-  public void testGetLabel_whenCaptionIsPresentAndFeatureIsGeoJson() throws JSONException {
-    JSONObject propertiesJson = new JSONObject().put("id", "foo id").put("caption", "foo caption");
-    JSONObject jsonObject = new JSONObject().put("properties", propertiesJson);
-    GeoJsonLocationOfInterest feature =
-        GEO_JSON_OF_INTEREST.toBuilder().setGeoJsonString(jsonObject.toString()).build();
-
-    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("foo caption");
   }
 
   @Test

@@ -35,7 +35,6 @@ import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.tile.TileSet;
 import com.google.android.ground.model.job.Style;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
@@ -68,8 +67,6 @@ import java.util.Arrays;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
-import org.json.JSONException;
-import org.json.JSONObject;
 import timber.log.Timber;
 
 @SharedViewModel
@@ -127,6 +124,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Boolean> locationUpdatesEnabled;
   private final LiveData<String> locationAccuracy;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
+  @SuppressWarnings("PMD")
   private final @Dimension int defaultPolygonStrokeWidth;
   private final @Dimension int selectedPolygonStrokeWidth;
   /** The currently selected LOI on the map. */
@@ -286,13 +284,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
     // TODO: Add support for polylines similar to mapPins.
 
-    ImmutableSet<MapLocationOfInterest> mapGeoJson =
-        stream(locationsOfInterest)
-            .filter(LocationOfInterest::isGeoJson)
-            .map(GeoJsonLocationOfInterest.class::cast)
-            .map(this::toMapGeoJson)
-            .collect(toImmutableSet());
-
     ImmutableSet<MapLocationOfInterest> mapPolygons =
         stream(locationsOfInterest)
             .filter(LocationOfInterest::isPolygon)
@@ -302,26 +293,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
     return ImmutableSet.<MapLocationOfInterest>builder()
         .addAll(mapPins)
-        .addAll(mapGeoJson)
         .addAll(mapPolygons)
-        .build();
-  }
-
-  private MapGeoJson toMapGeoJson(GeoJsonLocationOfInterest geoJsonLocationOfInterest) {
-    JSONObject jsonObject;
-    try {
-      jsonObject = new JSONObject(geoJsonLocationOfInterest.getGeoJsonString());
-    } catch (JSONException e) {
-      Timber.e(e);
-      jsonObject = new JSONObject();
-    }
-
-    return MapGeoJson.newBuilder()
-        .setId(geoJsonLocationOfInterest.getId())
-        .setGeoJson(jsonObject)
-        .setStyle(Style.DEFAULT_MAP_STYLE)
-        .setStrokeWidth(defaultPolygonStrokeWidth)
-        .setLocationOfInterest(geoJsonLocationOfInterest)
         .build();
   }
 
