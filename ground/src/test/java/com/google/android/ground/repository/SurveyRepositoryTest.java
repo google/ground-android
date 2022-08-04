@@ -25,7 +25,6 @@ import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.Role;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
 import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
@@ -70,11 +69,10 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
+        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(job)));
   }
 
   @Test
@@ -85,11 +83,10 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
+        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(job)));
   }
 
   @Test
@@ -100,11 +97,10 @@ public class SurveyRepositoryTest extends BaseHiltTest {
 
     surveyRepository.activateSurvey("id");
 
-    Job expectedJob = job.toBuilder().setUserCanAdd(ImmutableList.of()).build();
     surveyRepository
         .getActiveSurvey()
         .test()
-        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
+        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(job)));
   }
 
   private void setTestSurvey(Survey survey) {

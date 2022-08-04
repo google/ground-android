@@ -107,7 +107,7 @@ class SurveyRepository @Inject constructor(
         for (job in survey.jobs) {
             jobs.put(
                 job.id,
-                job.toBuilder().setUserCanAdd(getAddableLocationOfInterestTypes(userRole)).build()
+                job
             )
         }
         return survey.toBuilder().setJobMap(jobs.build()).build()
