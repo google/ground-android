@@ -20,4 +20,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 
 /** Firestore representation of map layers.  */
 @IgnoreExtraProperties
-data class JobNestedObject(val name: String?, val tasks: Map<String, TaskNestedObject>?)
+data class JobNestedObject(
+    val name: String? = null,
+    val tasks: Map<String, TaskNestedObject>? = null
+)

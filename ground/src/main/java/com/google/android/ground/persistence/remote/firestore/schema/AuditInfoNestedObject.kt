@@ -24,14 +24,14 @@ data class AuditInfoNestedObject(
      * The user initiating the related action. This should never be missing, but we handle null
      * values anyway since the Firestore is schema-less.
      */
-    val user: UserNestedObject?,
+    val user: UserNestedObject? = null,
 
     /**
      * The time at which the user action was initiated, according to the user's device. See
      * [System.currentTimestamp] for details. This should never be missing, but we handle null
      * values anyway since the Firestore is schema-less.
      */
-    val clientTimestamp: Timestamp?,
+    val clientTimestamp: Timestamp? = null,
 
     /**
      * The time at which the server received the requested change according to the server's internal
@@ -40,7 +40,7 @@ data class AuditInfoNestedObject(
      * client.
      */
     @ServerTimestamp
-    val serverTimestamp: Timestamp?
+    val serverTimestamp: Timestamp? = null
 ) {
     companion object {
         private val EPOCH = Timestamp(0, 0)

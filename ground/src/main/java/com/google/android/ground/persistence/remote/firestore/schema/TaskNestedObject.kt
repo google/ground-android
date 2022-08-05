@@ -21,10 +21,10 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 /** Firestore representation of a data collection task.  */
 @IgnoreExtraProperties
 data class TaskNestedObject(
-    val index: Int?,
-    val type: String?,
-    val cardinality: String?,
-    val label: String?,
-    val options: Map<String, OptionNestedObject>?,
-    val required: Boolean?
+    val index: Int? = null,
+    val type: String? = null,
+    val cardinality: String? = null,
+    val label: String? = null,
+    val options: Map<String, OptionNestedObject>? = null,
+    val required: Boolean? = null
 )

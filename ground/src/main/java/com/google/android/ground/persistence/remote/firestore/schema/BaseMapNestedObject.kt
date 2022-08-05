@@ -16,4 +16,4 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema
 
-data class BaseMapNestedObject(val url: String?)
+data class BaseMapNestedObject(val url: String? = null)

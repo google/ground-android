@@ -22,12 +22,12 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 /** LOI entity stored in Firestore.  */
 @IgnoreExtraProperties
 data class LoiDocument(
-    val jobId: String?,
-    val customId: String?,
-    val caption: String?,
-    val location: GeoPoint?,
-    val geoJson: String?,
-    val geometry: Map<String, Any>?,
-    val created: AuditInfoNestedObject?,
-    val lastModified: AuditInfoNestedObject?
+    val jobId: String? = null,
+    val customId: String? = null,
+    val caption: String? = null,
+    val location: GeoPoint? = null,
+    val geoJson: String? = null,
+    val geometry: Map<String, Any>? = null,
+    val created: AuditInfoNestedObject? = null,
+    val lastModified: AuditInfoNestedObject? = null
 )

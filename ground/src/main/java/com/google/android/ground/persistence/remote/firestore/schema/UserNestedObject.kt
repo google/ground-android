@@ -18,9 +18,9 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 /** User details nested for nesting inside entities for audit purposes.  */
 data class UserNestedObject(
-    val id: String?,
-    val email: String?,
-    val displayName: String?
+    val id: String? = null,
+    val email: String? = null,
+    val displayName: String? = null
 ) {
     companion object {
         /** Fallback value when reading invalid or legacy schemas.  */

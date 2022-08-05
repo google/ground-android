@@ -32,12 +32,15 @@ internal object SurveyConverter {
 
     @Throws(DataStoreException::class)
     fun toSurvey(doc: DocumentSnapshot): Survey {
-        val pd = doc.toObject(SurveyDocument::class.java)
+        val pd = DataStoreException.checkNotNull(
+            doc.toObject(SurveyDocument::class.java),
+            "surveyDocument"
+        )
         val survey = Survey.newBuilder()
         survey
             .setId(doc.id)
-            .setTitle(pd!!.title)
-            .setDescription(pd.description)
+            .setTitle(pd.title.orEmpty())
+            .setDescription(pd.description.orEmpty())
         if (pd.jobs != null) {
             Maps.forEach(pd.jobs) { id: String, obj: JobNestedObject ->
                 survey.putJob(toJob(id, obj))

@@ -23,9 +23,9 @@ import com.google.firebase.firestore.IgnoreExtraProperties
  */
 @IgnoreExtraProperties
 data class SubmissionDocument(
-    val loiId: String?,
-    val jobId: String?,
-    val created: AuditInfoNestedObject?,
-    val lastModified: AuditInfoNestedObject?,
-    val responses: Map<String, Any>?
+    val loiId: String? = null,
+    val jobId: String? = null,
+    val created: AuditInfoNestedObject? = null,
+    val lastModified: AuditInfoNestedObject? = null,
+    val responses: Map<String, Any>? = null
 )
