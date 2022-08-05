@@ -14,129 +14,106 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.converter;
+package com.google.android.ground.persistence.local.room.converter
 
-import static java8.lang.Iterables.forEach;
+import com.google.android.ground.model.submission.*
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.common.collect.ImmutableList
+import java8.util.Optional
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import timber.log.Timber
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
-import androidx.annotation.Nullable;
-import com.google.android.ground.model.submission.DateResponse;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
-import com.google.android.ground.model.submission.NumberResponse;
-import com.google.android.ground.model.submission.Response;
-import com.google.android.ground.model.submission.TextResponse;
-import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.model.task.Task;
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.common.collect.ImmutableList;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-import java8.util.Optional;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import timber.log.Timber;
+internal object ResponseJsonConverter {
 
-class ResponseJsonConverter {
+    private val ISO_INSTANT_FORMAT: DateFormat =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault())
 
-  private static final DateFormat ISO_INSTANT_FORMAT =
-      new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
-
-  static Object toJsonObject(Response response) {
-    if (response instanceof TextResponse) {
-      return ((TextResponse) response).getText();
-    } else if (response instanceof MultipleChoiceResponse) {
-      return toJsonArray((MultipleChoiceResponse) response);
-    } else if (response instanceof NumberResponse) {
-      double value = ((NumberResponse) response).getValue();
-      if (Double.isNaN(value)) {
-        return JSONObject.NULL;
-      }
-      return value;
-    } else if (response instanceof DateResponse) {
-      return dateToIsoString(((DateResponse) response).getDate());
-    } else if (response instanceof TimeResponse) {
-      return dateToIsoString(((TimeResponse) response).getTime());
-    } else {
-      throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
-    }
-  }
-
-  protected static String dateToIsoString(Date date) {
-    synchronized (ISO_INSTANT_FORMAT) {
-      ISO_INSTANT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-      return ISO_INSTANT_FORMAT.format(date);
-    }
-  }
-
-  @Nullable
-  protected static Date isoStringToDate(String isoString) {
-    try {
-      synchronized (ISO_INSTANT_FORMAT) {
-        ISO_INSTANT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return ISO_INSTANT_FORMAT.parse(isoString);
-      }
-    } catch (ParseException e) {
-      Timber.e("Error parsing Date : %s", e.getMessage());
-    }
-    return null;
-  }
-
-  private static Object toJsonArray(MultipleChoiceResponse response) {
-    JSONArray array = new JSONArray();
-    forEach(response.getSelectedOptionIds(), array::put);
-    return array;
-  }
-
-  static Optional<Response> toResponse(Task task, Object obj) {
-    switch (task.getType()) {
-      case TEXT_FIELD:
-      case PHOTO:
-        if (obj == JSONObject.NULL) {
-          return TextResponse.fromString("");
+    @JvmStatic
+    fun toJsonObject(response: Response): Any =
+        when (response) {
+            is TextResponse -> response.text
+            is MultipleChoiceResponse -> toJsonArray(response)
+            is NumberResponse -> response.value
+            is DateResponse -> dateToIsoString(response.date)
+            is TimeResponse -> dateToIsoString(response.time)
+            else -> throw UnsupportedOperationException("Unimplemented response ${response.javaClass}")
         }
-        DataStoreException.checkType(String.class, obj);
-        return TextResponse.fromString((String) obj);
-      case MULTIPLE_CHOICE:
-        if (obj == JSONObject.NULL) {
-          return MultipleChoiceResponse.fromList(
-              task.getMultipleChoice(), Collections.emptyList());
-        }
-        DataStoreException.checkType(JSONArray.class, obj);
-        return MultipleChoiceResponse.fromList(task.getMultipleChoice(), toList((JSONArray) obj));
-      case NUMBER:
-        if (JSONObject.NULL == obj) {
-          return NumberResponse.fromNumber("");
-        }
-        DataStoreException.checkType(Number.class, obj);
-        return NumberResponse.fromNumber(obj.toString());
-      case DATE:
-        DataStoreException.checkType(String.class, obj);
-        return DateResponse.fromDate(ResponseJsonConverter.isoStringToDate((String) obj));
-      case TIME:
-        DataStoreException.checkType(String.class, obj);
-        return TimeResponse.fromDate(ResponseJsonConverter.isoStringToDate((String) obj));
-      case UNKNOWN:
-      default:
-        throw new DataStoreException("Unknown type in task: " + obj.getClass().getName());
-    }
-  }
 
-  private static ImmutableList<String> toList(JSONArray jsonArray) {
-    List<String> list = new ArrayList<>(jsonArray.length());
-    for (int i = 0; i < jsonArray.length(); i++) {
-      try {
-        list.add(jsonArray.getString(i));
-      } catch (JSONException e) {
-        Timber.e("Error parsing JSONArray in db: %s", jsonArray);
-      }
+    @JvmStatic
+    fun dateToIsoString(date: Date): String {
+        synchronized(ISO_INSTANT_FORMAT) {
+            ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
+            return ISO_INSTANT_FORMAT.format(date)
+        }
     }
-    return ImmutableList.<String>builder().addAll(list).build();
-  }
+
+    @JvmStatic
+    fun isoStringToDate(isoString: String): Date? {
+        synchronized(ISO_INSTANT_FORMAT) {
+            ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
+            return ISO_INSTANT_FORMAT.parse(isoString)
+        }
+    }
+
+    private fun toJsonArray(response: MultipleChoiceResponse): JSONArray =
+        JSONArray().apply {
+            response.selectedOptionIds.forEach { this.put(it) }
+        }
+
+    @JvmStatic
+    fun toResponse(task: Task, obj: Any): Optional<Response> =
+        when (task.type) {
+            Task.Type.TEXT_FIELD, Task.Type.PHOTO -> {
+                if (obj === JSONObject.NULL) {
+                    TextResponse.fromString("")
+                } else {
+                    DataStoreException.checkType(String::class.java, obj)
+                    TextResponse.fromString(obj as String)
+                }
+            }
+            Task.Type.MULTIPLE_CHOICE -> {
+                if (obj === JSONObject.NULL) {
+                    MultipleChoiceResponse.fromList(task.multipleChoice, emptyList())
+                } else {
+                    DataStoreException.checkType(JSONArray::class.java, obj)
+                    MultipleChoiceResponse.fromList(task.multipleChoice, toList(obj as JSONArray))
+                }
+            }
+            Task.Type.NUMBER -> {
+                if (JSONObject.NULL === obj) {
+                    NumberResponse.fromNumber("")
+                } else {
+                    DataStoreException.checkType(Number::class.java, obj)
+                    NumberResponse.fromNumber(obj.toString())
+                }
+            }
+            Task.Type.DATE -> {
+                DataStoreException.checkType(String::class.java, obj)
+                DateResponse.fromDate(isoStringToDate(obj as String))
+            }
+            Task.Type.TIME -> {
+                DataStoreException.checkType(String::class.java, obj)
+                TimeResponse.fromDate(isoStringToDate(obj as String))
+            }
+            Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
+            else -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
+        }
+
+    private fun toList(jsonArray: JSONArray): ImmutableList<String> {
+        val list: MutableList<String> = ArrayList(jsonArray.length())
+        for (i in 0 until jsonArray.length()) {
+            try {
+                list.add(jsonArray.getString(i))
+            } catch (e: JSONException) {
+                Timber.e("Error parsing JSONArray in db: %s", jsonArray)
+            }
+        }
+        return ImmutableList.builder<String>().addAll(list).build()
+    }
 }

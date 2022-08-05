@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.converter;
+package com.google.android.ground.persistence.local.room.converter
 
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import org.json.JSONException;
-import org.json.JSONObject;
-import timber.log.Timber;
+import androidx.room.TypeConverter
+import org.json.JSONException
+import org.json.JSONObject
+import timber.log.Timber
 
-public class JsonObjectTypeConverter {
+object JsonObjectTypeConverter {
 
-  @TypeConverter
-  @Nullable
-  public static String toString(@Nullable JSONObject jsonObject) {
-    return jsonObject == null ? null : jsonObject.toString();
-  }
+    @JvmStatic
+    @TypeConverter
+    fun toString(jsonObject: JSONObject?): String? = jsonObject?.toString()
 
-  @TypeConverter
-  @Nullable
-  public static JSONObject fromString(@Nullable String jsonString) {
-    try {
-      return jsonString == null ? null : new JSONObject(jsonString);
-    } catch (JSONException e) {
-      Timber.d(e, "Invalid JSON in db");
-      return new JSONObject();
-    }
-  }
+    @JvmStatic
+    @TypeConverter
+    fun fromString(jsonString: String?): JSONObject? =
+        try {
+            if (jsonString == null) null else JSONObject(jsonString)
+        } catch (e: JSONException) {
+            Timber.d(e, "Invalid JSON in db")
+            JSONObject()
+        }
 }

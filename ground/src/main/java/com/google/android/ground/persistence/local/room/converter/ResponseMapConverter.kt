@@ -14,65 +14,57 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.converter;
+package com.google.android.ground.persistence.local.room.converter
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.ResponseMap;
-import com.google.android.ground.model.task.Task;
-import com.google.android.ground.persistence.local.LocalDataConsistencyException;
-import java.util.Iterator;
-import org.json.JSONException;
-import org.json.JSONObject;
-import timber.log.Timber;
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.ResponseMap
+import com.google.android.ground.persistence.local.LocalDataConsistencyException
+import org.json.JSONException
+import org.json.JSONObject
+import timber.log.Timber
 
-/** Converts between {@link ResponseMap} and JSON strings used to represent them in the local db. */
-public class ResponseMapConverter {
+/** Converts between [ResponseMap] and JSON strings used to represent them in the local db.  */
+object ResponseMapConverter {
 
-  @Nullable
-  public static String toString(@NonNull ResponseMap responseDeltas) {
-    JSONObject json = new JSONObject();
-    for (String taskId : responseDeltas.taskIds()) {
-      try {
-        json.put(
-            taskId,
-            responseDeltas
-                .getResponse(taskId)
-                .map(ResponseJsonConverter::toJsonObject)
-                .orElse(null));
-      } catch (JSONException e) {
-        Timber.e(e, "Error building JSON");
-      }
-    }
-    return json.toString();
-  }
+    @JvmStatic
+    fun toString(responseDeltas: ResponseMap): String =
+        JSONObject().apply {
+            for (taskId in responseDeltas.taskIds()) {
+                try {
+                    put(taskId,
+                        responseDeltas
+                            .getResponse(taskId)
+                            .map { ResponseJsonConverter.toJsonObject(it) }
+                            .orElse(null))
+                } catch (e: JSONException) {
+                    Timber.e(e, "Error building JSON")
+                }
+            }
+        }.toString()
 
-  @NonNull
-  public static ResponseMap fromString(Job job, @Nullable String jsonString) {
-    ResponseMap.Builder map = ResponseMap.builder();
-    if (jsonString == null) {
-      return map.build();
-    }
-    try {
-      JSONObject jsonObject = new JSONObject(jsonString);
-      Iterator<String> keys = jsonObject.keys();
-      while (keys.hasNext()) {
-        try {
-          String taskId = keys.next();
-          Task task =
-              job.getTask(taskId)
-                  .orElseThrow(
-                      () -> new LocalDataConsistencyException("Unknown task id " + taskId));
-          ResponseJsonConverter.toResponse(task, jsonObject.get(taskId))
-              .ifPresent(response -> map.putResponse(taskId, response));
-        } catch (LocalDataConsistencyException e) {
-          Timber.d("Bad response in local db: " + e.getMessage());
+    @JvmStatic
+    fun fromString(job: Job, jsonString: String?): ResponseMap {
+        val map = ResponseMap.builder()
+        if (jsonString == null) {
+            return map.build()
         }
-      }
-    } catch (JSONException e) {
-      Timber.e(e, "Error parsing JSON string");
+        try {
+            val jsonObject = JSONObject(jsonString)
+            val keys = jsonObject.keys()
+            while (keys.hasNext()) {
+                try {
+                    val taskId = keys.next()
+                    val task = job.getTask(taskId)
+                        .orElseThrow { LocalDataConsistencyException("Unknown task id $taskId") }
+                    ResponseJsonConverter.toResponse(task, jsonObject[taskId])
+                        .ifPresent { map.putResponse(taskId, it) }
+                } catch (e: LocalDataConsistencyException) {
+                    Timber.d("Bad response in local db: ${e.message}")
+                }
+            }
+        } catch (e: JSONException) {
+            Timber.e(e, "Error parsing JSON string")
+        }
+        return map.build()
     }
-    return map.build();
-  }
 }

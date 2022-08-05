@@ -14,84 +14,84 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.converter;
+package com.google.android.ground.persistence.local.room.converter
 
-import static com.google.android.ground.util.Enums.toEnum;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.ResponseDelta;
-import com.google.android.ground.model.task.Task;
-import com.google.android.ground.persistence.local.LocalDataConsistencyException;
-import com.google.android.ground.persistence.remote.DataStoreException;
-import com.google.common.collect.ImmutableList;
-import java.util.Iterator;
-import org.json.JSONException;
-import org.json.JSONObject;
-import timber.log.Timber;
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.ResponseDelta
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.LocalDataConsistencyException
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.util.Enums.toEnum
+import com.google.common.collect.ImmutableList
+import org.json.JSONException
+import org.json.JSONObject
+import timber.log.Timber
 
 /**
- * Converts between {@link ResponseDelta}s and JSON strings used to represent them in the local db.
+ * Converts between [ResponseDelta] and JSON strings used to represent them in the local db.
  */
-public class ResponseDeltasConverter {
+object ResponseDeltasConverter {
 
-  private static final String KEY_TASK_TYPE = "taskType";
-  private static final String KEY_NEW_RESPONSE = "newResponse";
+    private const val KEY_TASK_TYPE = "taskType"
+    private const val KEY_NEW_RESPONSE = "newResponse"
 
-  @NonNull
-  public static String toString(@NonNull ImmutableList<ResponseDelta> responseDeltas) {
-    JSONObject json = new JSONObject();
-    for (ResponseDelta delta : responseDeltas) {
-      try {
-        JSONObject newJson = new JSONObject();
-        newJson
-            .put(KEY_TASK_TYPE, delta.getTaskType().name())
-            .put(
-                KEY_NEW_RESPONSE,
-                delta
-                    .getNewResponse()
-                    .map(ResponseJsonConverter::toJsonObject)
-                    .orElse(JSONObject.NULL));
-        json.put(delta.getTaskId(), newJson);
-      } catch (JSONException e) {
-        Timber.e(e, "Error building JSON");
-      }
-    }
-    return json.toString();
-  }
+    @JvmStatic
+    fun toString(responseDeltas: ImmutableList<ResponseDelta>): String =
+        JSONObject().apply {
+            for (delta in responseDeltas) {
+                try {
+                    put(
+                        delta.taskId,
+                        JSONObject()
+                            .put(KEY_TASK_TYPE, delta.taskType.name)
+                            .put(KEY_NEW_RESPONSE,
+                                delta.newResponse.map { ResponseJsonConverter.toJsonObject(it) }
+                                    .orElse(JSONObject.NULL))
+                    )
+                } catch (e: JSONException) {
+                    Timber.e(e, "Error building JSON")
+                }
+            }
+        }.toString()
 
-  @NonNull
-  public static ImmutableList<ResponseDelta> fromString(Job job, @Nullable String jsonString) {
-    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
-    if (jsonString == null) {
-      return deltas.build();
-    }
-    try {
-      JSONObject jsonObject = new JSONObject(jsonString);
-      Iterator<String> keys = jsonObject.keys();
-      while (keys.hasNext()) {
-        try {
-          String taskId = keys.next();
-          Task task =
-              job.getTask(taskId)
-                  .orElseThrow(
-                      () -> new LocalDataConsistencyException("Unknown task id " + taskId));
-          JSONObject jsonDelta = jsonObject.getJSONObject(taskId);
-          deltas.add(
-              ResponseDelta.builder()
-                  .setTaskId(taskId)
-                  .setTaskType(toEnum(Task.Type.class, jsonDelta.getString(KEY_TASK_TYPE)))
-                  .setNewResponse(
-                      ResponseJsonConverter.toResponse(task, jsonDelta.get(KEY_NEW_RESPONSE)))
-                  .build());
-        } catch (LocalDataConsistencyException | DataStoreException e) {
-          Timber.d("Bad response in local db: " + e.getMessage());
+    @JvmStatic
+    fun fromString(job: Job, jsonString: String?): ImmutableList<ResponseDelta> {
+        val deltas = ImmutableList.builder<ResponseDelta>()
+        if (jsonString == null) {
+            return deltas.build()
         }
-      }
-    } catch (JSONException e) {
-      Timber.e(e, "Error parsing JSON string");
+        try {
+            val jsonObject = JSONObject(jsonString)
+            val keys = jsonObject.keys()
+            while (keys.hasNext()) {
+                try {
+                    val taskId = keys.next()
+                    val task = job.getTask(taskId)
+                        .orElseThrow { LocalDataConsistencyException("Unknown task id $taskId") }
+                    val jsonDelta = jsonObject.getJSONObject(taskId)
+                    deltas.add(
+                        ResponseDelta.builder()
+                            .setTaskId(taskId)
+                            .setTaskType(
+                                toEnum(
+                                    Task.Type::class.java,
+                                    jsonDelta.getString(KEY_TASK_TYPE)
+                                )
+                            )
+                            .setNewResponse(
+                                ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_RESPONSE])
+                            )
+                            .build()
+                    )
+                } catch (e: LocalDataConsistencyException) {
+                    Timber.d("Bad response in local db: " + e.message)
+                } catch (e: DataStoreException) {
+                    Timber.d("Bad response in local db: " + e.message)
+                }
+            }
+        } catch (e: JSONException) {
+            Timber.e(e, "Error parsing JSON string")
+        }
+        return deltas.build()
     }
-    return deltas.build();
-  }
 }

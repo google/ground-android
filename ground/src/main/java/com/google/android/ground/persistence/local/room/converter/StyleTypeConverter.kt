@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.converter;
+package com.google.android.ground.persistence.local.room.converter
 
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import com.google.android.ground.model.job.Style;
+import androidx.room.TypeConverter
+import com.google.android.ground.model.job.Style
 
-public class StyleTypeConverter {
+object StyleTypeConverter {
 
-  @TypeConverter
-  @Nullable
-  public static String toString(@Nullable Style style) {
-    return style == null ? null : style.getColor();
-  }
+    @TypeConverter
+    fun toString(style: Style?): String? = style?.color
 
-  @TypeConverter
-  @Nullable
-  public static Style fromString(@Nullable String color) {
-    return color == null ? null : Style.builder().setColor(color).build();
-  }
+    @TypeConverter
+    fun fromString(color: String?): Style? =
+        if (color == null) null else Style.builder().setColor(color).build()
 }
