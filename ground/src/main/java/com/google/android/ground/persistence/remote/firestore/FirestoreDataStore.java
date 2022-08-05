@@ -101,7 +101,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Override
   public Maybe<TermsOfService> loadTermsOfService() {
     return db.termsOfService()
-        .getTerm()
+        .terms()
         .get()
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Maybe.never() : Maybe.error(e))
         .subscribeOn(schedulers.io());
