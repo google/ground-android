@@ -30,7 +30,6 @@ import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
@@ -131,8 +130,6 @@ public abstract class LocationOfInterestEntity {
             .setLastModified(AuditInfoEntity.fromObject(locationOfInterest.getLastModified()));
     if (locationOfInterest instanceof PointOfInterest) {
       entity.setLocation(Coordinates.fromPoint(((PointOfInterest) locationOfInterest).getPoint()));
-    } else if (locationOfInterest instanceof GeoJsonLocationOfInterest) {
-      entity.setGeoJson(((GeoJsonLocationOfInterest) locationOfInterest).getGeoJsonString());
     } else if (locationOfInterest instanceof AreaOfInterest) {
       entity.setPolygonVertices(
           formatVertices(((AreaOfInterest) locationOfInterest).getVertices()));
@@ -142,14 +139,6 @@ public abstract class LocationOfInterestEntity {
 
   public static LocationOfInterest toLocationOfInterest(
       LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
-    if (locationOfInterestEntity.getGeoJson() != null) {
-      GeoJsonLocationOfInterest.Builder builder =
-          GeoJsonLocationOfInterest.newBuilder()
-              .setGeoJsonString(locationOfInterestEntity.getGeoJson());
-      fillLocationOfInterest(builder, locationOfInterestEntity, survey);
-      return builder.build();
-    }
-
     if (locationOfInterestEntity.getLocation() != null) {
       PointOfInterest.Builder builder =
           PointOfInterest.newBuilder().setPoint(locationOfInterestEntity.getLocation().toPoint());

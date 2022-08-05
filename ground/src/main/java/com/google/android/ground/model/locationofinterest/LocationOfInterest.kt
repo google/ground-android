@@ -22,7 +22,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import org.locationtech.jts.geom.Geometry
 import java.util.*
 import javax.annotation.OverridingMethodsMustInvokeSuper
 
@@ -31,8 +30,6 @@ sealed class LocationOfInterest {
     // TODO: Once all callers are converted to Kotlin, we don't need these properties.
     val isPoint: Boolean
         get() = this is PointOfInterest
-    val isGeoJson: Boolean
-        get() = this is GeoJsonLocationOfInterest
     val isPolygon: Boolean
         get() = this is AreaOfInterest
 

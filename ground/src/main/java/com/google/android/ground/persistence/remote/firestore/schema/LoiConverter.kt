@@ -16,15 +16,15 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest
+import com.google.android.ground.model.locationofinterest.AreaOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.locationofinterest.PointOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.DataStoreException.checkNotNull
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
+import com.google.android.ground.util.toImmutableList
 import com.google.firebase.firestore.DocumentSnapshot
-import org.locationtech.jts.io.geojson.GeoJsonWriter
 
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
@@ -39,7 +39,7 @@ object LoiConverter {
     const val GEOMETRY = "geometry"
 
     @JvmStatic
-    @Throws(DataStoreException::class)
+    @Throws(DataStoreException::class, NotImplementedError::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiId = doc.id
         val loiDoc = checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
@@ -59,11 +59,16 @@ object LoiConverter {
                 fillLocationOfInterest(builder, survey, loiId, loiDoc)
                 return builder.build()
             }
-            "Polygon", "MultiPolygon" -> {
-                val builder = GeoJsonLocationOfInterest.newBuilder()
-                builder.setGeoJsonString(GeoJsonWriter().write(geometry))
+            "Polygon" -> {
+                val builder = AreaOfInterest.newBuilder()
+                builder.setVertices(geometry.coordinates.map {
+                    Point.newBuilder().setLatitude(it.x).setLongitude(it.y).build()
+                }.toImmutableList())
                 fillLocationOfInterest(builder, survey, loiId, loiDoc)
                 return builder.build()
+            }
+            "MultiPolygon" -> {
+                TODO("Implement model for multipolygons.")
             }
             else -> {
                 throw DataStoreException("Unsupported geometry $geometry")

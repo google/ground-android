@@ -23,7 +23,6 @@ import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.job.Job.Builder;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.common.collect.ImmutableList;
@@ -87,16 +86,6 @@ public class FakeData {
           .setCreated(AuditInfo.now(USER))
           .setLastModified(AuditInfo.now(USER))
           .setJob(JOB)
-          .build();
-
-  public static final GeoJsonLocationOfInterest GEO_JSON_OF_INTEREST =
-      GeoJsonLocationOfInterest.newBuilder()
-          .setId("loi id")
-          .setSurvey(SURVEY)
-          .setJob(JOB)
-          .setGeoJsonString("some data string")
-          .setCreated(AuditInfo.now(USER))
-          .setLastModified(AuditInfo.now(USER))
           .build();
 
   public static final Point POINT = Point.newBuilder().setLatitude(42.0).setLongitude(18.0).build();

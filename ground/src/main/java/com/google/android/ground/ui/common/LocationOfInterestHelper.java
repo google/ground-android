@@ -20,7 +20,6 @@ import android.content.res.Resources;
 import com.google.android.ground.R;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.GeoJsonLocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -48,7 +47,7 @@ public class LocationOfInterestHelper {
   }
 
   private String getLocationOfInterestType(LocationOfInterest locationOfInterest) {
-    if (locationOfInterest.isGeoJson() || locationOfInterest.isPolygon()) {
+    if (locationOfInterest.isPolygon()) {
       return resources.getString(R.string.polygon);
     } else {
       return resources.getString(R.string.point);
@@ -78,18 +77,6 @@ public class LocationOfInterestHelper {
 
   @Nullable
   private String getCaption(LocationOfInterest locationOfInterest) {
-    if (locationOfInterest.isGeoJson()) {
-      return getGeoJsonCaption((GeoJsonLocationOfInterest) locationOfInterest);
-    }
     return locationOfInterest.getCaption();
-  }
-
-  private String getGeoJsonCaption(GeoJsonLocationOfInterest locationOfInterest) {
-    String caption = locationOfInterest.getCaptionFromProperties();
-    return caption.isEmpty()
-        ? getLocationOfInterestType(locationOfInterest)
-            + " "
-            + locationOfInterest.getIdFromProperties()
-        : caption;
   }
 }
