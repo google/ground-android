@@ -20,15 +20,13 @@ import com.google.android.ground.model.User
 
 /** Converts between Firestore objects and [User] instances.  */
 internal object UserConverter {
-    fun toNestedObject(user: User): UserNestedObject {
-        return UserNestedObject(user.id, user.email, user.displayName)
-    }
 
-    fun toUser(ud: UserNestedObject?): User {
-        return User.builder()
+    fun toNestedObject(user: User) = UserNestedObject(user.id, user.email, user.displayName)
+
+    fun toUser(ud: UserNestedObject?): User =
+        User.builder()
             .setId(ud?.id.orEmpty())
             .setEmail(ud?.email.orEmpty())
             .setDisplayName(ud?.displayName.orEmpty())
             .build()
-    }
 }

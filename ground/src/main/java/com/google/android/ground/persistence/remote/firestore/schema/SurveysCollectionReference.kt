@@ -35,13 +35,10 @@ private val VALID_ROLES = listOf(OWNER_ROLE, MANAGER_ROLE, CONTRIBUTOR_ROLE, VIE
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
     FluentCollectionReference(ref) {
 
-    fun survey(id: String): SurveyDocumentReference {
-        return SurveyDocumentReference(reference().document(id))
-    }
+    fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
-    fun getReadable(user: User): @Cold Single<List<Survey>> {
-        return runQuery(
+    fun getReadable(user: User): @Cold Single<List<Survey>> =
+        runQuery(
             reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)
         ) { doc: DocumentSnapshot -> SurveyConverter.toSurvey(doc) }
-    }
 }

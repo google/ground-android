@@ -36,11 +36,7 @@ open class FluentDocumentReference protected constructor(private val reference: 
         batch.delete(reference)
     }
 
-    protected fun reference(): DocumentReference {
-        return reference
-    }
+    protected fun reference(): DocumentReference = reference
 
-    override fun toString(): String {
-        return reference.path
-    }
+    override fun toString(): String = reference.path
 }

@@ -26,12 +26,9 @@ import io.reactivex.Maybe
 class TermsOfServiceDocumentReference internal constructor(ref: DocumentReference) :
     FluentDocumentReference(ref) {
 
-    fun terms(): TermsOfServiceDocumentReference {
-        return TermsOfServiceDocumentReference(reference())
-    }
+    fun terms() = TermsOfServiceDocumentReference(reference())
 
-    fun get(): Maybe<TermsOfService> {
-        return RxFirestore.getDocument(reference())
+    fun get(): Maybe<TermsOfService> =
+        RxFirestore.getDocument(reference())
             .map { doc: DocumentSnapshot -> TermsOfServiceConverter.toTerms(doc) }
-    }
 }

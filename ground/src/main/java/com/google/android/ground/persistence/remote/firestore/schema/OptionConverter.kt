@@ -22,6 +22,7 @@ import com.google.android.ground.model.task.Option
  * Converts between Firestore nested objects and [Option] instances.
  */
 internal object OptionConverter {
+
     fun toOption(id: String, option: OptionNestedObject): Option {
         val builder = Option.newBuilder()
         builder.setId(id)

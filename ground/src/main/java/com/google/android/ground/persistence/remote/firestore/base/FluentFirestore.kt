@@ -28,9 +28,7 @@ import java8.util.function.Function
 /** Base class for representing Firestore databases as object hierarchies.  */
 abstract class FluentFirestore protected constructor(private val db: FirebaseFirestore) {
 
-    protected fun db(): FirebaseFirestore {
-        return db
-    }
+    protected fun db(): FirebaseFirestore = db
 
     // TODO: Wrap in fluent version of WriteBatch.
     fun batch(): WriteBatch {

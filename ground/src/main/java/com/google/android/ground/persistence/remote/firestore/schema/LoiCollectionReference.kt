@@ -32,21 +32,15 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
     FluentCollectionReference(ref) {
 
     /** Retrieves all lois in the survey, then streams changes to the remote db incrementally.  */
-    fun loadOnceAndStreamChanges(survey: Survey): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest?>> {
-        return RxFirestore.observeQueryRef(reference())
+    fun loadOnceAndStreamChanges(survey: Survey): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest?>> =
+        RxFirestore.observeQueryRef(reference())
             .flatMapIterable { snapshot: QuerySnapshot -> toRemoteDataEvents(survey, snapshot) }
-    }
 
-    fun loi(id: String): LoiDocumentReference {
-        return LoiDocumentReference(reference().document(id))
-    }
+    fun loi(id: String) = LoiDocumentReference(reference().document(id))
 
     private fun toRemoteDataEvents(
         survey: Survey,
         snapshot: QuerySnapshot
-    ): Iterable<RemoteDataEvent<LocationOfInterest?>> {
-        return QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot ->
-            toLoi(survey, doc)
-        }
-    }
+    ): Iterable<RemoteDataEvent<LocationOfInterest?>> =
+        QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot -> toLoi(survey, doc) }
 }

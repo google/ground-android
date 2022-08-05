@@ -31,9 +31,7 @@ import io.reactivex.Single
 class SubmissionCollectionReference internal constructor(ref: CollectionReference) :
     FluentCollectionReference(ref) {
 
-    fun submission(id: String): SubmissionDocumentReference {
-        return SubmissionDocumentReference(reference().document(id))
-    }
+    fun submission(id: String) = SubmissionDocumentReference(reference().document(id))
 
     fun submissionsByLocationOfInterestId(
         locationOfInterest: LocationOfInterest
@@ -55,7 +53,6 @@ class SubmissionCollectionReference internal constructor(ref: CollectionReferenc
             .toImmutableList()
     }
 
-    private fun byLoiId(loiId: String): Query {
-        return reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId)
-    }
+    private fun byLoiId(loiId: String): Query =
+        reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId)
 }

@@ -121,10 +121,8 @@ internal object SubmissionConverter {
         taskId: String, multipleChoice: MultipleChoice?, obj: Any, responses: ResponseMap.Builder
     ) {
         val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
-        values.forEach { v: Any? ->
-            DataStoreException.checkType(String::class.java, v as Any)
-        }
+        values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
         MultipleChoiceResponse.fromList(multipleChoice, values as List<String>)
-            .ifPresent { r: Response -> responses.putResponse(taskId, r) }
+            .ifPresent { responses.putResponse(taskId, it) }
     }
 }

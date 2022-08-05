@@ -55,11 +55,7 @@ abstract class FluentCollectionReference protected constructor(private val refer
             )
     }
 
-    protected fun reference(): CollectionReference {
-        return reference
-    }
+    protected fun reference(): CollectionReference = reference
 
-    override fun toString(): String {
-        return reference.path
-    }
+    override fun toString(): String = reference.path
 }

@@ -72,8 +72,8 @@ internal object SubmissionMutationConverter {
         return map.build()
     }
 
-    private fun toObject(response: Response): Any? {
-        return when (response) {
+    private fun toObject(response: Response): Any? =
+        when (response) {
             is TextResponse ->
                 response.text
             is MultipleChoiceResponse ->
@@ -89,5 +89,4 @@ internal object SubmissionMutationConverter {
                 null
             }
         }
-    }
 }

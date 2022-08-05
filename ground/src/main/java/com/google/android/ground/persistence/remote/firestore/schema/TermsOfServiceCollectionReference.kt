@@ -24,6 +24,5 @@ private const val TOS = "tos"
 class TermsOfServiceCollectionReference internal constructor(ref: CollectionReference) :
     FluentCollectionReference(ref) {
 
-    val term: TermsOfServiceDocumentReference
-        get() = TermsOfServiceDocumentReference(reference().document(TOS))
+    fun terms() = TermsOfServiceDocumentReference(reference().document(TOS))
 }

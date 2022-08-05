@@ -37,11 +37,10 @@ internal object AuditInfoConverter {
     }
 
     @JvmStatic
-    fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject {
-        return AuditInfoNestedObject(
+    fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject =
+        AuditInfoNestedObject(
             UserConverter.toNestedObject(user),
             Timestamp(mutation.clientTimestamp),
             null
         )
-    }
 }
