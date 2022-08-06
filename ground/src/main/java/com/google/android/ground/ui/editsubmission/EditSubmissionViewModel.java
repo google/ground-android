@@ -63,21 +63,18 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   // Injected dependencies.
 
-  private final SubmissionRepository submissionRepository;
-  private final Resources resources;
-  private final PermissionsManager permissionsManager;
-  private final BitmapUtil bitmapUtil;
-
-  // States.
-
   /** True if submission is currently being loaded, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-
   /** True if submission is currently being saved, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+  private final SubmissionRepository submissionRepository;
+  private final Resources resources;
 
+  // States.
+  private final PermissionsManager permissionsManager;
+  private final BitmapUtil bitmapUtil;
   /** Job definition, loaded when view is initialized. */
   private final LiveData<Job> job;
 
@@ -87,35 +84,27 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   /** Current task responses. */
   private final Map<String, Response> responses = new HashMap<>();
-
-  /** Task validation errors, updated when existing for loaded and when responses change. */
-  @Nullable private Map<String, String> validationErrors;
-
   /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
   private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs = BehaviorProcessor.create();
-
-  /** Submission state loaded when view is initialized. */
-  @Nullable private Submission originalSubmission;
-
-  /** True if the submission is being added, false if editing an existing one. */
-  private boolean isNew;
-
   /**
    * Emits the last photo task id updated and either its photo result, or empty if removed. The last
    * value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
   private final Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
-
-  // Events.
-
   /** "Save" button clicks. */
   @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
-
   /** Outcome of user clicking "Save". */
   private final Observable<SaveResult> saveResults;
+  /** Task validation errors, updated when existing for loaded and when responses change. */
+  @Nullable private Map<String, String> validationErrors;
 
+  // Events.
+  /** Submission state loaded when view is initialized. */
+  @Nullable private Submission originalSubmission;
+  /** True if the submission is being added, false if editing an existing one. */
+  private boolean isNew;
   /**
    * Task id waiting for a photo response. As only 1 photo result is returned at a time, we can
    * directly map it 1:1 with the task waiting for a photo response.
@@ -205,17 +194,17 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   private Single<Job> onInitialize(EditSubmissionFragmentArgs viewArgs) {
     isLoading.setValue(true);
     isNew = isAddSubmissionRequest(viewArgs);
-    Single<Submission> obs;
+    Single<Submission> submissionSingle;
     if (isNew) {
       toolbarTitle.setValue(resources.getString(R.string.add_submission_toolbar_title));
-      obs = createSubmission(viewArgs);
+      submissionSingle = createSubmission(viewArgs);
     } else {
       toolbarTitle.setValue(resources.getString(R.string.edit_submission));
-      obs = loadSubmission(viewArgs);
+      submissionSingle = loadSubmission(viewArgs);
     }
     HashMap<String, Response> restoredResponses = viewArgs.getRestoredResponses();
-    return obs.doOnSuccess(
-            loadedSubmission -> onSubmissionLoaded(loadedSubmission, restoredResponses))
+    return submissionSingle
+        .doOnSuccess(loadedSubmission -> onSubmissionLoaded(loadedSubmission, restoredResponses))
         .map(Submission::getJob);
   }
 
@@ -399,28 +388,6 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
     boolean isHandled;
 
-    abstract String getTaskId();
-
-    abstract Optional<Bitmap> getBitmap();
-
-    abstract Optional<String> getPath();
-
-    public boolean isHandled() {
-      return isHandled;
-    }
-
-    public boolean hasTaskId(String taskId) {
-      return getTaskId().equals(taskId);
-    }
-
-    public boolean isEmpty() {
-      return getBitmap().isEmpty() && getPath().isEmpty();
-    }
-
-    public void setHandled(boolean handled) {
-      isHandled = handled;
-    }
-
     static PhotoResult createEmptyResult(String taskId) {
       return new AutoValue_EditSubmissionViewModel_PhotoResult(
           taskId, Optional.empty(), Optional.empty());
@@ -434,6 +401,28 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     static PhotoResult createCaptureResult(String taskId, String path) {
       return new AutoValue_EditSubmissionViewModel_PhotoResult(
           taskId, Optional.empty(), Optional.of(path));
+    }
+
+    abstract String getTaskId();
+
+    abstract Optional<Bitmap> getBitmap();
+
+    abstract Optional<String> getPath();
+
+    public boolean isHandled() {
+      return isHandled;
+    }
+
+    public void setHandled(boolean handled) {
+      isHandled = handled;
+    }
+
+    public boolean hasTaskId(String taskId) {
+      return getTaskId().equals(taskId);
+    }
+
+    public boolean isEmpty() {
+      return getBitmap().isEmpty() && getPath().isEmpty();
     }
   }
 }
