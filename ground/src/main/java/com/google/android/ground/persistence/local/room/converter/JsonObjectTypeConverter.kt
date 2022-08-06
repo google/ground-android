@@ -31,7 +31,7 @@ object JsonObjectTypeConverter {
     @TypeConverter
     fun fromString(jsonString: String?): JSONObject? =
         try {
-            if (jsonString == null) null else JSONObject(jsonString)
+            jsonString?.let { JSONObject(it) }
         } catch (e: JSONException) {
             Timber.d(e, "Invalid JSON in db")
             JSONObject()

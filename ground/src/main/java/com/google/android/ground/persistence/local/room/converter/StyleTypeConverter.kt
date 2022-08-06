@@ -26,5 +26,5 @@ object StyleTypeConverter {
 
     @TypeConverter
     fun fromString(color: String?): Style? =
-        if (color == null) null else Style.builder().setColor(color).build()
+        color?.let { Style.builder().setColor(it).build() }
 }

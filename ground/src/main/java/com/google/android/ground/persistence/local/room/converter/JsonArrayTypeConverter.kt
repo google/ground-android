@@ -29,7 +29,7 @@ object JsonArrayTypeConverter {
     @TypeConverter
     fun fromString(jsonString: String?): JSONArray? =
         try {
-            if (jsonString == null) null else JSONArray(jsonString)
+            jsonString?.let { JSONArray(it) }
         } catch (e: JSONException) {
             Timber.d(e, "Invalid JSON in db")
             JSONArray()
