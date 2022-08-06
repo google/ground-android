@@ -274,7 +274,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       LocationOfInterest locationOfInterest, String submissionId) {
     return submissionDao
         .findById(submissionId)
-        .map(obs -> SubmissionEntity.toSubmission(locationOfInterest, obs))
+        .map(entity -> SubmissionEntity.toSubmission(locationOfInterest, entity))
         .doOnError(e -> Timber.d(e))
         .onErrorComplete()
         .subscribeOn(schedulers.io());
@@ -293,7 +293,8 @@ public class RoomLocalDataStore implements LocalDataStore {
       LocationOfInterest locationOfInterest, List<SubmissionEntity> submissionEntities) {
     return stream(submissionEntities)
         .flatMap(
-            obs -> logErrorsAndSkip(() -> SubmissionEntity.toSubmission(locationOfInterest, obs)))
+            entity ->
+                logErrorsAndSkip(() -> SubmissionEntity.toSubmission(locationOfInterest, entity)))
         .collect(toImmutableList());
   }
 
@@ -464,7 +465,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     checkNotNull(lastMutation, "Could not get last mutation");
     return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(job, submission, mutations, user))
-        .flatMapCompletable(obs -> submissionDao.insertOrUpdate(obs));
+        .flatMapCompletable(entity -> submissionDao.insertOrUpdate(entity));
   }
 
   private SubmissionEntity applyMutations(
@@ -599,8 +600,11 @@ public class RoomLocalDataStore implements LocalDataStore {
         .findById(mutation.getSubmissionId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
         .switchIfEmpty(fallbackSubmission(mutation))
-        .map(obs -> applyMutations(mutation.getJob(), obs, ImmutableList.of(mutationEntity), user))
-        .flatMapCompletable(obs -> submissionDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
+        .map(
+            entity ->
+                applyMutations(mutation.getJob(), entity, ImmutableList.of(mutationEntity), user))
+        .flatMapCompletable(
+            entity -> submissionDao.insertOrUpdate(entity).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
 
