@@ -19,12 +19,12 @@ package com.google.android.ground.repository;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.FakeData;
 import com.google.android.ground.model.Role;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalValueStore;
-import com.google.android.ground.system.auth.FakeAuthenticationManager;
+import com.google.android.ground.sharedTestCode.FakeData;
+import com.google.android.ground.sharedTestCode.system.auth.FakeAuthenticationManager;
 import com.google.common.collect.ImmutableMap;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.NoSuchElementException;

@@ -27,7 +27,6 @@ import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.ActivityResult
 import com.google.android.ground.system.ActivityStreams
-import com.google.android.ground.system.auth.SignInState
 import com.google.firebase.auth.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject

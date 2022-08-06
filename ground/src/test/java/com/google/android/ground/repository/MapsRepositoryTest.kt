@@ -17,7 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.TestObservers.observeUntilFirstChange
+import com.google.android.ground.sharedTestCode.TestObservers.observeUntilFirstChange
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test

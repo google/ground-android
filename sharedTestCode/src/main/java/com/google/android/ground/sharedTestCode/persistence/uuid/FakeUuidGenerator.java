@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote;
+package com.google.android.ground.sharedTestCode.persistence.uuid;
 
-import android.net.Uri;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java.io.File;
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
 import javax.inject.Inject;
 
-public class FakeRemoteStorageManager implements RemoteStorageManager {
+public class FakeUuidGenerator implements OfflineUuidGenerator {
 
   @Inject
-  FakeRemoteStorageManager() {}
+  FakeUuidGenerator() {}
 
   @Override
-  public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
-    return Single.never();
-  }
-
-  @Override
-  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
-    return Flowable.never();
+  public String generateUuid() {
+    return "TEST UUID";
   }
 }

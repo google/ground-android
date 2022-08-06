@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.android.ground;
+package com.google.android.ground.sharedTestCode;
 
-import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
-import com.google.android.ground.persistence.remote.FakeRemoteStorageManager;
 import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.persistence.remote.RemoteStorageManager;
 import com.google.android.ground.persistence.remote.RemoteStorageModule;
-import com.google.android.ground.persistence.uuid.FakeUuidGenerator;
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.ground.sharedTestCode.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.sharedTestCode.persistence.remote.FakeRemoteStorageManager;
+import com.google.android.ground.sharedTestCode.persistence.uuid.FakeUuidGenerator;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

@@ -17,14 +17,14 @@
 package com.google.android.ground.ui.home.featuredetails;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
-import com.google.android.ground.system.auth.FakeAuthenticationManager;
+import com.google.android.ground.sharedTestCode.FakeData;
+import com.google.android.ground.sharedTestCode.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;

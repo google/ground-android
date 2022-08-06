@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground;
+package com.google.android.ground.sharedTestCode;
 
 import com.google.android.ground.rx.Schedulers;
 import com.google.android.ground.rx.SchedulersModule;

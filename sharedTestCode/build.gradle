@@ -1,14 +1,14 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'dagger.hilt.android.plugin'
+//apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-kapt'
+//apply plugin: 'kotlin-parcelize'
+//apply plugin: 'dagger.hilt.android.plugin'
 
-apply from: '../config/checkstyle/checkstyle.gradle'
-apply from: '../config/lint/lint.gradle'
-apply from: '../config/pmd/pmd.gradle'
-apply from: '../config/spotbugs/spotbugs.gradle'
-apply from: '../config/jacoco/jacoco.gradle'
+//apply from: '../config/checkstyle/checkstyle.gradle'
+//apply from: '../config/lint/lint.gradle'
+//apply from: '../config/pmd/pmd.gradle'
+//apply from: '../config/spotbugs/spotbugs.gradle'
+//apply from: '../config/jacoco/jacoco.gradle'
 
 // TODO: Consolidate gradle versions for all modules in a single file
 project.ext {
@@ -17,29 +17,31 @@ project.ext {
 }
 
 android {
-    namespace 'com.google.android.ground'
+//    namespace 'com.google.android.ground.sharedTestCode'
     compileSdkVersion rootProject.androidCompileSdk
 
     defaultConfig {
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
-    }
 
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-        animationsDisabled = true
+        testInstrumentationRunner "com.google.android.ground.CustomTestRunner"
     }
 
     buildTypes {
         staging {
         }
     }
+
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
 }
 
 dependencies {
-    implementation project(':ground')
+//    implementation 'androidx.multidex:multidex:2.0.1'
+
+//    implementation 'com.jakewharton.timber:timber:5.0.1'
 
     // Room
     implementation 'androidx.room:room-runtime:2.4.3'
@@ -51,15 +53,19 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:$project.hiltVersion"
+//    implementation "com.google.dagger:hilt-android:$project.hiltVersion"
     implementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
     implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+//    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
 
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
 
     // Robolectric
-    implementation 'org.robolectric:robolectric:4.5.1'
+//    implementation 'org.robolectric:robolectric:4.5.1'
+//    testImplementation 'org.robolectric:robolectric:4.5.1'
+//    androidTestImplementation 'org.robolectric:robolectric:4.5.1'
+
+    implementation project(':ground')
 }

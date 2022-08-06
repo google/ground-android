@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.ground;
+package com.google.android.ground.sharedTestCode;
 
+import com.google.android.ground.sharedTestCode.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.system.auth.AuthenticationManager;
 import com.google.android.ground.system.auth.AuthenticationModule;
-import com.google.android.ground.system.auth.FakeAuthenticationManager;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

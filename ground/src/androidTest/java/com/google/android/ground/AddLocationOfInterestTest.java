@@ -23,7 +23,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.not;
 
-import com.google.android.ground.system.auth.FakeAuthenticationManager;
+import com.google.android.ground.sharedTestCode.FakeData;
+import com.google.android.ground.sharedTestCode.system.auth.FakeAuthenticationManager;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import javax.inject.Inject;
 import org.junit.Test;
