@@ -18,7 +18,7 @@ package com.google.android.ground;
 
 import com.google.android.ground.rx.Schedulers;
 import com.google.android.ground.rx.SchedulersModule;
-import com.google.android.ground.sharedTestCode.TestScheduler;
+import com.google.android.ground.sharedTest.TestScheduler;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

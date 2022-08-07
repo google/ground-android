@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode
+package com.google.android.ground.sharedTest
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData

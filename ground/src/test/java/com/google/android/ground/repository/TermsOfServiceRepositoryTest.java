@@ -19,8 +19,8 @@ package com.google.android.ground.repository;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.sharedTestCode.FakeData;
-import com.google.android.ground.sharedTestCode.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.sharedTest.FakeData;
+import com.google.android.ground.sharedTest.persistence.remote.FakeRemoteDataStore;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;

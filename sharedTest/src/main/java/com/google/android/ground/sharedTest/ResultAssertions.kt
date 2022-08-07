@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode
+package com.google.android.ground.sharedTest
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

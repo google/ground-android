@@ -16,8 +16,8 @@
 
 package com.google.android.ground.repository;
 
-import static com.google.android.ground.sharedTestCode.FakeData.newJob;
-import static com.google.android.ground.sharedTestCode.FakeData.newSurvey;
+import static com.google.android.ground.sharedTest.FakeData.newJob;
+import static com.google.android.ground.sharedTest.FakeData.newSurvey;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +28,7 @@ import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
-import com.google.android.ground.sharedTestCode.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.sharedTest.persistence.remote.FakeRemoteDataStore;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;

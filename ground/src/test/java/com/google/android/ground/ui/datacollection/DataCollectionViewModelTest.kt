@@ -17,10 +17,10 @@ package com.google.android.ground.ui.datacollection
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.sharedTestCode.getOrAwaitValue
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.sharedTest.getOrAwaitValue
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue

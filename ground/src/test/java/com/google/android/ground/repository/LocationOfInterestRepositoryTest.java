@@ -35,9 +35,9 @@ import com.google.android.ground.persistence.local.room.models.MutationEntitySyn
 import com.google.android.ground.persistence.remote.NotFoundException;
 import com.google.android.ground.persistence.remote.RemoteDataEvent;
 import com.google.android.ground.persistence.sync.DataSyncWorkManager;
-import com.google.android.ground.sharedTestCode.FakeData;
-import com.google.android.ground.sharedTestCode.persistence.remote.FakeRemoteDataStore;
-import com.google.android.ground.sharedTestCode.system.auth.FakeAuthenticationManager;
+import com.google.android.ground.sharedTest.FakeData;
+import com.google.android.ground.sharedTest.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.sharedTest.system.auth.FakeAuthenticationManager;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;

@@ -18,7 +18,7 @@ package com.google.android.ground;
 
 import androidx.work.WorkManager;
 import com.google.android.ground.persistence.sync.WorkManagerModule;
-import com.google.android.ground.sharedTestCode.persistence.sync.FakeWorkManager;
+import com.google.android.ground.sharedTest.persistence.sync.FakeWorkManager;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.components.SingletonComponent;

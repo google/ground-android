@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode.persistence.uuid;
+package com.google.android.ground.sharedTest.persistence.uuid;
 
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
 import javax.inject.Inject;
