@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode;
+package com.google.android.ground;
 
 import androidx.work.WorkManager;
 import com.google.android.ground.persistence.sync.WorkManagerModule;

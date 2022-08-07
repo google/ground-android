@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode;
+package com.google.android.ground;
 
-import android.content.Context;
-import androidx.room.Room;
-import com.google.android.ground.persistence.local.LocalDatabaseModule;
-import com.google.android.ground.persistence.local.room.LocalDatabase;
+import androidx.work.WorkManager;
+import com.google.android.ground.persistence.sync.WorkManagerModule;
+import com.google.android.ground.sharedTestCode.persistence.sync.FakeWorkManager;
 import dagger.Module;
 import dagger.Provides;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = LocalDatabaseModule.class)
-abstract class TestLocalDatabaseModule {
+@TestInstallIn(components = SingletonComponent.class, replaces = WorkManagerModule.class)
+abstract class TestWorkManagerModule {
 
   @Provides
   @Singleton
-  static LocalDatabase localDatabaseProvider(@ApplicationContext Context context) {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
-        .allowMainThreadQueries()
-        .build();
+  static WorkManager provideWorkManager() {
+    return new FakeWorkManager();
   }
 }

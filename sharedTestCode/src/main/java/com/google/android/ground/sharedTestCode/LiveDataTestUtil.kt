@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
+
+package com.google.android.ground.sharedTestCode
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData

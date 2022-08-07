@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode;
+package com.google.android.ground;
 
 import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.persistence.remote.RemoteStorageManager;

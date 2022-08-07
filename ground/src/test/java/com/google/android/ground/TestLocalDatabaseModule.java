@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode;
+package com.google.android.ground;
 
-import com.google.android.ground.sharedTestCode.system.auth.FakeAuthenticationManager;
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.system.auth.AuthenticationModule;
-import dagger.Binds;
+import android.content.Context;
+import androidx.room.Room;
+import com.google.android.ground.persistence.local.LocalDatabaseModule;
+import com.google.android.ground.persistence.local.room.LocalDatabase;
 import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = AuthenticationModule.class)
-abstract class TestAuthenticationModule {
+@TestInstallIn(components = SingletonComponent.class, replaces = LocalDatabaseModule.class)
+abstract class TestLocalDatabaseModule {
 
-  @Binds
+  @Provides
   @Singleton
-  abstract AuthenticationManager bindAuthenticationManager(
-      FakeAuthenticationManager authenticationManager);
+  static LocalDatabase localDatabaseProvider(@ApplicationContext Context context) {
+    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
+        .allowMainThreadQueries()
+        .build();
+  }
 }

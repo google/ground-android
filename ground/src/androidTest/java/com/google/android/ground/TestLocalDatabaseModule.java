@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTestCode;
+package com.google.android.ground;
 
-import com.google.android.ground.rx.Schedulers;
-import com.google.android.ground.rx.SchedulersModule;
-import dagger.Binds;
+import android.content.Context;
+import androidx.room.Room;
+import com.google.android.ground.persistence.local.LocalDatabaseModule;
+import com.google.android.ground.persistence.local.room.LocalDatabase;
 import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = SchedulersModule.class)
-abstract class TestSchedulersModule {
+@TestInstallIn(components = SingletonComponent.class, replaces = LocalDatabaseModule.class)
+abstract class TestLocalDatabaseModule {
 
-  @Binds
+  @Provides
   @Singleton
-  abstract Schedulers schedulers(TestScheduler testScheduler);
+  static LocalDatabase localDatabaseProvider(@ApplicationContext Context context) {
+    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
+        .allowMainThreadQueries()
+        .build();
+  }
 }
