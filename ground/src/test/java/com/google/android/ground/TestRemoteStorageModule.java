@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.persistence.remote.RemoteStorageManager;
 import com.google.android.ground.persistence.remote.RemoteStorageModule;
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.ground.sharedTest.persistence.remote.FakeRemoteDataStore;
-import com.google.android.ground.sharedTest.persistence.remote.FakeRemoteStorageManager;
-import com.google.android.ground.sharedTest.persistence.uuid.FakeUuidGenerator;
+import com.google.android.ground.test.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.test.persistence.remote.FakeRemoteStorageManager;
+import com.google.android.ground.test.persistence.uuid.FakeUuidGenerator;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.google.android.ground;
 
 import androidx.work.WorkManager;
 import com.google.android.ground.persistence.sync.WorkManagerModule;
-import com.google.android.ground.sharedTest.persistence.sync.FakeWorkManager;
+import com.google.android.ground.test.persistence.sync.FakeWorkManager;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.components.SingletonComponent;

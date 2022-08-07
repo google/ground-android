@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest.persistence.remote;
+package com.google.android.ground.test.persistence.remote;
 
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.TermsOfService;
@@ -26,7 +26,7 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent;
 import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.rx.ValueOrError;
 import com.google.android.ground.rx.annotations.Cold;
-import com.google.android.ground.sharedTest.FakeData;
+import com.google.android.ground.test.FakeData;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;

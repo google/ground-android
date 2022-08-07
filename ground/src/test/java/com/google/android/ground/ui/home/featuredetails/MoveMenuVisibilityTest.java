@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.sharedTest.TestObservers;
+import com.google.android.ground.test.TestObservers;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.Arrays;
 import java.util.Collection;

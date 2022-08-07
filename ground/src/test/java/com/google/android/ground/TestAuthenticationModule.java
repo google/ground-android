@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.google.android.ground;
 
-import com.google.android.ground.sharedTest.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.system.auth.AuthenticationManager;
 import com.google.android.ground.system.auth.AuthenticationModule;
+import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

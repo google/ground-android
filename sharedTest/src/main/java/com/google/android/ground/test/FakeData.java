@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest;
+package com.google.android.ground.test;
 
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;

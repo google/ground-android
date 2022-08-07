@@ -20,7 +20,7 @@ import static com.google.android.ground.persistence.local.LocalValueStore.ACTIVE
 
 import android.content.SharedPreferences;
 import androidx.test.core.app.ApplicationProvider;
-import com.google.android.ground.sharedTest.FakeData;
+import com.google.android.ground.test.FakeData;
 import dagger.hilt.EntryPoint;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.EntryPointAccessors;
@@ -50,10 +50,6 @@ class SetPreferencesRule extends TestWatcher {
                 ApplicationProvider.getApplicationContext(), SetPreferencesRuleEntryPoint.class)
             .preferenceStorage();
 
-    prefs
-        .edit()
-        .clear()
-        .putString(ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.getId())
-        .apply();
+    prefs.edit().clear().putString(ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.getId()).apply();
   }
 }

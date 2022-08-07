@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest;
+package com.google.android.ground.test;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;

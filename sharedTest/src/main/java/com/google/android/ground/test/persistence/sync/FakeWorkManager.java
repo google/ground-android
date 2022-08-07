@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest.persistence.sync;
+package com.google.android.ground.test.persistence.sync;
 
 import android.app.PendingIntent;
 import androidx.annotation.NonNull;

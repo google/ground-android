@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest;
+package com.google.android.ground.test;
 
 import androidx.test.espresso.IdlingRegistry;
 import com.google.android.ground.rx.Schedulers;

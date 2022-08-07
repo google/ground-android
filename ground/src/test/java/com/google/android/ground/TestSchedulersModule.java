@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.google.android.ground;
 
 import com.google.android.ground.rx.Schedulers;
 import com.google.android.ground.rx.SchedulersModule;
-import com.google.android.ground.sharedTest.TestScheduler;
+import com.google.android.ground.test.TestScheduler;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest.system.auth;
+package com.google.android.ground.test.system.auth;
 
 import com.google.android.ground.model.User;
 import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.sharedTest.FakeData;
 import com.google.android.ground.system.auth.AuthenticationManager;
 import com.google.android.ground.system.auth.SignInState;
 import com.google.android.ground.system.auth.SignInState.State;
+import com.google.android.ground.test.FakeData;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.sharedTest.persistence.uuid;
+package com.google.android.ground.test
 
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import javax.inject.Inject;
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
-public class FakeUuidGenerator implements OfflineUuidGenerator {
+@JvmName("assertIsFailure")
+inline fun assertIsFailure(result: Result<*>) =
+    assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
 
-  @Inject
-  FakeUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return "TEST UUID";
-  }
+@JvmName("assertIsSuccess")
+inline fun assertIsSuccessWith(expected: Any?, result: Result<*>) {
+    assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
+    assertEquals(expected, result.getOrNull())
 }

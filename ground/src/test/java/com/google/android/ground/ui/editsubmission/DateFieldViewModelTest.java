@@ -16,7 +16,7 @@
 
 package com.google.android.ground.ui.editsubmission;
 
-import static com.google.android.ground.sharedTest.TestObservers.observeUntilFirstChange;
+import static com.google.android.ground.test.TestObservers.observeUntilFirstChange;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
@@ -37,8 +37,7 @@ public class DateFieldViewModelTest extends BaseHiltTest {
   // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
   private static final Date TEST_DATE = new Date(1632501600000L);
 
-  @Inject
-  DateFieldViewModel dateFieldViewModel;
+  @Inject DateFieldViewModel dateFieldViewModel;
 
   @Test
   public void testUpdateResponse() {

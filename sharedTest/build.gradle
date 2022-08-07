@@ -8,7 +8,7 @@ apply from: '../config/spotbugs/spotbugs.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
 android {
-    namespace 'com.google.android.ground.sharedTestCode'
+    namespace 'com.google.android.ground.test'
     compileSdkVersion rootProject.androidCompileSdk
 
     defaultConfig {
