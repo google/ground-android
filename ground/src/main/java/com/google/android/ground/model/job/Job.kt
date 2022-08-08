@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.job
 
-package com.google.android.ground.persistence.remote.firestore.schema
-
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import java8.util.Optional
 
-/** Converts between Firestore documents and [Job] instances.  */
-internal object JobConverter {
+data class Job @JvmOverloads constructor(
+    val id: String,
+    val name: String? = null,
+    val tasks: ImmutableMap<String, Task> = ImmutableMap.of()
+) {
+    val tasksSorted: ImmutableList<Task>
+        get() = tasks.values.sortedBy { it.id }.toImmutableList()
 
-    @JvmStatic
-    fun toJob(id: String, obj: JobNestedObject): Job {
-        val taskMap = ImmutableMap.builder<String, Task>()
-        obj.tasks?.let {
-            it.entries.map { (key, value) ->
-                TaskConverter.toTask(key, value).ifPresent { task ->
-                    taskMap.put(task.id, task)
-                }
-            }
-        }
-        return Job(id, obj.name, taskMap.build())
-    }
+    fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
 }

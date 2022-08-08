@@ -46,6 +46,7 @@ import com.google.android.ground.persistence.local.room.dao.SubmissionDao;
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity;
 import com.google.android.ground.persistence.local.room.models.EntityState;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.subscribers.TestSubscriber;
@@ -75,7 +76,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .build();
 
   private static final Job TEST_JOB =
-      Job.newBuilder().setId("job id").setName("heading title").addTask(TEST_TASK).build();
+      new Job("job id", "heading title", ImmutableMap.<String, Task>builder().put(TEST_TASK.getId(), TEST_TASK).build());
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
@@ -240,8 +241,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
   @Test
   public void testRemovedJobFromSurvey() {
-    Job job1 = Job.newBuilder().setId("job 1").setName("job 1 name").build();
-    Job job2 = Job.newBuilder().setId("job 2").setName("job 2 name").build();
+    Job job1 = new Job("job 1", "job 1 name");
+    Job job2 = new Job("job 2", "job 2 name");
 
     Survey survey =
         Survey.newBuilder()

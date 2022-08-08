@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
-import static com.google.android.ground.model.TestModelBuilders.newJob;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static java8.util.J8Arrays.stream;
@@ -31,6 +30,7 @@ import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.MultipleChoice.Cardinality;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
+import com.google.common.collect.ImmutableMap;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.Date;
@@ -62,9 +62,10 @@ public class LoiConverterTest {
   private Map<String, Object> noVerticesGeometry;
 
   private void setUpTestSurvey(String jobId, Task... tasks) {
-    Job.Builder builder = newJob().setId(jobId);
-    stream(tasks).forEach(builder::addTask);
-    Job job = builder.build();
+    ImmutableMap.Builder<String, Task> taskMap = ImmutableMap.builder();
+    stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
+
+    Job job = new Job(jobId, "jobName", taskMap.build());
     survey = newSurvey().putJob(job).build();
   }
 

@@ -16,7 +16,6 @@
 
 package com.google.android.ground.model;
 
-import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
@@ -88,10 +87,6 @@ public class TestModelBuilders {
 
   public static TermsOfService.Builder newTermsOfService() {
     return TermsOfService.builder().setId("").setText("");
-  }
-
-  public static Job.Builder newJob() {
-    return Job.newBuilder().setId("").setName("");
   }
 
   public static Task.Builder newTask() {
