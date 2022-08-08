@@ -18,8 +18,8 @@ package com.google.android.ground.ui.datacollection
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.PointOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.Task
 import java8.util.Optional
@@ -43,12 +43,16 @@ object DataCollectionTestData {
         .setId(submissionId)
         .setSurvey(survey)
         .setLocationOfInterest(
-            PointOfInterest.newBuilder().setCaption(loiName).setSurvey(survey).setCreated(auditInfo)
-                .setLastModified(auditInfo)
-                .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
-                .setJob(Job.newBuilder().setName(jobName).setId("jobId").build())
-                .setId(loiId)
-                .build()
+            LocationOfInterest(
+                loiId,
+                survey,
+                Job.newBuilder().setName(jobName).setId("jobId").build(),
+                null,
+                loiName,
+                auditInfo,
+                auditInfo,
+                Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build().toGeometry()
+            )
         )
         .setCreated(auditInfo)
         .setLastModified(auditInfo)

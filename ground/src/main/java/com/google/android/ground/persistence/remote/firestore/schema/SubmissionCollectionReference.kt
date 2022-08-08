@@ -36,7 +36,7 @@ class SubmissionCollectionReference internal constructor(ref: CollectionReferenc
     fun submissionsByLocationOfInterestId(
         locationOfInterest: LocationOfInterest
     ): @Cold Single<ImmutableList<ValueOrError<Submission?>>> {
-        return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
+        return RxFirestore.getCollection(byLoiId(locationOfInterest.id ?: ""))
             .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
             .toSingle(ImmutableList.of())
     }

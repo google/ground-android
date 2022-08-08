@@ -21,9 +21,7 @@ import com.google.android.ground.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.common.collect.ImmutableMap;
@@ -65,17 +63,27 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
     this.visible = visible;
   }
 
-  static PointOfInterest createPointFeature(User user) {
-    return FakeData.POINT_OF_INTEREST.toBuilder()
-        .setSurvey(TEST_SURVEY)
-        .setCreated(AuditInfo.now(user))
-        .build();
+  static LocationOfInterest createPointFeature(User user) {
+    return new LocationOfInterest(
+        FakeData.POINT_OF_INTEREST.getId(),
+        TEST_SURVEY,
+        FakeData.POINT_OF_INTEREST.getJob(),
+        FakeData.POINT_OF_INTEREST.getCustomId(),
+        FakeData.POINT_OF_INTEREST.getCaption(),
+        AuditInfo.now(user),
+        FakeData.POINT_OF_INTEREST.getLastModified(),
+        FakeData.POINT_OF_INTEREST.getGeometry());
   }
 
-  static AreaOfInterest createPolygonFeature(User user) {
-    return FakeData.AREA_OF_INTEREST.toBuilder()
-        .setSurvey(TEST_SURVEY)
-        .setCreated(AuditInfo.now(user))
-        .build();
+  static LocationOfInterest createPolygonFeature(User user) {
+    return new LocationOfInterest(
+        FakeData.AREA_OF_INTEREST.getId(),
+        TEST_SURVEY,
+        FakeData.AREA_OF_INTEREST.getJob(),
+        FakeData.AREA_OF_INTEREST.getCustomId(),
+        FakeData.AREA_OF_INTEREST.getCaption(),
+        AuditInfo.now(user),
+        FakeData.AREA_OF_INTEREST.getLastModified(),
+        FakeData.AREA_OF_INTEREST.getGeometry());
   }
 }

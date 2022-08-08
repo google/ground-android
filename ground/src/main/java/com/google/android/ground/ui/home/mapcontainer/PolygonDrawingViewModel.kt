@@ -23,8 +23,9 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.locationofinterest.AreaOfInterest
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.locationofinterest.toPolygon
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.BooleanOrError
 import com.google.android.ground.rx.BooleanOrError.Companion.falseValue
@@ -168,14 +169,14 @@ class PolygonDrawingViewModel @Inject internal constructor(
         val polygon = mapPolygon.get()
         check(polygon.isPolygonComplete) { "Polygon is not complete" }
         val auditInfo = AuditInfo.now(authManager.currentUser)
-        val areaOfInterest = AreaOfInterest.newBuilder()
-            .setId(polygon.id)
-            .setVertices(polygon.vertices)
-            .setSurvey(selectedSurvey.value!!)
-            .setJob(selectedJob.value!!)
-            .setCreated(auditInfo)
-            .setLastModified(auditInfo)
-            .build()
+        val areaOfInterest = LocationOfInterest(
+            id = polygon.id,
+            geometry = polygon.vertices.toPolygon(),
+            survey = selectedSurvey.value!!,
+            job = selectedJob.value!!,
+            created = auditInfo,
+            lastModified = auditInfo,
+        )
         polygonDrawingState.onNext(PolygonDrawingState.completed(areaOfInterest))
         reset()
     }
@@ -230,7 +231,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         abstract val state: State
 
         /** Final polygon location of interest.  */
-        abstract val unsavedPolygonLocationOfInterest: AreaOfInterest?
+        abstract val unsavedPolygonLocationOfInterest: LocationOfInterest?
 
         companion object {
             fun canceled(): PolygonDrawingState {
@@ -241,12 +242,12 @@ class PolygonDrawingViewModel @Inject internal constructor(
                 return createDrawingState(State.IN_PROGRESS, null)
             }
 
-            fun completed(unsavedAreaOfInterest: AreaOfInterest?): PolygonDrawingState {
+            fun completed(unsavedAreaOfInterest: LocationOfInterest?): PolygonDrawingState {
                 return createDrawingState(State.COMPLETED, unsavedAreaOfInterest)
             }
 
             private fun createDrawingState(
-                state: State, unsavedAreaOfInterest: AreaOfInterest?
+                state: State, unsavedAreaOfInterest: LocationOfInterest?
             ): PolygonDrawingState {
                 return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(
                     state,

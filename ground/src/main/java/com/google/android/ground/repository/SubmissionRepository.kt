@@ -26,6 +26,7 @@ import com.google.android.ground.model.submission.ResponseDelta
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.DataSyncWorkManager
@@ -143,37 +144,49 @@ class SubmissionRepository @Inject constructor(
             }
     }
 
-    fun deleteSubmission(submission: Submission): @Cold Completable =
-        applyAndEnqueue(
-            builder()
-                .setJob(submission.job)
-                .setSubmissionId(submission.id)
-                .setResponseDeltas(ImmutableList.of())
-                .setType(Mutation.Type.DELETE)
-                .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.survey.id)
-                .setLocationOfInterestId(submission.locationOfInterest.id)
-                .setClientTimestamp(Date())
-                .setUserId(authManager.currentUser.id)
-                .build()
-        )
+    fun deleteSubmission(submission: Submission): @Cold Completable {
+        return if (submission.locationOfInterest.id == null) {
+            Completable.error(DataStoreException("Missing LOI id."))
+        } else {
+            applyAndEnqueue(
+                builder()
+                    .setJob(submission.job)
+                    .setSubmissionId(submission.id)
+                    .setResponseDeltas(ImmutableList.of())
+                    .setType(Mutation.Type.DELETE)
+                    .setSyncStatus(SyncStatus.PENDING)
+                    .setSurveyId(submission.survey.id)
+                    .setLocationOfInterestId(
+                        submission.locationOfInterest.id!!
+                    )
+                    .setClientTimestamp(Date())
+                    .setUserId(authManager.currentUser.id)
+                    .build()
+            )
+        }
+    }
 
     fun createOrUpdateSubmission(
         submission: Submission, responseDeltas: ImmutableList<ResponseDelta>, isNew: Boolean
-    ): @Cold Completable =
-        applyAndEnqueue(
-            builder()
-                .setJob(submission.job)
-                .setSubmissionId(submission.id)
-                .setResponseDeltas(responseDeltas)
-                .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
-                .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.survey.id)
-                .setLocationOfInterestId(submission.locationOfInterest.id)
-                .setClientTimestamp(Date())
-                .setUserId(authManager.currentUser.id)
-                .build()
-        )
+    ): @Cold Completable {
+        return if (submission.locationOfInterest.id == null) {
+            Completable.error(DataStoreException("Missing LOI id."))
+        } else {
+            applyAndEnqueue(
+                builder()
+                    .setJob(submission.job)
+                    .setSubmissionId(submission.id)
+                    .setResponseDeltas(responseDeltas)
+                    .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
+                    .setSyncStatus(SyncStatus.PENDING)
+                    .setSurveyId(submission.survey.id)
+                    .setLocationOfInterestId(submission.locationOfInterest.id!!)
+                    .setClientTimestamp(Date())
+                    .setUserId(authManager.currentUser.id)
+                    .build()
+            )
+        }
+    }
 
     private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
         localDataStore

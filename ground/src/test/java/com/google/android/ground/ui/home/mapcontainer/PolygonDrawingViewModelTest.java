@@ -200,7 +200,10 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
         polygonDrawingState ->
             polygonDrawingState.isCompleted()
                 && polygonDrawingState.getUnsavedPolygonLocationOfInterest() != null
-                && polygonDrawingState.getUnsavedPolygonLocationOfInterest().getVertices().size()
+                && polygonDrawingState
+                        .getUnsavedPolygonLocationOfInterest()
+                        .getCoordinatesAsPoints()
+                        .size()
                     == 4);
   }
 

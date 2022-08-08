@@ -22,37 +22,39 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.geom.Polygon
 import java.util.*
 import javax.annotation.OverridingMethodsMustInvokeSuper
 
-/** Base class for user-defined locations of interest shown on the map. */
-sealed class LocationOfInterest {
-    // TODO: Once all callers are converted to Kotlin, we don't need these properties.
-    val isPoint: Boolean
-        get() = this is PointOfInterest
-    val isPolygon: Boolean
-        get() = this is AreaOfInterest
-
+/** User-defined locations of interest (LOI) shown on the map. */
+data class LocationOfInterest(
     /** A system-defined ID for this LOI. */
-    abstract val id: String
-
+    val id: String,
     /** The survey associated with this LOI. */
-    abstract val survey: Survey
-
+    val survey: Survey,
     /** The job associated with this LOI. */
-    abstract val job: Job
-
+    val job: Job,
     /** A user-specified ID for this location of interest. */
-    abstract val customId: String?
-
+    val customId: String? = null,
     /** A human readable caption for this location of interest. */
-    abstract val caption: String?
-
+    val caption: String? = null,
     /** User and time audit info pertaining to the creation of this LOI. */
-    abstract val created: AuditInfo
-
+    val created: AuditInfo,
     /** User and time audit info pertaining to the last modification of this LOI. */
-    abstract val lastModified: AuditInfo
+    val lastModified: AuditInfo,
+    /** Geometry associated with this LOI. */
+    val geometry: Geometry,
+) {
+    /** Returns the type of this LOI based on its Geometry. */
+    val type: LocationOfInterestType =
+        when (geometry) {
+            is org.locationtech.jts.geom.Point -> LocationOfInterestType.POINT
+            is Polygon -> LocationOfInterestType.POLYGON
+            else -> LocationOfInterestType.UNKNOWN
+        }
 
     /**
      * Converts this LOI to a mutation that can be used to update this LOI in the remote and local database.
@@ -70,50 +72,22 @@ sealed class LocationOfInterest {
             .build()
     }
 
-    // TODO: Remove once all callers are converted to Kotlin. We only retain this for Java interop.
-    open class Builder {
-        var id: String = ""
-            @JvmSynthetic set
-        var survey: Survey? = null
-            @JvmSynthetic set
-        var job: Job? = null
-            @JvmSynthetic set
-        var customId: String? = null
-            @JvmSynthetic set
-        var caption: String? = null
-            @JvmSynthetic set
-        var created: AuditInfo? = null
-            @JvmSynthetic set
-        var lastModified: AuditInfo? = null
-            @JvmSynthetic set
+    // TODO: These values exist for compatibility and can be removed once we eliminate the Point class.
+    val coordinatesAsPoints: ImmutableList<Point> =
+        geometry.coordinates.map(Point::fromCoordinate).toImmutableList()
 
-        open fun setId(value: String): Builder = apply { this.id = value }
-        open fun setSurvey(value: Survey): Builder = apply { this.survey = value }
-        open fun setJob(value: Job): Builder = apply { this.job = value }
-        open fun setCustomId(value: String?): Builder = apply { this.customId = value }
-        open fun setCaption(value: String?): Builder = apply { this.caption = value }
-        open fun setCreated(value: AuditInfo): Builder = apply { this.created = value }
-        open fun setLastModified(value: AuditInfo): Builder = apply { this.lastModified = value }
-    }
+    val coordinatesAsPoint: Point =
+        Point.fromCoordinate(geometry.coordinate)
 
-    open fun builder(init: Builder.() -> Unit): Builder {
-        val builder = Builder()
-        builder.init()
-        return builder
-    }
-
-    open fun toBuilder() = builder {
-        id = this@LocationOfInterest.id
-        survey = this@LocationOfInterest.survey
-        job = this@LocationOfInterest.job
-        customId = this@LocationOfInterest.customId
-        caption = this@LocationOfInterest.caption
-        created = this@LocationOfInterest.created
-        lastModified = this@LocationOfInterest.lastModified
-    }
-
-    companion object {
-        @JvmStatic
-        fun newBuilder(): Builder = Builder()
-    }
+    // "Lens" style setter for geometries.
+    fun <T : Geometry> updateGeometry(geometry: T): LocationOfInterest = LocationOfInterest(
+        this.id,
+        this.survey,
+        this.job,
+        this.customId,
+        this.caption,
+        this.created,
+        this.lastModified,
+        geometry,
+    )
 }

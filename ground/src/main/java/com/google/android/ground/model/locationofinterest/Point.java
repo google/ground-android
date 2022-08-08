@@ -17,10 +17,14 @@
 package com.google.android.ground.model.locationofinterest;
 
 import com.google.auto.value.AutoValue;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 /** The location of a single point on the map. */
 @AutoValue
 public abstract class Point {
+  private final GeometryFactory geometryFactory = new GeometryFactory();
+
   public abstract double getLatitude();
 
   public abstract double getLongitude();
@@ -36,5 +40,20 @@ public abstract class Point {
     public abstract Builder setLongitude(double newLongitude);
 
     public abstract Point build();
+  }
+
+  static Point fromCoordinate(Coordinate coordinate) {
+    if (coordinate == null) {
+      return zero();
+    }
+    return Point.newBuilder().setLatitude(coordinate.x).setLongitude(coordinate.y).build();
+  }
+
+  static Point zero() {
+    return Point.newBuilder().setLatitude(0).setLongitude(0).build();
+  }
+
+  public org.locationtech.jts.geom.Point toGeometry() {
+    return geometryFactory.createPoint(new Coordinate(this.getLatitude(), this.getLongitude()));
   }
 }

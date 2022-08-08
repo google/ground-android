@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
-import static com.google.android.ground.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
@@ -26,6 +25,7 @@ import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.google.android.ground.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
@@ -303,7 +303,15 @@ public class SubmissionConverterTest {
 
   private void setUpTestFeature(String featureId) {
     locationOfInterest =
-        newPointOfInterest().setId(featureId).setSurvey(survey).setJob(job).build();
+        new LocationOfInterest(
+            featureId,
+            survey,
+            job,
+            FakeData.POINT_OF_INTEREST.getCustomId(),
+            FakeData.POINT_OF_INTEREST.getCaption(),
+            FakeData.POINT_OF_INTEREST.getCreated(),
+            FakeData.POINT_OF_INTEREST.getLastModified(),
+            FakeData.POINT_OF_INTEREST.getGeometry());
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */

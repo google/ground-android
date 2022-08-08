@@ -34,10 +34,9 @@ import com.google.android.ground.R;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.tile.TileSet;
 import com.google.android.ground.model.job.Style;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.OfflineAreaRepository;
 import com.google.android.ground.repository.SurveyRepository;
@@ -124,8 +123,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Boolean> locationUpdatesEnabled;
   private final LiveData<String> locationAccuracy;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
+
   @SuppressWarnings("PMD")
   private final @Dimension int defaultPolygonStrokeWidth;
+
   private final @Dimension int selectedPolygonStrokeWidth;
   /** The currently selected LOI on the map. */
   private final BehaviorProcessor<Optional<LocationOfInterest>> selectedLocationOfInterest =
@@ -214,19 +215,19 @@ public class MapContainerViewModel extends AbstractViewModel {
         .collect(toImmutableSet());
   }
 
-  private static MapLocationOfInterest toMapPin(PointOfInterest pointOfInterest) {
+  private static MapLocationOfInterest toMapPin(LocationOfInterest pointOfInterest) {
     return MapPin.newBuilder()
         .setId(pointOfInterest.getId())
-        .setPosition(pointOfInterest.getPoint())
+        .setPosition(pointOfInterest.getCoordinatesAsPoint())
         .setStyle(Style.DEFAULT_MAP_STYLE)
         .setLocationOfInterest(pointOfInterest)
         .build();
   }
 
-  private static MapLocationOfInterest toMapPolygon(AreaOfInterest areaOfInterest) {
+  private static MapLocationOfInterest toMapPolygon(LocationOfInterest areaOfInterest) {
     return MapPolygon.newBuilder()
         .setId(areaOfInterest.getId())
-        .setVertices(areaOfInterest.getVertices())
+        .setVertices(areaOfInterest.getCoordinatesAsPoints())
         .setStyle(Style.DEFAULT_MAP_STYLE)
         .setLocationOfInterest(areaOfInterest)
         .build();
@@ -277,17 +278,14 @@ public class MapContainerViewModel extends AbstractViewModel {
       ImmutableSet<LocationOfInterest> locationsOfInterest) {
     ImmutableSet<MapLocationOfInterest> mapPins =
         stream(locationsOfInterest)
-            .filter(LocationOfInterest::isPoint)
-            .map(PointOfInterest.class::cast)
+            .filter(loi -> loi.getType() == LocationOfInterestType.POINT)
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
     // TODO: Add support for polylines similar to mapPins.
-
     ImmutableSet<MapLocationOfInterest> mapPolygons =
         stream(locationsOfInterest)
-            .filter(LocationOfInterest::isPolygon)
-            .map(AreaOfInterest.class::cast)
+            .filter(loi -> loi.getType() == LocationOfInterestType.POLYGON)
             .map(MapContainerViewModel::toMapPolygon)
             .collect(toImmutableSet());
 

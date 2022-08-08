@@ -17,9 +17,7 @@
 package com.google.android.ground.model;
 
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.GeoPoint;
@@ -66,24 +64,6 @@ public class TestModelBuilders {
         .add(newPoint().build())
         .add(newPoint().build())
         .build();
-  }
-
-  public static PointOfInterest.Builder newPointOfInterest() {
-    return PointOfInterest.newBuilder()
-        .setId("")
-        .setSurvey(newSurvey().build())
-        .setPoint(newPoint().build())
-        .setCreated(newAuditInfo().build())
-        .setLastModified(newAuditInfo().build());
-  }
-
-  public static AreaOfInterest.Builder newPolygonOfInterest() {
-    return AreaOfInterest.newBuilder()
-        .setId("")
-        .setSurvey(newSurvey().build())
-        .setVertices(newPolygonVertices())
-        .setCreated(newAuditInfo().build())
-        .setLastModified(newAuditInfo().build());
   }
 
   public static TermsOfService.Builder newTermsOfService() {
