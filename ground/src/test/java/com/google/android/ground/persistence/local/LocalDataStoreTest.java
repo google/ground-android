@@ -76,7 +76,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .build();
 
   private static final Job TEST_JOB =
-      new Job("job id", "heading title", ImmutableMap.<String, Task>builder().put(TEST_TASK.getId(), TEST_TASK).build());
+      new Job("job id", "heading title",
+          ImmutableMap.<String, Task>builder().put(TEST_TASK.getId(), TEST_TASK).build());
 
   private static final Survey TEST_SURVEY =
       Survey.newBuilder()
@@ -171,10 +172,14 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setName("Test Area")
           .build();
 
-  @Inject LocalDataStore localDataStore;
-  @Inject LocalValueStore localValueStore;
-  @Inject SubmissionDao submissionDao;
-  @Inject LocationOfInterestDao locationOfInterestDao;
+  @Inject
+  LocalDataStore localDataStore;
+  @Inject
+  LocalValueStore localValueStore;
+  @Inject
+  SubmissionDao submissionDao;
+  @Inject
+  LocationOfInterestDao locationOfInterestDao;
 
   private static LocationOfInterestMutation createTestLocationOfInterestMutation(Point point) {
     return LocationOfInterestMutation.builder()
