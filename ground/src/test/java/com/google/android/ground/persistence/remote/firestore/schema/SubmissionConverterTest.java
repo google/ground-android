@@ -260,7 +260,7 @@ public class SubmissionConverterTest {
     ImmutableMap.Builder<String, Task> taskMap = ImmutableMap.builder();
     stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
 
-    Job job = new Job(jobId, "jobName", taskMap.build());
+    job = new Job(jobId, "jobName", taskMap.build());
     survey = newSurvey().putJob(job).build();
   }
 
