@@ -16,20 +16,15 @@
 
 package com.google.android.ground.repository;
 
-import static com.google.android.ground.test.FakeData.newJob;
 import static com.google.android.ground.test.FakeData.newSurvey;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.Role;
 import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
 import com.google.android.ground.test.persistence.remote.FakeRemoteDataStore;
-import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;
@@ -60,51 +55,6 @@ public class SurveyRepositoryTest extends BaseHiltTest {
     surveyRepository.activateSurvey("id");
 
     surveyRepository.getActiveSurvey().test().assertValue(Optional.of(survey));
-  }
-
-  @Test
-  public void testActivateSurvey_managersCanAddFeaturesToAllJobs() {
-    Job job = newJob().setId("job").build();
-    setTestSurvey(newSurvey().putJob(job).build());
-    when(userRepository.getUserRole(any())).thenReturn(Role.SURVEY_ORGANIZER);
-
-    surveyRepository.activateSurvey("id");
-
-    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
-    surveyRepository
-        .getActiveSurvey()
-        .test()
-        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
-  }
-
-  @Test
-  public void testActivateSurvey_ownersCanAddFeaturesToAllJobs() {
-    Job job = newJob().setId("job").build();
-    setTestSurvey(newSurvey().putJob(job).build());
-    when(userRepository.getUserRole(any())).thenReturn(Role.OWNER);
-
-    surveyRepository.activateSurvey("id");
-
-    Job expectedJob = job.toBuilder().setUserCanAdd(LocationOfInterestType.ALL).build();
-    surveyRepository
-        .getActiveSurvey()
-        .test()
-        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
-  }
-
-  @Test
-  public void testActivateSurvey_contributorsCannotAddFeaturesToAnyJobs() {
-    Job job = newJob().setId("job").build();
-    setTestSurvey(newSurvey().putJob(job).build());
-    when(userRepository.getUserRole(any())).thenReturn(Role.DATA_COLLECTOR);
-
-    surveyRepository.activateSurvey("id");
-
-    Job expectedJob = job.toBuilder().setUserCanAdd(ImmutableList.of()).build();
-    surveyRepository
-        .getActiveSurvey()
-        .test()
-        .assertValue(p -> p.get().getJobs().equals(ImmutableList.of(expectedJob)));
   }
 
   private void setTestSurvey(Survey survey) {

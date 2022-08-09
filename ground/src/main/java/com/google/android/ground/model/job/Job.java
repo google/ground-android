@@ -19,7 +19,6 @@ package com.google.android.ground.model.job;
 import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.model.task.Task;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -46,13 +45,10 @@ public abstract class Job {
     return Optional.ofNullable(getTasks().get(id));
   }
 
-  /** Returns the list of location of interest types the current user may add to this job. */
-  public abstract ImmutableList<LocationOfInterestType> getUserCanAdd();
-
   public abstract Builder toBuilder();
 
   public static Builder newBuilder() {
-    return new AutoValue_Job.Builder().setUserCanAdd(ImmutableList.of());
+    return new AutoValue_Job.Builder();
   }
 
   @AutoValue.Builder
@@ -63,8 +59,6 @@ public abstract class Job {
     public abstract Builder setName(@Nullable String newName);
 
     public abstract ImmutableMap.Builder<String, Task> tasksBuilder();
-
-    public abstract Builder setUserCanAdd(ImmutableList<LocationOfInterestType> userCanAdd);
 
     public abstract Job build();
 
