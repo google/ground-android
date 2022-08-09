@@ -38,6 +38,9 @@
 
       <!-- Auto-generated Hilt classes -->
       <Class name="~.*_HiltComponents_SingletonC\$.*" />
+
+      <!-- Fake implementations -->
+      <Class name="~.*FakeWorkManager.*" />
     </Or>
   </Match>
 

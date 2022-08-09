@@ -16,18 +16,19 @@
 
 package com.google.android.ground;
 
-import static com.google.android.ground.FakeData.TERMS_OF_SERVICE;
-import static com.google.android.ground.FakeData.USER;
+import static com.google.android.ground.test.FakeData.TERMS_OF_SERVICE;
+import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.SharedPreferences;
 import androidx.navigation.NavDirections;
-import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
 import com.google.android.ground.repository.TermsOfServiceRepository;
 import com.google.android.ground.repository.UserRepository;
-import com.google.android.ground.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.system.auth.SignInState;
 import com.google.android.ground.system.auth.SignInState.State;
+import com.google.android.ground.test.TestObservers;
+import com.google.android.ground.test.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
 import com.google.android.ground.ui.signin.SignInFragmentDirections;
@@ -135,8 +136,9 @@ public class MainViewModelTest extends BaseHiltTest {
 
     verifyProgressDialogVisible(false);
     verifyNavigationRequested(
-        SignInFragmentDirections.showTermsOfService()
-            .setTermsOfServiceText(TERMS_OF_SERVICE.getText()));
+        (NavDirections)
+            SignInFragmentDirections.showTermsOfService()
+                .setTermsOfServiceText(TERMS_OF_SERVICE.getText()));
     verifyUserSaved();
     assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
   }

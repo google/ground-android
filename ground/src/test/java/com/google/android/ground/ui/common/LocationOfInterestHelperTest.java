@@ -16,9 +16,10 @@
 
 package com.google.android.ground.ui.common;
 
-import static com.google.android.ground.FakeData.AREA_OF_INTEREST;
-import static com.google.android.ground.FakeData.POINT_OF_INTEREST;
-import static com.google.android.ground.FakeData.USER;
+import static com.google.android.ground.test.FakeData.AREA_OF_INTEREST;
+import static com.google.android.ground.test.FakeData.JOB;
+import static com.google.android.ground.test.FakeData.POINT_OF_INTEREST;
+import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;

@@ -31,15 +31,13 @@ import timber.log.Timber.DebugTree;
 public class CustomTestRunner extends AndroidJUnitRunner {
 
   @Override
-  public Application newApplication(ClassLoader cl, String className,
-      Context context)
+  public Application newApplication(ClassLoader cl, String className, Context context)
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 
     Timber.plant(new DebugTree());
     RxJavaPlugins.setInitComputationSchedulerHandler(
         Rx2Idler.create("RxJava 2.x Computation Scheduler"));
-    RxJavaPlugins.setInitIoSchedulerHandler(
-        Rx2Idler.create("RxJava 2.x IO Scheduler"));
+    RxJavaPlugins.setInitIoSchedulerHandler(Rx2Idler.create("RxJava 2.x IO Scheduler"));
 
     return super.newApplication(cl, HiltTestApplication.class.getName(), context);
   }

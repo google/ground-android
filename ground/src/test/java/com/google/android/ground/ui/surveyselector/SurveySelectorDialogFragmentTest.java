@@ -25,14 +25,14 @@ import static org.robolectric.Shadows.shadowOf;
 import android.view.View;
 import android.widget.ListView;
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.FakeData;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
-import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
 import com.google.android.ground.repository.SurveyRepository;
+import com.google.android.ground.test.FakeData;
+import com.google.android.ground.test.persistence.remote.FakeRemoteDataStore;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -54,8 +54,7 @@ import org.robolectric.android.controller.ActivityController;
 @UninstallModules({LocalDataStoreModule.class})
 public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
 
-  @Inject
-  SurveyRepository surveyRepository;
+  @Inject SurveyRepository surveyRepository;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
   @BindValue @Mock LocalDataStore mockLocalDataStore;
 
@@ -80,8 +79,8 @@ public class SurveySelectorDialogFragmentTest extends BaseHiltTest {
 
     surveySelectorDialogFragment = new SurveySelectorDialogFragment();
 
-    surveySelectorDialogFragment.showNow(activity.getSupportFragmentManager(),
-        SurveySelectorDialogFragment.class.getSimpleName());
+    surveySelectorDialogFragment.showNow(
+        activity.getSupportFragmentManager(), SurveySelectorDialogFragment.class.getSimpleName());
     shadowOf(getMainLooper()).idle();
   }
 

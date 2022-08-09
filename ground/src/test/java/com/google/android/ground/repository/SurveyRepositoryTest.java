@@ -16,7 +16,7 @@
 
 package com.google.android.ground.repository;
 
-import static com.google.android.ground.FakeData.newSurvey;
+import static com.google.android.ground.test.FakeData.newSurvey;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +24,7 @@ import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
-import com.google.android.ground.persistence.remote.FakeRemoteDataStore;
+import com.google.android.ground.test.persistence.remote.FakeRemoteDataStore;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;

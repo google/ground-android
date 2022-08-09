@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.android.ground
+package com.google.android.ground;
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import com.google.android.ground.rx.Schedulers;
+import com.google.android.ground.rx.SchedulersModule;
+import com.google.android.ground.test.TestScheduler;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.components.SingletonComponent;
+import dagger.hilt.testing.TestInstallIn;
+import javax.inject.Singleton;
 
-@JvmName("assertIsFailure")
-inline fun assertIsFailure(result: Result<*>) =
-    assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
+@Module
+@TestInstallIn(components = SingletonComponent.class, replaces = SchedulersModule.class)
+abstract class TestSchedulersModule {
 
-@JvmName("assertIsSuccess")
-inline fun assertIsSuccessWith(expected: Any?, result: Result<*>) {
-    assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
-    assertEquals(expected, result.getOrNull())
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(TestScheduler testScheduler);
 }
