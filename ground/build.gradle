@@ -123,24 +123,11 @@ android {
         dataBinding true
         viewBinding true
     }
-    sourceSets {
-        test.manifest.srcFile "src/test/AndroidManifest.xml"
-        String sharedTestDir = 'src/sharedTest/java'
-        test {
-            java.srcDir sharedTestDir
-        }
-        androidTest {
-            java.srcDir sharedTestDir
-        }
-    }
     testOptions {
         unitTests {
             includeAndroidResources = true
         }
         animationsDisabled = true
-    }
-    hilt {
-        enableTransformForLocalTests = true
     }
 
     // ErrorProne and NullAway configuration.
@@ -178,6 +165,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':android-gmaps-addons')
+    testImplementation project(':sharedTest')
+    androidTestImplementation project(':sharedTest')
 
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.preference:preference:1.1.1'

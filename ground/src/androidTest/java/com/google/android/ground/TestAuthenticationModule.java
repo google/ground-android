@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,21 @@
 
 package com.google.android.ground;
 
-import androidx.work.WorkManager;
-import com.google.android.ground.persistence.sync.FakeWorkManager;
-import com.google.android.ground.persistence.sync.WorkManagerModule;
+import com.google.android.ground.system.auth.AuthenticationManager;
+import com.google.android.ground.system.auth.AuthenticationModule;
+import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 import dagger.hilt.components.SingletonComponent;
 import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = WorkManagerModule.class)
-abstract class TestWorkManagerModule {
+@TestInstallIn(components = SingletonComponent.class, replaces = AuthenticationModule.class)
+abstract class TestAuthenticationModule {
 
-  @Provides
+  @Binds
   @Singleton
-  static WorkManager provideWorkManager() {
-    return new FakeWorkManager();
-  }
+  abstract AuthenticationManager bindAuthenticationManager(
+      FakeAuthenticationManager authenticationManager);
 }

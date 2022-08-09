@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,22 @@
 
 package com.google.android.ground;
 
-import com.google.android.ground.rx.Schedulers;
-import com.google.android.ground.rx.SchedulersModule;
-import dagger.Binds;
+import androidx.work.WorkManager;
+import com.google.android.ground.persistence.sync.WorkManagerModule;
+import com.google.android.ground.test.persistence.sync.FakeWorkManager;
 import dagger.Module;
+import dagger.Provides;
 import dagger.hilt.components.SingletonComponent;
 import dagger.hilt.testing.TestInstallIn;
 import javax.inject.Singleton;
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = SchedulersModule.class)
-abstract class TestSchedulersModule {
+@TestInstallIn(components = SingletonComponent.class, replaces = WorkManagerModule.class)
+abstract class TestWorkManagerModule {
 
-  @Binds
+  @Provides
   @Singleton
-  abstract Schedulers schedulers(TestScheduler testScheduler);
+  static WorkManager provideWorkManager() {
+    return new FakeWorkManager();
+  }
 }
