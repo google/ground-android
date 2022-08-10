@@ -21,7 +21,6 @@ import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.TermsOfService;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.job.Job.Builder;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
@@ -40,11 +39,7 @@ public class FakeData {
           .setText("Fake Terms of Service text")
           .build();
 
-  public static final Job JOB = newJob().build();
-
-  public static Builder newJob() {
-    return Job.newBuilder().setId("JOB").setName("Job");
-  }
+  public static final Job JOB = new Job("JOB", "Job");
 
   public static final User USER =
       User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();

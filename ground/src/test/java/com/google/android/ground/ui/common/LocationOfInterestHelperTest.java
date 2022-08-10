@@ -17,13 +17,13 @@
 package com.google.android.ground.ui.common;
 
 import static com.google.android.ground.test.FakeData.AREA_OF_INTEREST;
-import static com.google.android.ground.test.FakeData.JOB;
 import static com.google.android.ground.test.FakeData.POINT_OF_INTEREST;
 import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -86,7 +86,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
   @Test
   public void testGetSubtitle() {
     PointOfInterest feature =
-        POINT_OF_INTEREST.toBuilder().setJob(JOB.toBuilder().setName("some job").build()).build();
+        POINT_OF_INTEREST.toBuilder().setJob(new Job("jobId", "some job")).build();
 
     assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
   }
