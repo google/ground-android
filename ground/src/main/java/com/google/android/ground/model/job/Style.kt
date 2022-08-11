@@ -15,6 +15,6 @@
  */
 package com.google.android.ground.model.job
 
-data class Style(
+data class Style @JvmOverloads constructor(
     val color: String? = "#ff9131"
 )
