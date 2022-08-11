@@ -101,7 +101,13 @@ public abstract class TaskEntity {
               multipleChoiceEntities.get(0), taskEntityAndRelations.optionEntities);
     }
 
-    return new Task(taskEntity.getId(), taskEntity.getIndex(), taskEntity.getTaskType().toTaskType(), taskEntity.getLabel(), taskEntity.isRequired(), multipleChoice);
+    return new Task(
+        taskEntity.getId(),
+        taskEntity.getIndex(),
+        taskEntity.getTaskType().toTaskType(),
+        taskEntity.getLabel(),
+        taskEntity.isRequired(),
+        multipleChoice);
   }
 
   public static TaskEntity create(

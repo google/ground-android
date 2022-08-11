@@ -91,7 +91,10 @@ public class SubmissionConverterTest {
     setUpTestSurvey(
         "job001",
         newTask("task1"),
-        newTask("task2", Task.Type.MULTIPLE_CHOICE, MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
+        newTask(
+            "task2",
+            Task.Type.MULTIPLE_CHOICE,
+            MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
     setUpTestFeature("feature001");
@@ -261,10 +264,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_unknownFieldType() {
-    setUpTestSurvey(
-        "job001",
-        newTask("task1", Task.Type.UNKNOWN),
-        newTask("task2"));
+    setUpTestSurvey("job001", newTask("task1", Task.Type.UNKNOWN), newTask("task2"));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
