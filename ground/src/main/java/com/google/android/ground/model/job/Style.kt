@@ -13,26 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.job
 
-package com.google.android.ground.model.job;
-
-import com.google.auto.value.AutoValue;
-
-@AutoValue
-public abstract class Style {
-
-  public static final Style DEFAULT_MAP_STYLE = Style.builder().setColor("#ff9131").build();
-
-  public abstract String getColor();
-
-  public static Builder builder() {
-    return new AutoValue_Style.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-    public abstract Builder setColor(String newColor);
-
-    public abstract Style build();
-  }
-}
+data class Style @JvmOverloads constructor(
+    val color: String? = "#ff9131"
+)
