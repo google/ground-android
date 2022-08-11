@@ -76,6 +76,22 @@ class GeometryConverterTest {
     }
 
     @Test
+    fun toFirestoreMap_polygon() {
+        assertIsSuccessWith(
+            mapOf(
+                "type" to "Polygon",
+                "coordinates" to mapOf(
+                    0 to indexedGeoPointMap(path1),
+                    1 to indexedGeoPointMap(path2)
+                )
+            ),
+            GeometryConverter.toFirestoreMap(
+                polygon(path1, path2)
+            )
+        )
+    }
+
+    @Test
     fun toFirestoreMap_multiPolygon() {
         assertIsSuccessWith(
             mapOf(
