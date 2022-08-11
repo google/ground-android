@@ -28,7 +28,7 @@ data class Task @JvmOverloads constructor(
     val index: Int,
     val type: Type,
     val label: String,
-    val required: Boolean,
+    val isRequired: Boolean,
     val multipleChoice: MultipleChoice? = null
 ) {
     /**
