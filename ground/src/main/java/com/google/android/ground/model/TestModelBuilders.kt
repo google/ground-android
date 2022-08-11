@@ -41,51 +41,37 @@ import java.util.*
  */
 object TestModelBuilders {
     @JvmStatic
-    fun newSurvey(): Survey.Builder {
-        return Survey.newBuilder().setId("").setTitle("").setDescription("")
-    }
+    fun newSurvey(): Survey.Builder = Survey.newBuilder().setId("").setTitle("").setDescription("")
 
     @JvmStatic
-    fun newUser(): User.Builder {
-        return User.builder().setId("").setEmail("").setDisplayName("")
-    }
+    fun newUser(): User.Builder = User.builder().setId("").setEmail("").setDisplayName("")
 
     @JvmStatic
-    fun newAuditInfo(): AuditInfo.Builder {
-        return AuditInfo.builder().setClientTimestamp(Date(0)).setUser(newUser().build())
-    }
+    fun newAuditInfo(): AuditInfo.Builder =
+        AuditInfo.builder().setClientTimestamp(Date(0)).setUser(newUser().build())
 
-    private fun newPoint(): Point.Builder {
-        return Point.newBuilder().setLatitude(0.0).setLongitude(0.0)
-    }
+    private fun newPoint(): Point.Builder = Point.newBuilder().setLatitude(0.0).setLongitude(0.0)
 
-    private fun newGeoPoint(): GeoPoint {
-        return GeoPoint(0.0, 0.0)
-    }
+    private fun newGeoPoint(): GeoPoint = GeoPoint(0.0, 0.0)
 
     @JvmStatic
-    fun newGeoPointPolygonVertices(): ImmutableList<GeoPoint> {
-        return ImmutableList.builder<GeoPoint>()
-            .add(newGeoPoint())
-            .add(newGeoPoint())
-            .add(newGeoPoint())
-            .build()
-    }
+    fun newGeoPointPolygonVertices(): ImmutableList<GeoPoint> = ImmutableList.builder<GeoPoint>()
+        .add(newGeoPoint())
+        .add(newGeoPoint())
+        .add(newGeoPoint())
+        .build()
 
     @JvmStatic
-    fun newPointOfInterest(): PointOfInterest.Builder {
-        return newBuilder()
-            .setId("")
-            .setSurvey(newSurvey().build())
-            .setPoint(newPoint().build())
-            .setCreated(newAuditInfo().build())
-            .setLastModified(newAuditInfo().build())
-    }
+    fun newPointOfInterest(): PointOfInterest.Builder = newBuilder()
+        .setId("")
+        .setSurvey(newSurvey().build())
+        .setPoint(newPoint().build())
+        .setCreated(newAuditInfo().build())
+        .setLastModified(newAuditInfo().build())
 
     @JvmStatic
-    fun newTermsOfService(): TermsOfService.Builder {
-        return TermsOfService.builder().setId("").setText("")
-    }
+    fun newTermsOfService(): TermsOfService.Builder =
+        TermsOfService.builder().setId("").setText("")
 
     @JvmStatic
     @JvmOverloads
