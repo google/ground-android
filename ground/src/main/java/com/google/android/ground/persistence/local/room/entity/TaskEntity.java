@@ -23,6 +23,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.room.models.TaskEntityType;
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations;
@@ -85,28 +86,22 @@ public abstract class TaskEntity {
 
   static Task toTask(TaskEntityAndRelations taskEntityAndRelations) {
     TaskEntity taskEntity = taskEntityAndRelations.taskEntity;
-    Task.Builder taskBuilder =
-        Task.newBuilder()
-            .setId(taskEntity.getId())
-            .setIndex(taskEntity.getIndex())
-            .setLabel(taskEntity.getLabel())
-            .setRequired(taskEntity.isRequired())
-            .setType(taskEntity.getTaskType().toTaskType());
 
     List<MultipleChoiceEntity> multipleChoiceEntities =
         taskEntityAndRelations.multipleChoiceEntities;
 
+    MultipleChoice multipleChoice = null;
     if (!multipleChoiceEntities.isEmpty()) {
       if (multipleChoiceEntities.size() > 1) {
         Timber.e("More than 1 multiple choice found for task");
       }
 
-      taskBuilder.setMultipleChoice(
+      multipleChoice =
           MultipleChoiceEntity.toMultipleChoice(
-              multipleChoiceEntities.get(0), taskEntityAndRelations.optionEntities));
+              multipleChoiceEntities.get(0), taskEntityAndRelations.optionEntities);
     }
 
-    return taskBuilder.build();
+    return new Task(taskEntity.getId(), taskEntity.getIndex(), taskEntity.getTaskType().toTaskType(), taskEntity.getLabel(), taskEntity.isRequired(), multipleChoice);
   }
 
   public static TaskEntity create(

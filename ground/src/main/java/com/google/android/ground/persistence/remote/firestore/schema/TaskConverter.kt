@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema
 
+import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firestore.schema.MultipleChoiceConverter.toMultipleChoice
 import com.google.android.ground.util.Enums.toEnum
@@ -33,16 +34,18 @@ internal object TaskConverter {
             Timber.d("Unsupported task type: ${em.type}")
             return Optional.empty()
         }
-        val task = Task.newBuilder()
-        task.setType(type)
-        if (type == Task.Type.MULTIPLE_CHOICE) {
-            task.setMultipleChoice(toMultipleChoice(em))
-        }
-        task.setRequired(em.required != null && em.required)
-        task.setId(id)
         // Default index to -1 to degrade gracefully on older dev db instances and surveys.
-        task.setIndex(em.index ?: -1)
-        task.setLabel(em.label)
-        return Optional.of(task.build())
+        val multipleChoice: MultipleChoice? =
+            if (type == Task.Type.MULTIPLE_CHOICE) toMultipleChoice(em) else null
+        return Optional.of(
+            Task(
+                id,
+                em.index ?: -1,
+                type,
+                em.label!!,
+                em.required != null && em.required,
+                multipleChoice
+            )
+        )
     }
 }
