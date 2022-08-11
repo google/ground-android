@@ -186,6 +186,22 @@ class GeometryConverterTest {
     }
 
     @Test
+    fun fromFirestoreMap_polygon() {
+        assertIsSuccessWith(
+            polygon(path1, path2),
+            GeometryConverter.fromFirestoreMap(
+                mapOf(
+                    "type" to "Polygon",
+                    "coordinates" to mapOf(
+                        0 to indexedGeoPointMap(path1),
+                        1 to indexedGeoPointMap(path2)
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
     fun fromFirestoreMap_multiPolygon() {
         assertIsSuccessWith(
             multiPolygon(polygon(path1, path2), polygon(path3, path4)),
