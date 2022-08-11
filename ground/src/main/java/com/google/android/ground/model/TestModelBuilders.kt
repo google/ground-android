@@ -16,16 +16,7 @@
 package com.google.android.ground.model
 
 import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Builder.setId
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Builder.setSurvey
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Builder.setPoint
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Builder.setCreated
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Builder.setLastModified
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.TestModelBuilders
 import com.google.firebase.firestore.GeoPoint
-import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.locationofinterest.PointOfInterest
 import kotlin.jvm.JvmOverloads
