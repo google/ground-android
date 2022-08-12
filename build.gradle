@@ -84,6 +84,8 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+apply plugin: 'kotlinx-serialization'
+
 // https://github.com/passsy/gradle-gitVersioner-plugin
 apply plugin: "com.pascalwelsch.gitversioner"
 gitVersioner {
