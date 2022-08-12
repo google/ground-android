@@ -72,8 +72,7 @@ public class MultipleChoiceResponse implements Response {
   public String getDetailsText() {
     return stream(selectedOptionIds)
         .map(getMultipleChoice()::getOptionById)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .filter(option -> option != null)
         .map(Option::getLabel)
         .sorted()
         .collect(Collectors.joining(", "));

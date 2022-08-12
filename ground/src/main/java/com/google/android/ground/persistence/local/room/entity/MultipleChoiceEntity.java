@@ -63,15 +63,12 @@ public abstract class MultipleChoiceEntity {
 
   static MultipleChoice toMultipleChoice(
       MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
-    MultipleChoice.Builder multipleChoiceBuilder =
-        MultipleChoice.newBuilder().setCardinality(multipleChoiceEntity.getType().toCardinality());
-
     ImmutableList.Builder<Option> listBuilder = ImmutableList.builder();
     for (OptionEntity optionEntity : optionEntities) {
       listBuilder.add(OptionEntity.toOption(optionEntity));
     }
 
-    return multipleChoiceBuilder.setOptions(listBuilder.build()).build();
+    return new MultipleChoice(listBuilder.build(), multipleChoiceEntity.getType().toCardinality());
   }
 
   public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String taskId) {

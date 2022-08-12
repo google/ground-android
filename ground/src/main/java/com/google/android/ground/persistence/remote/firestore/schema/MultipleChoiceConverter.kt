@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
 import com.google.android.ground.util.Enums.toEnum
 import com.google.android.ground.util.toImmutableList
 
@@ -24,18 +25,18 @@ internal object MultipleChoiceConverter {
 
     @JvmStatic
     fun toMultipleChoice(em: TaskNestedObject): MultipleChoice {
-        val mc = MultipleChoice.newBuilder()
-        mc.setCardinality(toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!))
+        var options: List<Option> = listOf()
         if (em.options != null) {
-            mc.setOptions(
-                em.options.entries.sortedBy { it.value.index }
-                    .map { (key, value): Map.Entry<String, OptionNestedObject> ->
-                        OptionConverter.toOption(
-                            key, value
-                        )
-                    }.toImmutableList()
-            )
+            options = em.options.entries.sortedBy { it.value.index }
+                .map { (key, value): Map.Entry<String, OptionNestedObject> ->
+                    OptionConverter.toOption(
+                        key, value
+                    )
+                }.toImmutableList()
         }
-        return mc.build()
+        return MultipleChoice(
+            options,
+            toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!)
+        )
     }
 }
