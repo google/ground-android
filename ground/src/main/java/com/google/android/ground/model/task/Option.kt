@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.task
 
-package com.google.android.ground.persistence.remote.firestore.schema
-
-import com.google.android.ground.model.task.Option
+import kotlinx.serialization.Serializable
 
 /**
- * Converts between Firestore nested objects and [Option] instances.
+ * Describes a single valid option to a multiple choice question.
  */
-internal object OptionConverter {
-
-    fun toOption(id: String, option: OptionNestedObject): Option =
-        Option(id, option.code ?: "", option.label ?: "")
-
-}
+@Serializable
+data class Option(
+    val id: String,
+    val code: String,
+    val label: String
+)
