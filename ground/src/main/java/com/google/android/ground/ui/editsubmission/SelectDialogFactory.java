@@ -25,12 +25,13 @@ import com.google.android.ground.model.submission.MultipleChoiceResponse;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Option;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 
 public abstract class SelectDialogFactory {
 
-  protected ImmutableList<Option> getOptions() {
+  private List<Option> getOptions() {
     return getMultipleChoice().getOptions();
   }
 
