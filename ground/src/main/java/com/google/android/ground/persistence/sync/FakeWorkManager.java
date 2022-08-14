@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test.persistence.sync;
+package com.google.android.ground.persistence.sync;
 
 import android.app.PendingIntent;
 import androidx.annotation.NonNull;
@@ -32,19 +32,20 @@ import androidx.work.WorkRequest;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.UUID;
+import kotlin.NotImplementedError;
 
 public class FakeWorkManager extends WorkManager {
 
   @NonNull
   @Override
   public Operation enqueue(@NonNull List<? extends WorkRequest> requests) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
@@ -53,7 +54,7 @@ public class FakeWorkManager extends WorkManager {
       @NonNull String uniqueWorkName,
       @NonNull ExistingWorkPolicy existingWorkPolicy,
       @NonNull List<OneTimeWorkRequest> work) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
@@ -62,7 +63,7 @@ public class FakeWorkManager extends WorkManager {
       @NonNull String uniqueWorkName,
       @NonNull ExistingWorkPolicy existingWorkPolicy,
       @NonNull List<OneTimeWorkRequest> work) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
@@ -71,104 +72,104 @@ public class FakeWorkManager extends WorkManager {
       @NonNull String uniqueWorkName,
       @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
       @NonNull PeriodicWorkRequest periodicWork) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public Operation cancelWorkById(@NonNull UUID id) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public Operation cancelAllWorkByTag(@NonNull String tag) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public Operation cancelUniqueWork(@NonNull String uniqueWorkName) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public Operation cancelAllWork() {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public PendingIntent createCancelPendingIntent(@NonNull UUID id) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public Operation pruneWork() {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public LiveData<Long> getLastCancelAllTimeMillisLiveData() {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public ListenableFuture<Long> getLastCancelAllTimeMillis() {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public LiveData<WorkInfo> getWorkInfoByIdLiveData(@NonNull UUID id) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public LiveData<List<WorkInfo>> getWorkInfosByTagLiveData(@NonNull String tag) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public ListenableFuture<List<WorkInfo>> getWorkInfosByTag(@NonNull String tag) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public LiveData<List<WorkInfo>> getWorkInfosForUniqueWorkLiveData(
       @NonNull String uniqueWorkName) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
       @NonNull String uniqueWorkName) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public LiveData<List<WorkInfo>> getWorkInfosLiveData(@NonNull WorkQuery workQuery) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @NonNull
   @Override
   public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull WorkQuery workQuery) {
-    return null;
+    throw new NotImplementedError();
   }
 }

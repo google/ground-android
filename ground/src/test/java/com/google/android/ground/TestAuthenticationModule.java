@@ -18,7 +18,7 @@ package com.google.android.ground;
 
 import com.google.android.ground.system.auth.AuthenticationManager;
 import com.google.android.ground.system.auth.AuthenticationModule;
-import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
+import com.google.android.ground.system.auth.FakeAuthenticationManager;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.components.SingletonComponent;

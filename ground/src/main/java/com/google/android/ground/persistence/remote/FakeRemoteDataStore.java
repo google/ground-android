@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test.persistence.remote;
+package com.google.android.ground.persistence.remote;
 
+import androidx.annotation.Nullable;
+import com.google.android.ground.FakeData;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.TermsOfService;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.persistence.remote.RemoteDataEvent;
-import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.rx.ValueOrError;
 import com.google.android.ground.rx.annotations.Cold;
-import com.google.android.ground.test.FakeData;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -38,11 +37,12 @@ import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import kotlin.NotImplementedError;
 
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
 
-  private RemoteDataEvent<LocationOfInterest> featureEvent;
+  @Nullable private RemoteDataEvent<LocationOfInterest> featureEvent;
   // TODO(#1045): Allow default survey to be initialized by tests.
   private List<Survey> testSurveys = Collections.singletonList(FakeData.SURVEY);
   // TODO(#1045): Allow default ToS to be initialized by tests.
@@ -99,12 +99,12 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Override
   public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
       LocationOfInterest locationOfInterest) {
-    return null;
+    throw new NotImplementedError();
   }
 
   @Override
-  public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
-    return null;
+  public Completable applyMutations(@Nullable ImmutableCollection<Mutation> mutations, User user) {
+    throw new NotImplementedError();
   }
 
   public void streamFeatureOnce(RemoteDataEvent<LocationOfInterest> featureEvent) {

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test.persistence.uuid;
+package com.google.android.ground.persistence.uuid;
 
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
 import javax.inject.Inject;
 
 public class FakeUuidGenerator implements OfflineUuidGenerator {

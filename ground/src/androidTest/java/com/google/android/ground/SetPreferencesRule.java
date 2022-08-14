@@ -20,7 +20,6 @@ import static com.google.android.ground.persistence.local.LocalValueStore.ACTIVE
 
 import android.content.SharedPreferences;
 import androidx.test.core.app.ApplicationProvider;
-import com.google.android.ground.test.FakeData;
 import dagger.hilt.EntryPoint;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.EntryPointAccessors;

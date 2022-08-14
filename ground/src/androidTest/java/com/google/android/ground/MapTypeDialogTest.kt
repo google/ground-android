@@ -22,8 +22,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.repository.MapsRepository
-import com.google.android.ground.test.FakeData
-import com.google.android.ground.test.system.auth.FakeAuthenticationManager
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.common.truth.Truth
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test

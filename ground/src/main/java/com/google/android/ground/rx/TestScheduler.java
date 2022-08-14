@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test;
+package com.google.android.ground.rx;
 
 import androidx.test.espresso.IdlingRegistry;
-import com.google.android.ground.rx.Schedulers;
 import com.squareup.rx2.idler.IdlingResourceScheduler;
 import com.squareup.rx2.idler.Rx2Idler;
 import io.reactivex.Scheduler;

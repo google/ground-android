@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test.persistence.remote;
+package com.google.android.ground.persistence.remote;
 
 import android.net.Uri;
-import com.google.android.ground.persistence.remote.RemoteStorageManager;
-import com.google.android.ground.persistence.remote.TransferProgress;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.io.File;
