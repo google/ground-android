@@ -79,10 +79,7 @@ steps:
       - '-c'
       - |
         ./gradlew -PdisablePreDex assembleStaging assembleStagingUnitTest -PtestBuildType=staging
-
-#        if [[ "${_PUSH_TO_MASTER}" ]]; then
         ./gradlew -PdisablePreDex assembleStagingAndroidTest -PtestBuildType=staging
-#        fi
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:30'
@@ -132,7 +129,6 @@ steps:
     args:
       - '-c'
       - |
-#        if [[ "${_PUSH_TO_MASTER}" ]]; then
         gcloud --quiet beta firebase test android run \
         --type instrumentation --num-uniform-shards=1 \
         --app ground/build/outputs/apk/staging/*.apk \
@@ -143,9 +139,6 @@ steps:
         --environment-variables coverage=true,coverageFile=/sdcard/coverage.ec \
         --directories-to-pull /sdcard \
         --timeout 20m
-#        else
-#          echo "Skipping"
-#        fi
 
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_reports 'Save reports to GCS'
