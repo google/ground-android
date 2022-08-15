@@ -15,9 +15,6 @@
  */
 package com.google.android.ground.model.task
 
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.auto.value.AutoValue
-
 /**
  * Describes a user-defined task. Does not contain actual task responses (see [Response]
  * instead.
@@ -36,6 +33,6 @@ data class Task @JvmOverloads constructor(
      * these in data layer!
      */
     enum class Type {
-        UNKNOWN, TEXT_FIELD, MULTIPLE_CHOICE, PHOTO, NUMBER, DATE, TIME
+        UNKNOWN, TEXT, MULTIPLE_CHOICE, PHOTO, NUMBER, DATE, TIME
     }
 }

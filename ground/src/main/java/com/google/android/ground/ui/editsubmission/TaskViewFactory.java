@@ -30,28 +30,28 @@ import com.google.android.ground.ui.common.ViewModelFactory;
 import javax.inject.Inject;
 
 /** Inflates a new view and generates a view model for a given {@link Task.Type}. */
-public class FieldViewFactory {
+public class TaskViewFactory {
 
   @Inject Fragment fragment;
   @Inject ViewModelFactory viewModelFactory;
 
   @Inject
-  FieldViewFactory() {}
+  TaskViewFactory() {}
 
-  private static Class<? extends AbstractFieldViewModel> getViewModelClass(Task.Type taskType) {
+  private static Class<? extends AbstractTaskViewModel> getViewModelClass(Task.Type taskType) {
     switch (taskType) {
-      case TEXT_FIELD:
-        return TextFieldViewModel.class;
+      case TEXT:
+        return TextTaskViewModel.class;
       case MULTIPLE_CHOICE:
-        return MultipleChoiceFieldViewModel.class;
+        return MultipleChoiceTaskViewModel.class;
       case PHOTO:
-        return PhotoFieldViewModel.class;
+        return PhotoTaskViewModel.class;
       case NUMBER:
-        return NumberFieldViewModel.class;
+        return NumberTaskViewModel.class;
       case DATE:
-        return DateFieldViewModel.class;
+        return DateTaskViewModel.class;
       case TIME:
-        return TimeFieldViewModel.class;
+        return TimeTaskViewModel.class;
       default:
         throw new IllegalArgumentException("Unsupported task type: " + taskType);
     }
@@ -60,18 +60,18 @@ public class FieldViewFactory {
   @LayoutRes
   private static int getLayoutId(Task.Type taskType) {
     switch (taskType) {
-      case TEXT_FIELD:
-        return R.layout.text_input_field;
+      case TEXT:
+        return R.layout.text_input_task;
       case MULTIPLE_CHOICE:
-        return R.layout.multiple_choice_input_field;
+        return R.layout.multiple_choice_input_task;
       case PHOTO:
-        return R.layout.photo_input_field;
+        return R.layout.photo_input_task;
       case NUMBER:
-        return R.layout.number_input_field;
+        return R.layout.number_input_task;
       case DATE:
-        return R.layout.date_input_field;
+        return R.layout.date_input_task;
       case TIME:
-        return R.layout.time_input_field;
+        return R.layout.time_input_task;
       default:
         throw new IllegalArgumentException("Unsupported task type: " + taskType);
     }
@@ -84,7 +84,7 @@ public class FieldViewFactory {
    * @param root Parent layout
    * @return {@link ViewDataBinding}
    */
-  ViewDataBinding addFieldView(Task.Type taskType, LinearLayout root) {
+  ViewDataBinding addTaskView(Task.Type taskType, LinearLayout root) {
     ViewDataBinding binding =
         DataBindingUtil.inflate(fragment.getLayoutInflater(), getLayoutId(taskType), root, true);
     binding.setLifecycleOwner(fragment);

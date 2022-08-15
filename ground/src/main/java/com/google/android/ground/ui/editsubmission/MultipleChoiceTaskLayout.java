@@ -26,12 +26,12 @@ import androidx.annotation.Nullable;
 import com.google.android.ground.R;
 import com.google.android.material.textfield.TextInputEditText;
 
-public class MultipleChoiceFieldLayout extends FrameLayout {
+public class MultipleChoiceTaskLayout extends FrameLayout {
 
   @Nullable
   private Runnable showDialogListener;
 
-  public MultipleChoiceFieldLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+  public MultipleChoiceTaskLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
   }
 

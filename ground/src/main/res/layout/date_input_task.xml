@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2021 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,36 +23,34 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.TextFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.DateTaskViewModel" />
   </data>
 
   <LinearLayout
-    style="@style/FieldView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    style="@style/TaskView"
     android:orientation="vertical">
-
-    <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@{viewModel.taskLabel()}"
-      style="@style/EditSubmission.Field.Label" />
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input_layout"
-      style="@style/EditSubmission.Field.Text"
+      style="@style/EditSubmission.Task.Text"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
+      android:layout_height="wrap_content"
+      android:hint="@{viewModel.taskLabel()}">
 
       <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/text_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:inputType="datetime"
         android:maxLines="1"
+        android:onClick="@{__ -> viewModel.onShowDialogClick()}"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
-        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
-        tools:text="Text value" />
+        tools:text="@string/date" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

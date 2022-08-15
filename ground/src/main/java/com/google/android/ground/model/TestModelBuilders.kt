@@ -15,14 +15,13 @@
  */
 package com.google.android.ground.model
 
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
-import com.google.firebase.firestore.GeoPoint
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.locationofinterest.PointOfInterest
-import kotlin.jvm.JvmOverloads
+import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
+import com.google.firebase.firestore.GeoPoint
 import java.util.*
 
 /**
@@ -68,7 +67,7 @@ object TestModelBuilders {
     @JvmOverloads
     fun newTask(
         id: String = "",
-        type: Task.Type = Task.Type.TEXT_FIELD,
+        type: Task.Type = Task.Type.TEXT,
         multipleChoice: MultipleChoice? = null
     ): Task = Task(id, 0, type, "", false, multipleChoice)
 }

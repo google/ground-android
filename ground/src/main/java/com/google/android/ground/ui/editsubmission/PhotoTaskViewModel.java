@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class PhotoFieldViewModel extends AbstractFieldViewModel {
+public class PhotoTaskViewModel extends AbstractTaskViewModel {
 
   private final UserMediaRepository userMediaRepository;
 
@@ -51,7 +51,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Boolean> editable = new MutableLiveData<>(false);
 
   @Inject
-  PhotoFieldViewModel(UserMediaRepository userMediaRepository, Resources resources) {
+  PhotoTaskViewModel(UserMediaRepository userMediaRepository, Resources resources) {
     super(resources);
     this.userMediaRepository = userMediaRepository;
     this.photoPresent =

@@ -20,10 +20,10 @@ import android.content.res.Resources;
 import com.google.android.ground.model.submission.TextResponse;
 import javax.inject.Inject;
 
-public class TextFieldViewModel extends AbstractFieldViewModel {
+public class TextTaskViewModel extends AbstractTaskViewModel {
 
   @Inject
-  TextFieldViewModel(Resources resources) {
+  TextTaskViewModel(Resources resources) {
     super(resources);
   }
 

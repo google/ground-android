@@ -26,25 +26,25 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/field_horizontal_padding"
-    android:paddingRight="@dimen/field_horizontal_padding">
+    android:paddingLeft="@dimen/task_horizontal_padding"
+    android:paddingRight="@dimen/task_horizontal_padding">
 
     <TextView
-      android:id="@+id/field_label"
-      style="@style/SubmissionDetails.Field.Label"
+      android:id="@+id/task_label"
+      style="@style/SubmissionDetails.Task.Label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:ellipsize="end"
-      android:paddingTop="@dimen/field_top_padding"
+      android:paddingTop="@dimen/task_top_padding"
       android:text="@{task.label}" />
 
     <TextView
-      android:id="@+id/field_value"
-      style="@style/SubmissionDetails.Field.Value"
+      android:id="@+id/task_value"
+      style="@style/SubmissionDetails.Task.Value"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:ellipsize="end"
-      android:paddingTop="@dimen/field_value_top_padding"
-      android:paddingBottom="@dimen/field_bottom_padding" />
+      android:paddingTop="@dimen/task_value_top_padding"
+      android:paddingBottom="@dimen/task_bottom_padding" />
   </LinearLayout>
 </layout>
