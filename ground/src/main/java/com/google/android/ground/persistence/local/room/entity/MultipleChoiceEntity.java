@@ -33,8 +33,15 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 @AutoValue
-@Entity(tableName = "multiple_choice", foreignKeys = @ForeignKey(entity = TaskEntity.class, parentColumns = "id", childColumns = "task_id", onDelete = ForeignKey.CASCADE), indices = {
-    @Index("task_id")})
+@Entity(
+    tableName = "multiple_choice",
+    foreignKeys =
+        @ForeignKey(
+            entity = TaskEntity.class,
+            parentColumns = "id",
+            childColumns = "task_id",
+            onDelete = ForeignKey.CASCADE),
+    indices = {@Index("task_id")})
 public abstract class MultipleChoiceEntity {
 
   @CopyAnnotations
@@ -48,21 +55,23 @@ public abstract class MultipleChoiceEntity {
   @ColumnInfo(name = "task_id")
   public abstract String getTaskId();
 
-  public static MultipleChoiceEntity fromMultipleChoice(String taskId,
-      MultipleChoice multipleChoice) {
-    return MultipleChoiceEntity.builder().setTaskId(taskId)
-        .setType(MultipleChoiceEntityType.fromCardinality(multipleChoice.getCardinality())).build();
+  public static MultipleChoiceEntity fromMultipleChoice(
+      String taskId, MultipleChoice multipleChoice) {
+    return MultipleChoiceEntity.builder()
+        .setTaskId(taskId)
+        .setType(MultipleChoiceEntityType.fromCardinality(multipleChoice.getCardinality()))
+        .build();
   }
 
-  static MultipleChoice toMultipleChoice(MultipleChoiceEntity multipleChoiceEntity,
-      List<OptionEntity> optionEntities) {
+  static MultipleChoice toMultipleChoice(
+      MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
     ImmutableList.Builder<Option> listBuilder = ImmutableList.builder();
     for (OptionEntity optionEntity : optionEntities) {
       listBuilder.add(OptionEntity.toOption(optionEntity));
     }
 
-    return new MultipleChoice(toPersistentList(listBuilder.build()),
-        multipleChoiceEntity.getType().toCardinality());
+    return new MultipleChoice(
+        toPersistentList(listBuilder.build()), multipleChoiceEntity.getType().toCardinality());
   }
 
   public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String taskId) {
