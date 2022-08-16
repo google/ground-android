@@ -103,65 +103,56 @@ import timber.log.Timber;
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
 
-  @Inject
-  OptionDao optionDao;
-  @Inject
-  MultipleChoiceDao multipleChoiceDao;
-  @Inject
-  TaskDao taskDao;
-  @Inject
-  JobDao jobDao;
-  @Inject
-  SurveyDao surveyDao;
-  @Inject
-  LocationOfInterestDao locationOfInterestDao;
-  @Inject
-  LocationOfInterestMutationDao locationOfInterestMutationDao;
-  @Inject
-  SubmissionDao submissionDao;
-  @Inject
-  SubmissionMutationDao submissionMutationDao;
-  @Inject
-  TileSetDao tileSetDao;
-  @Inject
-  UserDao userDao;
-  @Inject
-  OfflineAreaDao offlineAreaDao;
-  @Inject
-  BaseMapDao baseMapDao;
-  @Inject
-  Schedulers schedulers;
-  @Inject
-  FileUtil fileUtil;
+  @Inject OptionDao optionDao;
+  @Inject MultipleChoiceDao multipleChoiceDao;
+  @Inject TaskDao taskDao;
+  @Inject JobDao jobDao;
+  @Inject SurveyDao surveyDao;
+  @Inject LocationOfInterestDao locationOfInterestDao;
+  @Inject LocationOfInterestMutationDao locationOfInterestMutationDao;
+  @Inject SubmissionDao submissionDao;
+  @Inject SubmissionMutationDao submissionMutationDao;
+  @Inject TileSetDao tileSetDao;
+  @Inject UserDao userDao;
+  @Inject OfflineAreaDao offlineAreaDao;
+  @Inject BaseMapDao baseMapDao;
+  @Inject Schedulers schedulers;
+  @Inject FileUtil fileUtil;
 
   @Inject
-  RoomLocalDataStore() {
-  }
+  RoomLocalDataStore() {}
 
   private Completable insertOrUpdateOption(String taskId, Option option) {
-    return optionDao.insertOrUpdate(OptionEntity.fromOption(taskId, option))
+    return optionDao
+        .insertOrUpdate(OptionEntity.fromOption(taskId, option))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateOptions(String taskId,
-      kotlinx.collections.immutable.ImmutableList<Option> options) {
+  private Completable insertOrUpdateOptions(
+      String taskId, kotlinx.collections.immutable.ImmutableList<Option> options) {
     return Observable.fromIterable(options)
         .flatMapCompletable(option -> insertOrUpdateOption(taskId, option))
         .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateMultipleChoice(String taskId, MultipleChoice multipleChoice) {
-    return multipleChoiceDao.insertOrUpdate(
-            MultipleChoiceEntity.fromMultipleChoice(taskId, multipleChoice))
+    return multipleChoiceDao
+        .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(taskId, multipleChoice))
         .andThen(insertOrUpdateOptions(taskId, multipleChoice.getOptions()))
         .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateTask(String jobId, Task task) {
-    return taskDao.insertOrUpdate(TaskEntity.fromTask(jobId, task)).andThen(
-        Observable.just(task).filter(__ -> task.getMultipleChoice() != null).flatMapCompletable(
-            __ -> insertOrUpdateMultipleChoice(task.getId(),
-                checkNotNull(task.getMultipleChoice())))).subscribeOn(schedulers.io());
+    return taskDao
+        .insertOrUpdate(TaskEntity.fromTask(jobId, task))
+        .andThen(
+            Observable.just(task)
+                .filter(__ -> task.getMultipleChoice() != null)
+                .flatMapCompletable(
+                    __ ->
+                        insertOrUpdateMultipleChoice(
+                            task.getId(), checkNotNull(task.getMultipleChoice()))))
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateTasks(String jobId, ImmutableCollection<Task> tasks) {
@@ -170,7 +161,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable insertOrUpdateJob(String surveyId, Job job) {
-    return jobDao.insertOrUpdate(JobEntity.fromJob(surveyId, job))
+    return jobDao
+        .insertOrUpdate(JobEntity.fromJob(surveyId, job))
         .andThen(insertOrUpdateTasks(job.getId(), job.getTasks().values()))
         .subscribeOn(schedulers.io());
   }
@@ -181,18 +173,21 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable insertOfflineBaseMapSources(Survey survey) {
-    return Observable.fromIterable(survey.getBaseMaps()).flatMapCompletable(
-        source -> baseMapDao.insert(BaseMapEntity.fromModel(survey.getId(), source)));
+    return Observable.fromIterable(survey.getBaseMaps())
+        .flatMapCompletable(
+            source -> baseMapDao.insert(BaseMapEntity.fromModel(survey.getId(), source)));
   }
 
   @Transaction
   @Override
   public Completable insertOrUpdateSurvey(Survey survey) {
-    return surveyDao.insertOrUpdate(SurveyEntity.fromSurvey(survey))
+    return surveyDao
+        .insertOrUpdate(SurveyEntity.fromSurvey(survey))
         .andThen(jobDao.deleteBySurveyId(survey.getId()))
         .andThen(insertOrUpdateJobs(survey.getId(), survey.getJobs()))
         .andThen(baseMapDao.deleteBySurveyId(survey.getId()))
-        .andThen(insertOfflineBaseMapSources(survey)).subscribeOn(schedulers.io());
+        .andThen(insertOfflineBaseMapSources(survey))
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -202,15 +197,19 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Single<User> getUser(String id) {
-    return userDao.findById(id)
+    return userDao
+        .findById(id)
         .doOnError(e -> Timber.e(e, "Error loading user from local db: %s", id))
         // Fail with NoSuchElementException if not found.
-        .toSingle().map(UserEntity::toUser).subscribeOn(schedulers.io());
+        .toSingle()
+        .map(UserEntity::toUser)
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Single<ImmutableList<Survey>> getSurveys() {
-    return surveyDao.getAllSurveys()
+    return surveyDao
+        .getAllSurveys()
         .map(list -> stream(list).map(SurveyEntity::toSurvey).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
@@ -231,9 +230,12 @@ public class RoomLocalDataStore implements LocalDataStore {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
-      FirebaseCrashlytics.getInstance().log(
-          "Error enqueueing " + mutation.getType() + "mutation for location of interest "
-              + mutation.getLocationOfInterestId());
+      FirebaseCrashlytics.getInstance()
+          .log(
+              "Error enqueueing "
+                  + mutation.getType()
+                  + "mutation for location of interest "
+                  + mutation.getLocationOfInterestId());
       FirebaseCrashlytics.getInstance().recordException(e);
       return Completable.error(e);
     }
@@ -242,53 +244,65 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<LocationOfInterest>> getLocationsOfInterestOnceAndStream(
       Survey survey) {
-    return locationOfInterestDao.findOnceAndStream(survey.getId(), EntityState.DEFAULT).map(
+    return locationOfInterestDao
+        .findOnceAndStream(survey.getId(), EntityState.DEFAULT)
+        .map(
             locationOfInterestEntities -> toLocationsOfInterest(survey, locationOfInterestEntities))
         .subscribeOn(schedulers.io());
   }
 
-  private ImmutableSet<LocationOfInterest> toLocationsOfInterest(Survey survey,
-      List<LocationOfInterestEntity> locationOfInterestEntities) {
-    return stream(locationOfInterestEntities).flatMap(
+  private ImmutableSet<LocationOfInterest> toLocationsOfInterest(
+      Survey survey, List<LocationOfInterestEntity> locationOfInterestEntities) {
+    return stream(locationOfInterestEntities)
+        .flatMap(
             f -> logErrorsAndSkip(() -> LocationOfInterestEntity.toLocationOfInterest(f, survey)))
         .collect(toImmutableSet());
   }
 
   @Override
-  public Maybe<LocationOfInterest> getLocationOfInterest(Survey survey,
-      String locationOfInterestId) {
-    return locationOfInterestDao.findById(locationOfInterestId)
+  public Maybe<LocationOfInterest> getLocationOfInterest(
+      Survey survey, String locationOfInterestId) {
+    return locationOfInterestDao
+        .findById(locationOfInterestId)
         .map(f -> LocationOfInterestEntity.toLocationOfInterest(f, survey))
-        .doOnError(e -> Timber.e(e)).onErrorComplete().subscribeOn(schedulers.io());
+        .doOnError(e -> Timber.e(e))
+        .onErrorComplete()
+        .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Maybe<Submission> getSubmission(LocationOfInterest locationOfInterest,
-      String submissionId) {
-    return submissionDao.findById(submissionId)
+  public Maybe<Submission> getSubmission(
+      LocationOfInterest locationOfInterest, String submissionId) {
+    return submissionDao
+        .findById(submissionId)
         .map(entity -> SubmissionEntity.toSubmission(locationOfInterest, entity))
-        .doOnError(e -> Timber.d(e)).onErrorComplete().subscribeOn(schedulers.io());
+        .doOnError(e -> Timber.d(e))
+        .onErrorComplete()
+        .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Single<ImmutableList<Submission>> getSubmissions(LocationOfInterest locationOfInterest,
-      String jobId) {
-    return submissionDao.findByLocationOfInterestId(locationOfInterest.getId(), jobId,
-            EntityState.DEFAULT)
+  public Single<ImmutableList<Submission>> getSubmissions(
+      LocationOfInterest locationOfInterest, String jobId) {
+    return submissionDao
+        .findByLocationOfInterestId(locationOfInterest.getId(), jobId, EntityState.DEFAULT)
         .map(submissionEntities -> toSubmissions(locationOfInterest, submissionEntities))
         .subscribeOn(schedulers.io());
   }
 
-  private ImmutableList<Submission> toSubmissions(LocationOfInterest locationOfInterest,
-      List<SubmissionEntity> submissionEntities) {
-    return stream(submissionEntities).flatMap(
-            entity -> logErrorsAndSkip(() -> SubmissionEntity.toSubmission(locationOfInterest, entity)))
+  private ImmutableList<Submission> toSubmissions(
+      LocationOfInterest locationOfInterest, List<SubmissionEntity> submissionEntities) {
+    return stream(submissionEntities)
+        .flatMap(
+            entity ->
+                logErrorsAndSkip(() -> SubmissionEntity.toSubmission(locationOfInterest, entity)))
         .collect(toImmutableList());
   }
 
   @Override
   public Flowable<ImmutableSet<TileSet>> getTileSetsOnceAndStream() {
-    return tileSetDao.findAllOnceAndStream()
+    return tileSetDao
+        .findAllOnceAndStream()
         .map(list -> stream(list).map(TileSetEntity::toTileSet).collect(toImmutableSet()))
         .subscribeOn(schedulers.io());
   }
@@ -297,57 +311,90 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Survey survey) {
     // TODO: Show mutations for all surveys, not just current one.
-    Flowable<ImmutableList<LocationOfInterestMutation>> locationOfInterestMutations = locationOfInterestMutationDao.loadAllOnceAndStream()
-        .map(list -> stream(list).filter(entity -> entity.getSurveyId().equals(survey.getId()))
-            .map(LocationOfInterestMutationEntity::toMutation).collect(toImmutableList()))
-        .subscribeOn(schedulers.io());
-    Flowable<ImmutableList<SubmissionMutation>> submissionMutations = submissionMutationDao.loadAllOnceAndStream()
-        .map(list -> stream(list).filter(entity -> entity.getSurveyId().equals(survey.getId()))
-            .map(entity -> entity.toMutation(survey)).collect(toImmutableList()))
-        .subscribeOn(schedulers.io());
-    return Flowable.combineLatest(locationOfInterestMutations, submissionMutations,
-        this::combineAndSortMutations);
+    Flowable<ImmutableList<LocationOfInterestMutation>> locationOfInterestMutations =
+        locationOfInterestMutationDao
+            .loadAllOnceAndStream()
+            .map(
+                list ->
+                    stream(list)
+                        .filter(entity -> entity.getSurveyId().equals(survey.getId()))
+                        .map(LocationOfInterestMutationEntity::toMutation)
+                        .collect(toImmutableList()))
+            .subscribeOn(schedulers.io());
+    Flowable<ImmutableList<SubmissionMutation>> submissionMutations =
+        submissionMutationDao
+            .loadAllOnceAndStream()
+            .map(
+                list ->
+                    stream(list)
+                        .filter(entity -> entity.getSurveyId().equals(survey.getId()))
+                        .map(entity -> entity.toMutation(survey))
+                        .collect(toImmutableList()))
+            .subscribeOn(schedulers.io());
+    return Flowable.combineLatest(
+        locationOfInterestMutations, submissionMutations, this::combineAndSortMutations);
   }
 
   private ImmutableList<Mutation> combineAndSortMutations(
       ImmutableList<LocationOfInterestMutation> locationOfInterestMutations,
       ImmutableList<SubmissionMutation> submissionMutations) {
-    return ImmutableList.sortedCopyOf(Mutation.byDescendingClientTimestamp(),
-        ImmutableList.<Mutation>builder().addAll(locationOfInterestMutations)
-            .addAll(submissionMutations).build());
+    return ImmutableList.sortedCopyOf(
+        Mutation.byDescendingClientTimestamp(),
+        ImmutableList.<Mutation>builder()
+            .addAll(locationOfInterestMutations)
+            .addAll(submissionMutations)
+            .build());
   }
 
   @Override
   public Single<ImmutableList<Mutation>> getPendingMutations(String locationOfInterestId) {
-    return locationOfInterestMutationDao.findByLocationOfInterestId(locationOfInterestId,
-            MutationEntitySyncStatus.PENDING).flattenAsObservable(fms -> fms)
-        .map(LocationOfInterestMutationEntity::toMutation).cast(Mutation.class).mergeWith(
-            submissionMutationDao.findByLocationOfInterestId(locationOfInterestId,
-                MutationEntitySyncStatus.PENDING).flattenAsObservable(oms -> oms).flatMap(
-                ome -> getSurveyById(ome.getSurveyId()).toSingle().map(ome::toMutation)
-                    .toObservable().doOnError(e -> Timber.e(e, "Submission mutation skipped"))
-                    .onErrorResumeNext(Observable.empty())).cast(Mutation.class)).toList()
-        .map(ImmutableList::copyOf).subscribeOn(schedulers.io());
+    return locationOfInterestMutationDao
+        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+        .flattenAsObservable(fms -> fms)
+        .map(LocationOfInterestMutationEntity::toMutation)
+        .cast(Mutation.class)
+        .mergeWith(
+            submissionMutationDao
+                .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+                .flattenAsObservable(oms -> oms)
+                .flatMap(
+                    ome ->
+                        getSurveyById(ome.getSurveyId())
+                            .toSingle()
+                            .map(ome::toMutation)
+                            .toObservable()
+                            .doOnError(e -> Timber.e(e, "Submission mutation skipped"))
+                            .onErrorResumeNext(Observable.empty()))
+                .cast(Mutation.class))
+        .toList()
+        .map(ImmutableList::copyOf)
+        .subscribeOn(schedulers.io());
   }
 
   @Transaction
   @Override
   public Completable updateMutations(ImmutableList<Mutation> mutations) {
-    return locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))
-        .andThen(submissionMutationDao.updateAll(toSubmissionMutationEntities(mutations))
-            .subscribeOn(schedulers.io())).subscribeOn(schedulers.io());
+    return locationOfInterestMutationDao
+        .updateAll(toLocationOfInterestMutationEntities(mutations))
+        .andThen(
+            submissionMutationDao
+                .updateAll(toSubmissionMutationEntities(mutations))
+                .subscribeOn(schedulers.io()))
+        .subscribeOn(schedulers.io());
   }
 
   private ImmutableList<SubmissionMutationEntity> toSubmissionMutationEntities(
       ImmutableList<Mutation> mutations) {
-    return stream(SubmissionMutation.filter(mutations)).map(SubmissionMutationEntity::fromMutation)
+    return stream(SubmissionMutation.filter(mutations))
+        .map(SubmissionMutationEntity::fromMutation)
         .collect(toImmutableList());
   }
 
   private ImmutableList<LocationOfInterestMutationEntity> toLocationOfInterestMutationEntities(
       ImmutableList<Mutation> mutations) {
-    return stream(LocationOfInterestMutation.filter(mutations)).map(
-        LocationOfInterestMutationEntity::fromMutation).collect(toImmutableList());
+    return stream(LocationOfInterestMutation.filter(mutations))
+        .map(LocationOfInterestMutationEntity::fromMutation)
+        .collect(toImmutableList());
   }
 
   @Override
@@ -356,28 +403,33 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
-    return Observable.fromIterable(mutations).filter(mutation -> mutation.getType() == Type.DELETE)
-        .flatMapCompletable(mutation -> {
-          if (mutation instanceof SubmissionMutation) {
-            return deleteSubmission(((SubmissionMutation) mutation).getSubmissionId());
-          } else if (mutation instanceof LocationOfInterestMutation) {
-            return deleteLocationOfInterest(mutation.getLocationOfInterestId());
-          } else {
-            return Completable.error(new RuntimeException("Unknown type : " + mutation));
-          }
-        });
+    return Observable.fromIterable(mutations)
+        .filter(mutation -> mutation.getType() == Type.DELETE)
+        .flatMapCompletable(
+            mutation -> {
+              if (mutation instanceof SubmissionMutation) {
+                return deleteSubmission(((SubmissionMutation) mutation).getSubmissionId());
+              } else if (mutation instanceof LocationOfInterestMutation) {
+                return deleteLocationOfInterest(mutation.getLocationOfInterestId());
+              } else {
+                return Completable.error(new RuntimeException("Unknown type : " + mutation));
+              }
+            });
   }
 
   private Completable markComplete(ImmutableList<Mutation> mutations) {
-    ImmutableList<LocationOfInterestMutationEntity> locationOfInterestMutations = stream(
-        LocationOfInterestMutation.filter(mutations)).map(
-            mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
-        .map(LocationOfInterestMutationEntity::fromMutation).collect(toImmutableList());
-    ImmutableList<SubmissionMutationEntity> submissionMutations = stream(
-        SubmissionMutation.filter(mutations)).map(
-            mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
-        .map(SubmissionMutationEntity::fromMutation).collect(toImmutableList());
-    return locationOfInterestMutationDao.updateAll(locationOfInterestMutations)
+    ImmutableList<LocationOfInterestMutationEntity> locationOfInterestMutations =
+        stream(LocationOfInterestMutation.filter(mutations))
+            .map(mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
+            .map(LocationOfInterestMutationEntity::fromMutation)
+            .collect(toImmutableList());
+    ImmutableList<SubmissionMutationEntity> submissionMutations =
+        stream(SubmissionMutation.filter(mutations))
+            .map(mutation -> mutation.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build())
+            .map(SubmissionMutationEntity::fromMutation)
+            .collect(toImmutableList());
+    return locationOfInterestMutationDao
+        .updateAll(locationOfInterestMutations)
         .andThen(submissionMutationDao.updateAll(submissionMutations).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
@@ -386,8 +438,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Completable mergeLocationOfInterest(LocationOfInterest locationOfInterest) {
     // TODO(#706): Apply pending local mutations before saving.
-    return locationOfInterestDao.insertOrUpdate(
-            LocationOfInterestEntity.fromLocationOfInterest(locationOfInterest))
+    return locationOfInterestDao
+        .insertOrUpdate(LocationOfInterestEntity.fromLocationOfInterest(locationOfInterest))
         .subscribeOn(schedulers.io());
   }
 
@@ -395,47 +447,54 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Completable mergeSubmission(Submission submission) {
     SubmissionEntity submissionEntity = SubmissionEntity.fromSubmission(submission);
-    return submissionMutationDao.findBySubmissionId(submission.getId(),
-            MutationEntitySyncStatus.PENDING, MutationEntitySyncStatus.IN_PROGRESS).flatMapCompletable(
+    return submissionMutationDao
+        .findBySubmissionId(
+            submission.getId(),
+            MutationEntitySyncStatus.PENDING,
+            MutationEntitySyncStatus.IN_PROGRESS)
+        .flatMapCompletable(
             mutations -> mergeSubmission(submission.getJob(), submissionEntity, mutations))
         .subscribeOn(schedulers.io());
   }
 
-  private Completable mergeSubmission(Job job, SubmissionEntity submission,
-      List<SubmissionMutationEntity> mutations) {
+  private Completable mergeSubmission(
+      Job job, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
     if (mutations.isEmpty()) {
       return submissionDao.insertOrUpdate(submission);
     }
     SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     checkNotNull(lastMutation, "Could not get last mutation");
-    return getUser(lastMutation.getUserId()).map(
-            user -> applyMutations(job, submission, mutations, user))
+    return getUser(lastMutation.getUserId())
+        .map(user -> applyMutations(job, submission, mutations, user))
         .flatMapCompletable(entity -> submissionDao.insertOrUpdate(entity));
   }
 
-  private SubmissionEntity applyMutations(Job job, SubmissionEntity submission,
-      List<SubmissionMutationEntity> mutations, User user) {
+  private SubmissionEntity applyMutations(
+      Job job, SubmissionEntity submission, List<SubmissionMutationEntity> mutations, User user) {
     SubmissionMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging submission " + this + " with mutations " + mutations);
     SubmissionEntity.Builder builder = submission.toBuilder();
     builder.setResponses(ResponseMapConverter.toString(applyMutations(job, submission, mutations)));
     // Update modified user and time.
-    AuditInfoEntity lastModified = AuditInfoEntity.builder().setUser(UserDetails.fromUser(user))
-        .setClientTimestamp(clientTimestamp).build();
+    AuditInfoEntity lastModified =
+        AuditInfoEntity.builder()
+            .setUser(UserDetails.fromUser(user))
+            .setClientTimestamp(clientTimestamp)
+            .build();
     builder.setLastModified(lastModified);
     Timber.v("Merged submission %s", builder.build());
     return builder.build();
   }
 
-  private ResponseMap applyMutations(Job job, SubmissionEntity submission,
-      List<SubmissionMutationEntity> mutations) {
-    Builder responseMap = ResponseMapConverter.fromString(job, submission.getResponses())
-        .toBuilder();
+  private ResponseMap applyMutations(
+      Job job, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
+    Builder responseMap =
+        ResponseMapConverter.fromString(job, submission.getResponses()).toBuilder();
     for (SubmissionMutationEntity mutation : mutations) {
       // Merge changes to responses.
-      ImmutableList<ResponseDelta> deltas = ResponseDeltasConverter.fromString(job,
-          mutation.getResponseDeltas());
+      ImmutableList<ResponseDelta> deltas =
+          ResponseDeltasConverter.fromString(job, mutation.getResponseDeltas());
       responseMap.applyDeltas(deltas);
     }
     return responseMap.build();
@@ -445,10 +504,11 @@ public class RoomLocalDataStore implements LocalDataStore {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        return getUser(mutation.getUserId()).flatMapCompletable(
-            user -> insertOrUpdateLocationOfInterest(mutation, user));
+        return getUser(mutation.getUserId())
+            .flatMapCompletable(user -> insertOrUpdateLocationOfInterest(mutation, user));
       case DELETE:
-        return locationOfInterestDao.findById(mutation.getLocationOfInterestId())
+        return locationOfInterestDao
+            .findById(mutation.getLocationOfInterestId())
             .flatMapCompletable(entity -> markLocationOfInterestForDeletion(entity, mutation))
             .subscribeOn(schedulers.io());
       default:
@@ -456,31 +516,36 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable markLocationOfInterestForDeletion(LocationOfInterestEntity entity,
-      LocationOfInterestMutation mutation) {
-    return locationOfInterestDao.update(entity.toBuilder().setState(EntityState.DELETED).build())
+  private Completable markLocationOfInterestForDeletion(
+      LocationOfInterestEntity entity, LocationOfInterestMutation mutation) {
+    return locationOfInterestDao
+        .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking location of interest as deleted : %s", mutation))
         .ignoreElement();
   }
 
-  private Completable insertOrUpdateLocationOfInterest(LocationOfInterestMutation mutation,
-      User user) {
-    return locationOfInterestDao.insertOrUpdate(
-            LocationOfInterestEntity.fromMutation(mutation, AuditInfo.now(user)))
+  private Completable insertOrUpdateLocationOfInterest(
+      LocationOfInterestMutation mutation, User user) {
+    return locationOfInterestDao
+        .insertOrUpdate(LocationOfInterestEntity.fromMutation(mutation, AuditInfo.now(user)))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable deleteLocationOfInterest(String locationOfInterestId) {
-    return locationOfInterestDao.findById(locationOfInterestId).toSingle().doOnSubscribe(
+    return locationOfInterestDao
+        .findById(locationOfInterestId)
+        .toSingle()
+        .doOnSubscribe(
             __ -> Timber.d("Deleting local location of interest : %s", locationOfInterestId))
         .flatMapCompletable(entity -> locationOfInterestDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
 
   private Completable enqueue(LocationOfInterestMutation mutation) {
-    return locationOfInterestMutationDao.insert(
-        LocationOfInterestMutationEntity.fromMutation(mutation)).subscribeOn(schedulers.io());
+    return locationOfInterestMutationDao
+        .insert(LocationOfInterestMutationEntity.fromMutation(mutation))
+        .subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -489,9 +554,12 @@ public class RoomLocalDataStore implements LocalDataStore {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
-      FirebaseCrashlytics.getInstance().log(
-          "Error enqueueing " + mutation.getType() + "mutation for submission "
-              + mutation.getSubmissionId());
+      FirebaseCrashlytics.getInstance()
+          .log(
+              "Error enqueueing "
+                  + mutation.getType()
+                  + "mutation for submission "
+                  + mutation.getSubmissionId());
       FirebaseCrashlytics.getInstance().recordException(e);
       return Completable.error(e);
     }
@@ -501,18 +569,19 @@ public class RoomLocalDataStore implements LocalDataStore {
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *     exist, or if type is "CREATE" and entity already exists.
    */
   public Completable apply(SubmissionMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return getUser(mutation.getUserId()).flatMapCompletable(
-            user -> createSubmission(mutation, user));
+        return getUser(mutation.getUserId())
+            .flatMapCompletable(user -> createSubmission(mutation, user));
       case UPDATE:
-        return getUser(mutation.getUserId()).flatMapCompletable(
-            user -> updateSubmission(mutation, user));
+        return getUser(mutation.getUserId())
+            .flatMapCompletable(user -> updateSubmission(mutation, user));
       case DELETE:
-        return submissionDao.findById(mutation.getSubmissionId())
+        return submissionDao
+            .findById(mutation.getSubmissionId())
             .flatMapCompletable(entity -> markSubmissionForDeletion(entity, mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -520,18 +589,22 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable createSubmission(SubmissionMutation mutation, User user) {
-    return submissionDao.insert(SubmissionEntity.fromMutation(mutation, AuditInfo.now(user)))
+    return submissionDao
+        .insert(SubmissionEntity.fromMutation(mutation, AuditInfo.now(user)))
         .doOnSubscribe(__ -> Timber.v("Inserting submission: %s", mutation))
         .subscribeOn(schedulers.io());
   }
 
   private Completable updateSubmission(SubmissionMutation mutation, User user) {
     SubmissionMutationEntity mutationEntity = SubmissionMutationEntity.fromMutation(mutation);
-    return submissionDao.findById(mutation.getSubmissionId())
+    return submissionDao
+        .findById(mutation.getSubmissionId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
-        .switchIfEmpty(fallbackSubmission(mutation)).map(
-            entity -> applyMutations(mutation.getJob(), entity, ImmutableList.of(mutationEntity),
-                user)).flatMapCompletable(
+        .switchIfEmpty(fallbackSubmission(mutation))
+        .map(
+            entity ->
+                applyMutations(mutation.getJob(), entity, ImmutableList.of(mutationEntity), user))
+        .flatMapCompletable(
             entity -> submissionDao.insertOrUpdate(entity).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
   }
@@ -545,29 +618,36 @@ public class RoomLocalDataStore implements LocalDataStore {
     return em -> em.onSuccess(SubmissionEntity.fromMutation(mutation, AuditInfo.builder().build()));
   }
 
-  private Completable markSubmissionForDeletion(SubmissionEntity entity,
-      SubmissionMutation mutation) {
-    return submissionDao.update(entity.toBuilder().setState(EntityState.DELETED).build())
+  private Completable markSubmissionForDeletion(
+      SubmissionEntity entity, SubmissionMutation mutation) {
+    return submissionDao
+        .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking submission as deleted : %s", mutation))
-        .ignoreElement().subscribeOn(schedulers.io());
+        .ignoreElement()
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable deleteSubmission(String submissionId) {
-    return submissionDao.findById(submissionId).toSingle()
+    return submissionDao
+        .findById(submissionId)
+        .toSingle()
         .doOnSubscribe(__ -> Timber.d("Deleting local submission : %s", submissionId))
-        .flatMapCompletable(entity -> submissionDao.delete(entity)).subscribeOn(schedulers.io());
+        .flatMapCompletable(entity -> submissionDao.delete(entity))
+        .subscribeOn(schedulers.io());
   }
 
   private Completable enqueue(SubmissionMutation mutation) {
-    return submissionMutationDao.insert(SubmissionMutationEntity.fromMutation(mutation))
+    return submissionMutationDao
+        .insert(SubmissionMutationEntity.fromMutation(mutation))
         .doOnSubscribe(__ -> Timber.v("Enqueuing mutation: %s", mutation))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable insertOrUpdateTileSet(TileSet tileSet) {
-    return tileSetDao.insertOrUpdate(TileSetEntity.fromTileSet(tileSet))
+    return tileSetDao
+        .insertOrUpdate(TileSetEntity.fromTileSet(tileSet))
         .subscribeOn(schedulers.io());
   }
 
@@ -578,35 +658,44 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Single<ImmutableList<TileSet>> getPendingTileSets() {
-    return tileSetDao.findByState(TileSetEntityState.PENDING.intValue())
+    return tileSetDao
+        .findByState(TileSetEntityState.PENDING.intValue())
         .map(ts -> stream(ts).map(TileSetEntity::toTileSet).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable insertOrUpdateOfflineArea(OfflineArea area) {
-    return offlineAreaDao.insertOrUpdate(OfflineAreaEntity.fromArea(area))
+    return offlineAreaDao
+        .insertOrUpdate(OfflineAreaEntity.fromArea(area))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
-    return offlineAreaDao.findAllOnceAndStream()
+    return offlineAreaDao
+        .findAllOnceAndStream()
         .map(areas -> stream(areas).map(OfflineAreaEntity::toArea).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Single<OfflineArea> getOfflineAreaById(String id) {
-    return offlineAreaDao.findById(id).map(OfflineAreaEntity::toArea).toSingle()
+    return offlineAreaDao
+        .findById(id)
+        .map(OfflineAreaEntity::toArea)
+        .toSingle()
         .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable deleteOfflineArea(String id) {
-    return offlineAreaDao.findById(id).toSingle()
+    return offlineAreaDao
+        .findById(id)
+        .toSingle()
         .doOnSubscribe(__ -> Timber.d("Deleting offline area: %s", id))
-        .flatMapCompletable(offlineAreaDao::delete).subscribeOn(schedulers.io());
+        .flatMapCompletable(offlineAreaDao::delete)
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -626,19 +715,24 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Flowable<ImmutableList<LocationOfInterestMutation>> getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-      String locationOfInterestId, MutationEntitySyncStatus... allowedStates) {
-    return locationOfInterestMutationDao.findByLocationOfInterestIdOnceAndStream(
-        locationOfInterestId, allowedStates).map(
-        list -> stream(list).map(LocationOfInterestMutationEntity::toMutation)
-            .collect(toImmutableList()));
+  public Flowable<ImmutableList<LocationOfInterestMutation>>
+      getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+          String locationOfInterestId, MutationEntitySyncStatus... allowedStates) {
+    return locationOfInterestMutationDao
+        .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, allowedStates)
+        .map(
+            list ->
+                stream(list)
+                    .map(LocationOfInterestMutationEntity::toMutation)
+                    .collect(toImmutableList()));
   }
 
   @Override
-  public Flowable<ImmutableList<SubmissionMutation>> getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-      Survey survey, String locationOfInterestId, MutationEntitySyncStatus... allowedStates) {
-    return submissionMutationDao.findByLocationOfInterestIdOnceAndStream(locationOfInterestId,
-            allowedStates)
+  public Flowable<ImmutableList<SubmissionMutation>>
+      getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+          Survey survey, String locationOfInterestId, MutationEntitySyncStatus... allowedStates) {
+    return submissionMutationDao
+        .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, allowedStates)
         .map(list -> stream(list).map(e -> e.toMutation(survey)).collect(toImmutableList()));
   }
 }
