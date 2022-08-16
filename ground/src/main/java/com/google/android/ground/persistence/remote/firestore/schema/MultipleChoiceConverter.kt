@@ -19,7 +19,7 @@ package com.google.android.ground.persistence.remote.firestore.schema
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.util.Enums.toEnum
-import com.google.android.ground.util.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
 internal object MultipleChoiceConverter {
 
@@ -32,10 +32,10 @@ internal object MultipleChoiceConverter {
                     OptionConverter.toOption(
                         key, value
                     )
-                }.toImmutableList()
+                }
         }
         return MultipleChoice(
-            options.toImmutableList(),
+            options.toPersistentList(),
             toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!)
         )
     }

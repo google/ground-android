@@ -16,6 +16,8 @@
 
 package com.google.android.ground.persistence.local.room.entity;
 
+import static kotlinx.collections.immutable.ExtensionsKt.toPersistentList;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -68,7 +70,7 @@ public abstract class MultipleChoiceEntity {
       listBuilder.add(OptionEntity.toOption(optionEntity));
     }
 
-    return new MultipleChoice(listBuilder.build(), multipleChoiceEntity.getType().toCardinality());
+    return new MultipleChoice(toPersistentList(listBuilder.build()), multipleChoiceEntity.getType().toCardinality());
   }
 
   public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String taskId) {

@@ -17,13 +17,13 @@ package com.google.android.ground.model.task
 
 import java8.util.Optional
 import kotlinx.serialization.Serializable
-import com.google.common.collect.ImmutableList
-import kotlinx.serialization.Contextual
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 
 /** A question task with pre-defined options for the user to choose from.  */
 @Serializable
 data class MultipleChoice @JvmOverloads constructor(
-    val options: @Contextual ImmutableList<Option> = ImmutableList.of(),
+    val options: PersistentList<Option> = persistentListOf(),
     val cardinality: Cardinality
 ) {
     enum class Cardinality {
