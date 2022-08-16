@@ -35,7 +35,7 @@ internal object MultipleChoiceConverter {
                 }.toImmutableList()
         }
         return MultipleChoice(
-            options,
+            options.toImmutableList(),
             toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!)
         )
     }
