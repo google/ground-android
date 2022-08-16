@@ -42,10 +42,10 @@ public class FakeData {
   public static final Job JOB = new Job("JOB", "Job");
 
   public static final User USER =
-      User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build();
+      new User("user_id", "user@gmail.com", "User");
 
   public static final User USER_2 =
-      User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2").build();
+      new User("user_id_2", "user2@gmail.com", "User2");
 
   public static final Survey SURVEY = newSurvey().build();
 

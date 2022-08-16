@@ -31,16 +31,16 @@ import javax.inject.Inject;
 
 public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
-  static final User TEST_USER_OWNER = FakeData.USER.toBuilder().setEmail("user1@gmail.com").build();
+  static final User TEST_USER_OWNER = new User("user1", "user@gmail.com", "user 1");
 
   static final User TEST_USER_MANAGER =
-      FakeData.USER.toBuilder().setEmail("user2@gmail.com").build();
+      new User("user2", "user2@gmail.com", "user 2");
 
   static final User TEST_USER_CONTRIBUTOR =
-      FakeData.USER.toBuilder().setEmail("user3@gmail.com").build();
+      new User("user2", "user3@gmail.com", "user 3");
 
   static final User TEST_USER_UNKNOWN =
-      FakeData.USER.toBuilder().setEmail("user4@gmail.com").build();
+      new User("user2", "user4@gmail.com", "user 4");
 
   private static final Survey TEST_SURVEY =
       FakeData.SURVEY.toBuilder()

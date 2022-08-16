@@ -18,11 +18,11 @@ package com.google.android.ground.ui.common;
 
 import static com.google.android.ground.test.FakeData.AREA_OF_INTEREST;
 import static com.google.android.ground.test.FakeData.POINT_OF_INTEREST;
-import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
+import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.AreaOfInterest;
 import com.google.android.ground.model.locationofinterest.PointOfInterest;
@@ -43,7 +43,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
   public void testGetCreatedBy() {
     PointOfInterest feature =
         POINT_OF_INTEREST.toBuilder()
-            .setCreated(AuditInfo.now(USER.toBuilder().setDisplayName("Test User").build()))
+            .setCreated(AuditInfo.now(new User("", "", "Test User")))
             .build();
 
     assertThat(featureHelper.getCreatedBy(Optional.of(feature))).isEqualTo("Added by Test User");
