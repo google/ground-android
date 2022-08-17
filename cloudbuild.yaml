@@ -80,7 +80,7 @@ steps:
       - |
         ./gradlew -PdisablePreDex assembleStaging assembleStagingUnitTest -PtestBuildType=staging
 
-        if [[ "${_PUSH_TO_MASTER}" ]]; then
+        if [[ "${_PUSH_TO_MASTER}" ]] && false; then
           ./gradlew -PdisablePreDex assembleStagingAndroidTest -PtestBuildType=staging
         fi
 
@@ -132,7 +132,7 @@ steps:
     args:
       - '-c'
       - |
-        if [[ "${_PUSH_TO_MASTER}" ]]; then
+        if [[ "${_PUSH_TO_MASTER}" ]] && false; then
           gcloud --quiet beta firebase test android run \
           --type instrumentation --num-uniform-shards=1 \
           --app ground/build/outputs/apk/staging/*.apk \
