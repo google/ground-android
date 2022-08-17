@@ -329,7 +329,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static Point toPoint(Location location) {
-    return new Point(location.getLatitude(), location.getLongitude();
+    return new Point(location.getLatitude(), location.getLongitude());
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
