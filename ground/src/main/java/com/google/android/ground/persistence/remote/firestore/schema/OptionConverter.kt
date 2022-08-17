@@ -23,15 +23,7 @@ import com.google.android.ground.model.task.Option
  */
 internal object OptionConverter {
 
-    fun toOption(id: String, option: OptionNestedObject): Option {
-        val builder = Option.newBuilder()
-        builder.setId(id)
-        if (option.code != null) {
-            builder.setCode(option.code)
-        }
-        if (option.label != null) {
-            builder.setLabel(option.label)
-        }
-        return builder.build()
-    }
+    fun toOption(id: String, option: OptionNestedObject): Option =
+        Option(id, option.code ?: "", option.label ?: "")
+
 }

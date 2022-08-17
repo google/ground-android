@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.task
 
-package com.google.android.ground.model.job;
+import kotlinx.serialization.Serializable
 
-import com.google.auto.value.AutoValue;
-
-@AutoValue
-public abstract class Style {
-
-  public static final Style DEFAULT_MAP_STYLE = Style.builder().setColor("#ff9131").build();
-
-  public abstract String getColor();
-
-  public static Builder builder() {
-    return new AutoValue_Style.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-    public abstract Builder setColor(String newColor);
-
-    public abstract Style build();
-  }
-}
+/**
+ * Describes a single valid option to a multiple choice question.
+ */
+@Serializable
+data class Option(
+    val id: String,
+    val code: String,
+    val label: String
+)

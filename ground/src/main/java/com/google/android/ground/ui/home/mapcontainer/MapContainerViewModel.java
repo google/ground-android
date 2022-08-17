@@ -218,7 +218,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return MapPin.newBuilder()
         .setId(pointOfInterest.getId())
         .setPosition(pointOfInterest.getPoint())
-        .setStyle(Style.DEFAULT_MAP_STYLE)
+        .setStyle(new Style())
         .setLocationOfInterest(pointOfInterest)
         .build();
   }
@@ -227,7 +227,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return MapPolygon.newBuilder()
         .setId(areaOfInterest.getId())
         .setVertices(areaOfInterest.getVertices())
-        .setStyle(Style.DEFAULT_MAP_STYLE)
+        .setStyle(new Style())
         .setLocationOfInterest(areaOfInterest)
         .build();
   }

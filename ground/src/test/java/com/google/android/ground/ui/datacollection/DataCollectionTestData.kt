@@ -58,17 +58,7 @@ object DataCollectionTestData {
             Job(id = "taskId",
                 tasks = ImmutableMap.of(
                     "field id",
-                    Task.newBuilder()
-                        .setId("field id")
-                        .setLabel("field")
-                        .setIndex(0)
-                        .setRequired(true)
-                        .setType(Task.Type.MULTIPLE_CHOICE).build(),
+                    Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
                     "field id 2",
-                    Task.newBuilder()
-                        .setId("field id 2")
-                        .setLabel("field 2")
-                        .setIndex(1)
-                        .setRequired(true)
-                        .setType(Task.Type.PHOTO).build()))).build()
+                    Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)))).build()
 }

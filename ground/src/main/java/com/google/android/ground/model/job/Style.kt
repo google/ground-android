@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.job
 
-package com.google.android.ground.persistence.local.room.converter
-
-import androidx.room.TypeConverter
-import com.google.android.ground.model.job.Style
-
-object StyleTypeConverter {
-
-    @TypeConverter
-    fun toString(style: Style?): String? = style?.color
-
-    @TypeConverter
-    fun fromString(color: String?): Style? =
-        color?.let { Style(it) }
-}
+data class Style @JvmOverloads constructor(
+    val color: String? = "#ff9131"
+)

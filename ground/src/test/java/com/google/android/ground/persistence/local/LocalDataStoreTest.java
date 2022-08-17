@@ -41,6 +41,7 @@ import com.google.android.ground.model.submission.ResponseMap;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.submission.TextResponse;
 import com.google.android.ground.model.task.Task;
+import com.google.android.ground.model.task.Task.Type;
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao;
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao;
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity;
@@ -67,13 +68,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
       new User("user1", "user@gmail.com", "user 1");
 
   private static final Task TEST_TASK =
-      Task.newBuilder()
-          .setId("task id")
-          .setIndex(1)
-          .setLabel("task label")
-          .setRequired(false)
-          .setType(Task.Type.TEXT_FIELD)
-          .build();
+      new Task("task id", 1, Type.TEXT_FIELD, "task label", false);
 
   private static final Job TEST_JOB =
       new Job("job id", "heading title",
