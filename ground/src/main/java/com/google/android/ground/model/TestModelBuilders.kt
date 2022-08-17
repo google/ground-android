@@ -16,7 +16,6 @@
 package com.google.android.ground.model
 
 import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
