@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 class MultipleChoiceResponse(
-    private val multipleChoice: MultipleChoice?, val selectedOptionIds: List<String>
+    private val multipleChoice: MultipleChoice, val selectedOptionIds: List<String>
 ) : Response {
 
     fun getFirstId(): Optional<String> = Optional.ofNullable(selectedOptionIds.firstOrNull())
@@ -37,7 +37,7 @@ class MultipleChoiceResponse(
 
     // TODO: Make these inner classes non-static and access Task directly.
     override fun getDetailsText(): String = selectedOptionIds.mapNotNull {
-        multipleChoice?.getOptionById(
+        multipleChoice.getOptionById(
             it
         )
     }.map { it.label }.sorted().joinToString()
@@ -57,7 +57,7 @@ class MultipleChoiceResponse(
 
     companion object {
         @JvmStatic
-        fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<Response> {
+        fun fromList(multipleChoice: MultipleChoice, codes: List<String>): Optional<Response> {
             return if (codes.isEmpty()) {
                 Optional.empty()
             } else {
