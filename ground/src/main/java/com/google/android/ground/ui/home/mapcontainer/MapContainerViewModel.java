@@ -75,8 +75,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public static final float ZOOM_LEVEL_THRESHOLD = 16f;
   public static final float DEFAULT_LOI_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
-  private static final Point DEFAULT_MAP_POINT =
-      Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
+  private static final Point DEFAULT_MAP_POINT = Point.zero();
   private final LiveData<Loadable<Survey>> surveyLoadingState;
   private final LiveData<ImmutableSet<MapLocationOfInterest>> mapLocationsOfInterest;
   private final LiveData<BooleanOrError> locationLockState;
@@ -330,10 +329,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static Point toPoint(Location location) {
-    return Point.newBuilder()
-        .setLatitude(location.getLatitude())
-        .setLongitude(location.getLongitude())
-        .build();
+    return new Point(location.getLatitude(), location.getLongitude();
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
