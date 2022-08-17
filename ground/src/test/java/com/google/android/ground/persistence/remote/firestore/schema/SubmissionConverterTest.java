@@ -58,16 +58,10 @@ public class SubmissionConverterTest {
   private LocationOfInterest locationOfInterest;
 
   private static final AuditInfo AUDIT_INFO_1 =
-      new AuditInfo(
-          new User("user1", "", ""),
-          new Date(100),
-          Optional.of(new Date(101)));
+      new AuditInfo(new User("user1", "", ""), new Date(100), Optional.of(new Date(101)));
 
   private static final AuditInfo AUDIT_INFO_2 =
-    new AuditInfo(
-          new User("user2", "", ""),
-          new Date(200),
-          Optional.of(new Date(201)));
+      new AuditInfo(new User("user2", "", ""), new Date(200), Optional.of(new Date(201)));
 
   private static final AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
       new AuditInfoNestedObject(
