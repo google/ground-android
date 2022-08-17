@@ -78,7 +78,7 @@ public class LoiConverterTest {
         newTask(
             "task2",
             Task.Type.MULTIPLE_CHOICE,
-            MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
+            new MultipleChoice(Cardinality.SELECT_ONE)),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
     mockFeatureDocumentSnapshot(
@@ -113,7 +113,7 @@ public class LoiConverterTest {
         newTask(
             "task2",
             Task.Type.MULTIPLE_CHOICE,
-            MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
+            new MultipleChoice(Cardinality.SELECT_ONE)),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
     mockFeatureDocumentSnapshot(

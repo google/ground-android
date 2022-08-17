@@ -91,10 +91,7 @@ public class SubmissionConverterTest {
     setUpTestSurvey(
         "job001",
         newTask("task1"),
-        newTask(
-            "task2",
-            Task.Type.MULTIPLE_CHOICE,
-            MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
+        newTask("task2", Task.Type.MULTIPLE_CHOICE, new MultipleChoice(Cardinality.SELECT_ONE)),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
     setUpTestFeature("feature001");
@@ -131,11 +128,15 @@ public class SubmissionConverterTest {
                     ResponseMap.builder()
                         .putResponse("task1", new TextResponse("Text response"))
                         .putResponse(
-                            "task2", new MultipleChoiceResponse(null, ImmutableList.of("option2")))
+                            "task2",
+                            new MultipleChoiceResponse(
+                                new MultipleChoice(Cardinality.SELECT_ONE),
+                                ImmutableList.of("option2")))
                         .putResponse(
                             "task3",
                             new MultipleChoiceResponse(
-                                null, ImmutableList.of("optionA", "optionB")))
+                                new MultipleChoice(Cardinality.SELECT_ONE),
+                                ImmutableList.of("optionA", "optionB")))
                         .putResponse("task4", new TextResponse("Photo URL"))
                         .build())
                 .setCreated(AUDIT_INFO_1)

@@ -128,7 +128,8 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable insertOrUpdateOptions(String taskId, ImmutableList<Option> options) {
+  private Completable insertOrUpdateOptions(
+      String taskId, kotlinx.collections.immutable.ImmutableList<Option> options) {
     return Observable.fromIterable(options)
         .flatMapCompletable(option -> insertOrUpdateOption(taskId, option))
         .subscribeOn(schedulers.io());
