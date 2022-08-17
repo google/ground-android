@@ -23,34 +23,36 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.TimeFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.NumberTaskViewModel" />
   </data>
 
   <LinearLayout
-    style="@style/FieldView"
+    style="@style/TaskView"
     android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
-      android:id="@+id/text_input_layout"
-      style="@style/EditSubmission.Field.Text"
-      android:layout_width="match_parent"
+    <TextView
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:hint="@{viewModel.taskLabel()}">
+      android:text="@{viewModel.taskLabel()}"
+      style="@style/EditSubmission.Task.Label" />
+
+    <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/number_input_layout"
+      style="@style/EditSubmission.Task.Text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
 
       <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/text_input_edit_text"
+        android:id="@+id/number_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:enabled="true"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:inputType="datetime"
+        android:inputType="numberDecimal"
         android:maxLines="1"
-        android:onClick="@{__ -> viewModel.onShowDialogClick()}"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
-        tools:text="@string/time" />
+        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
+        tools:text="123.45" />
+
     </com.google.android.material.textfield.TextInputLayout>
 
   </LinearLayout>

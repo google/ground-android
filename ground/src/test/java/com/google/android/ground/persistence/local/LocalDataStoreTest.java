@@ -66,8 +66,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final User TEST_USER =
       new User("user id", "user@gmail.com", "user 1");
 
-  private static final Task TEST_TASK =
-      new Task("task id", 1, Type.TEXT_FIELD, "task label", false);
+  private static final Task TEST_TASK = new Task("task id", 1, Type.TEXT, "task label", false);
 
   private static final Job TEST_JOB =
       new Job(
@@ -123,7 +122,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
               ImmutableList.of(
                   ResponseDelta.builder()
                       .setTaskId("task id")
-                      .setTaskType(Task.Type.TEXT_FIELD)
+                      .setTaskType(Task.Type.TEXT)
                       .setNewResponse(TextResponse.fromString("updated response"))
                       .build()))
           .setId(1L)
@@ -446,7 +445,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
         ImmutableList.of(
             ResponseDelta.builder()
                 .setTaskId("task id")
-                .setTaskType(Task.Type.TEXT_FIELD)
+                .setTaskType(Task.Type.TEXT)
                 .setNewResponse(TextResponse.fromString("value for the really new task"))
                 .build());
 

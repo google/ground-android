@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.settings;
+package com.google.android.ground.ui.editsubmission;
 
-/** These keys should match 1:1 in res/xml/preferences.xml. */
-public final class Keys {
+import android.content.res.Resources;
+import com.google.android.ground.model.submission.NumberResponse;
+import javax.inject.Inject;
 
-  // General
-  public static final String UPLOAD_MEDIA = "upload_media";
-  public static final String OFFLINE_AREAS = "offline_areas";
+public class NumberTaskViewModel extends AbstractTaskViewModel {
 
-  // Help
-  public static final String VISIT_WEBSITE = "visit_website";
-  public static final String FEEDBACK = "feedback";
+  @Inject
+  NumberTaskViewModel(Resources resources) {
+    super(resources);
+  }
 
-  static final String[] ALL_KEYS = {UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK};
+  public void updateResponse(String number) {
+    setResponse(NumberResponse.fromNumber(number));
+  }
 }

@@ -46,7 +46,7 @@ object TestModelBuilders {
     @JvmOverloads
     fun newTask(
         id: String = "",
-        type: Task.Type = Task.Type.TEXT_FIELD,
+        type: Task.Type = Task.Type.TEXT,
         multipleChoice: MultipleChoice? = null
     ): Task = Task(id, 0, type, "", false, multipleChoice)
 }

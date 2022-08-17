@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,51 +16,35 @@
 
 package com.google.android.ground.ui.editsubmission;
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.Objects.requireNonNull;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.content.res.Resources;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
-import com.google.android.ground.model.task.Option;
+import com.google.android.ground.model.submission.TimeResponse;
 import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import java8.util.Optional;
+import java.util.Date;
 import javax.inject.Inject;
 
-public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
+public class TimeTaskViewModel extends AbstractTaskViewModel {
 
   @Hot
   private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  MultipleChoiceFieldViewModel(Resources resources) {
+  TimeTaskViewModel(Resources resources) {
     super(resources);
   }
 
-  public void onShowDialog() {
+  public void updateResponse(Date date) {
+    setResponse(TimeResponse.fromDate(date));
+  }
+
+  public void onShowDialogClick() {
     showDialogClicks.onNext(Nil.NIL);
   }
 
-  @Hot
   Observable<Nil> getShowDialogClicks() {
     return showDialogClicks;
-  }
-
-  Optional<MultipleChoiceResponse> getCurrentResponse() {
-    return getResponse().getValue() == null
-        ? Optional.empty()
-        : getResponse().getValue().map(response -> (MultipleChoiceResponse) response);
-  }
-
-  public void updateResponse(ImmutableList<Option> options) {
-    setResponse(
-        MultipleChoiceResponse.fromList(
-            requireNonNull(getTask().getMultipleChoice()),
-            stream(options).map(Option::getId).collect(toImmutableList())));
   }
 }

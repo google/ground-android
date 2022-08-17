@@ -21,8 +21,7 @@ import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
 
 /**
- * A simple pager adapter that presents the [Step]s associated with a given Submission, in
- * sequence.
+ * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
  */
 class DataCollectionViewPagerAdapter(
     fragment: Fragment,
