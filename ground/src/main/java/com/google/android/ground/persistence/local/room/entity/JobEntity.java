@@ -24,10 +24,12 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations;
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableMap;
 
 @AutoValue
 @Entity(
@@ -67,14 +69,15 @@ public abstract class JobEntity {
 
   static Job toJob(JobEntityAndRelations jobEntityAndRelations) {
     JobEntity jobEntity = jobEntityAndRelations.jobEntity;
-    Job.Builder builder = Job.newBuilder().setId(jobEntity.getId()).setName(jobEntity.getName());
 
+    ImmutableMap.Builder<String, Task> taskMap = ImmutableMap.builder();
     for (TaskEntityAndRelations taskEntityAndRelations :
         jobEntityAndRelations.taskEntityAndRelations) {
-      builder.addTask(TaskEntity.toTask(taskEntityAndRelations));
+      Task task = TaskEntity.toTask(taskEntityAndRelations);
+      taskMap.put(task.getId(), task);
     }
 
-    return builder.build();
+    return new Job(jobEntity.getId(), jobEntity.getName(), taskMap.build());
   }
 
   public static JobEntity create(String id, String name, String surveyId) {

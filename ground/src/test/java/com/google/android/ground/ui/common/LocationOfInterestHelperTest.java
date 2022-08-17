@@ -16,12 +16,14 @@
 
 package com.google.android.ground.ui.common;
 
+import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.FakeData;
+import com.google.android.ground.test.FakeData;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.job.Job;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -126,7 +128,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
             FakeData.POINT_OF_INTEREST.getSurvey(),
-            FakeData.JOB.toBuilder().setName("some job").build(),
+            new Job("jobId", "some job"),
             FakeData.POINT_OF_INTEREST.getCustomId(),
             FakeData.POINT_OF_INTEREST.getCaption(),
             FakeData.POINT_OF_INTEREST.getCreated(),

@@ -68,11 +68,11 @@ public abstract class OptionEntity {
   }
 
   public static Option toOption(OptionEntity optionEntity) {
-    return Option.newBuilder()
-        .setId(optionEntity.getId())
-        .setCode(optionEntity.getCode())
-        .setLabel(optionEntity.getLabel())
-        .build();
+    return new Option(
+        optionEntity.getId(),
+        optionEntity.getCode(),
+        optionEntity.getLabel()
+    );
   }
 
   public static OptionEntity create(String id, String code, String label, String taskId) {

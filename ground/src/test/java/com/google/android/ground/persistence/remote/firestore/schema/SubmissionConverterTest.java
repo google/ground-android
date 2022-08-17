@@ -90,15 +90,13 @@ public class SubmissionConverterTest {
   public void testToSubmission() {
     setUpTestSurvey(
         "job001",
-        newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build(),
-        newTask()
-            .setId("task2")
-            .setType(Task.Type.MULTIPLE_CHOICE)
-            .setMultipleChoice(
-                MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
-            .build(),
-        newTask().setId("task3").setType(Task.Type.MULTIPLE_CHOICE).build(),
-        newTask().setId("task4").setType(Task.Type.PHOTO).build());
+        newTask("task1"),
+        newTask(
+            "task2",
+            Task.Type.MULTIPLE_CHOICE,
+            MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
+        newTask("task3", Task.Type.MULTIPLE_CHOICE),
+        newTask("task4", Task.Type.PHOTO));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -147,7 +145,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_mismatchedFeatureId() {
-    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask("task1"));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -168,7 +166,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_nullResponses() {
-    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask("task1"));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -198,7 +196,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_emptyTextResponse() {
-    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask("task1"));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -228,7 +226,7 @@ public class SubmissionConverterTest {
 
   @Test
   public void testToSubmission_emptyMultipleChoiceResponse() {
-    setUpTestSurvey("job001", newTask().setId("task1").setType(Task.Type.MULTIPLE_CHOICE).build());
+    setUpTestSurvey("job001", newTask("task1"));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
@@ -257,18 +255,16 @@ public class SubmissionConverterTest {
   }
 
   private void setUpTestSurvey(String jobId, Task... tasks) {
-    Job.Builder builder = Job.newBuilder().setId(jobId);
-    stream(tasks).forEach(builder::addTask);
-    job = builder.build();
+    ImmutableMap.Builder<String, Task> taskMap = ImmutableMap.builder();
+    stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
+
+    job = new Job(jobId, "jobName", taskMap.build());
     survey = newSurvey().putJob(job).build();
   }
 
   @Test
   public void testToSubmission_unknownFieldType() {
-    setUpTestSurvey(
-        "job001",
-        newTask().setId("task1").setType(Task.Type.UNKNOWN).build(),
-        newTask().setId("task2").setType(Task.Type.TEXT_FIELD).build());
+    setUpTestSurvey("job001", newTask("task1", Task.Type.UNKNOWN), newTask("task2"));
     setUpTestFeature("feature001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,

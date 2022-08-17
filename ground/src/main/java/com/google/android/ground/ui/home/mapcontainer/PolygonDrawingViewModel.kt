@@ -208,7 +208,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
             MapPolygon.newBuilder()
                 .setId(uuidGenerator.generateUuid())
                 .setVertices(ImmutableList.of())
-                .setStyle(Style.DEFAULT_MAP_STYLE)
+                .setStyle(Style())
                 .build()
         )
     }

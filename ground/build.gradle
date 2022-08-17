@@ -20,6 +20,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-serialization'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
@@ -123,24 +124,11 @@ android {
         dataBinding true
         viewBinding true
     }
-    sourceSets {
-        test.manifest.srcFile "src/test/AndroidManifest.xml"
-        String sharedTestDir = 'src/sharedTest/java'
-        test {
-            java.srcDir sharedTestDir
-        }
-        androidTest {
-            java.srcDir sharedTestDir
-        }
-    }
     testOptions {
         unitTests {
             includeAndroidResources = true
         }
         animationsDisabled = true
-    }
-    hilt {
-        enableTransformForLocalTests = true
     }
 
     // ErrorProne and NullAway configuration.
@@ -178,12 +166,15 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':android-gmaps-addons')
+    testImplementation project(':sharedTest')
+    androidTestImplementation project(':sharedTest')
 
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.preference:preference:1.1.1'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
 
     // Android legacy support Libraries.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

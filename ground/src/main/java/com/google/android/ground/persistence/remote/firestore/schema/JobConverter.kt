@@ -18,19 +18,21 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Task
+import com.google.common.collect.ImmutableMap
 
 /** Converts between Firestore documents and [Job] instances.  */
 internal object JobConverter {
 
     @JvmStatic
     fun toJob(id: String, obj: JobNestedObject): Job {
-        val builder = Job.newBuilder()
-        builder.setId(id).setName(obj.name)
-        if (obj.tasks != null) {
-            obj.tasks.entries.map { (key, value): Map.Entry<String, TaskNestedObject> ->
-                TaskConverter.toTask(key, value)
-            }.forEach { it.ifPresent { task: Task -> builder.addTask(task) } }
+        val taskMap = ImmutableMap.builder<String, Task>()
+        obj.tasks?.let {
+            it.entries.map { (key, value) ->
+                TaskConverter.toTask(key, value).ifPresent { task ->
+                    taskMap.put(task.id, task)
+                }
+            }
         }
-        return builder.build()
+        return Job(id, obj.name, taskMap.build())
     }
 }

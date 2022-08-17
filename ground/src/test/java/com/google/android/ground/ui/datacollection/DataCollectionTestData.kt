@@ -22,6 +22,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.Task
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 import java.util.*
 
@@ -46,7 +48,7 @@ object DataCollectionTestData {
             LocationOfInterest(
                 loiId,
                 survey,
-                Job.newBuilder().setName(jobName).setId("jobId").build(),
+                Job(name = jobName, id = "jobId"),
                 null,
                 loiName,
                 auditInfo,
@@ -57,24 +59,10 @@ object DataCollectionTestData {
         .setCreated(auditInfo)
         .setLastModified(auditInfo)
         .setJob(
-            Job.newBuilder().setId("taskId")
-                .addTask(
-                    Task.newBuilder()
-                        .setId("field id")
-                        .setLabel("field")
-                        .setIndex(0)
-                        .setRequired(true)
-                        .setType(Task.Type.MULTIPLE_CHOICE).build()
-                )
-                .addTask(
-                    Task.newBuilder()
-                        .setId("field id 2")
-                        .setLabel("field 2")
-                        .setIndex(1)
-                        .setRequired(true)
-                        .setType(Task.Type.PHOTO).build()
-                )
-                .build()
-        )
-        .build()
+            Job(id = "taskId",
+                tasks = ImmutableMap.of(
+                    "field id",
+                    Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
+                    "field id 2",
+                    Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)))).build()
 }

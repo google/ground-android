@@ -70,13 +70,7 @@ public class ResponseJsonConverterTest {
     Object dateObject = ResponseJsonConverter.toJsonObject(new DateResponse(DATE));
     Optional<Response> response =
         ResponseJsonConverter.toResponse(
-            Task.newBuilder()
-                .setId("1")
-                .setLabel("date")
-                .setIndex(0)
-                .setRequired(true)
-                .setType(Task.Type.DATE)
-                .build(),
+            new Task("1", 0, Task.Type.DATE, "date", true),
             dateObject);
     assertThat(((DateResponse) response.get()).getDate()).isEqualTo(DATE);
   }
@@ -86,13 +80,7 @@ public class ResponseJsonConverterTest {
     Object timeObject = ResponseJsonConverter.toJsonObject(new TimeResponse(DATE));
     Optional<Response> response =
         ResponseJsonConverter.toResponse(
-            Task.newBuilder()
-                .setId("2")
-                .setLabel("time")
-                .setIndex(1)
-                .setRequired(true)
-                .setType(Task.Type.TIME)
-                .build(),
+            new Task("2", 1, Task.Type.TIME, "time", true),
             timeObject);
     assertThat(((TimeResponse) response.get()).getTime()).isEqualTo(DATE);
   }

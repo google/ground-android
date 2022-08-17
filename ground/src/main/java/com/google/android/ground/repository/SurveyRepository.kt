@@ -107,7 +107,7 @@ class SurveyRepository @Inject constructor(
         for (job in survey.jobs) {
             jobs.put(
                 job.id,
-                job.toBuilder().setUserCanAdd(getAddableLocationOfInterestTypes(userRole)).build()
+                job
             )
         }
         return survey.toBuilder().setJobMap(jobs.build()).build()
@@ -151,11 +151,6 @@ class SurveyRepository @Inject constructor(
         remoteDataStore
             .loadSurveySummaries(user)
             .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
-
-    fun getModifiableJobs(survey: Survey): ImmutableList<Job> =
-        survey.jobs
-            .filter { !it.userCanAdd.isEmpty() }
-            .toImmutableList()
 
     fun getMutationsOnceAndStream(survey: Survey): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
         return localDataStore.getMutationsOnceAndStream(survey)
