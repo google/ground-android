@@ -97,12 +97,12 @@ public class SubmissionConverterTest {
             MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
-    setUpTestFeature("feature001");
+    setUpTestLoi("loi001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
         new SubmissionDocument(
-            /* featureId */
-            "feature001",
+            /* loiId */
+            "loi001",
             /* taskId */
             "task001",
             /* created */
@@ -144,14 +144,14 @@ public class SubmissionConverterTest {
   }
 
   @Test
-  public void testToSubmission_mismatchedFeatureId() {
+  public void testToSubmission_mismatchedloiId() {
     setUpTestSurvey("job001", newTask("task1"));
-    setUpTestFeature("feature001");
+    setUpTestLoi("loi001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
         new SubmissionDocument(
-            /* featureId */
-            "feature999",
+            /* loiId */
+            "loi999",
             /* taskId */
             "task001",
             /* created */
@@ -167,12 +167,12 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_nullResponses() {
     setUpTestSurvey("job001", newTask("task1"));
-    setUpTestFeature("feature001");
+    setUpTestLoi("loi001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
         new SubmissionDocument(
-            /* featureId */
-            "feature001",
+            /* loiId */
+            "loi001",
             /* taskId */
             "task001",
             /* created */
@@ -197,12 +197,12 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyTextResponse() {
     setUpTestSurvey("job001", newTask("task1"));
-    setUpTestFeature("feature001");
+    setUpTestLoi("loi001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
         new SubmissionDocument(
-            /* featureId */
-            "feature001",
+            /* loiId */
+            "loi001",
             /* taskId */
             "task001",
             /* created */
@@ -227,12 +227,12 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_emptyMultipleChoiceResponse() {
     setUpTestSurvey("job001", newTask("task1"));
-    setUpTestFeature("feature001");
+    setUpTestLoi("loi001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
         new SubmissionDocument(
-            /* featureId */
-            "feature001",
+            /* loiId */
+            "loi001",
             /* taskId */
             "task001",
             /* created */
@@ -265,12 +265,12 @@ public class SubmissionConverterTest {
   @Test
   public void testToSubmission_unknownFieldType() {
     setUpTestSurvey("job001", newTask("task1", Task.Type.UNKNOWN), newTask("task2"));
-    setUpTestFeature("feature001");
+    setUpTestLoi("loi001");
     mockSubmissionDocumentSnapshot(
         SUBMISSION_ID,
         new SubmissionDocument(
-            /* featureId */
-            "feature001",
+            /* loiId */
+            "loi001",
             /* taskId */
             "task001",
             /* created */
@@ -297,10 +297,10 @@ public class SubmissionConverterTest {
                 .build());
   }
 
-  private void setUpTestFeature(String featureId) {
+  private void setUpTestLoi(String loiId) {
     locationOfInterest =
         new LocationOfInterest(
-            featureId,
+            loiId,
             survey,
             job,
             FakeData.POINT_OF_INTEREST.getCustomId(),
