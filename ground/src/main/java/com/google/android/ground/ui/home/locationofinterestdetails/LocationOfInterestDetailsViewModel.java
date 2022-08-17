@@ -121,7 +121,7 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
    */
   private boolean isMoveMenuOptionVisible(LocationOfInterest locationOfInterest) {
     return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest)
-        && locationOfInterest.isPoint();
+        && locationOfInterest.getType() == LocationOfInterestType.POINT;
   }
 
   private Flowable<ImmutableList<LocationOfInterestMutation>>

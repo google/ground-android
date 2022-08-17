@@ -42,10 +42,10 @@ public class SubmissionListViewModel extends AbstractViewModel {
   private final SubmissionRepository submissionRepository;
 
   @Hot
-  private FlowableProcessor<SubmissionListRequest> submissionListRequests =
+  private final FlowableProcessor<SubmissionListRequest> submissionListRequests =
       PublishProcessor.create();
 
-  private LiveData<ImmutableList<Submission>> submissionList;
+  private final LiveData<ImmutableList<Submission>> submissionList;
 
   @Inject
   public SubmissionListViewModel(SubmissionRepository submissionRepository) {

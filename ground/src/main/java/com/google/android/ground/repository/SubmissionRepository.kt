@@ -26,6 +26,7 @@ import com.google.android.ground.model.submission.ResponseDelta
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.DataSyncWorkManager
@@ -143,8 +144,8 @@ class SubmissionRepository @Inject constructor(
             }
     }
 
-    fun deleteSubmission(submission: Submission): @Cold Completable =
-        applyAndEnqueue(
+    fun deleteSubmission(submission: Submission): @Cold Completable {
+        return applyAndEnqueue(
             builder()
                 .setJob(submission.job)
                 .setSubmissionId(submission.id)
@@ -152,16 +153,19 @@ class SubmissionRepository @Inject constructor(
                 .setType(Mutation.Type.DELETE)
                 .setSyncStatus(SyncStatus.PENDING)
                 .setSurveyId(submission.survey.id)
-                .setLocationOfInterestId(submission.locationOfInterest.id)
+                .setLocationOfInterestId(
+                    submission.locationOfInterest.id
+                )
                 .setClientTimestamp(Date())
                 .setUserId(authManager.currentUser.id)
                 .build()
         )
+    }
 
     fun createOrUpdateSubmission(
         submission: Submission, responseDeltas: ImmutableList<ResponseDelta>, isNew: Boolean
-    ): @Cold Completable =
-        applyAndEnqueue(
+    ): @Cold Completable {
+        return applyAndEnqueue(
             builder()
                 .setJob(submission.job)
                 .setSubmissionId(submission.id)
@@ -174,6 +178,7 @@ class SubmissionRepository @Inject constructor(
                 .setUserId(authManager.currentUser.id)
                 .build()
         )
+    }
 
     private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
         localDataStore

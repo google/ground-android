@@ -16,16 +16,14 @@
 
 package com.google.android.ground.ui.common;
 
-import static com.google.android.ground.test.FakeData.AREA_OF_INTEREST;
-import static com.google.android.ground.test.FakeData.POINT_OF_INTEREST;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.test.FakeData;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -41,11 +39,16 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetCreatedBy() {
-    PointOfInterest feature =
-        POINT_OF_INTEREST.toBuilder()
-            .setCreated(AuditInfo.now(new User("", "", "Test User")))
-            .build();
-
+    LocationOfInterest feature =
+        new LocationOfInterest(
+            FakeData.POINT_OF_INTEREST.getId(),
+            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getJob(),
+            FakeData.POINT_OF_INTEREST.getCustomId(),
+            FakeData.POINT_OF_INTEREST.getCaption(),
+            AuditInfo.now(new User("", "", "Test User")),
+            FakeData.POINT_OF_INTEREST.getLastModified(),
+            FakeData.POINT_OF_INTEREST.getGeometry());
     assertThat(featureHelper.getCreatedBy(Optional.of(feature))).isEqualTo("Added by Test User");
   }
 
@@ -61,33 +64,76 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPoint() {
-    PointOfInterest feature = POINT_OF_INTEREST.toBuilder().setCaption("").build();
+    LocationOfInterest feature =
+        new LocationOfInterest(
+            FakeData.POINT_OF_INTEREST.getId(),
+            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getJob(),
+            FakeData.POINT_OF_INTEREST.getCustomId(),
+            "",
+            FakeData.POINT_OF_INTEREST.getCreated(),
+            FakeData.POINT_OF_INTEREST.getLastModified(),
+            FakeData.POINT_OF_INTEREST.getGeometry());
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPolygon() {
-    AreaOfInterest feature = AREA_OF_INTEREST.toBuilder().setCaption("").build();
+    LocationOfInterest feature =
+        new LocationOfInterest(
+            FakeData.AREA_OF_INTEREST.getId(),
+            FakeData.AREA_OF_INTEREST.getSurvey(),
+            FakeData.AREA_OF_INTEREST.getJob(),
+            FakeData.AREA_OF_INTEREST.getCustomId(),
+            "",
+            FakeData.AREA_OF_INTEREST.getCreated(),
+            FakeData.AREA_OF_INTEREST.getLastModified(),
+            FakeData.AREA_OF_INTEREST.getGeometry());
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
-    PointOfInterest feature = POINT_OF_INTEREST.toBuilder().setCaption("point caption").build();
+    LocationOfInterest feature =
+        new LocationOfInterest(
+            FakeData.POINT_OF_INTEREST.getId(),
+            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getJob(),
+            FakeData.POINT_OF_INTEREST.getCustomId(),
+            "point caption",
+            FakeData.POINT_OF_INTEREST.getCreated(),
+            FakeData.POINT_OF_INTEREST.getLastModified(),
+            FakeData.POINT_OF_INTEREST.getGeometry());
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
   }
 
   @Test
   public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
-    AreaOfInterest feature = AREA_OF_INTEREST.toBuilder().setCaption("polygon caption").build();
+    LocationOfInterest feature =
+        new LocationOfInterest(
+            FakeData.AREA_OF_INTEREST.getId(),
+            FakeData.AREA_OF_INTEREST.getSurvey(),
+            FakeData.AREA_OF_INTEREST.getJob(),
+            FakeData.AREA_OF_INTEREST.getCustomId(),
+            "polygon caption",
+            FakeData.AREA_OF_INTEREST.getCreated(),
+            FakeData.AREA_OF_INTEREST.getLastModified(),
+            FakeData.AREA_OF_INTEREST.getGeometry());
     assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
   }
 
   @Test
   public void testGetSubtitle() {
-    PointOfInterest feature =
-        POINT_OF_INTEREST.toBuilder().setJob(new Job("jobId", "some job")).build();
-
+    LocationOfInterest feature =
+        new LocationOfInterest(
+            FakeData.POINT_OF_INTEREST.getId(),
+            FakeData.POINT_OF_INTEREST.getSurvey(),
+            new Job("jobId", "some job"),
+            FakeData.POINT_OF_INTEREST.getCustomId(),
+            FakeData.POINT_OF_INTEREST.getCaption(),
+            FakeData.POINT_OF_INTEREST.getCreated(),
+            FakeData.POINT_OF_INTEREST.getLastModified(),
+            FakeData.POINT_OF_INTEREST.getGeometry());
     assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
   }
 

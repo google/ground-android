@@ -29,10 +29,10 @@ import androidx.room.PrimaryKey;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
+import com.google.android.ground.model.locationofinterest.GeometryExtensionsKt;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.local.room.models.Coordinates;
@@ -44,6 +44,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import java.util.List;
 import java8.util.stream.Collectors;
+import org.locationtech.jts.geom.Geometry;
 
 /**
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields
@@ -128,11 +129,10 @@ public abstract class LocationOfInterestEntity {
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(locationOfInterest.getCreated()))
             .setLastModified(AuditInfoEntity.fromObject(locationOfInterest.getLastModified()));
-    if (locationOfInterest instanceof PointOfInterest) {
-      entity.setLocation(Coordinates.fromPoint(((PointOfInterest) locationOfInterest).getPoint()));
-    } else if (locationOfInterest instanceof AreaOfInterest) {
-      entity.setPolygonVertices(
-          formatVertices(((AreaOfInterest) locationOfInterest).getVertices()));
+    if (locationOfInterest.getType() == LocationOfInterestType.POINT) {
+      entity.setLocation(Coordinates.fromPoint(locationOfInterest.getCoordinatesAsPoint()));
+    } else {
+      entity.setPolygonVertices(formatVertices(locationOfInterest.getCoordinatesAsPoints()));
     }
     return entity.build();
   }
@@ -140,18 +140,18 @@ public abstract class LocationOfInterestEntity {
   public static LocationOfInterest toLocationOfInterest(
       LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
     if (locationOfInterestEntity.getLocation() != null) {
-      PointOfInterest.Builder builder =
-          PointOfInterest.newBuilder().setPoint(locationOfInterestEntity.getLocation().toPoint());
-      fillLocationOfInterest(builder, locationOfInterestEntity, survey);
-      return builder.build();
+      return fillLocationOfInterest(
+          locationOfInterestEntity,
+          survey,
+          locationOfInterestEntity.getLocation().toPoint().toGeometry());
     }
 
     if (locationOfInterestEntity.getPolygonVertices() != null) {
-      AreaOfInterest.Builder builder =
-          AreaOfInterest.newBuilder()
-              .setVertices(parseVertices(locationOfInterestEntity.getPolygonVertices()));
-      fillLocationOfInterest(builder, locationOfInterestEntity, survey);
-      return builder.build();
+      return fillLocationOfInterest(
+          locationOfInterestEntity,
+          survey,
+          GeometryExtensionsKt.toPolygon(
+              parseVertices(locationOfInterestEntity.getPolygonVertices())));
     }
 
     throw new LocalDataConsistencyException(
@@ -186,10 +186,8 @@ public abstract class LocationOfInterestEntity {
         .collect(toImmutableList());
   }
 
-  public static void fillLocationOfInterest(
-      LocationOfInterest.Builder builder,
-      LocationOfInterestEntity locationOfInterestEntity,
-      Survey survey) {
+  public static LocationOfInterest fillLocationOfInterest(
+      LocationOfInterestEntity locationOfInterestEntity, Survey survey, Geometry geometry) {
     String id = locationOfInterestEntity.getId();
     String jobId = locationOfInterestEntity.getJobId();
     Job job =
@@ -199,12 +197,15 @@ public abstract class LocationOfInterestEntity {
                 () ->
                     new LocalDataConsistencyException(
                         "Unknown jobId " + jobId + " in location of interest " + id));
-    builder
-        .setId(id)
-        .setSurvey(survey)
-        .setJob(job)
-        .setCreated(AuditInfoEntity.toObject(locationOfInterestEntity.getCreated()))
-        .setLastModified(AuditInfoEntity.toObject(locationOfInterestEntity.getLastModified()));
+    return new LocationOfInterest(
+        id,
+        survey,
+        job,
+        null,
+        null,
+        AuditInfoEntity.toObject(locationOfInterestEntity.getCreated()),
+        AuditInfoEntity.toObject(locationOfInterestEntity.getLastModified()),
+        geometry);
   }
 
   public abstract LocationOfInterestEntity.Builder toBuilder();

@@ -16,15 +16,12 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.AreaOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.PointOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.DataStoreException.checkNotNull
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
-import com.google.android.ground.util.toImmutableList
 import com.google.firebase.firestore.DocumentSnapshot
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.geom.GeometryFactory
 
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
@@ -37,52 +34,35 @@ object LoiConverter {
     const val POLYGON_TYPE = "Polygon"
     const val GEOMETRY_COORDINATES = "coordinates"
     const val GEOMETRY = "geometry"
+    private val geometryFactory = GeometryFactory()
 
     @JvmStatic
     @Throws(DataStoreException::class, NotImplementedError::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiId = doc.id
-        val loiDoc = checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
-        val geometryMap = checkNotNull(loiDoc.geometry, "geometry")
+        val loiDoc =
+            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
+        val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
         // TODO: Return `Result` instead of throwing exception.
-        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
+        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).map {
+            when (it.geometryType) {
+                "Point" -> geometryFactory.createPoint(it.coordinate)
+                "Polygon" -> geometryFactory.createPolygon(it.coordinates)
+                "MultiPolygon" -> TODO("Implement model for multipolygons")
+                else -> throw DataStoreException("Unsupported geometry: $it")
+            }
+        }.getOrThrow()
 
-        // As an interim solution, we map geometries to existing LOI types.
-        // TODO: Get rid of LOI subclasses and just use Geometry on LOI class.
-        when (geometry.geometryType) {
-            "Point" -> {
-                val builder = PointOfInterest.newBuilder()
-                builder.setPoint(
-                    Point.newBuilder().setLatitude(geometry.coordinate.x)
-                        .setLongitude(geometry.coordinate.y).build()
-                )
-                fillLocationOfInterest(builder, survey, loiId, loiDoc)
-                return builder.build()
-            }
-            "Polygon" -> {
-                val builder = AreaOfInterest.newBuilder()
-                builder.setVertices(geometry.coordinates.map {
-                    Point.newBuilder().setLatitude(it.x).setLongitude(it.y).build()
-                }.toImmutableList())
-                fillLocationOfInterest(builder, survey, loiId, loiDoc)
-                return builder.build()
-            }
-            "MultiPolygon" -> {
-                TODO("Implement model for multipolygons.")
-            }
-            else -> {
-                throw DataStoreException("Unsupported geometry $geometry")
-            }
-        }
+        return createLocationOfInterest(survey, loiId, loiDoc, geometry)
     }
 
-    private fun fillLocationOfInterest(
-        builder: LocationOfInterest.Builder,
+    private fun createLocationOfInterest(
         survey: Survey,
         loiId: String,
-        loiDoc: LoiDocument
-    ) {
-        val jobId = checkNotNull(loiDoc.jobId, JOB_ID)
+        loiDoc: LoiDocument,
+        geometry: Geometry
+    ): LocationOfInterest {
+        val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
         val job =
             DataStoreException.checkNotEmpty(
                 survey.getJob(jobId),
@@ -91,13 +71,15 @@ object LoiConverter {
         // Degrade gracefully when audit info missing in remote db.
         val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
         val lastModified = loiDoc.lastModified ?: created
-        builder
-            .setId(loiId)
-            .setSurvey(survey)
-            .setCustomId(loiDoc.customId)
-            .setCaption(loiDoc.caption)
-            .setJob(job)
-            .setCreated(AuditInfoConverter.toAuditInfo(created))
-            .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
+        return LocationOfInterest(
+            id = loiId,
+            survey = survey,
+            customId = loiDoc.customId,
+            caption = loiDoc.caption,
+            job = job,
+            created = AuditInfoConverter.toAuditInfo(created),
+            lastModified = AuditInfoConverter.toAuditInfo(lastModified),
+            geometry = geometry,
+        )
     }
 }

@@ -54,7 +54,7 @@ class DataCollectionViewModel @Inject internal constructor(
 
         jobName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
             submission.value().map {
-                it.locationOfInterest.job.name
+                it.locationOfInterest.job?.name
             }.orElse("")
         })
 

@@ -31,7 +31,7 @@ import java8.util.function.Consumer;
 
 public abstract class SelectDialogFactory {
 
-  protected ImmutableList<Option> getOptions() {
+  private kotlinx.collections.immutable.ImmutableList<Option> getOptions() {
     return getMultipleChoice().getOptions();
   }
 
