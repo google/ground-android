@@ -43,14 +43,14 @@ public class LocationOfInterestDataTypeSelectorDialogFragmentTest extends BaseHi
   private LocationOfInterestDataTypeSelectorDialogFragment
       locationOfInterestDataTypeSelectorDialogFragment;
 
-  private Consumer<Integer> onSelectFeatureDataType;
+  private Consumer<Integer> onSelectLoiDataType;
   private int selectedPosition = -1;
 
   @Before
   public void setUp() {
     super.setUp();
 
-    onSelectFeatureDataType = integer -> selectedPosition = integer;
+    onSelectLoiDataType = integer -> selectedPosition = integer;
 
     setUpFragment();
   }
@@ -61,7 +61,7 @@ public class LocationOfInterestDataTypeSelectorDialogFragmentTest extends BaseHi
     MainActivity activity = activityController.setup().get();
 
     locationOfInterestDataTypeSelectorDialogFragment =
-        new LocationOfInterestDataTypeSelectorDialogFragment(onSelectFeatureDataType);
+        new LocationOfInterestDataTypeSelectorDialogFragment(onSelectLoiDataType);
 
     locationOfInterestDataTypeSelectorDialogFragment.showNow(
         activity.getSupportFragmentManager(), SurveySelectorDialogFragment.class.getSimpleName());
