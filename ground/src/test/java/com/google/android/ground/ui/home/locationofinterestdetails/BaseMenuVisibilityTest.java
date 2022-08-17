@@ -74,7 +74,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
         FakeData.POINT_OF_INTEREST.getGeometry());
   }
 
-  static LocationOfInterest createAreaOnInterest(User user) {
+  static LocationOfInterest createAreaOfInterest(User user) {
     return new LocationOfInterest(
         FakeData.AREA_OF_INTEREST.getId(),
         TEST_SURVEY,

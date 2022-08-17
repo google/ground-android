@@ -48,13 +48,13 @@ public class MoveMenuVisibilityTest extends BaseMenuVisibilityTest {
       {TEST_USER_CONTRIBUTOR, createPointOfInterest(TEST_USER_UNKNOWN), false},
 
       // Polygon locationOfInterest created by some other user
-      {TEST_USER_OWNER, createAreaOnInterest(TEST_USER_UNKNOWN), false},
-      {TEST_USER_MANAGER, createAreaOnInterest(TEST_USER_UNKNOWN), false},
-      {TEST_USER_CONTRIBUTOR, createAreaOnInterest(TEST_USER_UNKNOWN), false},
+      {TEST_USER_OWNER, createAreaOfInterest(TEST_USER_UNKNOWN), false},
+      {TEST_USER_MANAGER, createAreaOfInterest(TEST_USER_UNKNOWN), false},
+      {TEST_USER_CONTRIBUTOR, createAreaOfInterest(TEST_USER_UNKNOWN), false},
 
       // Current user created the selected locationOfInterest
       {TEST_USER_CONTRIBUTOR, createPointOfInterest(TEST_USER_CONTRIBUTOR), true},
-      {TEST_USER_CONTRIBUTOR, createAreaOnInterest(TEST_USER_CONTRIBUTOR), false},
+      {TEST_USER_CONTRIBUTOR, createAreaOfInterest(TEST_USER_CONTRIBUTOR), false},
     };
     return Arrays.asList(data);
   }
