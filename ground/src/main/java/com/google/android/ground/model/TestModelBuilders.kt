@@ -15,12 +15,14 @@
  */
 package com.google.android.ground.model
 
+import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
+import com.google.firebase.firestore.GeoPoint
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.locationofinterest.PointOfInterest
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
+import kotlin.jvm.JvmOverloads
+import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
-import com.google.firebase.firestore.GeoPoint
 import java.util.*
 
 /**
@@ -30,8 +32,7 @@ import java.util.*
  */
 object TestModelBuilders {
     @JvmStatic
-    fun newSurvey(): Survey.Builder =
-        Survey.newBuilder().setId("").setTitle("").setDescription("")
+    fun newSurvey(): Survey.Builder = Survey.newBuilder().setId("").setTitle("").setDescription("")
 
     @JvmStatic
     fun newAuditInfo(): AuditInfo.Builder =
@@ -39,42 +40,33 @@ object TestModelBuilders {
             User("", "", "")
         )
 
-    private fun newPoint(): Point.Builder =
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0)
+    private fun newPoint(): Point.Builder = Point.newBuilder().setLatitude(0.0).setLongitude(0.0)
 
-    private fun newGeoPoint(): GeoPoint =
-        GeoPoint(0.0, 0.0)
+    private fun newGeoPoint(): GeoPoint = GeoPoint(0.0, 0.0)
 
     @JvmStatic
-    fun newGeoPointPolygonVertices(): ImmutableList<GeoPoint> {
-        return ImmutableList.builder<GeoPoint>()
-            .add(newGeoPoint())
-            .add(newGeoPoint())
-            .add(newGeoPoint())
-            .build()
-    }
+    fun newGeoPointPolygonVertices(): ImmutableList<GeoPoint> = ImmutableList.builder<GeoPoint>()
+        .add(newGeoPoint())
+        .add(newGeoPoint())
+        .add(newGeoPoint())
+        .build()
 
     @JvmStatic
-    fun newPointOfInterest(): PointOfInterest.Builder {
-        return newBuilder()
-            .setId("")
-            .setSurvey(newSurvey().build())
-            .setPoint(newPoint().build())
-            .setCreated(newAuditInfo().build())
-            .setLastModified(newAuditInfo().build())
-    }
+    fun newPointOfInterest(): PointOfInterest.Builder = newBuilder()
+        .setId("")
+        .setSurvey(newSurvey().build())
+        .setPoint(newPoint().build())
+        .setCreated(newAuditInfo().build())
+        .setLastModified(newAuditInfo().build())
 
     @JvmStatic
     fun newTermsOfService(): TermsOfService.Builder =
         TermsOfService.builder().setId("").setText("")
 
-    @JvmStatic
-    fun newTask(): Task.Builder {
-        return Task.newBuilder()
-            .setId("")
-            .setIndex(0)
-            .setType(Task.Type.TEXT_FIELD)
-            .setLabel("")
-            .setRequired(false)
-    }
+    @JvmOverloads
+    fun newTask(
+        id: String = "",
+        type: Task.Type = Task.Type.TEXT_FIELD,
+        multipleChoice: MultipleChoice? = null
+    ): Task = Task(id, 0, type, "", false, multipleChoice)
 }
