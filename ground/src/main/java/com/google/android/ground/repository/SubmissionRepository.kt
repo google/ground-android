@@ -129,7 +129,7 @@ class SubmissionRepository @Inject constructor(
         jobId: String
     ): @Cold Single<Submission> {
         // TODO: Very jobId == loi job id.
-        val auditInfo = AuditInfo.now(authManager.currentUser)
+        val auditInfo = AuditInfo(authManager.currentUser)
         return locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
             .map { locationOfInterest: LocationOfInterest ->

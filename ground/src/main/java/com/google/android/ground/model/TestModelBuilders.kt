@@ -15,12 +15,10 @@
  */
 package com.google.android.ground.model
 
-import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
 import com.google.firebase.firestore.GeoPoint
-import java.util.*
 
 /**
  * Helper methods for building model objects for use in tests. Method return builders with required
@@ -30,12 +28,6 @@ import java.util.*
 object TestModelBuilders {
     @JvmStatic
     fun newSurvey(): Survey.Builder = Survey.newBuilder().setId("").setTitle("").setDescription("")
-
-    @JvmStatic
-    fun newAuditInfo(): AuditInfo.Builder =
-        AuditInfo.builder().setClientTimestamp(Date(0)).setUser(
-            User("", "", "")
-        )
 
     private fun newGeoPoint(): GeoPoint = GeoPoint(0.0, 0.0)
 

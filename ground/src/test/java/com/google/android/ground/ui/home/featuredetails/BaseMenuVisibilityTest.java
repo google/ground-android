@@ -70,7 +70,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
         FakeData.POINT_OF_INTEREST.getJob(),
         FakeData.POINT_OF_INTEREST.getCustomId(),
         FakeData.POINT_OF_INTEREST.getCaption(),
-        AuditInfo.now(user),
+        new AuditInfo(user),
         FakeData.POINT_OF_INTEREST.getLastModified(),
         FakeData.POINT_OF_INTEREST.getGeometry());
   }
@@ -82,7 +82,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
         FakeData.AREA_OF_INTEREST.getJob(),
         FakeData.AREA_OF_INTEREST.getCustomId(),
         FakeData.AREA_OF_INTEREST.getCaption(),
-        AuditInfo.now(user),
+        new AuditInfo(user),
         FakeData.AREA_OF_INTEREST.getLastModified(),
         FakeData.AREA_OF_INTEREST.getGeometry());
   }
