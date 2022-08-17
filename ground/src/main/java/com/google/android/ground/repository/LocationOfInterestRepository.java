@@ -199,8 +199,8 @@ public class LocationOfInterestRepository {
         MutationEntitySyncStatus.FAILED);
   }
 
-  public boolean isPolygonDialogInfoShown() {
-    return localValueStore.isPolygonDialogInfoShown();
+  public boolean isPolygonInfoDialogShown() {
+    return localValueStore.isPolygonInfoDialogShown();
   }
 
   public void setPolygonDialogInfoShown(boolean value) {

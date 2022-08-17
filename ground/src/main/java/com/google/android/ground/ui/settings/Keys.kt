@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.settings
 
-package com.google.android.ground.ui.map;
+/** These keys should match 1:1 in res/xml/preferences.xml. */
+object Keys {
 
-import com.google.android.ground.model.locationofinterest.Point;
+    // General
+    const val UPLOAD_MEDIA = "upload_media"
+    const val OFFLINE_AREAS = "offline_areas"
 
-public class CameraPosition {
+    // Help
+    const val VISIT_WEBSITE = "visit_website"
+    const val FEEDBACK = "feedback"
 
-  private final Point target;
-  private final Float zoomLevel;
-
-  public CameraPosition(Point target, Float zoomLevel) {
-    this.target = target;
-    this.zoomLevel = zoomLevel;
-  }
-
-  public Point getTarget() {
-    return target;
-  }
-
-  public Float getZoomLevel() {
-    return zoomLevel;
-  }
-
-  public String toString() {
-    return "Position: " + target + " Zoom level: " + zoomLevel;
-  }
+    @JvmField
+    val ALL_KEYS = arrayOf(UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK)
 }
