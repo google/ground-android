@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model
 
-import com.google.auto.value.AutoValue
 import java8.util.Optional
 import java.util.Date
 
@@ -29,7 +28,6 @@ import java.util.Date
  * @property serverTimestamp the time at which the server received the requested change according to
  * the server's internal clock, or empty if the updated server time was not yet received.
  */
-@AutoValue
 data class AuditInfo @JvmOverloads constructor(
     val user: User,
     val clientTimestamp: Date = Date(),
