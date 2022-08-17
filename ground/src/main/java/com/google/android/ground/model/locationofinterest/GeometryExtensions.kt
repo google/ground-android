@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.locationofinterest
 
-package com.google.android.ground.ui.map;
+import com.google.common.collect.ImmutableList
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Polygon
 
-import com.google.android.ground.model.locationofinterest.Point;
-
-public class CameraPosition {
-
-  private final Point target;
-  private final Float zoomLevel;
-
-  public CameraPosition(Point target, Float zoomLevel) {
-    this.target = target;
-    this.zoomLevel = zoomLevel;
-  }
-
-  public Point getTarget() {
-    return target;
-  }
-
-  public Float getZoomLevel() {
-    return zoomLevel;
-  }
-
-  public String toString() {
-    return "Position: " + target + " Zoom level: " + zoomLevel;
-  }
+fun ImmutableList<Point>.toPolygon(): Polygon {
+    val geometryFactory = GeometryFactory()
+    val coords = this.map { it.toGeometry().coordinate }
+    return geometryFactory.createPolygon(coords.toTypedArray())
 }

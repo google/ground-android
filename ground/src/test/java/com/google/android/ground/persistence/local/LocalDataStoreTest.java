@@ -28,10 +28,9 @@ import com.google.android.ground.model.basemap.OfflineArea;
 import com.google.android.ground.model.basemap.tile.TileSet;
 import com.google.android.ground.model.basemap.tile.TileSet.State;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.AreaOfInterest;
+import com.google.android.ground.model.locationofinterest.GeometryExtensionsKt;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.model.locationofinterest.PointOfInterest;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.mutation.Mutation.SyncStatus;
@@ -70,7 +69,9 @@ public class LocalDataStoreTest extends BaseHiltTest {
   private static final Task TEST_TASK = new Task("task id", 1, Type.TEXT, "task label", false);
 
   private static final Job TEST_JOB =
-      new Job("job id", "heading title",
+      new Job(
+          "job id",
+          "heading title",
           ImmutableMap.<String, Task>builder().put(TEST_TASK.getId(), TEST_TASK).build());
 
   private static final Survey TEST_SURVEY =
@@ -94,6 +95,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .add(Point.newBuilder().setLatitude(49.872919).setLongitude(8.651628).build())
           .add(Point.newBuilder().setLatitude(49.873164).setLongitude(8.653515).build())
           .add(Point.newBuilder().setLatitude(49.874343).setLongitude(8.653038).build())
+          .add(Point.newBuilder().setLatitude(49.874502).setLongitude(8.655993).build())
           .build();
 
   private static final ImmutableList<Point> TEST_POLYGON_2 =
@@ -103,6 +105,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .add(Point.newBuilder().setLatitude(49.864664).setLongitude(8.650387).build())
           .add(Point.newBuilder().setLatitude(49.863102).setLongitude(8.650445).build())
           .add(Point.newBuilder().setLatitude(49.863051).setLongitude(8.647306).build())
+          .add(Point.newBuilder().setLatitude(49.865374).setLongitude(8.646920).build())
           .build();
 
   private static final LocationOfInterestMutation TEST_FEATURE_MUTATION =
@@ -166,14 +169,10 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setName("Test Area")
           .build();
 
-  @Inject
-  LocalDataStore localDataStore;
-  @Inject
-  LocalValueStore localValueStore;
-  @Inject
-  SubmissionDao submissionDao;
-  @Inject
-  LocationOfInterestDao locationOfInterestDao;
+  @Inject LocalDataStore localDataStore;
+  @Inject LocalValueStore localValueStore;
+  @Inject SubmissionDao submissionDao;
+  @Inject LocationOfInterestDao locationOfInterestDao;
 
   private static LocationOfInterestMutation createTestLocationOfInterestMutation(Point point) {
     return LocationOfInterestMutation.builder()
@@ -289,7 +288,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(feature -> ((PointOfInterest) feature).getPoint().equals(TEST_POINT));
+        .assertValue(feature -> feature.getCoordinatesAsPoint().equals(TEST_POINT));
   }
 
   @Test
@@ -308,7 +307,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(feature -> ((AreaOfInterest) feature).getVertices().equals(TEST_POLYGON_1));
+        .assertValue(feature -> feature.getCoordinatesAsPoints().equals(TEST_POLYGON_1));
   }
 
   @Test
@@ -323,8 +322,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    PointOfInterest feature =
-        (PointOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
 
     subscriber.assertValueSet(ImmutableSet.of(ImmutableSet.of(), ImmutableSet.of(feature)));
   }
@@ -377,15 +376,24 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    PointOfInterest feature =
-        (PointOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
-    feature = feature.toBuilder().setPoint(TEST_POINT_2).build();
-    localDataStore.mergeLocationOfInterest(feature).test().assertComplete();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest newFeature =
+        feature.copy(
+            feature.getId(),
+            feature.getSurvey(),
+            feature.getJob(),
+            feature.getCustomId(),
+            feature.getCaption(),
+            feature.getCreated(),
+            feature.getLastModified(),
+            TEST_POINT_2.toGeometry());
+    localDataStore.mergeLocationOfInterest(newFeature).test().assertComplete();
 
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(newFeature -> ((PointOfInterest) newFeature).getPoint().equals(TEST_POINT_2));
+        .assertValue(it -> it.getCoordinatesAsPoint().equals(TEST_POINT_2));
   }
 
   @Test
@@ -394,16 +402,24 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_POLYGON_FEATURE_MUTATION).blockingAwait();
 
-    AreaOfInterest feature =
-        (AreaOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
-    feature = feature.toBuilder().setVertices(TEST_POLYGON_2).build();
-    localDataStore.mergeLocationOfInterest(feature).test().assertComplete();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest newFeature =
+        feature.copy(
+            feature.getId(),
+            feature.getSurvey(),
+            feature.getJob(),
+            feature.getCustomId(),
+            feature.getCaption(),
+            feature.getCreated(),
+            feature.getLastModified(),
+            GeometryExtensionsKt.toPolygon(TEST_POLYGON_2));
+    localDataStore.mergeLocationOfInterest(newFeature).test().assertComplete();
 
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(
-            newFeature -> ((AreaOfInterest) newFeature).getVertices().equals(TEST_POLYGON_2));
+        .assertValue(it -> it.getCoordinatesAsPoints().equals(TEST_POLYGON_2));
   }
 
   @Test
@@ -419,8 +435,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .test()
         .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_SUBMISSION_MUTATION));
 
-    PointOfInterest feature =
-        (PointOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
     Submission submission = localDataStore.getSubmission(feature, "submission id").blockingGet();
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission);
 
@@ -463,8 +479,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait();
-    PointOfInterest feature =
-        (PointOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
 
     ResponseMap responseMap =
         ResponseMap.builder()
@@ -509,8 +525,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
         .assertValue(submissionEntity -> submissionEntity.getState() == EntityState.DELETED);
 
     // Verify that the local submission doesn't end up in getSubmissions().
-    PointOfInterest feature =
-        (PointOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
     localDataStore.getSubmissions(feature, "task id").test().assertValue(ImmutableList.of());
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
@@ -532,8 +548,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
         localDataStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test();
 
     // Assert that one feature is streamed.
-    PointOfInterest feature =
-        (PointOfInterest) localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
+    LocationOfInterest feature =
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
     subscriber.assertValueAt(0, ImmutableSet.of(feature));
 
     LocationOfInterestMutation mutation =
