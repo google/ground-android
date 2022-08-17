@@ -32,6 +32,7 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
 import dagger.hilt.android.AndroidEntryPoint;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @AndroidEntryPoint
 public class SubmissionListFragment extends AbstractFragment {
@@ -87,6 +88,11 @@ public class SubmissionListFragment extends AbstractFragment {
   }
 
   private void onItemClick(Submission submission) {
+    if (submission.getLocationOfInterest().getId() == null) {
+      Timber.e("LOI had no id");
+      return;
+    }
+
     navigator.navigate(
         HomeScreenFragmentDirections.showSubmissionDetails(
             submission.getSurvey().getId(),

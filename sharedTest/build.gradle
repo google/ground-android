@@ -56,4 +56,7 @@ dependencies {
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+
+    // JTS
+    implementation "org.locationtech.jts:jts-core:1.19.0"
 }

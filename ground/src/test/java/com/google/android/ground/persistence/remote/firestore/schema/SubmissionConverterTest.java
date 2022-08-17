@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
-import static com.google.android.ground.model.TestModelBuilders.newPointOfInterest;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.android.ground.model.TestModelBuilders.newUser;
@@ -38,6 +37,7 @@ import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.MultipleChoice.Cardinality;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.persistence.remote.DataStoreException;
+import com.google.android.ground.test.FakeData;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.Timestamp;
@@ -299,7 +299,15 @@ public class SubmissionConverterTest {
 
   private void setUpTestFeature(String featureId) {
     locationOfInterest =
-        newPointOfInterest().setId(featureId).setSurvey(survey).setJob(job).build();
+        new LocationOfInterest(
+            featureId,
+            survey,
+            job,
+            FakeData.POINT_OF_INTEREST.getCustomId(),
+            FakeData.POINT_OF_INTEREST.getCaption(),
+            FakeData.POINT_OF_INTEREST.getCreated(),
+            FakeData.POINT_OF_INTEREST.getLastModified(),
+            FakeData.POINT_OF_INTEREST.getGeometry());
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */

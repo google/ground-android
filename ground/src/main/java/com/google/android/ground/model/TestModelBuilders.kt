@@ -15,14 +15,11 @@
  */
 package com.google.android.ground.model
 
-import com.google.android.ground.model.locationofinterest.PointOfInterest.Companion.newBuilder
-import com.google.firebase.firestore.GeoPoint
 import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.PointOfInterest
-import kotlin.jvm.JvmOverloads
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
+import com.google.firebase.firestore.GeoPoint
 import java.util.*
 
 /**
@@ -51,14 +48,6 @@ object TestModelBuilders {
         .add(newGeoPoint())
         .add(newGeoPoint())
         .build()
-
-    @JvmStatic
-    fun newPointOfInterest(): PointOfInterest.Builder = newBuilder()
-        .setId("")
-        .setSurvey(newSurvey().build())
-        .setPoint(newPoint().build())
-        .setCreated(newAuditInfo().build())
-        .setLastModified(newAuditInfo().build())
 
     @JvmStatic
     fun newTermsOfService(): TermsOfService.Builder =

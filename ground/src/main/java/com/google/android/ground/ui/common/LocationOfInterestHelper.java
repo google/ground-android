@@ -21,6 +21,7 @@ import com.google.android.ground.R;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +48,7 @@ public class LocationOfInterestHelper {
   }
 
   private String getLocationOfInterestType(LocationOfInterest locationOfInterest) {
-    if (locationOfInterest.isPolygon()) {
+    if (locationOfInterest.getType() == LocationOfInterestType.POLYGON) {
       return resources.getString(R.string.polygon);
     } else {
       return resources.getString(R.string.point);

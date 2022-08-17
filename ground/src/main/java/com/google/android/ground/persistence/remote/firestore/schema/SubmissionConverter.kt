@@ -45,7 +45,7 @@ internal object SubmissionConverter {
         val lastModified = Objects.requireNonNullElse(
             doc.lastModified, created
         )
-        val job = loi.job
+        val job = loi.job ?: throw DataStoreException("Location of interest is missing a job")
         return Submission.newBuilder()
             .setId(snapshot.id)
             .setSurvey(loi.survey)
