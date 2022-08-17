@@ -37,8 +37,6 @@ object TestModelBuilders {
             User("", "", "")
         )
 
-    private fun newPoint(): Point.Builder = Point.newBuilder().setLatitude(0.0).setLongitude(0.0)
-
     private fun newGeoPoint(): GeoPoint = GeoPoint(0.0, 0.0)
 
     @JvmStatic

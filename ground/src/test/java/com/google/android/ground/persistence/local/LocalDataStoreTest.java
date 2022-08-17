@@ -64,7 +64,7 @@ import org.robolectric.RobolectricTestRunner;
 public class LocalDataStoreTest extends BaseHiltTest {
 
   private static final User TEST_USER =
-      new User("user1", "user@gmail.com", "user 1");
+      new User("user id", "user@gmail.com", "user 1");
 
   private static final Task TEST_TASK =
       new Task("task id", 1, Type.TEXT_FIELD, "task label", false);
