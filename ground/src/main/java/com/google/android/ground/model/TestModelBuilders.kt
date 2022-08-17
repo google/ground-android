@@ -32,11 +32,10 @@ object TestModelBuilders {
     fun newSurvey(): Survey.Builder = Survey.newBuilder().setId("").setTitle("").setDescription("")
 
     @JvmStatic
-    fun newUser(): User.Builder = User.builder().setId("").setEmail("").setDisplayName("")
-
-    @JvmStatic
     fun newAuditInfo(): AuditInfo.Builder =
-        AuditInfo.builder().setClientTimestamp(Date(0)).setUser(newUser().build())
+        AuditInfo.builder().setClientTimestamp(Date(0)).setUser(
+            User("", "", "")
+        )
 
     private fun newPoint(): Point.Builder = Point.newBuilder().setLatitude(0.0).setLongitude(0.0)
 
@@ -53,7 +52,6 @@ object TestModelBuilders {
     fun newTermsOfService(): TermsOfService.Builder =
         TermsOfService.builder().setId("").setText("")
 
-    @JvmStatic
     @JvmOverloads
     fun newTask(
         id: String = "",
