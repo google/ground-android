@@ -13,122 +13,89 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local
 
-package com.google.android.ground.persistence.local;
-
-import static java8.util.J8Arrays.stream;
-
-import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.ui.map.CameraPosition;
-import com.google.android.ground.ui.settings.Keys;
-import java8.util.Optional;
-import java8.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import timber.log.Timber;
+import android.content.SharedPreferences
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.settings.Keys
+import java8.util.Optional
+import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * Simple value store persisted locally on device. Unlike {@link LocalDataStore}, this class
+ * Simple value store persisted locally on device. Unlike [LocalDataStore], this class
  * provides a concrete implementation using the Android SDK, and therefore does not require a
  * database-specific implementation.
  */
 @Singleton
-public class LocalValueStore {
+class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
 
-  public static final String ACTIVE_SURVEY_ID_KEY = "activeSurveyId";
-  public static final String MAP_TYPE = "map_type";
-  public static final String LAST_VIEWPORT_PREFIX = "last_viewport_";
-  public static final String TOS_ACCEPTED = "tos_accepted";
-  public static final String POLYGON_INFO_DIALOG = "polygon_info_dialog";
+    /** Id of the last survey successfully activated by the user. */
+    var lastActiveSurveyId: String
+        get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
+        set(id) {
+            preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
+        }
 
-  private final SharedPreferences preferences;
+    /** Id of the last basemap type. */
+    var lastMapType: Int
+        get() = preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID)
+        set(type) {
+            preferences.edit().putInt(MAP_TYPE, type).apply()
+        }
 
-  @Inject
-  public LocalValueStore(SharedPreferences preferences) {
-    this.preferences = preferences;
-  }
+    /** Terms of service acceptance state for the currently signed in user. */
+    var isTermsOfServiceAccepted: Boolean
+        get() = preferences.getBoolean(TOS_ACCEPTED, false)
+        set(value) {
+            preferences.edit().putBoolean(TOS_ACCEPTED, value).apply()
+        }
 
-  /** Returns the id of the last survey successfully activated by the user, or empty if not set. */
-  @NonNull
-  public String getLastActiveSurveyId() {
-    return preferences.getString(ACTIVE_SURVEY_ID_KEY, "");
-  }
+    /** Returns whether the polygon info dialog was previously shown to the user or not. */
+    var isPolygonInfoDialogShown: Boolean
+        get() = preferences.getBoolean(POLYGON_INFO_DIALOG, false)
+        set(value) {
+            preferences.edit().putBoolean(POLYGON_INFO_DIALOG, value).apply()
+        }
 
-  /** Set the id of the last survey successfully activated by the user. */
-  public void setLastActiveSurveyId(@NonNull String id) {
-    preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply();
-  }
-
-  /** Removes all values stored in the local store. */
-  public void clear() {
-    preferences.edit().clear().apply();
-  }
-
-  public boolean shouldUploadMediaOverUnmeteredConnectionOnly() {
-    return preferences.getBoolean(Keys.UPLOAD_MEDIA, false);
-  }
-
-  public boolean shouldDownloadOfflineAreasOverUnmeteredConnectionOnly() {
-    return preferences.getBoolean(Keys.OFFLINE_AREAS, false);
-  }
-
-  public void saveMapType(int type) {
-    preferences.edit().putInt(MAP_TYPE, type).apply();
-  }
-
-  public int getSavedMapType(int defaultType) {
-    return preferences.getInt(MAP_TYPE, defaultType);
-  }
-
-  public void setLastCameraPosition(String surveyId, CameraPosition cameraPosition) {
-    Double[] values = {
-      cameraPosition.getTarget().getLatitude(),
-      cameraPosition.getTarget().getLongitude(),
-      (double) cameraPosition.getZoomLevel()
-    };
-    String value = stream(values).map(String::valueOf).collect(Collectors.joining(","));
-    preferences.edit().putString(LAST_VIEWPORT_PREFIX + surveyId, value).apply();
-  }
-
-  public Optional<CameraPosition> getLastCameraPosition(String surveyId) {
-    try {
-      String value = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "");
-      if (value == null || value.isEmpty()) {
-        return Optional.empty();
-      }
-      String[] values = value.split(",");
-      return Optional.of(
-          new CameraPosition(
-              Point.newBuilder()
-                  .setLatitude(Double.parseDouble(values[0]))
-                  .setLongitude(Double.parseDouble(values[1]))
-                  .build(),
-              Float.valueOf(values[2])));
-    } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-      Timber.e(e, "Invalid camera pos in prefs");
-      return Optional.empty();
+    /** Removes all values stored in the local store. */
+    fun clear() {
+        preferences.edit().clear().apply()
     }
-  }
 
-  /** Returns whether the currently logged in user has accepted the terms or not. */
-  public boolean isTermsOfServiceAccepted() {
-    return preferences.getBoolean(TOS_ACCEPTED, false);
-  }
+    fun shouldUploadMediaOverUnmeteredConnectionOnly(): Boolean =
+        preferences.getBoolean(Keys.UPLOAD_MEDIA, false)
 
-  /** Updates the terms of service acceptance state for the currently signed in user. */
-  public void setTermsOfServiceAccepted(boolean value) {
-    preferences.edit().putBoolean(TOS_ACCEPTED, value).apply();
-  }
+    fun shouldDownloadOfflineAreasOverUnmeteredConnectionOnly(): Boolean =
+        preferences.getBoolean(Keys.OFFLINE_AREAS, false)
 
-  /** Returns whether the polygon info dialog was previously shown to the user or not. */
-  public boolean isPolygonDialogInfoShown() {
-    return preferences.getBoolean(POLYGON_INFO_DIALOG, false);
-  }
+    fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) {
+        preferences
+            .edit()
+            .putString(LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize())
+            .apply()
+    }
 
-  /** Updates the polygon info dialog value to stop showing the dialog everytime. */
-  public void setPolygonInfoDialogShown(boolean value) {
-    preferences.edit().putBoolean(POLYGON_INFO_DIALOG, value).apply();
-  }
+    fun getLastCameraPosition(surveyId: String): Optional<CameraPosition> {
+        return try {
+            val stringVal = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
+            CameraPosition.deserialize(stringVal)
+        } catch (e: NumberFormatException) {
+            Timber.e(e, "Invalid camera pos in prefs")
+            Optional.empty()
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            Timber.e(e, "Invalid camera pos in prefs")
+            Optional.empty()
+        }
+    }
+
+    companion object {
+        const val ACTIVE_SURVEY_ID_KEY = "activeSurveyId"
+        const val MAP_TYPE = "map_type"
+        const val LAST_VIEWPORT_PREFIX = "last_viewport_"
+        const val TOS_ACCEPTED = "tos_accepted"
+        const val POLYGON_INFO_DIALOG = "polygon_info_dialog"
+    }
 }

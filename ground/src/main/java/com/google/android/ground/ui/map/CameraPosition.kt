@@ -13,30 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.map
 
-package com.google.android.ground.ui.map;
+import com.google.android.ground.model.locationofinterest.Point
+import java8.util.Optional
 
-import com.google.android.ground.model.locationofinterest.Point;
+data class CameraPosition(val target: Point, val zoomLevel: Float) {
 
-public class CameraPosition {
+    override fun toString(): String {
+        return "Position: $target Zoom level: $zoomLevel"
+    }
 
-  private final Point target;
-  private final Float zoomLevel;
+    fun serialize(): String =
+        arrayOf<Any>(
+            target.latitude,
+            target.longitude,
+            zoomLevel
+        ).joinToString { it.toString() }
 
-  public CameraPosition(Point target, Float zoomLevel) {
-    this.target = target;
-    this.zoomLevel = zoomLevel;
-  }
+    companion object {
 
-  public Point getTarget() {
-    return target;
-  }
+        fun deserialize(serializedValue: String): Optional<CameraPosition> {
+            if (serializedValue.isEmpty()) return Optional.empty()
+            val (lat, long, zoomLevel) = serializedValue.split(",")
+            return Optional.of(
+                CameraPosition(
+                    Point.newBuilder()
+                        .setLatitude(lat.toDouble())
+                        .setLongitude(long.toDouble())
+                        .build(),
+                    java.lang.Float.valueOf(zoomLevel)
+                )
+            )
+        }
 
-  public Float getZoomLevel() {
-    return zoomLevel;
-  }
-
-  public String toString() {
-    return "Position: " + target + " Zoom level: " + zoomLevel;
-  }
+    }
 }

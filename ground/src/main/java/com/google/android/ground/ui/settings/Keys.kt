@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.ground.ui.settings;
+package com.google.android.ground.ui.settings
 
 /** These keys should match 1:1 in res/xml/preferences.xml. */
-public final class Keys {
+object Keys {
 
-  // General
-  public static final String UPLOAD_MEDIA = "upload_media";
-  public static final String OFFLINE_AREAS = "offline_areas";
+    // General
+    const val UPLOAD_MEDIA = "upload_media"
+    const val OFFLINE_AREAS = "offline_areas"
 
-  // Help
-  public static final String VISIT_WEBSITE = "visit_website";
-  public static final String FEEDBACK = "feedback";
+    // Help
+    const val VISIT_WEBSITE = "visit_website"
+    const val FEEDBACK = "feedback"
 
-  static final String[] ALL_KEYS = {UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK};
+    @JvmField
+    val ALL_KEYS = arrayOf(UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK)
 }
