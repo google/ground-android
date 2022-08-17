@@ -72,22 +72,9 @@ data class LocationOfInterest(
             .build()
     }
 
-    // TODO: These values exist for compatibility and can be removed once we eliminate the Point class.
     val coordinatesAsPoints: ImmutableList<Point> =
         geometry.coordinates.map(Point::fromCoordinate).toImmutableList()
 
     val coordinatesAsPoint: Point =
         Point.fromCoordinate(geometry.coordinate)
-
-    // "Lens" style setter for geometries.
-    fun <T : Geometry> updateGeometry(geometry: T): LocationOfInterest = LocationOfInterest(
-        this.id,
-        this.survey,
-        this.job,
-        this.customId,
-        this.caption,
-        this.created,
-        this.lastModified,
-        geometry,
-    )
 }

@@ -145,47 +145,39 @@ class SubmissionRepository @Inject constructor(
     }
 
     fun deleteSubmission(submission: Submission): @Cold Completable {
-        return if (submission.locationOfInterest.id == null) {
-            Completable.error(DataStoreException("Missing LOI id."))
-        } else {
-            applyAndEnqueue(
-                builder()
-                    .setJob(submission.job)
-                    .setSubmissionId(submission.id)
-                    .setResponseDeltas(ImmutableList.of())
-                    .setType(Mutation.Type.DELETE)
-                    .setSyncStatus(SyncStatus.PENDING)
-                    .setSurveyId(submission.survey.id)
-                    .setLocationOfInterestId(
-                        submission.locationOfInterest.id!!
-                    )
-                    .setClientTimestamp(Date())
-                    .setUserId(authManager.currentUser.id)
-                    .build()
-            )
-        }
+        return applyAndEnqueue(
+            builder()
+                .setJob(submission.job)
+                .setSubmissionId(submission.id)
+                .setResponseDeltas(ImmutableList.of())
+                .setType(Mutation.Type.DELETE)
+                .setSyncStatus(SyncStatus.PENDING)
+                .setSurveyId(submission.survey.id)
+                .setLocationOfInterestId(
+                    submission.locationOfInterest.id
+                )
+                .setClientTimestamp(Date())
+                .setUserId(authManager.currentUser.id)
+                .build()
+        )
     }
 
     fun createOrUpdateSubmission(
         submission: Submission, responseDeltas: ImmutableList<ResponseDelta>, isNew: Boolean
     ): @Cold Completable {
-        return if (submission.locationOfInterest.id == null) {
-            Completable.error(DataStoreException("Missing LOI id."))
-        } else {
-            applyAndEnqueue(
-                builder()
-                    .setJob(submission.job)
-                    .setSubmissionId(submission.id)
-                    .setResponseDeltas(responseDeltas)
-                    .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
-                    .setSyncStatus(SyncStatus.PENDING)
-                    .setSurveyId(submission.survey.id)
-                    .setLocationOfInterestId(submission.locationOfInterest.id!!)
-                    .setClientTimestamp(Date())
-                    .setUserId(authManager.currentUser.id)
-                    .build()
-            )
-        }
+        return applyAndEnqueue(
+            builder()
+                .setJob(submission.job)
+                .setSubmissionId(submission.id)
+                .setResponseDeltas(responseDeltas)
+                .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
+                .setSyncStatus(SyncStatus.PENDING)
+                .setSurveyId(submission.survey.id)
+                .setLocationOfInterestId(submission.locationOfInterest.id)
+                .setClientTimestamp(Date())
+                .setUserId(authManager.currentUser.id)
+                .build()
+        )
     }
 
     private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =

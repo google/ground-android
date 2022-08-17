@@ -44,32 +44,19 @@ object LoiConverter {
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
         val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
         // TODO: Return `Result` instead of throwing exception.
-        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
-
-        // As an interim solution, we map geometries to existing LOI types.
-        // TODO: Get rid of LOI subclasses and just use Geometry on LOI class.
-        when (geometry.geometryType) {
-            "Point" ->
-                return fillLocationOfInterest(
-                    survey,
-                    loiId,
-                    loiDoc,
-                    geometryFactory.createPoint(geometry.coordinate)
-                )
-            "Polygon" -> return fillLocationOfInterest(
-                survey,
-                loiId,
-                loiDoc,
-                geometryFactory.createPolygon(geometry.coordinates)
-            )
-            "MultiPolygon" -> {
-                TODO("Implement model for multipolygons.")
+        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).map {
+            when (it.geometryType) {
+                "Point" -> geometryFactory.createPoint(it.coordinate)
+                "Polygon" -> geometryFactory.createPolygon(it.coordinates)
+                "MultiPolygon" -> TODO("Implement model for multipolygons")
+                else -> throw DataStoreException("Unsupported geometry: $it")
             }
-            else -> throw DataStoreException("Unsupported geometry $geometry")
-        }
+        }.getOrThrow()
+
+        return createLocationOfInterest(survey, loiId, loiDoc, geometry)
     }
 
-    private fun fillLocationOfInterest(
+    private fun createLocationOfInterest(
         survey: Survey,
         loiId: String,
         loiDoc: LoiDocument,

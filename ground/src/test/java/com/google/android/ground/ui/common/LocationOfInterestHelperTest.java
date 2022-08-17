@@ -16,14 +16,13 @@
 
 package com.google.android.ground.ui.common;
 
-import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.test.FakeData;
 import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.job.Job;
+import com.google.android.ground.model.locationofinterest.LocationOfInterest;
+import com.google.android.ground.test.FakeData;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;

@@ -39,7 +39,7 @@ open class DataStoreException(message: String?) : RuntimeException(message) {
         fun <T : Any> checkType(expectedType: Class<*>, obj: T): T {
             if (!expectedType.isAssignableFrom(obj.javaClass)) {
                 throw DataStoreException(
-                    "Expected " + expectedType.name + ", got " + obj.javaClass.name
+                    "Expected ${expectedType.name}, got ${obj.javaClass.name}"
                 )
             }
             return obj

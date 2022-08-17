@@ -70,7 +70,9 @@ public class LocalDataStoreTest extends BaseHiltTest {
       new Task("task id", 1, Type.TEXT_FIELD, "task label", false);
 
   private static final Job TEST_JOB =
-      new Job("job id", "heading title",
+      new Job(
+          "job id",
+          "heading title",
           ImmutableMap.<String, Task>builder().put(TEST_TASK.getId(), TEST_TASK).build());
 
   private static final Survey TEST_SURVEY =
@@ -168,14 +170,10 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setName("Test Area")
           .build();
 
-  @Inject
-  LocalDataStore localDataStore;
-  @Inject
-  LocalValueStore localValueStore;
-  @Inject
-  SubmissionDao submissionDao;
-  @Inject
-  LocationOfInterestDao locationOfInterestDao;
+  @Inject LocalDataStore localDataStore;
+  @Inject LocalValueStore localValueStore;
+  @Inject SubmissionDao submissionDao;
+  @Inject LocationOfInterestDao locationOfInterestDao;
 
   private static LocationOfInterestMutation createTestLocationOfInterestMutation(Point point) {
     return LocationOfInterestMutation.builder()
@@ -381,13 +379,22 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     LocationOfInterest feature =
         localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
-    feature = feature.updateGeometry(TEST_POINT_2.toGeometry());
-    localDataStore.mergeLocationOfInterest(feature).test().assertComplete();
+    LocationOfInterest newFeature =
+        feature.copy(
+            feature.getId(),
+            feature.getSurvey(),
+            feature.getJob(),
+            feature.getCustomId(),
+            feature.getCaption(),
+            feature.getCreated(),
+            feature.getLastModified(),
+            TEST_POINT_2.toGeometry());
+    localDataStore.mergeLocationOfInterest(newFeature).test().assertComplete();
 
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(newFeature -> newFeature.getCoordinatesAsPoint().equals(TEST_POINT_2));
+        .assertValue(it -> it.getCoordinatesAsPoint().equals(TEST_POINT_2));
   }
 
   @Test
@@ -398,13 +405,22 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     LocationOfInterest feature =
         localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet();
-    feature = feature.updateGeometry(GeometryExtensionsKt.toPolygon(TEST_POLYGON_2));
-    localDataStore.mergeLocationOfInterest(feature).test().assertComplete();
+    LocationOfInterest newFeature =
+        feature.copy(
+            feature.getId(),
+            feature.getSurvey(),
+            feature.getJob(),
+            feature.getCustomId(),
+            feature.getCaption(),
+            feature.getCreated(),
+            feature.getLastModified(),
+            GeometryExtensionsKt.toPolygon(TEST_POLYGON_2));
+    localDataStore.mergeLocationOfInterest(newFeature).test().assertComplete();
 
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(newFeature -> newFeature.getCoordinatesAsPoints().equals(TEST_POLYGON_2));
+        .assertValue(it -> it.getCoordinatesAsPoints().equals(TEST_POLYGON_2));
   }
 
   @Test

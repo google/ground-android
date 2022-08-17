@@ -213,8 +213,17 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
       Timber.e("Only point locations of interest can be moved");
       return;
     }
+    LocationOfInterest loi = locationOfInterest.get();
     LocationOfInterest newPointOfInterest =
-        locationOfInterest.get().updateGeometry(point.toGeometry());
+        loi.copy(
+            loi.getId(),
+            loi.getSurvey(),
+            loi.getJob(),
+            loi.getCustomId(),
+            loi.getCaption(),
+            loi.getCreated(),
+            loi.getLastModified(),
+            point.toGeometry());
     homeScreenViewModel.updateLocationOfInterest(newPointOfInterest);
   }
 
