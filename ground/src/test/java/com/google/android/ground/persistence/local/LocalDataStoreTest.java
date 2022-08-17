@@ -288,7 +288,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(feature -> feature.getCoordinatesAsnew Point().equals(TEST_POINT));
+        .assertValue(feature -> feature.getCoordinatesAsPoint().equals(TEST_POINT));
   }
 
   @Test
@@ -393,7 +393,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     localDataStore
         .getLocationOfInterest(TEST_SURVEY, "loi id")
         .test()
-        .assertValue(it -> it.getCoordinatesAsnew Point().equals(TEST_POINT_2));
+        .assertValue(it -> it.getCoordinatesAsPoint().equals(TEST_POINT_2));
   }
 
   @Test
