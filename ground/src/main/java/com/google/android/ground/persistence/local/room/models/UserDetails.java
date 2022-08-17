@@ -22,7 +22,9 @@ import com.google.android.ground.model.User;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Component representing cached user details in local db entities. */
+/**
+ * Component representing cached user details in local db entities.
+ */
 @AutoValue
 public abstract class UserDetails {
 
@@ -42,19 +44,12 @@ public abstract class UserDetails {
   public abstract String getDisplayName();
 
   public static UserDetails fromUser(User user) {
-    return UserDetails.builder()
-        .setId(user.getId())
-        .setEmail(user.getEmail())
-        .setDisplayName(user.getDisplayName())
-        .build();
+    return UserDetails.builder().setId(user.getId()).setEmail(user.getEmail())
+        .setDisplayName(user.getDisplayName()).build();
   }
 
   public static User toUser(UserDetails d) {
-    return User.builder()
-        .setId(d.getId())
-        .setEmail(d.getEmail())
-        .setDisplayName(d.getDisplayName())
-        .build();
+    return new User(d.getId(), d.getEmail(), d.getDisplayName());
   }
 
   public static UserDetails create(String id, String email, String displayName) {

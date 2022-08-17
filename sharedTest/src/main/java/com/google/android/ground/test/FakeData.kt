@@ -43,12 +43,11 @@ object FakeData {
 
     @JvmField
     val USER =
-        User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build()
+        User("user_id", "user@gmail.com", "User")
 
     @JvmField
     val USER_2 =
-        User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2")
-            .build()
+        User("user_id_2", "user2@gmail.com", "User2")
 
     @JvmField
     val SURVEY: Survey = newSurvey().build()
