@@ -42,7 +42,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   private com.jraska.livedata.TestObserver<Boolean> polygonCompletedTestObserver;
   private com.jraska.livedata.TestObserver<ImmutableSet<MapLocationOfInterest>>
-      drawnMapFeaturesTestObserver;
+      drawnMapLocationsOfInterestTestObserver;
 
   @Override
   public void setUp() {
@@ -50,7 +50,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     polygonCompletedTestObserver =
         com.jraska.livedata.TestObserver.test(viewModel.isPolygonCompleted());
-    drawnMapFeaturesTestObserver =
+    drawnMapLocationsOfInterestTestObserver =
         com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapLocationsOfInterest());
 
     // Initialize polygon drawing
@@ -71,7 +71,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.onCameraMoved(newPoint(0.0, 0.0));
     viewModel.selectCurrentVertex();
 
-    validateMapFeaturesDrawn(1, 1);
+    validateMapLoiDrawn(1, 1);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.onCameraMoved(newPoint(20.0, 20.0));
     viewModel.selectCurrentVertex();
 
-    validateMapFeaturesDrawn(1, 3);
+    validateMapLoiDrawn(1, 3);
     validatePolygonCompleted(false);
   }
 
@@ -93,7 +93,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.updateLastVertex(newPoint(10.0, 10.0), 100);
     viewModel.updateLastVertex(newPoint(20.0, 20.0), 100);
 
-    validateMapFeaturesDrawn(1, 1);
+    validateMapLoiDrawn(1, 1);
     validatePolygonCompleted(false);
   }
 
@@ -110,7 +110,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     // Move camera such that distance from last vertex is more than threshold
     viewModel.updateLastVertex(newPoint(30.0, 30.0), 25);
 
-    validateMapFeaturesDrawn(1, 4);
+    validateMapLoiDrawn(1, 4);
     validatePolygonCompleted(false);
   }
 
@@ -128,7 +128,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
 
     // Only 3 pins should be drawn. First and last points are exactly same.
-    validateMapFeaturesDrawn(1, 3);
+    validateMapLoiDrawn(1, 3);
     validatePolygonCompleted(true);
   }
 
@@ -139,7 +139,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.removeLastVertex();
 
-    validateMapFeaturesDrawn(0, 0);
+    validateMapLoiDrawn(0, 0);
     validatePolygonCompleted(false);
   }
 
@@ -164,7 +164,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     viewModel.removeLastVertex();
 
-    validateMapFeaturesDrawn(1, 3);
+    validateMapLoiDrawn(1, 3);
     validatePolygonCompleted(false);
   }
 
@@ -211,13 +211,13 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     polygonCompletedTestObserver.assertValue(isVisible);
   }
 
-  private void validateMapFeaturesDrawn(int expectedMapPolygonCount, int expectedMapPinCount) {
-    drawnMapFeaturesTestObserver.assertValue(
-        mapFeatures -> {
+  private void validateMapLoiDrawn(int expectedMapPolygonCount, int expectedMapPinCount) {
+    drawnMapLocationsOfInterestTestObserver.assertValue(
+        mapLois -> {
           int actualMapPolygonCount = 0;
           int actualMapPinCount = 0;
 
-          for (MapLocationOfInterest mapLocationOfInterest : mapFeatures) {
+          for (MapLocationOfInterest mapLocationOfInterest : mapLois) {
             if (mapLocationOfInterest instanceof MapPolygon) {
               actualMapPolygonCount++;
             } else if (mapLocationOfInterest instanceof MapPin) {
@@ -225,7 +225,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
             }
           }
 
-          // Check whether drawn features contain expected number of polygons and pins.
+          // Check whether drawn LOIs contain expected number of polygons and pins.
           assertThat(actualMapPinCount).isEqualTo(expectedMapPinCount);
           assertThat(actualMapPolygonCount).isEqualTo(expectedMapPolygonCount);
 
