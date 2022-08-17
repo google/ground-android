@@ -16,6 +16,7 @@
 
 package com.google.android.ground.model.submission;
 
+import com.google.android.ground.model.task.Task;
 import java.io.Serializable;
 import java8.util.Optional;
 

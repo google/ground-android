@@ -27,23 +27,23 @@
       type="com.google.android.ground.ui.editsubmission.EditSubmissionViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.PhotoFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.PhotoTaskViewModel" />
   </data>
 
   <LinearLayout
-    style="@style/FieldView"
+    style="@style/TaskView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
-      style="@style/EditSubmission.Field.Label"
+      style="@style/EditSubmission.Task.Label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@{viewModel.taskLabel()}" />
 
     <include
-      layout="@layout/photo_field"
+      layout="@layout/photo_task"
       app:viewModel="@{viewModel}"
       app:editSubmissionViewModel="@{editSubmissionViewModel}"
       tools:visibility="visible" />

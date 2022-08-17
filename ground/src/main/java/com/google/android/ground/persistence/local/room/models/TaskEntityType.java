@@ -36,7 +36,7 @@ public enum TaskEntityType implements IntEnum {
 
   private static final ImmutableBiMap<TaskEntityType, Type> TASK_TYPES =
       ImmutableBiMap.<TaskEntityType, Type>builder()
-          .put(TEXT, Type.TEXT_FIELD)
+          .put(TEXT, Type.TEXT)
           .put(MULTIPLE_CHOICE, Type.MULTIPLE_CHOICE)
           .put(PHOTO, Type.PHOTO)
           .put(NUMBER, Type.NUMBER)

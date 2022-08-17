@@ -79,7 +79,7 @@ internal object SubmissionConverter {
     ) {
         val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
         when (task.type) {
-            Task.Type.PHOTO, Task.Type.TEXT_FIELD -> putTextResponse(taskId, obj, responses)
+            Task.Type.PHOTO, Task.Type.TEXT -> putTextResponse(taskId, obj, responses)
             Task.Type.MULTIPLE_CHOICE -> putMultipleChoiceResponse(
                 taskId,
                 task.multipleChoice,

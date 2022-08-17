@@ -30,24 +30,18 @@ import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
-/**
- * Defines the state of an inflated {@link Task} and controls its UI.
- */
-public class AbstractFieldViewModel extends AbstractViewModel {
+/** Defines the state of an inflated {@link Task} and controls its UI. */
+public class AbstractTaskViewModel extends AbstractViewModel {
 
   /**
    * Current value.
    */
   private final LiveData<Optional<Response>> response;
 
-  /**
-   * Transcoded text to be displayed for the current {@link AbstractFieldViewModel#response}.
-   */
+  /** Transcoded text to be displayed for the current {@link AbstractTaskViewModel#response}. */
   private final LiveData<String> responseText;
 
-  /**
-   * Error message to be displayed for the current {@link AbstractFieldViewModel#response}.
-   */
+  /** Error message to be displayed for the current {@link AbstractTaskViewModel#response}. */
   @Hot(replays = true)
   private final MutableLiveData<String> error = new MutableLiveData<>();
 
@@ -59,7 +53,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   @SuppressWarnings("NullAway.Init")
   private Task task;
 
-  AbstractFieldViewModel(Resources resources) {
+  AbstractTaskViewModel(Resources resources) {
     this.resources = resources;
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
     responseText = LiveDataReactiveStreams.fromPublisher(getDetailsTextFlowable());

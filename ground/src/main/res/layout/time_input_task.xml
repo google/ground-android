@@ -23,16 +23,16 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.DateFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.TimeTaskViewModel" />
   </data>
 
   <LinearLayout
-    style="@style/FieldView"
+    style="@style/TaskView"
     android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input_layout"
-      style="@style/EditSubmission.Field.Text"
+      style="@style/EditSubmission.Task.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:hint="@{viewModel.taskLabel()}">
@@ -50,8 +50,7 @@
         android:onClick="@{__ -> viewModel.onShowDialogClick()}"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
-        tools:text="@string/date" />
-
+        tools:text="@string/time" />
     </com.google.android.material.textfield.TextInputLayout>
 
   </LinearLayout>

@@ -44,15 +44,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.ground.BuildConfig;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
-import com.google.android.ground.databinding.DateInputFieldBinding;
+import com.google.android.ground.databinding.DateInputTaskBinding;
 import com.google.android.ground.databinding.EditSubmissionBottomSheetBinding;
 import com.google.android.ground.databinding.EditSubmissionFragBinding;
-import com.google.android.ground.databinding.MultipleChoiceInputFieldBinding;
-import com.google.android.ground.databinding.NumberInputFieldBinding;
-import com.google.android.ground.databinding.PhotoInputFieldBinding;
-import com.google.android.ground.databinding.PhotoInputFieldBindingImpl;
-import com.google.android.ground.databinding.TextInputFieldBinding;
-import com.google.android.ground.databinding.TimeInputFieldBinding;
+import com.google.android.ground.databinding.MultipleChoiceInputTaskBinding;
+import com.google.android.ground.databinding.NumberInputTaskBinding;
+import com.google.android.ground.databinding.PhotoInputTaskBinding;
+import com.google.android.ground.databinding.PhotoInputTaskBindingImpl;
+import com.google.android.ground.databinding.TextInputTaskBinding;
+import com.google.android.ground.databinding.TimeInputTaskBinding;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.MultipleChoiceResponse;
 import com.google.android.ground.model.task.MultipleChoice;
@@ -96,10 +96,10 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     private static final String CAPTURED_PHOTO_PATH = "capturedPhotoPath";
   }
 
-  private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
+  private final List<AbstractTaskViewModel> taskViewModels = new ArrayList<>();
 
   @Inject Navigator navigator;
-  @Inject FieldViewFactory fieldViewFactory;
+  @Inject TaskViewFactory taskViewFactory;
   @Inject EphemeralPopups popups;
   @Inject Schedulers schedulers;
   @Inject UserMediaRepository userMediaRepository;
@@ -110,19 +110,19 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private ActivityResultLauncher<String> selectPhotoLauncher;
   private ActivityResultLauncher<Uri> capturePhotoLauncher;
 
-  private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
-    if (binding instanceof TextInputFieldBinding) {
-      return ((TextInputFieldBinding) binding).getViewModel();
-    } else if (binding instanceof MultipleChoiceInputFieldBinding) {
-      return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
-    } else if (binding instanceof NumberInputFieldBinding) {
-      return ((NumberInputFieldBinding) binding).getViewModel();
-    } else if (binding instanceof PhotoInputFieldBinding) {
-      return ((PhotoInputFieldBinding) binding).getViewModel();
-    } else if (binding instanceof DateInputFieldBinding) {
-      return ((DateInputFieldBinding) binding).getViewModel();
-    } else if (binding instanceof TimeInputFieldBinding) {
-      return ((TimeInputFieldBinding) binding).getViewModel();
+  private static AbstractTaskViewModel getViewModel(ViewDataBinding binding) {
+    if (binding instanceof TextInputTaskBinding) {
+      return ((TextInputTaskBinding) binding).getViewModel();
+    } else if (binding instanceof MultipleChoiceInputTaskBinding) {
+      return ((MultipleChoiceInputTaskBinding) binding).getViewModel();
+    } else if (binding instanceof NumberInputTaskBinding) {
+      return ((NumberInputTaskBinding) binding).getViewModel();
+    } else if (binding instanceof PhotoInputTaskBinding) {
+      return ((PhotoInputTaskBinding) binding).getViewModel();
+    } else if (binding instanceof DateInputTaskBinding) {
+      return ((DateInputTaskBinding) binding).getViewModel();
+    } else if (binding instanceof TimeInputTaskBinding) {
+      return ((TimeInputTaskBinding) binding).getViewModel();
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
@@ -204,27 +204,27 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     }
   }
 
-  private void addFieldViewModel(Task task, ViewDataBinding binding) {
-    if (binding instanceof PhotoInputFieldBindingImpl) {
-      ((PhotoInputFieldBindingImpl) binding).setEditSubmissionViewModel(viewModel);
+  private void addTaskViewModel(Task task, ViewDataBinding binding) {
+    if (binding instanceof PhotoInputTaskBindingImpl) {
+      ((PhotoInputTaskBindingImpl) binding).setEditSubmissionViewModel(viewModel);
     }
 
-    AbstractFieldViewModel fieldViewModel = getViewModel(binding);
+    AbstractTaskViewModel fieldViewModel = getViewModel(binding);
     fieldViewModel.initialize(task, viewModel.getResponse(task.getId()));
 
-    if (fieldViewModel instanceof PhotoFieldViewModel) {
-      initPhotoField((PhotoFieldViewModel) fieldViewModel);
-    } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
-      observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
-    } else if (fieldViewModel instanceof DateFieldViewModel) {
-      observeDateDialogClicks((DateFieldViewModel) fieldViewModel);
-    } else if (fieldViewModel instanceof TimeFieldViewModel) {
-      observeTimeDialogClicks((TimeFieldViewModel) fieldViewModel);
+    if (fieldViewModel instanceof PhotoTaskViewModel) {
+      initPhotoTask((PhotoTaskViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof MultipleChoiceTaskViewModel) {
+      observeSelectChoiceClicks((MultipleChoiceTaskViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof DateTaskViewModel) {
+      observeDateDialogClicks((DateTaskViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof TimeTaskViewModel) {
+      observeTimeDialogClicks((TimeTaskViewModel) fieldViewModel);
     }
 
     fieldViewModel.getResponse().observe(this, response -> viewModel.setResponse(task, response));
 
-    fieldViewModelList.add(fieldViewModel);
+    taskViewModels.add(fieldViewModel);
   }
 
   public void onSaveClick(View view) {
@@ -242,7 +242,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
 
   private Map<String, String> getValidationErrors() {
     HashMap<String, String> errors = new HashMap<>();
-    for (AbstractFieldViewModel fieldViewModel : fieldViewModelList) {
+    for (AbstractTaskViewModel fieldViewModel : taskViewModels) {
       fieldViewModel
           .validate()
           .ifPresent(error -> errors.put(fieldViewModel.getTask().getId(), error));
@@ -250,14 +250,14 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     return errors;
   }
 
-  private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
+  private void observeDateDialogClicks(DateTaskViewModel dateFieldViewModel) {
     dateFieldViewModel
         .getShowDialogClicks()
         .as(autoDisposable(this))
         .subscribe(__ -> showDateDialog(dateFieldViewModel));
   }
 
-  private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
+  private void observeTimeDialogClicks(TimeTaskViewModel timeFieldViewModel) {
     timeFieldViewModel
         .getShowDialogClicks()
         .as(autoDisposable(this))
@@ -267,14 +267,14 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private void rebuildForm(Job job) {
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
-    fieldViewModelList.clear();
+    taskViewModels.clear();
     for (Task task : job.getTasksSorted()) {
-      ViewDataBinding binding = fieldViewFactory.addFieldView(task.getType(), formLayout);
-      addFieldViewModel(task, binding);
+      ViewDataBinding binding = taskViewFactory.addTaskView(task.getType(), formLayout);
+      addTaskViewModel(task, binding);
     }
   }
 
-  private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+  private void observeSelectChoiceClicks(MultipleChoiceTaskViewModel viewModel) {
     viewModel
         .getShowDialogClicks()
         .as(autoDisposable(this))
@@ -317,21 +317,21 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     }
   }
 
-  private void initPhotoField(PhotoFieldViewModel photoFieldViewModel) {
-    photoFieldViewModel.setEditable(true);
-    photoFieldViewModel.setSurveyId(viewModel.getSurveyId());
-    photoFieldViewModel.setSubmissionId(viewModel.getSubmissionId());
-    observeSelectPhotoClicks(photoFieldViewModel);
-    observePhotoResults(photoFieldViewModel);
+  private void initPhotoTask(PhotoTaskViewModel photoTaskViewModel) {
+    photoTaskViewModel.setEditable(true);
+    photoTaskViewModel.setSurveyId(viewModel.getSurveyId());
+    photoTaskViewModel.setSubmissionId(viewModel.getSubmissionId());
+    observeSelectPhotoClicks(photoTaskViewModel);
+    observePhotoResults(photoTaskViewModel);
   }
 
-  private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
+  private void observeSelectPhotoClicks(PhotoTaskViewModel fieldViewModel) {
     fieldViewModel
         .getShowDialogClicks()
         .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getTask()));
   }
 
-  private void observePhotoResults(PhotoFieldViewModel fieldViewModel) {
+  private void observePhotoResults(PhotoTaskViewModel fieldViewModel) {
     viewModel
         .getLastPhotoResult()
         .as(autoDisposable(getViewLifecycleOwner()))
@@ -360,7 +360,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
             }));
   }
 
-  private void showDateDialog(DateFieldViewModel fieldViewModel) {
+  private void showDateDialog(DateTaskViewModel fieldViewModel) {
     Calendar calendar = Calendar.getInstance();
     int year = calendar.get(Calendar.YEAR);
     int month = calendar.get(Calendar.MONTH);
@@ -381,7 +381,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     datePickerDialog.show();
   }
 
-  private void showTimeDialog(TimeFieldViewModel fieldViewModel) {
+  private void showTimeDialog(TimeTaskViewModel fieldViewModel) {
     Calendar calendar = Calendar.getInstance();
     int hour = calendar.get(Calendar.HOUR);
     int minute = calendar.get(Calendar.MINUTE);
