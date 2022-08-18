@@ -29,18 +29,16 @@ internal object AuditInfoConverter {
     @Throws(DataStoreException::class)
     fun toAuditInfo(doc: AuditInfoNestedObject): AuditInfo {
         DataStoreException.checkNotNull(doc.clientTimestamp, "clientTimestamp")
-        return AuditInfo.builder()
-            .setUser(UserConverter.toUser(doc.user))
-            .setClientTimestamp(doc.clientTimestamp!!.toDate())
-            .setServerTimestamp(Optional.ofNullable(doc.serverTimestamp?.toDate()))
-            .build()
+        return AuditInfo(
+            UserConverter.toUser(doc.user),
+            doc.clientTimestamp!!.toDate(),
+            Optional.ofNullable(doc.serverTimestamp?.toDate())
+        )
     }
 
     @JvmStatic
     fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject =
         AuditInfoNestedObject(
-            UserConverter.toNestedObject(user),
-            Timestamp(mutation.clientTimestamp),
-            null
+            UserConverter.toNestedObject(user), Timestamp(mutation.clientTimestamp), null
         )
 }
