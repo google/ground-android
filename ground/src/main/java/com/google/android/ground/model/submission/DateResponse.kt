@@ -28,12 +28,12 @@ import java.util.*
 @Serializable
 class DateResponse(val date: @Contextual Date) : Response {
     // TODO(#752): Use device localization preferences.
-    private val dateFormat: @Contextual DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val dateFormat: @Contextual DateFormat =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     override fun getSummaryText(): String = detailsText
 
-    override fun getDetailsText(): String =
-        synchronized(dateFormat) { dateFormat.format(date) }
+    override fun getDetailsText(): String = synchronized(dateFormat) { dateFormat.format(date) }
 
     override fun isEmpty(): Boolean = date.time == 0L
 
@@ -47,8 +47,9 @@ class DateResponse(val date: @Contextual Date) : Response {
 
     companion object {
         @JvmStatic
-        fun fromDate(date: Date): Optional<Response> {
-            return if (date.time == 0L) Optional.empty() else Optional.of(DateResponse(date))
-        }
+        fun fromDate(date: Date?): Optional<Response> =
+            if (date == null || date.time == 0L) Optional.empty() else Optional.of(
+                DateResponse(date)
+            )
     }
 }
