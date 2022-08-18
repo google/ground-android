@@ -65,7 +65,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   @BindValue @Mock SurveyRepository mockSurveyRepository;
   @BindValue @Mock DataSyncWorkManager mockWorkManager;
 
-  @Captor ArgumentCaptor<LocationOfInterestMutation> captorFeatureMutation;
+  @Captor ArgumentCaptor<LocationOfInterestMutation> captorLoiMutation;
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
   @Inject FakeRemoteDataStore fakeRemoteDataStore;
@@ -74,7 +74,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   private void mockApplyAndEnqueue() {
     doReturn(Completable.complete())
         .when(mockLocalDataStore)
-        .applyAndEnqueue(captorFeatureMutation.capture());
+        .applyAndEnqueue(captorLoiMutation.capture());
   }
 
   private void mockEnqueueSyncWorker() {
@@ -92,7 +92,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
         .assertNoErrors()
         .assertComplete();
 
-    LocationOfInterestMutation actual = captorFeatureMutation.getValue();
+    LocationOfInterestMutation actual = captorLoiMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.CREATE);
     assertThat(actual.getSyncStatus()).isEqualTo(SyncStatus.PENDING);
     assertThat(actual.getLocationOfInterestId()).isEqualTo(FakeData.POINT_OF_INTEREST.getId());
@@ -137,8 +137,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testSyncFeatures_loaded() {
-    fakeRemoteDataStore.streamFeatureOnce(
+  public void testSyncLocationsOfInterest_loaded() {
+    fakeRemoteDataStore.streamLoiOnce(
         RemoteDataEvent.loaded("entityId", FakeData.POINT_OF_INTEREST));
     when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
         .thenReturn(Completable.complete());
@@ -153,8 +153,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testSyncFeatures_modified() {
-    fakeRemoteDataStore.streamFeatureOnce(
+  public void testSyncLocationsOfInterest_modified() {
+    fakeRemoteDataStore.streamLoiOnce(
         RemoteDataEvent.modified("entityId", FakeData.POINT_OF_INTEREST));
     when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
         .thenReturn(Completable.complete());
@@ -169,8 +169,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testSyncFeatures_removed() {
-    fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.removed("entityId"));
+  public void testSyncLocationsOfInterest_removed() {
+    fakeRemoteDataStore.streamLoiOnce(RemoteDataEvent.removed("entityId"));
     when(mockLocalDataStore.deleteLocationOfInterest(anyString()))
         .thenReturn(Completable.complete());
 
@@ -180,8 +180,8 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testSyncFeatures_error() {
-    fakeRemoteDataStore.streamFeatureOnce(RemoteDataEvent.error(new Throwable("Foo error")));
+  public void testSyncLocationsOfInterest_error() {
+    fakeRemoteDataStore.streamLoiOnce(RemoteDataEvent.error(new Throwable("Foo error")));
     locationOfInterestRepository
         .syncLocationsOfInterest(FakeData.SURVEY)
         .test()
@@ -190,7 +190,7 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testGetFeaturesOnceAndStream() {
+  public void testGetLocationsOfInterestOnceAndStream() {
     when(mockLocalDataStore.getLocationsOfInterestOnceAndStream(FakeData.SURVEY))
         .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_OF_INTEREST)));
 
@@ -201,18 +201,18 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testGetFeature_surveyNotPresent() {
+  public void testGetLocationsOfInterest_surveyNotPresent() {
     when(mockSurveyRepository.getSurvey(anyString()))
         .thenReturn(Single.error(new NoSuchElementException()));
 
     locationOfInterestRepository
-        .getLocationOfInterest("non_existent_survey_id", "feature_id")
+        .getLocationOfInterest("non_existent_survey_id", "loi_id")
         .test()
         .assertFailure(NoSuchElementException.class);
   }
 
   @Test
-  public void testGetFeature_surveyPresent() {
+  public void testGetLocationsOfInterest_surveyPresent() {
     when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
     when(mockLocalDataStore.getLocationOfInterest(
             FakeData.SURVEY, FakeData.POINT_OF_INTEREST.getId()))
@@ -279,13 +279,12 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testGetIncompleteFeatureMutationsOnceAndStream() {
-    locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(
-        "feature_id_1");
+  public void testGetIncompleteLocationOfInterestMutationsOnceAndStream() {
+    locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream("loi_id_1");
 
     verify(mockLocalDataStore, times(1))
         .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-            "feature_id_1",
+            "loi_id_1",
             MutationEntitySyncStatus.PENDING,
             MutationEntitySyncStatus.IN_PROGRESS,
             MutationEntitySyncStatus.FAILED);

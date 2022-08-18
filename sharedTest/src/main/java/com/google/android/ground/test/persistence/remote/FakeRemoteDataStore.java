@@ -42,7 +42,7 @@ import javax.inject.Singleton;
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
 
-  private RemoteDataEvent<LocationOfInterest> featureEvent;
+  private RemoteDataEvent<LocationOfInterest> loiEvent;
   // TODO(#1045): Allow default survey to be initialized by tests.
   private List<Survey> testSurveys = Collections.singletonList(FakeData.SURVEY);
   // TODO(#1045): Allow default ToS to be initialized by tests.
@@ -93,7 +93,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Override
   public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
       Survey survey) {
-    return featureEvent == null ? Flowable.empty() : Flowable.just(featureEvent);
+    return loiEvent == null ? Flowable.empty() : Flowable.just(loiEvent);
   }
 
   @Override
@@ -107,7 +107,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     return null;
   }
 
-  public void streamFeatureOnce(RemoteDataEvent<LocationOfInterest> featureEvent) {
-    this.featureEvent = featureEvent;
+  public void streamLoiOnce(RemoteDataEvent<LocationOfInterest> loiEvent) {
+    this.loiEvent = loiEvent;
   }
 }

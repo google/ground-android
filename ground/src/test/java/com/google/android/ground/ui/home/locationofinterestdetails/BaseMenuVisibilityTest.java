@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.home.featuredetails;
+package com.google.android.ground.ui.home.locationofinterestdetails;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
@@ -23,7 +23,6 @@ import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.test.FakeData;
 import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
-import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 
@@ -63,7 +62,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
     this.visible = visible;
   }
 
-  static LocationOfInterest createPointFeature(User user) {
+  static LocationOfInterest createPointOfInterest(User user) {
     return new LocationOfInterest(
         FakeData.POINT_OF_INTEREST.getId(),
         TEST_SURVEY,
@@ -75,7 +74,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
         FakeData.POINT_OF_INTEREST.getGeometry());
   }
 
-  static LocationOfInterest createPolygonFeature(User user) {
+  static LocationOfInterest createAreaOfInterest(User user) {
     return new LocationOfInterest(
         FakeData.AREA_OF_INTEREST.getId(),
         TEST_SURVEY,

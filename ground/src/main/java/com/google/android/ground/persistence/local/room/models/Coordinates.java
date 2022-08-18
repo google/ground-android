@@ -38,7 +38,7 @@ public abstract class Coordinates {
 
   @NonNull
   public Point toPoint() {
-    return Point.newBuilder().setLatitude(getLatitude()).setLongitude(getLongitude()).build();
+    return new Point(getLatitude(), getLongitude());
   }
 
   // Boilerplate generated using Android Studio AutoValue plugin:
