@@ -27,6 +27,6 @@ object TermsOfServiceConverter {
     @Throws(DataStoreException::class)
     fun toTerms(doc: DocumentSnapshot): TermsOfService {
         val pd = doc.toObject(TermsOfServiceDocument::class.java)
-        return TermsOfService.builder().setId(doc.id).setText(pd!!.text).build()
+        return TermsOfService(doc.id, pd!!.text)
     }
 }
