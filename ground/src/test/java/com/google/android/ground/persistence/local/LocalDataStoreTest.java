@@ -135,39 +135,20 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .build();
 
   private static final TileSet TEST_PENDING_TILE_SOURCE =
-      TileSet.newBuilder()
-          .setId("id_1")
-          .setState(State.PENDING)
-          .setPath("some_path 1")
-          .setUrl("some_url 1")
-          .setOfflineAreaReferenceCount(1)
-          .build();
+      new TileSet("some_url 1", "id_1", "some_path 1", State.PENDING, 1);
 
   private static final TileSet TEST_DOWNLOADED_TILE_SOURCE =
-      TileSet.newBuilder()
-          .setId("id_2")
-          .setState(State.DOWNLOADED)
-          .setPath("some_path 2")
-          .setUrl("some_url 2")
-          .setOfflineAreaReferenceCount(1)
-          .build();
+      new TileSet("some_url 2", "id_2", "some_path 2", State.DOWNLOADED, 1);
 
   private static final TileSet TEST_FAILED_TILE_SOURCE =
-      TileSet.newBuilder()
-          .setId("id_3")
-          .setState(State.FAILED)
-          .setPath("some_path 3")
-          .setUrl("some_url 3")
-          .setOfflineAreaReferenceCount(1)
-          .build();
+      new TileSet("some_url 3", "id_3", "some_path 3", State.FAILED, 1);
 
   private static final OfflineArea TEST_OFFLINE_AREA =
-      OfflineArea.newBuilder()
-          .setId("id_1")
-          .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
-          .setState(OfflineArea.State.PENDING)
-          .setName("Test Area")
-          .build();
+      new OfflineArea(
+          "id_1",
+          OfflineArea.State.PENDING,
+          LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build(),
+          "Test Area");
 
   @Inject LocalDataStore localDataStore;
   @Inject LocalValueStore localValueStore;

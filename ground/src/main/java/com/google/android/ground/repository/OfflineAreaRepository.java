@@ -111,7 +111,9 @@ public class OfflineAreaRepository {
         .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
         .andThen(
             localDataStore.insertOrUpdateOfflineArea(
-                area.toBuilder().setState(State.IN_PROGRESS).build()))
+                // TODO: When this class is converted to kotlin we can simply pass a named state
+                //  parameter to area.copy()
+                new OfflineArea(area.getId(), State.IN_PROGRESS, area.getBounds(), area.getName())))
         .andThen(tileSetDownloadWorkManager.enqueueTileSetDownloadWorker());
   }
 
@@ -154,10 +156,12 @@ public class OfflineAreaRepository {
   }
 
   @Cold
-  public Completable addOfflineAreaAndEnqueue(OfflineArea baseMap) {
+  public Completable addOfflineAreaAndEnqueue(OfflineArea area) {
     return geocodingManager
-        .getAreaName(baseMap.getBounds())
-        .map(name -> baseMap.toBuilder().setName(name).build())
+        .getAreaName(area.getBounds())
+        // TODO: When this class is converted to kotlin we can simply pass a named "name"
+        //  parameter to area.copy()
+        .map(name -> new OfflineArea(area.getId(), State.IN_PROGRESS, area.getBounds(), name))
         .flatMapCompletable(this::enqueueTileSetDownloads);
   }
 
@@ -289,25 +293,23 @@ public class OfflineAreaRepository {
       case TILED_WEB_MAP:
         return Single.just(
             ImmutableList.of(
-                TileSet.newBuilder()
-                    .setId(offlineUuidGenerator.generateUuid())
-                    .setPath(baseMap.getUrl().toString())
-                    .setUrl(baseMap.getUrl().toString())
-                    .setOfflineAreaReferenceCount(1)
-                    .setState(TileSet.State.PENDING)
-                    .build()));
+                new TileSet(
+                    baseMap.getUrl().toString(),
+                    offlineUuidGenerator.generateUuid(),
+                    baseMap.getUrl().toString(),
+                    TileSet.State.PENDING,
+                    1)));
       default:
         Timber.d("Unknown basemap source type");
         // Try to read a tile from the URL anyway.
         return Single.just(
             ImmutableList.of(
-                TileSet.newBuilder()
-                    .setId(offlineUuidGenerator.generateUuid())
-                    .setPath(baseMap.getUrl().toString())
-                    .setUrl(baseMap.getUrl().toString())
-                    .setOfflineAreaReferenceCount(1)
-                    .setState(TileSet.State.PENDING)
-                    .build()));
+                new TileSet(
+                    baseMap.getUrl().toString(),
+                    offlineUuidGenerator.generateUuid(),
+                    baseMap.getUrl().toString(),
+                    TileSet.State.PENDING,
+                    1)));
     }
   }
 }

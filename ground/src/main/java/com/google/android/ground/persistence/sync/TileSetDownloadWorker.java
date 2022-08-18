@@ -126,21 +126,34 @@ public class TileSetDownloadWorker extends BaseWorker {
 
     return localDataStore
         .insertOrUpdateTileSet(
-            tileSet.toBuilder().setState(TileSet.State.IN_PROGRESS).build())
-        .andThen(
-            Completable.fromRunnable(
-                () -> {
-                  downloadTileFile(tileSet, requestProperties);
-                }))
+            // TODO: When this class is converted to kotlin we can simply pass a named state
+            //  parameter to tileset.copy()
+            tileSet.copy(
+                tileSet.getUrl(),
+                tileSet.getId(),
+                tileSet.getPath(),
+                TileSet.State.IN_PROGRESS,
+                tileSet.getOfflineAreaReferenceCount()))
+        .andThen(Completable.fromRunnable(() -> downloadTileFile(tileSet, requestProperties)))
         .onErrorResumeNext(
             e -> {
               Timber.d(e, "Failed to download tile: %s", tileSet);
               return localDataStore.insertOrUpdateTileSet(
-                  tileSet.toBuilder().setState(State.FAILED).build());
+                  tileSet.copy(
+                      tileSet.getUrl(),
+                      tileSet.getId(),
+                      tileSet.getPath(),
+                      TileSet.State.FAILED,
+                      tileSet.getOfflineAreaReferenceCount()));
             })
         .andThen(
             localDataStore.insertOrUpdateTileSet(
-                tileSet.toBuilder().setState(State.DOWNLOADED).build()));
+                tileSet.copy(
+                    tileSet.getUrl(),
+                    tileSet.getId(),
+                    tileSet.getPath(),
+                    TileSet.State.DOWNLOADED,
+                    tileSet.getOfflineAreaReferenceCount())));
   }
 
   /**
@@ -188,8 +201,7 @@ public class TileSetDownloadWorker extends BaseWorker {
   @NonNull
   @Override
   public Result doWork() {
-    ImmutableList<TileSet> pendingTileSets =
-        localDataStore.getPendingTileSets().blockingGet();
+    ImmutableList<TileSet> pendingTileSets = localDataStore.getPendingTileSets().blockingGet();
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.

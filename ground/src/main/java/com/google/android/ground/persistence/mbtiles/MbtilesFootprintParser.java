@@ -105,12 +105,11 @@ public class MbtilesFootprintParser {
   private TileSet jsonToTileSet(TileSetJson json) {
     // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
     // Throw an exception here and handle it downstream.
-    return TileSet.newBuilder()
-        .setId(uuidGenerator.generateUuid())
-        .setUrl(json.getUrl().orElse(""))
-        .setState(State.PENDING)
-        .setPath(TileSet.pathFromId(json.getId().orElse("")))
-        .setOfflineAreaReferenceCount(0)
-        .build();
+    return new TileSet(
+        json.getUrl().orElse(""),
+        uuidGenerator.generateUuid(),
+        TileSet.pathFromId(json.getId().orElse("")),
+        State.PENDING,
+        0);
   }
 }
