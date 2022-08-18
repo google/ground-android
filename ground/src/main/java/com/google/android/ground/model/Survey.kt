@@ -26,14 +26,14 @@ data class Survey @JvmOverloads constructor(
     val id: String,
     val title: String,
     val description: String,
-    val jobMap: ImmutableMap<String, Job?>,
+    val jobMap: ImmutableMap<String, Job>,
     val baseMaps: ImmutableList<BaseMap> = ImmutableList.of(),
     val acl: ImmutableMap<String, String> = ImmutableMap.of()
 ) {
-    val jobs: ImmutableList<Job?>
+    val jobs: ImmutableList<Job>
         get() = jobMap.values.asList()
 
     fun getJob(jobId: String): Optional<Job> {
-        return Optional.ofNullable(jobMap[jobId])
+        return Optional.of(jobMap[jobId])
     }
 }
