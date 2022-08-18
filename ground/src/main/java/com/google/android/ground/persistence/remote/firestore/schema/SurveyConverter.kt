@@ -18,11 +18,12 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.schema.JobConverter.toJob
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.DocumentSnapshot
-import java8.util.Maps
 import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
@@ -35,28 +36,40 @@ internal object SurveyConverter {
         val pd = DataStoreException.checkNotNull(
             doc.toObject(SurveyDocument::class.java), "surveyDocument"
         )
-        val survey = Survey.newBuilder()
-        survey.setId(doc.id).setTitle(pd.title.orEmpty()).setDescription(pd.description.orEmpty())
+
+        val jobMap = ImmutableMap.builder<String, Job>()
         if (pd.jobs != null) {
-            Maps.forEach(pd.jobs) { id: String, obj: JobNestedObject ->
-                survey.putJob(toJob(id, obj))
+            pd.jobs.forEach { (id: String, obj: JobNestedObject) ->
+                jobMap.put(id, toJob(id, obj))
             }
         }
-        survey.setAcl(ImmutableMap.copyOf(pd.acl))
+
+        val baseMaps = ImmutableList.builder<BaseMap>()
         if (pd.baseMaps != null) {
-            convertOfflineBaseMapSources(pd, survey)
+            convertOfflineBaseMapSources(pd, baseMaps)
         }
-        return survey.build()
+
+        return Survey(
+            doc.id,
+            pd.title.orEmpty(),
+            pd.description.orEmpty(),
+            jobMap.build(),
+            baseMaps.build(),
+            ImmutableMap.copyOf(pd.acl)
+        )
     }
 
-    private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: Survey.Builder) {
+    private fun convertOfflineBaseMapSources(
+        pd: SurveyDocument,
+        builder: ImmutableList.Builder<BaseMap>
+    ) {
         for ((url) in pd.baseMaps!!) {
             if (url == null) {
                 Timber.d("Skipping base map source in survey with missing URL")
                 continue
             }
             try {
-                builder.addBaseMap(
+                builder.add(
                     BaseMap(URL(url), BaseMap.typeFromExtension(url))
                 )
             } catch (e: MalformedURLException) {

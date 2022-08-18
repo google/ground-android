@@ -22,10 +22,13 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.basemap.BaseMap;
+import com.google.android.ground.model.job.Job;
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations;
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.net.MalformedURLException;
 import java.util.Iterator;
@@ -67,27 +70,31 @@ public abstract class SurveyEntity {
   }
 
   public static Survey toSurvey(SurveyEntityAndRelations surveyEntityAndRelations) {
-    SurveyEntity surveyEntity = surveyEntityAndRelations.surveyEntity;
-    Survey.Builder surveyBuilder =
-        Survey.newBuilder()
-            .setId(surveyEntity.getId())
-            .setTitle(surveyEntity.getTitle())
-            .setDescription(surveyEntity.getDescription())
-            .setAcl(toStringMap(surveyEntity.getAcl()));
+    ImmutableMap.Builder<String, Job> jobMap = ImmutableMap.builder();
+    ImmutableList.Builder<BaseMap> baseMaps = ImmutableList.<BaseMap>builder();
 
     for (JobEntityAndRelations jobEntityAndRelations :
         surveyEntityAndRelations.jobEntityAndRelations) {
-      surveyBuilder.putJob(JobEntity.toJob(jobEntityAndRelations));
+      Job job = JobEntity.toJob(jobEntityAndRelations);
+      jobMap.put(job.getId(), job);
     }
+
     for (BaseMapEntity source : surveyEntityAndRelations.baseMapEntityAndRelations) {
       try {
-        surveyBuilder.addBaseMap(BaseMapEntity.toModel(source));
+        baseMaps.add(BaseMapEntity.toModel(source));
       } catch (MalformedURLException e) {
         Timber.d("Skipping basemap source with malformed URL %s", source.getUrl());
       }
     }
 
-    return surveyBuilder.build();
+    SurveyEntity surveyEntity = surveyEntityAndRelations.surveyEntity;
+    return new Survey(
+        surveyEntity.getId(),
+        surveyEntity.getTitle(),
+        surveyEntity.getDescription(),
+        jobMap.build(),
+        baseMaps.build(),
+        toStringMap(surveyEntity.getAcl()));
   }
 
   private static ImmutableMap<String, String> toStringMap(JSONObject jsonObject) {

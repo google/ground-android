@@ -36,8 +36,7 @@ object DataCollectionTestData {
     const val loiName = "loiName"
     val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
     private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-    private val survey = Survey.newBuilder().setId(surveyId).setTitle("surveyTitle")
-        .setDescription("surveyDescription").build()
+    private val survey = Survey(surveyId, "surveyTitle", "surveyDescription", ImmutableMap.of())
     val submission: Submission = Submission.newBuilder()
         .setId(submissionId)
         .setSurvey(survey)
