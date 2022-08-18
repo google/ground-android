@@ -70,8 +70,7 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
     this.offlineUuidGenerator = offlineUuidGenerator;
     this.resources = resources;
     this.remoteTileSets =
-            remoteTileRequests.switchMapSingle(
-                __ -> offlineAreaRepository.getTileSets());
+        remoteTileRequests.switchMapSingle(__ -> offlineAreaRepository.getTileSets());
   }
 
   private DownloadMessage onEnqueueError(Throwable e) {
@@ -94,12 +93,11 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
     }
 
     downloadClicks.onNext(
-        OfflineArea.newBuilder()
-            .setBounds(viewport)
-            .setId(offlineUuidGenerator.generateUuid())
-            .setState(State.PENDING)
-            .setName(resources.getString(R.string.unnamed_area))
-            .build());
+        new OfflineArea(
+            offlineUuidGenerator.generateUuid(),
+            State.PENDING,
+            viewport,
+            resources.getString(R.string.unnamed_area)));
   }
 
   public Flowable<ImmutableList<TileSet>> getRemoteTileSets() {

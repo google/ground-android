@@ -144,12 +144,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
       new TileSet("some_url 3", "id_3", "some_path 3", State.FAILED, 1);
 
   private static final OfflineArea TEST_OFFLINE_AREA =
-      OfflineArea.newBuilder()
-          .setId("id_1")
-          .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
-          .setState(OfflineArea.State.PENDING)
-          .setName("Test Area")
-          .build();
+      new OfflineArea(
+          "id_1",
+          OfflineArea.State.PENDING,
+          LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build(),
+          "Test Area");
 
   @Inject LocalDataStore localDataStore;
   @Inject LocalValueStore localValueStore;
