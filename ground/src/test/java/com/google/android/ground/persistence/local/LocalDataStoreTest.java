@@ -75,12 +75,12 @@ public class LocalDataStoreTest extends BaseHiltTest {
           ImmutableMap.<String, Task>builder().put(TEST_TASK.getId(), TEST_TASK).build());
 
   private static final Survey TEST_SURVEY =
-      Survey.newBuilder()
-          .setId("survey id")
-          .setTitle("survey 1")
-          .setDescription("foo description")
-          .putJob(TEST_JOB)
-          .build();
+      new Survey(
+          "survey id",
+          "survey 1",
+          "foo description",
+          ImmutableMap.<String, Job>builder().put(TEST_JOB.getId(), TEST_JOB).build()
+      );
 
   private static final Point TEST_POINT =
       new Point(110.0, -23.1);
@@ -224,21 +224,19 @@ public class LocalDataStoreTest extends BaseHiltTest {
     Job job2 = new Job("job 2", "job 2 name");
 
     Survey survey =
-        Survey.newBuilder()
-            .setId("foo id")
-            .setTitle("foo survey")
-            .setDescription("foo survey description")
-            .putJob(job1)
-            .build();
+        new Survey(
+            "foo id",
+            "foo survey",
+            "foo survey description",
+            ImmutableMap.<String, Job>builder().put(job1.getId(), job1).build());
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
 
     survey =
-        Survey.newBuilder()
-            .setId("foo id")
-            .setTitle("foo survey")
-            .setDescription("foo survey description")
-            .putJob(job2)
-            .build();
+        new Survey(
+            "foo id",
+            "foo survey",
+            "foo survey description",
+            ImmutableMap.<String, Job>builder().put(job2.getId(), job2).build());
     localDataStore.insertOrUpdateSurvey(survey).blockingAwait();
 
     localDataStore

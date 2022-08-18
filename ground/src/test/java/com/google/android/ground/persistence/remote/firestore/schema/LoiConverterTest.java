@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema;
 
 import static com.google.android.ground.model.TestModelBuilders.newGeoPointPolygonVertices;
-import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
@@ -66,7 +65,12 @@ public class LoiConverterTest {
     stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
 
     Job job = new Job(jobId, "jobName", taskMap.build());
-    survey = newSurvey().putJob(job).build();
+    survey = new Survey(
+        "",
+        "",
+        "",
+        ImmutableMap.<String, Job>builder().put(job.getId(), job).build()
+    );
   }
 
   @Test

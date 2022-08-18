@@ -50,16 +50,13 @@ object FakeData {
         User("user_id_2", "user2@gmail.com", "User2")
 
     @JvmField
-    val SURVEY: Survey = newSurvey().build()
-
-    @JvmStatic
-    fun newSurvey(): Survey.Builder {
-        return Survey.newBuilder()
-            .setId("SURVEY")
-            .setTitle("Survey title")
-            .setDescription("Test survey description")
-            .setAcl(ImmutableMap.of(USER.email, "data_collector"))
-    }
+    val SURVEY: Survey = Survey(
+        "SURVEY",
+        "Survey title",
+        "Test survey description",
+        ImmutableMap.of(),
+        ImmutableList.of(),
+        ImmutableMap.of(USER.email, "data_collector"))
 
     @JvmField
     val POINT_OF_INTEREST = LocationOfInterest(

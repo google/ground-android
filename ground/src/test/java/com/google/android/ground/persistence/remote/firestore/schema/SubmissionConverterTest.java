@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.common.truth.Truth.assertThat;
 import static java8.util.J8Arrays.stream;
@@ -251,7 +250,12 @@ public class SubmissionConverterTest {
     stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
 
     job = new Job(jobId, "jobName", taskMap.build());
-    survey = newSurvey().putJob(job).build();
+    survey = new Survey(
+        "",
+        "",
+        "",
+        ImmutableMap.<String, Job>builder().put(job.getId(), job).build()
+    );
   }
 
   @Test

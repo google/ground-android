@@ -24,6 +24,6 @@ import com.google.android.ground.model.task.Option
 internal object OptionConverter {
 
     fun toOption(id: String, option: OptionNestedObject): Option =
-        Option(id, option.code ?: "", option.label ?: "")
+        Option(id, option.code.orEmpty(), option.label.orEmpty())
 
 }
