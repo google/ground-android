@@ -26,7 +26,7 @@ import java.util.*
  * A user-provided response to a date question task.
  */
 @Serializable
-class DateResponse(val date: @Contextual Date) : Response {
+data class DateResponse(val date: @Contextual Date) : Response {
     // TODO(#752): Use device localization preferences.
     private val dateFormat: @Contextual DateFormat =
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -36,14 +36,6 @@ class DateResponse(val date: @Contextual Date) : Response {
     override fun getDetailsText(): String = synchronized(dateFormat) { dateFormat.format(date) }
 
     override fun isEmpty(): Boolean = date.time == 0L
-
-    override fun equals(obj: Any?): Boolean = if (obj is DateResponse) {
-        date === obj.date
-    } else false
-
-    override fun hashCode(): Int = date.toString().hashCode()
-
-    override fun toString(): String = date.toString()
 
     companion object {
         @JvmStatic
