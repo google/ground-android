@@ -120,11 +120,10 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setSubmissionId("submission id")
           .setResponseDeltas(
               ImmutableList.of(
-                  ResponseDelta.builder()
-                      .setTaskId("task id")
-                      .setTaskType(Task.Type.TEXT)
-                      .setNewResponse(TextResponse.fromString("updated response"))
-                      .build()))
+                  new ResponseDelta(
+                      "task id",
+                      Task.Type.TEXT,
+                      TextResponse.fromString("updated response"))))
           .setId(1L)
           .setType(Mutation.Type.CREATE)
           .setSyncStatus(SyncStatus.PENDING)
@@ -422,11 +421,10 @@ public class LocalDataStoreTest extends BaseHiltTest {
     // now update the inserted submission with new responses
     ImmutableList<ResponseDelta> deltas =
         ImmutableList.of(
-            ResponseDelta.builder()
-                .setTaskId("task id")
-                .setTaskType(Task.Type.TEXT)
-                .setNewResponse(TextResponse.fromString("value for the really new task"))
-                .build());
+            new ResponseDelta(
+                "task id",
+                Task.Type.TEXT,
+                TextResponse.fromString("value for the really new task")));
 
     SubmissionMutation mutation =
         TEST_SUBMISSION_MUTATION.toBuilder()

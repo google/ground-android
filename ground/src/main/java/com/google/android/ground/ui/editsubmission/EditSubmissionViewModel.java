@@ -286,11 +286,10 @@ public class EditSubmissionViewModel extends AbstractViewModel {
         continue;
       }
       deltas.add(
-          ResponseDelta.builder()
-              .setTaskId(taskId)
-              .setTaskType(task.getType())
-              .setNewResponse(currentResponse)
-              .build());
+          new ResponseDelta(
+              taskId,
+              task.getType(),
+              currentResponse));
     }
     ImmutableList<ResponseDelta> result = deltas.build();
     Timber.v("Deltas: %s", result);

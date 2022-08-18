@@ -36,23 +36,18 @@ object ResponseDeltasConverter {
     private const val KEY_NEW_RESPONSE = "newResponse"
 
     @JvmStatic
-    fun toString(responseDeltas: ImmutableList<ResponseDelta>): String =
-        JSONObject().apply {
-            for (delta in responseDeltas) {
-                try {
-                    put(
-                        delta.taskId,
-                        JSONObject()
-                            .put(KEY_TASK_TYPE, delta.taskType.name)
-                            .put(KEY_NEW_RESPONSE,
-                                delta.newResponse.map { ResponseJsonConverter.toJsonObject(it) }
-                                    .orElse(JSONObject.NULL))
-                    )
-                } catch (e: JSONException) {
-                    Timber.e(e, "Error building JSON")
-                }
+    fun toString(responseDeltas: ImmutableList<ResponseDelta>): String = JSONObject().apply {
+        for (delta in responseDeltas) {
+            try {
+                put(delta.taskId, JSONObject().put(KEY_TASK_TYPE, delta.taskType.name).put(
+                        KEY_NEW_RESPONSE,
+                        delta.newResponse.map { ResponseJsonConverter.toJsonObject(it) }
+                            .orElse(JSONObject.NULL)))
+            } catch (e: JSONException) {
+                Timber.e(e, "Error building JSON")
             }
-        }.toString()
+        }
+    }.toString()
 
     @JvmStatic
     fun fromString(job: Job, jsonString: String?): ImmutableList<ResponseDelta> {
@@ -70,18 +65,11 @@ object ResponseDeltasConverter {
                         .orElseThrow { LocalDataConsistencyException("Unknown task id $taskId") }
                     val jsonDelta = jsonObject.getJSONObject(taskId)
                     deltas.add(
-                        ResponseDelta.builder()
-                            .setTaskId(taskId)
-                            .setTaskType(
-                                toEnum(
-                                    Task.Type::class.java,
-                                    jsonDelta.getString(KEY_TASK_TYPE)
-                                )
-                            )
-                            .setNewResponse(
-                                ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_RESPONSE])
-                            )
-                            .build()
+                        ResponseDelta(
+                            taskId, toEnum(
+                                Task.Type::class.java, jsonDelta.getString(KEY_TASK_TYPE)
+                            ), ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_RESPONSE])
+                        )
                     )
                 } catch (e: LocalDataConsistencyException) {
                     Timber.d("Bad response in local db: " + e.message)
