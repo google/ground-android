@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
 import static com.google.common.truth.Truth.assertThat;
@@ -59,18 +58,10 @@ public class SubmissionConverterTest {
   private LocationOfInterest locationOfInterest;
 
   private static final AuditInfo AUDIT_INFO_1 =
-      newAuditInfo()
-          .setUser(new User("user1", "", ""))
-          .setClientTimestamp(new Date(100))
-          .setServerTimestamp(Optional.of(new Date(101)))
-          .build();
+      new AuditInfo(new User("user1", "", ""), new Date(100), Optional.of(new Date(101)));
 
   private static final AuditInfo AUDIT_INFO_2 =
-      newAuditInfo()
-          .setUser(new User("user2", "", ""))
-          .setClientTimestamp(new Date(200))
-          .setServerTimestamp(Optional.of(new Date(201)))
-          .build();
+      new AuditInfo(new User("user2", "", ""), new Date(200), Optional.of(new Date(201)));
 
   private static final AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
       new AuditInfoNestedObject(

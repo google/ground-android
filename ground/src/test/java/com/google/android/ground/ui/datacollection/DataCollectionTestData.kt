@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders
 import com.google.android.ground.model.User
@@ -34,11 +35,7 @@ object DataCollectionTestData {
     const val jobName = "jobName"
     const val loiName = "loiName"
     val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
-    private val auditInfo = TestModelBuilders.newAuditInfo()
-        .setUser(User("user1", "", ""))
-        .setClientTimestamp(Date(100))
-        .setServerTimestamp(Optional.of(Date(101)))
-        .build()
+    private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
     private val survey = Survey.newBuilder().setId(surveyId).setTitle("surveyTitle")
         .setDescription("surveyDescription").build()
     val submission: Submission = Submission.newBuilder()

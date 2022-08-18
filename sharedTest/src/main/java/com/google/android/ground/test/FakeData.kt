@@ -68,8 +68,8 @@ object FakeData {
         JOB,
         null,
         null,
-        AuditInfo.now(USER),
-        AuditInfo.now(USER),
+        AuditInfo(USER),
+        AuditInfo(USER),
         Point(0.0, 0.0).toGeometry()
     )
 
@@ -88,8 +88,8 @@ object FakeData {
         JOB,
         "",
         "",
-        AuditInfo.now(USER),
-        AuditInfo.now(USER),
+        AuditInfo(USER),
+        AuditInfo(USER),
         GeometryFactory().createPolygon(VERTICES.map { it.toGeometry().coordinate }.toTypedArray()),
     )
 

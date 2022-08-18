@@ -168,7 +168,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
         val polygon = mapPolygon.get()
         check(polygon.isPolygonComplete) { "Polygon is not complete" }
-        val auditInfo = AuditInfo.now(authManager.currentUser)
+        val auditInfo = AuditInfo(authManager.currentUser)
         val areaOfInterest = LocationOfInterest(
             id = polygon.id,
             geometry = polygon.vertices.toPolygon(),

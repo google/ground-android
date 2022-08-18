@@ -527,7 +527,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable insertOrUpdateLocationOfInterest(
       LocationOfInterestMutation mutation, User user) {
     return locationOfInterestDao
-        .insertOrUpdate(LocationOfInterestEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .insertOrUpdate(LocationOfInterestEntity.fromMutation(mutation, new AuditInfo(user)))
         .subscribeOn(schedulers.io());
   }
 
@@ -590,7 +590,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private Completable createSubmission(SubmissionMutation mutation, User user) {
     return submissionDao
-        .insert(SubmissionEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .insert(SubmissionEntity.fromMutation(mutation, new AuditInfo(user)))
         .doOnSubscribe(__ -> Timber.v("Inserting submission: %s", mutation))
         .subscribeOn(schedulers.io());
   }
@@ -615,7 +615,8 @@ public class RoomLocalDataStore implements LocalDataStore {
    * a new submission. In these cases creation metadata is unknown, so empty audit info is used.
    */
   private SingleSource<SubmissionEntity> fallbackSubmission(SubmissionMutation mutation) {
-    return em -> em.onSuccess(SubmissionEntity.fromMutation(mutation, AuditInfo.builder().build()));
+    return em -> em.onSuccess(SubmissionEntity.fromMutation(mutation, new AuditInfo(
+        new User("", "", ""))));
   }
 
   private Completable markSubmissionForDeletion(
