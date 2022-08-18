@@ -19,8 +19,6 @@ package com.google.android.ground.persistence.remote.firestore.schema
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
-import com.google.android.ground.rx.ValueOrError
-import com.google.android.ground.rx.ValueOrError.Companion.create
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
@@ -35,7 +33,7 @@ class SubmissionCollectionReference internal constructor(ref: CollectionReferenc
 
     fun submissionsByLocationOfInterestId(
         locationOfInterest: LocationOfInterest
-    ): @Cold Single<ImmutableList<ValueOrError<Submission?>>> {
+    ): @Cold Single<ImmutableList<Result<Submission>>> {
         return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
             .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
             .toSingle(ImmutableList.of())
@@ -43,10 +41,10 @@ class SubmissionCollectionReference internal constructor(ref: CollectionReferenc
 
     private fun convert(
         querySnapshot: QuerySnapshot, locationOfInterest: LocationOfInterest
-    ): ImmutableList<ValueOrError<Submission?>> {
+    ): ImmutableList<Result<Submission>> {
         return querySnapshot.documents
             .map { doc: DocumentSnapshot ->
-                create {
+                runCatching {
                     SubmissionConverter.toSubmission(locationOfInterest, doc)
                 }
             }
