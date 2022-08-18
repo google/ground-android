@@ -69,7 +69,7 @@ internal object ResponseJsonConverter {
     @JvmStatic
     fun toResponse(task: Task, obj: Any): Optional<Response> =
         when (task.type) {
-            Task.Type.TEXT_FIELD, Task.Type.PHOTO -> {
+            Task.Type.TEXT, Task.Type.PHOTO -> {
                 if (obj === JSONObject.NULL) {
                     TextResponse.fromString("")
                 } else {

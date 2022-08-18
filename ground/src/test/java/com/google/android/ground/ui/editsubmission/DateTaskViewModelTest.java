@@ -20,7 +20,7 @@ import static com.google.android.ground.test.TestObservers.observeUntilFirstChan
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.submission.TimeResponse;
+import com.google.android.ground.model.submission.DateResponse;
 import com.google.android.ground.rx.Nil;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
@@ -32,27 +32,27 @@ import org.robolectric.RobolectricTestRunner;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
-public class TimeFieldViewModelTest extends BaseHiltTest {
+public class DateTaskViewModelTest extends BaseHiltTest {
 
   // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
   private static final Date TEST_DATE = new Date(1632501600000L);
 
-  @Inject TimeFieldViewModel timeFieldViewModel;
+  @Inject DateTaskViewModel dateTaskViewModel;
 
   @Test
   public void testUpdateResponse() {
-    timeFieldViewModel.updateResponse(TEST_DATE);
+    dateTaskViewModel.updateResponse(TEST_DATE);
 
-    observeUntilFirstChange(timeFieldViewModel.getResponse());
-    assertThat(timeFieldViewModel.getResponse().getValue())
-        .isEqualTo(TimeResponse.fromDate(TEST_DATE));
+    observeUntilFirstChange(dateTaskViewModel.getResponse());
+    assertThat(dateTaskViewModel.getResponse().getValue())
+        .isEqualTo(DateResponse.fromDate(TEST_DATE));
   }
 
   @Test
   public void testDialogClick() {
-    TestObserver<Nil> testObserver = timeFieldViewModel.getShowDialogClicks().test();
+    TestObserver<Nil> testObserver = dateTaskViewModel.getShowDialogClicks().test();
 
-    timeFieldViewModel.onShowDialogClick();
+    dateTaskViewModel.onShowDialogClick();
 
     testObserver.assertNoErrors().assertNotComplete().assertValue(Nil.NIL);
   }

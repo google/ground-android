@@ -23,19 +23,19 @@
   <item name="marker_bitmap_default_scale" format="float" type="dimen">1.8</item>
   <item name="marker_bitmap_zoomed_scale" format="float" type="dimen">2.5</item>
 
-  <!-- Forms -->
-  <dimen name="field_label_text_size">14sp</dimen>
-  <dimen name="edit_field_label_text_size">18sp</dimen>
-  <dimen name="field_value_text_size">18sp</dimen>
-  <dimen name="field_horizontal_padding">16dp</dimen>
-  <dimen name="field_top_padding">18dp</dimen>
-  <dimen name="field_value_top_padding">4dp</dimen>
-  <dimen name="field_bottom_padding">0dp</dimen>
-  <dimen name="field_horizontal_margin">14dp</dimen>
-  <dimen name="field_vertical_margin">8dp</dimen>
+  <!-- Task -->
+  <dimen name="task_label_text_size">14sp</dimen>
+  <dimen name="edit_task_label_text_size">18sp</dimen>
+  <dimen name="task_value_text_size">18sp</dimen>
+  <dimen name="task_horizontal_padding">16dp</dimen>
+  <dimen name="task_top_padding">18dp</dimen>
+  <dimen name="task_value_top_padding">4dp</dimen>
+  <dimen name="task_bottom_padding">0dp</dimen>
+  <dimen name="task_horizontal_margin">14dp</dimen>
+  <dimen name="task_vertical_margin">8dp</dimen>
 
-  <!-- Space between fields in Submission Details View -->
-  <dimen name="details_field_spacing">4dp</dimen>
+  <!-- Space between tasks in Submission Details View -->
+  <dimen name="details_task_spacing">4dp</dimen>
 
   <!-- Submission menu button -->
   <dimen name="submission_menu_btn_top">6dp</dimen>
@@ -47,7 +47,7 @@
   <dimen name="sheet_title_horizontal_margin">10dp</dimen>
   <dimen name="sheet_title_top_margin">8dp</dimen>
 
-  <dimen name="header_field_horizontal_margin">12dp</dimen>
+  <dimen name="header_task_horizontal_margin">12dp</dimen>
 
   <!-- Task selection tabs -->
   <dimen name="tab_max_width">264dp</dimen>
@@ -69,7 +69,7 @@
   <dimen name="submission_status_margin_left">6dp</dimen>
   <dimen name="submission_status_text_size">12sp</dimen>
   <dimen name="data_sheet_header_height">70dp</dimen>
-  <dimen name="field_error_padding_bottom">6dp</dimen>
+  <dimen name="task_error_padding_bottom">6dp</dimen>
   <!-- TODO: Make dimensions relative using Android data binding. -->
   <dimen name="bottom_sheet_margin_top">16dp</dimen>
   <dimen name="loi_details_icon_bg_diameter">58dp</dimen>
@@ -78,7 +78,7 @@
   <dimen name="loi_details_header_corner_radius">6dp</dimen>
   <dimen name="submission_list_item_horizontal_margin">14dp</dimen>
   <dimen name="submission_list_item_horizontal_vertical">10dp</dimen>
-  <dimen name="submission_list_field_label_size">12sp</dimen>
+  <dimen name="submission_list_task_label_size">12sp</dimen>
   <dimen name="submission_list_text_size">14sp</dimen>
   <dimen name="submission_summary_text_padding_right">8dp</dimen>
   <dimen name="submission_summary_text_max_width">128dp</dimen>

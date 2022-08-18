@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firestore.schema;
 import static com.google.android.ground.model.TestModelBuilders.newAuditInfo;
 import static com.google.android.ground.model.TestModelBuilders.newSurvey;
 import static com.google.android.ground.model.TestModelBuilders.newTask;
-import static com.google.android.ground.model.TestModelBuilders.newUser;
 import static com.google.common.truth.Truth.assertThat;
 import static java8.util.J8Arrays.stream;
 import static org.junit.Assert.assertThrows;
@@ -27,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.MultipleChoiceResponse;
@@ -60,14 +60,14 @@ public class SubmissionConverterTest {
 
   private static final AuditInfo AUDIT_INFO_1 =
       newAuditInfo()
-          .setUser(newUser().setId("user1").build())
+          .setUser(new User("user1", "", ""))
           .setClientTimestamp(new Date(100))
           .setServerTimestamp(Optional.of(new Date(101)))
           .build();
 
   private static final AuditInfo AUDIT_INFO_2 =
       newAuditInfo()
-          .setUser(newUser().setId("user2").build())
+          .setUser(new User("user2", "", ""))
           .setClientTimestamp(new Date(200))
           .setServerTimestamp(Optional.of(new Date(201)))
           .build();
@@ -91,10 +91,7 @@ public class SubmissionConverterTest {
     setUpTestSurvey(
         "job001",
         newTask("task1"),
-        newTask(
-            "task2",
-            Task.Type.MULTIPLE_CHOICE,
-            MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build()),
+        newTask("task2", Task.Type.MULTIPLE_CHOICE, new MultipleChoice(Cardinality.SELECT_ONE)),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
     setUpTestLoi("loi001");
@@ -131,11 +128,15 @@ public class SubmissionConverterTest {
                     ResponseMap.builder()
                         .putResponse("task1", new TextResponse("Text response"))
                         .putResponse(
-                            "task2", new MultipleChoiceResponse(null, ImmutableList.of("option2")))
+                            "task2",
+                            new MultipleChoiceResponse(
+                                new MultipleChoice(Cardinality.SELECT_ONE),
+                                ImmutableList.of("option2")))
                         .putResponse(
                             "task3",
                             new MultipleChoiceResponse(
-                                null, ImmutableList.of("optionA", "optionB")))
+                                new MultipleChoice(Cardinality.SELECT_ONE),
+                                ImmutableList.of("optionA", "optionB")))
                         .putResponse("task4", new TextResponse("Photo URL"))
                         .build())
                 .setCreated(AUDIT_INFO_1)

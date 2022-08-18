@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.annotation.Nullable;
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
+import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.test.FakeData;
@@ -46,7 +47,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             FakeData.POINT_OF_INTEREST.getJob(),
             FakeData.POINT_OF_INTEREST.getCustomId(),
             FakeData.POINT_OF_INTEREST.getCaption(),
-            AuditInfo.now(FakeData.USER.toBuilder().setDisplayName("Test User").build()),
+            AuditInfo.now(new User("", "", "Test User")),
             FakeData.POINT_OF_INTEREST.getLastModified(),
             FakeData.POINT_OF_INTEREST.getGeometry());
     assertCreatedBy(loi, "Added by Test User");

@@ -43,12 +43,11 @@ object FakeData {
 
     @JvmField
     val USER =
-        User.builder().setId("user_id").setEmail("user@gmail.com").setDisplayName("User").build()
+        User("user_id", "user@gmail.com", "User")
 
     @JvmField
     val USER_2 =
-        User.builder().setId("user_id_2").setEmail("user2@gmail.com").setDisplayName("User2")
-            .build()
+        User("user_id_2", "user2@gmail.com", "User2")
 
     @JvmField
     val SURVEY: Survey = newSurvey().build()
@@ -71,15 +70,15 @@ object FakeData {
         null,
         AuditInfo.now(USER),
         AuditInfo.now(USER),
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build().toGeometry()
+        Point(0.0, 0.0).toGeometry()
     )
 
     @JvmField
     val VERTICES: ImmutableList<Point> = ImmutableList.of(
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
-        Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
-        Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build(),
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
+        Point(0.0, 0.0),
+        Point(10.0, 10.0),
+        Point(20.0, 20.0),
+        Point(0.0, 0.0),
     )
 
     @JvmField
@@ -95,5 +94,5 @@ object FakeData {
     )
 
     @JvmField
-    val POINT = Point.newBuilder().setLatitude(42.0).setLongitude(18.0).build()
+    val POINT = Point(42.0, 18.0)
 }

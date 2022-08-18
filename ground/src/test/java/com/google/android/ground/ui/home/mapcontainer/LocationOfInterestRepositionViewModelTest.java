@@ -31,7 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 public class LocationOfInterestRepositionViewModelTest extends BaseHiltTest {
 
   private static final Point TEST_POINT =
-      Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
+      Point.zero();
 
   @Inject
   LocationOfInterestRepositionViewModel viewModel;

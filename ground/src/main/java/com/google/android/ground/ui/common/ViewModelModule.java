@@ -20,13 +20,13 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.ground.MainViewModel;
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel;
-import com.google.android.ground.ui.editsubmission.DateFieldViewModel;
+import com.google.android.ground.ui.editsubmission.DateTaskViewModel;
 import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel;
-import com.google.android.ground.ui.editsubmission.MultipleChoiceFieldViewModel;
-import com.google.android.ground.ui.editsubmission.NumberFieldViewModel;
-import com.google.android.ground.ui.editsubmission.PhotoFieldViewModel;
-import com.google.android.ground.ui.editsubmission.TextFieldViewModel;
-import com.google.android.ground.ui.editsubmission.TimeFieldViewModel;
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel;
+import com.google.android.ground.ui.editsubmission.NumberTaskViewModel;
+import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel;
+import com.google.android.ground.ui.editsubmission.TextTaskViewModel;
+import com.google.android.ground.ui.editsubmission.TimeTaskViewModel;
 import com.google.android.ground.ui.home.HomeScreenViewModel;
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel;
@@ -147,33 +147,33 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(PhotoFieldViewModel.class)
-  abstract ViewModel bindPhotoFieldViewModel(PhotoFieldViewModel viewModel);
+  @ViewModelKey(PhotoTaskViewModel.class)
+  abstract ViewModel bindPhotoTaskViewModel(PhotoTaskViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(MultipleChoiceFieldViewModel.class)
-  abstract ViewModel bindMultipleChoiceFieldViewModel(MultipleChoiceFieldViewModel viewModel);
+  @ViewModelKey(MultipleChoiceTaskViewModel.class)
+  abstract ViewModel bindMultipleChoiceTaskViewModel(MultipleChoiceTaskViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(TextFieldViewModel.class)
-  abstract ViewModel bindTextFieldViewModel(TextFieldViewModel viewModel);
+  @ViewModelKey(TextTaskViewModel.class)
+  abstract ViewModel bindTextTaskViewModel(TextTaskViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(NumberFieldViewModel.class)
-  abstract ViewModel bindNumberFieldViewModel(NumberFieldViewModel viewModel);
+  @ViewModelKey(NumberTaskViewModel.class)
+  abstract ViewModel bindNumberTaskViewModel(NumberTaskViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(DateFieldViewModel.class)
-  abstract ViewModel bindDateFieldViewModel(DateFieldViewModel viewModel);
+  @ViewModelKey(DateTaskViewModel.class)
+  abstract ViewModel bindDateTaskViewModel(DateTaskViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(TimeFieldViewModel.class)
-  abstract ViewModel bindTimeFieldViewModel(TimeFieldViewModel viewModel);
+  @ViewModelKey(TimeTaskViewModel.class)
+  abstract ViewModel bindTimeTaskViewModel(TimeTaskViewModel viewModel);
 
   @Binds
   @IntoMap

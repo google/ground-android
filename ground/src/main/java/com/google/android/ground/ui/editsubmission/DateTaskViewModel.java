@@ -17,17 +17,34 @@
 package com.google.android.ground.ui.editsubmission;
 
 import android.content.res.Resources;
-import com.google.android.ground.model.submission.NumberResponse;
+import com.google.android.ground.model.submission.DateResponse;
+import com.google.android.ground.rx.Nil;
+import com.google.android.ground.rx.annotations.Hot;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+import java.util.Date;
 import javax.inject.Inject;
 
-public class NumberFieldViewModel extends AbstractFieldViewModel {
+public class DateTaskViewModel extends AbstractTaskViewModel {
+
+  @Hot
+  private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
-  NumberFieldViewModel(Resources resources) {
+  DateTaskViewModel(Resources resources) {
     super(resources);
   }
 
-  public void updateResponse(String number) {
-    setResponse(NumberResponse.fromNumber(number));
+  public void updateResponse(Date date) {
+    setResponse(DateResponse.fromDate(date));
+  }
+
+  public void onShowDialogClick() {
+    showDialogClicks.onNext(Nil.NIL);
+  }
+
+  public Observable<Nil> getShowDialogClicks() {
+    return showDialogClicks;
   }
 }

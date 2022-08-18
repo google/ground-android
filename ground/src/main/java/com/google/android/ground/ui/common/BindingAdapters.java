@@ -28,7 +28,7 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.ground.R;
-import com.google.android.ground.ui.editsubmission.MultipleChoiceFieldLayout;
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
@@ -72,7 +72,7 @@ public class BindingAdapters {
   }
 
   @BindingAdapter("onShowDialog")
-  public static void setOnShowDialogListener(MultipleChoiceFieldLayout view, Runnable listener) {
+  public static void setOnShowDialogListener(MultipleChoiceTaskLayout view, Runnable listener) {
     view.setOnShowDialogListener(listener);
   }
 

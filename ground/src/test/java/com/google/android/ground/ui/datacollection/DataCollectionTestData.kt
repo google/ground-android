@@ -17,12 +17,12 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders
+import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.Task
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 import java.util.*
@@ -35,7 +35,7 @@ object DataCollectionTestData {
     const val loiName = "loiName"
     val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
     private val auditInfo = TestModelBuilders.newAuditInfo()
-        .setUser(TestModelBuilders.newUser().setId("user1").build())
+        .setUser(User("user1", "", ""))
         .setClientTimestamp(Date(100))
         .setServerTimestamp(Optional.of(Date(101)))
         .build()
@@ -53,7 +53,7 @@ object DataCollectionTestData {
                 loiName,
                 auditInfo,
                 auditInfo,
-                Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build().toGeometry()
+                Point.zero().toGeometry()
             )
         )
         .setCreated(auditInfo)

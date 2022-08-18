@@ -291,13 +291,13 @@ public class LocationOfInterestRepositoryTest extends BaseHiltTest {
   }
 
   @Test
-  public void testPolygonInfoShown() {
-    assertThat(locationOfInterestRepository.isPolygonDialogInfoShown()).isFalse();
+  public void testPolygonInfoDialogShown() {
+    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown()).isFalse();
 
     locationOfInterestRepository.setPolygonDialogInfoShown(true);
-    assertThat(locationOfInterestRepository.isPolygonDialogInfoShown()).isTrue();
+    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown()).isTrue();
 
     locationOfInterestRepository.setPolygonDialogInfoShown(false);
-    assertThat(locationOfInterestRepository.isPolygonDialogInfoShown()).isFalse();
+    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown()).isFalse();
   }
 }

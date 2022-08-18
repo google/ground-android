@@ -37,8 +37,7 @@ import javax.inject.Inject
 private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
 
 class GoogleAuthenticationManager @Inject constructor(
-    resources: Resources,
-    private val activityStreams: ActivityStreams
+    resources: Resources, private val activityStreams: ActivityStreams
 ) : AuthenticationManager {
 
     private val activityResultsSubscription: Disposable
@@ -48,10 +47,8 @@ class GoogleAuthenticationManager @Inject constructor(
     // TODO: Update Fragments to access via ProjectRepository rather than directly.
     init {
         googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(resources.getString(R.string.default_web_client_id))
-            .requestEmail()
-            .requestProfile()
-            .build()
+            .requestIdToken(resources.getString(R.string.default_web_client_id)).requestEmail()
+            .requestProfile().build()
 
         // TODO: Dispose the subscription when object is destroyed
         activityResultsSubscription = activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE)
@@ -65,9 +62,7 @@ class GoogleAuthenticationManager @Inject constructor(
      * guaranteed to be authenticated.
      */
     override val currentUser: User
-        get() = signInState.map(SignInState::user)
-            .filter { it.isPresent }
-            .map { it.get() }
+        get() = signInState.map(SignInState::user).filter { it.isPresent }.map { it.get() }
             .blockingFirst() // TODO: Should this be blocking?
 
     override fun init() = signInState.onNext(status)
@@ -113,8 +108,7 @@ class GoogleAuthenticationManager @Inject constructor(
     }
 
     private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
-        firebaseAuth
-            .signInWithCredential(getFirebaseAuthCredential(googleAccount))
+        firebaseAuth.signInWithCredential(getFirebaseAuthCredential(googleAccount))
             .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
             .addOnFailureListener { signInState.onNext(SignInState(it)) }
 
@@ -126,11 +120,5 @@ class GoogleAuthenticationManager @Inject constructor(
     private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
         GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-    private fun FirebaseUser.toUser(): User =
-        User.builder()
-            .setId(uid)
-            .setEmail(email)
-            .setDisplayName(displayName)
-            .setPhotoUrl(photoUrl.toString())
-            .build()
+    private fun FirebaseUser.toUser(): User = User(uid, email ?: "", displayName ?: "", photoUrl.toString())
 }

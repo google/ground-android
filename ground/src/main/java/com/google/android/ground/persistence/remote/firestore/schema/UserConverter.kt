@@ -24,9 +24,5 @@ internal object UserConverter {
     fun toNestedObject(user: User) = UserNestedObject(user.id, user.email, user.displayName)
 
     fun toUser(ud: UserNestedObject?): User =
-        User.builder()
-            .setId(ud?.id.orEmpty())
-            .setEmail(ud?.email.orEmpty())
-            .setDisplayName(ud?.displayName.orEmpty())
-            .build()
+        User(ud?.id.orEmpty(), ud?.email.orEmpty(), ud?.displayName.orEmpty())
 }

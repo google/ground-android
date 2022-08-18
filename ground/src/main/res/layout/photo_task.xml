@@ -26,13 +26,13 @@
       type="com.google.android.ground.ui.editsubmission.EditSubmissionViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.PhotoFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.PhotoTaskViewModel" />
   </data>
 
   <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/field_value_top_padding"
+    android:paddingTop="@dimen/task_value_top_padding"
     android:visibility="@{viewModel.isPhotoPresent() ? View.VISIBLE : View.GONE}">
     <ImageView
       android:id="@+id/image_thumbnail_preview"

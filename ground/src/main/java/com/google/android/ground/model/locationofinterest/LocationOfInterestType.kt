@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.locationofinterest
 
-package com.google.android.ground.ui.map;
+import com.google.common.collect.ImmutableList
 
-import com.google.android.ground.model.locationofinterest.Point;
+enum class LocationOfInterestType {
+    UNKNOWN, POINT, POLYGON;
 
-public class CameraPosition {
-
-  private final Point target;
-  private final Float zoomLevel;
-
-  public CameraPosition(Point target, Float zoomLevel) {
-    this.target = target;
-    this.zoomLevel = zoomLevel;
-  }
-
-  public Point getTarget() {
-    return target;
-  }
-
-  public Float getZoomLevel() {
-    return zoomLevel;
-  }
-
-  public String toString() {
-    return "Position: " + target + " Zoom level: " + zoomLevel;
-  }
+    companion object {
+        val ALL: ImmutableList<LocationOfInterestType> = ImmutableList.of(POINT, POLYGON)
+    }
 }

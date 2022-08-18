@@ -97,14 +97,14 @@
         android:stretchColumns="*">
 
         <TableRow
-          android:id="@+id/field_label_row"
+          android:id="@+id/task_label_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:minWidth="6dp"
           android:paddingTop="4dp" />
 
         <TableRow
-          android:id="@+id/field_value_row"
+          android:id="@+id/task_value_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:minWidth="6dp"

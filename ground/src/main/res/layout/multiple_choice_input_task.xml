@@ -23,29 +23,29 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.MultipleChoiceFieldViewModel" />
+      type="com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel" />
   </data>
 
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/FieldView"
+    style="@style/TaskView"
     android:orientation="vertical">
 
     <TextView
-      style="@style/EditSubmission.Field.Label"
+      style="@style/EditSubmission.Task.Label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@{viewModel.taskLabel()}" />
 
-    <com.google.android.ground.ui.editsubmission.MultipleChoiceFieldLayout
+    <com.google.android.ground.ui.editsubmission.MultipleChoiceTaskLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       app:onShowDialog="@{() -> viewModel.onShowDialog()}">
 
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/multiple_choice_input_layout"
-        style="@style/EditSubmission.Field.Text"
+        style="@style/EditSubmission.Task.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -61,7 +61,7 @@
           android:focusable="true"
           android:focusableInTouchMode="true"
           android:text="@{viewModel.responseText}"
-          android:textColor="@color/field_value"
+          android:textColor="@color/task_value"
           app:error="@{viewModel.error}"
           tools:text="One, two, three, four, five" />
 
@@ -85,6 +85,6 @@
         android:alpha="0"
         android:clickable="true" />
 
-    </com.google.android.ground.ui.editsubmission.MultipleChoiceFieldLayout>
+    </com.google.android.ground.ui.editsubmission.MultipleChoiceTaskLayout>
   </LinearLayout>
 </layout>

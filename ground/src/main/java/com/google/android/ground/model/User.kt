@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model
 
-package com.google.android.ground.model.locationofinterest;
-
-import com.google.common.collect.ImmutableList;
-
-public enum LocationOfInterestType {
-  UNKNOWN,
-  POINT,
-  POLYGON;
-
-  public static final ImmutableList<LocationOfInterestType> ALL = ImmutableList.of(POINT, POLYGON);
-}
+/** Represents a single application user.  */
+data class User @JvmOverloads constructor(
+    val id: String,
+    val email: String,
+    val displayName: String,
+    val photoUrl: String? = null,
+)

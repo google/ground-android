@@ -17,12 +17,9 @@ package com.google.android.ground.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.persistence.local.LocalValueStore
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private const val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
 /** Coordinates persistence and retrieval of map type from local value store. */
 @Singleton
@@ -33,9 +30,9 @@ class MapsRepository @Inject constructor(private val localValueStore: LocalValue
     fun observableMapType(): LiveData<Int> = mutableMapType
 
     var mapType: Int
-        get() = localValueStore.getSavedMapType(DEFAULT_MAP_TYPE)
+        get() = localValueStore.lastMapType
         set(value) {
-            localValueStore.saveMapType(value)
+            localValueStore.lastMapType = value
             mutableMapType.postValue(value)
         }
 }

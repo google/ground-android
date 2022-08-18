@@ -47,13 +47,13 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
     binding.setViewModel(viewModel);
     binding.executePendingBindings();
 
-    // Add UI elements for each field with data.
-    addFieldsFromSubmission(submission);
+    // Add UI elements for each task with data.
+    addTasksFromSubmission(submission);
   }
 
-  private void addFieldsFromSubmission(Submission submission) {
-    binding.fieldLabelRow.removeAllViews();
-    binding.fieldValueRow.removeAllViews();
+  private void addTasksFromSubmission(Submission submission) {
+    binding.taskLabelRow.removeAllViews();
+    binding.taskValueRow.removeAllViews();
 
     Job job = submission.getJob();
     // TODO: Clean this up.
@@ -61,16 +61,16 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
     for (int i = 0; i < MAX_COLUMNS && i < tasks.size(); i++) {
       Task task = tasks.get(i);
       Optional<Response> response = submission.getResponses().getResponse(task.getId());
-      binding.fieldLabelRow.addView(
-          newFieldTextView(task.getLabel(), R.style.SubmissionListText_FieldLabel));
-      binding.fieldValueRow.addView(
-          newFieldTextView(
-              response.map(Response::getSummaryText).orElse(""), R.style.SubmissionListText_Field));
+      binding.taskLabelRow.addView(
+          newTextView(task.getLabel(), R.style.SubmissionListText_TaskLabel));
+      binding.taskValueRow.addView(
+          newTextView(
+              response.map(Response::getSummaryText).orElse(""), R.style.SubmissionListText_Task));
     }
   }
 
   @NonNull
-  private TextView newFieldTextView(String text, @StyleRes int textAppearance) {
+  private TextView newTextView(String text, @StyleRes int textAppearance) {
     Context context = binding.getRoot().getContext();
     Resources resources = context.getResources();
     TextView v = new TextView(context);

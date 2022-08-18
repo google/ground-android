@@ -85,36 +85,36 @@
     <item name="android:textStyle">bold</item>
   </style>
 
-  <style name="SubmissionListText.FieldLabel">
+  <style name="SubmissionListText.TaskLabel">
     <item name="android:textColor">@color/colorGrey600</item>
-    <item name="android:textSize">@dimen/submission_list_field_label_size</item>
+    <item name="android:textSize">@dimen/submission_list_task_label_size</item>
   </style>
 
   <!--
     NOTE: Most attributes do not work when style is set programmatically, so individual layout
     attributes are set in SubmissionListAdapter instead.
     -->
-  <style name="SubmissionListText.Field">
+  <style name="SubmissionListText.Task">
     <item name="android:textColor">@color/colorGrey800</item>
   </style>
 
-  <style name="SubmissionDetails.Field.Label" parent="AppTheme.Base">
+  <style name="SubmissionDetails.Task.Label" parent="AppTheme.Base">
     <item name="android:textColor">@color/colorGrey600</item>
-    <item name="android:textSize">@dimen/field_label_text_size</item>
+    <item name="android:textSize">@dimen/task_label_text_size</item>
   </style>
 
-  <style name="SubmissionDetails.Field.Value" parent="AppTheme.Base">
+  <style name="SubmissionDetails.Task.Value" parent="AppTheme.Base">
     <item name="android:textColor">@color/colorForeground</item>
-    <item name="android:textSize">@dimen/field_value_text_size</item>
+    <item name="android:textSize">@dimen/task_value_text_size</item>
   </style>
 
-  <style name="EditSubmission.Field.Label" parent="AppTheme.Base">
+  <style name="EditSubmission.Task.Label" parent="AppTheme.Base">
     <item name="android:textColor">@color/colorForeground</item>
-    <item name="android:textSize">@dimen/edit_field_label_text_size</item>
+    <item name="android:textSize">@dimen/edit_task_label_text_size</item>
     <item name="android:textStyle">bold</item>
   </style>
 
-  <style name="EditSubmission.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+  <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
   </style>
 
@@ -147,15 +147,15 @@
     <item name="android:textStyle">bold</item>
   </style>
 
-  <style name="FieldView">
+  <style name="TaskView">
     <item name="android:layout_width">match_parent</item>
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginTop">@dimen/field_vertical_margin</item>
-    <item name="android:layout_marginBottom">@dimen/field_vertical_margin</item>
-    <item name="android:layout_marginStart">@dimen/field_horizontal_margin</item>
-    <item name="android:layout_marginEnd">@dimen/field_horizontal_margin</item>
-    <item name="android:layout_marginLeft">@dimen/field_horizontal_margin</item>
-    <item name="android:layout_marginRight">@dimen/field_horizontal_margin</item>
+    <item name="android:layout_marginTop">@dimen/task_vertical_margin</item>
+    <item name="android:layout_marginBottom">@dimen/task_vertical_margin</item>
+    <item name="android:layout_marginStart">@dimen/task_horizontal_margin</item>
+    <item name="android:layout_marginEnd">@dimen/task_horizontal_margin</item>
+    <item name="android:layout_marginLeft">@dimen/task_horizontal_margin</item>
+    <item name="android:layout_marginRight">@dimen/task_horizontal_margin</item>
   </style>
 
   <!-- NavDrawer Header -->
