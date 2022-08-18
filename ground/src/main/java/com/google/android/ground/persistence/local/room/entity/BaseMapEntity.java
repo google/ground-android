@@ -42,12 +42,8 @@ import java.net.URL;
     indices = {@Index("survey_id")}) // NOPMD
 public abstract class BaseMapEntity {
 
-  public static BaseMap toModel(BaseMapEntity source)
-      throws MalformedURLException {
-    return BaseMap.builder()
-        .setUrl(new URL(source.getUrl()))
-        .setType(entityToModelType(source))
-        .build();
+  public static BaseMap toModel(BaseMapEntity source) throws MalformedURLException {
+    return new BaseMap(new URL(source.getUrl()), entityToModelType(source));
   }
 
   @CopyAnnotations
@@ -99,8 +95,7 @@ public abstract class BaseMapEntity {
     }
   }
 
-  public static BaseMapEntity fromModel(
-      String surveyId, BaseMap source) {
+  public static BaseMapEntity fromModel(String surveyId, BaseMap source) {
 
     return BaseMapEntity.builder()
         .setSurveyId(surveyId)

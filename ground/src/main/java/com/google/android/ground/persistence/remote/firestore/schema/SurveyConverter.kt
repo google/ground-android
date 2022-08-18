@@ -33,14 +33,10 @@ internal object SurveyConverter {
     @Throws(DataStoreException::class)
     fun toSurvey(doc: DocumentSnapshot): Survey {
         val pd = DataStoreException.checkNotNull(
-            doc.toObject(SurveyDocument::class.java),
-            "surveyDocument"
+            doc.toObject(SurveyDocument::class.java), "surveyDocument"
         )
         val survey = Survey.newBuilder()
-        survey
-            .setId(doc.id)
-            .setTitle(pd.title.orEmpty())
-            .setDescription(pd.description.orEmpty())
+        survey.setId(doc.id).setTitle(pd.title.orEmpty()).setDescription(pd.description.orEmpty())
         if (pd.jobs != null) {
             Maps.forEach(pd.jobs) { id: String, obj: JobNestedObject ->
                 survey.putJob(toJob(id, obj))
@@ -61,8 +57,7 @@ internal object SurveyConverter {
             }
             try {
                 builder.addBaseMap(
-                    BaseMap.builder().setUrl(URL(url)).setType(BaseMap.typeFromExtension(url))
-                        .build()
+                    BaseMap(URL(url), BaseMap.typeFromExtension(url))
                 )
             } catch (e: MalformedURLException) {
                 Timber.d("Skipping base map source in survey with malformed URL")
