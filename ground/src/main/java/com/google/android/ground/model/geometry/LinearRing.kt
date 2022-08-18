@@ -18,7 +18,10 @@ package com.google.android.ground.model.geometry
 import com.google.common.collect.ImmutableList
 
 class OpenLinearRingException(first: Coordinate, last: Coordinate) :
-    GeometryException("Invalid linear ring. Linear rings must be closed, but the first coordinate $first and last coordinate $last of the ring are no equal")
+    GeometryException(
+        """Invalid linear ring. Linear rings must be closed, but the first coordinate 
+        |$first and last coordinate $last of the ring are no equal""".trimMargin()
+    )
 
 class LinearRingLengthException(numVertices: Int) :
     GeometryException("Invalid linear ring. Expected 3 or more vertices but got: $numVertices")

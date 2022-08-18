@@ -18,7 +18,11 @@ package com.google.android.ground.model.geometry
 import com.google.common.collect.ImmutableList
 
 class PolygonExteriorHoleException(val shellMaximum: Coordinate, val holeMaximum: Coordinate) :
-    GeometryException("Invalid polygon. Holes must be contained within a polygon's shell, but the maximum coordinates of the shell $shellMaximum are lesser than the maximum coordinates of a hole $holeMaximum")
+    GeometryException(
+        """Invalid polygon. Holes must be contained within a polygon's shell, but the 
+        |maximum coordinates of the shell $shellMaximum are lesser than the maximum coordinates of a 
+        |hole $holeMaximum""".trimMargin()
+    )
 
 /** A polygon made up of a linear ring that dictates its bounds and any number of holes within the shell ring.*/
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing>) : Geometry {
