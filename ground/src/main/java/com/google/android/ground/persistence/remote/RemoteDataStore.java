@@ -23,7 +23,6 @@ import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.rx.ValueOrError;
 import com.google.android.ground.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -32,6 +31,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
+import kotlin.Result;
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
@@ -69,8 +69,7 @@ public interface RemoteDataStore {
    * are found.
    */
   @Cold
-  Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
-      LocationOfInterest locationOfInterest);
+  Single<ImmutableList<Result<Submission>>> loadSubmissions(LocationOfInterest locationOfInterest);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
