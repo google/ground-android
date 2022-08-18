@@ -55,14 +55,12 @@ public abstract class TileSetEntity {
   public abstract int getOfflineAreaReferenceCount();
 
   public static TileSet toTileSet(TileSetEntity tileSetEntity) {
-    TileSet.Builder tile =
-        TileSet.newBuilder()
-            .setId(tileSetEntity.getId())
-            .setPath(tileSetEntity.getPath())
-            .setState(toTileState(tileSetEntity.getState()))
-            .setUrl(tileSetEntity.getUrl())
-            .setOfflineAreaReferenceCount(tileSetEntity.getOfflineAreaReferenceCount());
-    return tile.build();
+    return new TileSet(
+        tileSetEntity.getUrl(),
+        tileSetEntity.getId(),
+        tileSetEntity.getPath(),
+        toTileState(tileSetEntity.getState()),
+        tileSetEntity.getOfflineAreaReferenceCount());
   }
 
   private static TileSet.State toTileState(TileSetEntityState state) {

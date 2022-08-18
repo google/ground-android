@@ -289,25 +289,23 @@ public class OfflineAreaRepository {
       case TILED_WEB_MAP:
         return Single.just(
             ImmutableList.of(
-                TileSet.newBuilder()
-                    .setId(offlineUuidGenerator.generateUuid())
-                    .setPath(baseMap.getUrl().toString())
-                    .setUrl(baseMap.getUrl().toString())
-                    .setOfflineAreaReferenceCount(1)
-                    .setState(TileSet.State.PENDING)
-                    .build()));
+                new TileSet(
+                    baseMap.getUrl().toString(),
+                    offlineUuidGenerator.generateUuid(),
+                    baseMap.getUrl().toString(),
+                    TileSet.State.PENDING,
+                    1)));
       default:
         Timber.d("Unknown basemap source type");
         // Try to read a tile from the URL anyway.
         return Single.just(
             ImmutableList.of(
-                TileSet.newBuilder()
-                    .setId(offlineUuidGenerator.generateUuid())
-                    .setPath(baseMap.getUrl().toString())
-                    .setUrl(baseMap.getUrl().toString())
-                    .setOfflineAreaReferenceCount(1)
-                    .setState(TileSet.State.PENDING)
-                    .build()));
+                new TileSet(
+                    baseMap.getUrl().toString(),
+                    offlineUuidGenerator.generateUuid(),
+                    baseMap.getUrl().toString(),
+                    TileSet.State.PENDING,
+                    1)));
     }
   }
 }
