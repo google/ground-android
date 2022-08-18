@@ -38,10 +38,7 @@ data class CameraPosition(val target: Point, val zoomLevel: Float) {
             val (lat, long, zoomLevel) = serializedValue.split(",")
             return Optional.of(
                 CameraPosition(
-                    Point.newBuilder()
-                        .setLatitude(lat.toDouble())
-                        .setLongitude(long.toDouble())
-                        .build(),
+                    Point(lat.toDouble(), long.toDouble()),
                     java.lang.Float.valueOf(zoomLevel)
                 )
             )

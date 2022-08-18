@@ -182,7 +182,7 @@ public abstract class LocationOfInterestEntity {
     return stream(verticesArray)
         .map(
             vertex ->
-                Point.newBuilder().setLatitude(vertex.get(0)).setLongitude(vertex.get(1)).build())
+                new Point(vertex.get(0), vertex.get(1)))
         .collect(toImmutableList());
   }
 
