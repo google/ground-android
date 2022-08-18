@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.User;
@@ -35,11 +36,11 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class LocationOfInterestHelperTest extends BaseHiltTest {
 
-  @Inject LocationOfInterestHelper featureHelper;
+  @Inject LocationOfInterestHelper loiHelper;
 
   @Test
   public void testGetCreatedBy() {
-    LocationOfInterest feature =
+    LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
             FakeData.POINT_OF_INTEREST.getSurvey(),
@@ -49,22 +50,22 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             new AuditInfo(new User("", "", "Test User")),
             FakeData.POINT_OF_INTEREST.getLastModified(),
             FakeData.POINT_OF_INTEREST.getGeometry());
-    assertThat(featureHelper.getCreatedBy(Optional.of(feature))).isEqualTo("Added by Test User");
+    assertCreatedBy(loi, "Added by Test User");
   }
 
   @Test
-  public void testGetCreatedBy_whenFeatureIsEmpty() {
-    assertThat(featureHelper.getCreatedBy(Optional.empty())).isEqualTo("");
+  public void testGetCreatedBy_whenLoiIsEmpty() {
+    assertCreatedBy(null, "");
   }
 
   @Test
-  public void testGetLabel_whenFeatureIsEmpty() {
-    assertThat(featureHelper.getLabel(Optional.empty())).isEqualTo("");
+  public void testGetLabel_whenLoiIsEmpty() {
+    assertLabel(null, "");
   }
 
   @Test
-  public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPoint() {
-    LocationOfInterest feature =
+  public void testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
+    LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
             FakeData.POINT_OF_INTEREST.getSurvey(),
@@ -74,12 +75,12 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             FakeData.POINT_OF_INTEREST.getCreated(),
             FakeData.POINT_OF_INTEREST.getLastModified(),
             FakeData.POINT_OF_INTEREST.getGeometry());
-    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Point");
+    assertLabel(loi, "Point");
   }
 
   @Test
-  public void testGetLabel_whenCaptionIsEmptyAndFeatureIsPolygon() {
-    LocationOfInterest feature =
+  public void testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
+    LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.AREA_OF_INTEREST.getId(),
             FakeData.AREA_OF_INTEREST.getSurvey(),
@@ -89,12 +90,12 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             FakeData.AREA_OF_INTEREST.getCreated(),
             FakeData.AREA_OF_INTEREST.getLastModified(),
             FakeData.AREA_OF_INTEREST.getGeometry());
-    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("Polygon");
+    assertLabel(loi, "Polygon");
   }
 
   @Test
-  public void testGetLabel_whenCaptionIsPresentAndFeatureIsPoint() {
-    LocationOfInterest feature =
+  public void testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
+    LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
             FakeData.POINT_OF_INTEREST.getSurvey(),
@@ -104,12 +105,12 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             FakeData.POINT_OF_INTEREST.getCreated(),
             FakeData.POINT_OF_INTEREST.getLastModified(),
             FakeData.POINT_OF_INTEREST.getGeometry());
-    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("point caption");
+    assertLabel(loi, "point caption");
   }
 
   @Test
-  public void testGetLabel_whenCaptionIsPresentAndFeatureIsPolygon() {
-    LocationOfInterest feature =
+  public void testGetLabel_whenCaptionIsPresentAndLoiIsPolygon() {
+    LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.AREA_OF_INTEREST.getId(),
             FakeData.AREA_OF_INTEREST.getSurvey(),
@@ -119,12 +120,12 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             FakeData.AREA_OF_INTEREST.getCreated(),
             FakeData.AREA_OF_INTEREST.getLastModified(),
             FakeData.AREA_OF_INTEREST.getGeometry());
-    assertThat(featureHelper.getLabel(Optional.of(feature))).isEqualTo("polygon caption");
+    assertLabel(loi, "polygon caption");
   }
 
   @Test
   public void testGetSubtitle() {
-    LocationOfInterest feature =
+    LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
             FakeData.POINT_OF_INTEREST.getSurvey(),
@@ -134,11 +135,19 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
             FakeData.POINT_OF_INTEREST.getCreated(),
             FakeData.POINT_OF_INTEREST.getLastModified(),
             FakeData.POINT_OF_INTEREST.getGeometry());
-    assertThat(featureHelper.getSubtitle(Optional.of(feature))).isEqualTo("Job: some job");
+    assertThat(loiHelper.getSubtitle(Optional.of(loi))).isEqualTo("Job: some job");
   }
 
   @Test
-  public void testGetSubtitle_whenFeatureIsEmpty() {
-    assertThat(featureHelper.getSubtitle(Optional.empty())).isEqualTo("");
+  public void testGetSubtitle_whenLoiIsEmpty() {
+    assertThat(loiHelper.getSubtitle(Optional.empty())).isEqualTo("");
+  }
+
+  private void assertCreatedBy(@Nullable LocationOfInterest loi, String expectedCreatedBy) {
+    assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy);
+  }
+
+  private void assertLabel(@Nullable LocationOfInterest loi, String expectedLabel) {
+    assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel);
   }
 }

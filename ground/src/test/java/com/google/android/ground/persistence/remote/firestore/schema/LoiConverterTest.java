@@ -44,7 +44,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class LoiConverterTest {
 
-  @Mock private DocumentSnapshot featureDocumentSnapshot;
+  @Mock private DocumentSnapshot loiDocumentSnapshot;
 
   private static final AuditInfoNestedObject AUDIT_INFO_1_NESTED_OBJECT =
       new AuditInfoNestedObject(
@@ -70,7 +70,7 @@ public class LoiConverterTest {
   }
 
   @Test
-  public void testToFeature_nullFeature() {
+  public void testToLoi_whenNullLocation_throwsDataStoreException() {
     setUpTestGeometry();
     setUpTestSurvey(
         "job001",
@@ -81,8 +81,8 @@ public class LoiConverterTest {
             new MultipleChoice(Cardinality.SELECT_ONE)),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
-    mockFeatureDocumentSnapshot(
-        "feature001",
+    mockLoiDocumentSnapshot(
+        "loi001",
         new LoiDocument(
             /* jobId */
             "job001",
@@ -105,7 +105,7 @@ public class LoiConverterTest {
   }
 
   @Test
-  public void testToFeature_zeroVertices() {
+  public void testToLoi_whenZeroVertices_throwsDataStoreException() {
     setUpTestGeometry();
     setUpTestSurvey(
         "job001",
@@ -116,8 +116,8 @@ public class LoiConverterTest {
             new MultipleChoice(Cardinality.SELECT_ONE)),
         newTask("task3", Task.Type.MULTIPLE_CHOICE),
         newTask("task4", Task.Type.PHOTO));
-    mockFeatureDocumentSnapshot(
-        "feature001",
+    mockLoiDocumentSnapshot(
+        "loi001",
         new LoiDocument(
             /* jobId */
             "job001",
@@ -150,12 +150,12 @@ public class LoiConverterTest {
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */
-  private void mockFeatureDocumentSnapshot(String id, LoiDocument doc) {
-    when(featureDocumentSnapshot.getId()).thenReturn(id);
-    when(featureDocumentSnapshot.toObject(LoiDocument.class)).thenReturn(doc);
+  private void mockLoiDocumentSnapshot(String id, LoiDocument doc) {
+    when(loiDocumentSnapshot.getId()).thenReturn(id);
+    when(loiDocumentSnapshot.toObject(LoiDocument.class)).thenReturn(doc);
   }
 
   private LocationOfInterest toLocationOfInterest() {
-    return LoiConverter.toLoi(survey, featureDocumentSnapshot);
+    return LoiConverter.toLoi(survey, loiDocumentSnapshot);
   }
 }

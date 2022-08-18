@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.home.featuredetails;
+package com.google.android.ground.ui.home.locationofinterestdetails;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -43,18 +43,18 @@ public class MoveMenuVisibilityTest extends BaseMenuVisibilityTest {
     Object[][] data = {
 
       // Point locationOfInterest created by some other user
-      {TEST_USER_OWNER, createPointFeature(TEST_USER_UNKNOWN), true},
-      {TEST_USER_MANAGER, createPointFeature(TEST_USER_UNKNOWN), true},
-      {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_UNKNOWN), false},
+      {TEST_USER_OWNER, createPointOfInterest(TEST_USER_UNKNOWN), true},
+      {TEST_USER_MANAGER, createPointOfInterest(TEST_USER_UNKNOWN), true},
+      {TEST_USER_CONTRIBUTOR, createPointOfInterest(TEST_USER_UNKNOWN), false},
 
       // Polygon locationOfInterest created by some other user
-      {TEST_USER_OWNER, createPolygonFeature(TEST_USER_UNKNOWN), false},
-      {TEST_USER_MANAGER, createPolygonFeature(TEST_USER_UNKNOWN), false},
-      {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_UNKNOWN), false},
+      {TEST_USER_OWNER, createAreaOfInterest(TEST_USER_UNKNOWN), false},
+      {TEST_USER_MANAGER, createAreaOfInterest(TEST_USER_UNKNOWN), false},
+      {TEST_USER_CONTRIBUTOR, createAreaOfInterest(TEST_USER_UNKNOWN), false},
 
       // Current user created the selected locationOfInterest
-      {TEST_USER_CONTRIBUTOR, createPointFeature(TEST_USER_CONTRIBUTOR), true},
-      {TEST_USER_CONTRIBUTOR, createPolygonFeature(TEST_USER_CONTRIBUTOR), false},
+      {TEST_USER_CONTRIBUTOR, createPointOfInterest(TEST_USER_CONTRIBUTOR), true},
+      {TEST_USER_CONTRIBUTOR, createAreaOfInterest(TEST_USER_CONTRIBUTOR), false},
     };
     return Arrays.asList(data);
   }

@@ -70,15 +70,15 @@ object FakeData {
         null,
         AuditInfo(USER),
         AuditInfo(USER),
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build().toGeometry()
+        Point(0.0, 0.0).toGeometry()
     )
 
     @JvmField
     val VERTICES: ImmutableList<Point> = ImmutableList.of(
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
-        Point.newBuilder().setLatitude(10.0).setLongitude(10.0).build(),
-        Point.newBuilder().setLatitude(20.0).setLongitude(20.0).build(),
-        Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build(),
+        Point(0.0, 0.0),
+        Point(10.0, 10.0),
+        Point(20.0, 20.0),
+        Point(0.0, 0.0),
     )
 
     @JvmField
@@ -94,5 +94,5 @@ object FakeData {
     )
 
     @JvmField
-    val POINT = Point.newBuilder().setLatitude(42.0).setLongitude(18.0).build()
+    val POINT = Point(42.0, 18.0)
 }

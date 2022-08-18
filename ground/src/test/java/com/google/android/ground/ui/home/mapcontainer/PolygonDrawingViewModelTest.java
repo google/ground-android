@@ -42,7 +42,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   private com.jraska.livedata.TestObserver<Boolean> polygonCompletedTestObserver;
   private com.jraska.livedata.TestObserver<ImmutableSet<MapLocationOfInterest>>
-      drawnMapFeaturesTestObserver;
+      drawnMapLocationsOfInterestTestObserver;
 
   @Override
   public void setUp() {
@@ -50,7 +50,7 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
     polygonCompletedTestObserver =
         com.jraska.livedata.TestObserver.test(viewModel.isPolygonCompleted());
-    drawnMapFeaturesTestObserver =
+    drawnMapLocationsOfInterestTestObserver =
         com.jraska.livedata.TestObserver.test(viewModel.getUnsavedMapLocationsOfInterest());
 
     // Initialize polygon drawing
@@ -68,78 +68,78 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   @Test
   public void testSelectCurrentVertex() {
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
 
-    validateMapFeaturesDrawn(1, 1);
+    validateMapLoiDrawn(1, 1);
   }
 
   @Test
   public void testSelectMultipleVertices() {
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.onCameraMoved(new Point(10.0, 10.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.onCameraMoved(new Point(20.0, 20.0));
     viewModel.selectCurrentVertex();
 
-    validateMapFeaturesDrawn(1, 3);
+    validateMapLoiDrawn(1, 3);
     validatePolygonCompleted(false);
   }
 
   @Test
   public void testUpdateLastVertex_whenVertexCountLessThan3() {
-    viewModel.updateLastVertex(newPoint(0.0, 0.0), 100);
-    viewModel.updateLastVertex(newPoint(10.0, 10.0), 100);
-    viewModel.updateLastVertex(newPoint(20.0, 20.0), 100);
+    viewModel.updateLastVertex(new Point(0.0, 0.0), 100);
+    viewModel.updateLastVertex(new Point(10.0, 10.0), 100);
+    viewModel.updateLastVertex(new Point(20.0, 20.0), 100);
 
-    validateMapFeaturesDrawn(1, 1);
+    validateMapLoiDrawn(1, 1);
     validatePolygonCompleted(false);
   }
 
   @Test
   public void testUpdateLastVertex_whenVertexCountEqualTo3AndLastVertexIsNotNearFirstPoint() {
     // Select 3 vertices
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.onCameraMoved(new Point(10.0, 10.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.onCameraMoved(new Point(20.0, 20.0));
     viewModel.selectCurrentVertex();
 
     // Move camera such that distance from last vertex is more than threshold
-    viewModel.updateLastVertex(newPoint(30.0, 30.0), 25);
+    viewModel.updateLastVertex(new Point(30.0, 30.0), 25);
 
-    validateMapFeaturesDrawn(1, 4);
+    validateMapLoiDrawn(1, 4);
     validatePolygonCompleted(false);
   }
 
   @Test
   public void testUpdateLastVertex_whenVertexCountEqualTo3AndLastVertexIsNearFirstPoint() {
     // Select 3 vertices
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.onCameraMoved(new Point(10.0, 10.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.onCameraMoved(new Point(20.0, 20.0));
     viewModel.selectCurrentVertex();
 
     // Move camera such that distance from last vertex is equal to threshold
-    viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
+    viewModel.updateLastVertex(new Point(30.0, 30.0), 24);
 
     // Only 3 pins should be drawn. First and last points are exactly same.
-    validateMapFeaturesDrawn(1, 3);
+    validateMapLoiDrawn(1, 3);
     validatePolygonCompleted(true);
   }
 
   @Test
   public void testRemoveLastVertex() {
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
 
     viewModel.removeLastVertex();
 
-    validateMapFeaturesDrawn(0, 0);
+    validateMapLoiDrawn(0, 0);
     validatePolygonCompleted(false);
   }
 
@@ -154,27 +154,27 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
 
   @Test
   public void testRemoveLastVertex_whenPolygonIsComplete() {
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.onCameraMoved(new Point(10.0, 10.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.onCameraMoved(new Point(20.0, 20.0));
     viewModel.selectCurrentVertex();
-    viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
+    viewModel.updateLastVertex(new Point(30.0, 30.0), 24);
 
     viewModel.removeLastVertex();
 
-    validateMapFeaturesDrawn(1, 3);
+    validateMapLoiDrawn(1, 3);
     validatePolygonCompleted(false);
   }
 
   @Test
   public void testPolygonDrawingCompleted_whenPolygonIsIncomplete() {
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.onCameraMoved(new Point(10.0, 10.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.onCameraMoved(new Point(20.0, 20.0));
 
     assertThrows(
         "Polygon is not complete",
@@ -186,13 +186,13 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
   public void testPolygonDrawingCompleted() {
     TestObserver<PolygonDrawingState> stateTestObserver = viewModel.getDrawingState().test();
 
-    viewModel.onCameraMoved(newPoint(0.0, 0.0));
+    viewModel.onCameraMoved(new Point(0.0, 0.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(10.0, 10.0));
+    viewModel.onCameraMoved(new Point(10.0, 10.0));
     viewModel.selectCurrentVertex();
-    viewModel.onCameraMoved(newPoint(20.0, 20.0));
+    viewModel.onCameraMoved(new Point(20.0, 20.0));
     viewModel.selectCurrentVertex();
-    viewModel.updateLastVertex(newPoint(30.0, 30.0), 24);
+    viewModel.updateLastVertex(new Point(30.0, 30.0), 24);
 
     viewModel.onCompletePolygonButtonClick();
 
@@ -211,13 +211,13 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
     polygonCompletedTestObserver.assertValue(isVisible);
   }
 
-  private void validateMapFeaturesDrawn(int expectedMapPolygonCount, int expectedMapPinCount) {
-    drawnMapFeaturesTestObserver.assertValue(
-        mapFeatures -> {
+  private void validateMapLoiDrawn(int expectedMapPolygonCount, int expectedMapPinCount) {
+    drawnMapLocationsOfInterestTestObserver.assertValue(
+        mapLois -> {
           int actualMapPolygonCount = 0;
           int actualMapPinCount = 0;
 
-          for (MapLocationOfInterest mapLocationOfInterest : mapFeatures) {
+          for (MapLocationOfInterest mapLocationOfInterest : mapLois) {
             if (mapLocationOfInterest instanceof MapPolygon) {
               actualMapPolygonCount++;
             } else if (mapLocationOfInterest instanceof MapPin) {
@@ -225,15 +225,11 @@ public class PolygonDrawingViewModelTest extends BaseHiltTest {
             }
           }
 
-          // Check whether drawn features contain expected number of polygons and pins.
+          // Check whether drawn LOIs contain expected number of polygons and pins.
           assertThat(actualMapPinCount).isEqualTo(expectedMapPinCount);
           assertThat(actualMapPolygonCount).isEqualTo(expectedMapPolygonCount);
 
           return true;
         });
-  }
-
-  private Point newPoint(double latitude, double longitude) {
-    return Point.newBuilder().setLatitude(latitude).setLongitude(longitude).build();
   }
 }

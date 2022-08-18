@@ -50,7 +50,7 @@ object DataCollectionTestData {
                 loiName,
                 auditInfo,
                 auditInfo,
-                Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build().toGeometry()
+                Point.zero().toGeometry()
             )
         )
         .setCreated(auditInfo)

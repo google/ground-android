@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.locationofinterest
 
-package com.google.android.ground.model.locationofinterest;
+import com.google.common.collect.ImmutableList
 
-import com.google.common.collect.ImmutableList;
+enum class LocationOfInterestType {
+    UNKNOWN, POINT, POLYGON;
 
-public enum LocationOfInterestType {
-  UNKNOWN,
-  POINT,
-  POLYGON;
-
-  public static final ImmutableList<LocationOfInterestType> ALL = ImmutableList.of(POINT, POLYGON);
+    companion object {
+        val ALL: ImmutableList<LocationOfInterestType> = ImmutableList.of(POINT, POLYGON)
+    }
 }

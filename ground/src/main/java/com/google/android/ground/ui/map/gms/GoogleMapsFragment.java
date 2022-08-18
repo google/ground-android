@@ -155,7 +155,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
   private static Point fromLatLng(LatLng latLng) {
-    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+    return new Point(latLng.latitude, latLng.longitude);
   }
 
   private static LatLng toLatLng(Point point) {

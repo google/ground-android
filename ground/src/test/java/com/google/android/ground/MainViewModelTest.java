@@ -59,7 +59,7 @@ public class MainViewModelTest extends BaseHiltTest {
 
   @Before
   public void setUp() {
-    // TODO: Add a test for syncFeatures
+    // TODO: Add a test for syncLois
     super.setUp();
 
     // Subscribe to navigation requests
