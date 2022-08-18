@@ -16,25 +16,30 @@
 package com.google.android.ground.model.submission
 
 import java8.util.Optional
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
- * A user provided response to a number question task.
+ * A user-provided time response.
  */
 @Serializable
-data class NumberResponse constructor(private val number: String) : Response {
-    val value: Double
-        get() = number.toDouble()
+data class TimeResponse(val time: @Contextual Date) : Response {
+    // TODO(#752): Use device localization preferences.
+    private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    override fun getSummaryText(): String = number
+    override fun getSummaryText(): String = detailsText
 
-    override fun getDetailsText(): String = number
+    override fun getDetailsText(): String =
+        synchronized(timeFormat) { return timeFormat.format(time) }
 
-    override fun isEmpty(): Boolean = number.isEmpty()
+    override fun isEmpty(): Boolean = time.time == 0L
 
     companion object {
         @JvmStatic
-        fun fromNumber(number: String): Optional<Response> =
-            if (number.isEmpty()) Optional.empty() else Optional.of(NumberResponse(number))
+        fun fromDate(time: Date): Optional<Response> =
+            if (time.time == 0L) Optional.empty() else Optional.of(TimeResponse(time))
     }
 }
