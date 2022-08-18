@@ -111,7 +111,9 @@ public class OfflineAreaRepository {
         .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
         .andThen(
             localDataStore.insertOrUpdateOfflineArea(
-                area.toBuilder().setState(State.IN_PROGRESS).build()))
+                // TODO: When this class is converted to kotlin we can simply pass a named state
+                //  parameter to area.copy()
+                new OfflineArea(area.getId(), State.IN_PROGRESS, area.getBounds(), area.getName())))
         .andThen(tileSetDownloadWorkManager.enqueueTileSetDownloadWorker());
   }
 
@@ -154,10 +156,12 @@ public class OfflineAreaRepository {
   }
 
   @Cold
-  public Completable addOfflineAreaAndEnqueue(OfflineArea baseMap) {
+  public Completable addOfflineAreaAndEnqueue(OfflineArea area) {
     return geocodingManager
-        .getAreaName(baseMap.getBounds())
-        .map(name -> baseMap.toBuilder().setName(name).build())
+        .getAreaName(area.getBounds())
+        // TODO: When this class is converted to kotlin we can simply pass a named "name"
+        //  parameter to area.copy()
+        .map(name -> new OfflineArea(area.getId(), State.IN_PROGRESS, area.getBounds(), name))
         .flatMapCompletable(this::enqueueTileSetDownloads);
   }
 
