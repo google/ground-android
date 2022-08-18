@@ -36,10 +36,6 @@ object TestModelBuilders {
         .build()
 
     @JvmStatic
-    fun newTermsOfService(): TermsOfService.Builder =
-        TermsOfService.builder().setId("").setText("")
-
-    @JvmStatic
     @JvmOverloads
     fun newTask(
         id: String = "",

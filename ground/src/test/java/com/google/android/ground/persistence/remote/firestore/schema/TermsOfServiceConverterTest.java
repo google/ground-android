@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema;
 
-import static com.google.android.ground.model.TestModelBuilders.newTermsOfService;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +50,7 @@ public class TermsOfServiceConverterTest {
   }
 
   private void setUpTestTerms() {
-    termsOfService = newTermsOfService().setId(TEST_TERMS_ID).setText(TEST_TERMS).build();
+    termsOfService = new TermsOfService(TEST_TERMS_ID, TEST_TERMS);
   }
 
   /**

@@ -33,10 +33,8 @@ import org.locationtech.jts.geom.GeometryFactory
 object FakeData {
     // TODO: Replace constants with calls to newFoo() methods.
     @JvmField
-    val TERMS_OF_SERVICE: TermsOfService = TermsOfService.builder()
-        .setId("TERMS_OF_SERVICE")
-        .setText("Fake Terms of Service text")
-        .build()
+    val TERMS_OF_SERVICE: TermsOfService =
+        TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
     @JvmField
     val JOB = Job(name = "Job", id = "JOB")
@@ -56,7 +54,8 @@ object FakeData {
         "Test survey description",
         ImmutableMap.of(),
         ImmutableList.of(),
-        ImmutableMap.of(USER.email, "data_collector"))
+        ImmutableMap.of(USER.email, "data_collector")
+    )
 
     @JvmField
     val POINT_OF_INTEREST = LocationOfInterest(
