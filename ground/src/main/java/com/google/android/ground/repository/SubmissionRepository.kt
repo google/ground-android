@@ -26,7 +26,6 @@ import com.google.android.ground.model.submission.ResponseDelta
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
-import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.DataSyncWorkManager
@@ -133,14 +132,14 @@ class SubmissionRepository @Inject constructor(
         return locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
             .map { locationOfInterest: LocationOfInterest ->
-                Submission.newBuilder()
-                    .setId(uuidGenerator.generateUuid())
-                    .setSurvey(locationOfInterest.survey)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(locationOfInterest.job)
-                    .setCreated(auditInfo)
-                    .setLastModified(auditInfo)
-                    .build()
+                Submission(
+                    uuidGenerator.generateUuid(),
+                    locationOfInterest.survey,
+                    locationOfInterest,
+                    locationOfInterest.job,
+                    auditInfo,
+                    auditInfo
+                )
             }
     }
 
