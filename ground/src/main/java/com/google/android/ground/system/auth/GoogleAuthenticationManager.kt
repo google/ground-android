@@ -62,7 +62,9 @@ class GoogleAuthenticationManager @Inject constructor(
      * guaranteed to be authenticated.
      */
     override val currentUser: User
-        get() = signInState.map(SignInState::user).filter { it.isPresent }.map { it.get() }
+        get() = signInState
+            .filter { it.state == SignInState.State.SIGNED_IN }
+            .map { it.result.getOrNull()!! }
             .blockingFirst() // TODO: Should this be blocking?
 
     override fun init() {

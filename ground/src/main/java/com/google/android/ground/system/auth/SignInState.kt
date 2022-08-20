@@ -16,7 +16,6 @@
 package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
-import java8.util.Optional
 
 data class SignInState(
     val state: State,
@@ -26,9 +25,6 @@ data class SignInState(
     enum class State {
         SIGNED_OUT, SIGNING_IN, SIGNED_IN, ERROR
     }
-
-    fun user(): Optional<User> =
-        if (result.isSuccess) Optional.ofNullable(result.getOrNull()) else Optional.empty()
 
     companion object {
 
