@@ -65,11 +65,7 @@ class LocationOfInterestRepository @Inject constructor(
     fun syncLocationsOfInterest(survey: Survey): @Cold Completable {
         return remoteDataStore
             .loadLocationsOfInterestOnceAndStreamChanges(survey)
-            .flatMapCompletable { event: RemoteDataEvent<LocationOfInterest> ->
-                updateLocalLocationOfInterest(
-                    event
-                )
-            }
+            .flatMapCompletable { updateLocalLocationOfInterest(it) }
     }
 
     // TODO: Remove "location of interest" qualifier from this and other repository method names.
@@ -94,24 +90,22 @@ class LocationOfInterestRepository @Inject constructor(
     // TODO: Only return location of interest fields needed to render locations of interest on map.
     fun getLocationsOfInterestOnceAndStream(
         survey: Survey
-    ): @Cold(terminates = false) Flowable<ImmutableSet<LocationOfInterest>> {
-        return localDataStore.getLocationsOfInterestOnceAndStream(survey)
-    }
+    ): @Cold(terminates = false) Flowable<ImmutableSet<LocationOfInterest>> =
+        localDataStore.getLocationsOfInterestOnceAndStream(survey)
 
     fun getLocationOfInterest(
         locationOfInterestMutation: LocationOfInterestMutation
-    ): @Cold Single<LocationOfInterest> {
-        return this.getLocationOfInterest(
+    ): @Cold Single<LocationOfInterest> =
+        this.getLocationOfInterest(
             locationOfInterestMutation.surveyId,
             locationOfInterestMutation.locationOfInterestId
         )
-    }
 
     /** This only works if the survey and location of interests are already cached to local db.  */
     fun getLocationOfInterest(
         surveyId: String, locationOfInterest: String
-    ): @Cold Single<LocationOfInterest> {
-        return surveyRepository
+    ): @Cold Single<LocationOfInterest> =
+        surveyRepository
             .getSurvey(surveyId)
             .flatMapMaybe { survey: Survey ->
                 localDataStore.getLocationOfInterest(survey, locationOfInterest)
@@ -120,12 +114,11 @@ class LocationOfInterestRepository @Inject constructor(
                 Single.error {
                     NotFoundException("Location of interest not found $locationOfInterest")
                 })
-    }
 
     fun newMutation(
         surveyId: String, jobId: String, point: Point, date: Date
-    ): LocationOfInterestMutation {
-        return builder()
+    ): LocationOfInterestMutation =
+        builder()
             .setJobId(jobId)
             .setLocation(Optional.of(point))
             .setType(Mutation.Type.CREATE)
@@ -135,12 +128,11 @@ class LocationOfInterestRepository @Inject constructor(
             .setUserId(authManager.currentUser.id)
             .setClientTimestamp(date)
             .build()
-    }
 
     fun newPolygonOfInterestMutation(
         surveyId: String, jobId: String, vertices: ImmutableList<Point>, date: Date
-    ): LocationOfInterestMutation {
-        return builder()
+    ): LocationOfInterestMutation =
+        builder()
             .setJobId(jobId)
             .setPolygonVertices(vertices)
             .setType(Mutation.Type.CREATE)
@@ -150,7 +142,6 @@ class LocationOfInterestRepository @Inject constructor(
             .setUserId(authManager.currentUser.id)
             .setClientTimestamp(date)
             .build()
-    }
 
     /**
      * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
@@ -170,14 +161,13 @@ class LocationOfInterestRepository @Inject constructor(
      * which have not yet been marked as [SyncStatus.COMPLETED], including pending, in progress,
      * and failed mutations. A new list is emitted on each subsequent change.
      */
-    fun getIncompleteLocationOfInterestMutationsOnceAndStream(locationOfInterestId: String): Flowable<ImmutableList<LocationOfInterestMutation>> {
-        return localDataStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+    fun getIncompleteLocationOfInterestMutationsOnceAndStream(locationOfInterestId: String): Flowable<ImmutableList<LocationOfInterestMutation>>? =
+        localDataStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
             locationOfInterestId,
             MutationEntitySyncStatus.PENDING,
             MutationEntitySyncStatus.IN_PROGRESS,
             MutationEntitySyncStatus.FAILED
         )
-    }
 
     val isPolygonInfoDialogShown: Boolean
         get() = localValueStore.isPolygonInfoDialogShown
