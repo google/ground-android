@@ -18,9 +18,10 @@ package com.google.android.ground.system.auth
 import com.google.android.ground.model.User
 import java8.util.Optional
 
-class SignInState {
-    val state: State
+data class SignInState(
+    val state: State,
     val result: Result<User?>
+) {
 
     enum class State {
         SIGNED_OUT, SIGNING_IN, SIGNED_IN, ERROR
@@ -29,18 +30,9 @@ class SignInState {
     fun user(): Optional<User> =
         if (result.isSuccess) Optional.ofNullable(result.getOrNull()) else Optional.empty()
 
-    constructor(state: State) {
-        this.state = state
-        this.result = Result.success(null)
-    }
+    constructor(state: State) : this(state, Result.success(null))
 
-    constructor(user: User) {
-        state = State.SIGNED_IN
-        this.result = Result.success(user)
-    }
+    constructor(user: User) : this(State.SIGNED_IN, Result.success(user))
 
-    constructor(error: Throwable) {
-        state = State.ERROR
-        this.result = Result.failure(error)
-    }
+    constructor(error: Throwable) : this(State.ERROR, Result.failure(error))
 }
