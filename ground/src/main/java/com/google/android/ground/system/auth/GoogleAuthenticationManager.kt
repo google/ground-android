@@ -113,9 +113,7 @@ class GoogleAuthenticationManager @Inject constructor(
     private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
         GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-    private fun getFirebaseUser(): User? {
-        return firebaseAuth.currentUser?.toUser()
-    }
+    private fun getFirebaseUser(): User? = firebaseAuth.currentUser?.toUser()
 
     private fun FirebaseUser.toUser(): User =
         User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
