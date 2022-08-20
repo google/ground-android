@@ -29,6 +29,7 @@ apply plugin: 'pmd'
 
 pmd {
     // Check latest version from here: https://pmd.github.io/
+    // TODO: Kotlin support would be available in version 7
     toolVersion = '6.48.0'
 }
 
