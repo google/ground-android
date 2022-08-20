@@ -30,9 +30,18 @@ data class SignInState(
     fun user(): Optional<User> =
         if (result.isSuccess) Optional.ofNullable(result.getOrNull()) else Optional.empty()
 
-    constructor(state: State) : this(state, Result.success(null))
+    companion object {
 
-    constructor(user: User) : this(State.SIGNED_IN, Result.success(user))
+        @JvmStatic
+        fun signedOut() = SignInState(State.SIGNED_OUT, Result.success(null))
 
-    constructor(error: Throwable) : this(State.ERROR, Result.failure(error))
+        @JvmStatic
+        fun signingIn() = SignInState(State.SIGNING_IN, Result.success(null))
+
+        @JvmStatic
+        fun signedIn(user: User) = SignInState(State.SIGNED_IN, Result.success(user))
+
+        @JvmStatic
+        fun error(error: Throwable) = SignInState(State.ERROR, Result.failure(error))
+    }
 }
