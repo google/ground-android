@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.persistence.remote
 
-import com.google.android.ground.rx.ValueOrError
-
 /**
  * An event returned by the remote data store indicating either an entity was successfully loaded,
  * or that it was modified or removed in the remote data store.
@@ -27,8 +25,8 @@ import com.google.android.ground.rx.ValueOrError
  *  https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-result/
  */
 class RemoteDataEvent<T> private constructor(
-    val entityId: String, val eventType: EventType, entity: T?, error: Throwable?
-) : ValueOrError<T>(entity, error) {
+    val eventType: EventType, val entityId: Result<String?>, val entity: Result<T?>
+) {
 
     enum class EventType {
         ENTITY_LOADED, ENTITY_MODIFIED, ENTITY_REMOVED, ERROR
@@ -37,21 +35,30 @@ class RemoteDataEvent<T> private constructor(
     companion object {
         @JvmStatic
         fun <T> loaded(entityId: String, entity: T): RemoteDataEvent<T> =
-            RemoteDataEvent(entityId, EventType.ENTITY_LOADED, entity, null)
+            RemoteDataEvent(
+                EventType.ENTITY_LOADED,
+                Result.success(entityId),
+                Result.success(entity)
+            )
 
         @JvmStatic
         fun <T> modified(entityId: String, entity: T): RemoteDataEvent<T> =
-            RemoteDataEvent(entityId, EventType.ENTITY_MODIFIED, entity, null)
+            RemoteDataEvent(
+                EventType.ENTITY_MODIFIED,
+                Result.success(entityId),
+                Result.success(entity)
+            )
 
         @JvmStatic
         fun <T> removed(entityId: String): RemoteDataEvent<T?> =
-            RemoteDataEvent(entityId, EventType.ENTITY_REMOVED, null, null)
+            RemoteDataEvent(
+                EventType.ENTITY_REMOVED,
+                Result.success(entityId),
+                Result.success(null)
+            )
 
-        // TODO (donturner): Consider moving errors into a RemoteDataException class.
-        //  This avoids the need to supply an entityId. It is currently set to "ERROR" as a temporary
-        //  measure.
         @JvmStatic
-        fun <T> error(error: Throwable?): RemoteDataEvent<T?> =
-            RemoteDataEvent("ERROR", EventType.ERROR, null, error)
+        fun <T> error(error: Throwable): RemoteDataEvent<T?> =
+            RemoteDataEvent(EventType.ERROR, Result.failure(error), Result.failure(error))
     }
 }

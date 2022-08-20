@@ -75,23 +75,17 @@ class LocationOfInterestRepository @Inject constructor(
     // TODO: Remove "location of interest" qualifier from this and other repository method names.
     private fun updateLocalLocationOfInterest(event: RemoteDataEvent<LocationOfInterest>): @Cold Completable {
         return when (event.eventType) {
-            RemoteDataEvent.EventType.ENTITY_LOADED, RemoteDataEvent.EventType.ENTITY_MODIFIED -> event
-                .value()
-                .map { locationOfInterest: LocationOfInterest ->
-                    localDataStore.mergeLocationOfInterest(
-                        locationOfInterest
-                    )
-                }
-                .orElse(Completable.complete())
-            RemoteDataEvent.EventType.ENTITY_REMOVED -> localDataStore.deleteLocationOfInterest(
-                event.entityId
-            )
+            RemoteDataEvent.EventType.ENTITY_LOADED, RemoteDataEvent.EventType.ENTITY_MODIFIED ->
+                event.entity.getOrNull()
+                    ?.let { localDataStore.mergeLocationOfInterest(it) }
+                    ?: Completable.complete()
+            RemoteDataEvent.EventType.ENTITY_REMOVED ->
+                event.entityId.getOrNull()
+                    ?.let { localDataStore.deleteLocationOfInterest(it) }
+                    ?: Completable.never()
             RemoteDataEvent.EventType.ERROR -> {
-                event
-                    .error()
-                    .ifPresent {
-                        Timber.d(it, "Invalid locations of interest in remote db ignored")
-                    }
+                event.entity.exceptionOrNull()
+                    ?.let { Timber.d(it, "Invalid locations of interest in remote db ignored") }
                 Completable.complete()
             }
         }
