@@ -20,9 +20,6 @@ package com.google.android.ground.persistence.remote
  * or that it was modified or removed in the remote data store.
  *
  * @param <T> the type of entity being loaded, modified, or removed.
- *
- * TODO: Replace with kotlin.Result once migration to Kotlin is complete. For more info, see this
- *  https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-result/
  */
 class RemoteDataEvent<T> private constructor(
     val eventType: EventType, val entityId: Result<String?>, val entity: Result<T?>
