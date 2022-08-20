@@ -16,25 +16,31 @@
 package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
-import com.google.android.ground.rx.ValueOrError
+import java8.util.Optional
 
-class SignInState : ValueOrError<User> {
+class SignInState {
     val state: State
-    val user = value()
+    val result: Result<User?>
 
     enum class State {
         SIGNED_OUT, SIGNING_IN, SIGNED_IN, ERROR
     }
 
-    constructor(state: State) : super(null, null) {
+    fun user(): Optional<User> =
+        if (result.isSuccess) Optional.ofNullable(result.getOrNull()) else Optional.empty()
+
+    constructor(state: State) {
         this.state = state
+        this.result = Result.success(null)
     }
 
-    constructor(user: User) : super(user, null) {
+    constructor(user: User) {
         state = State.SIGNED_IN
+        this.result = Result.success(user)
     }
 
-    constructor(error: Throwable) : super(null, error) {
+    constructor(error: Throwable) {
         state = State.ERROR
+        this.result = Result.failure(error)
     }
 }

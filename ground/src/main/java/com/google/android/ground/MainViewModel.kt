@@ -98,12 +98,12 @@ class MainViewModel @Inject constructor(
         return when (signInState.state) {
             SignInState.State.SIGNED_IN -> onUserSignedIn()
             SignInState.State.SIGNED_OUT -> onUserSignedOut()
-            SignInState.State.ERROR -> onUserSignInError(signInState.error())
+            SignInState.State.ERROR -> onUserSignInError(signInState.result.exceptionOrNull())
             else -> Observable.never()
         }
     }
 
-    private fun onUserSignInError(error: Optional<Throwable?>): Observable<NavDirections> {
+    private fun onUserSignInError(error: Throwable?): Observable<NavDirections> {
         Timber.e("Authentication error: $error")
         popups.showError(R.string.sign_in_unsuccessful)
         return onUserSignedOut()
