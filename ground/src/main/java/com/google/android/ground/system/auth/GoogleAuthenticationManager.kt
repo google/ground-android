@@ -65,17 +65,10 @@ class GoogleAuthenticationManager @Inject constructor(
         get() = signInState.map(SignInState::user).filter { it.isPresent }.map { it.get() }
             .blockingFirst() // TODO: Should this be blocking?
 
-    override fun init() = signInState.onNext(status)
-
-    private val status: SignInState
-        get() {
-            val firebaseUser = firebaseAuth.currentUser
-            return if (firebaseUser == null) {
-                SignInState.signedOut()
-            } else {
-                SignInState.signedIn(firebaseUser.toUser())
-            }
-        }
+    override fun init() {
+        signInState.onNext(
+            getFirebaseUser()?.let { SignInState.signedIn(it) } ?: SignInState.signedOut())
+    }
 
     override fun signIn() {
         signInState.onNext(SignInState.signingIn())
@@ -120,5 +113,10 @@ class GoogleAuthenticationManager @Inject constructor(
     private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
         GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-    private fun FirebaseUser.toUser(): User = User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
+    private fun getFirebaseUser(): User? {
+        return firebaseAuth.currentUser?.toUser()
+    }
+
+    private fun FirebaseUser.toUser(): User =
+        User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
 }
