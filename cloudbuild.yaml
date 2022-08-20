@@ -80,7 +80,7 @@ steps:
       - |
         ./gradlew -PdisablePreDex assembleStaging assembleStagingUnitTest -PtestBuildType=staging
 
-        if [[ "${_PUSH_TO_MASTER}" ]] || true; then
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
           ./gradlew -PdisablePreDex assembleStagingAndroidTest -PtestBuildType=staging
         fi
 
@@ -132,7 +132,7 @@ steps:
     args:
       - '-c'
       - |
-        if [[ "${_PUSH_TO_MASTER}" ]] || true; then
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
           gcloud --quiet beta firebase test android run \
           --type instrumentation --num-uniform-shards=1 \
           --app ground/build/outputs/apk/staging/*.apk \
@@ -224,6 +224,7 @@ steps:
         if [ -f $(< hashsum)-cache.tgz ]; then
           echo "Cache already exists, skipping build cache"
         else
+          echo "Building new cache"
           tar zcf cache.tgz .gradle/caches .gradle/wrapper
         fi
 
