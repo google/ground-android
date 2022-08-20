@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test.persistence.remote;
+package com.sharedtest.persistence.remote;
 
 import android.net.Uri;
 import com.google.android.ground.persistence.remote.RemoteStorageManager;

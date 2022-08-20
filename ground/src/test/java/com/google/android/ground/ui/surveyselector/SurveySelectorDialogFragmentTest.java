@@ -17,8 +17,8 @@
 package com.google.android.ground.ui.surveyselector;
 
 import static android.os.Looper.getMainLooper;
-import static com.google.android.ground.test.FakeData.USER;
 import static com.google.common.truth.Truth.assertThat;
+import static com.sharedtest.FakeData.USER;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -32,9 +32,9 @@ import com.google.android.ground.model.Survey;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalDataStoreModule;
 import com.google.android.ground.repository.SurveyRepository;
-import com.google.android.ground.test.persistence.remote.FakeRemoteDataStore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.sharedtest.persistence.remote.FakeRemoteDataStore;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;
