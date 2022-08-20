@@ -33,8 +33,10 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
         NOT_LOADED, LOADING, LOADED, NOT_FOUND, ERROR
     }
 
+    // TODO: Remove these once all dependencies are migrated to Kotlin
     fun value(): Optional<T> = Optional.ofNullable(result.getOrNull())
 
+    // TODO: Remove these once all dependencies are migrated to Kotlin
     fun error(): Optional<Throwable> = Optional.ofNullable(result.exceptionOrNull())
 
     val isLoaded = state == LoadState.LOADED
