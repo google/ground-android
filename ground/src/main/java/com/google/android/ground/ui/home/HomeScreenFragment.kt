@@ -329,9 +329,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
 
     override fun onStart() {
         super.onStart()
-        if (homeScreenViewModel.shouldShowSurveySelectorOnStart()) {
-            showSurveySelector()
-        }
         homeScreenViewModel.init()
     }
 
@@ -399,14 +396,14 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
 
     private fun onActiveSurveyChange(loadable: Loadable<Survey>) {
         when (loadable.state) {
-            LoadState.NOT_LOADED -> dismissLoadingDialog()
+            LoadState.NOT_FOUND -> showSurveySelector()
             LoadState.LOADED -> {
-                dismissLoadingDialog()
+                dismissSurveyLoadingDialog()
                 updateNavDrawer()
             }
             LoadState.LOADING -> showSurveyLoadingDialog()
-            LoadState.NOT_FOUND, LoadState.ERROR -> loadable.error()
-                .ifPresent { onActivateSurveyFailure(it!!) }
+            LoadState.ERROR -> loadable.error().ifPresent { onActivateSurveyFailure(it!!) }
+            else -> throw IllegalArgumentException("Unhandled state ${loadable.state}")
         }
     }
 
@@ -451,7 +448,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
         }
     }
 
-    private fun dismissLoadingDialog() {
+    private fun dismissSurveyLoadingDialog() {
         if (progressDialog != null) {
             progressDialog!!.dismiss()
             progressDialog = null
@@ -490,7 +487,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
 
     private fun onActivateSurveyFailure(throwable: Throwable) {
         Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating survey")
-        dismissLoadingDialog()
+        dismissSurveyLoadingDialog()
         popups.showError(R.string.survey_load_error)
         showSurveySelector()
     }

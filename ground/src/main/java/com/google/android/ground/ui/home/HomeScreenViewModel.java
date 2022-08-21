@@ -171,10 +171,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
         locationOfInterest.toMutation(Type.UPDATE, userRepository.getCurrentUser().getId()));
   }
 
-  public boolean shouldShowSurveySelectorOnStart() {
-    return surveyRepository.getLastActiveSurveyId().isEmpty();
-  }
-
   public Flowable<Nil> getOpenDrawerRequests() {
     return openDrawerRequests;
   }

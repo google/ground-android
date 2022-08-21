@@ -38,6 +38,9 @@ class Loadable<T> private constructor(val state: LoadState, data: T?, error: Thr
 
     companion object {
         @JvmStatic
+        fun <T> notFound(): Loadable<T> = Loadable(LoadState.NOT_FOUND, null, null)
+
+        @JvmStatic
         fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, null, null)
 
         fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, null, null)

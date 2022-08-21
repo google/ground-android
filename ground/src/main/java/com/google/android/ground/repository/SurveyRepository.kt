@@ -15,11 +15,9 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.model.Role
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -29,7 +27,6 @@ import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import io.reactivex.Flowable
@@ -53,7 +50,6 @@ private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
  */
 @Singleton
 class SurveyRepository @Inject constructor(
-    private val userRepository: UserRepository,
     private val localDataStore: LocalDataStore,
     private val remoteDataStore: RemoteDataStore,
     private val localValueStore: LocalValueStore
@@ -88,9 +84,9 @@ class SurveyRepository @Inject constructor(
     }
 
     private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
-        // Empty id indicates intent to deactivate the current survey. Used on sign out.
+        // Empty id indicates intent to deactivate the current survey or first login.
         return if (surveyId.isEmpty())
-            Flowable.just(Loadable.notLoaded())
+            Flowable.just(Loadable.notFound())
         else
             syncSurveyWithRemote(surveyId)
                 .onErrorResumeNext { getSurvey(surveyId) }
@@ -104,10 +100,7 @@ class SurveyRepository @Inject constructor(
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
         val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
         for (job in survey.jobs) {
-            jobs.put(
-                job.id,
-                job
-            )
+            jobs.put(job.id, job)
         }
         return survey.copy(jobMap = jobs.build())
     }
