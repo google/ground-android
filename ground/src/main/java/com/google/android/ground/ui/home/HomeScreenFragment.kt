@@ -39,7 +39,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.Companion.getValue
 import com.google.android.ground.rx.Loadable.LoadState
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
@@ -58,7 +57,6 @@ import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -154,7 +152,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
         } else {
             mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT)
             if (state.isCompleted) {
-                homeScreenViewModel.addPolygonOfInterest(Objects.requireNonNull(state.unsavedPolygonLocationOfInterest))
+                homeScreenViewModel.addPolygonOfInterest(checkNotNull(state.unsavedPolygonLocationOfInterest))
             }
         }
     }
@@ -242,13 +240,15 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
     }
 
     /** Fetches offline saved surveys and adds them to navigation drawer.  */
-    private fun updateNavDrawer() {
+    private fun updateNavDrawer(activeSurvey: Survey) {
         surveySelectorViewModel
             .offlineSurveys
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.ui())
             .`as`(RxAutoDispose.autoDisposable(this))
-            .subscribe { surveys: ImmutableList<Survey> -> addSurveyToNavDrawer(surveys) }
+            .subscribe { surveys: ImmutableList<Survey> ->
+                addSurveyToNavDrawer(surveys, activeSurvey)
+            }
     }
 
     // Below index is the order of the surveys item in nav_drawer_menu.xml
@@ -256,7 +256,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
         get() =// Below index is the order of the surveys item in nav_drawer_menu.xml
             binding.navView.menu.getItem(1)
 
-    private fun addSurveyToNavDrawer(surveys: List<Survey>) {
+    private fun addSurveyToNavDrawer(surveys: List<Survey>, activeSurvey: Survey) {
         this.surveys = surveys
 
         // clear last saved surveys list
@@ -269,8 +269,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
         }
 
         // Highlight active survey
-        getValue<Survey?>(homeScreenViewModel.surveyLoadingState)
-            .ifPresent { survey: Survey? -> updateSelectedSurveyUI(getSelectedSurveyIndex(survey!!)) }
+        updateSelectedSurveyUI(getSelectedSurveyIndex(activeSurvey))
     }
 
     override fun onGlobalLayout() {
@@ -401,7 +400,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
             LoadState.NOT_FOUND -> showSurveySelector()
             LoadState.LOADED -> {
                 dismissSurveyLoadingDialog()
-                updateNavDrawer()
+                updateNavDrawer(loadable.value().get())
             }
             LoadState.LOADING -> showSurveyLoadingDialog()
             LoadState.ERROR -> loadable.error().ifPresent { onActivateSurveyFailure(it!!) }
