@@ -314,15 +314,17 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
             return false
         }
         val loi = Optional.ofNullable(state.locationOfInterest)
-        if (item.itemId == R.id.move_loi_menu_item) {
-            hideBottomSheet()
-            mapContainerViewModel.setMode(MapContainerViewModel.Mode.MOVE_POINT)
-            mapContainerViewModel.reposLocationOfInterest = loi
-            Toast.makeText(context, R.string.move_point_hint, Toast.LENGTH_SHORT).show()
-        } else if (item.itemId == R.id.loi_properties_menu_item) {
-            showLocationOfInterestProperties()
-        } else {
-            return false
+        when (item.itemId) {
+            R.id.move_loi_menu_item -> {
+                hideBottomSheet()
+                mapContainerViewModel.setMode(MapContainerViewModel.Mode.MOVE_POINT)
+                mapContainerViewModel.reposLocationOfInterest = loi
+                Toast.makeText(context, R.string.move_point_hint, Toast.LENGTH_SHORT).show()
+            }
+            R.id.loi_properties_menu_item -> {
+                showLocationOfInterestProperties()
+            }
+            else -> return false
         }
         return true
     }
