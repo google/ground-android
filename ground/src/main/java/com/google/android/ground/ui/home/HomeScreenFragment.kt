@@ -13,72 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home
 
-package com.google.android.ground.ui.home;
-
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static androidx.navigation.fragment.NavHostFragment.findNavController;
-import static com.google.android.ground.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.ground.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.ground.ui.util.ViewUtil.getScreenWidth;
-import static java.util.Objects.requireNonNull;
-
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.SubMenu;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.FrameLayout;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.NavDestination;
-import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.google.android.ground.BuildConfig;
-import com.google.android.ground.MainActivity;
-import com.google.android.ground.MainViewModel;
-import com.google.android.ground.R;
-import com.google.android.ground.databinding.HomeScreenFragBinding;
-import com.google.android.ground.databinding.NavDrawerHeaderBinding;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.repository.LocationOfInterestRepository;
-import com.google.android.ground.rx.Loadable;
-import com.google.android.ground.rx.Schedulers;
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.BackPressListener;
-import com.google.android.ground.ui.common.EphemeralPopups;
-import com.google.android.ground.ui.common.LocationOfInterestHelper;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.common.ProgressDialogs;
-import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel;
-import com.google.android.ground.ui.home.mapcontainer.MapContainerFragment;
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel;
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Mode;
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel;
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
-import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
-import com.google.common.collect.ImmutableList;
-import dagger.hilt.android.AndroidEntryPoint;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java8.util.Optional;
-import javax.inject.Inject;
-import timber.log.Timber;
+import android.app.AlertDialog
+import android.app.ProgressDialog
+import android.content.DialogInterface
+import android.content.res.Configuration
+import android.os.Bundle
+import android.view.*
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.widget.FrameLayout
+import android.widget.Toast
+import androidx.core.view.GravityCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.fragment.NavHostFragment
+import com.akaita.java.rxjava2debug.RxJava2Debug
+import com.google.android.ground.BuildConfig
+import com.google.android.ground.MainViewModel
+import com.google.android.ground.R
+import com.google.android.ground.databinding.HomeScreenFragBinding
+import com.google.android.ground.databinding.NavDrawerHeaderBinding
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.rx.Loadable
+import com.google.android.ground.rx.Loadable.Companion.getValue
+import com.google.android.ground.rx.Loadable.LoadState
+import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.ui.common.*
+import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
+import com.google.android.ground.ui.home.mapcontainer.MapContainerFragment
+import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
+import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
+import com.google.android.ground.ui.util.ViewUtil
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.navigation.NavigationView
+import com.google.common.collect.ImmutableList
+import dagger.hilt.android.AndroidEntryPoint
+import java8.util.Optional
+import timber.log.Timber
+import java.util.*
+import javax.inject.Inject
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -86,486 +67,472 @@ import timber.log.Timber;
  * fragments (e.g., view submission and edit submission) at runtime.
  */
 @AndroidEntryPoint
-public class HomeScreenFragment extends AbstractFragment
-    implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
+class HomeScreenFragment : AbstractFragment(), BackPressListener,
+    NavigationView.OnNavigationItemSelectedListener, OnGlobalLayoutListener {
 
-  // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer; make this
-  // more
-  // intuitive.
-  private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
+    // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
+    //  make this more intuitive.
 
-  @Inject AuthenticationManager authenticationManager;
-  @Inject Schedulers schedulers;
-  @Inject Navigator navigator;
-  @Inject EphemeralPopups popups;
-  @Inject LocationOfInterestHelper locationOfInterestHelper;
-  @Inject LocationOfInterestRepository locationOfInterestRepository;
-  MapContainerViewModel mapContainerViewModel;
-  PolygonDrawingViewModel polygonDrawingViewModel;
+    @Inject
+    lateinit var authenticationManager: AuthenticationManager
 
-  @Nullable private ProgressDialog progressDialog;
-  private HomeScreenViewModel viewModel;
-  private MapContainerFragment mapContainerFragment;
-  private BottomSheetBehavior<View> bottomSheetBehavior;
-  private SurveySelectorViewModel surveySelectorViewModel;
-  private LocationOfInterestSelectorViewModel locationOfInterestSelectorViewModel;
-  private List<Survey> surveys = Collections.emptyList();
-  private HomeScreenFragBinding binding;
+    @Inject
+    lateinit var locationOfInterestHelper: LocationOfInterestHelper
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    @Inject
+    lateinit var locationOfInterestRepository: LocationOfInterestRepository
 
-    getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
+    @Inject
+    lateinit var navigator: Navigator
 
-    mapContainerViewModel = getViewModel(MapContainerViewModel.class);
-    polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
-    surveySelectorViewModel = getViewModel(SurveySelectorViewModel.class);
-    locationOfInterestSelectorViewModel = getViewModel(LocationOfInterestSelectorViewModel.class);
+    @Inject
+    lateinit var popups: EphemeralPopups
 
-    viewModel = getViewModel(HomeScreenViewModel.class);
-    viewModel.getSurveyLoadingState().observe(this, this::onActiveSurveyChange);
-    viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
-    viewModel
-        .getShowLocationOfInterestSelectorRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::showLocationOfInterestSelector);
-    viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
-    viewModel
-        .getAddLocationOfInterestResults()
-        .observeOn(schedulers.ui())
-        .as(autoDisposable(this))
-        .subscribe(this::onLocationOfInterestAdded);
-    viewModel
-        .getUpdateLocationOfInterestResults()
-        .as(autoDisposable(this))
-        .subscribe(this::onLocationOfInterestUpdated);
-    viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
-    polygonDrawingViewModel
-        .getDrawingState()
-        .distinctUntilChanged()
-        .as(autoDisposable(this))
-        .subscribe(this::onPolygonDrawingStateUpdated);
-    locationOfInterestSelectorViewModel
-        .getLocationOfInterestClicks()
-        .as(autoDisposable(this))
-        .subscribe(viewModel::onLocationOfInterestSelected);
-  }
+    @Inject
+    lateinit var schedulers: Schedulers
 
-  private void onPolygonDrawingStateUpdated(PolygonDrawingState state) {
-    Timber.v("PolygonDrawing state : %s", state);
-    if (state.isInProgress()) {
-      mapContainerViewModel.setMode(Mode.DRAW_POLYGON);
-    } else {
-      mapContainerViewModel.setMode(Mode.DEFAULT);
-      if (state.isCompleted()) {
-        viewModel.addPolygonOfInterest(requireNonNull(state.getUnsavedPolygonLocationOfInterest()));
-      }
-    }
-  }
+    private lateinit var binding: HomeScreenFragBinding
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private lateinit var homeScreenViewModel: HomeScreenViewModel
+    private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
+    private lateinit var mapContainerFragment: MapContainerFragment
+    private lateinit var mapContainerViewModel: MapContainerViewModel
+    private lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
+    private lateinit var surveySelectorViewModel: SurveySelectorViewModel
 
-  private void showLocationOfInterestSelector(
-      ImmutableList<LocationOfInterest> locationsOfInterest) {
-    locationOfInterestSelectorViewModel.setLocationsOfInterest(locationsOfInterest);
-    navigator.navigate(
-        HomeScreenFragmentDirections
-            .actionHomeScreenFragmentToLocationOfInterestSelectorFragment());
-  }
+    private var progressDialog: ProgressDialog? = null
 
-  private void onLocationOfInterestAdded(LocationOfInterest locationOfInterest) {
-    addNewSubmission(locationOfInterest, locationOfInterest.getJob());
-  }
-
-  private void addNewSubmission(LocationOfInterest locationOfInterest, Job job) {
-    String surveyId = locationOfInterest.getSurvey().getId();
-    String locationOfInterestId = locationOfInterest.getId();
-    String jobId = job.getId();
-    navigator.navigate(
-        HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, jobId));
-  }
-
-  /**
-   * This is only possible after updating the location of the location of interest. So, reset the
-   * UI.
-   */
-  private void onLocationOfInterestUpdated(Boolean result) {
-    if (result) {
-      mapContainerViewModel.setMode(Mode.DEFAULT);
-    }
-  }
-
-  /** Generic handler to display error messages to the user. */
-  private void onError(Throwable throwable) {
-    Timber.e(throwable);
-    // Don't display the exact error message as it might not be user-readable.
-    Toast.makeText(getContext(), R.string.error_occurred, Toast.LENGTH_SHORT).show();
-  }
-
-  @Nullable
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-
-    binding = HomeScreenFragBinding.inflate(inflater, container, false);
-    binding.locationOfInterestDetailsChrome.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    return binding.getRoot();
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    binding.versionText.setText(String.format(getString(R.string.build), BuildConfig.VERSION_NAME));
-    // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
-    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-
-    binding.navView.setNavigationItemSelectedListener(this);
-    getView().getViewTreeObserver().addOnGlobalLayoutListener(this);
-
-    if (savedInstanceState == null) {
-      mapContainerFragment = new MapContainerFragment();
-      replaceFragment(R.id.map_container_fragment, mapContainerFragment);
-    } else {
-      mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
+    private var surveys = emptyList<Survey>()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat ->
+            onApplyWindowInsets(
+                insets
+            )
+        }
+        mapContainerViewModel = getViewModel(MapContainerViewModel::class.java)
+        polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
+        surveySelectorViewModel = getViewModel(SurveySelectorViewModel::class.java)
+        locationOfInterestSelectorViewModel = getViewModel(
+            LocationOfInterestSelectorViewModel::class.java
+        )
+        homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
+        homeScreenViewModel.surveyLoadingState.observe(this) { onActiveSurveyChange(it) }
+        homeScreenViewModel.bottomSheetState.observe(this) { onBottomSheetStateChange(it) }
+        homeScreenViewModel
+            .showLocationOfInterestSelectorRequests
+            .`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { showLocationOfInterestSelector(it) }
+        homeScreenViewModel.openDrawerRequests.`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { openDrawer() }
+        homeScreenViewModel
+            .addLocationOfInterestResults
+            .observeOn(schedulers.ui())
+            .`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { onLocationOfInterestAdded(it) }
+        homeScreenViewModel
+            .updateLocationOfInterestResults
+            .`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { onLocationOfInterestUpdated(it) }
+        homeScreenViewModel.errors.`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { onError(it) }
+        polygonDrawingViewModel
+            .drawingState
+            .distinctUntilChanged()
+            .`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { onPolygonDrawingStateUpdated(it) }
+        locationOfInterestSelectorViewModel
+            .locationOfInterestClicks
+            .`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
     }
 
-    updateNavHeader();
-    setUpBottomSheetBehavior();
-  }
+    private fun onPolygonDrawingStateUpdated(state: PolygonDrawingState) {
+        Timber.v("PolygonDrawing state : %s", state)
+        if (state.isInProgress) {
+            mapContainerViewModel.setMode(MapContainerViewModel.Mode.DRAW_POLYGON)
+        } else {
+            mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT)
+            if (state.isCompleted) {
+                homeScreenViewModel.addPolygonOfInterest(Objects.requireNonNull(state.unsavedPolygonLocationOfInterest))
+            }
+        }
+    }
 
-  private void updateNavHeader() {
-    View navHeader = binding.navView.getHeaderView(0);
-    NavDrawerHeaderBinding headerBinding = NavDrawerHeaderBinding.bind(navHeader);
-    headerBinding.setUser(authenticationManager.getCurrentUser());
-  }
+    private fun showLocationOfInterestSelector(
+        locationsOfInterest: ImmutableList<LocationOfInterest>
+    ) {
+        locationOfInterestSelectorViewModel.locationsOfInterest = locationsOfInterest
+        navigator.navigate(
+            HomeScreenFragmentDirections
+                .actionHomeScreenFragmentToLocationOfInterestSelectorFragment()
+        )
+    }
 
-  @Override
-  public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
-  }
+    private fun onLocationOfInterestAdded(locationOfInterest: LocationOfInterest) {
+        addNewSubmission(locationOfInterest, locationOfInterest.job)
+    }
 
-  /** Fetches offline saved surveys and adds them to navigation drawer. */
-  private void updateNavDrawer() {
-    surveySelectorViewModel
-        .getOfflineSurveys()
-        .subscribeOn(schedulers.io())
-        .observeOn(schedulers.ui())
-        .as(autoDisposable(this))
-        .subscribe(this::addSurveyToNavDrawer);
-  }
+    private fun addNewSubmission(locationOfInterest: LocationOfInterest, job: Job) {
+        val surveyId = locationOfInterest.survey.id
+        val locationOfInterestId = locationOfInterest.id
+        val jobId = job.id
+        navigator.navigate(
+            HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, jobId)
+        )
+    }
 
-  private MenuItem getSurveysNavItem() {
+    /**
+     * This is only possible after updating the location of the location of interest. So, reset the
+     * UI.
+     */
+    private fun onLocationOfInterestUpdated(result: Boolean) {
+        if (result) {
+            mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT)
+        }
+    }
+
+    /** Generic handler to display error messages to the user.  */
+    private fun onError(throwable: Throwable) {
+        Timber.e(throwable)
+        // Don't display the exact error message as it might not be user-readable.
+        Toast.makeText(context, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
+        binding = HomeScreenFragBinding.inflate(inflater, container, false)
+        binding.locationOfInterestDetailsChrome.viewModel = homeScreenViewModel
+        binding.lifecycleOwner = this
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.versionText.text = String.format(
+            getString(R.string.build),
+            BuildConfig.VERSION_NAME
+        )
+        // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        binding.navView.setNavigationItemSelectedListener(this)
+        requireView().viewTreeObserver.addOnGlobalLayoutListener(this)
+        if (savedInstanceState == null) {
+            mapContainerFragment = MapContainerFragment()
+            replaceFragment(R.id.map_container_fragment, mapContainerFragment)
+        } else {
+            mapContainerFragment =
+                restoreChildFragment(savedInstanceState, MapContainerFragment::class.java)
+        }
+        updateNavHeader()
+        setUpBottomSheetBehavior()
+    }
+
+    private fun updateNavHeader() {
+        val navHeader = binding.navView.getHeaderView(0)
+        val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
+        headerBinding.user = authenticationManager.currentUser
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        saveChildFragment(outState, mapContainerFragment, MapContainerFragment::class.java.name)
+    }
+
+    /** Fetches offline saved surveys and adds them to navigation drawer.  */
+    private fun updateNavDrawer() {
+        surveySelectorViewModel
+            .offlineSurveys
+            .subscribeOn(schedulers.io())
+            .observeOn(schedulers.ui())
+            .`as`(RxAutoDispose.autoDisposable(this))
+            .subscribe { surveys: ImmutableList<Survey> -> addSurveyToNavDrawer(surveys) }
+    }
+
     // Below index is the order of the surveys item in nav_drawer_menu.xml
-    return binding.navView.getMenu().getItem(1);
-  }
+    private val surveysNavItem: MenuItem
+        get() =// Below index is the order of the surveys item in nav_drawer_menu.xml
+            binding.navView.menu.getItem(1)
 
-  private void addSurveyToNavDrawer(List<Survey> surveys) {
-    this.surveys = surveys;
+    private fun addSurveyToNavDrawer(surveys: List<Survey>) {
+        this.surveys = surveys
 
-    // clear last saved surveys list
-    getSurveysNavItem().getSubMenu().removeGroup(R.id.group_join_survey);
+        // clear last saved surveys list
+        surveysNavItem.subMenu.removeGroup(R.id.group_join_survey)
+        for (index in surveys.indices) {
+            surveysNavItem
+                .subMenu
+                .add(R.id.group_join_survey, Menu.NONE, index, surveys[index].title)
+                .setIcon(R.drawable.ic_menu_survey)
+        }
 
-    for (int index = 0; index < surveys.size(); index++) {
-      getSurveysNavItem()
-          .getSubMenu()
-          .add(R.id.group_join_survey, Menu.NONE, index, surveys.get(index).getTitle())
-          .setIcon(R.drawable.ic_menu_survey);
+        // Highlight active survey
+        getValue<Survey?>(homeScreenViewModel.surveyLoadingState)
+            .ifPresent { survey: Survey? -> updateSelectedSurveyUI(getSelectedSurveyIndex(survey!!)) }
     }
 
-    // Highlight active survey
-    Loadable.getValue(viewModel.getSurveyLoadingState())
-        .ifPresent(survey -> updateSelectedSurveyUI(getSelectedSurveyIndex(survey)));
-  }
+    override fun onGlobalLayout() {
+        if (binding.root.findViewById<FrameLayout>(R.id.bottom_sheet_header) == null) return
 
-  @Override
-  public void onGlobalLayout() {
-    FrameLayout bottomSheetHeader = binding.getRoot().findViewById(R.id.bottom_sheet_header);
-    if (bottomSheetBehavior == null || bottomSheetHeader == null) {
-      return;
-    }
-    bottomSheetBehavior.setFitToContents(false);
+        bottomSheetBehavior.isFitToContents = false
 
-    // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
-    // the bottom edge of the toolbar (the header slides up under it).
-    BottomSheetMetrics metrics = new BottomSheetMetrics(binding.bottomSheetLayout);
-    bottomSheetBehavior.setExpandedOffset(metrics.getExpandedOffset());
-
-    getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-  }
-
-  private void setUpBottomSheetBehavior() {
-    bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout);
-    bottomSheetBehavior.setHideable(true);
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-    bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
-  }
-
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    setHasOptionsMenu(true);
-
-    ((MainActivity) getActivity())
-        .setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false);
-  }
-
-  private void openDrawer() {
-    binding.drawerLayout.openDrawer(GravityCompat.START);
-  }
-
-  private void closeDrawer() {
-    binding.drawerLayout.closeDrawer(GravityCompat.START);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-    BottomSheetState state = viewModel.getBottomSheetState().getValue();
-    if (state == null) {
-      Timber.e("BottomSheetState is null");
-      return false;
+        // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
+        // the bottom edge of the toolbar (the header slides up under it).
+        val metrics = BottomSheetMetrics(binding.bottomSheetLayout)
+        bottomSheetBehavior.expandedOffset = metrics.expandedOffset
+        requireView().viewTreeObserver.removeOnGlobalLayoutListener(this)
     }
 
-    Optional<LocationOfInterest> loi = Optional.ofNullable(state.getLocationOfInterest());
-    if (item.getItemId() == R.id.move_loi_menu_item) {
-      hideBottomSheet();
-      mapContainerViewModel.setMode(Mode.MOVE_POINT);
-      mapContainerViewModel.setReposLocationOfInterest(loi);
-      Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
-    } else if (item.getItemId() == R.id.loi_properties_menu_item) {
-      showLocationOfInterestProperties();
-    } else {
-      return false;
+    private fun setUpBottomSheetBehavior() {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout)
+        bottomSheetBehavior.isHideable = true
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        bottomSheetBehavior.setBottomSheetCallback(BottomSheetCallback())
     }
 
-    return true;
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-
-    if (viewModel.shouldShowSurveySelectorOnStart()) {
-      showSurveySelector();
+    @Deprecated("Deprecated in Java")
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        setHasOptionsMenu(true)
+        getMainActivity().setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false)
     }
 
-    viewModel.init();
-  }
-
-  private int getCurrentDestinationId() {
-    NavDestination currentDestination = findNavController(this).getCurrentDestination();
-    return currentDestination == null ? -1 : currentDestination.getId();
-  }
-
-  private void showSurveySelector() {
-    if (getCurrentDestinationId() != R.id.surveySelectorDialogFragment) {
-      navigator.navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment());
-    }
-  }
-
-  private void showDataCollection() {
-    // TODO(#1146): Replace with actual values based on the clicked Task card
-    String dummySurveyId = "123";
-    String dummyLocationOfInterestId = "456";
-    String dummySubmissionId = "789";
-    navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            dummySurveyId, dummyLocationOfInterestId, dummySubmissionId));
-  }
-
-  private void showOfflineAreas() {
-    viewModel.showOfflineAreas();
-  }
-
-  private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    binding.locationOfInterestDetailsChrome.toolbarWrapper.setPadding(
-        0, insets.getSystemWindowInsetTop(), 0, 0);
-    binding.locationOfInterestDetailsChrome.bottomSheetBottomInsetScrim.setMinimumHeight(
-        insets.getSystemWindowInsetBottom());
-    updateNavViewInsets(insets);
-    updateBottomSheetPeekHeight(insets);
-  }
-
-  private void updateNavViewInsets(WindowInsetsCompat insets) {
-    View headerView = binding.navView.getHeaderView(0);
-    headerView.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
-  }
-
-  private void updateBottomSheetPeekHeight(WindowInsetsCompat insets) {
-    double width =
-        getScreenWidth(getActivity())
-            + insets.getSystemWindowInsetLeft()
-            + insets.getSystemWindowInsetRight();
-    double height =
-        getScreenHeight(getActivity())
-            + insets.getSystemWindowInsetTop()
-            + insets.getSystemWindowInsetBottom();
-    double mapHeight = 0;
-    if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
-      mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
-    } else if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
-      mapHeight = height / COLLAPSED_MAP_ASPECT_RATIO;
-    }
-    double peekHeight = height - mapHeight;
-    bottomSheetBehavior.setPeekHeight((int) peekHeight);
-  }
-
-  private void onActiveSurveyChange(Loadable<Survey> loadable) {
-    switch (loadable.getState()) {
-      case NOT_LOADED:
-        dismissLoadingDialog();
-        break;
-      case LOADED:
-        dismissLoadingDialog();
-        updateNavDrawer();
-        break;
-      case LOADING:
-        showSurveyLoadingDialog();
-        break;
-      case NOT_FOUND:
-      case ERROR:
-        loadable.error().ifPresent(this::onActivateSurveyFailure);
-        break;
-      default:
-        Timber.e("Unhandled case: %s", loadable.getState());
-        break;
-    }
-  }
-
-  private void updateSelectedSurveyUI(int selectedIndex) {
-    SubMenu subMenu = getSurveysNavItem().getSubMenu();
-    for (int i = 0; i < surveys.size(); i++) {
-      MenuItem menuItem = subMenu.getItem(i);
-      menuItem.setChecked(i == selectedIndex);
-    }
-  }
-
-  private int getSelectedSurveyIndex(Survey activeSurvey) {
-    for (Survey survey : surveys) {
-      if (survey.getId().equals(activeSurvey.getId())) {
-        return surveys.indexOf(survey);
-      }
-    }
-    Timber.e("Selected survey not found.");
-    return -1;
-  }
-
-  private void onBottomSheetStateChange(BottomSheetState state) {
-    switch (state.getVisibility()) {
-      case VISIBLE:
-        showBottomSheet();
-        break;
-      case HIDDEN:
-        hideBottomSheet();
-        break;
-      default:
-        Timber.e("Unhandled visibility: %s", state.getVisibility());
-        break;
-    }
-  }
-
-  private void showBottomSheet() {
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-  }
-
-  private void hideBottomSheet() {
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-  }
-
-  private void showSurveyLoadingDialog() {
-    if (progressDialog == null) {
-      progressDialog =
-          ProgressDialogs.modalSpinner(getContext(), R.string.survey_loading_please_wait);
-      progressDialog.show();
-    }
-  }
-
-  public void dismissLoadingDialog() {
-    if (progressDialog != null) {
-      progressDialog.dismiss();
-      progressDialog = null;
-    }
-  }
-
-  @Override
-  public boolean onBack() {
-    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
-      return false;
-    } else {
-      hideBottomSheet();
-      return true;
-    }
-  }
-
-  @Override
-  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-    if (item.getGroupId() == R.id.group_join_survey) {
-      Survey selectedSurvey = surveys.get(item.getOrder());
-      surveySelectorViewModel.activateOfflineSurvey(selectedSurvey.getId());
-    } else if (item.getItemId() == R.id.nav_join_survey) {
-      showSurveySelector();
-    } else if (item.getItemId() == R.id.tmp_collect_data) {
-      showDataCollection();
-    } else if (item.getItemId() == R.id.sync_status) {
-      viewModel.showSyncStatus();
-    } else if (item.getItemId() == R.id.nav_offline_areas) {
-      showOfflineAreas();
-    } else if (item.getItemId() == R.id.nav_settings) {
-      viewModel.showSettings();
-    } else if (item.getItemId() == R.id.nav_sign_out) {
-      authenticationManager.signOut();
-    }
-    closeDrawer();
-    return true;
-  }
-
-  private void onActivateSurveyFailure(Throwable throwable) {
-    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating survey");
-    dismissLoadingDialog();
-    popups.showError(R.string.survey_load_error);
-    showSurveySelector();
-  }
-
-  private void showLocationOfInterestProperties() {
-    // TODO(#841): Move business logic into view model.
-    BottomSheetState state = viewModel.getBottomSheetState().getValue();
-    if (state == null) {
-      Timber.e("BottomSheetState is null");
-      return;
-    }
-    if (state.getLocationOfInterest() == null) {
-      Timber.e("No locationOfInterest selected");
-      return;
-    }
-    List<String> items = new ArrayList<>();
-    // TODO(#843): Let properties apply to other locationOfInterest types as well.
-    if (items.isEmpty()) {
-      items.add("No properties defined for this locationOfInterest");
-    }
-    new AlertDialog.Builder(requireContext())
-        .setCancelable(true)
-        .setTitle(R.string.loi_properties)
-        // TODO(#842): Use custom view to format locationOfInterest properties as table.
-        .setItems(items.toArray(new String[] {}), (a, b) -> {})
-        .setPositiveButton(R.string.close_loi_properties, (a, b) -> {})
-        .create()
-        .show();
-  }
-
-  private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
-
-    @Override
-    public void onStateChanged(@NonNull View bottomSheet, int newState) {
-      if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-        viewModel.onBottomSheetHidden();
-      }
+    private fun openDrawer() {
+        binding.drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    @Override
-    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-      // no-op.
+    private fun closeDrawer() {
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
     }
-  }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val state = homeScreenViewModel.bottomSheetState.value
+        if (state == null) {
+            Timber.e("BottomSheetState is null")
+            return false
+        }
+        val loi = Optional.ofNullable(state.locationOfInterest)
+        if (item.itemId == R.id.move_loi_menu_item) {
+            hideBottomSheet()
+            mapContainerViewModel.setMode(MapContainerViewModel.Mode.MOVE_POINT)
+            mapContainerViewModel.reposLocationOfInterest = loi
+            Toast.makeText(context, R.string.move_point_hint, Toast.LENGTH_SHORT).show()
+        } else if (item.itemId == R.id.loi_properties_menu_item) {
+            showLocationOfInterestProperties()
+        } else {
+            return false
+        }
+        return true
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (homeScreenViewModel.shouldShowSurveySelectorOnStart()) {
+            showSurveySelector()
+        }
+        homeScreenViewModel.init()
+    }
+
+    private val currentDestinationId: Int
+        get() {
+            val currentDestination = NavHostFragment.findNavController(this).currentDestination
+            return currentDestination?.id ?: -1
+        }
+
+    private fun showSurveySelector() {
+        if (currentDestinationId != R.id.surveySelectorDialogFragment) {
+            navigator.navigate(
+                HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment()
+            )
+        }
+    }
+
+    private fun showDataCollection() {
+        // TODO(#1146): Replace with actual values based on the clicked Task card
+        val dummySurveyId = "123"
+        val dummyLocationOfInterestId = "456"
+        val dummySubmissionId = "789"
+        navigator.navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+                dummySurveyId, dummyLocationOfInterestId, dummySubmissionId
+            )
+        )
+    }
+
+    private fun showOfflineAreas() {
+        homeScreenViewModel.showOfflineAreas()
+    }
+
+    private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
+        binding.locationOfInterestDetailsChrome.toolbarWrapper.setPadding(
+            0, insets.systemWindowInsetTop, 0, 0
+        )
+        binding.locationOfInterestDetailsChrome.bottomSheetBottomInsetScrim.minimumHeight =
+            insets.systemWindowInsetBottom
+        updateNavViewInsets(insets)
+        updateBottomSheetPeekHeight(insets)
+    }
+
+    private fun updateNavViewInsets(insets: WindowInsetsCompat) {
+        val headerView = binding.navView.getHeaderView(0)
+        headerView.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+    }
+
+    private fun updateBottomSheetPeekHeight(insets: WindowInsetsCompat) {
+        val width = (ViewUtil.getScreenWidth(activity)
+            + insets.systemWindowInsetLeft
+            + insets.systemWindowInsetRight).toDouble()
+        val height = (ViewUtil.getScreenHeight(activity)
+            + insets.systemWindowInsetTop
+            + insets.systemWindowInsetBottom).toDouble()
+        var mapHeight = 0.0
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO
+        } else if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mapHeight = height / COLLAPSED_MAP_ASPECT_RATIO
+        }
+        val peekHeight = height - mapHeight
+        bottomSheetBehavior.peekHeight = peekHeight.toInt()
+    }
+
+    private fun onActiveSurveyChange(loadable: Loadable<Survey>) {
+        when (loadable.state) {
+            LoadState.NOT_LOADED -> dismissLoadingDialog()
+            LoadState.LOADED -> {
+                dismissLoadingDialog()
+                updateNavDrawer()
+            }
+            LoadState.LOADING -> showSurveyLoadingDialog()
+            LoadState.NOT_FOUND, LoadState.ERROR -> loadable.error()
+                .ifPresent { onActivateSurveyFailure(it!!) }
+        }
+    }
+
+    private fun updateSelectedSurveyUI(selectedIndex: Int) {
+        val subMenu = surveysNavItem.subMenu
+        for (i in surveys.indices) {
+            val menuItem = subMenu.getItem(i)
+            menuItem.isChecked = i == selectedIndex
+        }
+    }
+
+    private fun getSelectedSurveyIndex(activeSurvey: Survey): Int {
+        for (survey in surveys) {
+            if (survey.id == activeSurvey.id) {
+                return surveys.indexOf(survey)
+            }
+        }
+        Timber.e("Selected survey not found.")
+        return -1
+    }
+
+    private fun onBottomSheetStateChange(state: BottomSheetState) {
+        when (state.visibility) {
+            BottomSheetState.Visibility.VISIBLE -> showBottomSheet()
+            BottomSheetState.Visibility.HIDDEN -> hideBottomSheet()
+        }
+    }
+
+    private fun showBottomSheet() {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun hideBottomSheet() {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    private fun showSurveyLoadingDialog() {
+        if (progressDialog == null) {
+            progressDialog =
+                ProgressDialogs.modalSpinner(context, R.string.survey_loading_please_wait)
+            progressDialog?.show()
+        }
+    }
+
+    private fun dismissLoadingDialog() {
+        if (progressDialog != null) {
+            progressDialog!!.dismiss()
+            progressDialog = null
+        }
+    }
+
+    override fun onBack(): Boolean {
+        return if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
+            false
+        } else {
+            hideBottomSheet()
+            true
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        if (item.groupId == R.id.group_join_survey) {
+            val (id) = surveys[item.order]
+            surveySelectorViewModel.activateOfflineSurvey(id)
+        } else if (item.itemId == R.id.nav_join_survey) {
+            showSurveySelector()
+        } else if (item.itemId == R.id.tmp_collect_data) {
+            showDataCollection()
+        } else if (item.itemId == R.id.sync_status) {
+            homeScreenViewModel.showSyncStatus()
+        } else if (item.itemId == R.id.nav_offline_areas) {
+            showOfflineAreas()
+        } else if (item.itemId == R.id.nav_settings) {
+            homeScreenViewModel.showSettings()
+        } else if (item.itemId == R.id.nav_sign_out) {
+            authenticationManager.signOut()
+        }
+        closeDrawer()
+        return true
+    }
+
+    private fun onActivateSurveyFailure(throwable: Throwable) {
+        Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating survey")
+        dismissLoadingDialog()
+        popups.showError(R.string.survey_load_error)
+        showSurveySelector()
+    }
+
+    private fun showLocationOfInterestProperties() {
+        // TODO(#841): Move business logic into view model.
+        val state = homeScreenViewModel.bottomSheetState.value
+        if (state == null) {
+            Timber.e("BottomSheetState is null")
+            return
+        }
+        if (state.locationOfInterest == null) {
+            Timber.e("No locationOfInterest selected")
+            return
+        }
+        val items: MutableList<String> = ArrayList()
+        // TODO(#843): Let properties apply to other locationOfInterest types as well.
+        if (items.isEmpty()) {
+            items.add("No properties defined for this locationOfInterest")
+        }
+        AlertDialog.Builder(requireContext())
+            .setCancelable(true)
+            .setTitle(R.string.loi_properties) // TODO(#842): Use custom view to format locationOfInterest properties as table.
+            .setItems(arrayOf<String>()) { _: DialogInterface?, _: Int -> }
+            .setPositiveButton(R.string.close_loi_properties) { _: DialogInterface?, _: Int -> }
+            .create()
+            .show()
+    }
+
+    private inner class BottomSheetCallback : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                homeScreenViewModel.onBottomSheetHidden()
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            // no-op.
+        }
+    }
+
+    companion object {
+        private const val COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f
+    }
 }
