@@ -22,7 +22,7 @@ package com.google.android.ground.persistence.remote
  * @param <T> the type of entity being loaded, modified, or removed.
  */
 class RemoteDataEvent<T> private constructor(
-    val eventType: EventType, val entityId: Result<String?>, val entity: Result<T?>
+    val eventType: EventType, val result: Result<Pair<String, T?>>
 ) {
 
     enum class EventType {
@@ -32,30 +32,18 @@ class RemoteDataEvent<T> private constructor(
     companion object {
         @JvmStatic
         fun <T> loaded(entityId: String, entity: T): RemoteDataEvent<T> =
-            RemoteDataEvent(
-                EventType.ENTITY_LOADED,
-                Result.success(entityId),
-                Result.success(entity)
-            )
+            RemoteDataEvent(EventType.ENTITY_LOADED, Result.success(Pair(entityId, entity)))
 
         @JvmStatic
         fun <T> modified(entityId: String, entity: T): RemoteDataEvent<T> =
-            RemoteDataEvent(
-                EventType.ENTITY_MODIFIED,
-                Result.success(entityId),
-                Result.success(entity)
-            )
+            RemoteDataEvent(EventType.ENTITY_MODIFIED, Result.success(Pair(entityId, entity)))
 
         @JvmStatic
         fun <T> removed(entityId: String): RemoteDataEvent<T?> =
-            RemoteDataEvent(
-                EventType.ENTITY_REMOVED,
-                Result.success(entityId),
-                Result.success(null)
-            )
+            RemoteDataEvent(EventType.ENTITY_REMOVED, Result.success(Pair(entityId, null)))
 
         @JvmStatic
         fun <T> error(error: Throwable): RemoteDataEvent<T?> =
-            RemoteDataEvent(EventType.ERROR, Result.failure(error), Result.failure(error))
+            RemoteDataEvent(EventType.ERROR, Result.failure(error))
     }
 }

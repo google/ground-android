@@ -72,15 +72,15 @@ class LocationOfInterestRepository @Inject constructor(
     private fun updateLocalLocationOfInterest(event: RemoteDataEvent<LocationOfInterest>): @Cold Completable {
         return when (event.eventType) {
             RemoteDataEvent.EventType.ENTITY_LOADED, RemoteDataEvent.EventType.ENTITY_MODIFIED ->
-                event.entity.getOrNull()
-                    ?.let { localDataStore.mergeLocationOfInterest(it) }
+                event.result.getOrNull()
+                    ?.let { localDataStore.mergeLocationOfInterest(checkNotNull(it.second)) }
                     ?: Completable.complete()
             RemoteDataEvent.EventType.ENTITY_REMOVED ->
-                event.entityId.getOrNull()
-                    ?.let { localDataStore.deleteLocationOfInterest(it) }
+                event.result.getOrNull()
+                    ?.let { localDataStore.deleteLocationOfInterest(it.first) }
                     ?: Completable.never()
             RemoteDataEvent.EventType.ERROR -> {
-                event.entity.exceptionOrNull()
+                event.result.exceptionOrNull()
                     ?.let { Timber.d(it, "Invalid locations of interest in remote db ignored") }
                 Completable.complete()
             }
