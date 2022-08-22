@@ -63,8 +63,7 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest extends BaseHiltTest {
 
-  private static final User TEST_USER =
-      new User("user id", "user@gmail.com", "user 1");
+  private static final User TEST_USER = new User("user id", "user@gmail.com", "user 1");
 
   private static final Task TEST_TASK = new Task("task id", 1, Type.TEXT, "task label", false);
 
@@ -79,14 +78,11 @@ public class LocalDataStoreTest extends BaseHiltTest {
           "survey id",
           "survey 1",
           "foo description",
-          ImmutableMap.<String, Job>builder().put(TEST_JOB.getId(), TEST_JOB).build()
-      );
+          ImmutableMap.<String, Job>builder().put(TEST_JOB.getId(), TEST_JOB).build());
 
-  private static final Point TEST_POINT =
-      new Point(110.0, -23.1);
+  private static final Point TEST_POINT = new Point(110.0, -23.1);
 
-  private static final Point TEST_POINT_2 =
-      new Point(51.0, 44.0);
+  private static final Point TEST_POINT_2 = new Point(51.0, 44.0);
 
   private static final ImmutableList<Point> TEST_POLYGON_1 =
       ImmutableList.<Point>builder()
@@ -121,9 +117,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
           .setResponseDeltas(
               ImmutableList.of(
                   new ResponseDelta(
-                      "task id",
-                      Task.Type.TEXT,
-                      TextResponse.fromString("updated response"))))
+                      "task id", Task.Type.TEXT, TextResponse.fromString("updated response"))))
           .setId(1L)
           .setType(Mutation.Type.CREATE)
           .setSyncStatus(SyncStatus.PENDING)
@@ -473,7 +467,8 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     ResponseMap responses =
         localDataStore.getSubmission(loi, submission.getId()).test().values().get(0).getResponses();
-    assertThat("updated response").isEqualTo(responses.getResponse("task id").get().toString());
+    assertThat(new TextResponse("updated response"))
+        .isEqualTo(responses.getResponse("task id").get());
   }
 
   @Test
