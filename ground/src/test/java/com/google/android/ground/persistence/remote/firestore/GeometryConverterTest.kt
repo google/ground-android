@@ -16,9 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
-import com.google.android.ground.test.assertIsFailure
-import com.google.android.ground.test.assertIsSuccessWith
 import com.google.firebase.firestore.GeoPoint
+import com.sharedtest.assertIsFailure
+import com.sharedtest.assertIsSuccessWith
 import org.junit.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory

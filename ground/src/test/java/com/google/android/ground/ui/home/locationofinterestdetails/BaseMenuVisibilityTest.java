@@ -21,10 +21,10 @@ import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.test.FakeData;
-import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.sharedtest.FakeData;
+import com.sharedtest.system.auth.FakeAuthenticationManager;
 import javax.inject.Inject;
 
 public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
