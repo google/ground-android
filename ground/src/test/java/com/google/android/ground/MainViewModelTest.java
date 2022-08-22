@@ -25,7 +25,6 @@ import androidx.navigation.NavDirections;
 import com.google.android.ground.repository.TermsOfServiceRepository;
 import com.google.android.ground.repository.UserRepository;
 import com.google.android.ground.system.auth.SignInState;
-import com.google.android.ground.system.auth.SignInState.State;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
 import com.google.android.ground.ui.signin.SignInFragmentDirections;
