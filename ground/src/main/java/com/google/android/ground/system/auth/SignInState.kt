@@ -16,25 +16,28 @@
 package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
-import com.google.android.ground.rx.ValueOrError
 
-class SignInState : ValueOrError<User> {
-    val state: State
-    val user = value()
+data class SignInState(
+    val state: State,
+    val result: Result<User?>
+) {
 
     enum class State {
         SIGNED_OUT, SIGNING_IN, SIGNED_IN, ERROR
     }
 
-    constructor(state: State) : super(null, null) {
-        this.state = state
-    }
+    companion object {
 
-    constructor(user: User) : super(user, null) {
-        state = State.SIGNED_IN
-    }
+        @JvmStatic
+        fun signedOut() = SignInState(State.SIGNED_OUT, Result.success(null))
 
-    constructor(error: Throwable) : super(null, error) {
-        state = State.ERROR
+        @JvmStatic
+        fun signingIn() = SignInState(State.SIGNING_IN, Result.success(null))
+
+        @JvmStatic
+        fun signedIn(user: User) = SignInState(State.SIGNED_IN, Result.success(user))
+
+        @JvmStatic
+        fun error(error: Throwable) = SignInState(State.ERROR, Result.failure(error))
     }
 }
