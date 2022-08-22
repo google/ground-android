@@ -27,26 +27,31 @@ import org.reactivestreams.Publisher
  *
  * @param <T> the type of data payload the resource contains.
 </T> */
-class Loadable<T> private constructor(val state: LoadState, data: T?, error: Throwable?) :
-    ValueOrError<T>(data, error) {
+class Loadable<T> private constructor(val state: LoadState, val result: Result<T?>) {
 
     enum class LoadState {
         NOT_LOADED, LOADING, LOADED, NOT_FOUND, ERROR
     }
 
+    // TODO: Remove these once all dependencies are migrated to Kotlin
+    fun value(): Optional<T> = Optional.ofNullable(result.getOrNull())
+
+    // TODO: Remove these once all dependencies are migrated to Kotlin
+    fun error(): Optional<Throwable> = Optional.ofNullable(result.exceptionOrNull())
+
     val isLoaded = state == LoadState.LOADED
 
     companion object {
         @JvmStatic
-        fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, null, null)
+        fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, Result.success(null))
 
-        fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, null, null)
-
-        @JvmStatic
-        fun <T> loaded(data: T): Loadable<T> = Loadable(LoadState.LOADED, data, null)
+        private fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, Result.success(null))
 
         @JvmStatic
-        fun <T> error(t: Throwable): Loadable<T> = Loadable(t.toState(), null, t)
+        fun <T> loaded(data: T): Loadable<T> = Loadable(LoadState.LOADED, Result.success(data))
+
+        @JvmStatic
+        fun <T> error(t: Throwable): Loadable<T> = Loadable(t.toState(), Result.failure(t))
 
         @JvmStatic
         fun <T> getValue(liveData: LiveData<Loadable<T?>?>): Optional<T?> =
@@ -58,7 +63,7 @@ class Loadable<T> private constructor(val state: LoadState, data: T?, error: Thr
          */
         @JvmStatic
         fun <V> values(stream: Flowable<Loadable<V?>>): Publisher<V> =
-            stream.filter { it.isPresent }.map { it.value().get() }
+            stream.filter { it.isLoaded }.map { it.value().get() }
 
         /**
          * Returns a [Flowable] that first emits LOADING, then maps values emitted from the source
@@ -74,7 +79,7 @@ class Loadable<T> private constructor(val state: LoadState, data: T?, error: Thr
             source
                 .map { data: T -> loaded(data) }
                 .onErrorReturn { t: Throwable -> error(t) }
-                .startWith(Loadable(LoadState.LOADING, null, null))
+                .startWith(loading())
     }
 }
 

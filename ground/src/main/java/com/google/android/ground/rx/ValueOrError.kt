@@ -27,8 +27,6 @@ open class ValueOrError<T> protected constructor(
     private val value: T?,
     private val error: Throwable?
 ) {
-    val isPresent = value().isPresent
-
     fun value(): Optional<T> = Optional.ofNullable(value)
 
     fun error(): Optional<Throwable?> = Optional.ofNullable(error)
