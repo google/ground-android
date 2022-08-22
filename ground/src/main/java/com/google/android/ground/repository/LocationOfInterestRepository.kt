@@ -27,6 +27,7 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
+import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.DataSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -73,10 +74,9 @@ class LocationOfInterestRepository @Inject constructor(
         return event.result.fold(
             { (entityId: String, entity: LocationOfInterest?) ->
                 when (event.eventType) {
-                    RemoteDataEvent.EventType.ENTITY_LOADED,
-                    RemoteDataEvent.EventType.ENTITY_MODIFIED ->
+                    ENTITY_LOADED, ENTITY_MODIFIED ->
                         localDataStore.mergeLocationOfInterest(checkNotNull(entity))
-                    RemoteDataEvent.EventType.ENTITY_REMOVED ->
+                    ENTITY_REMOVED ->
                         localDataStore.deleteLocationOfInterest(entityId)
                     else -> throw IllegalArgumentException()
                 }
