@@ -16,8 +16,8 @@
 
 package com.google.android.ground.ui.editsubmission;
 
-import static com.google.android.ground.test.TestObservers.observeUntilFirstChange;
 import static com.google.common.truth.Truth.assertThat;
+import static com.sharedtest.TestObservers.observeUntilFirstChange;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.submission.DateResponse;

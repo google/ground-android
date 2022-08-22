@@ -406,7 +406,7 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   }
 
   private boolean isPolygonCompleted(List<Point> vertices) {
-    return vertices.size() > 2 && vertices.get(vertices.size() - 1) == vertices.get(0);
+    return vertices.size() > 2 && vertices.get(vertices.size() - 1).equals(vertices.get(0));
   }
 
   private int getPolylineStrokeWidth() {

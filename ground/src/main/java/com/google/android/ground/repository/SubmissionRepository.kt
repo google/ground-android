@@ -30,7 +30,6 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.DataSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.ValueOrError
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.common.collect.ImmutableList
@@ -91,22 +90,23 @@ class SubmissionRepository @Inject constructor(
             .loadSubmissions(locationOfInterest)
             .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
             .doOnError { Timber.e(it, "Submission sync timed out") }
-            .flatMapCompletable { submissions: ImmutableList<ValueOrError<Submission>> ->
+            .flatMapCompletable { submissions: ImmutableList<Result<Submission>> ->
                 mergeRemoteSubmissions(submissions)
             }
             .onErrorComplete()
         return remoteSync.andThen(localDataStore.getSubmissions(locationOfInterest, taskId))
     }
 
-    private fun mergeRemoteSubmissions(submissions: ImmutableList<ValueOrError<Submission>>): @Cold Completable {
+    private fun mergeRemoteSubmissions(submissions: ImmutableList<Result<Submission>>): @Cold Completable {
         return Observable.fromIterable(submissions)
-            .doOnNext { voe: ValueOrError<Submission> ->
-                voe.error().ifPresent { Timber.e(it, "Skipping bad submission") }
+            .doOnNext { result: Result<Submission> ->
+                if (result.isFailure) {
+                    Timber.e(result.exceptionOrNull(), "Skipping bad submission")
+                }
             }
-            .compose { ValueOrError.ignoreErrors(it) }
-            .flatMapCompletable { submission: Submission ->
-                localDataStore.mergeSubmission(submission)
-            }
+            .filter { it.isSuccess }
+            .map { it.getOrThrow() }
+            .flatMapCompletable { localDataStore.mergeSubmission(it) }
     }
 
     fun getSubmission(

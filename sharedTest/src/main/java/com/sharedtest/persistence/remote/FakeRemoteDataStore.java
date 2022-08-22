@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.test.persistence.remote;
+package com.sharedtest.persistence.remote;
 
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.TermsOfService;
@@ -24,11 +24,10 @@ import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.persistence.remote.RemoteDataEvent;
 import com.google.android.ground.persistence.remote.RemoteDataStore;
-import com.google.android.ground.rx.ValueOrError;
 import com.google.android.ground.rx.annotations.Cold;
-import com.google.android.ground.test.FakeData;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.sharedtest.FakeData;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -38,6 +37,7 @@ import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import kotlin.Result;
 
 @Singleton
 public class FakeRemoteDataStore implements RemoteDataStore {
@@ -97,7 +97,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
+  public Single<ImmutableList<Result<Submission>>> loadSubmissions(
       LocationOfInterest locationOfInterest) {
     return null;
   }

@@ -23,7 +23,7 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.RxTransformers.switchMapIfPresent
+import com.google.android.ground.rx.RxTransformers.switchMapIf
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -73,7 +73,9 @@ class MainViewModel @Inject constructor(
         disposeOnClear(
             authenticationManager
                 .signInState
-                .compose(switchMapIfPresent(SignInState::user) { userRepository.saveUser(it) })
+                .compose(switchMapIf({ it.state == SignInState.State.SIGNED_IN }) {
+                    userRepository.saveUser(it.result.getOrNull()!!)
+                })
                 .observeOn(schedulers.ui())
                 .switchMap { signInState: SignInState -> onSignInStateChange(signInState) }
                 .subscribe { directions: NavDirections -> navigator.navigate(directions) })
@@ -98,12 +100,12 @@ class MainViewModel @Inject constructor(
         return when (signInState.state) {
             SignInState.State.SIGNED_IN -> onUserSignedIn()
             SignInState.State.SIGNED_OUT -> onUserSignedOut()
-            SignInState.State.ERROR -> onUserSignInError(signInState.error())
+            SignInState.State.ERROR -> onUserSignInError(signInState.result.exceptionOrNull())
             else -> Observable.never()
         }
     }
 
-    private fun onUserSignInError(error: Optional<Throwable?>): Observable<NavDirections> {
+    private fun onUserSignInError(error: Throwable?): Observable<NavDirections> {
         Timber.e("Authentication error: $error")
         popups.showError(R.string.sign_in_unsuccessful)
         return onUserSignedOut()

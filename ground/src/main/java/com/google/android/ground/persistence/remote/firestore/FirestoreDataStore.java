@@ -32,7 +32,6 @@ import com.google.android.ground.persistence.remote.RemoteDataStore;
 import com.google.android.ground.persistence.remote.firestore.schema.GroundFirestore;
 import com.google.android.ground.rx.RxTask;
 import com.google.android.ground.rx.Schedulers;
-import com.google.android.ground.rx.ValueOrError;
 import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.system.ApplicationErrorManager;
 import com.google.common.collect.ImmutableCollection;
@@ -47,6 +46,7 @@ import io.reactivex.Single;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import kotlin.Result;
 import timber.log.Timber;
 
 @Singleton
@@ -87,7 +87,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public Single<ImmutableList<ValueOrError<Submission>>> loadSubmissions(
+  public Single<ImmutableList<Result<Submission>>> loadSubmissions(
       LocationOfInterest locationOfInterest) {
     return db.surveys()
         .survey(locationOfInterest.getSurvey().getId())
