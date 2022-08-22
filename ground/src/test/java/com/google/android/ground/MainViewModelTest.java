@@ -25,7 +25,6 @@ import androidx.navigation.NavDirections;
 import com.google.android.ground.repository.TermsOfServiceRepository;
 import com.google.android.ground.repository.UserRepository;
 import com.google.android.ground.system.auth.SignInState;
-import com.google.android.ground.system.auth.SignInState.State;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
 import com.google.android.ground.ui.signin.SignInFragmentDirections;
@@ -106,7 +105,7 @@ public class MainViewModelTest extends BaseHiltTest {
 
   @Test
   public void testSignInStateChanged_onSigningIn() {
-    fakeAuthenticationManager.setState(new SignInState(State.SIGNING_IN));
+    fakeAuthenticationManager.setState(SignInState.signingIn());
 
     verifyProgressDialogVisible(true);
     verifyNavigationRequested();
@@ -161,7 +160,7 @@ public class MainViewModelTest extends BaseHiltTest {
   public void testSignInStateChanged_onSignInError() {
     setupUserPreferences();
 
-    fakeAuthenticationManager.setState(new SignInState(new Exception()));
+    fakeAuthenticationManager.setState(SignInState.error(new Exception()));
 
     assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful");
     verifyProgressDialogVisible(false);
