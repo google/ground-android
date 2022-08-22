@@ -24,7 +24,7 @@ import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.test.FakeData;
+import com.sharedtest.FakeData;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java8.util.Optional;
 import javax.inject.Inject;

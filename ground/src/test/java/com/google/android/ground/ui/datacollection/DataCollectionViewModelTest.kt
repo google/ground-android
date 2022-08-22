@@ -20,9 +20,9 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.test.getOrAwaitValue
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.getOrAwaitValue
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules

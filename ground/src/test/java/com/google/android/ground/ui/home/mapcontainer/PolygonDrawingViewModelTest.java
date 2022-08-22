@@ -21,12 +21,12 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.test.FakeData;
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState;
 import com.google.android.ground.ui.map.MapLocationOfInterest;
 import com.google.android.ground.ui.map.MapPin;
 import com.google.android.ground.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
+import com.sharedtest.FakeData;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import io.reactivex.observers.TestObserver;
 import javax.inject.Inject;

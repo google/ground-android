@@ -24,7 +24,7 @@ apply from: '../config/spotbugs/spotbugs.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
 android {
-    namespace 'com.google.android.ground.test'
+    namespace 'com.sharedtest'
     compileSdkVersion rootProject.androidCompileSdk
 
     defaultConfig {
