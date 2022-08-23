@@ -45,10 +45,10 @@ internal object SubmissionConverter {
         val lastModified = Objects.requireNonNullElse(
             doc.lastModified, created
         )
-        val job = loi.job ?: throw DataStoreException("Location of interest is missing a job")
+        val job = loi.job
         return Submission.newBuilder()
             .setId(snapshot.id)
-            .setSurveyId(loi.survey.id)
+            .setSurveyId(loi.surveyId)
             .setLocationOfInterest(loi)
             .setJob(job)
             .setResponses(toResponseMap(snapshot.id, job, doc.responses))

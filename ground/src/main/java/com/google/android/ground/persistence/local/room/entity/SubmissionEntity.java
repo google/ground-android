@@ -133,7 +133,7 @@ public abstract class SubmissionEntity {
     return Submission.newBuilder()
         .setId(id)
         .setJob(job)
-        .setSurveyId(loi.getSurvey().getId())
+        .setSurveyId(loi.getSurveyId())
         .setLocationOfInterest(loi)
         .setResponses(ResponseMapConverter.fromString(job, submission.getResponses()))
         .setCreated(AuditInfoEntity.toObject(submission.getCreated()))
