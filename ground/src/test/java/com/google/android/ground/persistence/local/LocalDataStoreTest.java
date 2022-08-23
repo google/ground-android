@@ -360,7 +360,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     LocationOfInterest newLoi =
         loi.copy(
             loi.getId(),
-            loi.getSurvey(),
+            loi.getSurveyId(),
             loi.getJob(),
             loi.getCustomId(),
             loi.getCaption(),
@@ -386,7 +386,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     LocationOfInterest newLoi =
         loi.copy(
             loi.getId(),
-            loi.getSurvey(),
+            loi.getSurveyId(),
             loi.getJob(),
             loi.getCustomId(),
             loi.getCaption(),

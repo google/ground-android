@@ -73,7 +73,7 @@ object LoiConverter {
         val lastModified = loiDoc.lastModified ?: created
         return LocationOfInterest(
             id = loiId,
-            survey = survey,
+            surveyId = survey.id,
             customId = loiDoc.customId,
             caption = loiDoc.caption,
             job = job,

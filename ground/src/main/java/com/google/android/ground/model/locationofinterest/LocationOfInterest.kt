@@ -33,8 +33,8 @@ import javax.annotation.OverridingMethodsMustInvokeSuper
 data class LocationOfInterest(
     /** A system-defined ID for this LOI. */
     val id: String,
-    /** The survey associated with this LOI. */
-    val survey: Survey,
+    /** The survey ID associated with this LOI. */
+    val surveyId: String,
     /** The job associated with this LOI. */
     val job: Job,
     /** A user-specified ID for this location of interest. */
@@ -48,8 +48,6 @@ data class LocationOfInterest(
     /** Geometry associated with this LOI. */
     val geometry: Geometry,
 ) {
-
-    val surveyId: String = survey.id
 
     /** Returns the type of this LOI based on its Geometry. */
     val type: LocationOfInterestType =
