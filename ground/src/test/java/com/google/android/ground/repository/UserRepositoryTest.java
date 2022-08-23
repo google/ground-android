@@ -23,6 +23,7 @@ import com.google.android.ground.model.Role;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalValueStore;
 import com.sharedtest.FakeData;
+import com.sharedtest.persistence.local.LocalDataStoreHelper;
 import com.sharedtest.system.auth.FakeAuthenticationManager;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.NoSuchElementException;
@@ -37,6 +38,7 @@ public class UserRepositoryTest extends BaseHiltTest {
 
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
   @Inject LocalDataStore localDataStore;
+  @Inject LocalDataStoreHelper localDataStoreHelper;
   @Inject LocalValueStore localValueStore;
   @Inject UserRepository userRepository;
 
@@ -51,6 +53,7 @@ public class UserRepositoryTest extends BaseHiltTest {
   @Test
   public void testGetUserRole() {
     String surveyId = FakeData.SURVEY.getId();
+    localDataStoreHelper.insertSurvey(FakeData.SURVEY);
 
     // Current user is authorized as contributor.
     fakeAuthenticationManager.setUser(FakeData.USER);

@@ -40,7 +40,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   static final User TEST_USER_UNKNOWN =
       new User("user2", "user4@gmail.com", "user 4");
 
-  private static final Survey TEST_SURVEY =
+  static final Survey TEST_SURVEY =
       new Survey(
           "SURVEY",
           "Survey title",
