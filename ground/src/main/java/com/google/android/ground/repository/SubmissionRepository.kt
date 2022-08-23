@@ -134,7 +134,7 @@ class SubmissionRepository @Inject constructor(
             .map { locationOfInterest: LocationOfInterest ->
                 Submission.newBuilder()
                     .setId(uuidGenerator.generateUuid())
-                    .setSurvey(locationOfInterest.survey)
+                    .setSurveyId(locationOfInterest.survey.id)
                     .setLocationOfInterest(locationOfInterest)
                     .setJob(locationOfInterest.job)
                     .setCreated(auditInfo)
@@ -151,7 +151,7 @@ class SubmissionRepository @Inject constructor(
                 .setResponseDeltas(ImmutableList.of())
                 .setType(Mutation.Type.DELETE)
                 .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.survey.id)
+                .setSurveyId(submission.surveyId)
                 .setLocationOfInterestId(
                     submission.locationOfInterest.id
                 )
@@ -171,7 +171,7 @@ class SubmissionRepository @Inject constructor(
                 .setResponseDeltas(responseDeltas)
                 .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
                 .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.survey.id)
+                .setSurveyId(submission.surveyId)
                 .setLocationOfInterestId(submission.locationOfInterest.id)
                 .setClientTimestamp(Date())
                 .setUserId(authManager.currentUser.id)

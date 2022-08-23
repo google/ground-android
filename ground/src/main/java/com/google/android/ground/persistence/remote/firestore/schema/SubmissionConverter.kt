@@ -48,7 +48,7 @@ internal object SubmissionConverter {
         val job = loi.job ?: throw DataStoreException("Location of interest is missing a job")
         return Submission.newBuilder()
             .setId(snapshot.id)
-            .setSurvey(loi.survey)
+            .setSurveyId(loi.survey.id)
             .setLocationOfInterest(loi)
             .setJob(job)
             .setResponses(toResponseMap(snapshot.id, job, doc.responses))

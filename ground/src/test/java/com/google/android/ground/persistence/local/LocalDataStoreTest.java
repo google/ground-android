@@ -191,7 +191,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     assertThat(mutation.getLocationOfInterestId())
         .isEqualTo(submission.getLocationOfInterest().getId());
     assertThat(mutation.getJob()).isEqualTo(submission.getJob());
-    assertThat(mutation.getSurveyId()).isEqualTo(submission.getSurvey().getId());
+    assertThat(mutation.getSurveyId()).isEqualTo(submission.getSurveyId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getLastModified().getUser().getId());
     assertThat(mutation.getUserId()).isEqualTo(submission.getCreated().getUser().getId());
     MatcherAssert.assertThat(
