@@ -458,24 +458,27 @@ public class LocalDataStoreTest extends BaseHiltTest {
             .putResponse("task id", TextResponse.fromString("foo value").get())
             .build();
 
-    Submission submission =
-        localDataStore.getSubmission(loi, "submission id").blockingGet();
+    Submission submission = localDataStore.getSubmission(loi, "submission id").blockingGet();
 
     Submission newSubmission =
-      submission.copy(
-          submission.getId(),
-          submission.getSurvey(),
-          submission.getLocationOfInterest(),
-          submission.getJob(),
-          submission.getCreated(),
-          submission.getLastModified(),
-          responseMap
-          );
+        submission.copy(
+            submission.getId(),
+            submission.getSurvey(),
+            submission.getLocationOfInterest(),
+            submission.getJob(),
+            submission.getCreated(),
+            submission.getLastModified(),
+            responseMap);
 
     localDataStore.mergeSubmission(newSubmission).test().assertComplete();
 
     ResponseMap responses =
-        localDataStore.getSubmission(loi, newSubmission.getId()).test().values().get(0).getResponses();
+        localDataStore
+            .getSubmission(loi, newSubmission.getId())
+            .test()
+            .values()
+            .get(0)
+            .getResponses();
     assertThat(new TextResponse("updated response"))
         .isEqualTo(responses.getResponse("task id").get());
   }
