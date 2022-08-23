@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
@@ -53,8 +52,9 @@ public class SubmissionConverterTest {
   @Mock private DocumentSnapshot submissionDocumentSnapshot;
 
   private Job job;
-  private Survey survey;
   private LocationOfInterest locationOfInterest;
+
+  private static final String TEST_SURVEY_ID = "survey_id";
 
   private static final AuditInfo AUDIT_INFO_1 =
       new AuditInfo(new User("user1", "", ""), new Date(100), Optional.of(new Date(101)));
@@ -111,7 +111,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
+                .setSurveyId(TEST_SURVEY_ID)
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setResponses(
@@ -177,7 +177,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
+                .setSurveyId(TEST_SURVEY_ID)
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setCreated(AUDIT_INFO_1)
@@ -207,7 +207,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
+                .setSurveyId(TEST_SURVEY_ID)
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setCreated(AUDIT_INFO_1)
@@ -237,7 +237,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
+                .setSurveyId(TEST_SURVEY_ID)
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setCreated(AUDIT_INFO_1)
@@ -250,12 +250,6 @@ public class SubmissionConverterTest {
     stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
 
     job = new Job(jobId, "jobName", taskMap.build());
-    survey = new Survey(
-        "",
-        "",
-        "",
-        ImmutableMap.<String, Job>builder().put(job.getId(), job).build()
-    );
   }
 
   @Test
@@ -280,7 +274,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
+                .setSurveyId(TEST_SURVEY_ID)
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setResponses(
@@ -297,7 +291,7 @@ public class SubmissionConverterTest {
     locationOfInterest =
         new LocationOfInterest(
             loiId,
-            survey,
+            TEST_SURVEY_ID,
             job,
             FakeData.POINT_OF_INTEREST.getCustomId(),
             FakeData.POINT_OF_INTEREST.getCaption(),

@@ -60,7 +60,7 @@ object FakeData {
     @JvmField
     val POINT_OF_INTEREST = LocationOfInterest(
         "loi id",
-        SURVEY,
+        SURVEY.id,
         JOB,
         null,
         null,
@@ -80,7 +80,7 @@ object FakeData {
     @JvmField
     val AREA_OF_INTEREST: LocationOfInterest = LocationOfInterest(
         "loi id",
-        SURVEY,
+        SURVEY.id,
         JOB,
         "",
         "",

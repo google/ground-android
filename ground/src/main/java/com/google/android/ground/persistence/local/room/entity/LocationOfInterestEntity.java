@@ -199,7 +199,7 @@ public abstract class LocationOfInterestEntity {
                         "Unknown jobId " + jobId + " in location of interest " + id));
     return new LocationOfInterest(
         id,
-        survey,
+        survey.getId(),
         job,
         null,
         null,

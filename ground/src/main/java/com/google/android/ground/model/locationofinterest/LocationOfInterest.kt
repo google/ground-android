@@ -16,7 +16,6 @@
 package com.google.android.ground.model.locationofinterest
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder

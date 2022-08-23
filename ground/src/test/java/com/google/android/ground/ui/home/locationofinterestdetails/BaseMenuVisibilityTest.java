@@ -40,6 +40,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   static final User TEST_USER_UNKNOWN =
       new User("user2", "user4@gmail.com", "user 4");
 
+  // TODO: Once migrated to kotlin, use FakeData and only replace the fields which are to be tested
   static final Survey TEST_SURVEY =
       new Survey(
           "SURVEY",
@@ -69,7 +70,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   static LocationOfInterest createPointOfInterest(User user) {
     return new LocationOfInterest(
         FakeData.POINT_OF_INTEREST.getId(),
-        TEST_SURVEY,
+        TEST_SURVEY.getId(),
         FakeData.POINT_OF_INTEREST.getJob(),
         FakeData.POINT_OF_INTEREST.getCustomId(),
         FakeData.POINT_OF_INTEREST.getCaption(),
@@ -81,7 +82,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   static LocationOfInterest createAreaOfInterest(User user) {
     return new LocationOfInterest(
         FakeData.AREA_OF_INTEREST.getId(),
-        TEST_SURVEY,
+        TEST_SURVEY.getId(),
         FakeData.AREA_OF_INTEREST.getJob(),
         FakeData.AREA_OF_INTEREST.getCustomId(),
         FakeData.AREA_OF_INTEREST.getCaption(),
