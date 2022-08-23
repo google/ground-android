@@ -476,7 +476,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
 
     ResponseMap responses =
         localDataStore.getSubmission(loi, newSubmission.getId()).test().values().get(0).getResponses();
-    assertThat(new TextResponse("TextResponse(text=updated response)"))
+    assertThat(new TextResponse("updated response"))
         .isEqualTo(responses.getResponse("task id").get());
   }
 
