@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TestModelBuilders
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -39,7 +38,7 @@ object DataCollectionTestData {
     private val survey = Survey(surveyId, "surveyTitle", "surveyDescription", ImmutableMap.of())
     val submission: Submission = Submission.newBuilder()
         .setId(submissionId)
-        .setSurvey(survey)
+        .setSurveyId(survey.id)
         .setLocationOfInterest(
             LocationOfInterest(
                 loiId,

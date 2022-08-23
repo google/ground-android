@@ -111,7 +111,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurvey(survey)
+                .setSurveyId(survey.getId())
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setResponses(
@@ -177,7 +177,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurvey(survey)
+                .setSurveyId(survey.getId())
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setCreated(AUDIT_INFO_1)
@@ -207,7 +207,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurvey(survey)
+                .setSurveyId(survey.getId())
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setCreated(AUDIT_INFO_1)
@@ -237,7 +237,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurvey(survey)
+                .setSurveyId(survey.getId())
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setCreated(AUDIT_INFO_1)
@@ -280,7 +280,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             Submission.newBuilder()
                 .setId(SUBMISSION_ID)
-                .setSurvey(survey)
+                .setSurveyId(survey.getId())
                 .setLocationOfInterest(locationOfInterest)
                 .setJob(job)
                 .setResponses(

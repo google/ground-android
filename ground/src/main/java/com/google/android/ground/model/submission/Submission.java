@@ -17,7 +17,6 @@
 package com.google.android.ground.model.submission;
 
 import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.auto.value.AutoValue;
@@ -28,7 +27,7 @@ public abstract class Submission {
 
   public abstract String getId();
 
-  public abstract Survey getSurvey();
+  public abstract String getSurveyId();
 
   public abstract LocationOfInterest getLocationOfInterest();
 
@@ -55,7 +54,7 @@ public abstract class Submission {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setSurvey(Survey survey);
+    public abstract Builder setSurveyId(String surveyId);
 
     public abstract Builder setLocationOfInterest(LocationOfInterest locationOfInterest);
 
