@@ -17,14 +17,12 @@ package com.google.android.ground.model.geometry
 
 import com.google.common.collect.ImmutableList
 
-class LineStringLengthException(numVertices: Int) :
-    GeometryException("Invalid line string. Expected 2 or more vertices but got: $numVertices")
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
 data class LineString constructor(
     override val coordinates: ImmutableList<Coordinate>
 ) : Geometry {
-
+    // TODO: Validate as a separate step, not on construction.
     init {
         if (coordinates.size < 2) {
             throw LineStringLengthException(coordinates.size)

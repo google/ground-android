@@ -24,6 +24,6 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
     /** Returns the first coordinate of the first polygon in this multipolygon. */
     override val coordinate: Coordinate = polygons.first().coordinate
 
-    /** Returns the sequence of coordinates associaited with the first polygon in this multipolygon. */
+    /** Returns the sequence of coordinates associated with the first polygon in this multipolygon. */
     override val coordinates: ImmutableList<Coordinate> = polygons.first().coordinates
 }

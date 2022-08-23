@@ -17,17 +17,9 @@ package com.google.android.ground.model.geometry
 
 import com.google.common.collect.ImmutableList
 
-class OpenLinearRingException(first: Coordinate, last: Coordinate) :
-    GeometryException(
-        """Invalid linear ring. Linear rings must be closed, but the first coordinate 
-        |$first and last coordinate $last of the ring are no equal""".trimMargin()
-    )
-
-class LinearRingLengthException(numVertices: Int) :
-    GeometryException("Invalid linear ring. Expected 3 or more vertices but got: $numVertices")
-
 /** A closed linear ring is a sequence of [Coordinate]s where the first and last coordinates are equal. */
 data class LinearRing(override val coordinates: ImmutableList<Coordinate>) : Geometry {
+    // TODO: Validate as a separate step, not on construction.
     init {
         if (coordinates.size < 3) {
             throw LinearRingLengthException(coordinates.size)
@@ -57,9 +49,10 @@ data class LinearRing(override val coordinates: ImmutableList<Coordinate>) : Geo
         return Coordinate(minimumX ?: 0.0, minimumY ?: 0.0)
     }
 
-    /** Returns true if this linear ring contains another.
+    /**
+     * Returns true if this linear ring contains another.
      *
-     * This is based on enveloping each ring and is equivalent to JTS's Evenlope.covers method.
+     * This is based on enveloping each ring and is equivalent to JTS's Envelope.covers method.
      * */
     fun contains(other: LinearRing) =
         this.maximum() >= other.maximum() && this.minimum() <= other.minimum()

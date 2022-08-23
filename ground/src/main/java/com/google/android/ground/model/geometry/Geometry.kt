@@ -17,11 +17,31 @@ package com.google.android.ground.model.geometry
 
 import com.google.common.collect.ImmutableList
 
-/** The class of geometry errors.
+/**
+ * Represents types of geometry errors.
  *
  * Typically thrown when a construction does not satisfy definitional constraints for a given geometry.
  */
 sealed class GeometryException(override val message: String) : Throwable(message)
+
+class OpenLinearRingException(first: Coordinate, last: Coordinate) :
+    GeometryException(
+        """Invalid linear ring. Linear rings must be closed, but the first coordinate
+        |$first and last coordinate $last of the ring are not equal""".trimMargin()
+    )
+
+class LinearRingLengthException(numVertices: Int) :
+    GeometryException("Invalid linear ring. Expected 3 or more vertices but got $numVertices")
+
+class LineStringLengthException(numVertices: Int) :
+    GeometryException("Invalid line string. Expected 2 or more vertices but got: $numVertices")
+
+class PolygonExteriorHoleException(val shellMaximum: Coordinate, val holeMaximum: Coordinate) :
+    GeometryException(
+        """Invalid polygon. Holes must be contained within a polygon's shell, but the
+        |maximum coordinates of the shell $shellMaximum are lesser than the maximum coordinates of a
+        |hole $holeMaximum""".trimMargin()
+    )
 
 sealed interface Geometry {
     /** Returns a primary [Coordinate] associated with this geometry. */
