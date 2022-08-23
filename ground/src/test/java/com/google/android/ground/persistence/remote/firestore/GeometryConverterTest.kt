@@ -16,14 +16,11 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
+import com.google.android.ground.model.geometry.*
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.assertIsFailure
 import com.sharedtest.assertIsSuccessWith
 import org.junit.Test
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.GeometryFactory
-import org.locationtech.jts.geom.Point
-import org.locationtech.jts.geom.Polygon
 
 typealias Path = Array<Pair<Double, Double>>
 
@@ -59,8 +56,6 @@ class GeometryConverterTest {
         -89.61513367 to 41.89416727,
         -89.61393204 to 41.89320891
     )
-
-    private val geometryFactory = GeometryFactory()
 
     @Test
     fun toFirestoreMap_point() {
@@ -223,23 +218,23 @@ class GeometryConverterTest {
         )
     }
 
-    private fun point(x: Double, y: Double): Point =
-        geometryFactory.createPoint(Coordinate(x, y))
+    private fun point(x: Double, y: Double) =
+        Point(Coordinate(x, y))
 
     private fun linearRing(path: Path) =
-        geometryFactory.createLinearRing(coordinateArray(path))
+        LinearRing(toCoordinateList(path))
 
-    private fun polygon(shell: Path, vararg holes: Path): Polygon =
-        geometryFactory.createPolygon(
+    private fun polygon(shell: Path, vararg holes: Path) =
+        Polygon(
             linearRing(shell),
-            holes.map(::linearRing).toTypedArray()
+            holes.map(::linearRing)
         )
 
     private fun multiPolygon(vararg polygons: Polygon) =
-        geometryFactory.createMultiPolygon(polygons)
+        MultiPolygon(polygons.asList())
 
-    private fun coordinateArray(path: Path): Array<Coordinate> =
-        path.map { Coordinate(it.first, it.second) }.toTypedArray()
+    private fun toCoordinateList(path: Path): List<Coordinate> =
+        path.map { Coordinate(it.first, it.second) }
 
     private fun indexedGeoPointMap(path: Path): Map<Int, Any> =
         path.mapIndexed { idx, it -> idx to GeoPoint(it.first, it.second) }.toMap()

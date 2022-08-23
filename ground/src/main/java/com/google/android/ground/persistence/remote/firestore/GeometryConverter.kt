@@ -16,15 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.io.geojson.GeoJsonReader
-import org.locationtech.jts.io.geojson.GeoJsonWriter
-import kotlin.Result.Companion.failure
-import kotlin.Result.Companion.success
 
 /**
  * Converts between Geometry model objects and their equivalent remote representation using a
@@ -39,107 +33,99 @@ import kotlin.Result.Companion.success
  * undefined.
  */
 object GeometryConverter {
-    /**
-     * Reify fromJson() to create type token from generics.
-     */
-    private inline fun <reified T> Gson.fromJson(json: String) =
-        fromJson<T>(json, object : TypeToken<T>() {}.type)
+    private const val TYPE_KEY = "type"
+    private const val COORDINATES_KEY = "coordinates"
+    private const val POINT_TYPE = "Point"
+    private const val POLYGON_TYPE = "Polygon"
+    private const val MULTI_POLYGON_TYPE = "MultiPolygon"
 
     /**
-     * Convert a `Geometry` to a `Map` which may be used to persist
-     * the provided geometry in Firestore.
+     * Returns the remote db representation of a `Geometry` object. Errors will always be returned as a `Result`;
+     * exceptions are never thrown.
      */
-    fun toFirestoreMap(geometry: Geometry): Result<Map<String, Any>> {
-        return try {
-            val writer = GeoJsonWriter()
-            writer.setEncodeCRS(false)
-            val jsonString = writer.write(geometry)
-            val jsonMap = Gson().fromJson<MutableMap<String, Any>>(jsonString)
-            success(toFirestoreValue(jsonMap))
-        } catch (e: Throwable) {
-            failure(e)
-        }
-    }
+    fun toFirestoreMap(geometry: Geometry): Result<Map<String, Any>> =
+        Result.runCatching {
+            when (geometry) {
+                is Point -> geometryMap(POINT_TYPE, getPointCoordinates(geometry))
+                is Polygon -> geometryMap(POLYGON_TYPE, getPolygonCoordinates(geometry))
+                is MultiPolygon ->
+                    geometryMap(
+                        MULTI_POLYGON_TYPE,
+                        getMultiPolygonCoordinates(geometry)
 
-    private fun toFirestoreValue(value: Map<String, Any>): Map<String, Any> {
-        return value.mapValues {
-            toFirestoreValue(it.value)
-        }
-    }
-
-    private fun toFirestoreValue(value: Any): Any {
-        return when (value) {
-            is ArrayList<*> -> {
-                if (value.size == 2 && value.all { it is Double }) {
-                    GeoPoint(value[0] as Double, value[1] as Double)
-                } else {
-                    indexedMap(value)
-                }
-            }
-            is Map<*, *> -> {
-                toFirestoreValue(value)
-            }
-            else -> {
-                value
+                    )
+                else -> throw UnsupportedOperationException("Can't convert ${geometry.javaClass}")
             }
         }
-    }
 
-    private fun indexedMap(list: List<Any>): Map<Int, Any> =
-        list.mapIndexed { index, value -> index to toFirestoreValue(value) }.toMap()
+    private fun geometryMap(type: String, coordinates: Any): Map<String, Any> =
+        mapOf(
+            TYPE_KEY to type,
+            COORDINATES_KEY to coordinates
+        )
+
+    private fun getPolygonCoordinates(polygon: Polygon): Array<Array<GeoPoint>> =
+        (listOf(polygon.shell) + polygon.holes).map(::getLinearRingCoordinates).toTypedArray()
+
+    private fun getLinearRingCoordinates(linearRing: LinearRing): Array<GeoPoint> =
+        linearRing.coordinates.map(this::toGeoPoint).toTypedArray()
+
+    private fun getMultiPolygonCoordinates(multiPolygon: MultiPolygon): Array<Array<Array<GeoPoint>>> =
+        multiPolygon.polygons.map(this::getPolygonCoordinates).toTypedArray()
+
+    private fun toGeoPoint(coordinate: Coordinate): GeoPoint =
+        GeoPoint(coordinate.x, coordinate.y)
+
+    private fun getPointCoordinates(point: Point): GeoPoint = toGeoPoint(point.coordinate)
 
     /**
      * Converts a `Map` deserialized from Firestore into a `Geometry` instance.
      */
-    fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> {
-        return try {
-            if (map == null) throw DataStoreException("Null geometry")
-            val jsonMap = fromFirestoreValue(map)
-            val jsonString = Gson().toJson(jsonMap)
-            val reader = GeoJsonReader()
-            val geometry = reader.read(jsonString)
-            if (geometry.coordinates.isEmpty()) {
-                throw DataStoreException("Empty coordinates in $geometry")
-            }
-            success(geometry)
-        } catch (e: Throwable) {
-            failure(e)
-        }
-    }
+    fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> =
+        Result.runCatching { fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY)) }
 
-    private fun fromFirestoreValue(value: Any?): Any {
-        if (value == null) {
-            throw DataStoreException("null value in geometry")
+    private fun fromFirestoreGeometry(type: Any?, coordinates: Any?) =
+        when (type) {
+            POINT_TYPE -> fromPointCoordinates(coordinates)
+            POLYGON_TYPE -> fromPolygonCoordinates(coordinates)
+            MULTI_POLYGON_TYPE -> fromMultiPolygonCoordinates(coordinates)
+            else -> throw DataStoreException("Invalid geometry type '$type'")
         }
-        return when (value) {
-            is Map<*, *> -> {
-                fromFirestoreMapValue(value)
-            }
-            is GeoPoint -> {
-                arrayOf(value.latitude, value.longitude)
-            }
-            else -> {
-                value
-            }
-        }
-    }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun fromFirestoreMapValue(map: Map<*, *>): Any {
-        // If all keys are non-null Ints, assume this refers to an indexed map.
-        // If heuristic breaks, we may also want to check keys are in order starting at 0.
-        return if (map.entries.all { it.key is Int }) {
-            indexedMapToList(map as Map<Int, *>).map(::fromFirestoreValue)
+    private fun fromPointCoordinates(coordinates: Any?): Point =
+        Point(fromGeoPoint(coordinates))
+
+    private fun fromPolygonCoordinates(coordinates: Any?): Polygon =
+        if (coordinates == null || coordinates !is Array<*> || coordinates.isEmpty()) {
+            throw DataStoreException("Bad polygon coordinates $coordinates")
         } else {
-            map.mapValues { fromFirestoreValue(it.value) }
+            Polygon(
+                fromLinearRingCoordinates(coordinates.first()),
+                coordinates.drop(1).map(this::fromLinearRingCoordinates)
+            )
         }
-    }
 
-    /**
-     * Converts map representation used to store nested arrays in Firestore into a List. Assumes
-     * keys are consecutive ints starting from 0.
-     */
-    private fun indexedMapToList(map: Map<Int, *>): List<*> {
-        return map.entries.sortedBy { it.key }.map { it.value }
-    }
+    private fun fromMultiPolygonCoordinates(coordinates: Any?): Geometry =
+        if (coordinates == null || coordinates !is Array<*> || coordinates.isEmpty()) {
+            throw DataStoreException("Bad multi-polygon coordinates $coordinates")
+        } else {
+            MultiPolygon(coordinates.map(this::fromPolygonCoordinates))
+        }
+
+    private fun fromLinearRingCoordinates(coordinates: Any?): LinearRing =
+        if (coordinates == null || coordinates !is Array<*> || coordinates.isEmpty()) {
+            throw DataStoreException("Bad linear ring coordinates $coordinates")
+        } else {
+            LinearRing(coordinates.map(this::fromGeoPoint))
+        }
+
+
+    private fun fromGeoPoint(coordinates: Any?): Coordinate =
+        if (coordinates == null || coordinates !is GeoPoint) {
+            throw DataStoreException("Bad point coordinates $coordinates")
+        } else {
+            Coordinate(coordinates.latitude, coordinates.longitude)
+        }
+
+
 }
