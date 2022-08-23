@@ -141,7 +141,7 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
         .map(
             locationOfInterest ->
                 submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(
-                    locationOfInterest.getSurvey(), locationOfInterest.getId()))
+                    locationOfInterest.getSurveyId(), locationOfInterest.getId()))
         .orElse(Flowable.just(ImmutableList.of()));
   }
 
