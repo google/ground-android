@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.rx
 
-import java8.util.Optional
+package com.sharedtest
 
-/**
- * Represents the outcome of an operation that either succeeds with a value, or fails with an
- * exception.
- *
- * @param <T> the type of value held by instances of this `ValueOrError`.
-</T> */
-open class ValueOrError<T> protected constructor(
-    private val value: T?,
-    private val error: Throwable?
-) {
-    fun value(): Optional<T> = Optional.ofNullable(value)
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
-    fun error(): Optional<Throwable?> = Optional.ofNullable(error)
+@JvmName("assertIsFailure")
+inline fun assertIsFailure(result: Result<*>) =
+    assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
+
+@JvmName("assertIsSuccess")
+inline fun assertIsSuccessWith(expected: Any?, result: Result<*>) {
+    assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
+    assertEquals(expected, result.getOrNull())
 }

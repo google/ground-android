@@ -62,23 +62,18 @@ class GoogleAuthenticationManager @Inject constructor(
      * guaranteed to be authenticated.
      */
     override val currentUser: User
-        get() = signInState.map(SignInState::user).filter { it.isPresent }.map { it.get() }
+        get() = signInState
+            .filter { it.state == SignInState.State.SIGNED_IN }
+            .map { it.result.getOrNull()!! }
             .blockingFirst() // TODO: Should this be blocking?
 
-    override fun init() = signInState.onNext(status)
-
-    private val status: SignInState
-        get() {
-            val firebaseUser = firebaseAuth.currentUser
-            return if (firebaseUser == null) {
-                SignInState(SignInState.State.SIGNED_OUT)
-            } else {
-                SignInState(firebaseUser.toUser())
-            }
-        }
+    override fun init() {
+        signInState.onNext(
+            getFirebaseUser()?.let { SignInState.signedIn(it) } ?: SignInState.signedOut())
+    }
 
     override fun signIn() {
-        signInState.onNext(SignInState(SignInState.State.SIGNING_IN))
+        signInState.onNext(SignInState.signingIn())
         activityStreams.withActivity {
             val signInIntent = getGoogleSignInClient(it).signInIntent
             it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
@@ -87,7 +82,7 @@ class GoogleAuthenticationManager @Inject constructor(
 
     override fun signOut() {
         firebaseAuth.signOut()
-        signInState.onNext(SignInState(SignInState.State.SIGNED_OUT))
+        signInState.onNext(SignInState.signedOut())
         activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
     }
 
@@ -103,22 +98,25 @@ class GoogleAuthenticationManager @Inject constructor(
             googleSignInTask.getResult(ApiException::class.java)?.let { onGoogleSignIn(it) }
         } catch (e: ApiException) {
             Timber.e(e, "Sign in failed")
-            signInState.onNext(SignInState(e))
+            signInState.onNext(SignInState.error(e))
         }
     }
 
     private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
         firebaseAuth.signInWithCredential(getFirebaseAuthCredential(googleAccount))
             .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
-            .addOnFailureListener { signInState.onNext(SignInState(it)) }
+            .addOnFailureListener { signInState.onNext(SignInState.error(it)) }
 
     private fun onFirebaseAuthSuccess(authResult: AuthResult) =
     // TODO: Store/update user profile in Firestore.
         // TODO: Store/update user profile and image locally.
-        signInState.onNext(SignInState(authResult.user!!.toUser()))
+        signInState.onNext(SignInState.signedIn(authResult.user!!.toUser()))
 
     private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
         GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-    private fun FirebaseUser.toUser(): User = User(uid, email ?: "", displayName ?: "", photoUrl.toString())
+    private fun getFirebaseUser(): User? = firebaseAuth.currentUser?.toUser()
+
+    private fun FirebaseUser.toUser(): User =
+        User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
 }

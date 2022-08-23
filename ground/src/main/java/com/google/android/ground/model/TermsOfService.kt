@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model
 
-package com.google.android.ground.test.persistence.uuid;
-
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import javax.inject.Inject;
-
-public class FakeUuidGenerator implements OfflineUuidGenerator {
-
-  @Inject
-  FakeUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return "TEST UUID";
-  }
-}
+/** If present in remote db, terms of service must be accepted by user after sign in.  */
+data class TermsOfService(
+    val id: String,
+    val text: String?
+)

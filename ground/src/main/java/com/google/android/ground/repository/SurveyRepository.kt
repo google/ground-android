@@ -101,7 +101,6 @@ class SurveyRepository @Inject constructor(
     }
 
     private fun attachJobPermissions(survey: Survey): Survey {
-        val userRole = userRepository.getUserRole(survey)
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
         val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
         for (job in survey.jobs) {
@@ -110,14 +109,8 @@ class SurveyRepository @Inject constructor(
                 job
             )
         }
-        return survey.toBuilder().setJobMap(jobs.build()).build()
+        return survey.copy(jobMap = jobs.build())
     }
-
-    private fun getAddableLocationOfInterestTypes(userRole: Role): ImmutableList<LocationOfInterestType> =
-        when (userRole) {
-            Role.OWNER, Role.SURVEY_ORGANIZER -> LocationOfInterestType.ALL
-            else -> ImmutableList.of()
-        }
 
     /** This only works if the survey is already cached to local db.  */
     fun getSurvey(surveyId: String): @Cold Single<Survey> =

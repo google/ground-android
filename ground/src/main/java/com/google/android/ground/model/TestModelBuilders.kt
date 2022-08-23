@@ -26,9 +26,6 @@ import com.google.firebase.firestore.GeoPoint
  * specific values should explicitly set them in relevant test methods or during test setup.
  */
 object TestModelBuilders {
-    @JvmStatic
-    fun newSurvey(): Survey.Builder = Survey.newBuilder().setId("").setTitle("").setDescription("")
-
     private fun newGeoPoint(): GeoPoint = GeoPoint(0.0, 0.0)
 
     @JvmStatic
@@ -37,10 +34,6 @@ object TestModelBuilders {
         .add(newGeoPoint())
         .add(newGeoPoint())
         .build()
-
-    @JvmStatic
-    fun newTermsOfService(): TermsOfService.Builder =
-        TermsOfService.builder().setId("").setText("")
 
     @JvmStatic
     @JvmOverloads

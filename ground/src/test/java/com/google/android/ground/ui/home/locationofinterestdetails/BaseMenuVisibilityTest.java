@@ -21,9 +21,10 @@ import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.test.FakeData;
-import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.sharedtest.FakeData;
+import com.sharedtest.system.auth.FakeAuthenticationManager;
 import javax.inject.Inject;
 
 public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
@@ -40,14 +41,17 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
       new User("user2", "user4@gmail.com", "user 4");
 
   private static final Survey TEST_SURVEY =
-      FakeData.SURVEY.toBuilder()
-          .setAcl(
-              ImmutableMap.<String, String>builder()
-                  .put(TEST_USER_OWNER.getEmail(), "owner")
-                  .put(TEST_USER_MANAGER.getEmail(), "survey_organizer")
-                  .put(TEST_USER_CONTRIBUTOR.getEmail(), "data_collector")
-                  .build())
-          .build();
+      new Survey(
+          "SURVEY",
+          "Survey title",
+          "Test survey description",
+          ImmutableMap.of(),
+          ImmutableList.of(),
+          ImmutableMap.<String, String>builder()
+              .put(TEST_USER_OWNER.getEmail(), "owner")
+              .put(TEST_USER_MANAGER.getEmail(), "survey_organizer")
+              .put(TEST_USER_CONTRIBUTOR.getEmail(), "data_collector")
+              .build());
 
   protected final User user;
   protected final LocationOfInterest locationOfInterest;

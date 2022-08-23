@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.test
+package com.sharedtest
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
@@ -33,10 +33,8 @@ import org.locationtech.jts.geom.GeometryFactory
 object FakeData {
     // TODO: Replace constants with calls to newFoo() methods.
     @JvmField
-    val TERMS_OF_SERVICE: TermsOfService = TermsOfService.builder()
-        .setId("TERMS_OF_SERVICE")
-        .setText("Fake Terms of Service text")
-        .build()
+    val TERMS_OF_SERVICE: TermsOfService =
+        TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
     @JvmField
     val JOB = Job(name = "Job", id = "JOB")
@@ -50,16 +48,14 @@ object FakeData {
         User("user_id_2", "user2@gmail.com", "User2")
 
     @JvmField
-    val SURVEY: Survey = newSurvey().build()
-
-    @JvmStatic
-    fun newSurvey(): Survey.Builder {
-        return Survey.newBuilder()
-            .setId("SURVEY")
-            .setTitle("Survey title")
-            .setDescription("Test survey description")
-            .setAcl(ImmutableMap.of(USER.email, "data_collector"))
-    }
+    val SURVEY: Survey = Survey(
+        "SURVEY",
+        "Survey title",
+        "Test survey description",
+        ImmutableMap.of(),
+        ImmutableList.of(),
+        ImmutableMap.of(USER.email, "data_collector")
+    )
 
     @JvmField
     val POINT_OF_INTEREST = LocationOfInterest(

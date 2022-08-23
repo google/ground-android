@@ -23,9 +23,8 @@ import com.google.android.ground.model.Role;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalValueStore;
-import com.google.android.ground.test.FakeData;
-import com.google.android.ground.test.system.auth.FakeAuthenticationManager;
-import com.google.common.collect.ImmutableMap;
+import com.sharedtest.FakeData;
+import com.sharedtest.system.auth.FakeAuthenticationManager;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.NoSuchElementException;
 import javax.inject.Inject;
@@ -52,10 +51,7 @@ public class UserRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetUserRole() {
-    Survey survey =
-        FakeData.SURVEY.toBuilder()
-            .setAcl(ImmutableMap.of(FakeData.USER.getEmail(), "data_collector"))
-            .build();
+    Survey survey = FakeData.SURVEY;
 
     // Current user is authorized as contributor.
     fakeAuthenticationManager.setUser(FakeData.USER);
