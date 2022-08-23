@@ -18,21 +18,7 @@ package com.google.android.ground.model.geometry
 import com.google.common.collect.ImmutableList
 
 /** A closed linear ring is a sequence of [Coordinate]s where the first and last coordinates are equal. */
-data class LinearRing(override val coordinates: ImmutableList<Coordinate>) : Geometry {
-    // TODO: Validate as a separate step, not on construction.
-    init {
-        if (coordinates.size < 3) {
-            throw LinearRingLengthException(coordinates.size)
-        }
-
-        if (coordinates.first() != coordinates.last()) {
-            throw OpenLinearRingException(coordinates.first(), coordinates.last())
-        }
-    }
-
-    /** Returns the coordinates of the first vertex in this linear ring. */
-    override val coordinate: Coordinate = coordinates.first()
-
+data class LinearRing(val coordinates: ImmutableList<Coordinate>) : Geometry {
     /** Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring. */
     fun maximum(): Coordinate {
         val maximumX = this.coordinates.map { it.x }.maxOrNull()

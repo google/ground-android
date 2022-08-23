@@ -15,22 +15,8 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.common.collect.ImmutableList
-
-/** A polygon made up of a linear ring that dictates its bounds and any number of holes within the shell ring.*/
-data class Polygon(val shell: LinearRing, val holes: List<LinearRing>) : Geometry {
-    // TODO: Validate as a separate step not on construction.
-    init {
-        holes.forEach {
-            if (!shell.contains(it)) {
-                throw PolygonExteriorHoleException(shell.maximum(), it.maximum())
-            }
-        }
-    }
-
-    /** Returns the coordinate of the first vertex in this polygon's shell. */
-    override val coordinate: Coordinate = shell.coordinates.first()
-
-    /** Returns all coordinates in this polygon's shell. */
-    override val coordinates: ImmutableList<Coordinate> = shell.coordinates
-}
+/**
+ * A polygon made up of a linear ring that dictates its bounds and any number of holes within the
+ * shell ring.
+ */
+data class Polygon(val shell: LinearRing, val holes: List<LinearRing>) : Geometry

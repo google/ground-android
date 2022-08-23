@@ -15,9 +15,5 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.common.collect.ImmutableList
-
 /** An individual point. */
-data class Point(override val coordinate: Coordinate) : Geometry {
-    override val coordinates: ImmutableList<Coordinate> = ImmutableList.of(coordinate)
-}
+data class Point(val coordinate: Coordinate) : Geometry

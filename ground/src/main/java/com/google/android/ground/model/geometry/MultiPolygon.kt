@@ -18,12 +18,4 @@ package com.google.android.ground.model.geometry
 import com.google.common.collect.ImmutableList
 
 /** A collection of [Polygon]s.*/
-data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
-    // TODO: Enforce definitional constraints on initialization: polygons may not overlap and can only touch at single points.
-
-    /** Returns the first coordinate of the first polygon in this multipolygon. */
-    override val coordinate: Coordinate = polygons.first().coordinate
-
-    /** Returns the sequence of coordinates associated with the first polygon in this multipolygon. */
-    override val coordinates: ImmutableList<Coordinate> = polygons.first().coordinates
-}
+data class MultiPolygon(val polygons: List<Polygon>) : Geometry
