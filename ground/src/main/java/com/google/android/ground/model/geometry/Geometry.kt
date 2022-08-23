@@ -20,7 +20,7 @@ package com.google.android.ground.model.geometry
  *
  * Typically thrown when a construction does not satisfy definitional constraints for a given geometry.
  */
-sealed class GeometryException(override val message: String) : Throwable(message)
+sealed class InvalidGeometryException(override val message: String) : Throwable(message)
 
 /** A common ancestor for all geometry types. */
 sealed interface Geometry

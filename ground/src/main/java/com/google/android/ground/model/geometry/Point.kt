@@ -15,5 +15,5 @@
  */
 package com.google.android.ground.model.geometry
 
-/** An individual point. */
+/** Represents a single point. */
 data class Point(val coordinate: Coordinate) : Geometry
