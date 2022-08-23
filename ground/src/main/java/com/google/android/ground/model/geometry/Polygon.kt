@@ -15,8 +15,19 @@
  */
 package com.google.android.ground.model.geometry
 
+import com.google.common.collect.ImmutableList
+
 /**
  * A polygon made up of a linear ring that dictates its bounds and any number of holes within the
  * shell ring.
  */
-data class Polygon(val shell: LinearRing, val holes: List<LinearRing>) : Geometry
+data class Polygon(val shell: LinearRing, val holes: ImmutableList<LinearRing>) : Geometry {
+    /**
+     * Constructs a [Polygon] using the specified shell and an immutable copy of the specified
+     * mutable list of holes.
+     */
+    constructor(shell: LinearRing, holes: List<LinearRing>) : this(
+        shell,
+        ImmutableList.copyOf(holes)
+    )
+}
