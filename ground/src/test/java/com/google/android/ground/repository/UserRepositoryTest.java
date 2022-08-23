@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.ground.BaseHiltTest;
 import com.google.android.ground.model.Role;
-import com.google.android.ground.model.Survey;
 import com.google.android.ground.persistence.local.LocalDataStore;
 import com.google.android.ground.persistence.local.LocalValueStore;
 import com.sharedtest.FakeData;
@@ -51,15 +50,15 @@ public class UserRepositoryTest extends BaseHiltTest {
 
   @Test
   public void testGetUserRole() {
-    Survey survey = FakeData.SURVEY;
+    String surveyId = FakeData.SURVEY.getId();
 
     // Current user is authorized as contributor.
     fakeAuthenticationManager.setUser(FakeData.USER);
-    assertThat(userRepository.getUserRole(survey)).isEqualTo(Role.DATA_COLLECTOR);
+    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.DATA_COLLECTOR);
 
     // Current user is unauthorized.
     fakeAuthenticationManager.setUser(FakeData.USER_2);
-    assertThat(userRepository.getUserRole(survey)).isEqualTo(Role.UNKNOWN);
+    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.UNKNOWN);
   }
 
   @Test
