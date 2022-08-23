@@ -31,11 +31,11 @@ import com.google.auto.value.AutoValue
  * submission.
  */
 data class Submission @JvmOverloads constructor(
-    val id: String?,
-    val survey: Survey?,
-    val locationOfInterest: LocationOfInterest?,
-    val job: Job?,
-    val created: AuditInfo?,
-    val lastModified: AuditInfo?,
-    val responses: ResponseMap? = ResponseMap.builder().build()
+    val id: String,
+    val survey: Survey,
+    val locationOfInterest: LocationOfInterest,
+    val job: Job,
+    val created: AuditInfo,
+    val lastModified: AuditInfo,
+    val responses: ResponseMap = ResponseMap.builder().build()
 )
