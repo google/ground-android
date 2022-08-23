@@ -224,14 +224,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("Missing loi");
       return;
     }
-    Survey survey = loi.getSurvey();
-    if (survey == null) {
-      Timber.e("Missing survey");
-      return;
-    }
     navigator.navigate(
         HomeScreenFragmentDirections.addSubmission(
-            survey.getId(), loi.getId(), loi.getJob().getId()));
+            loi.getSurveyId(), loi.getId(), loi.getJob().getId()));
   }
 
   public void init() {

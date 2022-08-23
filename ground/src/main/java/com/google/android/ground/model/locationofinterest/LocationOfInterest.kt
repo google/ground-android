@@ -48,6 +48,9 @@ data class LocationOfInterest(
     /** Geometry associated with this LOI. */
     val geometry: Geometry,
 ) {
+
+    val surveyId: String = survey.id
+
     /** Returns the type of this LOI based on its Geometry. */
     val type: LocationOfInterestType =
         when (geometry) {
@@ -65,7 +68,7 @@ data class LocationOfInterest(
             .setJobId(job.id)
             .setType(type)
             .setSyncStatus(SyncStatus.PENDING)
-            .setSurveyId(survey.id)
+            .setSurveyId(surveyId)
             .setLocationOfInterestId(id)
             .setUserId(userId)
             .setClientTimestamp(Date())

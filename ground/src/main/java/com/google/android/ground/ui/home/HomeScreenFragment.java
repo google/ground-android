@@ -177,7 +177,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void addNewSubmission(LocationOfInterest locationOfInterest, Job job) {
-    String surveyId = locationOfInterest.getSurvey().getId();
+    String surveyId = locationOfInterest.getSurveyId();
     String locationOfInterestId = locationOfInterest.getId();
     String jobId = job.getId();
     navigator.navigate(
