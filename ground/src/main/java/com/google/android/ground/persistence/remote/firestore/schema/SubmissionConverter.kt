@@ -30,8 +30,6 @@ import timber.log.Timber
 /** Converts between Firestore documents and [Submission] instances.  */
 internal object SubmissionConverter {
 
-    @JvmStatic
-    @Throws(DataStoreException::class)
     fun toSubmission(loi: LocationOfInterest, snapshot: DocumentSnapshot): Submission {
         val doc = snapshot.toObject(SubmissionDocument::class.java)
         val loiId = DataStoreException.checkNotNull(doc!!.loiId, "loiId")
