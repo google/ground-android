@@ -208,16 +208,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-        val newLoi = loi.copy(
-            loi.id,
-            loi.survey,
-            loi.job,
-            loi.customId,
-            loi.caption,
-            loi.created,
-            loi.lastModified,
-            TEST_POINT_2.toGeometry()
-        )
+        val newLoi = loi.copy(geometry = TEST_POINT_2.toGeometry())
         localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
         localDataStore
             .getLocationOfInterest(TEST_SURVEY, "loi id")
@@ -231,16 +222,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-        val newLoi = loi.copy(
-            loi.id,
-            loi.survey,
-            loi.job,
-            loi.customId,
-            loi.caption,
-            loi.created,
-            loi.lastModified,
-            TEST_POLYGON_2.toPolygon()
-        )
+        val newLoi = loi.copy(geometry = TEST_POLYGON_2.toPolygon())
         localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
         localDataStore
             .getLocationOfInterest(TEST_SURVEY, "loi id")
@@ -554,10 +536,9 @@ class LocalDataStoreTest : BaseHiltTest() {
                 .build()
         }
 
-        private fun assertEquivalent(mutation: SubmissionMutation, submission: Submission?) {
-            assertThat(mutation.submissionId).isEqualTo(submission!!.id)
-            assertThat(mutation.locationOfInterestId)
-                .isEqualTo(submission.locationOfInterest.id)
+        private fun assertEquivalent(mutation: SubmissionMutation, submission: Submission) {
+            assertThat(mutation.submissionId).isEqualTo(submission.id)
+            assertThat(mutation.locationOfInterestId).isEqualTo(submission.locationOfInterest.id)
             assertThat(mutation.job).isEqualTo(submission.job)
             assertThat(mutation.surveyId).isEqualTo(submission.surveyId)
             assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
