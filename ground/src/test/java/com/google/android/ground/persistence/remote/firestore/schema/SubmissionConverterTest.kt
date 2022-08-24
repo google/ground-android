@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.TestModelBuilders.newTask
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -34,6 +33,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.sharedtest.FakeData
+import com.sharedtest.FakeData.newTask
 import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert
@@ -55,20 +55,14 @@ class SubmissionConverterTest {
     @Test
     fun testToSubmission() {
         setUpTestSurvey(
-            "job001",
-            "loi001",
-            newTask("task1"),
-            newTask(
+            "job001", "loi001", newTask("task1"), newTask(
                 "task2",
                 Task.Type.MULTIPLE_CHOICE,
                 MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
-            ),
-            newTask("task3", Task.Type.MULTIPLE_CHOICE),
-            newTask("task4", Task.Type.PHOTO)
+            ), newTask("task3", Task.Type.MULTIPLE_CHOICE), newTask("task4", Task.Type.PHOTO)
         )
         mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID,
-            SubmissionDocument(
+            SUBMISSION_ID, SubmissionDocument(
                 "loi001",
                 "task001",
                 AUDIT_INFO_1_NESTED_OBJECT,
@@ -85,8 +79,7 @@ class SubmissionConverterTest {
                 )
             )
         )
-        assertThat(toSubmission())
-            .isEqualTo(
+        assertThat(toSubmission()).isEqualTo(
                 Submission(
                     SUBMISSION_ID,
                     TEST_SURVEY_ID,
@@ -94,28 +87,20 @@ class SubmissionConverterTest {
                     job,
                     AUDIT_INFO_1,
                     AUDIT_INFO_2,
-                    ResponseMap.builder()
-                        .putResponse("task1", TextResponse("Text response"))
+                    ResponseMap.builder().putResponse("task1", TextResponse("Text response"))
                         .putResponse(
-                            "task2",
-                            MultipleChoiceResponse(
+                            "task2", MultipleChoiceResponse(
                                 MultipleChoice(
-                                    persistentListOf(),
-                                    MultipleChoice.Cardinality.SELECT_ONE
+                                    persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE
                                 ), ImmutableList.of("option2")
                             )
-                        )
-                        .putResponse(
-                            "task3",
-                            MultipleChoiceResponse(
+                        ).putResponse(
+                            "task3", MultipleChoiceResponse(
                                 MultipleChoice(
-                                    persistentListOf(),
-                                    MultipleChoice.Cardinality.SELECT_ONE
+                                    persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE
                                 ), ImmutableList.of("optionA", "optionB")
                             )
-                        )
-                        .putResponse("task4", TextResponse("Photo URL"))
-                        .build()
+                        ).putResponse("task4", TextResponse("Photo URL")).build()
                 )
             )
     }
@@ -124,8 +109,7 @@ class SubmissionConverterTest {
     fun testToSubmission_mismatchedLoiId() {
         setUpTestSurvey("job001", "loi001", newTask("task1"))
         mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID,
-            SubmissionDocument(
+            SUBMISSION_ID, SubmissionDocument(
                 "loi999",
                 "task001",
                 AUDIT_INFO_1_NESTED_OBJECT,
@@ -140,17 +124,11 @@ class SubmissionConverterTest {
     fun testToSubmission_nullResponses() {
         setUpTestSurvey("job001", "loi001", newTask("task1"))
         mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID,
-            SubmissionDocument(
-                "loi001",
-                "task001",
-                AUDIT_INFO_1_NESTED_OBJECT,
-                AUDIT_INFO_2_NESTED_OBJECT,
-                null
+            SUBMISSION_ID, SubmissionDocument(
+                "loi001", "task001", AUDIT_INFO_1_NESTED_OBJECT, AUDIT_INFO_2_NESTED_OBJECT, null
             )
         )
-        assertThat(toSubmission())
-            .isEqualTo(
+        assertThat(toSubmission()).isEqualTo(
                 Submission(
                     SUBMISSION_ID,
                     TEST_SURVEY_ID,
@@ -166,8 +144,7 @@ class SubmissionConverterTest {
     fun testToSubmission_emptyTextResponse() {
         setUpTestSurvey("job001", "loi001", newTask("task1"))
         mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID,
-            SubmissionDocument(
+            SUBMISSION_ID, SubmissionDocument(
                 "loi001",
                 "task001",
                 AUDIT_INFO_1_NESTED_OBJECT,
@@ -175,14 +152,14 @@ class SubmissionConverterTest {
                 ImmutableMap.of("task1", "")
             )
         )
-        assertThat(toSubmission())
-            .isEqualTo(
+        assertThat(toSubmission()).isEqualTo(
                 Submission(
                     SUBMISSION_ID,
                     TEST_SURVEY_ID,
                     locationOfInterest,
                     job,
-                    AUDIT_INFO_1, AUDIT_INFO_2
+                    AUDIT_INFO_1,
+                    AUDIT_INFO_2
                 )
             )
     }
@@ -191,8 +168,7 @@ class SubmissionConverterTest {
     fun testToSubmission_emptyMultipleChoiceResponse() {
         setUpTestSurvey("job001", "loi001", newTask("task1"))
         mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID,
-            SubmissionDocument(
+            SUBMISSION_ID, SubmissionDocument(
                 "loi001",
                 "task001",
                 AUDIT_INFO_1_NESTED_OBJECT,
@@ -200,8 +176,7 @@ class SubmissionConverterTest {
                 ImmutableMap.of("task1", ImmutableList.of<Any>())
             )
         )
-        assertThat(toSubmission())
-            .isEqualTo(
+        assertThat(toSubmission()).isEqualTo(
                 Submission(
                     SUBMISSION_ID,
                     TEST_SURVEY_ID,
@@ -217,8 +192,7 @@ class SubmissionConverterTest {
     fun testToSubmission_unknownFieldType() {
         setUpTestSurvey("job001", "loi001", newTask("task1", Task.Type.UNKNOWN), newTask("task2"))
         mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID,
-            SubmissionDocument(
+            SUBMISSION_ID, SubmissionDocument(
                 "loi001",
                 "task001",
                 AUDIT_INFO_1_NESTED_OBJECT,
@@ -226,8 +200,7 @@ class SubmissionConverterTest {
                 ImmutableMap.of("task1", "Unknown", "task2", "Text response")
             )
         )
-        assertThat(toSubmission())
-            .isEqualTo(
+        assertThat(toSubmission()).isEqualTo(
                 Submission(
                     SUBMISSION_ID,
                     TEST_SURVEY_ID,
@@ -236,8 +209,7 @@ class SubmissionConverterTest {
                     AUDIT_INFO_1,
                     AUDIT_INFO_2,
                     // Field "task1" with unknown field type ignored.
-                    ResponseMap.builder()
-                        .putResponse("task2", TextResponse("Text response"))
+                    ResponseMap.builder().putResponse("task2", TextResponse("Text response"))
                         .build()
                 )
             )
@@ -268,14 +240,10 @@ class SubmissionConverterTest {
         private val AUDIT_INFO_2 =
             AuditInfo(User("user2", "", ""), Date(200), Optional.of(Date(201)))
         private val AUDIT_INFO_1_NESTED_OBJECT = AuditInfoNestedObject(
-            UserNestedObject("user1", null, null),
-            Timestamp(Date(100)),
-            Timestamp(Date(101))
+            UserNestedObject("user1", null, null), Timestamp(Date(100)), Timestamp(Date(101))
         )
         private val AUDIT_INFO_2_NESTED_OBJECT = AuditInfoNestedObject(
-            UserNestedObject("user2", null, null),
-            Timestamp(Date(200)),
-            Timestamp(Date(201))
+            UserNestedObject("user2", null, null), Timestamp(Date(200)), Timestamp(Date(201))
         )
         private const val SUBMISSION_ID = "submission123"
         private const val TEST_SURVEY_ID = "survey001"

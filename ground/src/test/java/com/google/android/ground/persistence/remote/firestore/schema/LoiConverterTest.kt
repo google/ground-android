@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TestModelBuilders.newTask
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.MultipleChoice
@@ -26,6 +25,7 @@ import com.google.android.ground.persistence.remote.firestore.schema.LoiConverte
 import com.google.common.collect.ImmutableMap
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.sharedtest.FakeData.newTask
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert
 import org.junit.Test

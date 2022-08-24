@@ -22,6 +22,8 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import org.locationtech.jts.geom.GeometryFactory
@@ -40,12 +42,10 @@ object FakeData {
     val JOB = Job(name = "Job", id = "JOB")
 
     @JvmField
-    val USER =
-        User("user_id", "user@gmail.com", "User")
+    val USER = User("user_id", "user@gmail.com", "User")
 
     @JvmField
-    val USER_2 =
-        User("user_id_2", "user2@gmail.com", "User2")
+    val USER_2 = User("user_id_2", "user2@gmail.com", "User2")
 
     @JvmField
     val SURVEY: Survey = Survey(
@@ -91,4 +91,10 @@ object FakeData {
 
     @JvmField
     val POINT = Point(42.0, 18.0)
+
+    @JvmStatic
+    @JvmOverloads
+    fun newTask(
+        id: String = "", type: Task.Type = Task.Type.TEXT, multipleChoice: MultipleChoice? = null
+    ): Task = Task(id, 0, type, "", false, multipleChoice)
 }
