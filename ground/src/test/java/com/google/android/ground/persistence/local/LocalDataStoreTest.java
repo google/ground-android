@@ -463,7 +463,7 @@ public class LocalDataStoreTest extends BaseHiltTest {
     Submission newSubmission =
         submission.copy(
             submission.getId(),
-            submission.getSurvey(),
+            submission.getSurveyId(),
             submission.getLocationOfInterest(),
             submission.getJob(),
             submission.getCreated(),
