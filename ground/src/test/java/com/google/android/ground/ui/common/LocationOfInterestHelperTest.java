@@ -43,7 +43,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getSurveyId(),
             FakeData.POINT_OF_INTEREST.getJob(),
             FakeData.POINT_OF_INTEREST.getCustomId(),
             FakeData.POINT_OF_INTEREST.getCaption(),
@@ -68,7 +68,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getSurveyId(),
             FakeData.POINT_OF_INTEREST.getJob(),
             FakeData.POINT_OF_INTEREST.getCustomId(),
             "",
@@ -83,7 +83,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.AREA_OF_INTEREST.getId(),
-            FakeData.AREA_OF_INTEREST.getSurvey(),
+            FakeData.AREA_OF_INTEREST.getSurveyId(),
             FakeData.AREA_OF_INTEREST.getJob(),
             FakeData.AREA_OF_INTEREST.getCustomId(),
             "",
@@ -98,7 +98,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getSurveyId(),
             FakeData.POINT_OF_INTEREST.getJob(),
             FakeData.POINT_OF_INTEREST.getCustomId(),
             "point caption",
@@ -113,7 +113,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.AREA_OF_INTEREST.getId(),
-            FakeData.AREA_OF_INTEREST.getSurvey(),
+            FakeData.AREA_OF_INTEREST.getSurveyId(),
             FakeData.AREA_OF_INTEREST.getJob(),
             FakeData.AREA_OF_INTEREST.getCustomId(),
             "polygon caption",
@@ -128,7 +128,7 @@ public class LocationOfInterestHelperTest extends BaseHiltTest {
     LocationOfInterest loi =
         new LocationOfInterest(
             FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurvey(),
+            FakeData.POINT_OF_INTEREST.getSurveyId(),
             new Job("jobId", "some job"),
             FakeData.POINT_OF_INTEREST.getCustomId(),
             FakeData.POINT_OF_INTEREST.getCaption(),

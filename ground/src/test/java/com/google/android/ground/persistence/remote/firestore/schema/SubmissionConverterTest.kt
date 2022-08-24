@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TestModelBuilders.newTask
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
@@ -51,7 +50,6 @@ class SubmissionConverterTest {
     private lateinit var submissionDocumentSnapshot: DocumentSnapshot
 
     private lateinit var job: Job
-    private lateinit var survey: Survey
     private lateinit var locationOfInterest: LocationOfInterest
 
     @Test
@@ -91,7 +89,7 @@ class SubmissionConverterTest {
             .isEqualTo(
                 Submission(
                     SUBMISSION_ID,
-                    survey.id,
+                    TEST_SURVEY_ID,
                     locationOfInterest,
                     job,
                     AUDIT_INFO_1,
@@ -155,7 +153,7 @@ class SubmissionConverterTest {
             .isEqualTo(
                 Submission(
                     SUBMISSION_ID,
-                    survey.id,
+                    TEST_SURVEY_ID,
                     locationOfInterest,
                     job,
                     AUDIT_INFO_1,
@@ -181,7 +179,7 @@ class SubmissionConverterTest {
             .isEqualTo(
                 Submission(
                     SUBMISSION_ID,
-                    survey.id,
+                    TEST_SURVEY_ID,
                     locationOfInterest,
                     job,
                     AUDIT_INFO_1, AUDIT_INFO_2
@@ -206,7 +204,7 @@ class SubmissionConverterTest {
             .isEqualTo(
                 Submission(
                     SUBMISSION_ID,
-                    survey.id,
+                    TEST_SURVEY_ID,
                     locationOfInterest,
                     job,
                     AUDIT_INFO_1,
@@ -232,7 +230,7 @@ class SubmissionConverterTest {
             .isEqualTo(
                 Submission(
                     SUBMISSION_ID,
-                    survey.id,
+                    TEST_SURVEY_ID,
                     locationOfInterest,
                     job,
                     AUDIT_INFO_1,
@@ -249,13 +247,8 @@ class SubmissionConverterTest {
         val taskMap = ImmutableMap.builder<String, Task>()
         tasks.forEach { task: Task -> taskMap.put(task.id, task) }
         job = Job(jobId, "jobName", taskMap.build())
-        survey = Survey(
-            "",
-            "",
-            "",
-            ImmutableMap.builder<String, Job>().put(job.id, job).build()
-        )
-        locationOfInterest = FakeData.POINT_OF_INTEREST.copy(id = loiId, survey = survey, job = job)
+        locationOfInterest =
+            FakeData.POINT_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
     }
 
     /** Mock submission document snapshot to return the specified id and object representation.  */
@@ -285,5 +278,6 @@ class SubmissionConverterTest {
             Timestamp(Date(201))
         )
         private const val SUBMISSION_ID = "submission123"
+        private const val TEST_SURVEY_ID = "survey001"
     }
 }

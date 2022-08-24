@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -35,13 +34,12 @@ object DataCollectionTestData {
     const val loiName = "loiName"
     val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
     private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-    private val survey = Survey(surveyId, "surveyTitle", "surveyDescription", ImmutableMap.of())
     val submission: Submission = Submission(
         submissionId,
-        survey.id,
+        surveyId,
         LocationOfInterest(
             loiId,
-            survey,
+            surveyId,
             Job(name = jobName, id = "jobId"),
             null,
             loiName,

@@ -46,12 +46,13 @@ internal object SubmissionConverter {
         val job = loi.job
         return Submission(
             snapshot.id,
-            loi.survey.id,
+            loi.surveyId,
             loi,
             job,
             AuditInfoConverter.toAuditInfo(created!!),
             AuditInfoConverter.toAuditInfo(lastModified!!),
-            toResponseMap(snapshot.id, job, doc.responses))
+            toResponseMap(snapshot.id, job, doc.responses)
+        )
     }
 
     private fun toResponseMap(

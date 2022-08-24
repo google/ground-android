@@ -90,7 +90,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   public Single<ImmutableList<Result<Submission>>> loadSubmissions(
       LocationOfInterest locationOfInterest) {
     return db.surveys()
-        .survey(locationOfInterest.getSurvey().getId())
+        .survey(locationOfInterest.getSurveyId())
         .submissions()
         .submissionsByLocationOfInterestId(locationOfInterest)
         .onErrorResumeNext(e -> shouldInterceptException(e) ? Single.never() : Single.error(e))

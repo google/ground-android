@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -134,7 +133,7 @@ class SubmissionRepository @Inject constructor(
             .map { locationOfInterest: LocationOfInterest ->
                 Submission(
                     uuidGenerator.generateUuid(),
-                    locationOfInterest.survey.id,
+                    locationOfInterest.surveyId,
                     locationOfInterest,
                     locationOfInterest.job,
                     auditInfo,
@@ -190,13 +189,15 @@ class SubmissionRepository @Inject constructor(
      * new list is emitted on each subsequent change.
      */
     fun getIncompleteSubmissionMutationsOnceAndStream(
-        survey: Survey, locationOfInterestId: String
+        surveyId: String, locationOfInterestId: String
     ): Flowable<ImmutableList<SubmissionMutation>> =
-        localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-            survey,
-            locationOfInterestId,
-            MutationEntitySyncStatus.PENDING,
-            MutationEntitySyncStatus.IN_PROGRESS,
-            MutationEntitySyncStatus.FAILED
-        )
+        localDataStore.getSurveyById(surveyId).toFlowable().flatMap {
+            localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+                it,
+                locationOfInterestId,
+                MutationEntitySyncStatus.PENDING,
+                MutationEntitySyncStatus.IN_PROGRESS,
+                MutationEntitySyncStatus.FAILED
+            )
+        }
 }
