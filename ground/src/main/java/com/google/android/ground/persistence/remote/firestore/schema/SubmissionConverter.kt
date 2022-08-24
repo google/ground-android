@@ -48,7 +48,7 @@ internal object SubmissionConverter {
         val job = loi.job
         return Submission(
             snapshot.id,
-            loi.survey,
+            loi.survey.id,
             loi,
             job,
             AuditInfoConverter.toAuditInfo(created!!),

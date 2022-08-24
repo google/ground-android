@@ -32,7 +32,7 @@ import com.google.auto.value.AutoValue
  */
 data class Submission @JvmOverloads constructor(
     val id: String,
-    val survey: Survey,
+    val surveyId: String,
     val locationOfInterest: LocationOfInterest,
     val job: Job,
     val created: AuditInfo,

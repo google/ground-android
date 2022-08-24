@@ -111,7 +111,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             new Submission(
                 SUBMISSION_ID,
-                survey,
+                survey.getId(),
                 locationOfInterest,
                 job,
                 AUDIT_INFO_1,
@@ -174,7 +174,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             new Submission(
-                SUBMISSION_ID, survey, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2));
+                SUBMISSION_ID, survey.getId(), locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2));
   }
 
   @Test
@@ -198,7 +198,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             new Submission(
-                SUBMISSION_ID, survey, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2));
+                SUBMISSION_ID, survey.getId(), locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2));
   }
 
   @Test
@@ -222,7 +222,7 @@ public class SubmissionConverterTest {
     assertThat(toSubmission())
         .isEqualTo(
             new Submission(
-                SUBMISSION_ID, survey, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2));
+                SUBMISSION_ID, survey.getId(), locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2));
   }
 
   private void setUpTestSurvey(String jobId, Task... tasks) {
@@ -256,7 +256,7 @@ public class SubmissionConverterTest {
         .isEqualTo(
             new Submission(
                 SUBMISSION_ID,
-                survey,
+                survey.getId(),
                 locationOfInterest,
                 job,
                 AUDIT_INFO_1,

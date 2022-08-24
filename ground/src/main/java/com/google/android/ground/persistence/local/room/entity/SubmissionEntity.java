@@ -132,7 +132,7 @@ public abstract class SubmissionEntity {
     String id = submission.getId();
     return new Submission(
         id,
-        loi.getSurvey(),
+        loi.getSurvey().getId(),
         loi,
         job,
         AuditInfoEntity.toObject(submission.getCreated()),

@@ -38,7 +38,7 @@ object DataCollectionTestData {
     private val survey = Survey(surveyId, "surveyTitle", "surveyDescription", ImmutableMap.of())
     val submission: Submission = Submission(
         submissionId,
-        survey,
+        survey.id,
         LocationOfInterest(
             loiId,
             survey,
