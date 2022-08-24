@@ -246,11 +246,11 @@ class LocalDataStoreTest : BaseHiltTest() {
 
         // now update the inserted submission with new responses
         val deltas = ImmutableList.of(
-            ResponseDelta.builder()
-                .setTaskId("task id")
-                .setTaskType(Task.Type.TEXT)
-                .setNewResponse(TextResponse.fromString("value for the really new task"))
-                .build()
+            ResponseDelta(
+                "task id",
+                Task.Type.TEXT,
+                TextResponse.fromString("value for the really new task")
+            )
         )
         val mutation = TEST_SUBMISSION_MUTATION.toBuilder()
             .setResponseDeltas(deltas)
@@ -284,9 +284,9 @@ class LocalDataStoreTest : BaseHiltTest() {
             .putResponse("task id", TextResponse.fromString("foo value").get())
             .build()
         val submission =
-            localDataStore.getSubmission(loi, "submission id").blockingGet().toBuilder()
-                .setResponses(responseMap)
-                .build()
+            localDataStore.getSubmission(loi, "submission id")
+                .blockingGet()
+                .copy(responses = responseMap)
         localDataStore.mergeSubmission(submission).test().assertComplete()
         val responses =
             localDataStore.getSubmission(loi, submission.id).test().values()[0].responses
@@ -476,11 +476,11 @@ class LocalDataStoreTest : BaseHiltTest() {
             .setSubmissionId("submission id")
             .setResponseDeltas(
                 ImmutableList.of(
-                    ResponseDelta.builder()
-                        .setTaskId("task id")
-                        .setTaskType(Task.Type.TEXT)
-                        .setNewResponse(TextResponse.fromString("updated response"))
-                        .build()
+                    ResponseDelta(
+                        "task id",
+                        Task.Type.TEXT,
+                        TextResponse.fromString("updated response")
+                    )
                 )
             )
             .setId(1L)

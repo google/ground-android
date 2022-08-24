@@ -89,40 +89,36 @@ class SubmissionConverterTest {
         )
         assertThat(toSubmission())
             .isEqualTo(
-                Submission.newBuilder()
-                    .setId(SUBMISSION_ID)
-                    .setSurveyId(survey.id)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(job)
-                    .setResponses(
-                        ResponseMap.builder()
-                            .putResponse("task1", TextResponse("Text response"))
-                            .putResponse(
-                                "task2",
-                                MultipleChoiceResponse(
-                                    MultipleChoice(
-                                        persistentListOf(),
-                                        MultipleChoice.Cardinality.SELECT_ONE
-                                    ),
-                                    ImmutableList.of("option2")
-                                )
+                Submission(
+                    SUBMISSION_ID,
+                    survey.id,
+                    locationOfInterest,
+                    job,
+                    AUDIT_INFO_1,
+                    AUDIT_INFO_2,
+                    ResponseMap.builder()
+                        .putResponse("task1", TextResponse("Text response"))
+                        .putResponse(
+                            "task2",
+                            MultipleChoiceResponse(
+                                MultipleChoice(
+                                    persistentListOf(),
+                                    MultipleChoice.Cardinality.SELECT_ONE
+                                ), ImmutableList.of("option2")
                             )
-                            .putResponse(
-                                "task3",
-                                MultipleChoiceResponse(
-                                    MultipleChoice(
-                                        persistentListOf(),
-                                        MultipleChoice.Cardinality.SELECT_ONE
-                                    ),
-                                    ImmutableList.of("optionA", "optionB")
-                                )
+                        )
+                        .putResponse(
+                            "task3",
+                            MultipleChoiceResponse(
+                                MultipleChoice(
+                                    persistentListOf(),
+                                    MultipleChoice.Cardinality.SELECT_ONE
+                                ), ImmutableList.of("optionA", "optionB")
                             )
-                            .putResponse("task4", TextResponse("Photo URL"))
-                            .build()
-                    )
-                    .setCreated(AUDIT_INFO_1)
-                    .setLastModified(AUDIT_INFO_2)
-                    .build()
+                        )
+                        .putResponse("task4", TextResponse("Photo URL"))
+                        .build()
+                )
             )
     }
 
@@ -157,14 +153,14 @@ class SubmissionConverterTest {
         )
         assertThat(toSubmission())
             .isEqualTo(
-                Submission.newBuilder()
-                    .setId(SUBMISSION_ID)
-                    .setSurveyId(survey.id)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(job)
-                    .setCreated(AUDIT_INFO_1)
-                    .setLastModified(AUDIT_INFO_2)
-                    .build()
+                Submission(
+                    SUBMISSION_ID,
+                    survey.id,
+                    locationOfInterest,
+                    job,
+                    AUDIT_INFO_1,
+                    AUDIT_INFO_2
+                )
             )
     }
 
@@ -183,14 +179,13 @@ class SubmissionConverterTest {
         )
         assertThat(toSubmission())
             .isEqualTo(
-                Submission.newBuilder()
-                    .setId(SUBMISSION_ID)
-                    .setSurveyId(survey.id)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(job)
-                    .setCreated(AUDIT_INFO_1)
-                    .setLastModified(AUDIT_INFO_2)
-                    .build()
+                Submission(
+                    SUBMISSION_ID,
+                    survey.id,
+                    locationOfInterest,
+                    job,
+                    AUDIT_INFO_1, AUDIT_INFO_2
+                )
             )
     }
 
@@ -209,14 +204,14 @@ class SubmissionConverterTest {
         )
         assertThat(toSubmission())
             .isEqualTo(
-                Submission.newBuilder()
-                    .setId(SUBMISSION_ID)
-                    .setSurveyId(survey.id)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(job)
-                    .setCreated(AUDIT_INFO_1)
-                    .setLastModified(AUDIT_INFO_2)
-                    .build()
+                Submission(
+                    SUBMISSION_ID,
+                    survey.id,
+                    locationOfInterest,
+                    job,
+                    AUDIT_INFO_1,
+                    AUDIT_INFO_2
+                )
             )
     }
 
@@ -235,19 +230,18 @@ class SubmissionConverterTest {
         )
         assertThat(toSubmission())
             .isEqualTo(
-                Submission.newBuilder()
-                    .setId(SUBMISSION_ID)
-                    .setSurveyId(survey.id)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(job)
-                    .setResponses( // Field "task1" with unknown field type ignored.
-                        ResponseMap.builder()
-                            .putResponse("task2", TextResponse("Text response"))
-                            .build()
-                    )
-                    .setCreated(AUDIT_INFO_1)
-                    .setLastModified(AUDIT_INFO_2)
-                    .build()
+                Submission(
+                    SUBMISSION_ID,
+                    survey.id,
+                    locationOfInterest,
+                    job,
+                    AUDIT_INFO_1,
+                    AUDIT_INFO_2,
+                    // Field "task1" with unknown field type ignored.
+                    ResponseMap.builder()
+                        .putResponse("task2", TextResponse("Text response"))
+                        .build()
+                )
             )
     }
 
