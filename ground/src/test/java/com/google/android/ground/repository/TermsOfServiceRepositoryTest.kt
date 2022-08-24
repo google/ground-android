@@ -13,50 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.repository
 
-package com.google.android.ground.repository;
-
-import static com.google.common.truth.Truth.assertThat;
-
-import com.google.android.ground.BaseHiltTest;
-import com.sharedtest.FakeData;
-import com.sharedtest.persistence.remote.FakeRemoteDataStore;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import java8.util.Optional;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import dagger.hilt.android.testing.HiltAndroidTest
+import java8.util.Optional
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class TermsOfServiceRepositoryTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class TermsOfServiceRepositoryTest : BaseHiltTest() {
+    @Inject
+    lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-  @Inject FakeRemoteDataStore fakeRemoteDataStore;
-  @Inject TermsOfServiceRepository termsOfServiceRepository;
+    @Inject
+    lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
-  @Test
-  public void testGetTermsOfService() {
-    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE));
+    @Test
+    fun testGetTermsOfService() {
+        fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+        termsOfServiceRepository.termsOfService.test().assertResult(FakeData.TERMS_OF_SERVICE)
+    }
 
-    termsOfServiceRepository.getTermsOfService().test().assertResult(FakeData.TERMS_OF_SERVICE);
-  }
+    @Test
+    fun testGetTermsOfService_whenMissing_doesNotThrowException() {
+        fakeRemoteDataStore.setTermsOfService(Optional.empty())
+        termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
+    }
 
-  @Test
-  public void testGetTermsOfService_whenMissing_doesNotThrowException() {
-    fakeRemoteDataStore.setTermsOfService(Optional.empty());
+    @Test
+    fun testTermsOfServiceAccepted() {
+        termsOfServiceRepository.isTermsOfServiceAccepted = true
+        assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+    }
 
-    termsOfServiceRepository.getTermsOfService().test().assertNoValues().assertComplete();
-  }
-
-  @Test
-  public void testTermsOfServiceAccepted() {
-    termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
-  }
-
-  @Test
-  public void testTermsOfServiceNotAccepted() {
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isFalse();
-  }
+    @Test
+    fun testTermsOfServiceNotAccepted() {
+        assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
+    }
 }
