@@ -21,6 +21,11 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
 
 /**
+ * Alias for maps whose keys represent an index in an ordered data structure like a [List].
+ */
+typealias IndexedMap<T> = Map<Int, T>
+
+/**
  * Converts between Geometry model objects and their equivalent remote representation using a
  * modified GeoJSON representation:
  *
@@ -40,16 +45,18 @@ object GeometryConverter {
     private const val MULTI_POLYGON_TYPE = "MultiPolygon"
 
     /**
-     * Returns the remote db representation of a `Geometry` object. Errors will always be returned as a `Result`;
-     * exceptions are never thrown.
+     * Returns the remote db representation of a `Geometry` object. Errors are always returned as a
+     * `Result`; exceptions are never thrown.
      */
     fun toFirestoreMap(geometry: Geometry): Result<Map<String, Any>> =
         Result.runCatching {
             when (geometry) {
-                is Point -> geometryMap(POINT_TYPE, getPointCoordinates(geometry))
-                is Polygon -> geometryMap(POLYGON_TYPE, getPolygonCoordinates(geometry))
+                is Point ->
+                    geometryMapOf(POINT_TYPE, getPointCoordinates(geometry))
+                is Polygon ->
+                    geometryMapOf(POLYGON_TYPE, getPolygonCoordinates(geometry))
                 is MultiPolygon ->
-                    geometryMap(
+                    geometryMapOf(
                         MULTI_POLYGON_TYPE,
                         getMultiPolygonCoordinates(geometry)
 
@@ -58,25 +65,28 @@ object GeometryConverter {
             }
         }
 
-    private fun geometryMap(type: String, coordinates: Any): Map<String, Any> =
+    private fun geometryMapOf(type: String, coordinates: Any): Map<String, Any> =
         mapOf(
             TYPE_KEY to type,
             COORDINATES_KEY to coordinates
         )
 
-    private fun getPolygonCoordinates(polygon: Polygon): Array<Array<GeoPoint>> =
-        (listOf(polygon.shell) + polygon.holes).map(::getLinearRingCoordinates).toTypedArray()
+    private fun getPointCoordinates(point: Point): GeoPoint = coordinateToGeoPoint(point.coordinate)
 
-    private fun getLinearRingCoordinates(linearRing: LinearRing): Array<GeoPoint> =
-        linearRing.coordinates.map(this::toGeoPoint).toTypedArray()
+    private fun getPolygonCoordinates(polygon: Polygon): IndexedMap<IndexedMap<GeoPoint>> =
+        listToIndexedMap((listOf(polygon.shell) + polygon.holes).map(::getLinearRingCoordinates))
 
-    private fun getMultiPolygonCoordinates(multiPolygon: MultiPolygon): Array<Array<Array<GeoPoint>>> =
-        multiPolygon.polygons.map(this::getPolygonCoordinates).toTypedArray()
+    private fun getLinearRingCoordinates(linearRing: LinearRing): IndexedMap<GeoPoint> =
+        listToIndexedMap(linearRing.coordinates.map(::coordinateToGeoPoint))
 
-    private fun toGeoPoint(coordinate: Coordinate): GeoPoint =
+    private fun getMultiPolygonCoordinates(multiPolygon: MultiPolygon): IndexedMap<IndexedMap<IndexedMap<GeoPoint>>> =
+        listToIndexedMap(multiPolygon.polygons.map(this::getPolygonCoordinates))
+
+    private fun coordinateToGeoPoint(coordinate: Coordinate): GeoPoint =
         GeoPoint(coordinate.x, coordinate.y)
 
-    private fun getPointCoordinates(point: Point): GeoPoint = toGeoPoint(point.coordinate)
+    private fun <T> listToIndexedMap(list: List<T>): IndexedMap<T> =
+        list.mapIndexed { index, value -> index to value }.toMap()
 
     /**
      * Converts a `Map` deserialized from Firestore into a `Geometry` instance.
@@ -84,48 +94,52 @@ object GeometryConverter {
     fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> =
         Result.runCatching { fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY)) }
 
+    /**
+     * If data is missing or of an unexpected type, this method may fail with [ClassCastException]
+     * or [NullPointerException]. Callers are expected to handle these and propagate the invalid
+     * state upstream accordingly.
+     */
+    @Suppress("UNCHECKED_CAST")
     private fun fromFirestoreGeometry(type: Any?, coordinates: Any?) =
         when (type) {
-            POINT_TYPE -> fromPointCoordinates(coordinates)
-            POLYGON_TYPE -> fromPolygonCoordinates(coordinates)
-            MULTI_POLYGON_TYPE -> fromMultiPolygonCoordinates(coordinates)
+            POINT_TYPE ->
+                geoPointToPoint(coordinates as GeoPoint)
+            POLYGON_TYPE ->
+                nestedIndexedMapToPolygon(coordinates as IndexedMap<IndexedMap<GeoPoint>>)
+            MULTI_POLYGON_TYPE ->
+                nestedIndexedMapToMultiPolygon(coordinates as IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>)
             else -> throw DataStoreException("Invalid geometry type '$type'")
         }
 
-    private fun fromPointCoordinates(coordinates: Any?): Point =
-        Point(fromGeoPoint(coordinates))
+    private fun geoPointToPoint(geoPoint: GeoPoint): Point =
+        Point(geoPointToCoordinate(geoPoint))
 
-    private fun fromPolygonCoordinates(coordinates: Any?): Polygon =
-        if (coordinates == null || coordinates !is Array<*> || coordinates.isEmpty()) {
-            throw DataStoreException("Bad polygon coordinates $coordinates")
-        } else {
-            Polygon(
-                fromLinearRingCoordinates(coordinates.first()),
-                coordinates.drop(1).map(this::fromLinearRingCoordinates)
-            )
+    private fun geoPointToCoordinate(geoPoint: GeoPoint): Coordinate =
+        Coordinate(geoPoint.latitude, geoPoint.longitude)
+
+    private fun nestedIndexedMapToPolygon(ringsMap: IndexedMap<IndexedMap<GeoPoint>>): Polygon {
+        val rings = indexedMapToList(ringsMap)
+        return Polygon(
+            indexedMapToLinearRing(rings.first()),
+            rings.drop(1).map(this::indexedMapToLinearRing)
+        )
+    }
+
+    private fun indexedMapToLinearRing(coordinatesMap: IndexedMap<GeoPoint>): LinearRing =
+        LinearRing(indexedMapToList(coordinatesMap).map(this::geoPointToCoordinate))
+
+    private fun nestedIndexedMapToMultiPolygon(coordinatesMap: IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>): Geometry =
+        MultiPolygon(indexedMapToList(coordinatesMap).map(this::nestedIndexedMapToPolygon))
+
+    /**
+     * Converts map representation used to store nested arrays in Firestore into a List. Throws
+     * [IllegalArgumentException] if keys aren't consecutive Ints starting from 0
+     */
+    private fun <T> indexedMapToList(map: IndexedMap<T>): List<T> {
+        val sortedEntries = map.entries.sortedBy { it.key }
+        if (sortedEntries.withIndex().any { it.index != it.value.key }) {
+            throw IllegalArgumentException("Invalid map $map")
         }
-
-    private fun fromMultiPolygonCoordinates(coordinates: Any?): Geometry =
-        if (coordinates == null || coordinates !is Array<*> || coordinates.isEmpty()) {
-            throw DataStoreException("Bad multi-polygon coordinates $coordinates")
-        } else {
-            MultiPolygon(coordinates.map(this::fromPolygonCoordinates))
-        }
-
-    private fun fromLinearRingCoordinates(coordinates: Any?): LinearRing =
-        if (coordinates == null || coordinates !is Array<*> || coordinates.isEmpty()) {
-            throw DataStoreException("Bad linear ring coordinates $coordinates")
-        } else {
-            LinearRing(coordinates.map(this::fromGeoPoint))
-        }
-
-
-    private fun fromGeoPoint(coordinates: Any?): Coordinate =
-        if (coordinates == null || coordinates !is GeoPoint) {
-            throw DataStoreException("Bad point coordinates $coordinates")
-        } else {
-            Coordinate(coordinates.latitude, coordinates.longitude)
-        }
-
-
+        return sortedEntries.map { it.value }
+    }
 }
