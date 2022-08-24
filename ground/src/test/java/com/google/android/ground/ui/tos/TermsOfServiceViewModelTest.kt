@@ -13,47 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.tos
 
-package com.google.android.ground.ui.tos;
-
-import static com.google.common.truth.Truth.assertThat;
-
-import androidx.navigation.NavDirections;
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.repository.TermsOfServiceRepository;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import io.reactivex.observers.TestObserver;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class TermsOfServiceViewModelTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class TermsOfServiceViewModelTest : BaseHiltTest() {
+    @Inject
+    lateinit var navigator: Navigator
 
-  @Inject Navigator navigator;
-  @Inject TermsOfServiceRepository termsOfServiceRepository;
-  @Inject TermsOfServiceViewModel viewModel;
+    @Inject
+    lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
-  @Test
-  public void testOnButtonClicked() {
-    TestObserver<NavDirections> testObserver = navigator.getNavigateRequests().test();
+    @Inject
+    lateinit var viewModel: TermsOfServiceViewModel
 
-    viewModel.onButtonClicked();
+    @Test
+    fun testOnButtonClicked() {
+        val testObserver = navigator.navigateRequests.test()
 
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted()).isTrue();
-    testObserver
-        .assertNoErrors()
-        .assertNotComplete()
-        .assertValue(HomeScreenFragmentDirections.showHomeScreen());
-  }
+        viewModel.onButtonClicked()
 
-  @Test
-  public void testTermsOfServiceText() {
-    viewModel.setTermsOfServiceText("Terms Text");
-    assertThat(viewModel.getTermsOfServiceText()).isEqualTo("Terms Text");
-  }
+        assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+        testObserver
+            .assertNoErrors()
+            .assertNotComplete()
+            .assertValue(HomeScreenFragmentDirections.showHomeScreen())
+    }
 }
