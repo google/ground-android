@@ -13,57 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.repository
 
-package com.google.android.ground.repository;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.persistence.local.LocalDataStore;
-import com.google.android.ground.persistence.local.LocalDataStoreModule;
-import com.google.common.collect.ImmutableMap;
-import com.sharedtest.persistence.remote.FakeRemoteDataStore;
-import dagger.hilt.android.testing.BindValue;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.UninstallModules;
-import io.reactivex.Maybe;
-import java8.util.Optional;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.Survey
+import com.google.android.ground.persistence.local.LocalDataStore
+import com.google.android.ground.persistence.local.LocalDataStoreModule
+import com.google.common.collect.ImmutableMap
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import io.reactivex.Maybe
+import java8.util.Optional
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
-@UninstallModules({LocalDataStoreModule.class})
-@RunWith(RobolectricTestRunner.class)
-public class SurveyRepositoryTest extends BaseHiltTest {
+@UninstallModules(LocalDataStoreModule::class)
+@RunWith(RobolectricTestRunner::class)
+class SurveyRepositoryTest : BaseHiltTest() {
+    @BindValue
+    @Mock
+    lateinit var mockLocalDataStore: LocalDataStore
 
-  @BindValue @Mock LocalDataStore mockLocalDataStore;
-  @BindValue @Mock UserRepository userRepository;
+    @Inject
+    lateinit var surveyRepository: SurveyRepository
 
-  @Inject SurveyRepository surveyRepository;
-  @Inject FakeRemoteDataStore fakeRemoteDataStore;
+    @Test
+    fun testActivateSurvey() {
+        val survey = Survey("", "", "", ImmutableMap.of())
+        setTestSurvey(survey)
+        surveyRepository.activateSurvey("id")
+        surveyRepository.activeSurvey.test().assertValue(Optional.of(survey))
+    }
 
-  @Test
-  public void testActivateSurvey() {
-    Survey survey = new Survey(
-        "",
-        "",
-        "",
-        ImmutableMap.of()
-    );
-    setTestSurvey(survey);
-
-    surveyRepository.activateSurvey("id");
-
-    surveyRepository.getActiveSurvey().test().assertValue(Optional.of(survey));
-  }
-
-  private void setTestSurvey(Survey survey) {
-    fakeRemoteDataStore.setTestSurvey(survey);
-    when(mockLocalDataStore.getSurveyById(any())).thenReturn(Maybe.just(survey));
-  }
+    private fun setTestSurvey(survey: Survey) {
+        Mockito.`when`(mockLocalDataStore.getSurveyById(ArgumentMatchers.any()))
+            .thenReturn(Maybe.just(survey))
+    }
 }
