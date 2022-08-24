@@ -13,75 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.converter
 
-package com.google.android.ground.persistence.local.room.converter;
+import com.google.android.ground.model.submission.DateResponse
+import com.google.android.ground.model.submission.TimeResponse
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.dateToIsoString
+import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.isoStringToDate
+import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.toJsonObject
+import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.toResponse
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import java.util.*
 
-import static com.google.common.truth.Truth.assertThat;
+class ResponseJsonConverterTest {
 
-import com.google.android.ground.model.submission.DateResponse;
-import com.google.android.ground.model.submission.Response;
-import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.model.task.Task;
-import java.util.Date;
-import java8.util.Optional;
-import org.junit.Test;
+    @Test
+    fun testDateToIsoString() {
+        val dateToIsoString = dateToIsoString(DATE)
+        assertThat(DATE_STRING).isEqualTo(dateToIsoString)
+    }
 
-public class ResponseJsonConverterTest {
+    @Test
+    fun testIsoStringToDate() {
+        val stringToDate = isoStringToDate(DATE_STRING)
+        assertThat(DATE).isEqualTo(stringToDate)
+    }
 
-  // Date represented in YYYY-MM-DDTHH:mmZ Format from 1632501600000L milliseconds.
-  private static final String DATE_STRING = "2021-09-21T07:00+0000";
-  // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-  private static final Date DATE = new Date(1632207600000L);
+    @Test
+    fun testDateToIso_mismatchDate() {
+        val currentDate = Date()
+        val stringToDate = isoStringToDate(DATE_STRING)
+        val checkMismatchDate = currentDate == stringToDate
+        assertThat(checkMismatchDate).isEqualTo(false)
+    }
 
-  @Test
-  public void testDateToIsoString() {
-    String dateToIsoString = ResponseJsonConverter.dateToIsoString(DATE);
-    assertThat(DATE_STRING).isEqualTo(dateToIsoString);
-  }
+    @Test
+    fun testResponseToObject_dateResponse() {
+        val response = toJsonObject(DateResponse(DATE))
+        assertThat(response).isInstanceOf(Any::class.java)
+    }
 
-  @Test
-  public void testIsoStringToDate() {
-    Date stringToDate = ResponseJsonConverter.isoStringToDate(DATE_STRING);
-    assertThat(DATE).isEqualTo(stringToDate);
-  }
+    @Test
+    fun testResponseToObject_timeResponse() {
+        val response = toJsonObject(TimeResponse(DATE))
+        assertThat(response).isInstanceOf(Any::class.java)
+    }
 
-  @Test
-  public void testDateToIso_mismatchDate() {
-    Date currentDate = new Date();
-    Date stringToDate = ResponseJsonConverter.isoStringToDate(DATE_STRING);
-    boolean checkMismatchDate = currentDate.equals(stringToDate);
-    assertThat(checkMismatchDate).isEqualTo(false);
-  }
+    @Test
+    fun testObjectToResponse_dateResponse() {
+        val dateObject = toJsonObject(DateResponse(DATE))
+        val response = toResponse(
+            Task("1", 0, Task.Type.DATE, "date", true),
+            dateObject
+        )
+        assertThat((response.get() as DateResponse).date).isEqualTo(DATE)
+    }
 
-  @Test
-  public void testResponseToObject_dateResponse() {
-    Object response = ResponseJsonConverter.toJsonObject(new DateResponse(DATE));
-    assertThat(response).isInstanceOf(Object.class);
-  }
+    @Test
+    fun testObjectToResponse_timeResponse() {
+        val timeObject = toJsonObject(TimeResponse(DATE))
+        val response = toResponse(
+            Task("2", 1, Task.Type.TIME, "time", true),
+            timeObject
+        )
+        assertThat((response.get() as TimeResponse).time).isEqualTo(DATE)
+    }
 
-  @Test
-  public void testResponseToObject_timeResponse() {
-    Object response = ResponseJsonConverter.toJsonObject(new TimeResponse(DATE));
-    assertThat(response).isInstanceOf(Object.class);
-  }
+    companion object {
+        // Date represented in YYYY-MM-DDTHH:mmZ Format from 1632501600000L milliseconds.
+        private const val DATE_STRING = "2021-09-21T07:00+0000"
 
-  @Test
-  public void testObjectToResponse_dateResponse() {
-    Object dateObject = ResponseJsonConverter.toJsonObject(new DateResponse(DATE));
-    Optional<Response> response =
-        ResponseJsonConverter.toResponse(
-            new Task("1", 0, Task.Type.DATE, "date", true),
-            dateObject);
-    assertThat(((DateResponse) response.get()).getDate()).isEqualTo(DATE);
-  }
-
-  @Test
-  public void testObjectToResponse_timeResponse() {
-    Object timeObject = ResponseJsonConverter.toJsonObject(new TimeResponse(DATE));
-    Optional<Response> response =
-        ResponseJsonConverter.toResponse(
-            new Task("2", 1, Task.Type.TIME, "time", true),
-            timeObject);
-    assertThat(((TimeResponse) response.get()).getTime()).isEqualTo(DATE);
-  }
+        // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+        private val DATE = Date(1632207600000L)
+    }
 }
