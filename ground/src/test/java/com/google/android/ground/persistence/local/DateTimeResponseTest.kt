@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local
 
-package com.google.android.ground.persistence.local;
+import com.google.android.ground.model.submission.DateResponse
+import com.google.android.ground.model.submission.TimeResponse
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import java.time.LocalDate
+import java.time.Month
+import java.time.ZoneId
+import java.util.*
 
-import static com.google.common.truth.Truth.assertThat;
+class DateTimeResponseTest {
+    @Test
+    fun testTimeResponse_textDetails() {
+        val instant = LocalDate.now()
+            .atTime(7, 30, 45)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+        val detailsText = TimeResponse(Date.from(instant)).detailsText
+        assertThat(detailsText).isEqualTo("07:30")
+    }
 
-import com.google.android.ground.model.submission.DateResponse;
-import com.google.android.ground.model.submission.TimeResponse;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZoneId;
-import java.util.Date;
-import org.junit.Test;
-
-public class DateTimeResponseTest {
-
-  @Test
-  public void testTimeResponse_textDetails() {
-    Instant instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant();
-    assertThat(new TimeResponse(Date.from(instant)).getDetailsText()).isEqualTo("07:30");
-  }
-
-  @Test
-  public void testDateResponse_textDetails() {
-    Instant instant =
-        LocalDate.of(2021, Month.OCTOBER, 23)
+    @Test
+    fun testDateResponse_textDetails() {
+        val instant = LocalDate.of(2021, Month.OCTOBER, 23)
             .atStartOfDay()
             .atZone(ZoneId.systemDefault())
-            .toInstant();
-    assertThat(new DateResponse(Date.from(instant)).getDetailsText()).isEqualTo("2021-10-23");
-  }
+            .toInstant()
+        val detailsText = DateResponse(Date.from(instant)).detailsText
+        assertThat(detailsText).isEqualTo("2021-10-23")
+    }
 }
