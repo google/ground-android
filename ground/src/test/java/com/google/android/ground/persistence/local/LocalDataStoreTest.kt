@@ -290,8 +290,8 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.mergeSubmission(submission).test().assertComplete()
         val responses =
             localDataStore.getSubmission(loi, submission.id).test().values()[0].responses
-        assertThat("updated response")
-            .isEqualTo(responses.getResponse("task id").get().toString())
+        assertThat(responses.getResponse("task id"))
+            .isEqualTo(TextResponse.fromString("updated response"))
     }
 
     @Test
