@@ -13,55 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote.firestore.schema
 
-package com.google.android.ground.persistence.remote.firestore.schema;
+import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.persistence.remote.firestore.schema.TermsOfServiceConverter.toTerms
+import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.DocumentSnapshot
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.when;
+@RunWith(MockitoJUnitRunner::class)
+class TermsOfServiceConverterTest {
+    @Mock
+    private lateinit var termsOfServiceDocumentSnapshot: DocumentSnapshot
 
-import com.google.android.ground.model.TermsOfService;
-import com.google.firebase.firestore.DocumentSnapshot;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+    private lateinit var termsOfService: TermsOfService
 
-@RunWith(MockitoJUnitRunner.class)
-public class TermsOfServiceConverterTest {
+    @Before
+    fun setup() {
+        termsOfService = TermsOfService(TEST_TERMS_ID, TEST_TERMS)
+    }
 
-  @Mock
-  private DocumentSnapshot termsOfServiceDocumentSnapshot;
+    @Test
+    fun testTermsOfService() {
+        mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument(TEST_TERMS))
+        assertThat(toTermsOfService()).isEqualTo(termsOfService)
+    }
 
-  private TermsOfService termsOfService;
-  private static final String TEST_TERMS = "TERMS";
-  private static final String TEST_TERMS_ID = "TERMS_ID";
+    /**
+     * Mock submission document snapshot to return the specified id and object representation.
+     */
+    private fun mockTermsOfServiceDocumentSnapshot(doc: TermsOfServiceDocument) {
+        Mockito.`when`(termsOfServiceDocumentSnapshot.id).thenReturn(TEST_TERMS_ID)
+        Mockito.`when`(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument::class.java))
+            .thenReturn(doc)
+    }
 
-  @Before
-  public void setup() {
-    setUpTestTerms();
-  }
+    private fun toTermsOfService(): TermsOfService {
+        return toTerms(termsOfServiceDocumentSnapshot)
+    }
 
-  @Test
-  public void testTermsOfService() {
-    mockTermsOfServiceDocumentSnapshot(new TermsOfServiceDocument(TEST_TERMS));
-    assertThat(toTermsOfService())
-        .isEqualTo(termsOfService);
-  }
-
-  private void setUpTestTerms() {
-    termsOfService = new TermsOfService(TEST_TERMS_ID, TEST_TERMS);
-  }
-
-  /**
-   * Mock submission document snapshot to return the specified id and object representation.
-   */
-  private void mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument doc) {
-    when(termsOfServiceDocumentSnapshot.getId()).thenReturn(TEST_TERMS_ID);
-    when(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument.class)).thenReturn(doc);
-  }
-
-  private TermsOfService toTermsOfService() {
-    return TermsOfServiceConverter.toTerms(termsOfServiceDocumentSnapshot);
-  }
+    companion object {
+        private const val TEST_TERMS = "TERMS"
+        private const val TEST_TERMS_ID = "TERMS_ID"
+    }
 }
