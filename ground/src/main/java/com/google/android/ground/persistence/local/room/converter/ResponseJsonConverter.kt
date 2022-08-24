@@ -51,7 +51,7 @@ internal object ResponseJsonConverter {
         }
     }
 
-    fun isoStringToDate(isoString: String): Date? {
+    fun isoStringToDate(isoString: String): Date {
         synchronized(ISO_INSTANT_FORMAT) {
             ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
             return ISO_INSTANT_FORMAT.parse(isoString)
