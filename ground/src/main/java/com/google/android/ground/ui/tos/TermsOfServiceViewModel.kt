@@ -13,45 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.tos
 
-package com.google.android.ground.ui.tos;
+import androidx.lifecycle.MutableLiveData
+import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import javax.inject.Inject
 
-import androidx.lifecycle.MutableLiveData;
-import com.google.android.ground.repository.TermsOfServiceRepository;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
-import javax.inject.Inject;
+class TermsOfServiceViewModel @Inject constructor(
+    private val navigator: Navigator, private val termsOfServiceRepository: TermsOfServiceRepository
+) : AbstractViewModel() {
+    var termsOfServiceText = ""
 
-public class TermsOfServiceViewModel extends AbstractViewModel {
+    @JvmField
+    val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
-  private final Navigator navigator;
-
-  private String termsOfServiceText = "";
-
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> agreeCheckboxChecked = new MutableLiveData<>();
-
-  private final TermsOfServiceRepository termsOfServiceRepository;
-
-  @Inject
-  public TermsOfServiceViewModel(
-      Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
-    this.navigator = navigator;
-    this.termsOfServiceRepository = termsOfServiceRepository;
-  }
-
-  public String getTermsOfServiceText() {
-    return termsOfServiceText;
-  }
-
-  public void setTermsOfServiceText(String termsOfServiceText) {
-    this.termsOfServiceText = termsOfServiceText;
-  }
-
-  public void onButtonClicked() {
-    termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
-  }
+    fun onButtonClicked() {
+        termsOfServiceRepository.isTermsOfServiceAccepted = true
+        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+    }
 }
