@@ -13,52 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.tos
 
-package com.google.android.ground.ui.tos;
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import com.google.android.ground.databinding.FragmentTermsServiceBinding;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.BackPressListener;
-import com.google.android.ground.ui.common.EphemeralPopups;
-import com.google.common.base.Strings;
-import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.ground.databinding.FragmentTermsServiceBinding
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
+class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
 
-  @Inject EphemeralPopups popups;
+    @Inject
+    lateinit var popups: EphemeralPopups
 
-  private TermsOfServiceViewModel viewModel;
+    private lateinit var viewModel: TermsOfServiceViewModel
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    TermsOfServiceFragmentArgs args = TermsOfServiceFragmentArgs.fromBundle(getArguments());
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val args = TermsOfServiceFragmentArgs.fromBundle(arguments)
+        viewModel = getViewModel(TermsOfServiceViewModel::class.java)
+        viewModel.termsOfServiceText = args.termsOfServiceText.orEmpty()
+    }
 
-    this.viewModel = getViewModel(TermsOfServiceViewModel.class);
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+        return binding.root
+    }
 
-    viewModel.setTermsOfServiceText(Strings.nullToEmpty(args.getTermsOfServiceText()));
-  }
-
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    FragmentTermsServiceBinding binding = FragmentTermsServiceBinding
-        .inflate(inflater, container, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    return binding.getRoot();
-  }
-
-  @Override
-  public boolean onBack() {
-    getActivity().finish();
-    return false;
-  }
+    override fun onBack(): Boolean {
+        requireActivity().finish()
+        return false
+    }
 }
