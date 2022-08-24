@@ -13,291 +13,316 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.repository
 
-package com.google.android.ground.repository;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.mutation.LocationOfInterestMutation;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.model.mutation.Mutation.SyncStatus;
-import com.google.android.ground.model.mutation.Mutation.Type;
-import com.google.android.ground.persistence.local.LocalDataStore;
-import com.google.android.ground.persistence.local.LocalDataStoreModule;
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus;
-import com.google.android.ground.persistence.remote.NotFoundException;
-import com.google.android.ground.persistence.remote.RemoteDataEvent;
-import com.google.android.ground.persistence.sync.DataSyncWorkManager;
-import com.google.common.collect.ImmutableSet;
-import com.sharedtest.FakeData;
-import com.sharedtest.persistence.remote.FakeRemoteDataStore;
-import com.sharedtest.system.auth.FakeAuthenticationManager;
-import dagger.hilt.android.testing.BindValue;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.UninstallModules;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.Date;
-import java.util.NoSuchElementException;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.persistence.local.LocalDataStore
+import com.google.android.ground.persistence.local.LocalDataStoreModule
+import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.remote.NotFoundException
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.error
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.loaded
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
+import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
+import com.google.android.ground.persistence.sync.DataSyncWorkManager
+import com.google.common.collect.ImmutableSet
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.*
+import org.robolectric.RobolectricTestRunner
+import java.util.*
+import javax.inject.Inject
 
 // TODO: Include a test for Polygon locationOfInterest
 @HiltAndroidTest
-@UninstallModules({LocalDataStoreModule.class})
-@RunWith(RobolectricTestRunner.class)
-public class LocationOfInterestRepositoryTest extends BaseHiltTest {
-  @BindValue @Mock LocalDataStore mockLocalDataStore;
-  @BindValue @Mock SurveyRepository mockSurveyRepository;
-  @BindValue @Mock DataSyncWorkManager mockWorkManager;
+@UninstallModules(LocalDataStoreModule::class)
+@RunWith(RobolectricTestRunner::class)
+class LocationOfInterestRepositoryTest : BaseHiltTest() {
+    @BindValue
+    @Mock
+    lateinit var mockLocalDataStore: LocalDataStore
 
-  @Captor ArgumentCaptor<LocationOfInterestMutation> captorLoiMutation;
+    @BindValue
+    @Mock
+    lateinit var mockSurveyRepository: SurveyRepository
 
-  @Inject FakeAuthenticationManager fakeAuthenticationManager;
-  @Inject FakeRemoteDataStore fakeRemoteDataStore;
-  @Inject LocationOfInterestRepository locationOfInterestRepository;
+    @BindValue
+    @Mock
+    lateinit var mockWorkManager: DataSyncWorkManager
 
-  private void mockApplyAndEnqueue() {
-    doReturn(Completable.complete())
-        .when(mockLocalDataStore)
-        .applyAndEnqueue(captorLoiMutation.capture());
-  }
+    @Captor
+    lateinit var captorLoiMutation: ArgumentCaptor<LocationOfInterestMutation>
 
-  private void mockEnqueueSyncWorker() {
-    when(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.complete());
-  }
+    @Inject
+    lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-  @Test
-  public void testApplyAndEnqueue() {
-    mockApplyAndEnqueue();
-    mockEnqueueSyncWorker();
+    @Inject
+    lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-    locationOfInterestRepository
-        .applyAndEnqueue(FakeData.POINT_OF_INTEREST.toMutation(Type.CREATE, FakeData.USER.getId()))
-        .test()
-        .assertNoErrors()
-        .assertComplete();
+    @Inject
+    lateinit var locationOfInterestRepository: LocationOfInterestRepository
 
-    LocationOfInterestMutation actual = captorLoiMutation.getValue();
-    assertThat(actual.getType()).isEqualTo(Mutation.Type.CREATE);
-    assertThat(actual.getSyncStatus()).isEqualTo(SyncStatus.PENDING);
-    assertThat(actual.getLocationOfInterestId()).isEqualTo(FakeData.POINT_OF_INTEREST.getId());
+    private fun mockApplyAndEnqueue() {
+        Mockito.doReturn(Completable.complete())
+            .`when`(mockLocalDataStore)
+            .applyAndEnqueue(captorLoiMutation.capture())
+    }
 
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(LocationOfInterestMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_OF_INTEREST.getId());
-  }
+    private fun mockEnqueueSyncWorker() {
+        Mockito.`when`(mockWorkManager.enqueueSyncWorker(ArgumentMatchers.anyString()))
+            .thenReturn(Completable.complete())
+    }
 
-  @Test
-  public void testApplyAndEnqueue_returnsError() {
-    mockEnqueueSyncWorker();
+    @Test
+    fun testApplyAndEnqueue() {
+        mockApplyAndEnqueue()
+        mockEnqueueSyncWorker()
+        locationOfInterestRepository
+            .applyAndEnqueue(
+                FakeData.POINT_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
+            )
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+        val (_, type, syncStatus, _, locationOfInterestId) = captorLoiMutation.value
+        assertThat(type).isEqualTo(Mutation.Type.CREATE)
+        assertThat(syncStatus).isEqualTo(SyncStatus.PENDING)
+        assertThat(locationOfInterestId).isEqualTo(FakeData.POINT_OF_INTEREST.id)
+        Mockito.verify(mockLocalDataStore, Mockito.times(1))
+            .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+        Mockito.verify(mockWorkManager, Mockito.times(1))
+            .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
+    }
 
-    doReturn(Completable.error(new NullPointerException()))
-        .when(mockLocalDataStore)
-        .applyAndEnqueue(any(LocationOfInterestMutation.class));
+    @Test
+    fun testApplyAndEnqueue_returnsError() {
+        mockEnqueueSyncWorker()
+        Mockito.doReturn(Completable.error(NullPointerException()))
+            .`when`(mockLocalDataStore)
+            .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+        locationOfInterestRepository
+            .applyAndEnqueue(
+                FakeData.POINT_OF_INTEREST.toMutation(
+                    Mutation.Type.CREATE,
+                    FakeData.USER.id
+                )
+            )
+            .test()
+            .assertError(NullPointerException::class.java)
+            .assertNotComplete()
+        Mockito.verify(mockLocalDataStore, Mockito.times(1))
+            .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+        Mockito.verify(mockWorkManager, Mockito.times(1))
+            .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
+    }
 
-    locationOfInterestRepository
-        .applyAndEnqueue(FakeData.POINT_OF_INTEREST.toMutation(Type.CREATE, FakeData.USER.getId()))
-        .test()
-        .assertError(NullPointerException.class)
-        .assertNotComplete();
+    @Test
+    fun testEnqueueSyncWorker_returnsError() {
+        mockApplyAndEnqueue()
+        Mockito.`when`(mockWorkManager.enqueueSyncWorker(ArgumentMatchers.anyString()))
+            .thenReturn(Completable.error(NullPointerException()))
+        locationOfInterestRepository
+            .applyAndEnqueue(
+                FakeData.POINT_OF_INTEREST.toMutation(
+                    Mutation.Type.CREATE,
+                    FakeData.USER.id
+                )
+            )
+            .test()
+            .assertError(NullPointerException::class.java)
+            .assertNotComplete()
+        Mockito.verify(mockLocalDataStore, Mockito.times(1))
+            .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+        Mockito.verify(mockWorkManager, Mockito.times(1))
+            .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
+    }
 
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(LocationOfInterestMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_OF_INTEREST.getId());
-  }
+    @Test
+    fun testSyncLocationsOfInterest_loaded() {
+        fakeRemoteDataStore.streamLoiOnce(loaded("entityId", FakeData.POINT_OF_INTEREST))
+        Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
+            .thenReturn(Completable.complete())
+        locationOfInterestRepository
+            .syncLocationsOfInterest(FakeData.SURVEY)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+        Mockito.verify(mockLocalDataStore, Mockito.times(1))
+            .mergeLocationOfInterest(FakeData.POINT_OF_INTEREST)
+    }
 
-  @Test
-  public void testEnqueueSyncWorker_returnsError() {
-    mockApplyAndEnqueue();
+    @Test
+    fun testSyncLocationsOfInterest_modified() {
+        fakeRemoteDataStore.streamLoiOnce(
+            modified("entityId", FakeData.POINT_OF_INTEREST)
+        )
+        Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
+            .thenReturn(Completable.complete())
+        locationOfInterestRepository
+            .syncLocationsOfInterest(FakeData.SURVEY)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+        Mockito.verify(mockLocalDataStore, Mockito.times(1))
+            .mergeLocationOfInterest(FakeData.POINT_OF_INTEREST)
+    }
 
-    when(mockWorkManager.enqueueSyncWorker(anyString()))
-        .thenReturn(Completable.error(new NullPointerException()));
+    @Test
+    fun testSyncLocationsOfInterest_removed() {
+        fakeRemoteDataStore.streamLoiOnce(removed("entityId"))
+        Mockito.`when`(mockLocalDataStore.deleteLocationOfInterest(ArgumentMatchers.anyString()))
+            .thenReturn(Completable.complete())
+        locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test()
+            .assertComplete()
+        Mockito.verify(mockLocalDataStore, Mockito.times(1)).deleteLocationOfInterest("entityId")
+    }
 
-    locationOfInterestRepository
-        .applyAndEnqueue(FakeData.POINT_OF_INTEREST.toMutation(Type.CREATE, FakeData.USER.getId()))
-        .test()
-        .assertError(NullPointerException.class)
-        .assertNotComplete();
+    @Test
+    fun testSyncLocationsOfInterest_error() {
+        fakeRemoteDataStore.streamLoiOnce(error(Throwable("Foo error")))
+        locationOfInterestRepository
+            .syncLocationsOfInterest(FakeData.SURVEY)
+            .test()
+            .assertNoErrors()
+            .assertComplete()
+    }
 
-    verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(LocationOfInterestMutation.class));
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(FakeData.POINT_OF_INTEREST.getId());
-  }
+    @Test
+    fun testGetLocationsOfInterestOnceAndStream() {
+        Mockito.`when`(
+            mockLocalDataStore.getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
+        )
+            .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_OF_INTEREST)))
+        locationOfInterestRepository
+            .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
+            .test()
+            .assertValue(ImmutableSet.of(FakeData.POINT_OF_INTEREST))
+    }
 
-  @Test
-  public void testSyncLocationsOfInterest_loaded() {
-    fakeRemoteDataStore.streamLoiOnce(
-        RemoteDataEvent.loaded("entityId", FakeData.POINT_OF_INTEREST));
-    when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
-        .thenReturn(Completable.complete());
+    @Test
+    fun testGetLocationsOfInterest_surveyNotPresent() {
+        Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
+            .thenReturn(Single.error(NoSuchElementException()))
+        locationOfInterestRepository
+            .getLocationOfInterest("non_existent_survey_id", "loi_id")
+            .test()
+            .assertFailure(NoSuchElementException::class.java)
+    }
 
-    locationOfInterestRepository
-        .syncLocationsOfInterest(FakeData.SURVEY)
-        .test()
-        .assertNoErrors()
-        .assertComplete();
+    @Test
+    fun testGetLocationsOfInterest_surveyPresent() {
+        Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString())).thenReturn(
+            Single.just(FakeData.SURVEY)
+        )
+        Mockito.`when`(
+            mockLocalDataStore.getLocationOfInterest(
+                FakeData.SURVEY,
+                FakeData.POINT_OF_INTEREST.id
+            )
+        )
+            .thenReturn(Maybe.just(FakeData.POINT_OF_INTEREST))
+        locationOfInterestRepository
+            .getLocationOfInterest(FakeData.SURVEY.id, FakeData.POINT_OF_INTEREST.id)
+            .test()
+            .assertResult(FakeData.POINT_OF_INTEREST)
+        locationOfInterestRepository
+            .getLocationOfInterest(
+                FakeData.POINT_OF_INTEREST.toMutation(
+                    Mutation.Type.UPDATE,
+                    "user_id"
+                )
+            )
+            .test()
+            .assertResult(FakeData.POINT_OF_INTEREST)
+    }
 
-    verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_OF_INTEREST);
-  }
+    @Test
+    fun testGetLocationOfInterest_whenLocationOfInterestIsNotPresent() {
+        Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString())).thenReturn(
+            Single.just(FakeData.SURVEY)
+        )
+        Mockito.`when`(
+            mockLocalDataStore.getLocationOfInterest(
+                FakeData.SURVEY,
+                FakeData.POINT_OF_INTEREST.id
+            )
+        )
+            .thenReturn(Maybe.empty())
+        locationOfInterestRepository
+            .getLocationOfInterest(FakeData.SURVEY.id, FakeData.POINT_OF_INTEREST.id)
+            .test()
+            .assertFailureAndMessage(
+                NotFoundException::class.java,
+                "Location of interest not found loi id"
+            )
+    }
 
-  @Test
-  public void testSyncLocationsOfInterest_modified() {
-    fakeRemoteDataStore.streamLoiOnce(
-        RemoteDataEvent.modified("entityId", FakeData.POINT_OF_INTEREST));
-    when(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
-        .thenReturn(Completable.complete());
+    @Test
+    fun testNewLocationOfInterest() {
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        val testDate = Date()
+        val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, location) = locationOfInterestRepository.newMutation(
+            "foo_survey_id", "foo_job_id", FakeData.POINT, testDate
+        )
+        assertThat(id).isNull()
+        assertThat(locationOfInterestId).isEqualTo("TEST UUID")
+        assertThat(surveyId).isEqualTo("foo_survey_id")
+        assertThat(jobId).isEqualTo("foo_job_id")
+        assertThat(location.get()).isEqualTo(FakeData.POINT)
+        assertThat(userId).isEqualTo(FakeData.USER.id)
+        assertThat(clientTimestamp).isEqualTo(testDate)
+    }
 
-    locationOfInterestRepository
-        .syncLocationsOfInterest(FakeData.SURVEY)
-        .test()
-        .assertNoErrors()
-        .assertComplete();
+    @Test
+    fun testNewPolygonOfInterest() {
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        val testDate = Date()
+        val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, _, polygonVertices) = locationOfInterestRepository.newPolygonOfInterestMutation(
+            "foo_survey_id", "foo_job_id", FakeData.VERTICES, testDate
+        )
+        assertThat(id).isNull()
+        assertThat(locationOfInterestId).isEqualTo("TEST UUID")
+        assertThat(surveyId).isEqualTo("foo_survey_id")
+        assertThat(jobId).isEqualTo("foo_job_id")
+        assertThat(polygonVertices).isEqualTo(FakeData.VERTICES)
+        assertThat(userId).isEqualTo(FakeData.USER.id)
+        assertThat(clientTimestamp).isEqualTo(testDate)
+    }
 
-    verify(mockLocalDataStore, times(1)).mergeLocationOfInterest(FakeData.POINT_OF_INTEREST);
-  }
+    @Test
+    fun testGetIncompleteLocationOfInterestMutationsOnceAndStream() {
+        locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream("loi_id_1")
+        Mockito.verify(mockLocalDataStore, Mockito.times(1))
+            .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+                "loi_id_1",
+                MutationEntitySyncStatus.PENDING,
+                MutationEntitySyncStatus.IN_PROGRESS,
+                MutationEntitySyncStatus.FAILED
+            )
+    }
 
-  @Test
-  public void testSyncLocationsOfInterest_removed() {
-    fakeRemoteDataStore.streamLoiOnce(RemoteDataEvent.removed("entityId"));
-    when(mockLocalDataStore.deleteLocationOfInterest(anyString()))
-        .thenReturn(Completable.complete());
+    @Test
+    fun testPolygonInfoDialogShown() {
+        assertThat(locationOfInterestRepository.isPolygonInfoDialogShown).isFalse()
 
-    locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertComplete();
+        locationOfInterestRepository.setPolygonDialogInfoShown(true)
+        assertThat(locationOfInterestRepository.isPolygonInfoDialogShown).isTrue()
 
-    verify(mockLocalDataStore, times(1)).deleteLocationOfInterest("entityId");
-  }
-
-  @Test
-  public void testSyncLocationsOfInterest_error() {
-    fakeRemoteDataStore.streamLoiOnce(RemoteDataEvent.error(new Throwable("Foo error")));
-    locationOfInterestRepository
-        .syncLocationsOfInterest(FakeData.SURVEY)
-        .test()
-        .assertNoErrors()
-        .assertComplete();
-  }
-
-  @Test
-  public void testGetLocationsOfInterestOnceAndStream() {
-    when(mockLocalDataStore.getLocationsOfInterestOnceAndStream(FakeData.SURVEY))
-        .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_OF_INTEREST)));
-
-    locationOfInterestRepository
-        .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
-        .test()
-        .assertValue(ImmutableSet.of(FakeData.POINT_OF_INTEREST));
-  }
-
-  @Test
-  public void testGetLocationsOfInterest_surveyNotPresent() {
-    when(mockSurveyRepository.getSurvey(anyString()))
-        .thenReturn(Single.error(new NoSuchElementException()));
-
-    locationOfInterestRepository
-        .getLocationOfInterest("non_existent_survey_id", "loi_id")
-        .test()
-        .assertFailure(NoSuchElementException.class);
-  }
-
-  @Test
-  public void testGetLocationsOfInterest_surveyPresent() {
-    when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
-    when(mockLocalDataStore.getLocationOfInterest(
-            FakeData.SURVEY, FakeData.POINT_OF_INTEREST.getId()))
-        .thenReturn(Maybe.just(FakeData.POINT_OF_INTEREST));
-
-    locationOfInterestRepository
-        .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_OF_INTEREST.getId())
-        .test()
-        .assertResult(FakeData.POINT_OF_INTEREST);
-
-    locationOfInterestRepository
-        .getLocationOfInterest(FakeData.POINT_OF_INTEREST.toMutation(Type.UPDATE, "user_id"))
-        .test()
-        .assertResult(FakeData.POINT_OF_INTEREST);
-  }
-
-  @Test
-  public void testGetLocationOfInterest_whenLocationOfInterestIsNotPresent() {
-    when(mockSurveyRepository.getSurvey(anyString())).thenReturn(Single.just(FakeData.SURVEY));
-    when(mockLocalDataStore.getLocationOfInterest(
-            FakeData.SURVEY, FakeData.POINT_OF_INTEREST.getId()))
-        .thenReturn(Maybe.empty());
-
-    locationOfInterestRepository
-        .getLocationOfInterest(FakeData.SURVEY.getId(), FakeData.POINT_OF_INTEREST.getId())
-        .test()
-        .assertFailureAndMessage(NotFoundException.class, "Location of interest not found loi id");
-  }
-
-  @Test
-  public void testNewLocationOfInterest() {
-    fakeAuthenticationManager.setUser(FakeData.USER);
-    Date testDate = new Date();
-
-    LocationOfInterestMutation newMutation =
-        locationOfInterestRepository.newMutation(
-            "foo_survey_id", "foo_job_id", FakeData.POINT, testDate);
-
-    assertThat(newMutation.getId()).isNull();
-    assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");
-    assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getJobId()).isEqualTo("foo_job_id");
-    assertThat(newMutation.getLocation().get()).isEqualTo(FakeData.POINT);
-    assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
-    assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
-  }
-
-  @Test
-  public void testNewPolygonOfInterest() {
-    fakeAuthenticationManager.setUser(FakeData.USER);
-    Date testDate = new Date();
-
-    LocationOfInterestMutation newMutation =
-        locationOfInterestRepository.newPolygonOfInterestMutation(
-            "foo_survey_id", "foo_job_id", FakeData.VERTICES, testDate);
-
-    assertThat(newMutation.getId()).isNull();
-    assertThat(newMutation.getLocationOfInterestId()).isEqualTo("TEST UUID");
-    assertThat(newMutation.getSurveyId()).isEqualTo("foo_survey_id");
-    assertThat(newMutation.getJobId()).isEqualTo("foo_job_id");
-    assertThat(newMutation.getPolygonVertices()).isEqualTo(FakeData.VERTICES);
-    assertThat(newMutation.getUserId()).isEqualTo(FakeData.USER.getId());
-    assertThat(newMutation.getClientTimestamp()).isEqualTo(testDate);
-  }
-
-  @Test
-  public void testGetIncompleteLocationOfInterestMutationsOnceAndStream() {
-    locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream("loi_id_1");
-
-    verify(mockLocalDataStore, times(1))
-        .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-            "loi_id_1",
-            MutationEntitySyncStatus.PENDING,
-            MutationEntitySyncStatus.IN_PROGRESS,
-            MutationEntitySyncStatus.FAILED);
-  }
-
-  @Test
-  public void testPolygonInfoDialogShown() {
-    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown()).isFalse();
-
-    locationOfInterestRepository.setPolygonDialogInfoShown(true);
-    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown()).isTrue();
-
-    locationOfInterestRepository.setPolygonDialogInfoShown(false);
-    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown()).isFalse();
-  }
+        locationOfInterestRepository.setPolygonDialogInfoShown(false)
+        assertThat(locationOfInterestRepository.isPolygonInfoDialogShown).isFalse()
+    }
 }
