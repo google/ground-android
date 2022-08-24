@@ -13,71 +13,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.repository
 
-package com.google.android.ground.repository;
-
-import static com.google.common.truth.Truth.assertThat;
-
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.Role;
-import com.google.android.ground.persistence.local.LocalDataStore;
-import com.google.android.ground.persistence.local.LocalValueStore;
-import com.sharedtest.FakeData;
-import com.sharedtest.persistence.local.LocalDataStoreHelper;
-import com.sharedtest.system.auth.FakeAuthenticationManager;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import java.util.NoSuchElementException;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.Role
+import com.google.android.ground.persistence.local.LocalDataStore
+import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
+import com.sharedtest.persistence.local.LocalDataStoreHelper
+import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class UserRepositoryTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class UserRepositoryTest : BaseHiltTest() {
+    @Inject
+    lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-  @Inject FakeAuthenticationManager fakeAuthenticationManager;
-  @Inject LocalDataStore localDataStore;
-  @Inject LocalDataStoreHelper localDataStoreHelper;
-  @Inject LocalValueStore localValueStore;
-  @Inject UserRepository userRepository;
+    @Inject
+    lateinit var localDataStore: LocalDataStore
 
-  @Test
-  public void testGetCurrentUser() {
-    fakeAuthenticationManager.setUser(null);
-    assertThat(userRepository.getCurrentUser()).isNull();
-    fakeAuthenticationManager.setUser(FakeData.USER);
-    assertThat(userRepository.getCurrentUser()).isEqualTo(FakeData.USER);
-  }
+    @Inject
+    lateinit var localDataStoreHelper: LocalDataStoreHelper
 
-  @Test
-  public void testGetUserRole() {
-    String surveyId = FakeData.SURVEY.getId();
-    localDataStoreHelper.insertSurvey(FakeData.SURVEY);
+    @Inject
+    lateinit var localValueStore: LocalValueStore
 
-    // Current user is authorized as contributor.
-    fakeAuthenticationManager.setUser(FakeData.USER);
-    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.DATA_COLLECTOR);
+    @Inject
+    lateinit var userRepository: UserRepository
 
-    // Current user is unauthorized.
-    fakeAuthenticationManager.setUser(FakeData.USER_2);
-    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.UNKNOWN);
-  }
+    @Test
+    fun testGetCurrentUser() {
+        fakeAuthenticationManager.setUser(null)
+        assertThat(userRepository.currentUser).isNull()
 
-  @Test
-  public void testSaveUser() {
-    localDataStore
-        .getUser(FakeData.USER.getId())
-        .test()
-        .assertFailure(NoSuchElementException.class);
-    userRepository.saveUser(FakeData.USER).test().assertComplete();
-    localDataStore.getUser(FakeData.USER.getId()).test().assertResult(FakeData.USER);
-  }
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        assertThat(userRepository.currentUser).isEqualTo(FakeData.USER)
+    }
 
-  @Test
-  public void testClearUserPreferences_returnsEmptyLastActiveSurvey() {
-    localValueStore.setLastActiveSurveyId("foo");
-    userRepository.clearUserPreferences();
-    assertThat(localValueStore.getLastActiveSurveyId()).isEmpty();
-  }
+    @Test
+    fun testGetUserRole() {
+        val surveyId = FakeData.SURVEY.id
+        localDataStoreHelper.insertSurvey(FakeData.SURVEY)
+
+        // Current user is authorized as contributor.
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.DATA_COLLECTOR)
+
+        // Current user is unauthorized.
+        fakeAuthenticationManager.setUser(FakeData.USER_2)
+        assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.UNKNOWN)
+    }
+
+    @Test
+    fun testSaveUser() {
+        localDataStore
+            .getUser(FakeData.USER.id)
+            .test()
+            .assertFailure(NoSuchElementException::class.java)
+        userRepository.saveUser(FakeData.USER).test().assertComplete()
+        localDataStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+    }
+
+    @Test
+    fun testClearUserPreferences_returnsEmptyLastActiveSurvey() {
+        localValueStore.lastActiveSurveyId = "foo"
+        userRepository.clearUserPreferences()
+        assertThat(localValueStore.lastActiveSurveyId).isEmpty()
+    }
 }
