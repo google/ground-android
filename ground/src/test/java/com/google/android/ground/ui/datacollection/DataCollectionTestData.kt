@@ -36,28 +36,29 @@ object DataCollectionTestData {
     val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
     private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
     private val survey = Survey(surveyId, "surveyTitle", "surveyDescription", ImmutableMap.of())
-    val submission: Submission = Submission.newBuilder()
-        .setId(submissionId)
-        .setSurveyId(survey.id)
-        .setLocationOfInterest(
-            LocationOfInterest(
-                loiId,
-                survey,
-                Job(name = jobName, id = "jobId"),
-                null,
-                loiName,
-                auditInfo,
-                auditInfo,
-                Point.zero().toGeometry()
+    val submission: Submission = Submission(
+        submissionId,
+        survey.id,
+        LocationOfInterest(
+            loiId,
+            survey,
+            Job(name = jobName, id = "jobId"),
+            null,
+            loiName,
+            auditInfo,
+            auditInfo,
+            Point.zero().toGeometry()
+        ),
+        Job(
+            id = "taskId",
+            tasks = ImmutableMap.of(
+                "field id",
+                Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
+                "field id 2",
+                Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)
             )
-        )
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
-        .setJob(
-            Job(id = "taskId",
-                tasks = ImmutableMap.of(
-                    "field id",
-                    Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
-                    "field id 2",
-                    Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)))).build()
+        ),
+        auditInfo,
+        auditInfo
+    )
 }

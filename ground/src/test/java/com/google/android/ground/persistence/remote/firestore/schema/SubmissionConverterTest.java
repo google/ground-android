@@ -109,29 +109,27 @@ public class SubmissionConverterTest {
 
     assertThat(toSubmission())
         .isEqualTo(
-            Submission.newBuilder()
-                .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
-                .setLocationOfInterest(locationOfInterest)
-                .setJob(job)
-                .setResponses(
-                    ResponseMap.builder()
-                        .putResponse("task1", new TextResponse("Text response"))
-                        .putResponse(
-                            "task2",
-                            new MultipleChoiceResponse(
-                                new MultipleChoice(Cardinality.SELECT_ONE),
-                                ImmutableList.of("option2")))
-                        .putResponse(
-                            "task3",
-                            new MultipleChoiceResponse(
-                                new MultipleChoice(Cardinality.SELECT_ONE),
-                                ImmutableList.of("optionA", "optionB")))
-                        .putResponse("task4", new TextResponse("Photo URL"))
-                        .build())
-                .setCreated(AUDIT_INFO_1)
-                .setLastModified(AUDIT_INFO_2)
-                .build());
+            new Submission(
+                SUBMISSION_ID,
+                survey.getId(),
+                locationOfInterest,
+                job,
+                AUDIT_INFO_1,
+                AUDIT_INFO_2,
+                ResponseMap.builder()
+                    .putResponse("task1", new TextResponse("Text response"))
+                    .putResponse(
+                        "task2",
+                        new MultipleChoiceResponse(
+                            new MultipleChoice(Cardinality.SELECT_ONE),
+                            ImmutableList.of("option2")))
+                    .putResponse(
+                        "task3",
+                        new MultipleChoiceResponse(
+                            new MultipleChoice(Cardinality.SELECT_ONE),
+                            ImmutableList.of("optionA", "optionB")))
+                    .putResponse("task4", new TextResponse("Photo URL"))
+                    .build()));
   }
 
   @Test
@@ -175,14 +173,13 @@ public class SubmissionConverterTest {
 
     assertThat(toSubmission())
         .isEqualTo(
-            Submission.newBuilder()
-                .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
-                .setLocationOfInterest(locationOfInterest)
-                .setJob(job)
-                .setCreated(AUDIT_INFO_1)
-                .setLastModified(AUDIT_INFO_2)
-                .build());
+            new Submission(
+                SUBMISSION_ID,
+                survey.getId(),
+                locationOfInterest,
+                job,
+                AUDIT_INFO_1,
+                AUDIT_INFO_2));
   }
 
   @Test
@@ -205,14 +202,13 @@ public class SubmissionConverterTest {
 
     assertThat(toSubmission())
         .isEqualTo(
-            Submission.newBuilder()
-                .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
-                .setLocationOfInterest(locationOfInterest)
-                .setJob(job)
-                .setCreated(AUDIT_INFO_1)
-                .setLastModified(AUDIT_INFO_2)
-                .build());
+            new Submission(
+                SUBMISSION_ID,
+                survey.getId(),
+                locationOfInterest,
+                job,
+                AUDIT_INFO_1,
+                AUDIT_INFO_2));
   }
 
   @Test
@@ -235,14 +231,13 @@ public class SubmissionConverterTest {
 
     assertThat(toSubmission())
         .isEqualTo(
-            Submission.newBuilder()
-                .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
-                .setLocationOfInterest(locationOfInterest)
-                .setJob(job)
-                .setCreated(AUDIT_INFO_1)
-                .setLastModified(AUDIT_INFO_2)
-                .build());
+            new Submission(
+                SUBMISSION_ID,
+                survey.getId(),
+                locationOfInterest,
+                job,
+                AUDIT_INFO_1,
+                AUDIT_INFO_2));
   }
 
   private void setUpTestSurvey(String jobId, Task... tasks) {
@@ -250,12 +245,8 @@ public class SubmissionConverterTest {
     stream(tasks).forEach(task -> taskMap.put(task.getId(), task));
 
     job = new Job(jobId, "jobName", taskMap.build());
-    survey = new Survey(
-        "",
-        "",
-        "",
-        ImmutableMap.<String, Job>builder().put(job.getId(), job).build()
-    );
+    survey =
+        new Survey("", "", "", ImmutableMap.<String, Job>builder().put(job.getId(), job).build());
   }
 
   @Test
@@ -278,19 +269,17 @@ public class SubmissionConverterTest {
 
     assertThat(toSubmission())
         .isEqualTo(
-            Submission.newBuilder()
-                .setId(SUBMISSION_ID)
-                .setSurveyId(survey.getId())
-                .setLocationOfInterest(locationOfInterest)
-                .setJob(job)
-                .setResponses(
-                    // Field "task1" with unknown field type ignored.
-                    ResponseMap.builder()
-                        .putResponse("task2", new TextResponse("Text response"))
-                        .build())
-                .setCreated(AUDIT_INFO_1)
-                .setLastModified(AUDIT_INFO_2)
-                .build());
+            new Submission(
+                SUBMISSION_ID,
+                survey.getId(),
+                locationOfInterest,
+                job,
+                AUDIT_INFO_1,
+                AUDIT_INFO_2,
+                // Field "task1" with unknown field type ignored.
+                ResponseMap.builder()
+                    .putResponse("task2", new TextResponse("Text response"))
+                    .build()));
   }
 
   private void setUpTestLoi(String loiId) {
