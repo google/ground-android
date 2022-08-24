@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.submission
 
-package com.google.android.ground.persistence.remote.firestore.schema
+import com.google.android.ground.model.task.Task
+import java8.util.Optional
 
-import com.google.android.ground.model.TermsOfService
-import com.google.firebase.firestore.DocumentSnapshot
-
-/** Converts between Firestore documents and [TermsOfService] instances.  */
-object TermsOfServiceConverter {
-
-    fun toTerms(doc: DocumentSnapshot): TermsOfService {
-        val pd = doc.toObject(TermsOfServiceDocument::class.java)
-        return TermsOfService(doc.id, pd!!.text)
-    }
-}
+/**
+ * Represents a change to an individual task response in a submission.
+ *
+ * @property taskId the id of the task task being updated.
+ * @property taskType the type of task being updated.
+ * @property newResponse the new value of the response, or empty if removed.
+ */
+data class ResponseDelta(
+    val taskId: String,
+    val taskType: Task.Type,
+    val newResponse: Optional<Response>
+)

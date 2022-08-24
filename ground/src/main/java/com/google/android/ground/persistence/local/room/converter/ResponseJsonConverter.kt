@@ -34,7 +34,6 @@ internal object ResponseJsonConverter {
     private val ISO_INSTANT_FORMAT: DateFormat =
         SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault())
 
-    @JvmStatic
     fun toJsonObject(response: Response): Any =
         when (response) {
             is TextResponse -> response.text
@@ -45,7 +44,6 @@ internal object ResponseJsonConverter {
             else -> throw UnsupportedOperationException("Unimplemented response ${response.javaClass}")
         }
 
-    @JvmStatic
     fun dateToIsoString(date: Date): String {
         synchronized(ISO_INSTANT_FORMAT) {
             ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
@@ -53,8 +51,7 @@ internal object ResponseJsonConverter {
         }
     }
 
-    @JvmStatic
-    fun isoStringToDate(isoString: String): Date? {
+    fun isoStringToDate(isoString: String): Date {
         synchronized(ISO_INSTANT_FORMAT) {
             ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
             return ISO_INSTANT_FORMAT.parse(isoString)
@@ -66,7 +63,6 @@ internal object ResponseJsonConverter {
             response.selectedOptionIds.forEach { this.put(it) }
         }
 
-    @JvmStatic
     fun toResponse(task: Task, obj: Any): Optional<Response> =
         when (task.type) {
             Task.Type.TEXT, Task.Type.PHOTO -> {
@@ -102,7 +98,6 @@ internal object ResponseJsonConverter {
                 TimeResponse.fromDate(isoStringToDate(obj as String))
             }
             Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
-            else -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
         }
 
     private fun toList(jsonArray: JSONArray): ImmutableList<String> {

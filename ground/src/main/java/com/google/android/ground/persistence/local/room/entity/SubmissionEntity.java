@@ -130,15 +130,14 @@ public abstract class SubmissionEntity {
           "LOI job id " + job.getId() + " does not match submission " + submission.getJobId());
     }
     String id = submission.getId();
-    return Submission.newBuilder()
-        .setId(id)
-        .setJob(job)
-        .setSurveyId(loi.getSurveyId())
-        .setLocationOfInterest(loi)
-        .setResponses(ResponseMapConverter.fromString(job, submission.getResponses()))
-        .setCreated(AuditInfoEntity.toObject(submission.getCreated()))
-        .setLastModified(AuditInfoEntity.toObject(submission.getLastModified()))
-        .build();
+    return new Submission(
+        id,
+        loi.getSurveyId(),
+        loi,
+        job,
+        AuditInfoEntity.toObject(submission.getCreated()),
+        AuditInfoEntity.toObject(submission.getLastModified()),
+        ResponseMapConverter.fromString(job, submission.getResponses()));
   }
 
   // Boilerplate generated using Android Studio AutoValue plugin:

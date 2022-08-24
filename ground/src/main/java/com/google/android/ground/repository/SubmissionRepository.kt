@@ -131,14 +131,14 @@ class SubmissionRepository @Inject constructor(
         return locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
             .map { locationOfInterest: LocationOfInterest ->
-                Submission.newBuilder()
-                    .setId(uuidGenerator.generateUuid())
-                    .setSurveyId(locationOfInterest.surveyId)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(locationOfInterest.job)
-                    .setCreated(auditInfo)
-                    .setLastModified(auditInfo)
-                    .build()
+                Submission(
+                    uuidGenerator.generateUuid(),
+                    locationOfInterest.surveyId,
+                    locationOfInterest,
+                    locationOfInterest.job,
+                    auditInfo,
+                    auditInfo
+                )
             }
     }
 

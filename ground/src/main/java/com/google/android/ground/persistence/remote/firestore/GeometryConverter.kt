@@ -27,21 +27,21 @@ import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 
 /**
- * Converts between Geometry model objects and their equivalent representation in Firestore.
+ * Converts between Geometry model objects and their equivalent remote representation using a
+ * modified GeoJSON representation:
  *
- * Specifically, geometries represented in Firestore as follows:
- *
- * * Geometries are persisted using a modified GeoJSON representation.
  * * The GeoJSON map hierarchy is converted to a Firestore nested map.
- * * Since Firestore does not allow nested arrays, arrays are replaced with nested maps keyed by
- *   the array index.
- * * All coordinates (two-element double arrays) are represented as GeoPoint in Firestore.
+ * * Since Firestore does not allow nested arrays, arrays are replaced with nested maps, keyed by
+ *   integer array index.
+ * * Coordinates (two-element double arrays) are represented as a Firestore GeoPoint.
  *
- * `Point` and `MultiPolygon` are the only supported `Geometry` types. Behavior for other types is
+ * Only `Point`, `Polygon`, and `MultiPolygon` are supported; behavior for other geometry types is
  * undefined.
  */
 object GeometryConverter {
-    // Reify fromJson() to create type token from generics.
+    /**
+     * Reify fromJson() to create type token from generics.
+     */
     private inline fun <reified T> Gson.fromJson(json: String) =
         fromJson<T>(json, object : TypeToken<T>() {}.type)
 
