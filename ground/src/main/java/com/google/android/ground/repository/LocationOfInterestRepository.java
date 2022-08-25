@@ -17,8 +17,8 @@
 package com.google.android.ground.repository;
 
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation.SyncStatus;
 import com.google.android.ground.model.mutation.Mutation.Type;

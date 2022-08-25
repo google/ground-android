@@ -21,7 +21,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
-import org.locationtech.jts.geom.GeometryFactory
 
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances.  */
@@ -72,7 +71,7 @@ object LoiConverter {
             created = AuditInfoConverter.toAuditInfo(created),
             lastModified = AuditInfoConverter.toAuditInfo(lastModified),
             // TODO(#929): Set geometry once LOI has been updated to use our own model.
-            geometry = GeometryFactory().createPoint(),
+            geometry = geometry
         )
     }
 }

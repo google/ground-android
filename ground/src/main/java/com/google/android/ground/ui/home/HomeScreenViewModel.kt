@@ -19,9 +19,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -102,7 +102,7 @@ class HomeScreenViewModel @Inject internal constructor(
                         locationOfInterestRepository.newPolygonOfInterestMutation(
                             survey.id,
                             areaOfInterest.job.id,
-                            areaOfInterest.coordinatesAsPoints,
+                            areaOfInterest.geometry.vertices,
                             Date()
                         )
                     )

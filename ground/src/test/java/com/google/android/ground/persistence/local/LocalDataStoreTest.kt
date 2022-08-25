@@ -22,10 +22,12 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.toPolygon
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -132,7 +134,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore
             .getLocationOfInterest(TEST_SURVEY, "loi id")
             .test()
-            .assertValue { loi: LocationOfInterest -> loi.coordinatesAsPoint == TEST_POINT }
+            .assertValue { loi: LocationOfInterest -> loi.geometry == TEST_POINT }
     }
 
     @Test
@@ -149,7 +151,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore
             .getLocationOfInterest(TEST_SURVEY, "loi id")
             .test()
-            .assertValue { loi: LocationOfInterest -> loi.coordinatesAsPoints == TEST_POLYGON_1 }
+            .assertValue { loi: LocationOfInterest -> loi.geometry.vertices == TEST_POLYGON_1 }
     }
 
     @Test
@@ -208,12 +210,12 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-        val newLoi = loi.copy(geometry = TEST_POINT_2.toGeometry())
+        val newLoi = loi.copy(geometry = TEST_POINT_2)
         localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
         localDataStore
             .getLocationOfInterest(TEST_SURVEY, "loi id")
             .test()
-            .assertValue { it.coordinatesAsPoint == TEST_POINT_2 }
+            .assertValue { it.geometry == TEST_POINT_2 }
     }
 
     @Test
@@ -222,12 +224,12 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-        val newLoi = loi.copy(geometry = TEST_POLYGON_2.toPolygon())
+        val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinate })))
         localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
         localDataStore
             .getLocationOfInterest(TEST_SURVEY, "loi id")
             .test()
-            .assertValue { it.coordinatesAsPoints == TEST_POLYGON_2 }
+            .assertValue { it.geometry.vertices == TEST_POLYGON_2 }
     }
 
     @Test
@@ -451,23 +453,23 @@ class LocalDataStoreTest : BaseHiltTest() {
             "foo description",
             ImmutableMap.builder<String, Job>().put(TEST_JOB.id, TEST_JOB).build()
         )
-        private val TEST_POINT = Point(110.0, -23.1)
-        private val TEST_POINT_2 = Point(51.0, 44.0)
+        private val TEST_POINT = Point(Coordinate(110.0, -23.1))
+        private val TEST_POINT_2 = Point(Coordinate(51.0, 44.0))
         private val TEST_POLYGON_1 = ImmutableList.builder<Point>()
-            .add(Point(49.874502, 8.655993))
-            .add(Point(49.874099, 8.651173))
-            .add(Point(49.872919, 8.651628))
-            .add(Point(49.873164, 8.653515))
-            .add(Point(49.874343, 8.653038))
-            .add(Point(49.874502, 8.655993))
+            .add(Point(Coordinate(49.874502, 8.655993)))
+            .add(Point(Coordinate(49.874099, 8.651173)))
+            .add(Point(Coordinate(49.872919, 8.651628)))
+            .add(Point(Coordinate(49.873164, 8.653515)))
+            .add(Point(Coordinate(49.874343, 8.653038)))
+            .add(Point(Coordinate(49.874502, 8.655993)))
             .build()
         private val TEST_POLYGON_2 = ImmutableList.builder<Point>()
-            .add(Point(49.865374, 8.646920))
-            .add(Point(49.864241, 8.647286))
-            .add(Point(49.864664, 8.650387))
-            .add(Point(49.863102, 8.650445))
-            .add(Point(49.863051, 8.647306))
-            .add(Point(49.865374, 8.646920))
+            .add(Point(Coordinate(49.865374, 8.646920)))
+            .add(Point(Coordinate(49.864241, 8.647286)))
+            .add(Point(Coordinate(49.864664, 8.650387)))
+            .add(Point(Coordinate(49.863102, 8.650445)))
+            .add(Point(Coordinate(49.863051, 8.647306)))
+            .add(Point(Coordinate(49.865374, 8.646920)))
             .build()
         private val TEST_LOI_MUTATION = createTestLocationOfInterestMutation(TEST_POINT)
         private val TEST_POLYGON_LOI_MUTATION = createTestAreaOfInterestMutation(TEST_POLYGON_1)

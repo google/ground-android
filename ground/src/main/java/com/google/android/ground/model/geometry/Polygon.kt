@@ -21,7 +21,10 @@ import com.google.common.collect.ImmutableList
  * A polygon made up of a linear ring that dictates its bounds and any number of holes within the
  * shell ring.
  */
-data class Polygon(val shell: LinearRing, val holes: ImmutableList<LinearRing>) : Geometry {
+data class Polygon(
+    val shell: LinearRing,
+    val holes: ImmutableList<LinearRing> = ImmutableList.of()
+) : Geometry {
     /**
      * Constructs a [Polygon] using the specified shell and an immutable copy of the specified
      * mutable list of holes.
@@ -30,4 +33,6 @@ data class Polygon(val shell: LinearRing, val holes: ImmutableList<LinearRing>) 
         shell,
         ImmutableList.copyOf(holes)
     )
+
+    override val vertices: ImmutableList<Point> = shell.vertices
 }

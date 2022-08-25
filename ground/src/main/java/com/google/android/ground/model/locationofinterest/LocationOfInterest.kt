@@ -16,17 +16,13 @@
 package com.google.android.ground.model.locationofinterest
 
 import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
-import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.geom.Polygon
 import java.util.*
-import javax.annotation.OverridingMethodsMustInvokeSuper
 
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(
@@ -48,19 +44,21 @@ data class LocationOfInterest(
     val geometry: Geometry,
 ) {
 
+    // TODO: Delete me once we no longer have Java callers.
     /** Returns the type of this LOI based on its Geometry. */
     val type: LocationOfInterestType =
         when (geometry) {
-            is org.locationtech.jts.geom.Point -> LocationOfInterestType.POINT
+            is Point -> LocationOfInterestType.POINT
             is Polygon -> LocationOfInterestType.POLYGON
-            else -> LocationOfInterestType.UNKNOWN
+            is LineString -> LocationOfInterestType.LINE_STRING
+            is LinearRing -> LocationOfInterestType.LINEAR_RING
+            is MultiPolygon -> LocationOfInterestType.MULTIPOLYGON
         }
 
     /**
      * Converts this LOI to a mutation that can be used to update this LOI in the remote and local database.
      */
-    @OverridingMethodsMustInvokeSuper
-    open fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation {
+    fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation {
         return builder()
             .setJobId(job.id)
             .setType(type)
@@ -71,10 +69,4 @@ data class LocationOfInterest(
             .setClientTimestamp(Date())
             .build()
     }
-
-    val coordinatesAsPoints: ImmutableList<Point> =
-        geometry.coordinates.map(Point::fromCoordinate).toImmutableList()
-
-    val coordinatesAsPoint: Point =
-        Point.fromCoordinate(geometry.coordinate)
 }

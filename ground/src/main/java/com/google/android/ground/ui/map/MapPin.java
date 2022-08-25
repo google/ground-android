@@ -17,9 +17,9 @@
 package com.google.android.ground.ui.map;
 
 import androidx.annotation.Nullable;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.job.Style;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.auto.value.AutoValue;
 
 @AutoValue

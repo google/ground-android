@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.locationofinterest
+package com.google.android.ground.model.geometry
 
-import com.google.common.collect.ImmutableList
-import org.locationtech.jts.geom.GeometryFactory
-import org.locationtech.jts.geom.Polygon
-
-fun ImmutableList<Point>.toPolygon(): Polygon {
-    val geometryFactory = GeometryFactory()
-    val coords = this.map { it.toGeometry().coordinate }
-    return geometryFactory.createPolygon(coords.toTypedArray())
-}
+/**
+ * Represents types of geometry errors.
+ *
+ * Typically thrown when a construction does not satisfy definitional constraints for a given geometry.
+ */
+sealed class InvalidGeometryException(override val message: String) : Throwable(message)

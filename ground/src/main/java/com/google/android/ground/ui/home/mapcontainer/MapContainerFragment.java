@@ -32,9 +32,9 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.MapContainerFragBinding;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.repository.MapsRepository;
 import com.google.android.ground.rx.BooleanOrError;
 import com.google.android.ground.rx.Loadable;
@@ -223,7 +223,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
             loi.getCaption(),
             loi.getCreated(),
             loi.getLastModified(),
-            point.toGeometry());
+            point);
     homeScreenViewModel.updateLocationOfInterest(newPointOfInterest);
   }
 
@@ -240,7 +240,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
             .ifPresent(
                 pointOfInterest ->
                     mapContainerViewModel.panAndZoomCamera(
-                        pointOfInterest.getCoordinatesAsPoint()));
+                        pointOfInterest.getGeometry().getVertices().get(0)));
         break;
       case HIDDEN:
         map.enableGestures();
