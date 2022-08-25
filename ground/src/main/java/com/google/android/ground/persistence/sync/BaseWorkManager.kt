@@ -49,7 +49,7 @@ abstract class BaseWorkManager {
      * Create a work request for non-repeating work along with input data that would be passed along
      * to the worker class.
      */
-    /** Create a work request for non-repeating work with default constraints and backoff-criteria.  */
+    @JvmOverloads
     protected fun buildWorkerRequest(inputData: Data? = null): OneTimeWorkRequest {
         val builder = OneTimeWorkRequest.Builder(workerClass).setConstraints(workerConstraints)
             .setBackoffCriteria(BACKOFF_POLICY, BACKOFF_DELAY_MILLIS, TimeUnit.MILLISECONDS)
