@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
+import com.google.android.ground.MainActivity
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
@@ -103,8 +104,8 @@ abstract class AbstractFragment : Fragment() {
         super.onDetach()
     }
 
-    fun replaceFragment(@IdRes containerViewId: Int, fragment: Fragment?) {
-        childFragmentManager.beginTransaction().replace(containerViewId, fragment!!).commit()
+    fun replaceFragment(@IdRes containerViewId: Int, fragment: Fragment) {
+        childFragmentManager.beginTransaction().replace(containerViewId, fragment).commit()
     }
 
     protected fun saveChildFragment(outState: Bundle?, fragment: Fragment?, key: String?) {
@@ -121,4 +122,6 @@ abstract class AbstractFragment : Fragment() {
         savedInstanceState: Bundle,
         fragmentClass: Class<T>
     ): T = restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
+
+    protected fun getMainActivity(): MainActivity = requireActivity() as MainActivity
 }
