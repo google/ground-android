@@ -19,7 +19,6 @@ package com.google.android.ground.ui.home.locationofinterestdetails;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.submission.Submission;
@@ -65,7 +64,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
   /** Loads a list of submissions associated with a given locationOfInterest. */
   public void loadSubmissionList(LocationOfInterest locationOfInterest) {
     loadSubmissions(
-        locationOfInterest.getSurvey(),
+        locationOfInterest.getSurveyId(),
         locationOfInterest.getId(),
         Optional.of(locationOfInterest.getJob()).map(Job::getId));
   }
@@ -77,7 +76,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
       return Single.just(ImmutableList.of());
     }
     return submissionRepository
-        .getSubmissions(req.survey.getId(), req.locationOfInterestId, req.taskId.get())
+        .getSubmissions(req.surveyId, req.locationOfInterestId, req.taskId.get())
         .onErrorResumeNext(this::onGetSubmissionsError);
   }
 
@@ -88,19 +87,20 @@ public class SubmissionListViewModel extends AbstractViewModel {
   }
 
   private void loadSubmissions(
-      Survey survey, String locationOfInterestId, Optional<String> taskId) {
-    submissionListRequests.onNext(new SubmissionListRequest(survey, locationOfInterestId, taskId));
+      String surveyId, String locationOfInterestId, Optional<String> taskId) {
+    submissionListRequests.onNext(
+        new SubmissionListRequest(surveyId, locationOfInterestId, taskId));
   }
 
   static class SubmissionListRequest {
 
-    final Survey survey;
+    final String surveyId;
     final String locationOfInterestId;
     final Optional<String> taskId;
 
     public SubmissionListRequest(
-        Survey survey, String locationOfInterestId, Optional<String> taskId) {
-      this.survey = survey;
+        String surveyId, String locationOfInterestId, Optional<String> taskId) {
+      this.surveyId = surveyId;
       this.locationOfInterestId = locationOfInterestId;
       this.taskId = taskId;
     }

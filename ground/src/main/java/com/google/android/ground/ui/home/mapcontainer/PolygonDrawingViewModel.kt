@@ -172,7 +172,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         val areaOfInterest = LocationOfInterest(
             id = polygon.id,
             geometry = polygon.vertices.toPolygon(),
-            survey = selectedSurvey.value!!,
+            surveyId = selectedSurvey.value!!.id,
             job = selectedJob.value!!,
             created = auditInfo,
             lastModified = auditInfo,

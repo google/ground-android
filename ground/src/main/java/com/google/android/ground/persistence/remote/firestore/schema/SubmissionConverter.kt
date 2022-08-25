@@ -30,8 +30,6 @@ import timber.log.Timber
 /** Converts between Firestore documents and [Submission] instances.  */
 internal object SubmissionConverter {
 
-    @JvmStatic
-    @Throws(DataStoreException::class)
     fun toSubmission(loi: LocationOfInterest, snapshot: DocumentSnapshot): Submission {
         val doc = snapshot.toObject(SubmissionDocument::class.java)
         val loiId = DataStoreException.checkNotNull(doc!!.loiId, "loiId")
@@ -45,16 +43,16 @@ internal object SubmissionConverter {
         val lastModified = Objects.requireNonNullElse(
             doc.lastModified, created
         )
-        val job = loi.job ?: throw DataStoreException("Location of interest is missing a job")
-        return Submission.newBuilder()
-            .setId(snapshot.id)
-            .setSurveyId(loi.survey.id)
-            .setLocationOfInterest(loi)
-            .setJob(job)
-            .setResponses(toResponseMap(snapshot.id, job, doc.responses))
-            .setCreated(AuditInfoConverter.toAuditInfo(created!!))
-            .setLastModified(AuditInfoConverter.toAuditInfo(lastModified!!))
-            .build()
+        val job = loi.job
+        return Submission(
+            snapshot.id,
+            loi.surveyId,
+            loi,
+            job,
+            AuditInfoConverter.toAuditInfo(created!!),
+            AuditInfoConverter.toAuditInfo(lastModified!!),
+            toResponseMap(snapshot.id, job, doc.responses)
+        )
     }
 
     private fun toResponseMap(

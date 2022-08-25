@@ -217,7 +217,7 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
     LocationOfInterest newPointOfInterest =
         loi.copy(
             loi.getId(),
-            loi.getSurvey(),
+            loi.getSurveyId(),
             loi.getJob(),
             loi.getCustomId(),
             loi.getCaption(),

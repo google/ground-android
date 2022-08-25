@@ -21,10 +21,12 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.sharedtest.TestObservers;
+import com.sharedtest.persistence.local.LocalDataStoreHelper;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import java.util.Arrays;
 import java.util.Collection;
 import java8.util.Optional;
+import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -33,6 +35,8 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 @HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class MoveMenuVisibilityTest extends BaseMenuVisibilityTest {
+
+  @Inject LocalDataStoreHelper localDataStoreHelper;
 
   public MoveMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
     super(user, locationOfInterest, visible);
@@ -62,6 +66,7 @@ public class MoveMenuVisibilityTest extends BaseMenuVisibilityTest {
   @Test
   public void testMoveMenuVisible() {
     fakeAuthenticationManager.setUser(user);
+    localDataStoreHelper.insertSurvey(TEST_SURVEY);
     viewModel.onLocationOfInterestSelected(Optional.of(locationOfInterest));
 
     TestObservers.observeUntilFirstChange(viewModel.isMoveMenuOptionVisible());

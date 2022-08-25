@@ -124,7 +124,7 @@ public abstract class LocationOfInterestEntity {
     LocationOfInterestEntity.Builder entity =
         LocationOfInterestEntity.builder()
             .setId(locationOfInterest.getId())
-            .setSurveyId(locationOfInterest.getSurvey().getId())
+            .setSurveyId(locationOfInterest.getSurveyId())
             .setJobId(locationOfInterest.getJob().getId())
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(locationOfInterest.getCreated()))
@@ -199,7 +199,7 @@ public abstract class LocationOfInterestEntity {
                         "Unknown jobId " + jobId + " in location of interest " + id));
     return new LocationOfInterest(
         id,
-        survey,
+        survey.getId(),
         job,
         null,
         null,
