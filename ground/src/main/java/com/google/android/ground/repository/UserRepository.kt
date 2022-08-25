@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Role
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -36,13 +35,15 @@ class UserRepository @Inject constructor(
     private val authenticationManager: AuthenticationManager,
     private val localDataStore: LocalDataStore,
     private val localValueStore: LocalValueStore,
-    private val schedulers: Schedulers
+    private val schedulers: Schedulers,
+    private val surveyRepository: SurveyRepository
 ) {
 
     val currentUser: User
         get() = authenticationManager.currentUser
 
-    fun getUserRole(survey: Survey): Role {
+    fun getUserRole(surveyId: String): Role {
+        val survey = surveyRepository.getSurvey(surveyId).blockingGet()
         val value = survey.acl[currentUser.email]
         return if (value == null) Role.UNKNOWN else toEnum(Role::class.java, value)
     }

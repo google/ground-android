@@ -16,8 +16,6 @@
 package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TestModelBuilders
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -36,29 +34,29 @@ object DataCollectionTestData {
     const val loiName = "loiName"
     val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
     private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-    private val survey = Survey(surveyId, "surveyTitle", "surveyDescription", ImmutableMap.of())
-    val submission: Submission = Submission.newBuilder()
-        .setId(submissionId)
-        .setSurvey(survey)
-        .setLocationOfInterest(
-            LocationOfInterest(
-                loiId,
-                survey,
-                Job(name = jobName, id = "jobId"),
-                null,
-                loiName,
-                auditInfo,
-                auditInfo,
-                Point.zero().toGeometry()
+    val submission: Submission = Submission(
+        submissionId,
+        surveyId,
+        LocationOfInterest(
+            loiId,
+            surveyId,
+            Job(name = jobName, id = "jobId"),
+            null,
+            loiName,
+            auditInfo,
+            auditInfo,
+            Point.zero().toGeometry()
+        ),
+        Job(
+            id = "taskId",
+            tasks = ImmutableMap.of(
+                "field id",
+                Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
+                "field id 2",
+                Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)
             )
-        )
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
-        .setJob(
-            Job(id = "taskId",
-                tasks = ImmutableMap.of(
-                    "field id",
-                    Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
-                    "field id 2",
-                    Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)))).build()
+        ),
+        auditInfo,
+        auditInfo
+    )
 }

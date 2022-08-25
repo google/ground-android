@@ -20,7 +20,6 @@ import com.google.android.ground.model.User;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.system.auth.AuthenticationManager;
 import com.google.android.ground.system.auth.SignInState;
-import com.google.android.ground.system.auth.SignInState.State;
 import com.sharedtest.FakeData;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -60,16 +59,16 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   @Override
   public void init() {
-    behaviourSubject.onNext(new SignInState(user));
+    behaviourSubject.onNext(SignInState.signedIn(user));
   }
 
   @Override
   public void signIn() {
-    behaviourSubject.onNext(new SignInState(user));
+    behaviourSubject.onNext(SignInState.signedIn(user));
   }
 
   @Override
   public void signOut() {
-    behaviourSubject.onNext(new SignInState(State.SIGNED_OUT));
+    behaviourSubject.onNext(SignInState.signedOut());
   }
 }

@@ -16,7 +16,6 @@
 package com.google.android.ground.model.locationofinterest
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
@@ -33,8 +32,8 @@ import javax.annotation.OverridingMethodsMustInvokeSuper
 data class LocationOfInterest(
     /** A system-defined ID for this LOI. */
     val id: String,
-    /** The survey associated with this LOI. */
-    val survey: Survey,
+    /** The survey ID associated with this LOI. */
+    val surveyId: String,
     /** The job associated with this LOI. */
     val job: Job,
     /** A user-specified ID for this location of interest. */
@@ -48,6 +47,7 @@ data class LocationOfInterest(
     /** Geometry associated with this LOI. */
     val geometry: Geometry,
 ) {
+
     /** Returns the type of this LOI based on its Geometry. */
     val type: LocationOfInterestType =
         when (geometry) {
@@ -65,7 +65,7 @@ data class LocationOfInterest(
             .setJobId(job.id)
             .setType(type)
             .setSyncStatus(SyncStatus.PENDING)
-            .setSurveyId(survey.id)
+            .setSurveyId(surveyId)
             .setLocationOfInterestId(id)
             .setUserId(userId)
             .setClientTimestamp(Date())

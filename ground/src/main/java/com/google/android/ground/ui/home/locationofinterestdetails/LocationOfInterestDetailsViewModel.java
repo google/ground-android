@@ -103,7 +103,7 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
    */
   private boolean isUserAuthorizedToModifyLocationOfInterest(
       LocationOfInterest locationOfInterest) {
-    Role role = userRepository.getUserRole(locationOfInterest.getSurvey());
+    Role role = userRepository.getUserRole(locationOfInterest.getSurveyId());
     return role == Role.OWNER
         || role == Role.SURVEY_ORGANIZER
         || isLocationOfInterestCreatedByUser(locationOfInterest);
@@ -141,7 +141,7 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
         .map(
             locationOfInterest ->
                 submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(
-                    locationOfInterest.getSurvey(), locationOfInterest.getId()))
+                    locationOfInterest.getSurveyId(), locationOfInterest.getId()))
         .orElse(Flowable.just(ImmutableList.of()));
   }
 

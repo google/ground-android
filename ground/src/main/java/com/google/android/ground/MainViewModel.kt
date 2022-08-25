@@ -19,11 +19,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.User
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.RxTransformers.switchMapIfPresent
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -73,7 +73,6 @@ class MainViewModel @Inject constructor(
         disposeOnClear(
             authenticationManager
                 .signInState
-                .compose(switchMapIfPresent(SignInState::user) { userRepository.saveUser(it) })
                 .observeOn(schedulers.ui())
                 .switchMap { signInState: SignInState -> onSignInStateChange(signInState) }
                 .subscribe { directions: NavDirections -> navigator.navigate(directions) })
@@ -95,15 +94,19 @@ class MainViewModel @Inject constructor(
         signInProgressDialogVisibility.postValue(signInState.state == SignInState.State.SIGNING_IN)
 
         // TODO: Check auth status whenever fragments resumes
-        return when (signInState.state) {
-            SignInState.State.SIGNED_IN -> onUserSignedIn()
-            SignInState.State.SIGNED_OUT -> onUserSignedOut()
-            SignInState.State.ERROR -> onUserSignInError(signInState.error())
-            else -> Observable.never()
-        }
+        return signInState.result.fold(
+            {
+                when (signInState.state) {
+                    SignInState.State.SIGNED_IN -> onUserSignedIn(it!!)
+                    SignInState.State.SIGNED_OUT -> onUserSignedOut()
+                    else -> Observable.never()
+                }
+            },
+            { onUserSignInError(it) }
+        )
     }
 
-    private fun onUserSignInError(error: Optional<Throwable?>): Observable<NavDirections> {
+    private fun onUserSignInError(error: Throwable): Observable<NavDirections> {
         Timber.e("Authentication error: $error")
         popups.showError(R.string.sign_in_unsuccessful)
         return onUserSignedOut()
@@ -115,18 +118,22 @@ class MainViewModel @Inject constructor(
         return Observable.just(SignInFragmentDirections.showSignInScreen())
     }
 
-    private fun onUserSignedIn(): Observable<NavDirections> {
-        return if (termsOfServiceRepository.isTermsOfServiceAccepted) {
-            Observable.just(HomeScreenFragmentDirections.showHomeScreen())
-        } else {
-            termsOfServiceRepository
-                .termsOfService
-                .map {
-                    SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(it.text)
+    private fun onUserSignedIn(user: User): Observable<NavDirections> {
+        return userRepository.saveUser(user)
+            .andThen(
+                if (termsOfServiceRepository.isTermsOfServiceAccepted) {
+                    Observable.just(HomeScreenFragmentDirections.showHomeScreen())
+                } else {
+                    termsOfServiceRepository
+                        .termsOfService
+                        .map {
+                            SignInFragmentDirections.showTermsOfService()
+                                .setTermsOfServiceText(it.text)
+                        }
+                        .cast(NavDirections::class.java)
+                        .switchIfEmpty(Maybe.just(HomeScreenFragmentDirections.showHomeScreen()))
+                        .toObservable()
                 }
-                .cast(NavDirections::class.java)
-                .switchIfEmpty(Maybe.just(HomeScreenFragmentDirections.showHomeScreen()))
-                .toObservable()
-        }
+            )
     }
 }
