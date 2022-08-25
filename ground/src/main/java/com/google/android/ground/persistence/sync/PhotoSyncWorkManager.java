@@ -45,7 +45,7 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
   }
 
   @Override
-  Class<PhotoSyncWorker> getWorkerClass() {
+  protected Class<PhotoSyncWorker> getWorkerClass() {
     return PhotoSyncWorker.class;
   }
 
