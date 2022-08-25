@@ -33,8 +33,6 @@ class MultipleChoiceResponse(
 
     fun isSelected(option: Option): Boolean = selectedOptionIds.contains(option.id)
 
-    override fun getSummaryText(): String = detailsText
-
     // TODO: Make these inner classes non-static and access Task directly.
     override fun getDetailsText(): String = selectedOptionIds.mapNotNull {
         multipleChoice?.getOptionById(

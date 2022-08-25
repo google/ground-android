@@ -26,8 +26,6 @@ data class NumberResponse constructor(private val number: String) : Response {
     val value: Double
         get() = number.toDouble()
 
-    override fun getSummaryText(): String = number
-
     override fun getDetailsText(): String = number
 
     override fun isEmpty(): Boolean = number.isEmpty()

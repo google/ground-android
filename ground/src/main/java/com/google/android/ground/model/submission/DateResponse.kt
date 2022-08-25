@@ -31,8 +31,6 @@ data class DateResponse(val date: @Contextual Date) : Response {
     private val dateFormat: @Contextual DateFormat =
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    override fun getSummaryText(): String = detailsText
-
     override fun getDetailsText(): String = synchronized(dateFormat) { dateFormat.format(date) }
 
     override fun isEmpty(): Boolean = date.time == 0L

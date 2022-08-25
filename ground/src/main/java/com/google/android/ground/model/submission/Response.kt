@@ -15,11 +15,9 @@
  */
 package com.google.android.ground.model.submission
 
-import java.io.Serializable
-
 /** A user-provided response to a single [Task].  */
-interface Response : Serializable {
-    val summaryText: String?
-    val detailsText: String?
-    val isEmpty: Boolean
+interface Response {
+    fun getSummaryText(): String = getDetailsText()
+    fun getDetailsText(): String
+    fun isEmpty(): Boolean
 }

@@ -21,8 +21,6 @@ import kotlinx.serialization.Serializable
 /** A user provided response to a text question task.  */
 @Serializable
 data class TextResponse(val text: String) : Response {
-    override fun getSummaryText(): String = text
-
     override fun getDetailsText(): String = text
 
     override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()

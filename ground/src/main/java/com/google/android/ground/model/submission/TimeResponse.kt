@@ -30,8 +30,6 @@ data class TimeResponse(val time: @Contextual Date) : Response {
     // TODO(#752): Use device localization preferences.
     private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    override fun getSummaryText(): String = detailsText
-
     override fun getDetailsText(): String =
         synchronized(timeFormat) { return timeFormat.format(time) }
 
