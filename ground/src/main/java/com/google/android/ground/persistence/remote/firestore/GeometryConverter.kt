@@ -16,15 +16,14 @@
 
 package com.google.android.ground.persistence.remote.firestore
 
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.io.geojson.GeoJsonReader
-import org.locationtech.jts.io.geojson.GeoJsonWriter
-import kotlin.Result.Companion.failure
-import kotlin.Result.Companion.success
+
+/**
+ * Alias for maps whose keys represent an index in an ordered data structure like a [List].
+ */
+typealias IndexedMap<T> = Map<Int, T>
 
 /**
  * Converts between Geometry model objects and their equivalent remote representation using a
@@ -39,107 +38,108 @@ import kotlin.Result.Companion.success
  * undefined.
  */
 object GeometryConverter {
-    /**
-     * Reify fromJson() to create type token from generics.
-     */
-    private inline fun <reified T> Gson.fromJson(json: String) =
-        fromJson<T>(json, object : TypeToken<T>() {}.type)
+    private const val TYPE_KEY = "type"
+    private const val COORDINATES_KEY = "coordinates"
+    private const val POINT_TYPE = "Point"
+    private const val POLYGON_TYPE = "Polygon"
+    private const val MULTI_POLYGON_TYPE = "MultiPolygon"
 
     /**
-     * Convert a `Geometry` to a `Map` which may be used to persist
-     * the provided geometry in Firestore.
+     * Returns the remote db representation of a `Geometry` object. Errors are always returned as a
+     * `Result`; exceptions are never thrown.
      */
-    fun toFirestoreMap(geometry: Geometry): Result<Map<String, Any>> {
-        return try {
-            val writer = GeoJsonWriter()
-            writer.setEncodeCRS(false)
-            val jsonString = writer.write(geometry)
-            val jsonMap = Gson().fromJson<MutableMap<String, Any>>(jsonString)
-            success(toFirestoreValue(jsonMap))
-        } catch (e: Throwable) {
-            failure(e)
-        }
-    }
+    fun toFirestoreMap(geometry: Geometry): Result<Map<String, Any>> =
+        Result.runCatching {
+            when (geometry) {
+                is Point ->
+                    geometryMapOf(POINT_TYPE, getPointCoordinates(geometry))
+                is Polygon ->
+                    geometryMapOf(POLYGON_TYPE, getPolygonCoordinates(geometry))
+                is MultiPolygon ->
+                    geometryMapOf(
+                        MULTI_POLYGON_TYPE,
+                        getMultiPolygonCoordinates(geometry)
 
-    private fun toFirestoreValue(value: Map<String, Any>): Map<String, Any> {
-        return value.mapValues {
-            toFirestoreValue(it.value)
-        }
-    }
-
-    private fun toFirestoreValue(value: Any): Any {
-        return when (value) {
-            is ArrayList<*> -> {
-                if (value.size == 2 && value.all { it is Double }) {
-                    GeoPoint(value[0] as Double, value[1] as Double)
-                } else {
-                    indexedMap(value)
-                }
-            }
-            is Map<*, *> -> {
-                toFirestoreValue(value)
-            }
-            else -> {
-                value
+                    )
+                else -> throw UnsupportedOperationException("Can't convert ${geometry.javaClass}")
             }
         }
-    }
 
-    private fun indexedMap(list: List<Any>): Map<Int, Any> =
-        list.mapIndexed { index, value -> index to toFirestoreValue(value) }.toMap()
+    private fun geometryMapOf(type: String, coordinates: Any): Map<String, Any> =
+        mapOf(
+            TYPE_KEY to type,
+            COORDINATES_KEY to coordinates
+        )
+
+    private fun getPointCoordinates(point: Point): GeoPoint = coordinateToGeoPoint(point.coordinate)
+
+    private fun getPolygonCoordinates(polygon: Polygon): IndexedMap<IndexedMap<GeoPoint>> =
+        listToIndexedMap((listOf(polygon.shell) + polygon.holes).map(::getLinearRingCoordinates))
+
+    private fun getLinearRingCoordinates(linearRing: LinearRing): IndexedMap<GeoPoint> =
+        listToIndexedMap(linearRing.coordinates.map(::coordinateToGeoPoint))
+
+    private fun getMultiPolygonCoordinates(multiPolygon: MultiPolygon): IndexedMap<IndexedMap<IndexedMap<GeoPoint>>> =
+        listToIndexedMap(multiPolygon.polygons.map(this::getPolygonCoordinates))
+
+    private fun coordinateToGeoPoint(coordinate: Coordinate): GeoPoint =
+        GeoPoint(coordinate.x, coordinate.y)
+
+    private fun <T> listToIndexedMap(list: List<T>): IndexedMap<T> =
+        list.mapIndexed { index, value -> index to value }.toMap()
 
     /**
      * Converts a `Map` deserialized from Firestore into a `Geometry` instance.
      */
-    fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> {
-        return try {
-            if (map == null) throw DataStoreException("Null geometry")
-            val jsonMap = fromFirestoreValue(map)
-            val jsonString = Gson().toJson(jsonMap)
-            val reader = GeoJsonReader()
-            val geometry = reader.read(jsonString)
-            if (geometry.coordinates.isEmpty()) {
-                throw DataStoreException("Empty coordinates in $geometry")
-            }
-            success(geometry)
-        } catch (e: Throwable) {
-            failure(e)
-        }
-    }
-
-    private fun fromFirestoreValue(value: Any?): Any {
-        if (value == null) {
-            throw DataStoreException("null value in geometry")
-        }
-        return when (value) {
-            is Map<*, *> -> {
-                fromFirestoreMapValue(value)
-            }
-            is GeoPoint -> {
-                arrayOf(value.latitude, value.longitude)
-            }
-            else -> {
-                value
-            }
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun fromFirestoreMapValue(map: Map<*, *>): Any {
-        // If all keys are non-null Ints, assume this refers to an indexed map.
-        // If heuristic breaks, we may also want to check keys are in order starting at 0.
-        return if (map.entries.all { it.key is Int }) {
-            indexedMapToList(map as Map<Int, *>).map(::fromFirestoreValue)
-        } else {
-            map.mapValues { fromFirestoreValue(it.value) }
-        }
-    }
+    fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> =
+        Result.runCatching { fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY)) }
 
     /**
-     * Converts map representation used to store nested arrays in Firestore into a List. Assumes
-     * keys are consecutive ints starting from 0.
+     * If data is missing or of an unexpected type, this method may fail with [ClassCastException]
+     * or [NullPointerException]. Callers are expected to handle these and propagate the invalid
+     * state upstream accordingly.
      */
-    private fun indexedMapToList(map: Map<Int, *>): List<*> {
-        return map.entries.sortedBy { it.key }.map { it.value }
+    @Suppress("UNCHECKED_CAST")
+    private fun fromFirestoreGeometry(type: Any?, coordinates: Any?) =
+        when (type) {
+            POINT_TYPE ->
+                geoPointToPoint(coordinates as GeoPoint)
+            POLYGON_TYPE ->
+                nestedIndexedMapToPolygon(coordinates as IndexedMap<IndexedMap<GeoPoint>>)
+            MULTI_POLYGON_TYPE ->
+                nestedIndexedMapToMultiPolygon(coordinates as IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>)
+            else -> throw DataStoreException("Invalid geometry type '$type'")
+        }
+
+    private fun geoPointToPoint(geoPoint: GeoPoint): Point =
+        Point(geoPointToCoordinate(geoPoint))
+
+    private fun geoPointToCoordinate(geoPoint: GeoPoint): Coordinate =
+        Coordinate(geoPoint.latitude, geoPoint.longitude)
+
+    private fun nestedIndexedMapToPolygon(ringsMap: IndexedMap<IndexedMap<GeoPoint>>): Polygon {
+        val rings = indexedMapToList(ringsMap)
+        return Polygon(
+            indexedMapToLinearRing(rings.first()),
+            rings.drop(1).map(this::indexedMapToLinearRing)
+        )
+    }
+
+    private fun indexedMapToLinearRing(coordinatesMap: IndexedMap<GeoPoint>): LinearRing =
+        LinearRing(indexedMapToList(coordinatesMap).map(this::geoPointToCoordinate))
+
+    private fun nestedIndexedMapToMultiPolygon(coordinatesMap: IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>): Geometry =
+        MultiPolygon(indexedMapToList(coordinatesMap).map(this::nestedIndexedMapToPolygon))
+
+    /**
+     * Converts map representation used to store nested arrays in Firestore into a List. Throws
+     * [IllegalArgumentException] if keys aren't consecutive Ints starting from 0
+     */
+    private fun <T> indexedMapToList(map: IndexedMap<T>): List<T> {
+        val sortedEntries = map.entries.sortedBy { it.key }
+        if (sortedEntries.withIndex().any { it.index != it.value.key }) {
+            throw IllegalArgumentException("Invalid map $map")
+        }
+        return sortedEntries.map { it.value }
     }
 }
