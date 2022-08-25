@@ -37,7 +37,6 @@ import com.google.android.ground.model.mutation.Mutation.Type;
 import com.google.android.ground.model.mutation.SubmissionMutation;
 import com.google.android.ground.model.submission.ResponseDelta;
 import com.google.android.ground.model.submission.ResponseMap;
-import com.google.android.ground.model.submission.ResponseMap.Builder;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Option;
@@ -489,15 +488,13 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private ResponseMap applyMutations(
       Job job, SubmissionEntity submission, List<SubmissionMutationEntity> mutations) {
-    Builder responseMap =
-        ResponseMapConverter.fromString(job, submission.getResponses()).toBuilder();
+    ResponseMap responseMap = ResponseMapConverter.fromString(job, submission.getResponses());
+    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     for (SubmissionMutationEntity mutation : mutations) {
       // Merge changes to responses.
-      ImmutableList<ResponseDelta> deltas =
-          ResponseDeltasConverter.fromString(job, mutation.getResponseDeltas());
-      responseMap.applyDeltas(deltas);
+      deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.getResponseDeltas()));
     }
-    return responseMap.build();
+    return responseMap.copyWithDeltas(deltas.build());
   }
 
   private Completable apply(LocationOfInterestMutation mutation) throws LocalDataStoreException {

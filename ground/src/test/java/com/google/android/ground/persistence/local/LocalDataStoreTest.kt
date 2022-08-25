@@ -544,7 +544,7 @@ class LocalDataStoreTest : BaseHiltTest() {
             assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
             assertThat(mutation.userId).isEqualTo(submission.created.user.id)
             MatcherAssert.assertThat(
-                ResponseMap.builder().applyDeltas(mutation.responseDeltas).build(),
+                ResponseMap().copyWithDeltas(mutation.responseDeltas),
                 Matchers.samePropertyValuesAs(submission.responses)
             )
         }
