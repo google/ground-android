@@ -35,7 +35,7 @@ public class TileSetDownloadWorkManager extends BaseWorkManager {
   }
 
   @Override
-  Class<TileSetDownloadWorker> getWorkerClass() {
+  protected Class<TileSetDownloadWorker> getWorkerClass() {
     return TileSetDownloadWorker.class;
   }
 

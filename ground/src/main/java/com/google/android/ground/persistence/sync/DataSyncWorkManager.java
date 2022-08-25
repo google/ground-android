@@ -33,7 +33,7 @@ public class DataSyncWorkManager extends BaseWorkManager {
   }
 
   @Override
-  Class<LocalMutationSyncWorker> getWorkerClass() {
+  protected Class<LocalMutationSyncWorker> getWorkerClass() {
     return LocalMutationSyncWorker.class;
   }
 
