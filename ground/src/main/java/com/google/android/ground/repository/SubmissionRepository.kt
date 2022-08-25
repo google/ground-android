@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -132,14 +131,14 @@ class SubmissionRepository @Inject constructor(
         return locationOfInterestRepository
             .getLocationOfInterest(surveyId, locationOfInterestId)
             .map { locationOfInterest: LocationOfInterest ->
-                Submission.newBuilder()
-                    .setId(uuidGenerator.generateUuid())
-                    .setSurvey(locationOfInterest.survey)
-                    .setLocationOfInterest(locationOfInterest)
-                    .setJob(locationOfInterest.job)
-                    .setCreated(auditInfo)
-                    .setLastModified(auditInfo)
-                    .build()
+                Submission(
+                    uuidGenerator.generateUuid(),
+                    locationOfInterest.surveyId,
+                    locationOfInterest,
+                    locationOfInterest.job,
+                    auditInfo,
+                    auditInfo
+                )
             }
     }
 
@@ -151,7 +150,7 @@ class SubmissionRepository @Inject constructor(
                 .setResponseDeltas(ImmutableList.of())
                 .setType(Mutation.Type.DELETE)
                 .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.survey.id)
+                .setSurveyId(submission.surveyId)
                 .setLocationOfInterestId(
                     submission.locationOfInterest.id
                 )
@@ -171,7 +170,7 @@ class SubmissionRepository @Inject constructor(
                 .setResponseDeltas(responseDeltas)
                 .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
                 .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.survey.id)
+                .setSurveyId(submission.surveyId)
                 .setLocationOfInterestId(submission.locationOfInterest.id)
                 .setClientTimestamp(Date())
                 .setUserId(authManager.currentUser.id)
@@ -190,13 +189,15 @@ class SubmissionRepository @Inject constructor(
      * new list is emitted on each subsequent change.
      */
     fun getIncompleteSubmissionMutationsOnceAndStream(
-        survey: Survey, locationOfInterestId: String
+        surveyId: String, locationOfInterestId: String
     ): Flowable<ImmutableList<SubmissionMutation>> =
-        localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-            survey,
-            locationOfInterestId,
-            MutationEntitySyncStatus.PENDING,
-            MutationEntitySyncStatus.IN_PROGRESS,
-            MutationEntitySyncStatus.FAILED
-        )
+        localDataStore.getSurveyById(surveyId).toFlowable().flatMap {
+            localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+                it,
+                locationOfInterestId,
+                MutationEntitySyncStatus.PENDING,
+                MutationEntitySyncStatus.IN_PROGRESS,
+                MutationEntitySyncStatus.FAILED
+            )
+        }
 }

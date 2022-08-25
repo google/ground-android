@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.geometry
 
-package com.google.android.ground.persistence.remote.firestore.schema
-
-import com.google.android.ground.model.TermsOfService
-import com.google.firebase.firestore.DocumentSnapshot
-
-/** Converts between Firestore documents and [TermsOfService] instances.  */
-object TermsOfServiceConverter {
-
-    fun toTerms(doc: DocumentSnapshot): TermsOfService {
-        val pd = doc.toObject(TermsOfServiceDocument::class.java)
-        return TermsOfService(doc.id, pd!!.text)
-    }
+/** A coordinate on a two-dimensional Cartesian plane. */
+data class Coordinate(val x: Double, val y: Double) : Comparable<Coordinate> {
+    override fun compareTo(other: Coordinate): Int =
+        compareValuesBy(this, other, { it.x }, { it.y })
 }

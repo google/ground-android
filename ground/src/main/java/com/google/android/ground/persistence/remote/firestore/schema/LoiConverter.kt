@@ -36,8 +36,6 @@ object LoiConverter {
     const val GEOMETRY = "geometry"
     private val geometryFactory = GeometryFactory()
 
-    @JvmStatic
-    @Throws(DataStoreException::class, NotImplementedError::class)
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiId = doc.id
         val loiDoc =
@@ -73,7 +71,7 @@ object LoiConverter {
         val lastModified = loiDoc.lastModified ?: created
         return LocationOfInterest(
             id = loiId,
-            survey = survey,
+            surveyId = survey.id,
             customId = loiDoc.customId,
             caption = loiDoc.caption,
             job = job,

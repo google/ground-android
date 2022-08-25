@@ -95,7 +95,7 @@ public class SubmissionListFragment extends AbstractFragment {
 
     navigator.navigate(
         HomeScreenFragmentDirections.showSubmissionDetails(
-            submission.getSurvey().getId(),
+            submission.getSurveyId(),
             submission.getLocationOfInterest().getId(),
             submission.getId()));
   }
