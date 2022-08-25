@@ -84,9 +84,9 @@ class SurveyRepository @Inject constructor(
     }
 
     private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
-        // Empty id indicates intent to deactivate the current survey. Used on sign out.
+        // Empty id indicates intent to deactivate the current survey or first login.
         return if (surveyId.isEmpty())
-            Flowable.just(Loadable.notLoaded())
+            Flowable.just(Loadable.notFound())
         else
             syncSurveyWithRemote(surveyId)
                 .onErrorResumeNext { getSurvey(surveyId) }
@@ -100,10 +100,7 @@ class SurveyRepository @Inject constructor(
         // TODO: Use Map once migration of dependencies to Kotlin is complete.
         val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
         for (job in survey.jobs) {
-            jobs.put(
-                job.id,
-                job
-            )
+            jobs.put(job.id, job)
         }
         return survey.copy(jobMap = jobs.build())
     }

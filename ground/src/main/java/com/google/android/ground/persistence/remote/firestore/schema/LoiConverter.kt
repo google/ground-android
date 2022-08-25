@@ -16,11 +16,11 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
-import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 
 // TODO: Add tests.
@@ -34,22 +34,16 @@ object LoiConverter {
     const val POLYGON_TYPE = "Polygon"
     const val GEOMETRY_COORDINATES = "coordinates"
     const val GEOMETRY = "geometry"
-    private val geometryFactory = GeometryFactory()
 
     fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
         val loiId = doc.id
         val loiDoc =
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
         val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
-        // TODO: Return `Result` instead of throwing exception.
-        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).map {
-            when (it.geometryType) {
-                "Point" -> geometryFactory.createPoint(it.coordinate)
-                "Polygon" -> geometryFactory.createPolygon(it.coordinates)
-                "MultiPolygon" -> TODO("Implement model for multipolygons")
-                else -> throw DataStoreException("Unsupported geometry: $it")
-            }
-        }.getOrThrow()
+        // TODO(#929): Return `Result` instead of throwing exception.
+        val geometry = DataStoreException.checkNotNull(
+            GeometryConverter.fromFirestoreMap(geometryMap).getOrNull(), "geometry"
+        )
 
         return createLocationOfInterest(survey, loiId, loiDoc, geometry)
     }
@@ -77,7 +71,8 @@ object LoiConverter {
             job = job,
             created = AuditInfoConverter.toAuditInfo(created),
             lastModified = AuditInfoConverter.toAuditInfo(lastModified),
-            geometry = geometry,
+            // TODO(#929): Set geometry once LOI has been updated to use our own model.
+            geometry = GeometryFactory().createPoint(),
         )
     }
 }

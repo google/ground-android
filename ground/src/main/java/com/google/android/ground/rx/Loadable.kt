@@ -30,7 +30,7 @@ import org.reactivestreams.Publisher
 class Loadable<T> private constructor(val state: LoadState, val result: Result<T?>) {
 
     enum class LoadState {
-        NOT_LOADED, LOADING, LOADED, NOT_FOUND, ERROR
+        LOADING, LOADED, NOT_FOUND, ERROR
     }
 
     // TODO: Remove these once all dependencies are migrated to Kotlin
@@ -43,7 +43,7 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
 
     companion object {
         @JvmStatic
-        fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, Result.success(null))
+        fun <T> notFound(): Loadable<T> = Loadable(LoadState.NOT_FOUND, Result.success(null))
 
         private fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, Result.success(null))
 
