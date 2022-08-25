@@ -19,6 +19,9 @@ import com.google.common.collect.ImmutableList
 
 /** A closed linear ring is a sequence of [Coordinate]s where the first and last coordinates are equal. */
 data class LinearRing(val coordinates: ImmutableList<Coordinate>) : Geometry {
+    /** Constructs a [LinearRing] using an immutable copy of the provided mutable list. */
+    constructor(coordinates: List<Coordinate>) : this(ImmutableList.copyOf(coordinates))
+
     /** Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring. */
     fun maximum(): Coordinate {
         val maximumX = this.coordinates.map { it.x }.maxOrNull()
