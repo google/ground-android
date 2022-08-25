@@ -41,7 +41,9 @@ object LoiConverter {
             DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
         val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
         // TODO(#929): Return `Result` instead of throwing exception.
-        val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
+        val geometry = DataStoreException.checkNotNull(
+            GeometryConverter.fromFirestoreMap(geometryMap).getOrNull(), "geometry"
+        )
 
         return createLocationOfInterest(survey, loiId, loiDoc, geometry)
     }
