@@ -15,13 +15,9 @@
  */
 package com.google.android.ground.model.submission
 
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.ResponseMap
-import com.google.android.ground.model.submission.Submission
-import com.google.auto.value.AutoValue
 
 /**
  * Represents a single instance of data collected about a specific [LocationOfInterest].
