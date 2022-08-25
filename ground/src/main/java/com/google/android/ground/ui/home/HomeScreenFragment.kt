@@ -172,7 +172,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
     }
 
     private fun addNewSubmission(locationOfInterest: LocationOfInterest, job: Job) {
-        val surveyId = locationOfInterest.survey.id
+        val surveyId = locationOfInterest.surveyId
         val locationOfInterestId = locationOfInterest.id
         val jobId = job.id
         navigator.navigate(
@@ -404,7 +404,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener,
             }
             LoadState.LOADING -> showSurveyLoadingDialog()
             LoadState.ERROR -> loadable.error().ifPresent { onActivateSurveyFailure(it!!) }
-            else -> throw IllegalArgumentException("Unhandled state ${loadable.state}")
         }
     }
 

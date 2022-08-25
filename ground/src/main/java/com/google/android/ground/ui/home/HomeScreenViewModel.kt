@@ -152,10 +152,9 @@ class HomeScreenViewModel @Inject internal constructor(
             Timber.e("Missing loi")
             return
         }
-        val survey = loi.survey
         navigator.navigate(
             HomeScreenFragmentDirections.addSubmission(
-                survey.id,
+                loi.surveyId,
                 loi.id,
                 loi.job.id
             )
