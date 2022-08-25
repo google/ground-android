@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.submission
 
-package com.google.android.ground.model.submission;
+import java.io.Serializable
 
-import com.google.android.ground.model.task.Task;
-import java.io.Serializable;
-import java8.util.Optional;
-
-/** A user-provided response to a single {@link Task}. */
-public interface Response extends Serializable {
-
-  String getSummaryText();
-
-  String getDetailsText();
-
-  static String toString(Optional<Response> response) {
-    return response.map(Response::toString).orElse("");
-  }
-
-  boolean isEmpty();
+/** A user-provided response to a single [Task].  */
+interface Response : Serializable {
+    val summaryText: String?
+    val detailsText: String?
+    val isEmpty: Boolean
 }
