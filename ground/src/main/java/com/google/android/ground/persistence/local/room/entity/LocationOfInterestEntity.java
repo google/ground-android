@@ -131,10 +131,12 @@ public abstract class LocationOfInterestEntity {
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(locationOfInterest.getCreated()))
             .setLastModified(AuditInfoEntity.fromObject(locationOfInterest.getLastModified()));
+    // TODO(#1246): Convert to exhaustive when in Kotlin
     if (locationOfInterest.getType() == LocationOfInterestType.POINT) {
       entity.setLocation(
           Coordinates.fromPoint(locationOfInterest.getGeometry().getVertices().get(0)));
     } else {
+      // TODO(#1247): Add support for storing holes in the DB.
       entity.setPolygonVertices(formatVertices(locationOfInterest.getGeometry().getVertices()));
     }
     return entity.build();

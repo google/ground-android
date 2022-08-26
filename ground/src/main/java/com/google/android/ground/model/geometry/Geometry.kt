@@ -19,5 +19,6 @@ import com.google.common.collect.ImmutableList
 
 /** A common ancestor for all geometry types. */
 sealed interface Geometry {
-    abstract val vertices: ImmutableList<Point>
+    // TODO(1246): Remove. Stick with concrete semantics; leave it to callers to discriminate subclasses.
+    val vertices: ImmutableList<Point>
 }
