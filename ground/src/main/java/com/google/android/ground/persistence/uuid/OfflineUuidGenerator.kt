@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.ground.persistence.uuid;
+package com.google.android.ground.persistence.uuid
 
 /**
  * Generator for unique identifier strings while offline. Implementations must assume the network
  * will be unavailable when invoked.
  */
-public interface OfflineUuidGenerator {
-
-  /**
-   * Returns an identifier that is universally unique for all practical intents and purposes.
-   * Implementations should ensure that the probability of collision is so small to be considered
-   * insignificant.
-   */
-  String generateUuid();
+interface OfflineUuidGenerator {
+    /**
+     * Returns an identifier that is universally unique for all practical intents and purposes.
+     * Implementations should ensure that the probability of collision is so small to be considered
+     * insignificant.
+     */
+    fun generateUuid(): String
 }

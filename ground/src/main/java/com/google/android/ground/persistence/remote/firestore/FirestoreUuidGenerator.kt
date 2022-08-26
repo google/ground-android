@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote.firestore
 
-package com.google.android.ground.persistence.remote.firestore;
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.firebase.firestore.FirebaseFirestore
+import javax.inject.Inject
 
-import static com.google.android.ground.persistence.remote.firestore.FirestoreDataStore.ID_COLLECTION;
+class FirestoreUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {
 
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import com.google.firebase.firestore.FirebaseFirestore;
-import javax.inject.Inject;
-
-public class FirestoreUuidGenerator implements OfflineUuidGenerator {
-
-  @Inject
-  FirestoreUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return FirebaseFirestore.getInstance().collection(ID_COLLECTION).document().getId();
-  }
+    // TODO: Check if this be replaced with the underlying implementation directly Util.autoId()
+    //  Also remove Fake implementation if the dependency on firebase init is removed.
+    override fun generateUuid(): String =
+        FirebaseFirestore.getInstance()
+            .collection(FirestoreDataStore.ID_COLLECTION)
+            .document().id
 }
