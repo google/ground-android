@@ -33,7 +33,6 @@ data class TransferProgress(
         fun inProgress(byteCount: Int, bytesTransferred: Int) =
             TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred)
 
-        @JvmStatic
         fun paused() = TransferProgress(UploadState.PAUSED)
 
         fun failed() = TransferProgress(UploadState.FAILED)

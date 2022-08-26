@@ -1,0 +1,222 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.ground.ui.home.mapcontainer
+
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.MapPin
+import com.google.android.ground.ui.map.MapPolygon
+import com.google.common.collect.ImmutableSet
+import com.google.common.truth.Truth.assertThat
+import com.jraska.livedata.TestObserver
+import com.sharedtest.FakeData
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Assert.assertThrows
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
+
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner::class)
+class PolygonDrawingViewModelTest : BaseHiltTest() {
+    @Inject
+    lateinit var viewModel: PolygonDrawingViewModel
+
+    private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
+    private lateinit var drawnMapLoiTestObserver: TestObserver<ImmutableSet<MapLocationOfInterest>>
+
+    override fun setUp() {
+        super.setUp()
+        polygonCompletedTestObserver = TestObserver.test(viewModel.isPolygonCompleted)
+        drawnMapLoiTestObserver = TestObserver.test(viewModel.unsavedMapLocationsOfInterest)
+
+        // Initialize polygon drawing
+        viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB)
+    }
+
+    @Test
+    fun testStateOnBegin() {
+        val stateTestObserver = viewModel.drawingState.test()
+
+        viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB)
+
+        stateTestObserver.assertValue(PolygonDrawingState::isInProgress)
+    }
+
+    @Test
+    fun testSelectCurrentVertex() {
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+
+        viewModel.selectCurrentVertex()
+
+        validateMapLoiDrawn(1, 1)
+    }
+
+    @Test
+    fun testSelectMultipleVertices() {
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(10.0, 10.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(20.0, 20.0))
+        viewModel.selectCurrentVertex()
+
+        validateMapLoiDrawn(1, 3)
+        validatePolygonCompleted(false)
+    }
+
+    @Test
+    fun testUpdateLastVertex_whenVertexCountLessThan3() {
+        viewModel.updateLastVertex(Point(0.0, 0.0), 100.0)
+        viewModel.updateLastVertex(Point(10.0, 10.0), 100.0)
+        viewModel.updateLastVertex(Point(20.0, 20.0), 100.0)
+
+        validateMapLoiDrawn(1, 1)
+        validatePolygonCompleted(false)
+    }
+
+    @Test
+    fun testUpdateLastVertex_whenVertexCountEqualTo3AndLastVertexIsNotNearFirstPoint() {
+        // Select 3 vertices
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(10.0, 10.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(20.0, 20.0))
+        viewModel.selectCurrentVertex()
+
+        // Move camera such that distance from last vertex is more than threshold
+        viewModel.updateLastVertex(Point(30.0, 30.0), 25.0)
+
+        validateMapLoiDrawn(1, 4)
+        validatePolygonCompleted(false)
+    }
+
+    @Test
+    fun testUpdateLastVertex_whenVertexCountEqualTo3AndLastVertexIsNearFirstPoint() {
+        // Select 3 vertices
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(10.0, 10.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(20.0, 20.0))
+        viewModel.selectCurrentVertex()
+
+        // Move camera such that distance from last vertex is equal to threshold
+        viewModel.updateLastVertex(Point(30.0, 30.0), 24.0)
+
+        // Only 3 pins should be drawn. First and last points are exactly same.
+        validateMapLoiDrawn(1, 3)
+        validatePolygonCompleted(true)
+    }
+
+    @Test
+    fun testRemoveLastVertex() {
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.removeLastVertex()
+
+        validateMapLoiDrawn(0, 0)
+        validatePolygonCompleted(false)
+    }
+
+    @Test
+    fun testRemoveLastVertex_whenNothingIsSelected() {
+        val testObserver = viewModel.drawingState.test()
+
+        viewModel.removeLastVertex()
+
+        testObserver.assertValue(PolygonDrawingState::isCanceled)
+    }
+
+    @Test
+    fun testRemoveLastVertex_whenPolygonIsComplete() {
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(10.0, 10.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(20.0, 20.0))
+        viewModel.selectCurrentVertex()
+        viewModel.updateLastVertex(Point(30.0, 30.0), 24.0)
+        viewModel.removeLastVertex()
+
+        validateMapLoiDrawn(1, 3)
+        validatePolygonCompleted(false)
+    }
+
+    @Test
+    fun testPolygonDrawingCompleted_whenPolygonIsIncomplete() {
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(10.0, 10.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(20.0, 20.0))
+
+        assertThrows(
+            "Polygon is not complete",
+            IllegalStateException::class.java
+        ) { viewModel.onCompletePolygonButtonClick() }
+    }
+
+    @Test
+    fun testPolygonDrawingCompleted() {
+        val stateTestObserver = viewModel.drawingState.test()
+
+        viewModel.onCameraMoved(Point(0.0, 0.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(10.0, 10.0))
+        viewModel.selectCurrentVertex()
+        viewModel.onCameraMoved(Point(20.0, 20.0))
+        viewModel.selectCurrentVertex()
+        viewModel.updateLastVertex(Point(30.0, 30.0), 24.0)
+
+        viewModel.onCompletePolygonButtonClick()
+
+        stateTestObserver.assertValue { polygonDrawingState: PolygonDrawingState ->
+            (polygonDrawingState.isCompleted
+                && polygonDrawingState.unsavedPolygonLocationOfInterest != null && (polygonDrawingState
+                .unsavedPolygonLocationOfInterest!!
+                .coordinatesAsPoints
+                .size == 4))
+        }
+    }
+
+    private fun validatePolygonCompleted(isVisible: Boolean) {
+        polygonCompletedTestObserver.assertValue(isVisible)
+    }
+
+    private fun validateMapLoiDrawn(expectedMapPolygonCount: Int, expectedMapPinCount: Int) {
+        drawnMapLoiTestObserver.assertValue { mapLois: ImmutableSet<MapLocationOfInterest> ->
+            var actualMapPolygonCount = 0
+            var actualMapPinCount = 0
+            for (mapLocationOfInterest in mapLois) {
+                if (mapLocationOfInterest is MapPolygon) {
+                    actualMapPolygonCount++
+                } else if (mapLocationOfInterest is MapPin) {
+                    actualMapPinCount++
+                }
+            }
+
+            // Check whether drawn LOIs contain expected number of polygons and pins.
+            assertThat(actualMapPinCount).isEqualTo(expectedMapPinCount)
+            assertThat(actualMapPolygonCount).isEqualTo(expectedMapPolygonCount)
+            true
+        }
+    }
+}
