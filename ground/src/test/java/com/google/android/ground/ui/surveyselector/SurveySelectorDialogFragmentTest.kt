@@ -21,15 +21,12 @@ import android.widget.ListView
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.MainActivity
 import com.google.android.ground.R
-import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.repository.SurveyRepository
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
-import com.sharedtest.FakeData.USER
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -39,7 +36,7 @@ import java8.util.Optional
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.robolectric.Robolectric
@@ -63,29 +60,10 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
 
     private lateinit var surveySelectorDialogFragment: SurveySelectorDialogFragment
 
-    private val survey1 = Survey(
-        "1",
-        "Survey title",
-        "Test survey description",
-        ImmutableMap.of(),
-        ImmutableList.of(),
-        ImmutableMap.of(USER.email, "data_collector")
-    )
-
-    private val survey2 = Survey(
-        "2",
-        "Survey title",
-        "Test survey description",
-        ImmutableMap.of(),
-        ImmutableList.of(),
-        ImmutableMap.of(USER.email, "data_collector")
-    )
-    private val surveys: List<Survey> = ImmutableList.of(survey1, survey2)
-
     @Before
     override fun setUp() {
         super.setUp()
-        fakeRemoteDataStore.setTestSurveys(surveys)
+        fakeRemoteDataStore.setTestSurveys(ImmutableList.of(TEST_SURVEY_1, TEST_SURVEY_2))
         setUpFragment()
     }
 
@@ -115,13 +93,19 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
     fun show_surveySelected_surveyIsActivated() {
         val listView = surveySelectorDialogFragment.dialog?.currentFocus as ListView?
 
-        Mockito.`when`(mockLocalDataStore.getSurveyById(ArgumentMatchers.eq(survey2.id)))
-            .thenReturn(Maybe.just(survey2))
+        // TODO: Replace mocks with inserting the survey in local db
+        Mockito.`when`(mockLocalDataStore.getSurveyById(eq(TEST_SURVEY_2.id)))
+            .thenReturn(Maybe.just(TEST_SURVEY_2))
         shadowOf(listView).performItemClick(1)
         shadowOf(Looper.getMainLooper()).idle()
 
         // Verify Dialog is dismissed
         assertThat(surveySelectorDialogFragment.dialog).isNull()
-        surveyRepository.activeSurvey.test().assertValue(Optional.of(survey2))
+        surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
+    }
+
+    companion object {
+        private val TEST_SURVEY_1 = FakeData.SURVEY.copy(id = "some id 1")
+        private val TEST_SURVEY_2 = FakeData.SURVEY.copy(id = "some id 2")
     }
 }
