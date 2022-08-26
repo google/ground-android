@@ -59,10 +59,10 @@ internal object SubmissionConverter {
     private fun toResponseMap(
         submissionId: String, job: Job, docResponses: Map<String, Any>?
     ): ResponseMap {
-        val responses = ImmutableMap.builder<String, Response>()
         if (docResponses == null) {
             return ResponseMap()
         }
+        val responses = ImmutableMap.builder<String, Response>()
         for ((taskId, value) in docResponses) {
             try {
                 putResponse(taskId, job, value, responses)
