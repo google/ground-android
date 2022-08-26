@@ -106,9 +106,7 @@ class LocalDataStoreTest : BaseHiltTest() {
             ImmutableMap.builder<String, Job>().put(job2.id, job2).build()
         )
         localDataStore.insertOrUpdateSurvey(survey).blockingAwait()
-        localDataStore
-            .getSurveyById("foo id")
-            .test()
+        localDataStore.getSurveyById("foo id").test()
             .assertValue { result: Survey -> result.jobs == ImmutableList.of(job2) }
     }
 
@@ -125,13 +123,9 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
 
         // assert that mutation is saved to local database
-        localDataStore
-            .getPendingMutations("loi id")
-            .test()
+        localDataStore.getPendingMutations("loi id").test()
             .assertValue(ImmutableList.of(TEST_LOI_MUTATION))
-        localDataStore
-            .getLocationOfInterest(TEST_SURVEY, "loi id")
-            .test()
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test()
             .assertValue { loi: LocationOfInterest -> loi.coordinatesAsPoint == TEST_POINT }
     }
 
@@ -142,13 +136,9 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).test().assertComplete()
 
         // assert that mutation is saved to local database
-        localDataStore
-            .getPendingMutations("loi id")
-            .test()
+        localDataStore.getPendingMutations("loi id").test()
             .assertValue(ImmutableList.of(TEST_POLYGON_LOI_MUTATION))
-        localDataStore
-            .getLocationOfInterest(TEST_SURVEY, "loi id")
-            .test()
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test()
             .assertValue { loi: LocationOfInterest -> loi.coordinatesAsPoints == TEST_POLYGON_1 }
     }
 
@@ -170,9 +160,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
         val mutation = createTestLocationOfInterestMutation(TEST_POINT_2)
         localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete()
-        localDataStore
-            .getPendingMutations(TEST_LOI_MUTATION.locationOfInterestId)
-            .test()
+        localDataStore.getPendingMutations(TEST_LOI_MUTATION.locationOfInterestId).test()
             .assertValue(ImmutableList.of(mutation))
     }
 
@@ -183,9 +171,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
         val mutation = createTestAreaOfInterestMutation(TEST_POLYGON_2)
         localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete()
-        localDataStore
-            .getPendingMutations(TEST_POLYGON_LOI_MUTATION.locationOfInterestId)
-            .test()
+        localDataStore.getPendingMutations(TEST_POLYGON_LOI_MUTATION.locationOfInterestId).test()
             .assertValue(ImmutableList.of(mutation))
     }
 
@@ -194,9 +180,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
         localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-        localDataStore
-            .finalizePendingMutations(ImmutableList.of(TEST_LOI_MUTATION))
-            .test()
+        localDataStore.finalizePendingMutations(ImmutableList.of(TEST_LOI_MUTATION)).test()
             .assertComplete()
         localDataStore.getPendingMutations("loi id").test()
             .assertValue { obj: ImmutableList<Mutation?> -> obj.isEmpty() }
@@ -210,9 +194,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
         val newLoi = loi.copy(geometry = TEST_POINT_2.toGeometry())
         localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
-        localDataStore
-            .getLocationOfInterest(TEST_SURVEY, "loi id")
-            .test()
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test()
             .assertValue { it.coordinatesAsPoint == TEST_POINT_2 }
     }
 
@@ -224,9 +206,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
         val newLoi = loi.copy(geometry = TEST_POLYGON_2.toPolygon())
         localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
-        localDataStore
-            .getLocationOfInterest(TEST_SURVEY, "loi id")
-            .test()
+        localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test()
             .assertValue { it.coordinatesAsPoints == TEST_POLYGON_2 }
     }
 
@@ -236,9 +216,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
-        localDataStore
-            .getPendingMutations("loi id")
-            .test()
+        localDataStore.getPendingMutations("loi id").test()
             .assertValue(ImmutableList.of(TEST_LOI_MUTATION, TEST_SUBMISSION_MUTATION))
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
         var submission = localDataStore.getSubmission(loi, "submission id").blockingGet()
@@ -247,20 +225,13 @@ class LocalDataStoreTest : BaseHiltTest() {
         // now update the inserted submission with new responses
         val deltas = ImmutableList.of(
             ResponseDelta(
-                "task id",
-                Task.Type.TEXT,
-                TextResponse.fromString("value for the really new task")
+                "task id", Task.Type.TEXT, TextResponse.fromString("value for the really new task")
             )
         )
-        val mutation = TEST_SUBMISSION_MUTATION.toBuilder()
-            .setResponseDeltas(deltas)
-            .setId(2L)
-            .setType(Mutation.Type.UPDATE)
-            .build()
+        val mutation = TEST_SUBMISSION_MUTATION.toBuilder().setResponseDeltas(deltas).setId(2L)
+            .setType(Mutation.Type.UPDATE).build()
         localDataStore.applyAndEnqueue(mutation).test().assertComplete()
-        localDataStore
-            .getPendingMutations("loi id")
-            .test()
+        localDataStore.getPendingMutations("loi id").test()
             .assertValue(ImmutableList.of(TEST_LOI_MUTATION, TEST_SUBMISSION_MUTATION, mutation))
 
         // check if the submission was updated in the local database
@@ -280,18 +251,14 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
         localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
         val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-        val responseMap = ResponseMap.builder()
-            .putResponse("task id", TextResponse.fromString("foo value").get())
-            .build()
-        val submission =
-            localDataStore.getSubmission(loi, "submission id")
-                .blockingGet()
-                .copy(responses = responseMap)
+        val responseMap =
+            ResponseMap(ImmutableMap.of("task id", TextResponse.fromString("foo value").get()))
+        val submission = localDataStore.getSubmission(loi, "submission id").blockingGet()
+            .copy(responses = responseMap)
         localDataStore.mergeSubmission(submission).test().assertComplete()
         val responses =
             localDataStore.getSubmission(loi, submission.id).test().values()[0].responses
-        assertThat(responses.getResponse("task id"))
-            .isEqualTo(TextResponse.fromString("updated response"))
+        assertThat(responses.getResponse("task id")).isEqualTo(TextResponse.fromString("updated response"))
     }
 
     @Test
@@ -308,9 +275,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(mutation).blockingAwait()
 
         // Verify that local entity exists and its state is updated.
-        submissionDao
-            .findById("submission id")
-            .test()
+        submissionDao.findById("submission id").test()
             .assertValue { submissionEntity: SubmissionEntity -> submissionEntity.state == EntityState.DELETED }
 
         // Verify that the local submission doesn't end up in getSubmissions().
@@ -342,9 +307,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.applyAndEnqueue(mutation).blockingAwait()
 
         // Verify that local entity exists but its state is updated to DELETED.
-        locationOfInterestDao
-            .findById("loi id")
-            .test()
+        locationOfInterestDao.findById("loi id").test()
             .assertValue { entity: LocationOfInterestEntity -> entity.state == EntityState.DELETED }
 
         // Verify that the local LOI is now removed from the latest LOI stream.
@@ -368,10 +331,7 @@ class LocalDataStoreTest : BaseHiltTest() {
     @Test
     fun testGetTile() {
         localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-        localDataStore
-            .getTileSet("some_url 1")
-            .test()
-            .assertValueCount(1)
+        localDataStore.getTileSet("some_url 1").test().assertValueCount(1)
             .assertValue(TEST_PENDING_TILE_SOURCE)
     }
 
@@ -395,9 +355,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
         localDataStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
         localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-        localDataStore
-            .pendingTileSets
-            .test()
+        localDataStore.pendingTileSets.test()
             .assertValue(ImmutableList.of(TEST_PENDING_TILE_SOURCE))
     }
 
@@ -409,16 +367,13 @@ class LocalDataStoreTest : BaseHiltTest() {
     @Test
     fun testGetOfflineAreas() {
         localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
-        localDataStore
-            .offlineAreasOnceAndStream
-            .test()
+        localDataStore.offlineAreasOnceAndStream.test()
             .assertValue(ImmutableList.of(TEST_OFFLINE_AREA))
     }
 
     @Test
     fun testParseVertices_emptyString() {
-        assertThat(LocationOfInterestEntity.parseVertices(""))
-            .isEqualTo(ImmutableList.of<Any>())
+        assertThat(LocationOfInterestEntity.parseVertices("")).isEqualTo(ImmutableList.of<Any>())
     }
 
     @Test
@@ -453,44 +408,27 @@ class LocalDataStoreTest : BaseHiltTest() {
         )
         private val TEST_POINT = Point(110.0, -23.1)
         private val TEST_POINT_2 = Point(51.0, 44.0)
-        private val TEST_POLYGON_1 = ImmutableList.builder<Point>()
-            .add(Point(49.874502, 8.655993))
-            .add(Point(49.874099, 8.651173))
-            .add(Point(49.872919, 8.651628))
-            .add(Point(49.873164, 8.653515))
-            .add(Point(49.874343, 8.653038))
-            .add(Point(49.874502, 8.655993))
-            .build()
-        private val TEST_POLYGON_2 = ImmutableList.builder<Point>()
-            .add(Point(49.865374, 8.646920))
-            .add(Point(49.864241, 8.647286))
-            .add(Point(49.864664, 8.650387))
-            .add(Point(49.863102, 8.650445))
-            .add(Point(49.863051, 8.647306))
-            .add(Point(49.865374, 8.646920))
-            .build()
+        private val TEST_POLYGON_1 = ImmutableList.builder<Point>().add(Point(49.874502, 8.655993))
+            .add(Point(49.874099, 8.651173)).add(Point(49.872919, 8.651628))
+            .add(Point(49.873164, 8.653515)).add(Point(49.874343, 8.653038))
+            .add(Point(49.874502, 8.655993)).build()
+        private val TEST_POLYGON_2 = ImmutableList.builder<Point>().add(Point(49.865374, 8.646920))
+            .add(Point(49.864241, 8.647286)).add(Point(49.864664, 8.650387))
+            .add(Point(49.863102, 8.650445)).add(Point(49.863051, 8.647306))
+            .add(Point(49.865374, 8.646920)).build()
         private val TEST_LOI_MUTATION = createTestLocationOfInterestMutation(TEST_POINT)
         private val TEST_POLYGON_LOI_MUTATION = createTestAreaOfInterestMutation(TEST_POLYGON_1)
-        private val TEST_SUBMISSION_MUTATION = SubmissionMutation.builder()
-            .setJob(TEST_JOB)
-            .setSubmissionId("submission id")
-            .setResponseDeltas(
-                ImmutableList.of(
-                    ResponseDelta(
-                        "task id",
-                        Task.Type.TEXT,
-                        TextResponse.fromString("updated response")
+        private val TEST_SUBMISSION_MUTATION =
+            SubmissionMutation.builder().setJob(TEST_JOB).setSubmissionId("submission id")
+                .setResponseDeltas(
+                    ImmutableList.of(
+                        ResponseDelta(
+                            "task id", Task.Type.TEXT, TextResponse.fromString("updated response")
+                        )
                     )
-                )
-            )
-            .setId(1L)
-            .setType(Mutation.Type.CREATE)
-            .setSyncStatus(SyncStatus.PENDING)
-            .setSurveyId("survey id")
-            .setLocationOfInterestId("loi id")
-            .setUserId("user id")
-            .setClientTimestamp(Date())
-            .build()
+                ).setId(1L).setType(Mutation.Type.CREATE).setSyncStatus(SyncStatus.PENDING)
+                .setSurveyId("survey id").setLocationOfInterestId("loi id").setUserId("user id")
+                .setClientTimestamp(Date()).build()
         private val TEST_PENDING_TILE_SOURCE =
             TileSet("some_url 1", "id_1", "some_path 1", TileSet.State.PENDING, 1)
         private val TEST_DOWNLOADED_TILE_SOURCE =
@@ -505,35 +443,21 @@ class LocalDataStoreTest : BaseHiltTest() {
         )
 
         private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation {
-            return LocationOfInterestMutation.builder()
-                .setJobId("job id")
-                .setLocation(Optional.ofNullable(point))
-                .setPolygonVertices(ImmutableList.of())
-                .setId(1L)
-                .setLocationOfInterestId("loi id")
-                .setType(Mutation.Type.CREATE)
-                .setSyncStatus(SyncStatus.PENDING)
-                .setUserId("user id")
-                .setSurveyId("survey id")
-                .setClientTimestamp(Date())
-                .build()
+            return LocationOfInterestMutation.builder().setJobId("job id")
+                .setLocation(Optional.ofNullable(point)).setPolygonVertices(ImmutableList.of())
+                .setId(1L).setLocationOfInterestId("loi id").setType(Mutation.Type.CREATE)
+                .setSyncStatus(SyncStatus.PENDING).setUserId("user id").setSurveyId("survey id")
+                .setClientTimestamp(Date()).build()
         }
 
         private fun createTestAreaOfInterestMutation(
             polygonVertices: ImmutableList<Point>
         ): LocationOfInterestMutation {
-            return LocationOfInterestMutation.builder()
-                .setJobId("job id")
-                .setLocation(Optional.empty())
-                .setPolygonVertices(polygonVertices)
-                .setId(1L)
-                .setLocationOfInterestId("loi id")
-                .setType(Mutation.Type.CREATE)
-                .setSyncStatus(SyncStatus.PENDING)
-                .setUserId("user id")
-                .setSurveyId("survey id")
-                .setClientTimestamp(Date())
-                .build()
+            return LocationOfInterestMutation.builder().setJobId("job id")
+                .setLocation(Optional.empty()).setPolygonVertices(polygonVertices).setId(1L)
+                .setLocationOfInterestId("loi id").setType(Mutation.Type.CREATE)
+                .setSyncStatus(SyncStatus.PENDING).setUserId("user id").setSurveyId("survey id")
+                .setClientTimestamp(Date()).build()
         }
 
         private fun assertEquivalent(mutation: SubmissionMutation, submission: Submission) {
@@ -544,7 +468,7 @@ class LocalDataStoreTest : BaseHiltTest() {
             assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
             assertThat(mutation.userId).isEqualTo(submission.created.user.id)
             MatcherAssert.assertThat(
-                ResponseMap.builder().applyDeltas(mutation.responseDeltas).build(),
+                ResponseMap().copyWithDeltas(mutation.responseDeltas),
                 Matchers.samePropertyValuesAs(submission.responses)
             )
         }
