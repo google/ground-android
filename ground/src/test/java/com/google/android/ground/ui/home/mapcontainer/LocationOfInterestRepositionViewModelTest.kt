@@ -13,61 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.mapcontainer
 
-package com.google.android.ground.ui.home.mapcontainer;
-
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.locationofinterest.Point;
-import com.google.android.ground.rx.Nil;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import io.reactivex.observers.TestObserver;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.locationofinterest.Point.Companion.zero
+import com.google.android.ground.rx.Nil
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class LocationOfInterestRepositionViewModelTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class LocationOfInterestRepositionViewModelTest : BaseHiltTest() {
+    @Inject
+    lateinit var viewModel: LocationOfInterestRepositionViewModel
 
-  private static final Point TEST_POINT =
-      Point.zero();
+    @Test
+    fun testConfirmButtonClicks_notReplayed() {
+        viewModel.onCameraMoved(TEST_POINT)
 
-  @Inject
-  LocationOfInterestRepositionViewModel viewModel;
+        viewModel.onConfirmButtonClick()
 
-  @Test
-  public void testConfirmButtonClicks_notReplayed() {
-    viewModel.onCameraMoved(TEST_POINT);
+        viewModel.confirmButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
+    }
 
-    viewModel.onConfirmButtonClick();
+    @Test
+    fun testConfirmButtonClicks() {
+        viewModel.onCameraMoved(TEST_POINT)
+        val testObserver = viewModel.confirmButtonClicks.test()
 
-    viewModel.getConfirmButtonClicks().test().assertNoValues().assertNoErrors().assertNotComplete();
-  }
+        viewModel.onConfirmButtonClick()
 
-  @Test
-  public void testConfirmButtonClicks() {
-    viewModel.onCameraMoved(TEST_POINT);
-    TestObserver<Point> testObserver = viewModel.getConfirmButtonClicks().test();
+        testObserver.assertValue(TEST_POINT).assertNoErrors().assertNotComplete()
+    }
 
-    viewModel.onConfirmButtonClick();
+    @Test
+    fun testCancelButtonClicks_notReplayed() {
+        viewModel.onCancelButtonClick()
 
-    testObserver.assertValue(TEST_POINT).assertNoErrors().assertNotComplete();
-  }
+        viewModel.cancelButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
+    }
 
-  @Test
-  public void testCancelButtonClicks_notReplayed() {
-    viewModel.onCancelButtonClick();
+    @Test
+    fun testCancelButtonClicks() {
+        val testObserver = viewModel.cancelButtonClicks.test()
 
-    viewModel.getCancelButtonClicks().test().assertNoValues().assertNoErrors().assertNotComplete();
-  }
+        viewModel.onCancelButtonClick()
 
-  @Test
-  public void testCancelButtonClicks() {
-    TestObserver<Nil> testObserver = viewModel.getCancelButtonClicks().test();
+        testObserver.assertValue(Nil.NIL).assertNoErrors().assertNotComplete()
+    }
 
-    viewModel.onCancelButtonClick();
-
-    testObserver.assertValue(Nil.NIL).assertNoErrors().assertNotComplete();
-  }
+    companion object {
+        private val TEST_POINT = zero()
+    }
 }
