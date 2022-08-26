@@ -18,8 +18,8 @@ package com.google.android.ground.persistence.remote.firestore
 import android.net.Uri
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.persistence.remote.TransferProgress
-import com.google.android.ground.persistence.remote.TransferProgress.inProgress
-import com.google.android.ground.persistence.remote.TransferProgress.paused
+import com.google.android.ground.persistence.remote.TransferProgress.Companion.inProgress
+import com.google.android.ground.persistence.remote.TransferProgress.Companion.paused
 import com.google.android.ground.rx.RxTask
 import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.storage.StorageReference
