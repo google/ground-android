@@ -13,67 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote
 
-package com.google.android.ground.persistence.remote;
+class TransferProgress private constructor(
+    val state: UploadState,
+    val byteCount: Int = 0,
+    val bytesTransferred: Int = 0
+) {
 
-public class TransferProgress {
+    enum class UploadState {
+        STARTING, IN_PROGRESS, PAUSED, FAILED, COMPLETED
+    }
 
-  private static final TransferProgress STARTING = new TransferProgress(UploadState.STARTING);
-  private static final TransferProgress PAUSED = new TransferProgress(UploadState.PAUSED);
-  private static final TransferProgress FAILED = new TransferProgress(UploadState.FAILED);
-  private static final TransferProgress COMPLETED = new TransferProgress(UploadState.COMPLETED);
+    companion object {
+        private val STARTING = TransferProgress(UploadState.STARTING)
+        private val PAUSED = TransferProgress(UploadState.PAUSED)
+        private val FAILED = TransferProgress(UploadState.FAILED)
+        private val COMPLETED = TransferProgress(UploadState.COMPLETED)
 
-  private final UploadState state;
-  private final int byteCount;
-  private final int bytesTransferred;
+        fun starting(): TransferProgress {
+            return STARTING
+        }
 
-  private TransferProgress(UploadState state) {
-    this(state, 0, 0);
-  }
+        @JvmStatic
+        fun inProgress(byteCount: Int, bytesTransferred: Int): TransferProgress {
+            return TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred)
+        }
 
-  private TransferProgress(UploadState state, int byteCount, int bytesTransferred) {
-    this.state = state;
-    this.byteCount = byteCount;
-    this.bytesTransferred = bytesTransferred;
-  }
+        @JvmStatic
+        fun paused(): TransferProgress {
+            return PAUSED
+        }
 
-  public static TransferProgress starting() {
-    return STARTING;
-  }
+        fun failed(): TransferProgress {
+            return FAILED
+        }
 
-  public static TransferProgress inProgress(int byteCount, int bytesTransferred) {
-    return new TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred);
-  }
-
-  public static TransferProgress paused() {
-    return PAUSED;
-  }
-
-  public static TransferProgress failed() {
-    return FAILED;
-  }
-
-  public static TransferProgress completed() {
-    return COMPLETED;
-  }
-
-  public int getBytesTransferred() {
-    return bytesTransferred;
-  }
-
-  public int getByteCount() {
-    return byteCount;
-  }
-
-  public UploadState getState() {
-    return state;
-  }
-
-  public enum UploadState {
-    STARTING,
-    IN_PROGRESS,
-    PAUSED,
-    FAILED,
-    COMPLETED
-  }
+        fun completed(): TransferProgress {
+            return COMPLETED
+        }
+    }
 }
