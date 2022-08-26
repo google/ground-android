@@ -48,26 +48,15 @@ data class ResponseMap constructor(private val responses: Map<String, Response?>
      * Adds, replaces, and/or removes responses based on the provided list of deltas.
      */
     fun copyWithDeltas(responseDeltas: ImmutableList<ResponseDelta>): ResponseMap {
-        responseDeltas.forEach {
-            applyDelta(
-                it
-            )
-        }
-
-        return this
-    }
-
-    /**
-     * Adds, replaces, or removes a responses based on the provided delta.
-     */
-    private fun applyDelta(responseDelta: ResponseDelta): ResponseMap {
         val newResponses = responses.toMutableMap()
-
-        if (responseDelta.newResponse.isPresent) {
-            newResponses[responseDelta.taskId] = responseDelta.newResponse.get()
-        } else {
-            newResponses.remove(responseDelta.taskId)
+        responseDeltas.forEach {
+            if (it.newResponse.isPresent) {
+                newResponses[it.taskId] = it.newResponse.get()
+            } else {
+                newResponses.remove(it.taskId)
+            }
         }
-        return this
+
+        return ResponseMap(newResponses)
     }
 }
