@@ -22,6 +22,7 @@ import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.common.collect.ImmutableMap
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java8.util.Objects
@@ -58,9 +59,9 @@ internal object SubmissionConverter {
     private fun toResponseMap(
         submissionId: String, job: Job, docResponses: Map<String, Any>?
     ): ResponseMap {
-        val responses = ResponseMap.builder()
+        val responses = ImmutableMap.builder<String, Response>()
         if (docResponses == null) {
-            return responses.build()
+            return ResponseMap()
         }
         for ((taskId, value) in docResponses) {
             try {
@@ -69,20 +70,17 @@ internal object SubmissionConverter {
                 Timber.e(e, "Task $taskId in remote db in submission $submissionId")
             }
         }
-        return responses.build()
+        return ResponseMap(responses.build())
     }
 
     private fun putResponse(
-        taskId: String, job: Job, obj: Any, responses: ResponseMap.Builder
+        taskId: String, job: Job, obj: Any, responses: ImmutableMap.Builder<String, Response>
     ) {
         val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
         when (task.type) {
             Task.Type.PHOTO, Task.Type.TEXT -> putTextResponse(taskId, obj, responses)
             Task.Type.MULTIPLE_CHOICE -> putMultipleChoiceResponse(
-                taskId,
-                task.multipleChoice,
-                obj,
-                responses
+                taskId, task.multipleChoice, obj, responses
             )
             Task.Type.NUMBER -> putNumberResponse(taskId, obj, responses)
             Task.Type.DATE -> putDateResponse(taskId, obj, responses)
@@ -91,36 +89,53 @@ internal object SubmissionConverter {
         }
     }
 
-    private fun putNumberResponse(taskId: String, obj: Any, responses: ResponseMap.Builder) {
+    private fun putNumberResponse(
+        taskId: String,
+        obj: Any,
+        responses: ImmutableMap.Builder<String, Response>
+    ) {
         val value = DataStoreException.checkType(Double::class.java, obj) as Double
         NumberResponse.fromNumber(value.toString())
-            .ifPresent { r: Response -> responses.putResponse(taskId, r) }
+            .ifPresent { r: Response -> responses.put(taskId, r) }
     }
 
-    private fun putTextResponse(taskId: String, obj: Any, responses: ResponseMap.Builder) {
+    private fun putTextResponse(
+        taskId: String,
+        obj: Any,
+        responses: ImmutableMap.Builder<String, Response>
+    ) {
         val value = DataStoreException.checkType(String::class.java, obj) as String
         TextResponse.fromString(value.trim { it <= ' ' })
-            .ifPresent { r: Response -> responses.putResponse(taskId, r) }
+            .ifPresent { r: Response -> responses.put(taskId, r) }
     }
 
-    private fun putDateResponse(taskId: String, obj: Any, responses: ResponseMap.Builder) {
+    private fun putDateResponse(
+        taskId: String,
+        obj: Any,
+        responses: ImmutableMap.Builder<String, Response>
+    ) {
         val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-        DateResponse.fromDate(value.toDate())
-            .ifPresent { r: Response -> responses.putResponse(taskId, r) }
+        DateResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
     }
 
-    private fun putTimeResponse(taskId: String, obj: Any, responses: ResponseMap.Builder) {
+    private fun putTimeResponse(
+        taskId: String,
+        obj: Any,
+        responses: ImmutableMap.Builder<String, Response>
+    ) {
         val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-        TimeResponse.fromDate(value.toDate())
-            .ifPresent { r: Response -> responses.putResponse(taskId, r) }
+        TimeResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
     }
 
     private fun putMultipleChoiceResponse(
-        taskId: String, multipleChoice: MultipleChoice?, obj: Any, responses: ResponseMap.Builder
+        taskId: String,
+        multipleChoice: MultipleChoice?,
+        obj: Any,
+        responses: ImmutableMap.Builder<String, Response>
     ) {
         val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
         values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
         MultipleChoiceResponse.fromList(multipleChoice, values as List<String>)
-            .ifPresent { responses.putResponse(taskId, it) }
+            .ifPresent { responses.put(taskId, it) }
     }
 }
