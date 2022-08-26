@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.remote
 
-class TransferProgress private constructor(
+data class TransferProgress constructor(
     val state: UploadState,
     val byteCount: Int = 0,
     val bytesTransferred: Int = 0
@@ -26,31 +26,18 @@ class TransferProgress private constructor(
     }
 
     companion object {
-        private val STARTING = TransferProgress(UploadState.STARTING)
-        private val PAUSED = TransferProgress(UploadState.PAUSED)
-        private val FAILED = TransferProgress(UploadState.FAILED)
-        private val COMPLETED = TransferProgress(UploadState.COMPLETED)
 
-        fun starting(): TransferProgress {
-            return STARTING
-        }
+        fun starting() = TransferProgress(UploadState.STARTING)
 
         @JvmStatic
-        fun inProgress(byteCount: Int, bytesTransferred: Int): TransferProgress {
-            return TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred)
-        }
+        fun inProgress(byteCount: Int, bytesTransferred: Int) =
+            TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred)
 
         @JvmStatic
-        fun paused(): TransferProgress {
-            return PAUSED
-        }
+        fun paused() = TransferProgress(UploadState.PAUSED)
 
-        fun failed(): TransferProgress {
-            return FAILED
-        }
+        fun failed() = TransferProgress(UploadState.FAILED)
 
-        fun completed(): TransferProgress {
-            return COMPLETED
-        }
+        fun completed() = TransferProgress(UploadState.COMPLETED)
     }
 }
