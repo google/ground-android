@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest.persistence.uuid
 
-package com.sharedtest.persistence.uuid;
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import javax.inject.Inject
 
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import javax.inject.Inject;
-
-public class FakeUuidGenerator implements OfflineUuidGenerator {
-
-  @Inject
-  FakeUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return "TEST UUID";
-  }
+class FakeUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {
+    override fun generateUuid(): String = "TEST UUID"
 }

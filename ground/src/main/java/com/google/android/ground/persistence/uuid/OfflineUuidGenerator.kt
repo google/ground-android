@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.uuid
 
-package com.google.android.ground.persistence.remote.firestore;
-
-import static com.google.android.ground.persistence.remote.firestore.FirestoreDataStore.ID_COLLECTION;
-
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import com.google.firebase.firestore.FirebaseFirestore;
-import javax.inject.Inject;
-
-public class FirestoreUuidGenerator implements OfflineUuidGenerator {
-
-  @Inject
-  FirestoreUuidGenerator() {}
-
-  @Override
-  public String generateUuid() {
-    return FirebaseFirestore.getInstance().collection(ID_COLLECTION).document().getId();
-  }
+/**
+ * Generator for unique identifier strings while offline. Implementations must assume the network
+ * will be unavailable when invoked.
+ */
+interface OfflineUuidGenerator {
+    /**
+     * Returns an identifier that is universally unique for all practical intents and purposes.
+     * Implementations should ensure that the probability of collision is so small to be considered
+     * insignificant.
+     */
+    fun generateUuid(): String
 }
