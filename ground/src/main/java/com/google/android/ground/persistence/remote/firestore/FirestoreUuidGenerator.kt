@@ -19,7 +19,7 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 
-class FirestoreUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {
+class FirestoreUuidGenerator @Inject constructor() : OfflineUuidGenerator {
 
     // TODO: Check if this be replaced with the underlying implementation directly Util.autoId()
     //  Also remove Fake implementation if the dependency on firebase init is removed.
