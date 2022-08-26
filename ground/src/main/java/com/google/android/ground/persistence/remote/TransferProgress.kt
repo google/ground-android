@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.remote
 
-data class TransferProgress constructor(
+data class TransferProgress(
     val state: UploadState,
     val byteCount: Int = 0,
     val bytesTransferred: Int = 0
