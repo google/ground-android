@@ -13,47 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
-
-import static com.google.common.truth.Truth.assertThat;
-import static com.sharedtest.TestObservers.observeUntilFirstChange;
-
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.submission.DateResponse;
-import com.google.android.ground.rx.Nil;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import io.reactivex.observers.TestObserver;
-import java.util.Date;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.submission.DateResponse.Companion.fromDate
+import com.google.android.ground.rx.Nil
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.TestObservers.observeUntilFirstChange
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import java.util.*
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class DateTaskViewModelTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class DateTaskViewModelTest : BaseHiltTest() {
+    @Inject
+    lateinit var dateTaskViewModel: DateTaskViewModel
 
-  // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-  private static final Date TEST_DATE = new Date(1632501600000L);
+    @Test
+    fun testUpdateResponse() {
+        dateTaskViewModel.updateResponse(TEST_DATE)
 
-  @Inject DateTaskViewModel dateTaskViewModel;
+        observeUntilFirstChange(dateTaskViewModel.response)
+        assertThat(dateTaskViewModel.response.value).isEqualTo(fromDate(TEST_DATE))
+    }
 
-  @Test
-  public void testUpdateResponse() {
-    dateTaskViewModel.updateResponse(TEST_DATE);
+    @Test
+    fun testDialogClick() {
+        val testObserver = dateTaskViewModel.showDialogClicks.test()
 
-    observeUntilFirstChange(dateTaskViewModel.getResponse());
-    assertThat(dateTaskViewModel.getResponse().getValue())
-        .isEqualTo(DateResponse.fromDate(TEST_DATE));
-  }
+        dateTaskViewModel.onShowDialogClick()
 
-  @Test
-  public void testDialogClick() {
-    TestObserver<Nil> testObserver = dateTaskViewModel.getShowDialogClicks().test();
+        testObserver.assertNoErrors().assertNotComplete().assertValue(Nil.NIL)
+    }
 
-    dateTaskViewModel.onShowDialogClick();
-
-    testObserver.assertNoErrors().assertNotComplete().assertValue(Nil.NIL);
-  }
+    companion object {
+        // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+        private val TEST_DATE = Date(1632501600000L)
+    }
 }
