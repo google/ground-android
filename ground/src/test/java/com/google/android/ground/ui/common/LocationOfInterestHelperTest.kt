@@ -13,141 +13,94 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.common
 
-package com.google.android.ground.ui.common;
-
-import static com.google.common.truth.Truth.assertThat;
-
-import androidx.annotation.Nullable;
-import com.google.android.ground.BaseHiltTest;
-import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.sharedtest.FakeData;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import java8.util.Optional;
-import javax.inject.Inject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
+import dagger.hilt.android.testing.HiltAndroidTest
+import java8.util.Optional
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class LocationOfInterestHelperTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class LocationOfInterestHelperTest : BaseHiltTest() {
 
-  @Inject LocationOfInterestHelper loiHelper;
+    @Inject
+    lateinit var loiHelper: LocationOfInterestHelper
 
-  @Test
-  public void testGetCreatedBy() {
-    LocationOfInterest loi =
-        new LocationOfInterest(
-            FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurveyId(),
-            FakeData.POINT_OF_INTEREST.getJob(),
-            FakeData.POINT_OF_INTEREST.getCustomId(),
-            FakeData.POINT_OF_INTEREST.getCaption(),
-            new AuditInfo(new User("", "", "Test User")),
-            FakeData.POINT_OF_INTEREST.getLastModified(),
-            FakeData.POINT_OF_INTEREST.getGeometry());
-    assertCreatedBy(loi, "Added by Test User");
-  }
+    @Test
+    fun testGetCreatedBy() {
+        val user = FakeData.USER.copy(displayName = TEST_USER_NAME)
+        val loi = FakeData.POINT_OF_INTEREST.copy(created = AuditInfo(user))
+        assertCreatedBy(loi, "Added by $TEST_USER_NAME")
+    }
 
-  @Test
-  public void testGetCreatedBy_whenLoiIsEmpty() {
-    assertCreatedBy(null, "");
-  }
+    @Test
+    fun testGetCreatedBy_whenLoiIsNull() {
+        assertCreatedBy(null, "")
+    }
 
-  @Test
-  public void testGetLabel_whenLoiIsEmpty() {
-    assertLabel(null, "");
-  }
+    @Test
+    fun testGetLabel_whenLoiIsNull() {
+        assertLabel(null, "")
+    }
 
-  @Test
-  public void testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
-    LocationOfInterest loi =
-        new LocationOfInterest(
-            FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurveyId(),
-            FakeData.POINT_OF_INTEREST.getJob(),
-            FakeData.POINT_OF_INTEREST.getCustomId(),
-            "",
-            FakeData.POINT_OF_INTEREST.getCreated(),
-            FakeData.POINT_OF_INTEREST.getLastModified(),
-            FakeData.POINT_OF_INTEREST.getGeometry());
-    assertLabel(loi, "Point");
-  }
+    @Test
+    fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
+        val loi = FakeData.POINT_OF_INTEREST.copy(caption = "")
+        assertLabel(loi, "Point")
+    }
 
-  @Test
-  public void testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
-    LocationOfInterest loi =
-        new LocationOfInterest(
-            FakeData.AREA_OF_INTEREST.getId(),
-            FakeData.AREA_OF_INTEREST.getSurveyId(),
-            FakeData.AREA_OF_INTEREST.getJob(),
-            FakeData.AREA_OF_INTEREST.getCustomId(),
-            "",
-            FakeData.AREA_OF_INTEREST.getCreated(),
-            FakeData.AREA_OF_INTEREST.getLastModified(),
-            FakeData.AREA_OF_INTEREST.getGeometry());
-    assertLabel(loi, "Polygon");
-  }
+    @Test
+    fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
+        val loi = FakeData.AREA_OF_INTEREST.copy(caption = "")
+        assertLabel(loi, "Polygon")
+    }
 
-  @Test
-  public void testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
-    LocationOfInterest loi =
-        new LocationOfInterest(
-            FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurveyId(),
-            FakeData.POINT_OF_INTEREST.getJob(),
-            FakeData.POINT_OF_INTEREST.getCustomId(),
-            "point caption",
-            FakeData.POINT_OF_INTEREST.getCreated(),
-            FakeData.POINT_OF_INTEREST.getLastModified(),
-            FakeData.POINT_OF_INTEREST.getGeometry());
-    assertLabel(loi, "point caption");
-  }
+    @Test
+    fun testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
+        val loi = FakeData.POINT_OF_INTEREST.copy(caption = TEST_CAPTION)
+        assertLabel(loi, TEST_CAPTION)
+    }
 
-  @Test
-  public void testGetLabel_whenCaptionIsPresentAndLoiIsPolygon() {
-    LocationOfInterest loi =
-        new LocationOfInterest(
-            FakeData.AREA_OF_INTEREST.getId(),
-            FakeData.AREA_OF_INTEREST.getSurveyId(),
-            FakeData.AREA_OF_INTEREST.getJob(),
-            FakeData.AREA_OF_INTEREST.getCustomId(),
-            "polygon caption",
-            FakeData.AREA_OF_INTEREST.getCreated(),
-            FakeData.AREA_OF_INTEREST.getLastModified(),
-            FakeData.AREA_OF_INTEREST.getGeometry());
-    assertLabel(loi, "polygon caption");
-  }
+    @Test
+    fun testGetLabel_whenCaptionIsPresentAndLoiIsPolygon() {
+        val loi = FakeData.AREA_OF_INTEREST.copy(caption = TEST_CAPTION)
+        assertLabel(loi, TEST_CAPTION)
+    }
 
-  @Test
-  public void testGetSubtitle() {
-    LocationOfInterest loi =
-        new LocationOfInterest(
-            FakeData.POINT_OF_INTEREST.getId(),
-            FakeData.POINT_OF_INTEREST.getSurveyId(),
-            new Job("jobId", "some job"),
-            FakeData.POINT_OF_INTEREST.getCustomId(),
-            FakeData.POINT_OF_INTEREST.getCaption(),
-            FakeData.POINT_OF_INTEREST.getCreated(),
-            FakeData.POINT_OF_INTEREST.getLastModified(),
-            FakeData.POINT_OF_INTEREST.getGeometry());
-    assertThat(loiHelper.getSubtitle(Optional.of(loi))).isEqualTo("Job: some job");
-  }
+    @Test
+    fun testGetSubtitle() {
+        val loi = FakeData.POINT_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
+        assertSubtitle(loi, "Job: $TEST_JOB_NAME")
+    }
 
-  @Test
-  public void testGetSubtitle_whenLoiIsEmpty() {
-    assertThat(loiHelper.getSubtitle(Optional.empty())).isEqualTo("");
-  }
+    @Test
+    fun testGetSubtitle_whenLoiIsEmpty() {
+        assertSubtitle(null, "")
+    }
 
-  private void assertCreatedBy(@Nullable LocationOfInterest loi, String expectedCreatedBy) {
-    assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy);
-  }
+    private fun assertCreatedBy(loi: LocationOfInterest?, expectedCreatedBy: String) {
+        assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy)
+    }
 
-  private void assertLabel(@Nullable LocationOfInterest loi, String expectedLabel) {
-    assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel);
-  }
+    private fun assertLabel(loi: LocationOfInterest?, expectedLabel: String) {
+        assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel)
+    }
+
+    private fun assertSubtitle(loi: LocationOfInterest?, expectedSubtitle: String) {
+        assertThat(loiHelper.getSubtitle(Optional.ofNullable(loi))).isEqualTo(expectedSubtitle)
+    }
+
+    companion object {
+        private const val TEST_USER_NAME = "some user name"
+        private const val TEST_CAPTION = "some caption text"
+        private const val TEST_JOB_NAME = "some job name"
+    }
 }
