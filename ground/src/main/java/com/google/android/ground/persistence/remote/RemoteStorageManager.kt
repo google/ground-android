@@ -27,7 +27,7 @@ import java.io.File
  */
 interface RemoteStorageManager {
     /** Returns a URL that can be used to download a file at the specified path in remote storage.  */
-    fun getDownloadUrl(remoteDestinationPath: String?): @Cold Single<Uri>
+    fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri>
 
     /** Uploads file to a remote path, streaming progress in the returned [Flowable].  */
     fun uploadMediaFromFile(

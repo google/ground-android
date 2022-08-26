@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest.persistence.remote
 
-package com.sharedtest.persistence.remote;
+import android.net.Uri
+import com.google.android.ground.persistence.remote.RemoteStorageManager
+import com.google.android.ground.persistence.remote.TransferProgress
+import io.reactivex.Flowable
+import io.reactivex.Single
+import java.io.File
+import javax.inject.Inject
 
-import android.net.Uri;
-import com.google.android.ground.persistence.remote.RemoteStorageManager;
-import com.google.android.ground.persistence.remote.TransferProgress;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java.io.File;
-import javax.inject.Inject;
+class FakeRemoteStorageManager @Inject internal constructor() : RemoteStorageManager {
+    override fun getDownloadUrl(remoteDestinationPath: String): Single<Uri> = Single.never()
 
-public class FakeRemoteStorageManager implements RemoteStorageManager {
-
-  @Inject
-  FakeRemoteStorageManager() {}
-
-  @Override
-  public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
-    return Single.never();
-  }
-
-  @Override
-  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
-    return Flowable.never();
-  }
+    override fun uploadMediaFromFile(
+        file: File, remoteDestinationPath: String
+    ): Flowable<TransferProgress> = Flowable.never()
 }
