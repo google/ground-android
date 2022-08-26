@@ -31,7 +31,7 @@ class DateTimeResponseTest {
             .atTime(7, 30, 45)
             .atZone(ZoneId.systemDefault())
             .toInstant()
-        val detailsText = TimeResponse(Date.from(instant)).detailsText
+        val detailsText = TimeResponse(Date.from(instant)).getDetailsText()
         assertThat(detailsText).isEqualTo("07:30")
     }
 
@@ -41,7 +41,7 @@ class DateTimeResponseTest {
             .atStartOfDay()
             .atZone(ZoneId.systemDefault())
             .toInstant()
-        val detailsText = DateResponse(Date.from(instant)).detailsText
+        val detailsText = DateResponse(Date.from(instant)).getDetailsText()
         assertThat(detailsText).isEqualTo("2021-10-23")
     }
 }

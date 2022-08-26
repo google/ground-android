@@ -81,7 +81,7 @@ class HomeScreenViewModel @Inject internal constructor(
     val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
         PublishSubject.create()
 
-    fun addLoi(job: Job, point: Point?) {
+    fun addLoi(job: Job, point: Point) {
         activeSurvey
             .ifPresentOrElse(
                 { survey: Survey ->
@@ -200,7 +200,7 @@ class HomeScreenViewModel @Inject internal constructor(
 
     init {
         addLocationOfInterestResults =
-            addLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation? ->
+            addLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
                 locationOfInterestRepository
                     .applyAndEnqueue(mutation)
                     .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
@@ -208,7 +208,7 @@ class HomeScreenViewModel @Inject internal constructor(
                     .onErrorResumeNext(Single.never())
             } // Prevent from breaking upstream.
         updateLocationOfInterestResults =
-            updateLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation? ->
+            updateLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
                 RxCompletable.toBooleanSingle(
                     locationOfInterestRepository.applyAndEnqueue(mutation)
                 ) { t: Throwable -> errors.onNext(t) }
