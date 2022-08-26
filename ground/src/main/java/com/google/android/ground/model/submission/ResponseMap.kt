@@ -31,18 +31,14 @@ data class ResponseMap constructor(private val responses: Map<String, Response?>
      * Returns the user response for the given task id, or empty if the user did not specify a
      * response.
      */
-    fun getResponse(taskId: String): Optional<Response> {
-        return Optional.ofNullable(
-            responses[taskId]
-        )
-    }
+    fun getResponse(taskId: String): Optional<Response> = Optional.ofNullable(
+        responses[taskId]
+    )
 
     /**
      * Returns an Iterable over the task ids in this map.
      */
-    fun taskIds(): Iterable<String> {
-        return responses.keys
-    }
+    fun taskIds(): Iterable<String> = responses.keys
 
     /**
      * Adds, replaces, and/or removes responses based on the provided list of deltas.

@@ -43,10 +43,10 @@ object ResponseMapConverter {
 
     @JvmStatic
     fun fromString(job: Job, jsonString: String?): ResponseMap {
-        val map = ImmutableMap.builder<String, Response>()
         if (jsonString == null) {
             return ResponseMap()
         }
+        val map = ImmutableMap.builder<String, Response>()
         try {
             val jsonObject = JSONObject(jsonString)
             val keys = jsonObject.keys()
