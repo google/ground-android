@@ -19,26 +19,13 @@ import android.content.res.Resources
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
 import com.google.android.ground.model.task.Option
-import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import java8.util.Optional
 import javax.inject.Inject
 
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
-    AbstractTaskViewModel(resources) {
-
-    private val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
-
-    fun onShowDialog() {
-        showDialogClicks.onNext(Nil.NIL)
-    }
-
-    fun getShowDialogClicks(): @Hot Observable<Nil> = showDialogClicks
+    AbstractDialogTaskViewModel(resources) {
 
     fun getCurrentResponse(): Optional<MultipleChoiceResponse> =
         response.value?.map { it as MultipleChoiceResponse }

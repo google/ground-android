@@ -17,26 +17,13 @@ package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
 import com.google.android.ground.model.submission.DateResponse.Companion.fromDate
-import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import java.util.*
 import javax.inject.Inject
 
 class DateTaskViewModel @Inject constructor(resources: Resources) :
-    AbstractTaskViewModel(resources) {
-
-    private val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
+    AbstractDialogTaskViewModel(resources) {
 
     fun updateResponse(date: Date) {
         setResponse(fromDate(date))
     }
-
-    fun onShowDialogClick() {
-        showDialogClicks.onNext(Nil.NIL)
-    }
-
-    fun getShowDialogClicks(): Observable<Nil> = showDialogClicks
 }

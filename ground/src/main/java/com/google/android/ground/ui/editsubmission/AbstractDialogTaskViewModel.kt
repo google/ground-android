@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
-import java.util.*
-import javax.inject.Inject
+import com.google.android.ground.rx.Nil
+import com.google.android.ground.rx.annotations.Hot
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 
-class TimeTaskViewModel @Inject constructor(resources: Resources) :
-    AbstractDialogTaskViewModel(resources) {
+abstract class AbstractDialogTaskViewModel internal constructor(resources: Resources) :
+    AbstractTaskViewModel(resources) {
 
-    fun updateResponse(date: Date) {
-        setResponse(fromDate(date))
+    val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
+
+    fun onShowDialogClick() {
+        showDialogClicks.onNext(Nil.NIL)
     }
 }
