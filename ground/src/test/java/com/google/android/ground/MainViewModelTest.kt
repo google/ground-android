@@ -13,160 +13,168 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import static com.google.common.truth.Truth.assertThat;
-import static com.sharedtest.FakeData.TERMS_OF_SERVICE;
-import static com.sharedtest.FakeData.USER;
-
-import android.content.SharedPreferences;
-import androidx.navigation.NavDirections;
-import com.google.android.ground.repository.TermsOfServiceRepository;
-import com.google.android.ground.repository.UserRepository;
-import com.google.android.ground.system.auth.SignInState;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections;
-import com.google.android.ground.ui.signin.SignInFragmentDirections;
-import com.sharedtest.TestObservers;
-import com.sharedtest.persistence.remote.FakeRemoteDataStore;
-import com.sharedtest.system.auth.FakeAuthenticationManager;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import io.reactivex.observers.TestObserver;
-import java.util.NoSuchElementException;
-import java8.util.Optional;
-import javax.inject.Inject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.shadows.ShadowToast;
+import android.content.SharedPreferences
+import androidx.navigation.NavDirections
+import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.auth.SignInState.Companion.error
+import com.google.android.ground.system.auth.SignInState.Companion.signingIn
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.ui.signin.SignInFragmentDirections
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
+import com.sharedtest.TestObservers.observeUntilFirstChange
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.hilt.android.testing.HiltAndroidTest
+import io.reactivex.observers.TestObserver
+import java8.util.Optional
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowToast
+import javax.inject.Inject
 
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner.class)
-public class MainViewModelTest extends BaseHiltTest {
+@RunWith(RobolectricTestRunner::class)
+class MainViewModelTest : BaseHiltTest() {
 
-  @Inject FakeAuthenticationManager fakeAuthenticationManager;
-  @Inject FakeRemoteDataStore fakeRemoteDataStore;
-  @Inject MainViewModel viewModel;
-  @Inject Navigator navigator;
-  @Inject SharedPreferences sharedPreferences;
-  @Inject TermsOfServiceRepository tosRepository;
-  @Inject UserRepository userRepository;
+    @Inject
+    lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-  private TestObserver<NavDirections> navDirectionsTestObserver;
+    @Inject
+    lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-  @Before
-  public void setUp() {
-    // TODO: Add a test for syncLois
-    super.setUp();
+    @Inject
+    lateinit var viewModel: MainViewModel
 
-    // Subscribe to navigation requests
-    navDirectionsTestObserver = navigator.getNavigateRequests().test();
-  }
+    @Inject
+    lateinit var navigator: Navigator
 
-  private void setupUserPreferences() {
-    sharedPreferences.edit().putString("foo", "bar").apply();
-  }
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
 
-  private void verifyUserPreferencesCleared() {
-    assertThat(sharedPreferences.getAll()).isEmpty();
-  }
+    @Inject
+    lateinit var tosRepository: TermsOfServiceRepository
 
-  private void verifyUserSaved() {
-    userRepository.getUser(USER.getId()).test().assertResult(USER);
-  }
+    @Inject
+    lateinit var userRepository: UserRepository
 
-  private void verifyUserNotSaved() {
-    userRepository.getUser(USER.getId()).test().assertError(NoSuchElementException.class);
-  }
+    private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
 
-  private void verifyProgressDialogVisible(boolean visible) {
-    TestObservers.observeUntilFirstChange(viewModel.getSignInProgressDialogVisibility());
-    assertThat(viewModel.getSignInProgressDialogVisibility().getValue()).isEqualTo(visible);
-  }
+    @Before
+    override fun setUp() {
+        // TODO: Add a test for syncLois
+        super.setUp()
 
-  private void verifyNavigationRequested(NavDirections... navDirections) {
-    navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(navDirections);
-  }
+        // Subscribe to navigation requests
+        navDirectionsTestObserver = navigator.navigateRequests.test()
+    }
 
-  @Test
-  public void testSignInStateChanged_onSignedOut() {
-    setupUserPreferences();
+    private fun setupUserPreferences() {
+        sharedPreferences.edit().putString("foo", "bar").apply()
+    }
 
-    fakeAuthenticationManager.signOut();
+    private fun verifyUserPreferencesCleared() {
+        assertThat(sharedPreferences.all).isEmpty()
+    }
 
-    verifyProgressDialogVisible(false);
-    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen());
-    verifyUserPreferencesCleared();
-    verifyUserNotSaved();
-    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
-  }
+    private fun verifyUserSaved() {
+        userRepository.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+    }
 
-  @Test
-  public void testSignInStateChanged_onSigningIn() {
-    fakeAuthenticationManager.setState(SignInState.signingIn());
+    private fun verifyUserNotSaved() {
+        userRepository.getUser(FakeData.USER.id).test()
+            .assertError(NoSuchElementException::class.java)
+    }
 
-    verifyProgressDialogVisible(true);
-    verifyNavigationRequested();
-    verifyUserNotSaved();
-    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
-  }
+    private fun verifyProgressDialogVisible(visible: Boolean) {
+        observeUntilFirstChange(viewModel.signInProgressDialogVisibility)
+        assertThat(viewModel.signInProgressDialogVisibility.value).isEqualTo(visible)
+    }
 
-  @Test
-  public void testSignInStateChanged_onSignedIn_whenTosAccepted() {
-    tosRepository.setTermsOfServiceAccepted(true);
-    fakeRemoteDataStore.setTermsOfService(Optional.of(TERMS_OF_SERVICE));
-    fakeAuthenticationManager.setUser(USER);
-    fakeAuthenticationManager.signIn();
+    private fun verifyNavigationRequested(vararg navDirections: NavDirections) {
+        navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(*navDirections)
+    }
 
-    verifyProgressDialogVisible(false);
-    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen());
-    verifyUserSaved();
-    assertThat(tosRepository.isTermsOfServiceAccepted()).isTrue();
-  }
+    @Test
+    fun testSignInStateChanged_onSignedOut() {
+        setupUserPreferences()
+        fakeAuthenticationManager.signOut()
 
-  @Test
-  public void testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
-    tosRepository.setTermsOfServiceAccepted(false);
-    fakeRemoteDataStore.setTermsOfService(Optional.of(TERMS_OF_SERVICE));
-    fakeAuthenticationManager.setUser(USER);
-    fakeAuthenticationManager.signIn();
+        verifyProgressDialogVisible(false)
+        verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
+        verifyUserPreferencesCleared()
+        verifyUserNotSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
 
-    verifyProgressDialogVisible(false);
-    verifyNavigationRequested(
-        (NavDirections)
-            SignInFragmentDirections.showTermsOfService()
-                .setTermsOfServiceText(TERMS_OF_SERVICE.getText()));
-    verifyUserSaved();
-    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
-  }
+    @Test
+    fun testSignInStateChanged_onSigningIn() {
+        fakeAuthenticationManager.setState(signingIn())
 
-  @Test
-  public void testSignInStateChanged_onSignedIn_whenTosMissing() {
-    tosRepository.setTermsOfServiceAccepted(false);
-    fakeRemoteDataStore.setTermsOfService(Optional.empty());
+        verifyProgressDialogVisible(true)
+        verifyNavigationRequested()
+        verifyUserNotSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
 
-    fakeAuthenticationManager.setUser(USER);
-    fakeAuthenticationManager.signIn();
+    @Test
+    fun testSignInStateChanged_onSignedIn_whenTosAccepted() {
+        tosRepository.isTermsOfServiceAccepted = true
+        fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        fakeAuthenticationManager.signIn()
 
-    verifyProgressDialogVisible(false);
-    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen());
-    verifyUserSaved();
-    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
-  }
+        verifyProgressDialogVisible(false)
+        verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
+        verifyUserSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isTrue()
+    }
 
-  @Test
-  public void testSignInStateChanged_onSignInError() {
-    setupUserPreferences();
+    @Test
+    fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
+        tosRepository.isTermsOfServiceAccepted = false
+        fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        fakeAuthenticationManager.signIn()
+        verifyProgressDialogVisible(false)
+        verifyNavigationRequested(
+            (SignInFragmentDirections.showTermsOfService()
+                .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections)
+        )
+        verifyUserSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
 
-    fakeAuthenticationManager.setState(SignInState.error(new Exception()));
+    @Test
+    fun testSignInStateChanged_onSignedIn_whenTosMissing() {
+        tosRepository.isTermsOfServiceAccepted = false
+        fakeRemoteDataStore.setTermsOfService(Optional.empty())
+        fakeAuthenticationManager.setUser(FakeData.USER)
+        fakeAuthenticationManager.signIn()
 
-    assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful");
-    verifyProgressDialogVisible(false);
-    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen());
-    verifyUserPreferencesCleared();
-    verifyUserNotSaved();
-    assertThat(tosRepository.isTermsOfServiceAccepted()).isFalse();
-  }
+        verifyProgressDialogVisible(false)
+        verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
+        verifyUserSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
+
+    @Test
+    fun testSignInStateChanged_onSignInError() {
+        setupUserPreferences()
+
+        fakeAuthenticationManager.setState(error(Exception()))
+
+        assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful")
+        verifyProgressDialogVisible(false)
+        verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
+        verifyUserPreferencesCleared()
+        verifyUserNotSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
 }
