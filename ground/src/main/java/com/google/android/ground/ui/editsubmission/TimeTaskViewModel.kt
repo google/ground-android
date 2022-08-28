@@ -13,38 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
+import com.google.android.ground.rx.Nil
+import com.google.android.ground.rx.annotations.Hot
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
+import java.util.*
+import javax.inject.Inject
 
-import android.content.res.Resources;
-import com.google.android.ground.model.submission.TimeResponse;
-import com.google.android.ground.rx.Nil;
-import com.google.android.ground.rx.annotations.Hot;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
-import java.util.Date;
-import javax.inject.Inject;
+class TimeTaskViewModel @Inject constructor(resources: Resources) :
+    AbstractTaskViewModel(resources) {
 
-public class TimeTaskViewModel extends AbstractTaskViewModel {
+    private val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
 
-  @Hot
-  private final Subject<Nil> showDialogClicks = PublishSubject.create();
+    fun updateResponse(date: Date) {
+        setResponse(fromDate(date))
+    }
 
-  @Inject
-  TimeTaskViewModel(Resources resources) {
-    super(resources);
-  }
+    fun onShowDialogClick() {
+        showDialogClicks.onNext(Nil.NIL)
+    }
 
-  public void updateResponse(Date date) {
-    setResponse(TimeResponse.fromDate(date));
-  }
-
-  public void onShowDialogClick() {
-    showDialogClicks.onNext(Nil.NIL);
-  }
-
-  Observable<Nil> getShowDialogClicks() {
-    return showDialogClicks;
-  }
+    fun getShowDialogClicks(): Observable<Nil> = showDialogClicks
 }
