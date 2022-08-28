@@ -45,7 +45,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     private val responseSubject: @Hot(replays = true) BehaviorProcessor<Optional<Response>> =
         BehaviorProcessor.create()
 
-    protected lateinit var task: Task
+    lateinit var task: Task
 
     // TODO: Add a reference of Task in Response for simplification.
     fun initialize(task: Task, response: Optional<Response>) {
