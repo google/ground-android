@@ -13,54 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
+import com.google.android.ground.model.task.Option
+import com.google.android.ground.rx.Nil
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
+import java8.util.Optional
+import javax.inject.Inject
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.Objects.requireNonNull;
-import static java8.util.stream.StreamSupport.stream;
+class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
+    AbstractTaskViewModel(resources) {
 
-import android.content.res.Resources;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
-import com.google.android.ground.model.task.Option;
-import com.google.android.ground.rx.Nil;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.common.collect.ImmutableList;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
-import java8.util.Optional;
-import javax.inject.Inject;
+    private val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
 
-public class MultipleChoiceTaskViewModel extends AbstractTaskViewModel {
+    fun onShowDialog() {
+        showDialogClicks.onNext(Nil.NIL)
+    }
 
-  @Hot
-  private final Subject<Nil> showDialogClicks = PublishSubject.create();
+    fun getShowDialogClicks(): @Hot Observable<Nil> = showDialogClicks
 
-  @Inject
-  MultipleChoiceTaskViewModel(Resources resources) {
-    super(resources);
-  }
+    fun getCurrentResponse(): Optional<MultipleChoiceResponse> =
+        response.value?.map { it as MultipleChoiceResponse }
+            ?: Optional.empty()
 
-  public void onShowDialog() {
-    showDialogClicks.onNext(Nil.NIL);
-  }
-
-  @Hot
-  Observable<Nil> getShowDialogClicks() {
-    return showDialogClicks;
-  }
-
-  Optional<MultipleChoiceResponse> getCurrentResponse() {
-    return getResponse().getValue() == null
-        ? Optional.empty()
-        : getResponse().getValue().map(response -> (MultipleChoiceResponse) response);
-  }
-
-  public void updateResponse(ImmutableList<Option> options) {
-    setResponse(
-        MultipleChoiceResponse.fromList(
-            requireNonNull(getTask().getMultipleChoice()),
-            stream(options).map(Option::getId).collect(toImmutableList())));
-  }
+    fun updateResponse(options: ImmutableList<Option>) {
+        setResponse(
+            fromList(
+                task.multipleChoice!!,
+                options.map(Option::id).toImmutableList()
+            )
+        )
+    }
 }

@@ -19,7 +19,7 @@ import android.content.res.Resources
 import com.google.android.ground.model.submission.TextResponse.Companion.fromString
 import javax.inject.Inject
 
-class TextTaskViewModel @Inject internal constructor(resources: Resources) :
+class TextTaskViewModel @Inject constructor(resources: Resources) :
     AbstractTaskViewModel(resources) {
 
     fun updateResponse(text: String) {
