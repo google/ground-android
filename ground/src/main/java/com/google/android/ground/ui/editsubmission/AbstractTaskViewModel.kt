@@ -13,111 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.MutableLiveData
+import com.google.android.ground.R
+import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.AbstractViewModel
+import io.reactivex.Flowable
+import io.reactivex.processors.BehaviorProcessor
+import java8.util.Optional
 
-import android.content.res.Resources;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
-import androidx.lifecycle.MutableLiveData;
-import com.google.android.ground.R;
-import com.google.android.ground.model.submission.Response;
-import com.google.android.ground.model.task.Task;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import io.reactivex.Flowable;
-import io.reactivex.processors.BehaviorProcessor;
-import java8.util.Optional;
+/** Defines the state of an inflated [Task] and controls its UI.  */
+open class AbstractTaskViewModel internal constructor(private val resources: Resources) :
+    AbstractViewModel() {
 
-/** Defines the state of an inflated {@link Task} and controls its UI. */
-public class AbstractTaskViewModel extends AbstractViewModel {
+    /** Current value. */
+    val response: LiveData<Optional<Response>>
 
-  /**
-   * Current value.
-   */
-  private final LiveData<Optional<Response>> response;
+    /** Transcoded text to be displayed for the current [AbstractTaskViewModel.response]. */
+    val responseText: LiveData<String>
 
-  /** Transcoded text to be displayed for the current {@link AbstractTaskViewModel#response}. */
-  private final LiveData<String> responseText;
+    /** Error message to be displayed for the current [AbstractTaskViewModel.response]. */
+    val error: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
-  /** Error message to be displayed for the current {@link AbstractTaskViewModel#response}. */
-  @Hot(replays = true)
-  private final MutableLiveData<String> error = new MutableLiveData<>();
+    private val responseSubject: @Hot(replays = true) BehaviorProcessor<Optional<Response>> =
+        BehaviorProcessor.create()
 
-  @Hot(replays = true)
-  private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
+    protected lateinit var task: Task
 
-  private final Resources resources;
-
-  @SuppressWarnings("NullAway.Init")
-  private Task task;
-
-  AbstractTaskViewModel(Resources resources) {
-    this.resources = resources;
-    response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
-    responseText = LiveDataReactiveStreams.fromPublisher(getDetailsTextFlowable());
-  }
-
-  // TODO: Add a reference of Task in Response for simplification.
-  void initialize(Task task, Optional<Response> response) {
-    this.task = task;
-    setResponse(response);
-  }
-
-  @Cold(stateful = true, terminates = false)
-  protected final Flowable<String> getDetailsTextFlowable() {
-    return responseSubject
-        .distinctUntilChanged()
-        .map(responseOptional -> responseOptional.map(Response::getDetailsText).orElse(""));
-  }
-
-  /**
-   * Checks if the current response is valid and updates error value.
-   */
-  public Optional<String> validate() {
-    Optional<String> result = validate(task, responseSubject.getValue());
-    error.postValue(result.orElse(null));
-    return result;
-  }
-
-  // TODO: Check valid response values
-  private Optional<String> validate(Task task, Optional<Response> response) {
-    if (task.isRequired() && (response == null || response.isEmpty())) {
-      return Optional.of(resources.getString(R.string.required_task));
+    // TODO: Add a reference of Task in Response for simplification.
+    fun initialize(task: Task, response: Optional<Response>) {
+        this.task = task
+        setResponse(response)
     }
-    return Optional.empty();
-  }
 
-  public Task getTask() {
-    return task;
-  }
+    protected val detailsTextFlowable: @Cold(stateful = true, terminates = false) Flowable<String> =
+        responseSubject
+            .distinctUntilChanged()
+            .map { responseOptional: Optional<Response> ->
+                responseOptional.map { it.getDetailsText() }.orElse("")
+            }
 
-  public String taskLabel() {
-    StringBuilder label = new StringBuilder(task.getLabel());
-    if (task.isRequired()) {
-      label.append(" *");
+    /** Checks if the current response is valid and updates error value. */
+    fun validate(): Optional<String> {
+        val result = validate(task, responseSubject.value)
+        error.postValue(result.orElse(null))
+        return result
     }
-    return label.toString();
-  }
 
-  public LiveData<String> getResponseText() {
-    return responseText;
-  }
+    // TODO: Check valid response values
+    private fun validate(task: Task, response: Optional<Response>?): Optional<String> =
+        if (task.isRequired && (response == null || response.isEmpty))
+            Optional.of(resources.getString(R.string.required_task))
+        else
+            Optional.empty()
 
-  public LiveData<String> getError() {
-    return error;
-  }
+    fun taskLabel(): String =
+        StringBuilder(task.label).apply {
+            if (task.isRequired) {
+                append(" *")
+            }
+        }.toString()
 
-  LiveData<Optional<Response>> getResponse() {
-    return response;
-  }
+    fun setResponse(response: Optional<Response>) {
+        responseSubject.onNext(response)
+    }
 
-  public void setResponse(Optional<Response> response) {
-    responseSubject.onNext(response);
-  }
+    fun clearResponse() {
+        setResponse(Optional.empty())
+    }
 
-  public void clearResponse() {
-    setResponse(Optional.empty());
-  }
+    init {
+        response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged())
+        responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable)
+    }
 }
