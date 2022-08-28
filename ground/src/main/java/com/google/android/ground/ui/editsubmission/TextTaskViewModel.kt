@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import javax.inject.Inject
 
-import android.content.res.Resources;
-import com.google.android.ground.model.submission.TextResponse;
-import javax.inject.Inject;
+class TextTaskViewModel @Inject internal constructor(resources: Resources) :
+    AbstractTaskViewModel(resources) {
 
-public class TextTaskViewModel extends AbstractTaskViewModel {
-
-  @Inject
-  TextTaskViewModel(Resources resources) {
-    super(resources);
-  }
-
-  public void updateResponse(String text) {
-    setResponse(TextResponse.fromString(text));
-  }
+    fun updateResponse(text: String) {
+        setResponse(fromString(text))
+    }
 }
