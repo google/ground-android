@@ -25,7 +25,7 @@ import io.reactivex.subjects.Subject
 import java.util.*
 import javax.inject.Inject
 
-class DateTaskViewModel @Inject internal constructor(resources: Resources) :
+class DateTaskViewModel @Inject constructor(resources: Resources) :
     AbstractTaskViewModel(resources) {
 
     private val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
