@@ -47,7 +47,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     fun updateResponse(options: ImmutableList<Option>) {
         setResponse(
             fromList(
-                task.multipleChoice!!,
+                task.multipleChoice,
                 options.map(Option::id).toImmutableList()
             )
         )
