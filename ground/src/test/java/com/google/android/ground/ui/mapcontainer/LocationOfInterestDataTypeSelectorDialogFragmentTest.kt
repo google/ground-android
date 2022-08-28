@@ -63,7 +63,7 @@ class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
 
     @Test
     fun show_dialogIsShown() {
-        val listView = dialogFragment.dialog.currentFocus as ListView?
+        val listView = dialogFragment.dialog?.currentFocus as ListView?
 
         assertThat(listView).isNotNull()
         assertThat(listView?.visibility).isEqualTo(View.VISIBLE)
@@ -72,7 +72,7 @@ class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
 
     @Test
     fun show_dataTypeSelected_correctDataTypeIsPassed() {
-        val listView = dialogFragment.dialog.currentFocus as ListView?
+        val listView = dialogFragment.dialog?.currentFocus as ListView?
 
         val positionToSelect = 1
         shadowOf(listView).performItemClick(positionToSelect)
