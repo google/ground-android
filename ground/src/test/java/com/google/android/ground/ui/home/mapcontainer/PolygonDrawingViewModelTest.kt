@@ -38,15 +38,16 @@ import javax.inject.Inject
 class PolygonDrawingViewModelTest : BaseHiltTest() {
     @Inject
     lateinit var viewModel: PolygonDrawingViewModel
+
     private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
-    private lateinit var drawnMapLocationsOfInterestTestObserver: TestObserver<ImmutableSet<MapLocationOfInterest>>
+    private lateinit var drawnMapLoiTestObserver: TestObserver<ImmutableSet<MapLocationOfInterest>>
 
     override fun setUp() {
         super.setUp()
         polygonCompletedTestObserver = TestObserver.test(
             viewModel.isPolygonCompleted
         )
-        drawnMapLocationsOfInterestTestObserver = TestObserver.test(
+        drawnMapLoiTestObserver = TestObserver.test(
             viewModel.unsavedMapLocationsOfInterest
         )
 
@@ -193,7 +194,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
     }
 
     private fun validateMapLoiDrawn(expectedMapPolygonCount: Int, expectedMapPinCount: Int) {
-        drawnMapLocationsOfInterestTestObserver.assertValue { mapLois: ImmutableSet<MapLocationOfInterest> ->
+        drawnMapLoiTestObserver.assertValue { mapLois: ImmutableSet<MapLocationOfInterest> ->
             var actualMapPolygonCount = 0
             var actualMapPinCount = 0
             for (mapLocationOfInterest in mapLois) {
