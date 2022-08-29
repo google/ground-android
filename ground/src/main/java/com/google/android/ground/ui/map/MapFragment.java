@@ -21,7 +21,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractFragment;

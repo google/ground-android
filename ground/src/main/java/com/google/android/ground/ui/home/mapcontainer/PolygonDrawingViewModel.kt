@@ -21,11 +21,12 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.Point
-import com.google.android.ground.model.locationofinterest.toPolygon
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.BooleanOrError
 import com.google.android.ground.rx.BooleanOrError.Companion.falseValue
@@ -171,7 +172,7 @@ class PolygonDrawingViewModel @Inject internal constructor(
         val auditInfo = AuditInfo(authManager.currentUser)
         val areaOfInterest = LocationOfInterest(
             id = polygon.id,
-            geometry = polygon.vertices.toPolygon(),
+            geometry = Polygon(LinearRing(polygon.vertices.map { it.coordinate })),
             surveyId = selectedSurvey.value!!.id,
             job = selectedJob.value!!,
             created = auditInfo,

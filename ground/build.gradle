@@ -197,10 +197,6 @@ dependencies {
     // GeoJSON support
     implementation "com.google.maps.android:android-maps-utils:2.2.0"
 
-    // GeoTools
-    implementation "org.locationtech.jts:jts-core:1.19.0"
-    implementation "org.locationtech.jts.io:jts-io-common:1.19.0"
-
     // Firebase and related libraries.
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
     implementation 'com.google.firebase:firebase-core:19.0.0'

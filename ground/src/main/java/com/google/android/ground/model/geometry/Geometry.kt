@@ -15,12 +15,10 @@
  */
 package com.google.android.ground.model.geometry
 
-/**
- * Represents types of geometry errors.
- *
- * Typically thrown when a construction does not satisfy definitional constraints for a given geometry.
- */
-sealed class InvalidGeometryException(override val message: String) : Throwable(message)
+import com.google.common.collect.ImmutableList
 
 /** A common ancestor for all geometry types. */
-sealed interface Geometry
+sealed interface Geometry {
+    // TODO(#1246): Remove. Stick with concrete semantics; leave it to callers to discriminate subclasses.
+    val vertices: ImmutableList<Point>
+}

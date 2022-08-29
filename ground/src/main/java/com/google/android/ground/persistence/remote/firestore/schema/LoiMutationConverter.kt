@@ -17,7 +17,7 @@
 package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.User
-import com.google.android.ground.model.locationofinterest.Point
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.firestore.schema.AuditInfoConverter.fromMutationAndUser
@@ -65,7 +65,7 @@ internal object LoiMutationConverter {
         return map.build()
     }
 
-    private fun toGeoPoint(point: Point) = GeoPoint(point.latitude, point.longitude)
+    private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.x, point.coordinate.y)
 
     private fun toGeoPointList(point: ImmutableList<Point>): List<GeoPoint> =
         point.map { toGeoPoint(it) }.toImmutableList()

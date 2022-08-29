@@ -28,11 +28,14 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.ground.model.AuditInfo;
 import com.google.android.ground.model.Survey;
+import com.google.android.ground.model.geometry.Coordinate;
+import com.google.android.ground.model.geometry.Geometry;
+import com.google.android.ground.model.geometry.LinearRing;
+import com.google.android.ground.model.geometry.Point;
+import com.google.android.ground.model.geometry.Polygon;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.GeometryExtensionsKt;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.persistence.local.LocalDataConsistencyException;
 import com.google.android.ground.persistence.local.room.models.Coordinates;
@@ -44,7 +47,6 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import java.util.List;
 import java8.util.stream.Collectors;
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields
@@ -129,10 +131,13 @@ public abstract class LocationOfInterestEntity {
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(locationOfInterest.getCreated()))
             .setLastModified(AuditInfoEntity.fromObject(locationOfInterest.getLastModified()));
+    // TODO(#1246): Convert to exhaustive when in Kotlin
     if (locationOfInterest.getType() == LocationOfInterestType.POINT) {
-      entity.setLocation(Coordinates.fromPoint(locationOfInterest.getCoordinatesAsPoint()));
+      entity.setLocation(
+          Coordinates.fromPoint(locationOfInterest.getGeometry().getVertices().get(0)));
     } else {
-      entity.setPolygonVertices(formatVertices(locationOfInterest.getCoordinatesAsPoints()));
+      // TODO(#1247): Add support for storing holes in the DB.
+      entity.setPolygonVertices(formatVertices(locationOfInterest.getGeometry().getVertices()));
     }
     return entity.build();
   }
@@ -141,17 +146,17 @@ public abstract class LocationOfInterestEntity {
       LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
     if (locationOfInterestEntity.getLocation() != null) {
       return fillLocationOfInterest(
-          locationOfInterestEntity,
-          survey,
-          locationOfInterestEntity.getLocation().toPoint().toGeometry());
+          locationOfInterestEntity, survey, locationOfInterestEntity.getLocation().toPoint());
     }
 
     if (locationOfInterestEntity.getPolygonVertices() != null) {
+      ImmutableList<Point> points = parseVertices(locationOfInterestEntity.getPolygonVertices());
+      ImmutableList<Coordinate> coordinates =
+          stream(points).map(Point::getCoordinate).collect(toImmutableList());
+      LinearRing linearRing = new LinearRing(coordinates);
+
       return fillLocationOfInterest(
-          locationOfInterestEntity,
-          survey,
-          GeometryExtensionsKt.toPolygon(
-              parseVertices(locationOfInterestEntity.getPolygonVertices())));
+          locationOfInterestEntity, survey, new Polygon(linearRing, ImmutableList.of()));
     }
 
     throw new LocalDataConsistencyException(
@@ -166,7 +171,9 @@ public abstract class LocationOfInterestEntity {
     Gson gson = new Gson();
     List<List<Double>> verticesArray =
         stream(vertices)
-            .map(point -> ImmutableList.of(point.getLatitude(), point.getLongitude()))
+            .map(
+                point ->
+                    ImmutableList.of(point.getCoordinate().getX(), point.getCoordinate().getY()))
             .collect(Collectors.toList());
     return gson.toJson(verticesArray);
   }
@@ -180,9 +187,7 @@ public abstract class LocationOfInterestEntity {
         gson.fromJson(vertices, new TypeToken<List<List<Double>>>() {}.getType());
 
     return stream(verticesArray)
-        .map(
-            vertex ->
-                new Point(vertex.get(0), vertex.get(1)))
+        .map(vertex -> new Point(new Coordinate(vertex.get(0), vertex.get(1))))
         .collect(toImmutableList());
   }
 

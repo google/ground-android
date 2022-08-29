@@ -33,10 +33,11 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.ground.R;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.tile.TileSet;
+import com.google.android.ground.model.geometry.Coordinate;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.job.Style;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
-import com.google.android.ground.model.locationofinterest.Point;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.OfflineAreaRepository;
 import com.google.android.ground.repository.SurveyRepository;
@@ -75,7 +76,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public static final float ZOOM_LEVEL_THRESHOLD = 16f;
   public static final float DEFAULT_LOI_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
-  private static final Point DEFAULT_MAP_POINT = Point.zero();
+  private static final Point DEFAULT_MAP_POINT = new Point(new Coordinate(0.0, 0.0));
   private final LiveData<Loadable<Survey>> surveyLoadingState;
   private final LiveData<ImmutableSet<MapLocationOfInterest>> mapLocationsOfInterest;
   private final LiveData<BooleanOrError> locationLockState;
@@ -217,7 +218,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static MapLocationOfInterest toMapPin(LocationOfInterest pointOfInterest) {
     return MapPin.newBuilder()
         .setId(pointOfInterest.getId())
-        .setPosition(pointOfInterest.getCoordinatesAsPoint())
+        .setPosition(pointOfInterest.getGeometry().getVertices().get(0))
         .setStyle(new Style())
         .setLocationOfInterest(pointOfInterest)
         .build();
@@ -226,7 +227,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static MapLocationOfInterest toMapPolygon(LocationOfInterest areaOfInterest) {
     return MapPolygon.newBuilder()
         .setId(areaOfInterest.getId())
-        .setVertices(areaOfInterest.getCoordinatesAsPoints())
+        .setVertices(areaOfInterest.getGeometry().getVertices())
         .setStyle(new Style())
         .setLocationOfInterest(areaOfInterest)
         .build();
@@ -329,7 +330,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static Point toPoint(Location location) {
-    return new Point(location.getLatitude(), location.getLongitude());
+    return new Point(new Coordinate(location.getLatitude(), location.getLongitude()));
   }
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {

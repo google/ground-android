@@ -15,5 +15,9 @@
  */
 package com.google.android.ground.model.geometry
 
+import com.google.common.collect.ImmutableList
+
 /** Represents a single point. */
-data class Point(val coordinate: Coordinate) : Geometry
+data class Point(val coordinate: Coordinate) : Geometry {
+    override val vertices: ImmutableList<Point> = ImmutableList.of(this)
+}

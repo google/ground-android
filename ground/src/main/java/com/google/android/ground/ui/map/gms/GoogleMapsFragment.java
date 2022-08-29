@@ -52,7 +52,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.ground.R;
-import com.google.android.ground.model.locationofinterest.Point;
+import com.google.android.ground.model.geometry.Coordinate;
+import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.MarkerIconFactory;
@@ -155,11 +156,11 @@ public class GoogleMapsFragment extends SupportMapFragment implements MapFragmen
   private int cameraChangeReason = REASON_DEVELOPER_ANIMATION;
 
   private static Point fromLatLng(LatLng latLng) {
-    return new Point(latLng.latitude, latLng.longitude);
+    return new Point(new Coordinate(latLng.latitude, latLng.longitude));
   }
 
   private static LatLng toLatLng(Point point) {
-    return new LatLng(point.getLatitude(), point.getLongitude());
+    return new LatLng(point.getCoordinate().getX(), point.getCoordinate().getY());
   }
 
   private static boolean containsLocation(LatLng latLng, Polygon polygon) {

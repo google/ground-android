@@ -17,9 +17,10 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableMap
@@ -45,7 +46,7 @@ object DataCollectionTestData {
             loiName,
             auditInfo,
             auditInfo,
-            Point.zero().toGeometry()
+            Point(Coordinate(0.0, 0.0))
         ),
         Job(
             id = "taskId",

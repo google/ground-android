@@ -19,14 +19,16 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.Point
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
-import org.locationtech.jts.geom.GeometryFactory
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -66,15 +68,15 @@ object FakeData {
         null,
         AuditInfo(USER),
         AuditInfo(USER),
-        Point(0.0, 0.0).toGeometry()
+        Point(Coordinate(0.0, 0.0))
     )
 
     @JvmField
     val VERTICES: ImmutableList<Point> = ImmutableList.of(
-        Point(0.0, 0.0),
-        Point(10.0, 10.0),
-        Point(20.0, 20.0),
-        Point(0.0, 0.0),
+        Point(Coordinate(0.0, 0.0)),
+        Point(Coordinate(10.0, 10.0)),
+        Point(Coordinate(20.0, 20.0)),
+        Point(Coordinate(0.0, 0.0)),
     )
 
     @JvmField
@@ -86,11 +88,11 @@ object FakeData {
         "",
         AuditInfo(USER),
         AuditInfo(USER),
-        GeometryFactory().createPolygon(VERTICES.map { it.toGeometry().coordinate }.toTypedArray()),
+        Polygon(LinearRing(VERTICES.map { it.coordinate })),
     )
 
     @JvmField
-    val POINT = Point(42.0, 18.0)
+    val POINT = Point(Coordinate(42.0, 18.0))
 
     @JvmStatic
     @JvmOverloads
