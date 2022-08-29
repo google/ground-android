@@ -16,7 +16,8 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.locationofinterest.Point.Companion.zero
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.rx.Nil
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
@@ -66,6 +67,6 @@ class LocationOfInterestRepositionViewModelTest : BaseHiltTest() {
     }
 
     companion object {
-        private val TEST_POINT = zero()
+        private val TEST_POINT = Point(Coordinate(0.0, 0.0))
     }
 }
