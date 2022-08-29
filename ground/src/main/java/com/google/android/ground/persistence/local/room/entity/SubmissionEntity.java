@@ -116,7 +116,7 @@ public abstract class SubmissionEntity {
         .setState(EntityState.DEFAULT)
         .setResponses(
             ResponseMapConverter.toString(
-                ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build()))
+                new ResponseMap().copyWithDeltas(mutation.getResponseDeltas())))
         .setCreated(authInfo)
         .setLastModified(authInfo)
         .build();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import javax.inject.Inject
 
-import android.content.res.Resources;
-import com.google.android.ground.model.submission.NumberResponse;
-import javax.inject.Inject;
+class TextTaskViewModel @Inject constructor(resources: Resources) :
+    AbstractTaskViewModel(resources) {
 
-public class NumberTaskViewModel extends AbstractTaskViewModel {
-
-  @Inject
-  NumberTaskViewModel(Resources resources) {
-    super(resources);
-  }
-
-  public void updateResponse(String number) {
-    setResponse(NumberResponse.fromNumber(number));
-  }
+    fun updateResponse(text: String) {
+        setResponse(fromString(text))
+    }
 }

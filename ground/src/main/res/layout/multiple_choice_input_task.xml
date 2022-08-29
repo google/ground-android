@@ -41,7 +41,7 @@
     <com.google.android.ground.ui.editsubmission.MultipleChoiceTaskLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:onShowDialog="@{() -> viewModel.onShowDialog()}">
+      app:onShowDialog="@{() -> viewModel.onShowDialogClick()}">
 
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/multiple_choice_input_layout"
