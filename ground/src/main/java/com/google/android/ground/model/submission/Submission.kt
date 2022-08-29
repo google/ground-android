@@ -33,5 +33,5 @@ data class Submission @JvmOverloads constructor(
     val job: Job,
     val created: AuditInfo,
     val lastModified: AuditInfo,
-    val responses: ResponseMap = ResponseMap.builder().build()
+    val responses: ResponseMap = ResponseMap()
 )

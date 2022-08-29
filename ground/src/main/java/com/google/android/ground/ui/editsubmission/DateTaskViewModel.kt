@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.DateResponse.Companion.fromDate
+import java.util.*
+import javax.inject.Inject
 
-import android.content.res.Resources;
-import com.google.android.ground.model.submission.TextResponse;
-import javax.inject.Inject;
+class DateTaskViewModel @Inject constructor(resources: Resources) :
+    AbstractDialogTaskViewModel(resources) {
 
-public class TextTaskViewModel extends AbstractTaskViewModel {
-
-  @Inject
-  TextTaskViewModel(Resources resources) {
-    super(resources);
-  }
-
-  public void updateResponse(String text) {
-    setResponse(TextResponse.fromString(text));
-  }
+    fun updateResponse(date: Date) {
+        setResponse(fromDate(date))
+    }
 }

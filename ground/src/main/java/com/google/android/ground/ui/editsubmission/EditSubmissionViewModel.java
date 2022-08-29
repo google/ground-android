@@ -383,7 +383,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   }
 
   @AutoValue
-  abstract static class PhotoResult {
+  public abstract static class PhotoResult {
 
     boolean isHandled;
 

@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
+import java.util.*
+import javax.inject.Inject
 
-import android.content.res.Resources;
-import com.google.android.ground.model.submission.NumberResponse;
-import javax.inject.Inject;
+class TimeTaskViewModel @Inject constructor(resources: Resources) :
+    AbstractDialogTaskViewModel(resources) {
 
-public class NumberTaskViewModel extends AbstractTaskViewModel {
-
-  @Inject
-  NumberTaskViewModel(Resources resources) {
-    super(resources);
-  }
-
-  public void updateResponse(String number) {
-    setResponse(NumberResponse.fromNumber(number));
-  }
+    fun updateResponse(date: Date) {
+        setResponse(fromDate(date))
+    }
 }

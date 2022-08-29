@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.persistence.uuid;
+import android.content.res.Resources
+import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import javax.inject.Inject
 
-/**
- * Generator for unique identifier strings while offline. Implementations must assume the network
- * will be unavailable when invoked.
- */
-public interface OfflineUuidGenerator {
+class TextTaskViewModel @Inject constructor(resources: Resources) :
+    AbstractTaskViewModel(resources) {
 
-  /**
-   * Returns an identifier that is universally unique for all practical intents and purposes.
-   * Implementations should ensure that the probability of collision is so small to be considered
-   * insignificant.
-   */
-  String generateUuid();
+    fun updateResponse(text: String) {
+        setResponse(fromString(text))
+    }
 }
