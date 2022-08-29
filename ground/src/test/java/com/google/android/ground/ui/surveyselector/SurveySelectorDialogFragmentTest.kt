@@ -82,16 +82,15 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
 
     @Test
     fun show_surveyDialogIsShown() {
-        val listView = surveySelectorDialogFragment.dialog?.currentFocus as ListView?
+        val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
-        assertThat(listView).isNotNull()
-        assertThat(listView?.visibility).isEqualTo(View.VISIBLE)
-        assertThat(listView?.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
+        assertThat(listView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
     }
 
     @Test
     fun show_surveySelected_surveyIsActivated() {
-        val listView = surveySelectorDialogFragment.dialog?.currentFocus as ListView?
+        val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
         // TODO: Replace mocks with inserting the survey in local db
         Mockito.`when`(mockLocalDataStore.getSurveyById(eq(TEST_SURVEY_2.id)))
