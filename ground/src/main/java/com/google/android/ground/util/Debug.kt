@@ -18,9 +18,9 @@ package com.google.android.ground.util
 import timber.log.Timber
 
 object Debug {
-    fun logLifecycleEvent(instance: Any) {
-        val stackTrace = Thread.currentThread().stackTrace
-        val callingMethod = stackTrace[3].methodName + "()"
-        Timber.tag(instance.javaClass.simpleName).v("Lifecycle event: $callingMethod")
-    }
+  fun logLifecycleEvent(instance: Any) {
+    val stackTrace = Thread.currentThread().stackTrace
+    val callingMethod = stackTrace[3].methodName + "()"
+    Timber.tag(instance.javaClass.simpleName).v("Lifecycle event: $callingMethod")
+  }
 }

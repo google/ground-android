@@ -21,9 +21,9 @@ import io.reactivex.disposables.Disposable
 
 abstract class AbstractViewModel : ViewModel() {
 
-    private val disposables = CompositeDisposable()
+  private val disposables = CompositeDisposable()
 
-    protected fun disposeOnClear(subscription: Disposable) = disposables.add(subscription)
+  protected fun disposeOnClear(subscription: Disposable) = disposables.add(subscription)
 
-    override fun onCleared() = disposables.clear()
+  override fun onCleared() = disposables.clear()
 }

@@ -24,43 +24,34 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import java8.util.Optional
 import javax.inject.Inject
 
-/** Common logic for formatting attributes of [LocationOfInterest] for display to the user.  */
+/** Common logic for formatting attributes of [LocationOfInterest] for display to the user. */
 class LocationOfInterestHelper @Inject internal constructor(private val resources: Resources) {
-    fun getCreatedBy(locationOfInterest: Optional<LocationOfInterest>): String =
-        getUserName(locationOfInterest)
-            .map { resources.getString(R.string.added_by, it) }
-            .orElse("")
+  fun getCreatedBy(locationOfInterest: Optional<LocationOfInterest>): String =
+    getUserName(locationOfInterest).map { resources.getString(R.string.added_by, it) }.orElse("")
 
-    // TODO(#793): Allow user-defined LOI names for other LOI types.
-    fun getLabel(locationOfInterest: Optional<LocationOfInterest>): String =
-        locationOfInterest.map { loi ->
-            val caption = loi.caption?.trim { it <= ' ' } ?: ""
-            if (caption.isEmpty()) getLocationOfInterestType(loi) else caption
-        }
-            .orElse("")
+  // TODO(#793): Allow user-defined LOI names for other LOI types.
+  fun getLabel(locationOfInterest: Optional<LocationOfInterest>): String =
+    locationOfInterest
+      .map { loi ->
+        val caption = loi.caption?.trim { it <= ' ' } ?: ""
+        if (caption.isEmpty()) getLocationOfInterestType(loi) else caption
+      }
+      .orElse("")
 
-    private fun getLocationOfInterestType(locationOfInterest: LocationOfInterest): String =
-        when (locationOfInterest.geometry) {
-            is Polygon -> "Polygon"
-            is Point -> "Point"
-            is LineString -> "LineString"
-            is LinearRing -> "LinearRing"
-            is MultiPolygon -> "MultiPolygon"
-        }
+  private fun getLocationOfInterestType(locationOfInterest: LocationOfInterest): String =
+    when (locationOfInterest.geometry) {
+      is Polygon -> "Polygon"
+      is Point -> "Point"
+      is LineString -> "LineString"
+      is LinearRing -> "LinearRing"
+      is MultiPolygon -> "MultiPolygon"
+    }
 
-    fun getSubtitle(locationOfInterest: Optional<LocationOfInterest>): String =
-        locationOfInterest
-            .map {
-                resources.getString(
-                    R.string.layer_label_format,
-                    it.job.name
-                )
-            }
-            .orElse("")
+  fun getSubtitle(locationOfInterest: Optional<LocationOfInterest>): String =
+    locationOfInterest
+      .map { resources.getString(R.string.layer_label_format, it.job.name) }
+      .orElse("")
 
-    private fun getUserName(locationOfInterest: Optional<LocationOfInterest>): Optional<String> =
-        locationOfInterest
-            .map(LocationOfInterest::created)
-            .map(AuditInfo::user)
-            .map(User::displayName)
+  private fun getUserName(locationOfInterest: Optional<LocationOfInterest>): Optional<String> =
+    locationOfInterest.map(LocationOfInterest::created).map(AuditInfo::user).map(User::displayName)
 }

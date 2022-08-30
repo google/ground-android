@@ -16,7 +16,6 @@
 
 package com.google.android.ground.ui.common;
 
-import androidx.fragment.app.Fragment; // NOPMD
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

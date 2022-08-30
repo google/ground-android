@@ -32,54 +32,44 @@ import javax.inject.Inject
 @HiltAndroidApp
 class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+  @Inject lateinit var workerFactory: HiltWorkerFactory
 
-    init {
-        Timber.plant(
-            if (BuildConfig.DEBUG) Timber.DebugTree()
-            else CrashReportingTree()
-        )
+  init {
+    Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else CrashReportingTree())
+  }
+
+  override fun onCreate() {
+    super.onCreate()
+    if (BuildConfig.DEBUG) {
+      Timber.d("DEBUG build config active; enabling debug tooling")
+
+      // Log failures when trying to do work in the UI thread.
+      setStrictMode()
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) {
-            Timber.d("DEBUG build config active; enabling debug tooling")
+    // Enable RxJava assembly stack collection for more useful stack traces.
+    RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf(javaClass.getPackage().name))
 
-            // Log failures when trying to do work in the UI thread.
-            setStrictMode()
-        }
+    WorkManager.initialize(applicationContext, workManagerConfiguration)
+  }
 
-        // Enable RxJava assembly stack collection for more useful stack traces.
-        RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf(javaClass.getPackage().name))
+  override fun getWorkManagerConfiguration(): Configuration {
+    return Configuration.Builder().setWorkerFactory(workerFactory).build()
+  }
 
-        WorkManager.initialize(applicationContext, workManagerConfiguration)
+  private fun setStrictMode() {
+    StrictMode.setThreadPolicy(ThreadPolicy.Builder().detectAll().penaltyLog().build())
+    StrictMode.setVmPolicy(VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build())
+  }
+
+  /** Reports any error with priority more than "info" to Crashlytics. */
+  private class CrashReportingTree : Timber.Tree() {
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+      if (priority > Log.INFO) {
+        val crashlytics = FirebaseCrashlytics.getInstance()
+        crashlytics.log(message)
+        if (t != null && priority == Log.ERROR) crashlytics.recordException(t)
+      }
     }
-
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder().setWorkerFactory(workerFactory).build()
-    }
-
-    private fun setStrictMode() {
-        StrictMode.setThreadPolicy(
-            ThreadPolicy.Builder().detectAll().penaltyLog().build()
-        )
-        StrictMode.setVmPolicy(
-            VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build()
-        )
-    }
-
-    /**
-     * Reports any error with priority more than "info" to Crashlytics.
-     */
-    private class CrashReportingTree : Timber.Tree() {
-        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-            if (priority > Log.INFO) {
-                val crashlytics = FirebaseCrashlytics.getInstance()
-                crashlytics.log(message)
-                if (t != null && priority == Log.ERROR) crashlytics.recordException(t)
-            }
-        }
-    }
+  }
 }

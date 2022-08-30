@@ -25,18 +25,12 @@ import java8.util.Optional
 import javax.inject.Inject
 
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
-    AbstractDialogTaskViewModel(resources) {
+  AbstractDialogTaskViewModel(resources) {
 
-    fun getCurrentResponse(): Optional<MultipleChoiceResponse> =
-        response.value?.map { it as MultipleChoiceResponse }
-            ?: Optional.empty()
+  fun getCurrentResponse(): Optional<MultipleChoiceResponse> =
+    response.value?.map { it as MultipleChoiceResponse } ?: Optional.empty()
 
-    fun updateResponse(options: ImmutableList<Option>) {
-        setResponse(
-            fromList(
-                task.multipleChoice,
-                options.map(Option::id).toImmutableList()
-            )
-        )
-    }
+  fun updateResponse(options: ImmutableList<Option>) {
+    setResponse(fromList(task.multipleChoice, options.map(Option::id).toImmutableList()))
+  }
 }

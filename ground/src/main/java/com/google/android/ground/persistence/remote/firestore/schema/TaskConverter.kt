@@ -23,29 +23,20 @@ import com.google.android.ground.util.Enums.toEnum
 import java8.util.Optional
 import timber.log.Timber
 
-/** Converts between Firestore nested objects and [Task] instances.  */
+/** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
 
-    fun toTask(id: String, em: TaskNestedObject): Optional<Task> {
-        val type = toEnum(
-            Task.Type::class.java, em.type!!
-        )
-        if (type == Task.Type.UNKNOWN) {
-            Timber.d("Unsupported task type: ${em.type}")
-            return Optional.empty()
-        }
-        // Default index to -1 to degrade gracefully on older dev db instances and surveys.
-        val multipleChoice: MultipleChoice? =
-            if (type == Task.Type.MULTIPLE_CHOICE) toMultipleChoice(em) else null
-        return Optional.of(
-            Task(
-                id,
-                em.index ?: -1,
-                type,
-                em.label!!,
-                em.required != null && em.required,
-                multipleChoice
-            )
-        )
+  fun toTask(id: String, em: TaskNestedObject): Optional<Task> {
+    val type = toEnum(Task.Type::class.java, em.type!!)
+    if (type == Task.Type.UNKNOWN) {
+      Timber.d("Unsupported task type: ${em.type}")
+      return Optional.empty()
     }
+    // Default index to -1 to degrade gracefully on older dev db instances and surveys.
+    val multipleChoice: MultipleChoice? =
+      if (type == Task.Type.MULTIPLE_CHOICE) toMultipleChoice(em) else null
+    return Optional.of(
+      Task(id, em.index ?: -1, type, em.label!!, em.required != null && em.required, multipleChoice)
+    )
+  }
 }

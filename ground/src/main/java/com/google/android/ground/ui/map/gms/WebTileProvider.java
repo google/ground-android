@@ -25,7 +25,7 @@ import timber.log.Timber;
 /**
  * Fetches tile imagery from a server according to a formatted URL.
  *
- * <p>Tile URLs should have the format: host/z/x/y</p>
+ * <p>Tile URLs should have the format: host/z/x/y
  */
 public class WebTileProvider extends UrlTileProvider {
   private final String formatUrl;

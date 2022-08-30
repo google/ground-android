@@ -28,45 +28,44 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocationOfInterestRepositionViewModelTest : BaseHiltTest() {
-    @Inject
-    lateinit var viewModel: LocationOfInterestRepositionViewModel
+  @Inject lateinit var viewModel: LocationOfInterestRepositionViewModel
 
-    @Test
-    fun testConfirmButtonClicks_notReplayed() {
-        viewModel.onCameraMoved(TEST_POINT)
+  @Test
+  fun testConfirmButtonClicks_notReplayed() {
+    viewModel.onCameraMoved(TEST_POINT)
 
-        viewModel.onConfirmButtonClick()
+    viewModel.onConfirmButtonClick()
 
-        viewModel.confirmButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
-    }
+    viewModel.confirmButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
+  }
 
-    @Test
-    fun testConfirmButtonClicks() {
-        viewModel.onCameraMoved(TEST_POINT)
-        val testObserver = viewModel.confirmButtonClicks.test()
+  @Test
+  fun testConfirmButtonClicks() {
+    viewModel.onCameraMoved(TEST_POINT)
+    val testObserver = viewModel.confirmButtonClicks.test()
 
-        viewModel.onConfirmButtonClick()
+    viewModel.onConfirmButtonClick()
 
-        testObserver.assertValue(TEST_POINT).assertNoErrors().assertNotComplete()
-    }
+    testObserver.assertValue(TEST_POINT).assertNoErrors().assertNotComplete()
+  }
 
-    @Test
-    fun testCancelButtonClicks_notReplayed() {
-        viewModel.onCancelButtonClick()
+  @Test
+  fun testCancelButtonClicks_notReplayed() {
+    viewModel.onCancelButtonClick()
 
-        viewModel.cancelButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
-    }
+    viewModel.cancelButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
+  }
 
-    @Test
-    fun testCancelButtonClicks() {
-        val testObserver = viewModel.cancelButtonClicks.test()
+  @Test
+  fun testCancelButtonClicks() {
+    val testObserver = viewModel.cancelButtonClicks.test()
 
-        viewModel.onCancelButtonClick()
+    viewModel.onCancelButtonClick()
 
-        testObserver.assertValue(Nil.NIL).assertNoErrors().assertNotComplete()
-    }
+    testObserver.assertValue(Nil.NIL).assertNoErrors().assertNotComplete()
+  }
 
-    companion object {
-        private val TEST_POINT = Point(Coordinate(0.0, 0.0))
-    }
+  companion object {
+    private val TEST_POINT = Point(Coordinate(0.0, 0.0))
+  }
 }

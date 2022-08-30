@@ -19,14 +19,11 @@ import android.app.Activity
 import android.content.Intent
 
 /** Represents the arguments of an [Activity.onActivityResult] event. */
-data class ActivityResult(
-    val requestCode: Int,
-    val resultCode: Int,
-    val data: Intent?
-) {
+data class ActivityResult(val requestCode: Int, val resultCode: Int, val data: Intent?) {
 
-    /**
-     * Returns true iff the system provided a result of [Activity.RESULT_OK] to the `onActivityResult` callback.
-     */
-    fun isOk() = resultCode == Activity.RESULT_OK
+  /**
+   * Returns true iff the system provided a result of [Activity.RESULT_OK] to the `onActivityResult`
+   * callback.
+   */
+  fun isOk() = resultCode == Activity.RESULT_OK
 }

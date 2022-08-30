@@ -17,16 +17,15 @@ package com.google.android.ground.system
 
 import android.content.pm.PackageManager
 
-/** Represents the arguments of an [Activity.onActivityResult] event.  */
-class RequestPermissionsResult internal constructor(
-    val requestCode: Int, permissions: Array<String>, grantResults: IntArray
-) {
-    private val permissionGrantResults: Map<String, Int> =
-        IntRange(0, permissions.size - 1).associate { Pair(permissions[it], grantResults[it]) }
+/** Represents the arguments of an [Activity.onActivityResult] event. */
+class RequestPermissionsResult
+internal constructor(val requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+  private val permissionGrantResults: Map<String, Int> =
+    IntRange(0, permissions.size - 1).associate { Pair(permissions[it], grantResults[it]) }
 
-    /**
-     * Returns true iff the event indicated the specified permission is granted to the application.
-     */
-    fun isGranted(permission: String): Boolean =
-        permissionGrantResults[permission] == PackageManager.PERMISSION_GRANTED
+  /**
+   * Returns true iff the event indicated the specified permission is granted to the application.
+   */
+  fun isGranted(permission: String): Boolean =
+    permissionGrantResults[permission] == PackageManager.PERMISSION_GRANTED
 }

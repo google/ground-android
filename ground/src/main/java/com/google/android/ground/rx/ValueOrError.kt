@@ -21,13 +21,11 @@ import java8.util.Optional
  * Represents the outcome of an operation that either succeeds with a value, or fails with an
  * exception.
  *
- * @param <T> the type of value held by instances of this `ValueOrError`.
-</T> */
-open class ValueOrError<T> protected constructor(
-    private val value: T?,
-    private val error: Throwable?
-) {
-    fun value(): Optional<T> = Optional.ofNullable(value)
+ * @param <T> the type of value held by instances of this `ValueOrError`. </T>
+ */
+open class ValueOrError<T>
+protected constructor(private val value: T?, private val error: Throwable?) {
+  fun value(): Optional<T> = Optional.ofNullable(value)
 
-    fun error(): Optional<Throwable?> = Optional.ofNullable(error)
+  fun error(): Optional<Throwable?> = Optional.ofNullable(error)
 }

@@ -20,9 +20,9 @@ import com.google.android.ground.model.submission.NumberResponse.Companion.fromN
 import javax.inject.Inject
 
 class NumberTaskViewModel @Inject constructor(resources: Resources) :
-    AbstractTaskViewModel(resources) {
+  AbstractTaskViewModel(resources) {
 
-    fun updateResponse(number: String) {
-        setResponse(fromNumber(number))
-    }
+  fun updateResponse(number: String) {
+    setResponse(fromNumber(number))
+  }
 }

@@ -23,20 +23,20 @@ import com.google.firebase.firestore.WriteBatch
 
 open class FluentDocumentReference protected constructor(private val reference: DocumentReference) {
 
-    /**
-     * Adds a request to the specified batch to merge the provided key-value pairs into the remote
-     * database. If the document does not yet exist, one is created on commit.
-     */
-    protected fun merge(values: ImmutableMap<String, Any>, batch: WriteBatch) {
-        batch[reference, values] = SetOptions.merge()
-    }
+  /**
+   * Adds a request to the specified batch to merge the provided key-value pairs into the remote
+   * database. If the document does not yet exist, one is created on commit.
+   */
+  protected fun merge(values: ImmutableMap<String, Any>, batch: WriteBatch) {
+    batch[reference, values] = SetOptions.merge()
+  }
 
-    /** Adds a request to the specified batch to delete the current DocumentReference.  */
-    protected fun delete(batch: WriteBatch) {
-        batch.delete(reference)
-    }
+  /** Adds a request to the specified batch to delete the current DocumentReference. */
+  protected fun delete(batch: WriteBatch) {
+    batch.delete(reference)
+  }
 
-    protected fun reference(): DocumentReference = reference
+  protected fun reference(): DocumentReference = reference
 
-    override fun toString(): String = reference.path
+  override fun toString(): String = reference.path
 }

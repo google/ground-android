@@ -38,62 +38,59 @@ import javax.inject.Singleton
 @Singleton
 class FirestoreStorageManager @Inject constructor() : RemoteStorageManager {
 
-    @Inject
-    lateinit var storageReference: StorageReference
+  @Inject lateinit var storageReference: StorageReference
 
-    private fun createReference(path: String): StorageReference = storageReference.child(path)
+  private fun createReference(path: String): StorageReference = storageReference.child(path)
 
-    // StorageException's constructor logs errors, so even though we handle the exception,
-    // an ERROR level log line is added which could be misleading to developers. We log an extra
-    // error message here as an extra hint that the log line is probably noise.
-    override fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri> =
-        RxTask.toSingle { createReference(remoteDestinationPath).downloadUrl }
-            .doOnError { Timber.e(it, "StorageException handled and can be ignored") }
+  // StorageException's constructor logs errors, so even though we handle the exception,
+  // an ERROR level log line is added which could be misleading to developers. We log an extra
+  // error message here as an extra hint that the log line is probably noise.
+  override fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri> =
+    RxTask.toSingle { createReference(remoteDestinationPath).downloadUrl }
+      .doOnError { Timber.e(it, "StorageException handled and can be ignored") }
 
-    override fun uploadMediaFromFile(
-        file: File,
-        remoteDestinationPath: String
-    ): @Cold Flowable<TransferProgress> =
-        Flowable.create(
-            { emitter: FlowableEmitter<TransferProgress> ->
-                createReference(remoteDestinationPath)
-                    .putFile(Uri.fromFile(file))
-                    .addOnCompleteListener {
-                        // Do not delete the file after successful upload. It is used as a cache
-                        // while viewing submissions when network is unavailable.
-                        emitter.onComplete()
-                    }
-                    .addOnPausedListener { emitter.onNext(paused()) }
-                    .addOnFailureListener { emitter.onError(it) }
-                    .addOnProgressListener {
-                        emitter.onNext(
-                            inProgress(it.totalByteCount.toInt(), it.bytesTransferred.toInt())
-                        )
-                    }
-            },
-            BackpressureStrategy.LATEST
-        )
+  override fun uploadMediaFromFile(
+    file: File,
+    remoteDestinationPath: String
+  ): @Cold Flowable<TransferProgress> =
+    Flowable.create(
+      { emitter: FlowableEmitter<TransferProgress> ->
+        createReference(remoteDestinationPath)
+          .putFile(Uri.fromFile(file))
+          .addOnCompleteListener {
+            // Do not delete the file after successful upload. It is used as a cache
+            // while viewing submissions when network is unavailable.
+            emitter.onComplete()
+          }
+          .addOnPausedListener { emitter.onNext(paused()) }
+          .addOnFailureListener { emitter.onError(it) }
+          .addOnProgressListener {
+            emitter.onNext(inProgress(it.totalByteCount.toInt(), it.bytesTransferred.toInt()))
+          }
+      },
+      BackpressureStrategy.LATEST
+    )
 
-    companion object {
-        /**
-         * Top-level directory in Cloud Storage where user media is stored.
-         */
-        private const val MEDIA_ROOT_DIR = "user-media"
+  companion object {
+    /** Top-level directory in Cloud Storage where user media is stored. */
+    private const val MEDIA_ROOT_DIR = "user-media"
 
-        /**
-         * Generates destination path in which an submission attachment is to be stored in to Cloud
-         * Storage.
-         *
-         * user-media/surveys/{survey_id}/submissions/{submission_id}/{field_id-uuid.jpg}
-         */
-        // TODO: Refactor this into MediaStorageRepository.
-        @JvmStatic
-        fun getRemoteMediaPath(
-            surveyId: String,
-            submissionId: String,
-            filename: String
-        ): String = StringJoiner(File.separator)
-            .add(MEDIA_ROOT_DIR).add("surveys").add(surveyId).add("submissions").add(submissionId)
-            .add(filename).toString()
-    }
+    /**
+     * Generates destination path in which an submission attachment is to be stored in to Cloud
+     * Storage.
+     *
+     * user-media/surveys/{survey_id}/submissions/{submission_id}/{field_id-uuid.jpg}
+     */
+    // TODO: Refactor this into MediaStorageRepository.
+    @JvmStatic
+    fun getRemoteMediaPath(surveyId: String, submissionId: String, filename: String): String =
+      StringJoiner(File.separator)
+        .add(MEDIA_ROOT_DIR)
+        .add("surveys")
+        .add(surveyId)
+        .add("submissions")
+        .add(submissionId)
+        .add(filename)
+        .toString()
+  }
 }

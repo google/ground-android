@@ -22,112 +22,113 @@ import java.util.*
  * store.
  */
 sealed class Mutation {
-    abstract val id: Long?
-    abstract val type: Type
-    abstract val syncStatus: SyncStatus
-    abstract val surveyId: String
-    abstract val locationOfInterestId: String
-    abstract val userId: String
-    abstract val clientTimestamp: Date
-    abstract val retryCount: Long
-    abstract val lastError: String
+  abstract val id: Long?
+  abstract val type: Type
+  abstract val syncStatus: SyncStatus
+  abstract val surveyId: String
+  abstract val locationOfInterestId: String
+  abstract val userId: String
+  abstract val clientTimestamp: Date
+  abstract val retryCount: Long
+  abstract val lastError: String
 
-    enum class Type {
-        /** Indicates a new entity should be created.  */
-        CREATE,
+  enum class Type {
+    /** Indicates a new entity should be created. */
+    CREATE,
 
-        /** Indicates an existing entity should be updated.  */
-        UPDATE,
+    /** Indicates an existing entity should be updated. */
+    UPDATE,
 
-        /** Indicates an existing entity should be marked for deletion.  */
-        DELETE,
+    /** Indicates an existing entity should be marked for deletion. */
+    DELETE,
 
-        /** Indicates database skew or an implementation bug.  */
-        UNKNOWN
+    /** Indicates database skew or an implementation bug. */
+    UNKNOWN
+  }
+
+  /** Status of mutation being applied to remote data store. */
+  enum class SyncStatus {
+    /** Invalid or unrecognized state. */
+    UNKNOWN,
+
+    /** Sync pending. Pending includes failed sync attempts pending retry. */
+    PENDING,
+
+    /** Sync currently in progress. */
+    IN_PROGRESS,
+
+    /** Sync complete. */
+    COMPLETED,
+
+    /** Failed indicates all retries have failed. */
+    FAILED
+  }
+
+  abstract fun toBuilder(): Builder<*>
+
+  override fun toString(): String {
+    return "$syncStatus $type $clientTimestamp"
+  }
+
+  // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
+  abstract inner class Builder<T : Mutation> {
+    var id: Long? = null
+      @JvmSynthetic set
+    var type: Type = Type.UNKNOWN
+      @JvmSynthetic set
+    var syncStatus: SyncStatus = SyncStatus.UNKNOWN
+      @JvmSynthetic set
+    var surveyId: String = ""
+      @JvmSynthetic set
+    var locationOfInterestId: String = ""
+      @JvmSynthetic set
+    var userId: String = ""
+      @JvmSynthetic set
+    var clientTimestamp: Date = Date()
+      @JvmSynthetic set
+    var retryCount: Long = 0
+      @JvmSynthetic set
+    var lastError: String = ""
+      @JvmSynthetic set
+
+    fun setId(id: Long?): Builder<T> = apply { this.id = id }
+    fun setType(type: Type): Builder<T> = apply { this.type = type }
+    fun setSyncStatus(syncStatus: SyncStatus): Builder<T> = apply { this.syncStatus = syncStatus }
+
+    fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
+    fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> = apply {
+      this.locationOfInterestId = locationOfInterestId
     }
 
-    /** Status of mutation being applied to remote data store.  */
-    enum class SyncStatus {
-        /** Invalid or unrecognized state.  */
-        UNKNOWN,
+    fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
+    fun setClientTimestamp(timestamp: Date): Builder<T> = apply { this.clientTimestamp = timestamp }
 
-        /** Sync pending. Pending includes failed sync attempts pending retry.  */
-        PENDING,
+    fun setRetryCount(count: Long): Builder<T> = apply { this.retryCount = count }
+    fun setLastError(error: String): Builder<T> = apply { this.lastError = error }
 
-        /** Sync currently in progress.  */
-        IN_PROGRESS,
-
-        /** Sync complete.  */
-        COMPLETED,
-
-        /** Failed indicates all retries have failed.  */
-        FAILED
+    fun fromMutation(mutation: T): Builder<T> {
+      return this.apply {
+        id = mutation.id
+        type = mutation.type
+        syncStatus = mutation.syncStatus
+        surveyId = mutation.surveyId
+        locationOfInterestId = mutation.locationOfInterestId
+        userId = mutation.userId
+        clientTimestamp = mutation.clientTimestamp
+        retryCount = mutation.retryCount
+        lastError = lastError
+      }
     }
 
-    abstract fun toBuilder(): Builder<*>
+    abstract fun build(): T
+  }
 
-    override fun toString(): String {
-        return "$syncStatus $type $clientTimestamp"
+  companion object {
+    @JvmStatic
+    fun byDescendingClientTimestamp(): Comparator<Mutation> {
+      return Comparator { m1: Mutation, m2: Mutation ->
+        m2.clientTimestamp.compareTo(m1.clientTimestamp)
+      }
     }
-
-    // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
-    abstract inner class Builder<T : Mutation> {
-        var id: Long? = null
-            @JvmSynthetic set
-        var type: Type = Type.UNKNOWN
-            @JvmSynthetic set
-        var syncStatus: SyncStatus = SyncStatus.UNKNOWN
-            @JvmSynthetic set
-        var surveyId: String = ""
-            @JvmSynthetic set
-        var locationOfInterestId: String = ""
-            @JvmSynthetic set
-        var userId: String = ""
-            @JvmSynthetic set
-        var clientTimestamp: Date = Date()
-            @JvmSynthetic set
-        var retryCount: Long = 0
-            @JvmSynthetic set
-        var lastError: String = ""
-            @JvmSynthetic set
-
-        fun setId(id: Long?): Builder<T> = apply { this.id = id }
-        fun setType(type: Type): Builder<T> = apply { this.type = type }
-        fun setSyncStatus(syncStatus: SyncStatus): Builder<T> =
-            apply { this.syncStatus = syncStatus }
-
-        fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
-        fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> =
-            apply { this.locationOfInterestId = locationOfInterestId }
-
-        fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
-        fun setClientTimestamp(timestamp: Date): Builder<T> =
-            apply { this.clientTimestamp = timestamp }
-
-        fun setRetryCount(count: Long): Builder<T> = apply { this.retryCount = count }
-        fun setLastError(error: String): Builder<T> = apply { this.lastError = error }
-
-        fun fromMutation(mutation: T): Builder<T> {
-            return this.apply {
-                id = mutation.id
-                type = mutation.type
-                syncStatus = mutation.syncStatus
-                surveyId = mutation.surveyId
-                locationOfInterestId = mutation.locationOfInterestId
-                userId = mutation.userId
-                clientTimestamp = mutation.clientTimestamp
-                retryCount = mutation.retryCount
-                lastError = lastError
-            }
-        }
-
-        abstract fun build(): T
-    }
-
-    companion object {
-        @JvmStatic
-        fun byDescendingClientTimestamp(): Comparator<Mutation> {
-            return Comparator { m1: Mutation, m2: Mutation -> m2.clientTimestamp.compareTo(m1.clientTimestamp) }
-        }
-    }
+  }
 }

@@ -25,29 +25,30 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import java8.util.function.Function
 
-/** Base class for representing Firestore databases as object hierarchies.  */
+/** Base class for representing Firestore databases as object hierarchies. */
 abstract class FluentFirestore protected constructor(private val db: FirebaseFirestore) {
 
-    protected fun db(): FirebaseFirestore = db
+  protected fun db(): FirebaseFirestore = db
 
-    // TODO: Wrap in fluent version of WriteBatch.
-    fun batch(): WriteBatch {
-        return db.batch()
-    }
+  // TODO: Wrap in fluent version of WriteBatch.
+  fun batch(): WriteBatch {
+    return db.batch()
+  }
 
-    companion object {
-        /**
-         * Applies the provided mapping function to each document in the specified query snapshot, if
-         * present. If no results are present, completes with an empty list.
-         */
-        fun <T> toSingleList(
-            result: Maybe<QuerySnapshot>, mappingFunction: Function<DocumentSnapshot, T>
-        ): @Cold Single<List<T>> {
-            return result
-                .map { querySnapshot: QuerySnapshot ->
-                    querySnapshot.documents.map { mappingFunction.apply(it) }
-                }
-                .toSingle(emptyList())
+  companion object {
+    /**
+     * Applies the provided mapping function to each document in the specified query snapshot, if
+     * present. If no results are present, completes with an empty list.
+     */
+    fun <T> toSingleList(
+      result: Maybe<QuerySnapshot>,
+      mappingFunction: Function<DocumentSnapshot, T>
+    ): @Cold Single<List<T>> {
+      return result
+        .map { querySnapshot: QuerySnapshot ->
+          querySnapshot.documents.map { mappingFunction.apply(it) }
         }
+        .toSingle(emptyList())
     }
+  }
 }

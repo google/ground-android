@@ -18,12 +18,12 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Project entity stored in Firestore.  */
+/** Project entity stored in Firestore. */
 @IgnoreExtraProperties
 data class SurveyDocument(
-    val title: String? = null,
-    val description: String? = null,
-    val jobs: Map<String, JobNestedObject>? = null,
-    val acl: Map<String, String>? = null,
-    val baseMaps: List<BaseMapNestedObject>? = null
+  val title: String? = null,
+  val description: String? = null,
+  val jobs: Map<String, JobNestedObject>? = null,
+  val acl: Map<String, String>? = null,
+  val baseMaps: List<BaseMapNestedObject>? = null
 )

@@ -23,17 +23,16 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.WriteBatch
 
 class LoiDocumentReference internal constructor(ref: DocumentReference) :
-    FluentDocumentReference(ref) {
+  FluentDocumentReference(ref) {
 
-    /** Appends the operation described by the specified mutation to the provided write batch.  */
-    fun addMutationToBatch(mutation: LocationOfInterestMutation, user: User, batch: WriteBatch) =
-        when (mutation.type) {
-            Mutation.Type.CREATE, Mutation.Type.UPDATE ->
-                merge(LoiMutationConverter.toMap(mutation, user), batch)
-            Mutation.Type.DELETE ->
-                // The server is expected to do a cascading delete of all submissions for the deleted LOI.
-                delete(batch)
-            else ->
-                throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
-        }
+  /** Appends the operation described by the specified mutation to the provided write batch. */
+  fun addMutationToBatch(mutation: LocationOfInterestMutation, user: User, batch: WriteBatch) =
+    when (mutation.type) {
+      Mutation.Type.CREATE,
+      Mutation.Type.UPDATE -> merge(LoiMutationConverter.toMap(mutation, user), batch)
+      Mutation.Type.DELETE ->
+        // The server is expected to do a cascading delete of all submissions for the deleted LOI.
+        delete(batch)
+      else -> throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
+    }
 }

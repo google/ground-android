@@ -22,14 +22,10 @@ import com.google.android.ground.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import timber.log.Timber;
 
-/**
- * Abstracts access to dimensions and positions of elements relative to the bottom sheet UI.
- */
+/** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
 public class BottomSheetMetrics {
 
-  /**
-   * Fallback toolbar height - margin top used when toolbar height is uninitialized.
-   */
+  /** Fallback toolbar height - margin top used when toolbar height is uninitialized. */
   public static final int FALLBACK_EXPANDED_OFFSET = 210 - 168;
 
   private final CoordinatorLayout parent;
@@ -50,9 +46,7 @@ public class BottomSheetMetrics {
     this.marginTop = (int) parent.getResources().getDimension(R.dimen.bottom_sheet_margin_top);
   }
 
-  /**
-   * Returns the number of pixels of the bottom sheet visible above the bottom of the screen.
-   */
+  /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
   public int getVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
@@ -64,8 +58,7 @@ public class BottomSheetMetrics {
    * ratio for all values in between.
    */
   public float getRevealRatio() {
-    float buttonDistanceFromBottom =
-        Math.max(parent.getHeight() - addSubmissionButton.getTop(), 0);
+    float buttonDistanceFromBottom = Math.max(parent.getHeight() - addSubmissionButton.getTop(), 0);
     float sheetBodyVisibleHeight = getVisibleHeight() - header.getHeight();
     return Math.min(sheetBodyVisibleHeight / buttonDistanceFromBottom, 1.0f);
   }

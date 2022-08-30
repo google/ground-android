@@ -28,53 +28,48 @@ import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
 
-/** Converts between Firestore documents and [Survey] instances.  */
+/** Converts between Firestore documents and [Survey] instances. */
 internal object SurveyConverter {
 
-    @Throws(DataStoreException::class)
-    fun toSurvey(doc: DocumentSnapshot): Survey {
-        val pd = DataStoreException.checkNotNull(
-            doc.toObject(SurveyDocument::class.java), "surveyDocument"
-        )
+  @Throws(DataStoreException::class)
+  fun toSurvey(doc: DocumentSnapshot): Survey {
+    val pd =
+      DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")
 
-        val jobMap = ImmutableMap.builder<String, Job>()
-        if (pd.jobs != null) {
-            pd.jobs.forEach { (id: String, obj: JobNestedObject) ->
-                jobMap.put(id, toJob(id, obj))
-            }
-        }
-
-        val baseMaps = ImmutableList.builder<BaseMap>()
-        if (pd.baseMaps != null) {
-            convertOfflineBaseMapSources(pd, baseMaps)
-        }
-
-        return Survey(
-            doc.id,
-            pd.title.orEmpty(),
-            pd.description.orEmpty(),
-            jobMap.build(),
-            baseMaps.build(),
-            ImmutableMap.copyOf(pd.acl)
-        )
+    val jobMap = ImmutableMap.builder<String, Job>()
+    if (pd.jobs != null) {
+      pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap.put(id, toJob(id, obj)) }
     }
 
-    private fun convertOfflineBaseMapSources(
-        pd: SurveyDocument,
-        builder: ImmutableList.Builder<BaseMap>
-    ) {
-        for ((url) in pd.baseMaps!!) {
-            if (url == null) {
-                Timber.d("Skipping base map source in survey with missing URL")
-                continue
-            }
-            try {
-                builder.add(
-                    BaseMap(URL(url), BaseMap.typeFromExtension(url))
-                )
-            } catch (e: MalformedURLException) {
-                Timber.d("Skipping base map source in survey with malformed URL")
-            }
-        }
+    val baseMaps = ImmutableList.builder<BaseMap>()
+    if (pd.baseMaps != null) {
+      convertOfflineBaseMapSources(pd, baseMaps)
     }
+
+    return Survey(
+      doc.id,
+      pd.title.orEmpty(),
+      pd.description.orEmpty(),
+      jobMap.build(),
+      baseMaps.build(),
+      ImmutableMap.copyOf(pd.acl)
+    )
+  }
+
+  private fun convertOfflineBaseMapSources(
+    pd: SurveyDocument,
+    builder: ImmutableList.Builder<BaseMap>
+  ) {
+    for ((url) in pd.baseMaps!!) {
+      if (url == null) {
+        Timber.d("Skipping base map source in survey with missing URL")
+        continue
+      }
+      try {
+        builder.add(BaseMap(URL(url), BaseMap.typeFromExtension(url)))
+      } catch (e: MalformedURLException) {
+        Timber.d("Skipping base map source in survey with malformed URL")
+      }
+    }
+  }
 }

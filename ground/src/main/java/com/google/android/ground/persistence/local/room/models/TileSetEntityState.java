@@ -49,4 +49,3 @@ public enum TileSetEntityState implements IntEnum {
     return IntEnum.fromInt(values(), intValue, UNKNOWN);
   }
 }
-

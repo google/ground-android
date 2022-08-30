@@ -23,22 +23,24 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.Timestamp
 import java8.util.Optional
 
-/** Converts between Firestore nested objects and [AuditInfo] instances.  */
+/** Converts between Firestore nested objects and [AuditInfo] instances. */
 internal object AuditInfoConverter {
 
-    @Throws(DataStoreException::class)
-    fun toAuditInfo(doc: AuditInfoNestedObject): AuditInfo {
-        DataStoreException.checkNotNull(doc.clientTimestamp, "clientTimestamp")
-        return AuditInfo(
-            UserConverter.toUser(doc.user),
-            doc.clientTimestamp!!.toDate(),
-            Optional.ofNullable(doc.serverTimestamp?.toDate())
-        )
-    }
+  @Throws(DataStoreException::class)
+  fun toAuditInfo(doc: AuditInfoNestedObject): AuditInfo {
+    DataStoreException.checkNotNull(doc.clientTimestamp, "clientTimestamp")
+    return AuditInfo(
+      UserConverter.toUser(doc.user),
+      doc.clientTimestamp!!.toDate(),
+      Optional.ofNullable(doc.serverTimestamp?.toDate())
+    )
+  }
 
-    @JvmStatic
-    fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject =
-        AuditInfoNestedObject(
-            UserConverter.toNestedObject(user), Timestamp(mutation.clientTimestamp), null
-        )
+  @JvmStatic
+  fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject =
+    AuditInfoNestedObject(
+      UserConverter.toNestedObject(user),
+      Timestamp(mutation.clientTimestamp),
+      null
+    )
 }

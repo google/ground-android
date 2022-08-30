@@ -29,29 +29,30 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
 
-    @Inject
-    lateinit var popups: EphemeralPopups
+  @Inject lateinit var popups: EphemeralPopups
 
-    private lateinit var viewModel: TermsOfServiceViewModel
+  private lateinit var viewModel: TermsOfServiceViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val args = TermsOfServiceFragmentArgs.fromBundle(arguments!!)
-        viewModel = getViewModel(TermsOfServiceViewModel::class.java)
-        viewModel.termsOfServiceText = args.termsOfServiceText.orEmpty()
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    val args = TermsOfServiceFragmentArgs.fromBundle(arguments!!)
+    viewModel = getViewModel(TermsOfServiceViewModel::class.java)
+    viewModel.termsOfServiceText = args.termsOfServiceText.orEmpty()
+  }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
-        return binding.root
-    }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
+    return binding.root
+  }
 
-    override fun onBack(): Boolean {
-        requireActivity().finish()
-        return false
-    }
+  override fun onBack(): Boolean {
+    requireActivity().finish()
+    return false
+  }
 }

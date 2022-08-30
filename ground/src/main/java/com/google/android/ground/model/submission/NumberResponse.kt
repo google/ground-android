@@ -18,21 +18,19 @@ package com.google.android.ground.model.submission
 import java8.util.Optional
 import kotlinx.serialization.Serializable
 
-/**
- * A user provided response to a number question task.
- */
+/** A user provided response to a number question task. */
 @Serializable
 data class NumberResponse constructor(private val number: String) : Response {
-    val value: Double
-        get() = number.toDouble()
+  val value: Double
+    get() = number.toDouble()
 
-    override fun getDetailsText(): String = number
+  override fun getDetailsText(): String = number
 
-    override fun isEmpty(): Boolean = number.isEmpty()
+  override fun isEmpty(): Boolean = number.isEmpty()
 
-    companion object {
-        @JvmStatic
-        fun fromNumber(number: String): Optional<Response> =
-            if (number.isEmpty()) Optional.empty() else Optional.of(NumberResponse(number))
-    }
+  companion object {
+    @JvmStatic
+    fun fromNumber(number: String): Optional<Response> =
+      if (number.isEmpty()) Optional.empty() else Optional.of(NumberResponse(number))
+  }
 }

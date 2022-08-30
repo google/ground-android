@@ -18,12 +18,9 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.task.Option
 
-/**
- * Converts between Firestore nested objects and [Option] instances.
- */
+/** Converts between Firestore nested objects and [Option] instances. */
 internal object OptionConverter {
 
-    fun toOption(id: String, option: OptionNestedObject): Option =
-        Option(id, option.code.orEmpty(), option.label.orEmpty())
-
+  fun toOption(id: String, option: OptionNestedObject): Option =
+    Option(id, option.code.orEmpty(), option.label.orEmpty())
 }

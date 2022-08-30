@@ -15,9 +15,9 @@
  */
 package com.google.android.ground.model.submission
 
-/** A user-provided response to a single [Task].  */
+/** A user-provided response to a single [Task]. */
 interface Response {
-    fun getSummaryText(): String = getDetailsText()
-    fun getDetailsText(): String
-    fun isEmpty(): Boolean
+  fun getSummaryText(): String = getDetailsText()
+  fun getDetailsText(): String
+  fun isEmpty(): Boolean
 }

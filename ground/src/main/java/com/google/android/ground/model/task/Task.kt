@@ -16,23 +16,30 @@
 package com.google.android.ground.model.task
 
 /**
- * Describes a user-defined task. Does not contain actual task responses (see [Response]
- * instead.
+ * Describes a user-defined task. Does not contain actual task responses (see [Response] instead.
  */
-data class Task @JvmOverloads constructor(
-    val id: String,
-    /** Returns the sequential index of the task, used by UIs to sort prompts and results.  */
-    val index: Int,
-    val type: Type,
-    val label: String,
-    val isRequired: Boolean,
-    val multipleChoice: MultipleChoice? = null
+data class Task
+@JvmOverloads
+constructor(
+  val id: String,
+  /** Returns the sequential index of the task, used by UIs to sort prompts and results. */
+  val index: Int,
+  val type: Type,
+  val label: String,
+  val isRequired: Boolean,
+  val multipleChoice: MultipleChoice? = null
 ) {
-    /**
-     * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME! TODO: Define
-     * these in data layer!
-     */
-    enum class Type {
-        UNKNOWN, TEXT, MULTIPLE_CHOICE, PHOTO, NUMBER, DATE, TIME
-    }
+  /**
+   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME! TODO: Define
+   * these in data layer!
+   */
+  enum class Type {
+    UNKNOWN,
+    TEXT,
+    MULTIPLE_CHOICE,
+    PHOTO,
+    NUMBER,
+    DATE,
+    TIME
+  }
 }

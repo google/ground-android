@@ -38,9 +38,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     this.creators = creators;
   }
 
-  /**
-   * Instantiates a new instance of the specified view model, injecting required dependencies.
-   */
+  /** Instantiates a new instance of the specified view model, injecting required dependencies. */
   @Override
   public <T extends ViewModel> T create(Class<T> modelClass) {
     Provider<? extends ViewModel> creator = creators.get(modelClass);
@@ -62,9 +60,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     }
   }
 
-  /**
-   * Returns an instance of the specified view model scoped to the provided activity.
-   */
+  /** Returns an instance of the specified view model scoped to the provided activity. */
   public <T extends ViewModel> T get(FragmentActivity activity, Class<T> modelClass) {
     return ViewModelProviders.of(activity, this).get(modelClass);
   }

@@ -22,37 +22,32 @@ import java8.util.Optional
 /**
  * An immutable map of task ids to related user responses.
  *
- * @property responses A map from task id to user response. This map is mutable and therefore should never be exposed
- * outside this class.
+ * @property responses A map from task id to user response. This map is mutable and therefore should
+ * never be exposed outside this class.
  */
-data class ResponseMap constructor(private val responses: Map<String, Response?> = ImmutableMap.of()) {
+data class ResponseMap
+constructor(private val responses: Map<String, Response?> = ImmutableMap.of()) {
 
-    /**
-     * Returns the user response for the given task id, or empty if the user did not specify a
-     * response.
-     */
-    fun getResponse(taskId: String): Optional<Response> = Optional.ofNullable(
-        responses[taskId]
-    )
+  /**
+   * Returns the user response for the given task id, or empty if the user did not specify a
+   * response.
+   */
+  fun getResponse(taskId: String): Optional<Response> = Optional.ofNullable(responses[taskId])
 
-    /**
-     * Returns an Iterable over the task ids in this map.
-     */
-    fun taskIds(): Iterable<String> = responses.keys
+  /** Returns an Iterable over the task ids in this map. */
+  fun taskIds(): Iterable<String> = responses.keys
 
-    /**
-     * Adds, replaces, and/or removes responses based on the provided list of deltas.
-     */
-    fun copyWithDeltas(responseDeltas: ImmutableList<ResponseDelta>): ResponseMap {
-        val newResponses = responses.toMutableMap()
-        responseDeltas.forEach {
-            if (it.newResponse.isPresent) {
-                newResponses[it.taskId] = it.newResponse.get()
-            } else {
-                newResponses.remove(it.taskId)
-            }
-        }
-
-        return ResponseMap(newResponses)
+  /** Adds, replaces, and/or removes responses based on the provided list of deltas. */
+  fun copyWithDeltas(responseDeltas: ImmutableList<ResponseDelta>): ResponseMap {
+    val newResponses = responses.toMutableMap()
+    responseDeltas.forEach {
+      if (it.newResponse.isPresent) {
+        newResponses[it.taskId] = it.newResponse.get()
+      } else {
+        newResponses.remove(it.taskId)
+      }
     }
+
+    return ResponseMap(newResponses)
+  }
 }

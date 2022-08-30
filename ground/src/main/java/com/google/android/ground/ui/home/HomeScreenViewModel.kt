@@ -52,166 +52,153 @@ import java.util.*
 import javax.inject.Inject
 
 @SharedViewModel
-class HomeScreenViewModel @Inject internal constructor(
-    private val surveyRepository: SurveyRepository,
-    private val locationOfInterestRepository: LocationOfInterestRepository,
-    private val navigator: Navigator,
-    private val userRepository: UserRepository
+class HomeScreenViewModel
+@Inject
+internal constructor(
+  private val surveyRepository: SurveyRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val navigator: Navigator,
+  private val userRepository: UserRepository
 ) : AbstractViewModel() {
 
-    @JvmField
-    val isSubmissionButtonVisible: @Hot(replays = true) MutableLiveData<Boolean> =
-        MutableLiveData(false)
+  @JvmField
+  val isSubmissionButtonVisible: @Hot(replays = true) MutableLiveData<Boolean> =
+    MutableLiveData(false)
 
-    /** The state and value of the currently active survey (loading, loaded, etc.).  */
-    val surveyLoadingState: LiveData<Loadable<Survey>> =
-        LiveDataReactiveStreams.fromPublisher(surveyRepository.surveyLoadingState)
+  /** The state and value of the currently active survey (loading, loaded, etc.). */
+  val surveyLoadingState: LiveData<Loadable<Survey>> =
+    LiveDataReactiveStreams.fromPublisher(surveyRepository.surveyLoadingState)
 
-    // TODO(#719): Move into LocationOfInterestDetailsViewModel.
-    val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
-    val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> =
-        MutableLiveData()
-    private val addLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
-        PublishProcessor.create()
-    private val updateLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
-        PublishProcessor.create()
-    val addLocationOfInterestResults: @Hot Flowable<LocationOfInterest>
-    val updateLocationOfInterestResults: @Hot Flowable<Boolean>
-    val errors: @Hot FlowableProcessor<Throwable> = PublishProcessor.create()
-    val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
-        PublishSubject.create()
+  // TODO(#719): Move into LocationOfInterestDetailsViewModel.
+  val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
+  val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
+  private val addLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
+    PublishProcessor.create()
+  private val updateLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
+    PublishProcessor.create()
+  val addLocationOfInterestResults: @Hot Flowable<LocationOfInterest>
+  val updateLocationOfInterestResults: @Hot Flowable<Boolean>
+  val errors: @Hot FlowableProcessor<Throwable> = PublishProcessor.create()
+  val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
+    PublishSubject.create()
 
-    fun addLoi(job: Job, point: Point) {
-        activeSurvey
-            .ifPresentOrElse(
-                { survey: Survey ->
-                    addLocationOfInterestRequests.onNext(
-                        locationOfInterestRepository.newMutation(
-                            survey.id, job.id, point, Date()
-                        )
-                    )
-                }
-            ) { throw IllegalStateException("Empty survey") }
-    }
+  fun addLoi(job: Job, point: Point) {
+    activeSurvey.ifPresentOrElse({ survey: Survey ->
+      addLocationOfInterestRequests.onNext(
+        locationOfInterestRepository.newMutation(survey.id, job.id, point, Date())
+      )
+    }) { throw IllegalStateException("Empty survey") }
+  }
 
-    fun addPolygonOfInterest(areaOfInterest: LocationOfInterest) {
-        activeSurvey
-            .ifPresentOrElse(
-                { survey: Survey ->
-                    addLocationOfInterestRequests.onNext(
-                        locationOfInterestRepository.newPolygonOfInterestMutation(
-                            survey.id,
-                            areaOfInterest.job.id,
-                            areaOfInterest.geometry.vertices,
-                            Date()
-                        )
-                    )
-                }
-            ) { throw IllegalStateException("Empty survey") }
-    }
-
-    fun updateLocationOfInterest(locationOfInterest: LocationOfInterest) {
-        updateLocationOfInterestRequests.onNext(
-            locationOfInterest.toMutation(Mutation.Type.UPDATE, userRepository.currentUser.id)
+  fun addPolygonOfInterest(areaOfInterest: LocationOfInterest) {
+    activeSurvey.ifPresentOrElse({ survey: Survey ->
+      addLocationOfInterestRequests.onNext(
+        locationOfInterestRepository.newPolygonOfInterestMutation(
+          survey.id,
+          areaOfInterest.job.id,
+          areaOfInterest.geometry.vertices,
+          Date()
         )
-    }
+      )
+    }) { throw IllegalStateException("Empty survey") }
+  }
 
-    fun openNavDrawer() {
-        openDrawerRequests.onNext(Nil.NIL)
-    }
+  fun updateLocationOfInterest(locationOfInterest: LocationOfInterest) {
+    updateLocationOfInterestRequests.onNext(
+      locationOfInterest.toMutation(Mutation.Type.UPDATE, userRepository.currentUser.id)
+    )
+  }
 
-    fun onMarkerClick(marker: MapPin) {
-        if (marker.locationOfInterest != null) {
-            showBottomSheet(marker.locationOfInterest)
+  fun openNavDrawer() {
+    openDrawerRequests.onNext(Nil.NIL)
+  }
+
+  fun onMarkerClick(marker: MapPin) {
+    if (marker.locationOfInterest != null) {
+      showBottomSheet(marker.locationOfInterest)
+    }
+  }
+
+  fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
+    showBottomSheet(locationOfInterest)
+  }
+
+  private fun showBottomSheet(loi: LocationOfInterest?) {
+    Timber.d("showing bottom sheet")
+    isSubmissionButtonVisible.value = true
+    bottomSheetState.value = visible(loi!!)
+  }
+
+  fun onBottomSheetHidden() {
+    bottomSheetState.value = hidden()
+    isSubmissionButtonVisible.value = false
+  }
+
+  fun addSubmission() {
+    val state = bottomSheetState.value
+    if (state == null) {
+      Timber.e("Missing bottomSheetState")
+      return
+    }
+    val loi = state.locationOfInterest
+    if (loi == null) {
+      Timber.e("Missing loi")
+      return
+    }
+    navigator.navigate(HomeScreenFragmentDirections.addSubmission(loi.surveyId, loi.id, loi.job.id))
+  }
+
+  fun init() {
+    // Last active survey will be loaded once view subscribes to activeProject.
+    surveyRepository.loadLastActiveSurvey()
+  }
+
+  fun showOfflineAreas() {
+    navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
+  }
+
+  fun showSettings() {
+    navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
+  }
+
+  fun onLocationOfInterestClick(mapLocationsOfInterest: ImmutableList<MapLocationOfInterest>) {
+    val locationsOfInterest: ImmutableList<LocationOfInterest> =
+      mapLocationsOfInterest
+        .map { obj: MapLocationOfInterest -> checkNotNull(obj.locationOfInterest) }
+        .toImmutableList()
+    if (locationsOfInterest.isEmpty()) {
+      Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest")
+      return
+    }
+    if (locationsOfInterest.size == 1) {
+      onLocationOfInterestSelected(locationsOfInterest[0])
+      return
+    }
+    showLocationOfInterestSelectorRequests.onNext(locationsOfInterest)
+  }
+
+  private val activeSurvey: Optional<Survey>
+    get() = surveyLoadingState.value?.value() ?: Optional.empty()
+
+  fun showSyncStatus() {
+    navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
+  }
+
+  init {
+    addLocationOfInterestResults =
+      addLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
+        locationOfInterestRepository
+          .applyAndEnqueue(mutation)
+          .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
+          .doOnError { t: Throwable -> errors.onNext(t) }
+          .onErrorResumeNext(Single.never())
+      } // Prevent from breaking upstream.
+    updateLocationOfInterestResults =
+      updateLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
+        RxCompletable.toBooleanSingle(locationOfInterestRepository.applyAndEnqueue(mutation)) {
+          t: Throwable ->
+          errors.onNext(t)
         }
-    }
-
-    fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
-        showBottomSheet(locationOfInterest)
-    }
-
-    private fun showBottomSheet(loi: LocationOfInterest?) {
-        Timber.d("showing bottom sheet")
-        isSubmissionButtonVisible.value = true
-        bottomSheetState.value = visible(loi!!)
-    }
-
-    fun onBottomSheetHidden() {
-        bottomSheetState.value = hidden()
-        isSubmissionButtonVisible.value = false
-    }
-
-    fun addSubmission() {
-        val state = bottomSheetState.value
-        if (state == null) {
-            Timber.e("Missing bottomSheetState")
-            return
-        }
-        val loi = state.locationOfInterest
-        if (loi == null) {
-            Timber.e("Missing loi")
-            return
-        }
-        navigator.navigate(
-            HomeScreenFragmentDirections.addSubmission(
-                loi.surveyId,
-                loi.id,
-                loi.job.id
-            )
-        )
-    }
-
-    fun init() {
-        // Last active survey will be loaded once view subscribes to activeProject.
-        surveyRepository.loadLastActiveSurvey()
-    }
-
-    fun showOfflineAreas() {
-        navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
-    }
-
-    fun showSettings() {
-        navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
-    }
-
-    fun onLocationOfInterestClick(
-        mapLocationsOfInterest: ImmutableList<MapLocationOfInterest>
-    ) {
-        val locationsOfInterest: ImmutableList<LocationOfInterest> = mapLocationsOfInterest
-            .map { obj: MapLocationOfInterest -> checkNotNull(obj.locationOfInterest) }
-            .toImmutableList()
-        if (locationsOfInterest.isEmpty()) {
-            Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest")
-            return
-        }
-        if (locationsOfInterest.size == 1) {
-            onLocationOfInterestSelected(locationsOfInterest[0])
-            return
-        }
-        showLocationOfInterestSelectorRequests.onNext(locationsOfInterest)
-    }
-
-    private val activeSurvey: Optional<Survey>
-        get() = surveyLoadingState.value?.value() ?: Optional.empty()
-
-    fun showSyncStatus() {
-        navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
-    }
-
-    init {
-        addLocationOfInterestResults =
-            addLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
-                locationOfInterestRepository
-                    .applyAndEnqueue(mutation)
-                    .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
-                    .doOnError { t: Throwable -> errors.onNext(t) }
-                    .onErrorResumeNext(Single.never())
-            } // Prevent from breaking upstream.
-        updateLocationOfInterestResults =
-            updateLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
-                RxCompletable.toBooleanSingle(
-                    locationOfInterestRepository.applyAndEnqueue(mutation)
-                ) { t: Throwable -> errors.onNext(t) }
-            }
-    }
+      }
+  }
 }

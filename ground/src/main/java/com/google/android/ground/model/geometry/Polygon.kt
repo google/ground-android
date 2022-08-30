@@ -22,17 +22,14 @@ import com.google.common.collect.ImmutableList
  * shell ring.
  */
 data class Polygon(
-    val shell: LinearRing,
-    val holes: ImmutableList<LinearRing> = ImmutableList.of()
+  val shell: LinearRing,
+  val holes: ImmutableList<LinearRing> = ImmutableList.of()
 ) : Geometry {
-    /**
-     * Constructs a [Polygon] using the specified shell and an immutable copy of the specified
-     * mutable list of holes.
-     */
-    constructor(shell: LinearRing, holes: List<LinearRing>) : this(
-        shell,
-        ImmutableList.copyOf(holes)
-    )
+  /**
+   * Constructs a [Polygon] using the specified shell and an immutable copy of the specified mutable
+   * list of holes.
+   */
+  constructor(shell: LinearRing, holes: List<LinearRing>) : this(shell, ImmutableList.copyOf(holes))
 
-    override val vertices: ImmutableList<Point> = shell.vertices
+  override val vertices: ImmutableList<Point> = shell.vertices
 }

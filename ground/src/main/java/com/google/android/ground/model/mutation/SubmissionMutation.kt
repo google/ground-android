@@ -22,80 +22,81 @@ import com.google.common.collect.ImmutableList
 import java.util.*
 
 data class SubmissionMutation(
-    override val id: Long? = null,
-    override val type: Type = Type.UNKNOWN,
-    override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
-    override val surveyId: String = "",
-    override val locationOfInterestId: String = "",
-    override val userId: String = "",
-    override val clientTimestamp: Date = Date(),
-    override val retryCount: Long = 0,
-    override val lastError: String = "",
-    val job: Job? = null,
-    var submissionId: String = "",
-    var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
+  override val id: Long? = null,
+  override val type: Type = Type.UNKNOWN,
+  override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
+  override val surveyId: String = "",
+  override val locationOfInterestId: String = "",
+  override val userId: String = "",
+  override val clientTimestamp: Date = Date(),
+  override val retryCount: Long = 0,
+  override val lastError: String = "",
+  val job: Job? = null,
+  var submissionId: String = "",
+  var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
 ) : Mutation() {
 
-    override fun toBuilder(): Builder {
-        return Builder().also {
-            it.job = this.job
-            it.submissionId = this.submissionId
-            it.responseDeltas = this.responseDeltas
-        }.fromMutation(this) as Builder
+  override fun toBuilder(): Builder {
+    return Builder()
+      .also {
+        it.job = this.job
+        it.submissionId = this.submissionId
+        it.responseDeltas = this.responseDeltas
+      }
+      .fromMutation(this) as Builder
+  }
+
+  override fun toString(): String = super.toString() + "deltas= $responseDeltas"
+
+  inner class Builder : Mutation.Builder<SubmissionMutation>() {
+    var job: Job? = null
+      @JvmSynthetic set
+    var submissionId: String = ""
+      @JvmSynthetic set
+    var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
+      @JvmSynthetic set
+
+    fun setJob(job: Job): Builder = apply { this.job = job }
+
+    fun setSubmissionId(id: String): Builder = apply { this.submissionId = id }
+
+    fun setResponseDeltas(deltas: ImmutableList<ResponseDelta>): Builder = apply {
+      this.responseDeltas = deltas
     }
 
-    override fun toString(): String =
-        super.toString() + "deltas= $responseDeltas"
+    override fun build(): SubmissionMutation =
+      SubmissionMutation(
+        id,
+        type,
+        syncStatus,
+        surveyId,
+        locationOfInterestId,
+        userId,
+        clientTimestamp,
+        retryCount,
+        lastError,
+        job,
+        submissionId,
+        responseDeltas
+      )
+  }
 
-    inner class Builder : Mutation.Builder<SubmissionMutation>() {
-        var job: Job? = null
-            @JvmSynthetic set
-        var submissionId: String = ""
-            @JvmSynthetic set
-        var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
-            @JvmSynthetic set
+  companion object {
+    @JvmStatic fun builder(): Builder = SubmissionMutation().toBuilder()
 
-        fun setJob(job: Job): Builder = apply {
-            this.job = job
+    @JvmStatic
+    fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> {
+      return mutations
+        .toTypedArray()
+        .filter {
+          when (it) {
+            is LocationOfInterestMutation -> false
+            is SubmissionMutation -> true
+            else -> false
+          }
         }
-
-        fun setSubmissionId(id: String): Builder = apply {
-            this.submissionId = id
-        }
-
-        fun setResponseDeltas(deltas: ImmutableList<ResponseDelta>): Builder = apply {
-            this.responseDeltas = deltas
-        }
-
-        override fun build(): SubmissionMutation = SubmissionMutation(
-            id,
-            type,
-            syncStatus,
-            surveyId,
-            locationOfInterestId,
-            userId,
-            clientTimestamp,
-            retryCount,
-            lastError,
-            job,
-            submissionId,
-            responseDeltas
-        )
+        .map { it as SubmissionMutation }
+        .toImmutableList()
     }
-
-    companion object {
-        @JvmStatic
-        fun builder(): Builder = SubmissionMutation().toBuilder()
-
-        @JvmStatic
-        fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> {
-            return mutations.toTypedArray().filter {
-                when (it) {
-                    is LocationOfInterestMutation -> false
-                    is SubmissionMutation -> true
-                    else -> false
-                }
-            }.map { it as SubmissionMutation }.toImmutableList()
-        }
-    }
+  }
 }

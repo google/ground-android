@@ -16,28 +16,31 @@
 package com.google.android.ground.model.task
 
 import java8.util.Optional
-import kotlinx.serialization.Serializable
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.serialization.Serializable
 
-/** A question task with pre-defined options for the user to choose from.  */
+/** A question task with pre-defined options for the user to choose from. */
 @Serializable
-data class MultipleChoice @JvmOverloads constructor(
-    val options: PersistentList<Option> = persistentListOf(),
-    val cardinality: Cardinality
+data class MultipleChoice
+@JvmOverloads
+constructor(
+  val options: PersistentList<Option> = persistentListOf(),
+  val cardinality: Cardinality
 ) {
-    enum class Cardinality {
-        SELECT_ONE, SELECT_MULTIPLE
-    }
+  enum class Cardinality {
+    SELECT_ONE,
+    SELECT_MULTIPLE
+  }
 
-    fun getOptionById(id: String): Option? = options.firstOrNull { it.id == id }
+  fun getOptionById(id: String): Option? = options.firstOrNull { it.id == id }
 
-    fun getIndex(id: String): Optional<Int> {
-        for (i in options.indices) {
-            if (options[i].id == id) {
-                return Optional.of(i)
-            }
-        }
-        return Optional.empty()
+  fun getIndex(id: String): Optional<Int> {
+    for (i in options.indices) {
+      if (options[i].id == id) {
+        return Optional.of(i)
+      }
     }
+    return Optional.empty()
+  }
 }

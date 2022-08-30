@@ -21,10 +21,8 @@ import javax.inject.Inject
 
 class FirestoreUuidGenerator @Inject constructor() : OfflineUuidGenerator {
 
-    // TODO: Check if this be replaced with the underlying implementation directly Util.autoId()
-    //  Also remove Fake implementation if the dependency on firebase init is removed.
-    override fun generateUuid(): String =
-        FirebaseFirestore.getInstance()
-            .collection(FirestoreDataStore.ID_COLLECTION)
-            .document().id
+  // TODO: Check if this be replaced with the underlying implementation directly Util.autoId()
+  //  Also remove Fake implementation if the dependency on firebase init is removed.
+  override fun generateUuid(): String =
+    FirebaseFirestore.getInstance().collection(FirestoreDataStore.ID_COLLECTION).document().id
 }

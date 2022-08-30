@@ -22,7 +22,7 @@ import com.google.firebase.firestore.CollectionReference
 private const val TOS = "tos"
 
 class TermsOfServiceCollectionReference internal constructor(ref: CollectionReference) :
-    FluentCollectionReference(ref) {
+  FluentCollectionReference(ref) {
 
-    fun terms() = TermsOfServiceDocumentReference(reference().document(TOS))
+  fun terms() = TermsOfServiceDocumentReference(reference().document(TOS))
 }

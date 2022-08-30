@@ -28,8 +28,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 public class MultipleChoiceTaskLayout extends FrameLayout {
 
-  @Nullable
-  private Runnable showDialogListener;
+  @Nullable private Runnable showDialogListener;
 
   public MultipleChoiceTaskLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);

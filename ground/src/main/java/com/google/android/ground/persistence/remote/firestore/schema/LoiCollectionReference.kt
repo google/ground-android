@@ -29,18 +29,21 @@ import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Flowable
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
-    FluentCollectionReference(ref) {
+  FluentCollectionReference(ref) {
 
-    /** Retrieves all lois in the survey, then streams changes to the remote db incrementally.  */
-    fun loadOnceAndStreamChanges(survey: Survey): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest?>> =
-        RxFirestore.observeQueryRef(reference())
-            .flatMapIterable { snapshot: QuerySnapshot -> toRemoteDataEvents(survey, snapshot) }
+  /** Retrieves all lois in the survey, then streams changes to the remote db incrementally. */
+  fun loadOnceAndStreamChanges(
+    survey: Survey
+  ): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest?>> =
+    RxFirestore.observeQueryRef(reference()).flatMapIterable { snapshot: QuerySnapshot ->
+      toRemoteDataEvents(survey, snapshot)
+    }
 
-    fun loi(id: String) = LoiDocumentReference(reference().document(id))
+  fun loi(id: String) = LoiDocumentReference(reference().document(id))
 
-    private fun toRemoteDataEvents(
-        survey: Survey,
-        snapshot: QuerySnapshot
-    ): Iterable<RemoteDataEvent<LocationOfInterest?>> =
-        QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot -> toLoi(survey, doc) }
+  private fun toRemoteDataEvents(
+    survey: Survey,
+    snapshot: QuerySnapshot
+  ): Iterable<RemoteDataEvent<LocationOfInterest?>> =
+    QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot -> toLoi(survey, doc) }
 }

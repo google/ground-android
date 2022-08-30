@@ -48,63 +48,59 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 @UninstallModules(LocalDataStoreModule::class)
 class SurveySelectorDialogFragmentTest : BaseHiltTest() {
-    @Inject
-    lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
 
-    @Inject
-    lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-    @BindValue
-    @Mock
-    lateinit var mockLocalDataStore: LocalDataStore
+  @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
 
-    private lateinit var surveySelectorDialogFragment: SurveySelectorDialogFragment
+  private lateinit var surveySelectorDialogFragment: SurveySelectorDialogFragment
 
-    @Before
-    override fun setUp() {
-        super.setUp()
-        fakeRemoteDataStore.setTestSurveys(ImmutableList.of(TEST_SURVEY_1, TEST_SURVEY_2))
-        setUpFragment()
-    }
+  @Before
+  override fun setUp() {
+    super.setUp()
+    fakeRemoteDataStore.setTestSurveys(ImmutableList.of(TEST_SURVEY_1, TEST_SURVEY_2))
+    setUpFragment()
+  }
 
-    private fun setUpFragment() {
-        val activityController = Robolectric.buildActivity(MainActivity::class.java)
-        val activity = activityController.setup().get()
+  private fun setUpFragment() {
+    val activityController = Robolectric.buildActivity(MainActivity::class.java)
+    val activity = activityController.setup().get()
 
-        surveySelectorDialogFragment = SurveySelectorDialogFragment()
+    surveySelectorDialogFragment = SurveySelectorDialogFragment()
 
-        surveySelectorDialogFragment.showNow(
-            activity.supportFragmentManager,
-            SurveySelectorDialogFragment::class.java.simpleName
-        )
-        shadowOf(Looper.getMainLooper()).idle()
-    }
+    surveySelectorDialogFragment.showNow(
+      activity.supportFragmentManager,
+      SurveySelectorDialogFragment::class.java.simpleName
+    )
+    shadowOf(Looper.getMainLooper()).idle()
+  }
 
-    @Test
-    fun show_surveyDialogIsShown() {
-        val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
+  @Test
+  fun show_surveyDialogIsShown() {
+    val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
-        assertThat(listView.visibility).isEqualTo(View.VISIBLE)
-        assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
-    }
+    assertThat(listView.visibility).isEqualTo(View.VISIBLE)
+    assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
+  }
 
-    @Test
-    fun show_surveySelected_surveyIsActivated() {
-        val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
+  @Test
+  fun show_surveySelected_surveyIsActivated() {
+    val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
-        // TODO: Replace mocks with inserting the survey in local db
-        Mockito.`when`(mockLocalDataStore.getSurveyById(eq(TEST_SURVEY_2.id)))
-            .thenReturn(Maybe.just(TEST_SURVEY_2))
-        shadowOf(listView).performItemClick(1)
-        shadowOf(Looper.getMainLooper()).idle()
+    // TODO: Replace mocks with inserting the survey in local db
+    Mockito.`when`(mockLocalDataStore.getSurveyById(eq(TEST_SURVEY_2.id)))
+      .thenReturn(Maybe.just(TEST_SURVEY_2))
+    shadowOf(listView).performItemClick(1)
+    shadowOf(Looper.getMainLooper()).idle()
 
-        // Verify Dialog is dismissed
-        assertThat(surveySelectorDialogFragment.dialog).isNull()
-        surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
-    }
+    // Verify Dialog is dismissed
+    assertThat(surveySelectorDialogFragment.dialog).isNull()
+    surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
+  }
 
-    companion object {
-        private val TEST_SURVEY_1 = FakeData.SURVEY.copy(id = "some id 1")
-        private val TEST_SURVEY_2 = FakeData.SURVEY.copy(id = "some id 2")
-    }
+  companion object {
+    private val TEST_SURVEY_1 = FakeData.SURVEY.copy(id = "some id 1")
+    private val TEST_SURVEY_2 = FakeData.SURVEY.copy(id = "some id 2")
+  }
 }

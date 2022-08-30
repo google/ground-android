@@ -30,98 +30,97 @@ import javax.inject.Inject
 
 abstract class AbstractFragment : Fragment() {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+  @Inject lateinit var viewModelFactory: ViewModelFactory
 
-    protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
-        viewModelFactory.get(this, modelClass)
+  protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
+    viewModelFactory.get(this, modelClass)
 
-    override fun onAttach(context: Context) {
-        Debug.logLifecycleEvent(this)
-        super.onAttach(context)
+  override fun onAttach(context: Context) {
+    Debug.logLifecycleEvent(this)
+    super.onAttach(context)
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onCreate(savedInstanceState)
+  }
+
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? {
+    Debug.logLifecycleEvent(this)
+    return super.onCreateView(inflater, container, savedInstanceState)
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    Debug.logLifecycleEvent(this)
+    super.onSaveInstanceState(outState)
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onViewCreated(view, savedInstanceState)
+  }
+
+  override fun onViewStateRestored(savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onViewStateRestored(savedInstanceState)
+  }
+
+  override fun onStart() {
+    Debug.logLifecycleEvent(this)
+    super.onStart()
+  }
+
+  override fun onResume() {
+    Debug.logLifecycleEvent(this)
+    super.onResume()
+    ViewUtil.hideSoftInputFrom(this)
+  }
+
+  override fun onPause() {
+    Debug.logLifecycleEvent(this)
+    super.onPause()
+  }
+
+  override fun onStop() {
+    Debug.logLifecycleEvent(this)
+    super.onStop()
+  }
+
+  override fun onDestroyView() {
+    Debug.logLifecycleEvent(this)
+    super.onDestroyView()
+  }
+
+  override fun onDestroy() {
+    Debug.logLifecycleEvent(this)
+    super.onDestroy()
+  }
+
+  override fun onDetach() {
+    Debug.logLifecycleEvent(this)
+    super.onDetach()
+  }
+
+  fun replaceFragment(@IdRes containerViewId: Int, fragment: Fragment) {
+    childFragmentManager.beginTransaction().replace(containerViewId, fragment).commit()
+  }
+
+  protected fun saveChildFragment(outState: Bundle?, fragment: Fragment?, key: String?) {
+    val fragmentManager = childFragmentManager
+    if (fragment != null && fragmentManager === fragment.fragmentManager) {
+      fragmentManager.putFragment(outState!!, key!!, fragment)
     }
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onCreate(savedInstanceState)
-    }
+  private fun <T> restoreChildFragment(savedInstanceState: Bundle, key: String): T =
+    childFragmentManager.getFragment(savedInstanceState, key) as T
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        Debug.logLifecycleEvent(this)
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
+  protected fun <T> restoreChildFragment(savedInstanceState: Bundle, fragmentClass: Class<T>): T =
+    restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        Debug.logLifecycleEvent(this)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onViewStateRestored(savedInstanceState)
-    }
-
-    override fun onStart() {
-        Debug.logLifecycleEvent(this)
-        super.onStart()
-    }
-
-    override fun onResume() {
-        Debug.logLifecycleEvent(this)
-        super.onResume()
-        ViewUtil.hideSoftInputFrom(this)
-    }
-
-    override fun onPause() {
-        Debug.logLifecycleEvent(this)
-        super.onPause()
-    }
-
-    override fun onStop() {
-        Debug.logLifecycleEvent(this)
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
-        Debug.logLifecycleEvent(this)
-        super.onDestroyView()
-    }
-
-    override fun onDestroy() {
-        Debug.logLifecycleEvent(this)
-        super.onDestroy()
-    }
-
-    override fun onDetach() {
-        Debug.logLifecycleEvent(this)
-        super.onDetach()
-    }
-
-    fun replaceFragment(@IdRes containerViewId: Int, fragment: Fragment) {
-        childFragmentManager.beginTransaction().replace(containerViewId, fragment).commit()
-    }
-
-    protected fun saveChildFragment(outState: Bundle?, fragment: Fragment?, key: String?) {
-        val fragmentManager = childFragmentManager
-        if (fragment != null && fragmentManager === fragment.fragmentManager) {
-            fragmentManager.putFragment(outState!!, key!!, fragment)
-        }
-    }
-
-    private fun <T> restoreChildFragment(savedInstanceState: Bundle, key: String): T =
-        childFragmentManager.getFragment(savedInstanceState, key) as T
-
-    protected fun <T> restoreChildFragment(
-        savedInstanceState: Bundle,
-        fragmentClass: Class<T>
-    ): T = restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
-
-    protected fun getMainActivity(): MainActivity = requireActivity() as MainActivity
+  protected fun getMainActivity(): MainActivity = requireActivity() as MainActivity
 }

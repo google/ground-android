@@ -24,29 +24,31 @@ import kotlin.Result.Companion.success
  *
  * @param <T> the type of entity being loaded, modified, or removed.
  */
-class RemoteDataEvent<T> private constructor(
-    val eventType: EventType, val result: Result<Pair<String, T?>>
-) {
+class RemoteDataEvent<T>
+private constructor(val eventType: EventType, val result: Result<Pair<String, T?>>) {
 
-    enum class EventType {
-        ENTITY_LOADED, ENTITY_MODIFIED, ENTITY_REMOVED, ERROR
-    }
+  enum class EventType {
+    ENTITY_LOADED,
+    ENTITY_MODIFIED,
+    ENTITY_REMOVED,
+    ERROR
+  }
 
-    companion object {
-        @JvmStatic
-        fun <T> loaded(entityId: String, entity: T): RemoteDataEvent<T> =
-            RemoteDataEvent(EventType.ENTITY_LOADED, success(Pair(entityId, entity)))
+  companion object {
+    @JvmStatic
+    fun <T> loaded(entityId: String, entity: T): RemoteDataEvent<T> =
+      RemoteDataEvent(EventType.ENTITY_LOADED, success(Pair(entityId, entity)))
 
-        @JvmStatic
-        fun <T> modified(entityId: String, entity: T): RemoteDataEvent<T> =
-            RemoteDataEvent(EventType.ENTITY_MODIFIED, success(Pair(entityId, entity)))
+    @JvmStatic
+    fun <T> modified(entityId: String, entity: T): RemoteDataEvent<T> =
+      RemoteDataEvent(EventType.ENTITY_MODIFIED, success(Pair(entityId, entity)))
 
-        @JvmStatic
-        fun <T> removed(entityId: String): RemoteDataEvent<T?> =
-            RemoteDataEvent(EventType.ENTITY_REMOVED, success(Pair(entityId, null)))
+    @JvmStatic
+    fun <T> removed(entityId: String): RemoteDataEvent<T?> =
+      RemoteDataEvent(EventType.ENTITY_REMOVED, success(Pair(entityId, null)))
 
-        @JvmStatic
-        fun <T> error(error: Throwable): RemoteDataEvent<T?> =
-            RemoteDataEvent(EventType.ERROR, failure(error))
-    }
+    @JvmStatic
+    fun <T> error(error: Throwable): RemoteDataEvent<T?> =
+      RemoteDataEvent(EventType.ERROR, failure(error))
+  }
 }

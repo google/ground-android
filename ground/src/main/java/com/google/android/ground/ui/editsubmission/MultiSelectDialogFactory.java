@@ -30,8 +30,7 @@ import java8.util.stream.IntStreams;
 @AutoValue
 abstract class MultiSelectDialogFactory extends SelectDialogFactory {
 
-  @Nullable
-  private boolean[] checkedItems;
+  @Nullable private boolean[] checkedItems;
 
   public static Builder builder() {
     return new AutoValue_MultiSelectDialogFactory.Builder();
@@ -49,8 +48,7 @@ abstract class MultiSelectDialogFactory extends SelectDialogFactory {
   @Override
   protected AlertDialog.Builder createDialogBuilder() {
     return super.createDialogBuilder()
-        .setMultiChoiceItems(getLabels(), checkedItems, (dialog, which, isChecked) -> {
-        });
+        .setMultiChoiceItems(getLabels(), checkedItems, (dialog, which, isChecked) -> {});
   }
 
   @Override

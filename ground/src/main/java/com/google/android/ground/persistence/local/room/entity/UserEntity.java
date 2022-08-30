@@ -52,8 +52,12 @@ public abstract class UserEntity {
   public abstract String getPhotoUrl();
 
   public static UserEntity fromUser(User user) {
-    return UserEntity.builder().setId(user.getId()).setEmail(user.getEmail())
-        .setDisplayName(user.getDisplayName()).setPhotoUrl(user.getPhotoUrl()).build();
+    return UserEntity.builder()
+        .setId(user.getId())
+        .setEmail(user.getEmail())
+        .setDisplayName(user.getDisplayName())
+        .setPhotoUrl(user.getPhotoUrl())
+        .build();
   }
 
   public static User toUser(UserEntity u) {
@@ -61,7 +65,11 @@ public abstract class UserEntity {
   }
 
   public static UserEntity create(String id, String email, String displayName, String photoUrl) {
-    return builder().setId(id).setEmail(email).setDisplayName(displayName).setPhotoUrl(photoUrl)
+    return builder()
+        .setId(id)
+        .setEmail(email)
+        .setDisplayName(displayName)
+        .setPhotoUrl(photoUrl)
         .build();
   }
 

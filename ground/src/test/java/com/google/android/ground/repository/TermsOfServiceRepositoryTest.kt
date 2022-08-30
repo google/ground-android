@@ -29,32 +29,30 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceRepositoryTest : BaseHiltTest() {
-    @Inject
-    lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-    @Inject
-    lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
-    @Test
-    fun testGetTermsOfService() {
-        fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
-        termsOfServiceRepository.termsOfService.test().assertResult(FakeData.TERMS_OF_SERVICE)
-    }
+  @Test
+  fun testGetTermsOfService() {
+    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    termsOfServiceRepository.termsOfService.test().assertResult(FakeData.TERMS_OF_SERVICE)
+  }
 
-    @Test
-    fun testGetTermsOfService_whenMissing_doesNotThrowException() {
-        fakeRemoteDataStore.setTermsOfService(Optional.empty())
-        termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
-    }
+  @Test
+  fun testGetTermsOfService_whenMissing_doesNotThrowException() {
+    fakeRemoteDataStore.setTermsOfService(Optional.empty())
+    termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
+  }
 
-    @Test
-    fun testTermsOfServiceAccepted() {
-        termsOfServiceRepository.isTermsOfServiceAccepted = true
-        assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
-    }
+  @Test
+  fun testTermsOfServiceAccepted() {
+    termsOfServiceRepository.isTermsOfServiceAccepted = true
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+  }
 
-    @Test
-    fun testTermsOfServiceNotAccepted() {
-        assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
-    }
+  @Test
+  fun testTermsOfServiceNotAccepted() {
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
+  }
 }

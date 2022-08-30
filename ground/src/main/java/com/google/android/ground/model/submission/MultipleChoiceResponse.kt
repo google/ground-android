@@ -21,46 +21,46 @@ import com.google.android.ground.model.task.Option
 import java8.util.Optional
 import kotlinx.serialization.Serializable
 
-/**
- * User responses to a select-one (radio) or select-multiple (checkbox) field.
- */
+/** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 @Serializable
 class MultipleChoiceResponse(
-    private val multipleChoice: MultipleChoice?, val selectedOptionIds: List<String>
+  private val multipleChoice: MultipleChoice?,
+  val selectedOptionIds: List<String>
 ) : Response {
 
-    fun getFirstId(): Optional<String> = Optional.ofNullable(selectedOptionIds.firstOrNull())
+  fun getFirstId(): Optional<String> = Optional.ofNullable(selectedOptionIds.firstOrNull())
 
-    fun isSelected(option: Option): Boolean = selectedOptionIds.contains(option.id)
+  fun isSelected(option: Option): Boolean = selectedOptionIds.contains(option.id)
 
-    // TODO: Make these inner classes non-static and access Task directly.
-    override fun getDetailsText(): String = selectedOptionIds.mapNotNull {
-        multipleChoice?.getOptionById(
-            it
-        )
-    }.map { it.label }.sorted().joinToString()
+  // TODO: Make these inner classes non-static and access Task directly.
+  override fun getDetailsText(): String =
+    selectedOptionIds
+      .mapNotNull { multipleChoice?.getOptionById(it) }
+      .map { it.label }
+      .sorted()
+      .joinToString()
 
-    override fun isEmpty(): Boolean = selectedOptionIds.isEmpty()
+  override fun isEmpty(): Boolean = selectedOptionIds.isEmpty()
 
-    override fun equals(other: Any?): Boolean {
-        if (other is MultipleChoiceResponse) {
-            return selectedOptionIds == (other).selectedOptionIds
-        }
-        return false
+  override fun equals(other: Any?): Boolean {
+    if (other is MultipleChoiceResponse) {
+      return selectedOptionIds == (other).selectedOptionIds
     }
+    return false
+  }
 
-    override fun hashCode(): Int = selectedOptionIds.hashCode()
+  override fun hashCode(): Int = selectedOptionIds.hashCode()
 
-    override fun toString(): String = selectedOptionIds.sorted().joinToString()
+  override fun toString(): String = selectedOptionIds.sorted().joinToString()
 
-    companion object {
-        @JvmStatic
-        fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<Response> {
-            return if (codes.isEmpty()) {
-                Optional.empty()
-            } else {
-                Optional.of(MultipleChoiceResponse(multipleChoice, codes))
-            }
-        }
+  companion object {
+    @JvmStatic
+    fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<Response> {
+      return if (codes.isEmpty()) {
+        Optional.empty()
+      } else {
+        Optional.of(MultipleChoiceResponse(multipleChoice, codes))
+      }
     }
+  }
 }

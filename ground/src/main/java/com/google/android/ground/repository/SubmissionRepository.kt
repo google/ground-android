@@ -44,160 +44,161 @@ import javax.inject.Inject
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
 
 /**
- * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in
- * memory data stores. For more details on this pattern and overall architecture, see
+ * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in memory
+ * data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-class SubmissionRepository @Inject constructor(
-    private val localDataStore: LocalDataStore,
-    private val remoteDataStore: RemoteDataStore,
-    private val locationOfInterestRepository: LocationOfInterestRepository,
-    private val dataSyncWorkManager: DataSyncWorkManager,
-    private val uuidGenerator: OfflineUuidGenerator,
-    private val authManager: AuthenticationManager
+class SubmissionRepository
+@Inject
+constructor(
+  private val localDataStore: LocalDataStore,
+  private val remoteDataStore: RemoteDataStore,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val dataSyncWorkManager: DataSyncWorkManager,
+  private val uuidGenerator: OfflineUuidGenerator,
+  private val authManager: AuthenticationManager
 ) {
 
-    /**
-     * Retrieves the submissions or the specified survey, location of interest, and task.
-     *
-     * <ol>
-     *   <li>Attempt to sync remote submission changes to the local data store. If network is not
-     *       available or operation times out, this step is skipped.
-     *   <li>Relevant submissions are returned directly from the local data store.
-     * </ol>
-     */
-    fun getSubmissions(
-        surveyId: String,
-        locationOfInterestId: String,
-        taskId: String
-    ): @Cold Single<ImmutableList<Submission>> =
-        // TODO: Only fetch first n fields.
-        locationOfInterestRepository
-            .getLocationOfInterest(surveyId, locationOfInterestId)
-            .flatMap { locationOfInterest: LocationOfInterest ->
-                getSubmissions(
-                    locationOfInterest,
-                    taskId
-                )
-            }
-
-    private fun getSubmissions(
-        locationOfInterest: LocationOfInterest,
-        taskId: String
-    ): @Cold Single<ImmutableList<Submission>> {
-        val remoteSync = remoteDataStore
-            .loadSubmissions(locationOfInterest)
-            .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .doOnError { Timber.e(it, "Submission sync timed out") }
-            .flatMapCompletable { submissions: ImmutableList<Result<Submission>> ->
-                mergeRemoteSubmissions(submissions)
-            }
-            .onErrorComplete()
-        return remoteSync.andThen(localDataStore.getSubmissions(locationOfInterest, taskId))
+  /**
+   * Retrieves the submissions or the specified survey, location of interest, and task.
+   *
+   * <ol> <li>Attempt to sync remote submission changes to the local data store. If network is not
+   * ```
+   *       available or operation times out, this step is skipped.
+   * ```
+   * <li>Relevant submissions are returned directly from the local data store. </ol>
+   */
+  fun getSubmissions(
+    surveyId: String,
+    locationOfInterestId: String,
+    taskId: String
+  ): @Cold Single<ImmutableList<Submission>> =
+    // TODO: Only fetch first n fields.
+    locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
+      locationOfInterest: LocationOfInterest ->
+      getSubmissions(locationOfInterest, taskId)
     }
 
-    private fun mergeRemoteSubmissions(submissions: ImmutableList<Result<Submission>>): @Cold Completable {
-        return Observable.fromIterable(submissions)
-            .doOnNext { result: Result<Submission> ->
-                if (result.isFailure) {
-                    Timber.e(result.exceptionOrNull(), "Skipping bad submission")
-                }
-            }
-            .filter { it.isSuccess }
-            .map { it.getOrThrow() }
-            .flatMapCompletable { localDataStore.mergeSubmission(it) }
-    }
-
-    fun getSubmission(
-        surveyId: String,
-        locationOfInterestId: String,
-        submissionId: String
-    ): @Cold Single<Submission> =
-        // TODO: Store and retrieve latest edits from cache and/or db.
-        locationOfInterestRepository
-            .getLocationOfInterest(surveyId, locationOfInterestId)
-            .flatMap { locationOfInterest ->
-                localDataStore
-                    .getSubmission(locationOfInterest, submissionId)
-                    .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
-            }
-
-    fun createSubmission(
-        surveyId: String, locationOfInterestId: String,
-        jobId: String
-    ): @Cold Single<Submission> {
-        // TODO: Very jobId == loi job id.
-        val auditInfo = AuditInfo(authManager.currentUser)
-        return locationOfInterestRepository
-            .getLocationOfInterest(surveyId, locationOfInterestId)
-            .map { locationOfInterest: LocationOfInterest ->
-                Submission(
-                    uuidGenerator.generateUuid(),
-                    locationOfInterest.surveyId,
-                    locationOfInterest,
-                    locationOfInterest.job,
-                    auditInfo,
-                    auditInfo
-                )
-            }
-    }
-
-    fun deleteSubmission(submission: Submission): @Cold Completable {
-        return applyAndEnqueue(
-            builder()
-                .setJob(submission.job)
-                .setSubmissionId(submission.id)
-                .setResponseDeltas(ImmutableList.of())
-                .setType(Mutation.Type.DELETE)
-                .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.surveyId)
-                .setLocationOfInterestId(
-                    submission.locationOfInterest.id
-                )
-                .setClientTimestamp(Date())
-                .setUserId(authManager.currentUser.id)
-                .build()
-        )
-    }
-
-    fun createOrUpdateSubmission(
-        submission: Submission, responseDeltas: ImmutableList<ResponseDelta>, isNew: Boolean
-    ): @Cold Completable {
-        return applyAndEnqueue(
-            builder()
-                .setJob(submission.job)
-                .setSubmissionId(submission.id)
-                .setResponseDeltas(responseDeltas)
-                .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
-                .setSyncStatus(SyncStatus.PENDING)
-                .setSurveyId(submission.surveyId)
-                .setLocationOfInterestId(submission.locationOfInterest.id)
-                .setClientTimestamp(Date())
-                .setUserId(authManager.currentUser.id)
-                .build()
-        )
-    }
-
-    private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-        localDataStore
-            .applyAndEnqueue(mutation)
-            .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
-
-    /**
-     * Returns all [SubmissionMutation] instances for a given location of interest which have not yet been
-     * marked as [SyncStatus.COMPLETED], including pending, in progress, and failed mutations. A
-     * new list is emitted on each subsequent change.
-     */
-    fun getIncompleteSubmissionMutationsOnceAndStream(
-        surveyId: String, locationOfInterestId: String
-    ): Flowable<ImmutableList<SubmissionMutation>> =
-        localDataStore.getSurveyById(surveyId).toFlowable().flatMap {
-            localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-                it,
-                locationOfInterestId,
-                MutationEntitySyncStatus.PENDING,
-                MutationEntitySyncStatus.IN_PROGRESS,
-                MutationEntitySyncStatus.FAILED
-            )
+  private fun getSubmissions(
+    locationOfInterest: LocationOfInterest,
+    taskId: String
+  ): @Cold Single<ImmutableList<Submission>> {
+    val remoteSync =
+      remoteDataStore
+        .loadSubmissions(locationOfInterest)
+        .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnError { Timber.e(it, "Submission sync timed out") }
+        .flatMapCompletable { submissions: ImmutableList<Result<Submission>> ->
+          mergeRemoteSubmissions(submissions)
         }
+        .onErrorComplete()
+    return remoteSync.andThen(localDataStore.getSubmissions(locationOfInterest, taskId))
+  }
+
+  private fun mergeRemoteSubmissions(
+    submissions: ImmutableList<Result<Submission>>
+  ): @Cold Completable {
+    return Observable.fromIterable(submissions)
+      .doOnNext { result: Result<Submission> ->
+        if (result.isFailure) {
+          Timber.e(result.exceptionOrNull(), "Skipping bad submission")
+        }
+      }
+      .filter { it.isSuccess }
+      .map { it.getOrThrow() }
+      .flatMapCompletable { localDataStore.mergeSubmission(it) }
+  }
+
+  fun getSubmission(
+    surveyId: String,
+    locationOfInterestId: String,
+    submissionId: String
+  ): @Cold Single<Submission> =
+    // TODO: Store and retrieve latest edits from cache and/or db.
+    locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
+      locationOfInterest ->
+      localDataStore
+        .getSubmission(locationOfInterest, submissionId)
+        .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
+    }
+
+  fun createSubmission(
+    surveyId: String,
+    locationOfInterestId: String,
+    jobId: String
+  ): @Cold Single<Submission> {
+    // TODO: Very jobId == loi job id.
+    val auditInfo = AuditInfo(authManager.currentUser)
+    return locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).map {
+      locationOfInterest: LocationOfInterest ->
+      Submission(
+        uuidGenerator.generateUuid(),
+        locationOfInterest.surveyId,
+        locationOfInterest,
+        locationOfInterest.job,
+        auditInfo,
+        auditInfo
+      )
+    }
+  }
+
+  fun deleteSubmission(submission: Submission): @Cold Completable {
+    return applyAndEnqueue(
+      builder()
+        .setJob(submission.job)
+        .setSubmissionId(submission.id)
+        .setResponseDeltas(ImmutableList.of())
+        .setType(Mutation.Type.DELETE)
+        .setSyncStatus(SyncStatus.PENDING)
+        .setSurveyId(submission.surveyId)
+        .setLocationOfInterestId(submission.locationOfInterest.id)
+        .setClientTimestamp(Date())
+        .setUserId(authManager.currentUser.id)
+        .build()
+    )
+  }
+
+  fun createOrUpdateSubmission(
+    submission: Submission,
+    responseDeltas: ImmutableList<ResponseDelta>,
+    isNew: Boolean
+  ): @Cold Completable {
+    return applyAndEnqueue(
+      builder()
+        .setJob(submission.job)
+        .setSubmissionId(submission.id)
+        .setResponseDeltas(responseDeltas)
+        .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
+        .setSyncStatus(SyncStatus.PENDING)
+        .setSurveyId(submission.surveyId)
+        .setLocationOfInterestId(submission.locationOfInterest.id)
+        .setClientTimestamp(Date())
+        .setUserId(authManager.currentUser.id)
+        .build()
+    )
+  }
+
+  private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
+    localDataStore
+      .applyAndEnqueue(mutation)
+      .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
+
+  /**
+   * Returns all [SubmissionMutation] instances for a given location of interest which have not yet
+   * been marked as [SyncStatus.COMPLETED], including pending, in progress, and failed mutations. A
+   * new list is emitted on each subsequent change.
+   */
+  fun getIncompleteSubmissionMutationsOnceAndStream(
+    surveyId: String,
+    locationOfInterestId: String
+  ): Flowable<ImmutableList<SubmissionMutation>> =
+    localDataStore.getSurveyById(surveyId).toFlowable().flatMap {
+      localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+        it,
+        locationOfInterestId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED
+      )
+    }
 }

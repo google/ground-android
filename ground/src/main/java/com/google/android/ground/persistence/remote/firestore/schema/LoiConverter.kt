@@ -23,55 +23,52 @@ import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
 
 // TODO: Add tests.
-/** Converts between Firestore documents and [LocationOfInterest] instances.  */
+/** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
-    const val JOB_ID = "jobId"
-    const val LOCATION = "location"
-    const val CREATED = "created"
-    const val LAST_MODIFIED = "lastModified"
-    const val GEOMETRY_TYPE = "type"
-    const val POLYGON_TYPE = "Polygon"
-    const val GEOMETRY_COORDINATES = "coordinates"
-    const val GEOMETRY = "geometry"
+  const val JOB_ID = "jobId"
+  const val LOCATION = "location"
+  const val CREATED = "created"
+  const val LAST_MODIFIED = "lastModified"
+  const val GEOMETRY_TYPE = "type"
+  const val POLYGON_TYPE = "Polygon"
+  const val GEOMETRY_COORDINATES = "coordinates"
+  const val GEOMETRY = "geometry"
 
-    fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
-        val loiId = doc.id
-        val loiDoc =
-            DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
-        val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
-        // TODO(#929): Return `Result` instead of throwing exception.
-        val geometry = DataStoreException.checkNotNull(
-            GeometryConverter.fromFirestoreMap(geometryMap).getOrNull(), "geometry"
-        )
+  fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+    val loiId = doc.id
+    val loiDoc = DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
+    val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
+    // TODO(#929): Return `Result` instead of throwing exception.
+    val geometry =
+      DataStoreException.checkNotNull(
+        GeometryConverter.fromFirestoreMap(geometryMap).getOrNull(),
+        "geometry"
+      )
 
-        return createLocationOfInterest(survey, loiId, loiDoc, geometry)
-    }
+    return createLocationOfInterest(survey, loiId, loiDoc, geometry)
+  }
 
-    private fun createLocationOfInterest(
-        survey: Survey,
-        loiId: String,
-        loiDoc: LoiDocument,
-        geometry: Geometry
-    ): LocationOfInterest {
-        val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
-        val job =
-            DataStoreException.checkNotEmpty(
-                survey.getJob(jobId),
-                "job ${loiDoc.jobId}"
-            )
-        // Degrade gracefully when audit info missing in remote db.
-        val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
-        val lastModified = loiDoc.lastModified ?: created
-        return LocationOfInterest(
-            id = loiId,
-            surveyId = survey.id,
-            customId = loiDoc.customId,
-            caption = loiDoc.caption,
-            job = job,
-            created = AuditInfoConverter.toAuditInfo(created),
-            lastModified = AuditInfoConverter.toAuditInfo(lastModified),
-            // TODO(#929): Set geometry once LOI has been updated to use our own model.
-            geometry = geometry
-        )
-    }
+  private fun createLocationOfInterest(
+    survey: Survey,
+    loiId: String,
+    loiDoc: LoiDocument,
+    geometry: Geometry
+  ): LocationOfInterest {
+    val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
+    val job = DataStoreException.checkNotEmpty(survey.getJob(jobId), "job ${loiDoc.jobId}")
+    // Degrade gracefully when audit info missing in remote db.
+    val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
+    val lastModified = loiDoc.lastModified ?: created
+    return LocationOfInterest(
+      id = loiId,
+      surveyId = survey.id,
+      customId = loiDoc.customId,
+      caption = loiDoc.caption,
+      job = job,
+      created = AuditInfoConverter.toAuditInfo(created),
+      lastModified = AuditInfoConverter.toAuditInfo(lastModified),
+      // TODO(#929): Set geometry once LOI has been updated to use our own model.
+      geometry = geometry
+    )
+  }
 }

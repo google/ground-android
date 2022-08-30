@@ -31,92 +31,92 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
-class PhotoTaskViewModel @Inject constructor(
-    private val userMediaRepository: UserMediaRepository,
-    resources: Resources
-) : AbstractTaskViewModel(resources) {
+class PhotoTaskViewModel
+@Inject
+constructor(private val userMediaRepository: UserMediaRepository, resources: Resources) :
+  AbstractTaskViewModel(resources) {
 
-    val uri: LiveData<Uri> =
-        LiveDataReactiveStreams.fromPublisher(
-            detailsTextFlowable.switchMapSingle { userMediaRepository.getDownloadUrl(it) })
+  val uri: LiveData<Uri> =
+    LiveDataReactiveStreams.fromPublisher(
+      detailsTextFlowable.switchMapSingle { userMediaRepository.getDownloadUrl(it) }
+    )
 
-    val isPhotoPresent: LiveData<Boolean> =
-        LiveDataReactiveStreams.fromPublisher(
-            detailsTextFlowable.map { it.isNotEmpty() })
+  val isPhotoPresent: LiveData<Boolean> =
+    LiveDataReactiveStreams.fromPublisher(detailsTextFlowable.map { it.isNotEmpty() })
 
-    private var surveyId: String? = null
-    private var submissionId: String? = null
+  private var surveyId: String? = null
+  private var submissionId: String? = null
 
-    private val showDialogClicks: @Hot(replays = true) MutableLiveData<Task> = MutableLiveData()
-    private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
+  private val showDialogClicks: @Hot(replays = true) MutableLiveData<Task> = MutableLiveData()
+  private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
-    fun onShowPhotoSelectorDialog() {
-        showDialogClicks.value = task
+  fun onShowPhotoSelectorDialog() {
+    showDialogClicks.value = task
+  }
+
+  fun getShowDialogClicks(): LiveData<Task> = showDialogClicks
+
+  fun setEditable(enabled: Boolean) {
+    editable.postValue(enabled)
+  }
+
+  fun isEditable(): LiveData<Boolean> = editable
+
+  fun updateResponse(value: String) {
+    setResponse(fromString(value))
+  }
+
+  fun setSurveyId(surveyId: String?) {
+    this.surveyId = surveyId
+  }
+
+  fun setSubmissionId(submissionId: String?) {
+    this.submissionId = submissionId
+  }
+
+  fun onPhotoResult(photoResult: PhotoResult) {
+    if (photoResult.isHandled()) {
+      return
     }
-
-    fun getShowDialogClicks(): LiveData<Task> = showDialogClicks
-
-    fun setEditable(enabled: Boolean) {
-        editable.postValue(enabled)
+    if (surveyId == null || submissionId == null) {
+      Timber.e("surveyId or submissionId not set")
+      return
     }
-
-    fun isEditable(): LiveData<Boolean> = editable
-
-    fun updateResponse(value: String) {
-        setResponse(fromString(value))
+    if (!photoResult.hasTaskId(task.id)) {
+      // Update belongs to another task.
+      return
     }
-
-    fun setSurveyId(surveyId: String?) {
-        this.surveyId = surveyId
+    photoResult.setHandled(true)
+    if (photoResult.isEmpty) {
+      clearResponse()
+      Timber.v("Photo cleared")
+      return
     }
+    try {
+      val imageFile = getFileFromResult(photoResult)
+      val filename = imageFile.name
+      val path = imageFile.absolutePath
 
-    fun setSubmissionId(submissionId: String?) {
-        this.submissionId = submissionId
+      // Add image to gallery.
+      userMediaRepository.addImageToGallery(path, filename)
+
+      // Update response.
+      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, submissionId!!, filename)
+      updateResponse(remoteDestinationPath)
+    } catch (e: IOException) {
+      // TODO: Report error.
+      Timber.e(e, "Failed to save photo")
     }
+  }
 
-    fun onPhotoResult(photoResult: PhotoResult) {
-        if (photoResult.isHandled()) {
-            return
-        }
-        if (surveyId == null || submissionId == null) {
-            Timber.e("surveyId or submissionId not set")
-            return
-        }
-        if (!photoResult.hasTaskId(task.id)) {
-            // Update belongs to another task.
-            return
-        }
-        photoResult.setHandled(true)
-        if (photoResult.isEmpty) {
-            clearResponse()
-            Timber.v("Photo cleared")
-            return
-        }
-        try {
-            val imageFile = getFileFromResult(photoResult)
-            val filename = imageFile.name
-            val path = imageFile.absolutePath
-
-            // Add image to gallery.
-            userMediaRepository.addImageToGallery(path, filename)
-
-            // Update response.
-            val remoteDestinationPath = getRemoteMediaPath(surveyId!!, submissionId!!, filename)
-            updateResponse(remoteDestinationPath)
-        } catch (e: IOException) {
-            // TODO: Report error.
-            Timber.e(e, "Failed to save photo")
-        }
+  @Throws(IOException::class)
+  private fun getFileFromResult(result: PhotoResult): File {
+    if (result.bitmap.isPresent) {
+      return userMediaRepository.savePhoto(result.bitmap.get(), result.taskId)
     }
-
-    @Throws(IOException::class)
-    private fun getFileFromResult(result: PhotoResult): File {
-        if (result.bitmap.isPresent) {
-            return userMediaRepository.savePhoto(result.bitmap.get(), result.taskId)
-        }
-        if (result.path.isPresent) {
-            return File(result.path.get())
-        }
-        throw IllegalStateException("PhotoResult is empty")
+    if (result.path.isPresent) {
+      return File(result.path.get())
     }
+    throw IllegalStateException("PhotoResult is empty")
+  }
 }

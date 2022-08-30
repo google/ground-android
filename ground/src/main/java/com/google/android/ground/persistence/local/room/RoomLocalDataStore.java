@@ -612,8 +612,8 @@ public class RoomLocalDataStore implements LocalDataStore {
    * a new submission. In these cases creation metadata is unknown, so empty audit info is used.
    */
   private SingleSource<SubmissionEntity> fallbackSubmission(SubmissionMutation mutation) {
-    return em -> em.onSuccess(SubmissionEntity.fromMutation(mutation, new AuditInfo(
-        new User("", "", ""))));
+    return em ->
+        em.onSuccess(SubmissionEntity.fromMutation(mutation, new AuditInfo(new User("", "", ""))));
   }
 
   private Completable markSubmissionForDeletion(

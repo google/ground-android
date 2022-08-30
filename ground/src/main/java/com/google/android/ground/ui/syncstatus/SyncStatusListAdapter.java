@@ -65,7 +65,7 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     Mutation mutation = pair.second;
     String text =
         new StringBuilder()
-            .append(mutation.getType().toString())
+            .append(mutation.getType())
             .append(' ')
             .append(
                 mutation instanceof LocationOfInterestMutation
@@ -81,7 +81,7 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
             .append(locationOfInterestHelper.getSubtitle(Optional.of(locationOfInterest)))
             .append('\n')
             .append("Sync ")
-            .append(mutation.getSyncStatus().toString())
+            .append(mutation.getSyncStatus())
             .toString();
     viewHolder.binding.syncStatusText.setText(text);
   }

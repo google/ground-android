@@ -16,9 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema
 
-/** Firestore representation of multiple choice question options.  */
+/** Firestore representation of multiple choice question options. */
 data class OptionNestedObject(
-    val index: Int? = -1,
-    val code: String? = null,
-    val label: String? = null
+  val index: Int? = -1,
+  val code: String? = null,
+  val label: String? = null
 )

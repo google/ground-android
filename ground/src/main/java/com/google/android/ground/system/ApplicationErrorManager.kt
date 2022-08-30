@@ -33,32 +33,33 @@ import javax.inject.Singleton
 @Singleton
 class ApplicationErrorManager @Inject internal constructor(private val resources: Resources) {
 
-    private val exceptionProcessor: FlowableProcessor<String> = BehaviorProcessor.create()
+  private val exceptionProcessor: FlowableProcessor<String> = BehaviorProcessor.create()
 
-    private fun publishMessage(@StringRes msgId: Int) {
-        val message = resources.getString(msgId)
-        Timber.e("Error: %s", message)
-        exceptionProcessor.onNext(message)
+  private fun publishMessage(@StringRes msgId: Int) {
+    val message = resources.getString(msgId)
+    Timber.e("Error: %s", message)
+    exceptionProcessor.onNext(message)
+  }
+
+  /**
+   * Checks whether the exception should be handled globally. If yes, then converts it into an
+   * user-visible string and notifies [.exceptionProcessor]. Callers shouldn't handle the consumed
+   * exceptions locally.
+   *
+   * @param throwable Exception to be handled.
+   * @return true if the exception is consumed otherwise false.
+   */
+  fun handleException(throwable: Throwable): Boolean {
+    if (
+      throwable is FirebaseFirestoreException &&
+        throwable.code == FirebaseFirestoreException.Code.PERMISSION_DENIED
+    ) {
+      publishMessage(R.string.permission_denied_error)
+      return true
     }
+    return false
+  }
 
-    /**
-     * Checks whether the exception should be handled globally. If yes, then converts it into an
-     * user-visible string and notifies [.exceptionProcessor]. Callers shouldn't handle the
-     * consumed exceptions locally.
-     *
-     * @param throwable Exception to be handled.
-     * @return true if the exception is consumed otherwise false.
-     */
-    fun handleException(throwable: Throwable): Boolean {
-        if (throwable is FirebaseFirestoreException &&
-            throwable.code == FirebaseFirestoreException.Code.PERMISSION_DENIED
-        ) {
-            publishMessage(R.string.permission_denied_error)
-            return true
-        }
-        return false
-    }
-
-    val exceptions: Flowable<String>
-        get() = exceptionProcessor
+  val exceptions: Flowable<String>
+    get() = exceptionProcessor
 }

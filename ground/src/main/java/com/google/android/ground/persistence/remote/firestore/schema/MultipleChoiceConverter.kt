@@ -23,20 +23,20 @@ import kotlinx.collections.immutable.toPersistentList
 
 internal object MultipleChoiceConverter {
 
-    @JvmStatic
-    fun toMultipleChoice(em: TaskNestedObject): MultipleChoice {
-        var options: List<Option> = listOf()
-        if (em.options != null) {
-            options = em.options.entries.sortedBy { it.value.index }
-                .map { (key, value): Map.Entry<String, OptionNestedObject> ->
-                    OptionConverter.toOption(
-                        key, value
-                    )
-                }
-        }
-        return MultipleChoice(
-            options.toPersistentList(),
-            toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!)
-        )
+  @JvmStatic
+  fun toMultipleChoice(em: TaskNestedObject): MultipleChoice {
+    var options: List<Option> = listOf()
+    if (em.options != null) {
+      options =
+        em.options.entries
+          .sortedBy { it.value.index }
+          .map { (key, value): Map.Entry<String, OptionNestedObject> ->
+            OptionConverter.toOption(key, value)
+          }
     }
+    return MultipleChoice(
+      options.toPersistentList(),
+      toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!)
+    )
+  }
 }
