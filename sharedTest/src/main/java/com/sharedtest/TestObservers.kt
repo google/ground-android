@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest
 
-package com.sharedtest;
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-
-/** Lifecycle {@link Observer} helpers used for testing. */
-public class TestObservers {
-
+/** Lifecycle [Observer] helpers used for testing. */
+object TestObservers {
   /**
-   * Observes the provided {@link LiveData} until the first value is emitted. This is useful for
-   * testing cold LiveData streams, since by definition their upstream observables do not begin
-   * emitting items until the stream is observed/subscribed to.
+   * Observes the provided [LiveData] until the first value is emitted. This is useful for testing
+   * cold LiveData streams, since by definition their upstream observables do not begin emitting
+   * items until the stream is observed/subscribed to.
    */
-  public static <T> void observeUntilFirstChange(LiveData<T> liveData) {
+  @JvmStatic
+  fun <T> observeUntilFirstChange(liveData: LiveData<T>) {
     liveData.observeForever(
-        new Observer<T>() {
-          @Override
-          public void onChanged(T value) {
-            liveData.removeObserver(this);
-          }
-        });
+      object : Observer<T> {
+        override fun onChanged(value: T) {
+          liveData.removeObserver(this)
+        }
+      }
+    )
   }
 }
