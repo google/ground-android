@@ -198,7 +198,6 @@ class LocalDataStoreTest : BaseHiltTest() {
       .test()
       .assertComplete()
     localDataStore.getPendingMutations("loi id").test().assertEmpty()
-    }
   }
 
   @Test
