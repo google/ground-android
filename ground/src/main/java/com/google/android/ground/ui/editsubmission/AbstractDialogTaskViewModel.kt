@@ -22,11 +22,11 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 
 abstract class AbstractDialogTaskViewModel internal constructor(resources: Resources) :
-    AbstractTaskViewModel(resources) {
+  AbstractTaskViewModel(resources) {
 
-    val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
+  val showDialogClicks: @Hot Subject<Nil> = PublishSubject.create()
 
-    fun onShowDialogClick() {
-        showDialogClicks.onNext(Nil.NIL)
-    }
+  fun onShowDialogClick() {
+    showDialogClicks.onNext(Nil.NIL)
+  }
 }

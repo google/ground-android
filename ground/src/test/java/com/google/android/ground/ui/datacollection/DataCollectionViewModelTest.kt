@@ -43,54 +43,39 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionViewModelTest : BaseHiltTest() {
 
-    @get:Rule
-    var instantExecutorRule = InstantTaskExecutorRule()
+  @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
 
-    @BindValue
-    @Mock
-    lateinit var localDataStore: LocalDataStore
+  @BindValue @Mock lateinit var localDataStore: LocalDataStore
 
-    @BindValue
-    @Mock
-    lateinit var submissionRepository: SubmissionRepository
+  @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
 
-    lateinit var dataCollectionViewModel: DataCollectionViewModel
+  lateinit var dataCollectionViewModel: DataCollectionViewModel
 
-    @Inject
-    lateinit var locationOfInterestHelper: LocationOfInterestHelper
+  @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
 
-    @Before
-    override fun setUp() {
-        super.setUp()
+  @Before
+  override fun setUp() {
+    super.setUp()
 
-        whenever(
-            submissionRepository.createSubmission(
-                any(),
-                any(),
-                any()
-            )
-        ).doReturn(
-            Single.just(
-                DataCollectionTestData.submission
-            )
-        )
-        dataCollectionViewModel =
-            DataCollectionViewModel(submissionRepository, locationOfInterestHelper)
-    }
+    whenever(submissionRepository.createSubmission(any(), any(), any()))
+      .doReturn(Single.just(DataCollectionTestData.submission))
+    dataCollectionViewModel =
+      DataCollectionViewModel(submissionRepository, locationOfInterestHelper)
+  }
 
-    @Test
-    fun testJobNameIsSetCorrectly() {
-        dataCollectionViewModel.loadSubmissionDetails(DataCollectionTestData.args)
+  @Test
+  fun testJobNameIsSetCorrectly() {
+    dataCollectionViewModel.loadSubmissionDetails(DataCollectionTestData.args)
 
-        assertThat(dataCollectionViewModel.jobName.getOrAwaitValue())
-            .isEqualTo(DataCollectionTestData.jobName)
-    }
+    assertThat(dataCollectionViewModel.jobName.getOrAwaitValue())
+      .isEqualTo(DataCollectionTestData.jobName)
+  }
 
-    @Test
-    fun testLoiNameIsSetCorrectly() {
-        dataCollectionViewModel.loadSubmissionDetails(DataCollectionTestData.args)
+  @Test
+  fun testLoiNameIsSetCorrectly() {
+    dataCollectionViewModel.loadSubmissionDetails(DataCollectionTestData.args)
 
-        assertThat(dataCollectionViewModel.loiName.getOrAwaitValue())
-            .isEqualTo(DataCollectionTestData.loiName)
-    }
+    assertThat(dataCollectionViewModel.loiName.getOrAwaitValue())
+      .isEqualTo(DataCollectionTestData.loiName)
+  }
 }

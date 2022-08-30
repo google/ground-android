@@ -32,62 +32,62 @@ private val LOCATION_SETTINGS_REQUEST_CODE = SettingsManager::class.java.hashCod
 /**
  * Manages enabling of settings and related flows to/from the Activity.
  *
- *
- * Note: Currently only supports location settings, but could be expanded to support other
- * settings types in the future.
+ * Note: Currently only supports location settings, but could be expanded to support other settings
+ * types in the future.
  */
 @Singleton
-class SettingsManager @Inject constructor(
-    private val activityStreams: ActivityStreams,
-    private val settingsClient: RxSettingsClient
+class SettingsManager
+@Inject
+constructor(
+  private val activityStreams: ActivityStreams,
+  private val settingsClient: RxSettingsClient
 ) {
 
-    /**
-     * Try to enable location settings. If location settings are already enabled, this will complete
-     * immediately on subscribe.
-     */
-    fun enableLocationSettings(locationRequest: LocationRequest): Completable {
-        Timber.d("Checking location settings")
-        val settingsRequest =
-            LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build()
-        return settingsClient
-            .checkLocationSettings(settingsRequest)
-            .toCompletable()
-            .onErrorResumeNext { onCheckSettingsFailure(it) }
+  /**
+   * Try to enable location settings. If location settings are already enabled, this will complete
+   * immediately on subscribe.
+   */
+  fun enableLocationSettings(locationRequest: LocationRequest): Completable {
+    Timber.d("Checking location settings")
+    val settingsRequest =
+      LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build()
+    return settingsClient.checkLocationSettings(settingsRequest).toCompletable().onErrorResumeNext {
+      onCheckSettingsFailure(it)
+    }
+  }
+
+  private fun onCheckSettingsFailure(throwable: Throwable): Completable =
+    if (throwable is ResolvableApiException) {
+      val requestCode = LOCATION_SETTINGS_REQUEST_CODE
+      startResolution(requestCode, throwable).andThen(getNextResult(requestCode))
+    } else {
+      Completable.error(throwable)
     }
 
-    private fun onCheckSettingsFailure(throwable: Throwable): Completable =
-        if (throwable is ResolvableApiException) {
-            val requestCode = LOCATION_SETTINGS_REQUEST_CODE
-            startResolution(requestCode, throwable).andThen(getNextResult(requestCode))
-        } else {
-            Completable.error(throwable)
+  private fun startResolution(
+    requestCode: Int,
+    resolvableException: ResolvableApiException
+  ): Completable =
+    Completable.create { emitter: CompletableEmitter ->
+      Timber.d("Prompting user to enable settings")
+      activityStreams.withActivity {
+        try {
+          resolvableException.startResolutionForResult(it, requestCode)
+          emitter.onComplete()
+        } catch (e: SendIntentException) {
+          emitter.onError(e)
         }
+      }
+    }
 
-    private fun startResolution(
-        requestCode: Int,
-        resolvableException: ResolvableApiException
-    ): Completable =
-        Completable.create { emitter: CompletableEmitter ->
-            Timber.d("Prompting user to enable settings")
-            activityStreams.withActivity {
-                try {
-                    resolvableException.startResolutionForResult(it, requestCode)
-                    emitter.onComplete()
-                } catch (e: SendIntentException) {
-                    emitter.onError(e)
-                }
-            }
-        }
-
-    private fun getNextResult(requestCode: Int): Completable =
-        activityStreams
-            .getNextActivityResult(requestCode)
-            .flatMapCompletable {
-                completeOrError({ it.isOk() }, SettingsChangeRequestCanceled::class.java)
-            }
-            .doOnComplete { Timber.d("Settings change request successful") }
-            .doOnError { Timber.e(it, "Settings change request failed") }
+  private fun getNextResult(requestCode: Int): Completable =
+    activityStreams
+      .getNextActivityResult(requestCode)
+      .flatMapCompletable {
+        completeOrError({ it.isOk() }, SettingsChangeRequestCanceled::class.java)
+      }
+      .doOnComplete { Timber.d("Settings change request successful") }
+      .doOnError { Timber.e(it, "Settings change request failed") }
 }
 
 class SettingsChangeRequestCanceled : Exception()

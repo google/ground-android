@@ -21,16 +21,15 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 
-/** Injects a [MapFragment] in the container with id "map".  */
+/** Injects a [MapFragment] in the container with id "map". */
 abstract class AbstractMapViewerFragment : AbstractFragment() {
 
-    @Inject
-    lateinit var mapFragment: MapFragment
+  @Inject lateinit var mapFragment: MapFragment
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        mapFragment.attachToFragment(this, R.id.map) { onMapReady(it) }
-    }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    mapFragment.attachToFragment(this, R.id.map) { onMapReady(it) }
+  }
 
-    protected abstract fun onMapReady(mapFragment: MapFragment)
+  protected abstract fun onMapReady(mapFragment: MapFragment)
 }

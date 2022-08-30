@@ -25,45 +25,55 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 
-/** Converts between [ResponseMap] and JSON strings used to represent them in the local db.  */
+/** Converts between [ResponseMap] and JSON strings used to represent them in the local db. */
 object ResponseMapConverter {
 
-    @JvmStatic
-    fun toString(responseDeltas: ResponseMap): String = JSONObject().apply {
+  @JvmStatic
+  fun toString(responseDeltas: ResponseMap): String =
+    JSONObject()
+      .apply {
         for (taskId in responseDeltas.taskIds()) {
-            try {
-                put(taskId,
-                    responseDeltas.getResponse(taskId)
-                        .map { ResponseJsonConverter.toJsonObject(it) }.orElse(null))
-            } catch (e: JSONException) {
-                Timber.e(e, "Error building JSON")
-            }
+          try {
+            put(
+              taskId,
+              responseDeltas
+                .getResponse(taskId)
+                .map { ResponseJsonConverter.toJsonObject(it) }
+                .orElse(null)
+            )
+          } catch (e: JSONException) {
+            Timber.e(e, "Error building JSON")
+          }
         }
-    }.toString()
+      }
+      .toString()
 
-    @JvmStatic
-    fun fromString(job: Job, jsonString: String?): ResponseMap {
-        if (jsonString == null) {
-            return ResponseMap()
-        }
-        val map = ImmutableMap.builder<String, Response>()
-        try {
-            val jsonObject = JSONObject(jsonString)
-            val keys = jsonObject.keys()
-            while (keys.hasNext()) {
-                try {
-                    val taskId = keys.next()
-                    val task = job.getTask(taskId)
-                        .orElseThrow { LocalDataConsistencyException("Unknown task id $taskId") }
-                    ResponseJsonConverter.toResponse(task, jsonObject[taskId])
-                        .ifPresent { map.put(taskId, it) }
-                } catch (e: LocalDataConsistencyException) {
-                    Timber.d("Bad response in local db: ${e.message}")
-                }
-            }
-        } catch (e: JSONException) {
-            Timber.e(e, "Error parsing JSON string")
-        }
-        return ResponseMap(map.build())
+  @JvmStatic
+  fun fromString(job: Job, jsonString: String?): ResponseMap {
+    if (jsonString == null) {
+      return ResponseMap()
     }
+    val map = ImmutableMap.builder<String, Response>()
+    try {
+      val jsonObject = JSONObject(jsonString)
+      val keys = jsonObject.keys()
+      while (keys.hasNext()) {
+        try {
+          val taskId = keys.next()
+          val task =
+            job.getTask(taskId).orElseThrow {
+              LocalDataConsistencyException("Unknown task id $taskId")
+            }
+          ResponseJsonConverter.toResponse(task, jsonObject[taskId]).ifPresent {
+            map.put(taskId, it)
+          }
+        } catch (e: LocalDataConsistencyException) {
+          Timber.d("Bad response in local db: ${e.message}")
+        }
+      }
+    } catch (e: JSONException) {
+      Timber.e(e, "Error parsing JSON string")
+    }
+    return ResponseMap(map.build())
+  }
 }

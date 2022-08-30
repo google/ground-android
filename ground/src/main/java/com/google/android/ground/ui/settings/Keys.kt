@@ -18,14 +18,13 @@ package com.google.android.ground.ui.settings
 /** These keys should match 1:1 in res/xml/preferences.xml. */
 object Keys {
 
-    // General
-    const val UPLOAD_MEDIA = "upload_media"
-    const val OFFLINE_AREAS = "offline_areas"
+  // General
+  const val UPLOAD_MEDIA = "upload_media"
+  const val OFFLINE_AREAS = "offline_areas"
 
-    // Help
-    const val VISIT_WEBSITE = "visit_website"
-    const val FEEDBACK = "feedback"
+  // Help
+  const val VISIT_WEBSITE = "visit_website"
+  const val FEEDBACK = "feedback"
 
-    @JvmField
-    val ALL_KEYS = arrayOf(UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK)
+  @JvmField val ALL_KEYS = arrayOf(UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK)
 }

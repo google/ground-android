@@ -54,8 +54,7 @@ public abstract class SelectDialogFactory {
         .setPositiveButton(
             R.string.apply_multiple_choice_changes,
             (dialog, which) -> getValueConsumer().accept(getSelectedOptions()))
-        .setNegativeButton(R.string.cancel, (dialog, which) -> {
-        });
+        .setNegativeButton(R.string.cancel, (dialog, which) -> {});
   }
 
   public AlertDialog createDialog() {
@@ -63,21 +62,15 @@ public abstract class SelectDialogFactory {
     return createDialogBuilder().create();
   }
 
-  /**
-   * Creates and displays the dialog.
-   */
+  /** Creates and displays the dialog. */
   protected void show() {
     createDialog().show();
   }
 
-  /**
-   * Initialize current state.
-   */
+  /** Initialize current state. */
   protected abstract void initSelectedState();
 
-  /**
-   * List of selected options.
-   */
+  /** List of selected options. */
   protected abstract ImmutableList<Option> getSelectedOptions();
 
   public abstract Context getContext();

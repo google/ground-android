@@ -36,7 +36,7 @@ class SubmissionListAdapter extends RecyclerView.Adapter<SubmissionListItemViewH
   private List<Submission> submissionList;
 
   @Hot(replays = true)
-  private MutableLiveData<Submission> itemClicks = new MutableLiveData<>();
+  private final MutableLiveData<Submission> itemClicks = new MutableLiveData<>();
 
   public SubmissionListAdapter(ViewModelFactory viewModelFactory) {
     this.viewModelFactory = viewModelFactory;

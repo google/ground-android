@@ -28,114 +28,118 @@ import com.google.firebase.firestore.DocumentSnapshot
 import java8.util.Objects
 import timber.log.Timber
 
-/** Converts between Firestore documents and [Submission] instances.  */
+/** Converts between Firestore documents and [Submission] instances. */
 internal object SubmissionConverter {
 
-    fun toSubmission(loi: LocationOfInterest, snapshot: DocumentSnapshot): Submission {
-        val doc = snapshot.toObject(SubmissionDocument::class.java)
-        val loiId = DataStoreException.checkNotNull(doc!!.loiId, "loiId")
-        if (loi.id != loiId) {
-            throw DataStoreException("Submission doc featureId doesn't match specified loiId")
-        }
-        // Degrade gracefully when audit info missing in remote db.
-        val created = Objects.requireNonNullElse(
-            doc.created, AuditInfoNestedObject.FALLBACK_VALUE
-        )
-        val lastModified = Objects.requireNonNullElse(
-            doc.lastModified, created
-        )
-        val job = loi.job
-        return Submission(
-            snapshot.id,
-            loi.surveyId,
-            loi,
-            job,
-            AuditInfoConverter.toAuditInfo(created!!),
-            AuditInfoConverter.toAuditInfo(lastModified!!),
-            toResponseMap(snapshot.id, job, doc.responses)
-        )
+  fun toSubmission(loi: LocationOfInterest, snapshot: DocumentSnapshot): Submission {
+    val doc = snapshot.toObject(SubmissionDocument::class.java)
+    val loiId = DataStoreException.checkNotNull(doc!!.loiId, "loiId")
+    if (loi.id != loiId) {
+      throw DataStoreException("Submission doc featureId doesn't match specified loiId")
     }
+    // Degrade gracefully when audit info missing in remote db.
+    val created = Objects.requireNonNullElse(doc.created, AuditInfoNestedObject.FALLBACK_VALUE)
+    val lastModified = Objects.requireNonNullElse(doc.lastModified, created)
+    val job = loi.job
+    return Submission(
+      snapshot.id,
+      loi.surveyId,
+      loi,
+      job,
+      AuditInfoConverter.toAuditInfo(created!!),
+      AuditInfoConverter.toAuditInfo(lastModified!!),
+      toResponseMap(snapshot.id, job, doc.responses)
+    )
+  }
 
-    private fun toResponseMap(
-        submissionId: String, job: Job, docResponses: Map<String, Any>?
-    ): ResponseMap {
-        if (docResponses == null) {
-            return ResponseMap()
-        }
-        val responses = ImmutableMap.builder<String, Response>()
-        for ((taskId, value) in docResponses) {
-            try {
-                putResponse(taskId, job, value, responses)
-            } catch (e: DataStoreException) {
-                Timber.e(e, "Task $taskId in remote db in submission $submissionId")
-            }
-        }
-        return ResponseMap(responses.build())
+  private fun toResponseMap(
+    submissionId: String,
+    job: Job,
+    docResponses: Map<String, Any>?
+  ): ResponseMap {
+    if (docResponses == null) {
+      return ResponseMap()
     }
+    val responses = ImmutableMap.builder<String, Response>()
+    for ((taskId, value) in docResponses) {
+      try {
+        putResponse(taskId, job, value, responses)
+      } catch (e: DataStoreException) {
+        Timber.e(e, "Task $taskId in remote db in submission $submissionId")
+      }
+    }
+    return ResponseMap(responses.build())
+  }
 
-    private fun putResponse(
-        taskId: String, job: Job, obj: Any, responses: ImmutableMap.Builder<String, Response>
-    ) {
-        val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
-        when (task.type) {
-            Task.Type.PHOTO, Task.Type.TEXT -> putTextResponse(taskId, obj, responses)
-            Task.Type.MULTIPLE_CHOICE -> putMultipleChoiceResponse(
-                taskId, task.multipleChoice, obj, responses
-            )
-            Task.Type.NUMBER -> putNumberResponse(taskId, obj, responses)
-            Task.Type.DATE -> putDateResponse(taskId, obj, responses)
-            Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
-            else -> throw DataStoreException("Unknown type " + task.type)
-        }
+  private fun putResponse(
+    taskId: String,
+    job: Job,
+    obj: Any,
+    responses: ImmutableMap.Builder<String, Response>
+  ) {
+    val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
+    when (task.type) {
+      Task.Type.PHOTO,
+      Task.Type.TEXT -> putTextResponse(taskId, obj, responses)
+      Task.Type.MULTIPLE_CHOICE ->
+        putMultipleChoiceResponse(taskId, task.multipleChoice, obj, responses)
+      Task.Type.NUMBER -> putNumberResponse(taskId, obj, responses)
+      Task.Type.DATE -> putDateResponse(taskId, obj, responses)
+      Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
+      else -> throw DataStoreException("Unknown type " + task.type)
     }
+  }
 
-    private fun putNumberResponse(
-        taskId: String,
-        obj: Any,
-        responses: ImmutableMap.Builder<String, Response>
-    ) {
-        val value = DataStoreException.checkType(Double::class.java, obj) as Double
-        NumberResponse.fromNumber(value.toString())
-            .ifPresent { r: Response -> responses.put(taskId, r) }
+  private fun putNumberResponse(
+    taskId: String,
+    obj: Any,
+    responses: ImmutableMap.Builder<String, Response>
+  ) {
+    val value = DataStoreException.checkType(Double::class.java, obj) as Double
+    NumberResponse.fromNumber(value.toString()).ifPresent { r: Response ->
+      responses.put(taskId, r)
     }
+  }
 
-    private fun putTextResponse(
-        taskId: String,
-        obj: Any,
-        responses: ImmutableMap.Builder<String, Response>
-    ) {
-        val value = DataStoreException.checkType(String::class.java, obj) as String
-        TextResponse.fromString(value.trim { it <= ' ' })
-            .ifPresent { r: Response -> responses.put(taskId, r) }
+  private fun putTextResponse(
+    taskId: String,
+    obj: Any,
+    responses: ImmutableMap.Builder<String, Response>
+  ) {
+    val value = DataStoreException.checkType(String::class.java, obj) as String
+    TextResponse.fromString(value.trim { it <= ' ' }).ifPresent { r: Response ->
+      responses.put(taskId, r)
     }
+  }
 
-    private fun putDateResponse(
-        taskId: String,
-        obj: Any,
-        responses: ImmutableMap.Builder<String, Response>
-    ) {
-        val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-        DateResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
-    }
+  private fun putDateResponse(
+    taskId: String,
+    obj: Any,
+    responses: ImmutableMap.Builder<String, Response>
+  ) {
+    val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
+    DateResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
+  }
 
-    private fun putTimeResponse(
-        taskId: String,
-        obj: Any,
-        responses: ImmutableMap.Builder<String, Response>
-    ) {
-        val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-        TimeResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
-    }
+  private fun putTimeResponse(
+    taskId: String,
+    obj: Any,
+    responses: ImmutableMap.Builder<String, Response>
+  ) {
+    val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
+    TimeResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
+  }
 
-    private fun putMultipleChoiceResponse(
-        taskId: String,
-        multipleChoice: MultipleChoice?,
-        obj: Any,
-        responses: ImmutableMap.Builder<String, Response>
-    ) {
-        val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
-        values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
-        MultipleChoiceResponse.fromList(multipleChoice, values as List<String>)
-            .ifPresent { responses.put(taskId, it) }
+  private fun putMultipleChoiceResponse(
+    taskId: String,
+    multipleChoice: MultipleChoice?,
+    obj: Any,
+    responses: ImmutableMap.Builder<String, Response>
+  ) {
+    val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
+    values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
+    MultipleChoiceResponse.fromList(multipleChoice, values as List<String>).ifPresent {
+      responses.put(taskId, it)
     }
+  }
 }

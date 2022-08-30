@@ -52,268 +52,270 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @SharedViewModel
-class PolygonDrawingViewModel @Inject internal constructor(
-    private val locationManager: LocationManager,
-    private val authManager: AuthenticationManager,
-    private val uuidGenerator: OfflineUuidGenerator
+class PolygonDrawingViewModel
+@Inject
+internal constructor(
+  private val locationManager: LocationManager,
+  private val authManager: AuthenticationManager,
+  private val uuidGenerator: OfflineUuidGenerator
 ) : AbstractViewModel() {
-    private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
-    private val mapPolygonFlowable: @Hot Subject<Optional<MapPolygon>> = PublishSubject.create()
+  private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
+  private val mapPolygonFlowable: @Hot Subject<Optional<MapPolygon>> = PublishSubject.create()
 
-    /** Denotes whether the drawn polygon is complete or not. This is different from drawing state.  */
-    val isPolygonCompleted: @Hot LiveData<Boolean>
+  /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
+  val isPolygonCompleted: @Hot LiveData<Boolean>
 
-    /** Locations of interest drawn by the user but not yet saved.  */
-    val unsavedMapLocationsOfInterest: @Hot LiveData<ImmutableSet<MapLocationOfInterest>>
+  /** Locations of interest drawn by the user but not yet saved. */
+  val unsavedMapLocationsOfInterest: @Hot LiveData<ImmutableSet<MapLocationOfInterest>>
 
-    private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> =
-        MutableLiveData()
+  private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
-    val iconTint: LiveData<Int>
-    private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
-    private val locationLockState: LiveData<BooleanOrError>
-    private val vertices: MutableList<Point> = ArrayList()
+  val iconTint: LiveData<Int>
+  private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
+  private val locationLockState: LiveData<BooleanOrError>
+  private val vertices: MutableList<Point> = ArrayList()
 
-    /** The currently selected job and survey for the polygon drawing.  */
-    private val selectedJob = BehaviorProcessor.create<Job>()
-    private val selectedSurvey = BehaviorProcessor.create<Survey>()
-    private var cameraTarget: Point? = null
+  /** The currently selected job and survey for the polygon drawing. */
+  private val selectedJob = BehaviorProcessor.create<Job>()
+  private val selectedSurvey = BehaviorProcessor.create<Survey>()
+  private var cameraTarget: Point? = null
 
-    /**
-     * If true, then it means that the last vertex is added automatically and should be removed before
-     * adding any permanent vertex. Used for rendering a line between last added point and current
-     * camera target.
-     */
-    private var isLastVertexNotSelectedByUser = false
+  /**
+   * If true, then it means that the last vertex is added automatically and should be removed before
+   * adding any permanent vertex. Used for rendering a line between last added point and current
+   * camera target.
+   */
+  private var isLastVertexNotSelectedByUser = false
 
-    private var mapPolygon = Optional.empty<MapPolygon>()
+  private var mapPolygon = Optional.empty<MapPolygon>()
 
-    private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
-        locationLockChangeRequests
-            .switchMapSingle { enabled -> if (enabled) locationManager.enableLocationUpdates() else locationManager.disableLocationUpdates() }
-            .toFlowable(BackpressureStrategy.LATEST)
+  private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
+    locationLockChangeRequests
+      .switchMapSingle { enabled ->
+        if (enabled) locationManager.enableLocationUpdates()
+        else locationManager.disableLocationUpdates()
+      }
+      .toFlowable(BackpressureStrategy.LATEST)
 
-    val drawingState: @Hot Observable<PolygonDrawingState>
-        get() = polygonDrawingState
+  val drawingState: @Hot Observable<PolygonDrawingState>
+    get() = polygonDrawingState
 
-    fun onCameraMoved(newTarget: Point) {
-        cameraTarget = newTarget
-        if (locationLockState.value != null && isLocationLockEnabled()) {
-            Timber.d("User dragged map. Disabling location lock")
-            locationLockChangeRequests.onNext(false)
-        }
+  fun onCameraMoved(newTarget: Point) {
+    cameraTarget = newTarget
+    if (locationLockState.value != null && isLocationLockEnabled()) {
+      Timber.d("User dragged map. Disabling location lock")
+      locationLockChangeRequests.onNext(false)
+    }
+  }
+
+  /**
+   * Adds another vertex at the given point if {@param distanceInPixels} is more than the configured
+   * threshold. Otherwise, snaps to the first vertex.
+   *
+   * @param newTarget Position of the map camera.
+   * @param distanceInPixels Distance between the last vertex and {@param newTarget}.
+   */
+  fun updateLastVertex(newTarget: Point, distanceInPixels: Double) {
+    val isPolygonComplete = vertices.size > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP
+    addVertex((if (isPolygonComplete) vertices[0] else newTarget), true)
+  }
+
+  /** Attempts to remove the last vertex of drawn polygon, if any. */
+  fun removeLastVertex() {
+    if (vertices.isEmpty()) {
+      polygonDrawingState.onNext(PolygonDrawingState.canceled())
+      reset()
+    } else {
+      vertices.removeAt(vertices.size - 1)
+      updateVertices(ImmutableList.copyOf(vertices))
+    }
+  }
+
+  fun selectCurrentVertex() = cameraTarget?.let { addVertex(it, false) }
+
+  fun setLocationLockEnabled(enabled: Boolean) {
+    locationLockEnabled.postValue(enabled)
+  }
+
+  /**
+   * Adds a new vertex.
+   *
+   * @param vertex new position
+   * @param isNotSelectedByUser whether the vertex is not selected by the user
+   */
+  private fun addVertex(vertex: Point, isNotSelectedByUser: Boolean) {
+    // Clear last vertex if it is unselected
+    if (isLastVertexNotSelectedByUser && vertices.isNotEmpty()) {
+      vertices.removeAt(vertices.size - 1)
     }
 
-    /**
-     * Adds another vertex at the given point if {@param distanceInPixels} is more than the configured
-     * threshold. Otherwise, snaps to the first vertex.
-     *
-     * @param newTarget Position of the map camera.
-     * @param distanceInPixels Distance between the last vertex and {@param newTarget}.
-     */
-    fun updateLastVertex(newTarget: Point, distanceInPixels: Double) {
-        val isPolygonComplete = vertices.size > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP
-        addVertex((if (isPolygonComplete) vertices[0] else newTarget), true)
+    // Update selected state
+    isLastVertexNotSelectedByUser = isNotSelectedByUser
+
+    // Add the new vertex
+    vertices.add(vertex)
+
+    // Render changes to UI
+    updateVertices(ImmutableList.copyOf(vertices))
+  }
+
+  private fun updateVertices(newVertices: ImmutableList<Point>) {
+    mapPolygon =
+      mapPolygon.map { polygon: MapPolygon -> polygon.toBuilder().setVertices(newVertices).build() }
+    mapPolygonFlowable.onNext(mapPolygon)
+  }
+
+  fun onCompletePolygonButtonClick() {
+    check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
+    val polygon = mapPolygon.get()
+    check(polygon.isPolygonComplete) { "Polygon is not complete" }
+    val auditInfo = AuditInfo(authManager.currentUser)
+    val areaOfInterest =
+      LocationOfInterest(
+        id = polygon.id,
+        geometry = Polygon(LinearRing(polygon.vertices.map { it.coordinate })),
+        surveyId = selectedSurvey.value!!.id,
+        job = selectedJob.value!!,
+        created = auditInfo,
+        lastModified = auditInfo,
+      )
+    polygonDrawingState.onNext(PolygonDrawingState.completed(areaOfInterest))
+    reset()
+  }
+
+  private fun reset() {
+    isLastVertexNotSelectedByUser = false
+    vertices.clear()
+    mapPolygon = Optional.empty()
+    mapPolygonFlowable.onNext(Optional.empty())
+  }
+
+  val firstVertex: Optional<Point>
+    get() = mapPolygon.map { it.firstVertex }
+
+  fun onLocationLockClick() = locationLockChangeRequests.onNext(!isLocationLockEnabled())
+
+  private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.isTrue
+
+  // TODO : current location is not working value is always false.
+  fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
+
+  fun startDrawingFlow(selectedSurvey: Survey, selectedJob: Job) {
+    this.selectedJob.onNext(selectedJob)
+    this.selectedSurvey.onNext(selectedSurvey)
+    polygonDrawingState.onNext(PolygonDrawingState.inProgress())
+
+    mapPolygon =
+      Optional.of(
+        MapPolygon.newBuilder()
+          .setId(uuidGenerator.generateUuid())
+          .setVertices(ImmutableList.of())
+          .setStyle(Style())
+          .build()
+      )
+  }
+
+  @AutoValue
+  abstract class PolygonDrawingState {
+    val isCanceled: Boolean
+      get() = state == State.CANCELED
+    val isInProgress: Boolean
+      get() = state == State.IN_PROGRESS
+    val isCompleted: Boolean
+      get() = state == State.COMPLETED
+
+    /** Represents state of PolygonDrawing action. */
+    enum class State {
+      IN_PROGRESS,
+      COMPLETED,
+      CANCELED
     }
 
-    /** Attempts to remove the last vertex of drawn polygon, if any.  */
-    fun removeLastVertex() {
-        if (vertices.isEmpty()) {
-            polygonDrawingState.onNext(PolygonDrawingState.canceled())
-            reset()
-        } else {
-            vertices.removeAt(vertices.size - 1)
-            updateVertices(ImmutableList.copyOf(vertices))
-        }
-    }
+    /** Current state of polygon drawing. */
+    abstract val state: State
 
-    fun selectCurrentVertex() =
-        cameraTarget?.let {
-            addVertex(it, false)
-        }
-
-    fun setLocationLockEnabled(enabled: Boolean) {
-        locationLockEnabled.postValue(enabled)
-    }
-
-    /**
-     * Adds a new vertex.
-     *
-     * @param vertex new position
-     * @param isNotSelectedByUser whether the vertex is not selected by the user
-     */
-    private fun addVertex(vertex: Point, isNotSelectedByUser: Boolean) {
-        // Clear last vertex if it is unselected
-        if (isLastVertexNotSelectedByUser && vertices.isNotEmpty()) {
-            vertices.removeAt(vertices.size - 1)
-        }
-
-        // Update selected state
-        isLastVertexNotSelectedByUser = isNotSelectedByUser
-
-        // Add the new vertex
-        vertices.add(vertex)
-
-        // Render changes to UI
-        updateVertices(ImmutableList.copyOf(vertices))
-    }
-
-    private fun updateVertices(newVertices: ImmutableList<Point>) {
-        mapPolygon = mapPolygon.map { polygon: MapPolygon ->
-            polygon.toBuilder().setVertices(newVertices).build()
-        }
-        mapPolygonFlowable.onNext(mapPolygon)
-    }
-
-    fun onCompletePolygonButtonClick() {
-        check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
-        val polygon = mapPolygon.get()
-        check(polygon.isPolygonComplete) { "Polygon is not complete" }
-        val auditInfo = AuditInfo(authManager.currentUser)
-        val areaOfInterest = LocationOfInterest(
-            id = polygon.id,
-            geometry = Polygon(LinearRing(polygon.vertices.map { it.coordinate })),
-            surveyId = selectedSurvey.value!!.id,
-            job = selectedJob.value!!,
-            created = auditInfo,
-            lastModified = auditInfo,
-        )
-        polygonDrawingState.onNext(PolygonDrawingState.completed(areaOfInterest))
-        reset()
-    }
-
-    private fun reset() {
-        isLastVertexNotSelectedByUser = false
-        vertices.clear()
-        mapPolygon = Optional.empty()
-        mapPolygonFlowable.onNext(Optional.empty())
-    }
-
-    val firstVertex: Optional<Point>
-        get() = mapPolygon.map { it.firstVertex }
-
-    fun onLocationLockClick() =
-        locationLockChangeRequests.onNext(!isLocationLockEnabled())
-
-    private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.isTrue
-
-    // TODO : current location is not working value is always false.
-    fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
-
-    fun startDrawingFlow(selectedSurvey: Survey, selectedJob: Job) {
-        this.selectedJob.onNext(selectedJob)
-        this.selectedSurvey.onNext(selectedSurvey)
-        polygonDrawingState.onNext(PolygonDrawingState.inProgress())
-
-        mapPolygon = Optional.of(
-            MapPolygon.newBuilder()
-                .setId(uuidGenerator.generateUuid())
-                .setVertices(ImmutableList.of())
-                .setStyle(Style())
-                .build()
-        )
-    }
-
-    @AutoValue
-    abstract class PolygonDrawingState {
-        val isCanceled: Boolean
-            get() = state == State.CANCELED
-        val isInProgress: Boolean
-            get() = state == State.IN_PROGRESS
-        val isCompleted: Boolean
-            get() = state == State.COMPLETED
-
-        /** Represents state of PolygonDrawing action.  */
-        enum class State {
-            IN_PROGRESS, COMPLETED, CANCELED
-        }
-
-        /** Current state of polygon drawing.  */
-        abstract val state: State
-
-        /** Final polygon location of interest.  */
-        abstract val unsavedPolygonLocationOfInterest: LocationOfInterest?
-
-        companion object {
-            fun canceled(): PolygonDrawingState {
-                return createDrawingState(State.CANCELED, null)
-            }
-
-            fun inProgress(): PolygonDrawingState {
-                return createDrawingState(State.IN_PROGRESS, null)
-            }
-
-            fun completed(unsavedAreaOfInterest: LocationOfInterest?): PolygonDrawingState {
-                return createDrawingState(State.COMPLETED, unsavedAreaOfInterest)
-            }
-
-            private fun createDrawingState(
-                state: State, unsavedAreaOfInterest: LocationOfInterest?
-            ): PolygonDrawingState {
-                return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(
-                    state,
-                    unsavedAreaOfInterest
-                )
-            }
-        }
-    }
+    /** Final polygon location of interest. */
+    abstract val unsavedPolygonLocationOfInterest: LocationOfInterest?
 
     companion object {
-        /** Min. distance in dp between two points for them be considered as overlapping.  */
-        const val DISTANCE_THRESHOLD_DP = 24
+      fun canceled(): PolygonDrawingState {
+        return createDrawingState(State.CANCELED, null)
+      }
 
-        /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon].  */
-        private fun unsavedLocationsOfInterestFromPolygon(mapPolygon: MapPolygon): ImmutableSet<MapLocationOfInterest> {
-            val vertices = mapPolygon.vertices
+      fun inProgress(): PolygonDrawingState {
+        return createDrawingState(State.IN_PROGRESS, null)
+      }
 
-            if (vertices.isEmpty()) {
-                return ImmutableSet.of()
-            }
+      fun completed(unsavedAreaOfInterest: LocationOfInterest?): PolygonDrawingState {
+        return createDrawingState(State.COMPLETED, unsavedAreaOfInterest)
+      }
 
-            // Include the given polygon and add 1 MapPin for each of its vertex.
-            return ImmutableSet.builder<MapLocationOfInterest>()
-                .add(mapPolygon)
-                .addAll(
-                    vertices
-                        .map { point ->
-                            MapPin.newBuilder()
-                                .setId(mapPolygon.id)
-                                .setPosition(point)
-                                // TODO: Use different marker style for unsaved markers.
-                                .setStyle(mapPolygon.style)
-                                .build()
-                        }
-                        .toList())
+      private fun createDrawingState(
+        state: State,
+        unsavedAreaOfInterest: LocationOfInterest?
+      ): PolygonDrawingState {
+        return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, unsavedAreaOfInterest)
+      }
+    }
+  }
+
+  companion object {
+    /** Min. distance in dp between two points for them be considered as overlapping. */
+    const val DISTANCE_THRESHOLD_DP = 24
+
+    /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon]. */
+    private fun unsavedLocationsOfInterestFromPolygon(
+      mapPolygon: MapPolygon
+    ): ImmutableSet<MapLocationOfInterest> {
+      val vertices = mapPolygon.vertices
+
+      if (vertices.isEmpty()) {
+        return ImmutableSet.of()
+      }
+
+      // Include the given polygon and add 1 MapPin for each of its vertex.
+      return ImmutableSet.builder<MapLocationOfInterest>()
+        .add(mapPolygon)
+        .addAll(
+          vertices
+            .map { point ->
+              MapPin.newBuilder()
+                .setId(mapPolygon.id)
+                .setPosition(point)
+                // TODO: Use different marker style for unsaved markers.
+                .setStyle(mapPolygon.style)
                 .build()
-        }
-    }
-
-    init {
-        // TODO: Create custom ui component for location lock button and share across app.
-        val locationLockStateFlowable = createLocationLockStateFlowable().share()
-        locationLockState = LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.startWith(falseValue())
+            }
+            .toList()
         )
-        iconTint = LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable
-                .map { locked -> if (locked.isTrue) R.color.colorMapBlue else R.color.colorGrey800 }
-                .startWith(R.color.colorGrey800))
-        val polygonFlowable = mapPolygonFlowable
-            .startWith(Optional.empty())
-            .toFlowable(BackpressureStrategy.LATEST)
-            .share()
-        isPolygonCompleted = LiveDataReactiveStreams.fromPublisher(
-            polygonFlowable
-                .map { polygon ->
-                    polygon.map { it.isPolygonComplete }
-                        .orElse(false)
-                }
-                .startWith(false))
-        unsavedMapLocationsOfInterest = LiveDataReactiveStreams.fromPublisher(
-            polygonFlowable.map { polygon ->
-                polygon
-                    .map { unsavedLocationsOfInterestFromPolygon(it) }
-                    .orElse(ImmutableSet.of())
-            })
+        .build()
     }
+  }
+
+  init {
+    // TODO: Create custom ui component for location lock button and share across app.
+    val locationLockStateFlowable = createLocationLockStateFlowable().share()
+    locationLockState =
+      LiveDataReactiveStreams.fromPublisher(locationLockStateFlowable.startWith(falseValue()))
+    iconTint =
+      LiveDataReactiveStreams.fromPublisher(
+        locationLockStateFlowable
+          .map { locked -> if (locked.isTrue) R.color.colorMapBlue else R.color.colorGrey800 }
+          .startWith(R.color.colorGrey800)
+      )
+    val polygonFlowable =
+      mapPolygonFlowable.startWith(Optional.empty()).toFlowable(BackpressureStrategy.LATEST).share()
+    isPolygonCompleted =
+      LiveDataReactiveStreams.fromPublisher(
+        polygonFlowable
+          .map { polygon -> polygon.map { it.isPolygonComplete }.orElse(false) }
+          .startWith(false)
+      )
+    unsavedMapLocationsOfInterest =
+      LiveDataReactiveStreams.fromPublisher(
+        polygonFlowable.map { polygon ->
+          polygon.map { unsavedLocationsOfInterestFromPolygon(it) }.orElse(ImmutableSet.of())
+        }
+      )
+  }
 }

@@ -17,16 +17,17 @@ package com.google.android.ground.model.basemap
 
 import com.google.android.gms.maps.model.LatLngBounds
 
-/**
- * An area is a contiguous set of tiles that task a geodesic rectangle.
- */
+/** An area is a contiguous set of tiles that task a geodesic rectangle. */
 data class OfflineArea(
-    val id: String,
-    val state: State,
-    val bounds: LatLngBounds,
-    val name: String
+  val id: String,
+  val state: State,
+  val bounds: LatLngBounds,
+  val name: String
 ) {
-    enum class State {
-        PENDING, IN_PROGRESS, DOWNLOADED, FAILED
-    }
+  enum class State {
+    PENDING,
+    IN_PROGRESS,
+    DOWNLOADED,
+    FAILED
+  }
 }

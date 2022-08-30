@@ -18,5 +18,4 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
-@IgnoreExtraProperties
-data class TermsOfServiceDocument constructor(val text: String? = null)
+@IgnoreExtraProperties data class TermsOfServiceDocument constructor(val text: String? = null)

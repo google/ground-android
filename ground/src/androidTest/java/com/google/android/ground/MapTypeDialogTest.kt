@@ -32,40 +32,38 @@ import javax.inject.Inject
 @HiltAndroidTest
 class MapTypeDialogTest : BaseMainActivityTest() {
 
-    @Inject
-    lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-    @Inject
-    lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapsRepository: MapsRepository
 
-    override fun setUp() {
-        super.setUp()
-        fakeAuthenticationManager.setUser(FakeData.USER)
-    }
+  override fun setUp() {
+    super.setUp()
+    fakeAuthenticationManager.setUser(FakeData.USER)
+  }
 
-    @Test
-    fun tappingMapTypeButton_shouldOpenDialog() {
-        dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
-        skipTermsOfServiceFragment()
+  @Test
+  fun tappingMapTypeButton_shouldOpenDialog() {
+    dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
+    skipTermsOfServiceFragment()
 
-        onView(withId(R.id.map_type_btn)).perform(click())
+    onView(withId(R.id.map_type_btn)).perform(click())
 
-        onView(withText("Map Type")).check(matches(isDisplayed()))
-        onView(withText("Road Map")).check(matches(isDisplayed()))
-        onView(withText("Terrain")).check(matches(isDisplayed()))
-        onView(withText("Satellite")).check(matches(isDisplayed()))
-    }
+    onView(withText("Map Type")).check(matches(isDisplayed()))
+    onView(withText("Road Map")).check(matches(isDisplayed()))
+    onView(withText("Terrain")).check(matches(isDisplayed()))
+    onView(withText("Satellite")).check(matches(isDisplayed()))
+  }
 
-    @Test
-    fun selectingMapTypeItem_shouldUpdateBasemapType() {
-        dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
-        skipTermsOfServiceFragment()
+  @Test
+  fun selectingMapTypeItem_shouldUpdateBasemapType() {
+    dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
+    skipTermsOfServiceFragment()
 
-        Truth.assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+    Truth.assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
 
-        onView(withId(R.id.map_type_btn)).perform(click())
-        onView(withText("Terrain")).perform(click())
+    onView(withId(R.id.map_type_btn)).perform(click())
+    onView(withText("Terrain")).perform(click())
 
-        Truth.assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
-    }
+    Truth.assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+  }
 }

@@ -28,37 +28,34 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class TermsOfServiceConverterTest {
-    @Mock
-    private lateinit var termsOfServiceDocumentSnapshot: DocumentSnapshot
+  @Mock private lateinit var termsOfServiceDocumentSnapshot: DocumentSnapshot
 
-    private lateinit var termsOfService: TermsOfService
+  private lateinit var termsOfService: TermsOfService
 
-    @Before
-    fun setup() {
-        termsOfService = TermsOfService(TEST_TERMS_ID, TEST_TERMS)
-    }
+  @Before
+  fun setup() {
+    termsOfService = TermsOfService(TEST_TERMS_ID, TEST_TERMS)
+  }
 
-    @Test
-    fun testTermsOfService() {
-        mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument(TEST_TERMS))
-        assertThat(toTermsOfService()).isEqualTo(termsOfService)
-    }
+  @Test
+  fun testTermsOfService() {
+    mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument(TEST_TERMS))
+    assertThat(toTermsOfService()).isEqualTo(termsOfService)
+  }
 
-    /**
-     * Mock submission document snapshot to return the specified id and object representation.
-     */
-    private fun mockTermsOfServiceDocumentSnapshot(doc: TermsOfServiceDocument) {
-        Mockito.`when`(termsOfServiceDocumentSnapshot.id).thenReturn(TEST_TERMS_ID)
-        Mockito.`when`(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument::class.java))
-            .thenReturn(doc)
-    }
+  /** Mock submission document snapshot to return the specified id and object representation. */
+  private fun mockTermsOfServiceDocumentSnapshot(doc: TermsOfServiceDocument) {
+    Mockito.`when`(termsOfServiceDocumentSnapshot.id).thenReturn(TEST_TERMS_ID)
+    Mockito.`when`(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument::class.java))
+      .thenReturn(doc)
+  }
 
-    private fun toTermsOfService(): TermsOfService {
-        return toTerms(termsOfServiceDocumentSnapshot)
-    }
+  private fun toTermsOfService(): TermsOfService {
+    return toTerms(termsOfServiceDocumentSnapshot)
+  }
 
-    companion object {
-        private const val TEST_TERMS = "TERMS"
-        private const val TEST_TERMS_ID = "TERMS_ID"
-    }
+  companion object {
+    private const val TEST_TERMS = "TERMS"
+    private const val TEST_TERMS_ID = "TERMS_ID"
+  }
 }

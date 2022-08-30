@@ -23,11 +23,11 @@ import javax.inject.Inject
 
 class LocalDataStoreHelper @Inject constructor(private val surveyDao: SurveyDao) {
 
-    private fun Completable.commit() {
-        this.test().assertComplete()
-    }
+  private fun Completable.commit() {
+    this.test().assertComplete()
+  }
 
-    fun insertSurvey(survey: Survey) {
-        surveyDao.insertOrUpdate(SurveyEntity.fromSurvey(survey)).commit()
-    }
+  fun insertSurvey(survey: Survey) {
+    surveyDao.insertOrUpdate(SurveyEntity.fromSurvey(survey)).commit()
+  }
 }

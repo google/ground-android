@@ -36,61 +36,64 @@ import org.robolectric.Shadows.shadowOf
 @RunWith(RobolectricTestRunner::class)
 class PolygonDrawingInfoDialogFragmentTest : BaseHiltTest() {
 
-    private var clicked = false
-    private lateinit var polygonDrawingInfoDialogFragment: PolygonDrawingInfoDialogFragment
-    private lateinit var onClickRunnable: Runnable
+  private var clicked = false
+  private lateinit var polygonDrawingInfoDialogFragment: PolygonDrawingInfoDialogFragment
+  private lateinit var onClickRunnable: Runnable
 
-    @Before
-    override fun setUp() {
-        super.setUp()
-        clicked = false
-        onClickRunnable = Runnable { clicked = true }
-        setUpFragment()
-    }
+  @Before
+  override fun setUp() {
+    super.setUp()
+    clicked = false
+    onClickRunnable = Runnable { clicked = true }
+    setUpFragment()
+  }
 
-    private fun setUpFragment() {
-        val activityController = Robolectric.buildActivity(MainActivity::class.java)
-        val activity = activityController.setup().get()
+  private fun setUpFragment() {
+    val activityController = Robolectric.buildActivity(MainActivity::class.java)
+    val activity = activityController.setup().get()
 
-        polygonDrawingInfoDialogFragment = PolygonDrawingInfoDialogFragment(onClickRunnable)
-        polygonDrawingInfoDialogFragment.showNow(
-            activity.supportFragmentManager, SurveySelectorDialogFragment::class.java.simpleName
-        )
-        shadowOf(Looper.getMainLooper()).idle()
-    }
+    polygonDrawingInfoDialogFragment = PolygonDrawingInfoDialogFragment(onClickRunnable)
+    polygonDrawingInfoDialogFragment.showNow(
+      activity.supportFragmentManager,
+      SurveySelectorDialogFragment::class.java.simpleName
+    )
+    shadowOf(Looper.getMainLooper()).idle()
+  }
 
-    @Test
-    fun show_dialogIsShown() {
-        val dialogView = polygonDrawingInfoDialogFragment.dialog?.currentFocus
+  @Test
+  fun show_dialogIsShown() {
+    val dialogView = polygonDrawingInfoDialogFragment.dialog?.currentFocus
 
-        assertThat(dialogView).isNotNull()
-        assertThat(dialogView?.visibility).isEqualTo(View.VISIBLE)
-        assertThat(
-            (dialogView?.parent as ConstraintLayout)
-                .findViewById<View>(R.id.polygon_info_image).visibility
-        ).isEqualTo(View.VISIBLE)
-    }
+    assertThat(dialogView).isNotNull()
+    assertThat(dialogView?.visibility).isEqualTo(View.VISIBLE)
+    assertThat(
+        (dialogView?.parent as ConstraintLayout)
+          .findViewById<View>(R.id.polygon_info_image)
+          .visibility
+      )
+      .isEqualTo(View.VISIBLE)
+  }
 
-    @Test
-    fun startClicked_clickIsRegisteredAndDialogIsDismissed() {
-        val dialogView =
-            polygonDrawingInfoDialogFragment.dialog?.currentFocus?.parent as ConstraintLayout
-        shadowOf(dialogView.findViewById(R.id.get_started_button) as View).checkedPerformClick()
-        shadowOf(Looper.getMainLooper()).idle()
+  @Test
+  fun startClicked_clickIsRegisteredAndDialogIsDismissed() {
+    val dialogView =
+      polygonDrawingInfoDialogFragment.dialog?.currentFocus?.parent as ConstraintLayout
+    shadowOf(dialogView.findViewById(R.id.get_started_button) as View).checkedPerformClick()
+    shadowOf(Looper.getMainLooper()).idle()
 
-        // Verify Dialog is dismissed
-        assertThat(polygonDrawingInfoDialogFragment.dialog).isNull()
-        assertThat(clicked).isTrue()
-    }
+    // Verify Dialog is dismissed
+    assertThat(polygonDrawingInfoDialogFragment.dialog).isNull()
+    assertThat(clicked).isTrue()
+  }
 
-    @Test
-    fun cancelClicked_dialogIsDismissed() {
-        val dialogView =
-            polygonDrawingInfoDialogFragment.dialog?.currentFocus?.parent as ConstraintLayout
-        shadowOf(dialogView.findViewById(R.id.cancel_text_view) as View).checkedPerformClick()
-        shadowOf(Looper.getMainLooper()).idle()
+  @Test
+  fun cancelClicked_dialogIsDismissed() {
+    val dialogView =
+      polygonDrawingInfoDialogFragment.dialog?.currentFocus?.parent as ConstraintLayout
+    shadowOf(dialogView.findViewById(R.id.cancel_text_view) as View).checkedPerformClick()
+    shadowOf(Looper.getMainLooper()).idle()
 
-        // Verify Dialog is dismissed
-        assertThat(polygonDrawingInfoDialogFragment.dialog).isNull()
-    }
+    // Verify Dialog is dismissed
+    assertThat(polygonDrawingInfoDialogFragment.dialog).isNull()
+  }
 }

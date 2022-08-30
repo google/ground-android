@@ -23,15 +23,15 @@ import com.google.android.ground.databinding.TwoLineToolbarBinding
 
 class TwoLineToolbar(context: Context, attrs: AttributeSet?) : Toolbar(context, attrs) {
 
-    private val binding: TwoLineToolbarBinding =
-        TwoLineToolbarBinding.inflate(LayoutInflater.from(getContext()), this, true)
+  private val binding: TwoLineToolbarBinding =
+    TwoLineToolbarBinding.inflate(LayoutInflater.from(getContext()), this, true)
 
-    fun setTitle(title: String?) {
-        binding.toolbarTitleText.text = title
-    }
+  fun setTitle(title: String?) {
+    binding.toolbarTitleText.text = title
+  }
 
-    fun setSubtitle(subtitle: String?) {
-        binding.toolbarSubtitleText.text = subtitle
-        binding.toolbarSubtitleText.visibility = if (subtitle.isNullOrEmpty()) GONE else VISIBLE
-    }
+  fun setSubtitle(subtitle: String?) {
+    binding.toolbarSubtitleText.text = subtitle
+    binding.toolbarSubtitleText.visibility = if (subtitle.isNullOrEmpty()) GONE else VISIBLE
+  }
 }

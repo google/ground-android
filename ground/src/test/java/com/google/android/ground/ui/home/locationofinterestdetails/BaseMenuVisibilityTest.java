@@ -31,14 +31,11 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
   static final User TEST_USER_OWNER = new User("user1", "user@gmail.com", "user 1");
 
-  static final User TEST_USER_MANAGER =
-      new User("user2", "user2@gmail.com", "user 2");
+  static final User TEST_USER_MANAGER = new User("user2", "user2@gmail.com", "user 2");
 
-  static final User TEST_USER_CONTRIBUTOR =
-      new User("user2", "user3@gmail.com", "user 3");
+  static final User TEST_USER_CONTRIBUTOR = new User("user2", "user3@gmail.com", "user 3");
 
-  static final User TEST_USER_UNKNOWN =
-      new User("user2", "user4@gmail.com", "user 4");
+  static final User TEST_USER_UNKNOWN = new User("user2", "user4@gmail.com", "user 4");
 
   // TODO: Once migrated to kotlin, use FakeData and only replace the fields which are to be tested
   static final Survey TEST_SURVEY =

@@ -47,8 +47,7 @@ public class OfflineAreaViewerFragment extends AbstractMapViewerFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    OfflineAreaViewerFragmentArgs args =
-        OfflineAreaViewerFragmentArgs.fromBundle(getArguments());
+    OfflineAreaViewerFragmentArgs args = OfflineAreaViewerFragmentArgs.fromBundle(getArguments());
     viewModel = getViewModel(OfflineAreaViewerViewModel.class);
     viewModel.loadOfflineArea(args);
     viewModel.getOfflineArea().observe(this, this::panMap);

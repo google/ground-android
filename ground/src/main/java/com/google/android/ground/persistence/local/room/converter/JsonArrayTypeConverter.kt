@@ -23,15 +23,14 @@ import timber.log.Timber
 
 object JsonArrayTypeConverter {
 
-    @TypeConverter
-    fun toString(jsonArray: JSONArray?): String? = jsonArray?.toString()
+  @TypeConverter fun toString(jsonArray: JSONArray?): String? = jsonArray?.toString()
 
-    @TypeConverter
-    fun fromString(jsonString: String?): JSONArray? =
-        try {
-            jsonString?.let { JSONArray(it) }
-        } catch (e: JSONException) {
-            Timber.d(e, "Invalid JSON in db")
-            JSONArray()
-        }
+  @TypeConverter
+  fun fromString(jsonString: String?): JSONArray? =
+    try {
+      jsonString?.let { JSONArray(it) }
+    } catch (e: JSONException) {
+      Timber.d(e, "Invalid JSON in db")
+      JSONArray()
+    }
 }

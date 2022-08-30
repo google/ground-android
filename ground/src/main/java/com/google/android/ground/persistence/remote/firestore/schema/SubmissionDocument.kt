@@ -18,14 +18,12 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
-/**
- * Submission entity stored in Firestore.
- */
+/** Submission entity stored in Firestore. */
 @IgnoreExtraProperties
 data class SubmissionDocument(
-    val loiId: String? = null,
-    val jobId: String? = null,
-    val created: AuditInfoNestedObject? = null,
-    val lastModified: AuditInfoNestedObject? = null,
-    val responses: Map<String, Any>? = null
+  val loiId: String? = null,
+  val jobId: String? = null,
+  val created: AuditInfoNestedObject? = null,
+  val lastModified: AuditInfoNestedObject? = null,
+  val responses: Map<String, Any>? = null
 )

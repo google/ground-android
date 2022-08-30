@@ -18,20 +18,20 @@ package com.google.android.ground.model.basemap
 import org.apache.commons.io.FilenameUtils
 import java.net.URL
 
-/** Represents a possible source for offline base map data.  */
-data class BaseMap(
-    val url: URL,
-    val type: BaseMapType
-) {
-    enum class BaseMapType {
-        MBTILES_FOOTPRINTS, TILED_WEB_MAP, UNKNOWN
-    }
+/** Represents a possible source for offline base map data. */
+data class BaseMap(val url: URL, val type: BaseMapType) {
+  enum class BaseMapType {
+    MBTILES_FOOTPRINTS,
+    TILED_WEB_MAP,
+    UNKNOWN
+  }
 
-    companion object {
-        fun typeFromExtension(url: String): BaseMapType = when (FilenameUtils.getExtension(url)) {
-            "geojson" -> BaseMapType.MBTILES_FOOTPRINTS
-            "png" -> BaseMapType.TILED_WEB_MAP
-            else -> BaseMapType.UNKNOWN
-        }
-    }
+  companion object {
+    fun typeFromExtension(url: String): BaseMapType =
+      when (FilenameUtils.getExtension(url)) {
+        "geojson" -> BaseMapType.MBTILES_FOOTPRINTS
+        "png" -> BaseMapType.TILED_WEB_MAP
+        else -> BaseMapType.UNKNOWN
+      }
+  }
 }

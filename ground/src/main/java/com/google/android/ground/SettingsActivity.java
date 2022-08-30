@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import com.google.android.ground.databinding.SettingsActivityBinding;
 import dagger.hilt.android.AndroidEntryPoint;
 
-
 @AndroidEntryPoint
 public class SettingsActivity extends AbstractActivity {
 

@@ -24,8 +24,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class AuthenticationModule {
-    /** Provides the Google implementation of authentication manager.  */
-    @Binds
-    @Singleton
-    abstract fun googleAuthenticationManager(gam: GoogleAuthenticationManager): AuthenticationManager
+  /** Provides the Google implementation of authentication manager. */
+  @Binds
+  @Singleton
+  abstract fun googleAuthenticationManager(gam: GoogleAuthenticationManager): AuthenticationManager
 }

@@ -18,8 +18,7 @@ package com.google.android.ground.model.geometry
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 
-
 /** A sequence of two or more vertices modelling an OCG style line string. */
 data class LineString(val coordinates: ImmutableList<Coordinate>) : Geometry {
-    override val vertices: ImmutableList<Point> = coordinates.map { Point(it) }.toImmutableList()
+  override val vertices: ImmutableList<Point> = coordinates.map { Point(it) }.toImmutableList()
 }

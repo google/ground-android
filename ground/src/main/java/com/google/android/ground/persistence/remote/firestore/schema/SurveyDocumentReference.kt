@@ -26,12 +26,12 @@ private const val LOIS = "lois"
 private const val SUBMISSIONS = "submissions"
 
 class SurveyDocumentReference internal constructor(ref: DocumentReference) :
-    FluentDocumentReference(ref) {
+  FluentDocumentReference(ref) {
 
-    fun lois() = LoiCollectionReference(reference().collection(LOIS))
+  fun lois() = LoiCollectionReference(reference().collection(LOIS))
 
-    fun submissions() = SubmissionCollectionReference(reference().collection(SUBMISSIONS))
+  fun submissions() = SubmissionCollectionReference(reference().collection(SUBMISSIONS))
 
-    fun get(): Maybe<Survey> =
-        RxFirestore.getDocument(reference()).map { SurveyConverter.toSurvey(it) }
+  fun get(): Maybe<Survey> =
+    RxFirestore.getDocument(reference()).map { SurveyConverter.toSurvey(it) }
 }

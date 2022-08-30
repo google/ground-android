@@ -23,16 +23,19 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import javax.inject.Inject
 
-class TermsOfServiceViewModel @Inject constructor(
-    private val navigator: Navigator, private val termsOfServiceRepository: TermsOfServiceRepository
+class TermsOfServiceViewModel
+@Inject
+constructor(
+  private val navigator: Navigator,
+  private val termsOfServiceRepository: TermsOfServiceRepository
 ) : AbstractViewModel() {
-    var termsOfServiceText = ""
+  var termsOfServiceText = ""
 
-    @JvmField
-    val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
+  @JvmField
+  val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
-    fun onButtonClicked() {
-        termsOfServiceRepository.isTermsOfServiceAccepted = true
-        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-    }
+  fun onButtonClicked() {
+    termsOfServiceRepository.isTermsOfServiceAccepted = true
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+  }
 }

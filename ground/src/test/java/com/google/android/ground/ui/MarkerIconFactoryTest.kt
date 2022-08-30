@@ -35,51 +35,45 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MarkerIconFactoryTest : BaseHiltTest() {
-    @Inject
-    @ApplicationContext
-    lateinit var context: Context
+  @Inject @ApplicationContext lateinit var context: Context
 
-    @Inject
-    lateinit var markerIconFactory: MarkerIconFactory
-    private var markerUnscaledWidth = 0
-    private var markerUnscaledHeight = 0
+  @Inject lateinit var markerIconFactory: MarkerIconFactory
+  private var markerUnscaledWidth = 0
+  private var markerUnscaledHeight = 0
 
-    @Before
-    override fun setUp() {
-        super.setUp()
-        val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
-        markerUnscaledWidth = outline!!.intrinsicWidth
-        markerUnscaledHeight = outline.intrinsicHeight
-    }
+  @Before
+  override fun setUp() {
+    super.setUp()
+    val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
+    markerUnscaledWidth = outline!!.intrinsicWidth
+    markerUnscaledHeight = outline.intrinsicHeight
+  }
 
-    @Test
-    fun markerBitmap_zoomedOut_scaleIsSetCorrectly() {
-        val bitmap = markerIconFactory.getMarkerBitmap(
-            Color.BLUE,
-            MapContainerViewModel.ZOOM_LEVEL_THRESHOLD - 0.1f
-        )
+  @Test
+  fun markerBitmap_zoomedOut_scaleIsSetCorrectly() {
+    val bitmap =
+      markerIconFactory.getMarkerBitmap(
+        Color.BLUE,
+        MapContainerViewModel.ZOOM_LEVEL_THRESHOLD - 0.1f
+      )
 
-        val scale =
-            ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-        verifyBitmapScale(bitmap, scale)
-    }
+    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
+    verifyBitmapScale(bitmap, scale)
+  }
 
-    @Test
-    fun markerBitmap_zoomedIn_scaleIsSetCorrectly() {
-        val bitmap = markerIconFactory.getMarkerBitmap(
-            Color.BLUE,
-            MapContainerViewModel.ZOOM_LEVEL_THRESHOLD
-        )
+  @Test
+  fun markerBitmap_zoomedIn_scaleIsSetCorrectly() {
+    val bitmap =
+      markerIconFactory.getMarkerBitmap(Color.BLUE, MapContainerViewModel.ZOOM_LEVEL_THRESHOLD)
 
-        val scale =
-            ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
-        verifyBitmapScale(bitmap, scale)
-    }
+    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
+    verifyBitmapScale(bitmap, scale)
+  }
 
-    private fun verifyBitmapScale(bitmap: Bitmap, scale: Float) {
-        val expectedWidth = (markerUnscaledWidth * scale).toInt()
-        val expectedHeight = (markerUnscaledHeight * scale).toInt()
-        assertThat(bitmap.width).isEqualTo(expectedWidth)
-        assertThat(bitmap.height).isEqualTo(expectedHeight)
-    }
+  private fun verifyBitmapScale(bitmap: Bitmap, scale: Float) {
+    val expectedWidth = (markerUnscaledWidth * scale).toInt()
+    val expectedHeight = (markerUnscaledHeight * scale).toInt()
+    assertThat(bitmap.width).isEqualTo(expectedWidth)
+    assertThat(bitmap.height).isEqualTo(expectedHeight)
+  }
 }

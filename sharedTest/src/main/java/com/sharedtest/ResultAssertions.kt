@@ -21,10 +21,10 @@ import org.junit.Assert.assertTrue
 
 @JvmName("assertIsFailure")
 inline fun assertIsFailure(result: Result<*>) =
-    assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
+  assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
 
 @JvmName("assertIsSuccess")
 inline fun assertIsSuccessWith(expected: Any?, result: Result<*>) {
-    assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
-    assertEquals(expected, result.getOrNull())
+  assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
+  assertEquals(expected, result.getOrNull())
 }

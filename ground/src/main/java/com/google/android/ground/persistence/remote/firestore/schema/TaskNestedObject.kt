@@ -18,13 +18,13 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Firestore representation of a data collection task.  */
+/** Firestore representation of a data collection task. */
 @IgnoreExtraProperties
 data class TaskNestedObject(
-    val index: Int? = null,
-    val type: String? = null,
-    val cardinality: String? = null,
-    val label: String? = null,
-    val options: Map<String, OptionNestedObject>? = null,
-    val required: Boolean? = null
+  val index: Int? = null,
+  val type: String? = null,
+  val cardinality: String? = null,
+  val label: String? = null,
+  val options: Map<String, OptionNestedObject>? = null,
+  val required: Boolean? = null
 )

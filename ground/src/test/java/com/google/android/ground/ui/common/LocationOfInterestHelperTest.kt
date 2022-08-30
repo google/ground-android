@@ -31,76 +31,75 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class LocationOfInterestHelperTest : BaseHiltTest() {
 
-    @Inject
-    lateinit var loiHelper: LocationOfInterestHelper
+  @Inject lateinit var loiHelper: LocationOfInterestHelper
 
-    @Test
-    fun testGetCreatedBy() {
-        val user = FakeData.USER.copy(displayName = TEST_USER_NAME)
-        val loi = FakeData.POINT_OF_INTEREST.copy(created = AuditInfo(user))
-        assertCreatedBy(loi, "Added by $TEST_USER_NAME")
-    }
+  @Test
+  fun testGetCreatedBy() {
+    val user = FakeData.USER.copy(displayName = TEST_USER_NAME)
+    val loi = FakeData.POINT_OF_INTEREST.copy(created = AuditInfo(user))
+    assertCreatedBy(loi, "Added by $TEST_USER_NAME")
+  }
 
-    @Test
-    fun testGetCreatedBy_whenLoiIsNull() {
-        assertCreatedBy(null, "")
-    }
+  @Test
+  fun testGetCreatedBy_whenLoiIsNull() {
+    assertCreatedBy(null, "")
+  }
 
-    @Test
-    fun testGetLabel_whenLoiIsNull() {
-        assertLabel(null, "")
-    }
+  @Test
+  fun testGetLabel_whenLoiIsNull() {
+    assertLabel(null, "")
+  }
 
-    @Test
-    fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
-        val loi = FakeData.POINT_OF_INTEREST.copy(caption = "")
-        assertLabel(loi, "Point")
-    }
+  @Test
+  fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
+    val loi = FakeData.POINT_OF_INTEREST.copy(caption = "")
+    assertLabel(loi, "Point")
+  }
 
-    @Test
-    fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
-        val loi = FakeData.AREA_OF_INTEREST.copy(caption = "")
-        assertLabel(loi, "Polygon")
-    }
+  @Test
+  fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
+    val loi = FakeData.AREA_OF_INTEREST.copy(caption = "")
+    assertLabel(loi, "Polygon")
+  }
 
-    @Test
-    fun testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
-        val loi = FakeData.POINT_OF_INTEREST.copy(caption = TEST_CAPTION)
-        assertLabel(loi, TEST_CAPTION)
-    }
+  @Test
+  fun testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
+    val loi = FakeData.POINT_OF_INTEREST.copy(caption = TEST_CAPTION)
+    assertLabel(loi, TEST_CAPTION)
+  }
 
-    @Test
-    fun testGetLabel_whenCaptionIsPresentAndLoiIsPolygon() {
-        val loi = FakeData.AREA_OF_INTEREST.copy(caption = TEST_CAPTION)
-        assertLabel(loi, TEST_CAPTION)
-    }
+  @Test
+  fun testGetLabel_whenCaptionIsPresentAndLoiIsPolygon() {
+    val loi = FakeData.AREA_OF_INTEREST.copy(caption = TEST_CAPTION)
+    assertLabel(loi, TEST_CAPTION)
+  }
 
-    @Test
-    fun testGetSubtitle() {
-        val loi = FakeData.POINT_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
-        assertSubtitle(loi, "Job: $TEST_JOB_NAME")
-    }
+  @Test
+  fun testGetSubtitle() {
+    val loi = FakeData.POINT_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
+    assertSubtitle(loi, "Job: $TEST_JOB_NAME")
+  }
 
-    @Test
-    fun testGetSubtitle_whenLoiIsEmpty() {
-        assertSubtitle(null, "")
-    }
+  @Test
+  fun testGetSubtitle_whenLoiIsEmpty() {
+    assertSubtitle(null, "")
+  }
 
-    private fun assertCreatedBy(loi: LocationOfInterest?, expectedCreatedBy: String) {
-        assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy)
-    }
+  private fun assertCreatedBy(loi: LocationOfInterest?, expectedCreatedBy: String) {
+    assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy)
+  }
 
-    private fun assertLabel(loi: LocationOfInterest?, expectedLabel: String) {
-        assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel)
-    }
+  private fun assertLabel(loi: LocationOfInterest?, expectedLabel: String) {
+    assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel)
+  }
 
-    private fun assertSubtitle(loi: LocationOfInterest?, expectedSubtitle: String) {
-        assertThat(loiHelper.getSubtitle(Optional.ofNullable(loi))).isEqualTo(expectedSubtitle)
-    }
+  private fun assertSubtitle(loi: LocationOfInterest?, expectedSubtitle: String) {
+    assertThat(loiHelper.getSubtitle(Optional.ofNullable(loi))).isEqualTo(expectedSubtitle)
+  }
 
-    companion object {
-        private const val TEST_USER_NAME = "some user name"
-        private const val TEST_CAPTION = "some caption text"
-        private const val TEST_JOB_NAME = "some job name"
-    }
+  companion object {
+    private const val TEST_USER_NAME = "some user name"
+    private const val TEST_CAPTION = "some caption text"
+    private const val TEST_JOB_NAME = "some job name"
+  }
 }

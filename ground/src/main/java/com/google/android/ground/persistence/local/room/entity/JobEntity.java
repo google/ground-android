@@ -35,11 +35,11 @@ import com.google.common.collect.ImmutableMap;
 @Entity(
     tableName = "job",
     foreignKeys =
-    @ForeignKey(
-        entity = SurveyEntity.class,
-        parentColumns = "id",
-        childColumns = "survey_id",
-        onDelete = ForeignKey.CASCADE),
+        @ForeignKey(
+            entity = SurveyEntity.class,
+            parentColumns = "id",
+            childColumns = "survey_id",
+            onDelete = ForeignKey.CASCADE),
     indices = {@Index("survey_id")})
 public abstract class JobEntity {
 
@@ -81,11 +81,7 @@ public abstract class JobEntity {
   }
 
   public static JobEntity create(String id, String name, String surveyId) {
-    return builder()
-        .setId(id)
-        .setName(name)
-        .setSurveyId(surveyId)
-        .build();
+    return builder().setId(id).setName(name).setSurveyId(surveyId).build();
   }
 
   public static Builder builder() {

@@ -22,24 +22,23 @@ import com.google.android.ground.R
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Displays short-lived messages such as toasts that are shown over other UI elements.  */
+/** Displays short-lived messages such as toasts that are shown over other UI elements. */
 @Singleton
 class EphemeralPopups @Inject constructor(private val context: Application) {
 
-    fun showSuccess(@StringRes messageId: Int) = showLong(messageId)
+  fun showSuccess(@StringRes messageId: Int) = showLong(messageId)
 
-    fun showError(@StringRes messageId: Int) = showLong(messageId)
+  fun showError(@StringRes messageId: Int) = showLong(messageId)
 
-    fun showFyi(@StringRes messageId: Int) = showLong(messageId)
+  fun showFyi(@StringRes messageId: Int) = showLong(messageId)
 
-    fun showError(message: String) = showLong(message)
+  fun showError(message: String) = showLong(message)
 
-    // TODO: Rename to unknownError?
-    fun showError() = showLong(R.string.unexpected_error)
+  // TODO: Rename to unknownError?
+  fun showError() = showLong(R.string.unexpected_error)
 
-    private fun showLong(@StringRes messageId: Int) =
-        Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
+  private fun showLong(@StringRes messageId: Int) =
+    Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
 
-    private fun showLong(message: String) =
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+  private fun showLong(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }

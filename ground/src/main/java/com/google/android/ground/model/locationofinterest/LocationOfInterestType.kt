@@ -17,5 +17,10 @@ package com.google.android.ground.model.locationofinterest
 
 // TODO: Delete me once we no longer have Java callers.
 enum class LocationOfInterestType {
-    UNKNOWN, POINT, POLYGON, LINE_STRING, LINEAR_RING, MULTIPOLYGON;
+  UNKNOWN,
+  POINT,
+  POLYGON,
+  LINE_STRING,
+  LINEAR_RING,
+  MULTIPOLYGON
 }

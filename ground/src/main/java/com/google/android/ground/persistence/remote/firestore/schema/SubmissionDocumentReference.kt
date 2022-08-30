@@ -30,27 +30,20 @@ import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Maybe
 
 class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
-
-    FluentDocumentReference(ref) {
-    operator fun get(locationOfInterest: LocationOfInterest): @Cold Maybe<Submission> {
-        return RxFirestore.getDocument(reference())
-            .map { doc: DocumentSnapshot ->
-                SubmissionConverter.toSubmission(
-                    locationOfInterest,
-                    doc
-                )
-            }
+  FluentDocumentReference(ref) {
+  operator fun get(locationOfInterest: LocationOfInterest): @Cold Maybe<Submission> {
+    return RxFirestore.getDocument(reference()).map { doc: DocumentSnapshot ->
+      SubmissionConverter.toSubmission(locationOfInterest, doc)
     }
+  }
 
-    /** Appends the operation described by the specified mutation to the provided write batch.  */
-    fun addMutationToBatch(mutation: SubmissionMutation, user: User, batch: WriteBatch) {
-        when (mutation.type) {
-            Mutation.Type.CREATE, Mutation.Type.UPDATE ->
-                merge(SubmissionMutationConverter.toMap(mutation, user), batch)
-            Mutation.Type.DELETE ->
-                delete(batch)
-            else ->
-                throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
-        }
+  /** Appends the operation described by the specified mutation to the provided write batch. */
+  fun addMutationToBatch(mutation: SubmissionMutation, user: User, batch: WriteBatch) {
+    when (mutation.type) {
+      Mutation.Type.CREATE,
+      Mutation.Type.UPDATE -> merge(SubmissionMutationConverter.toMap(mutation, user), batch)
+      Mutation.Type.DELETE -> delete(batch)
+      else -> throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
     }
+  }
 }

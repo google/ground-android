@@ -46,11 +46,10 @@ public class SubmissionListItemViewModel extends AbstractViewModel implements On
 
   private final Application application;
 
-  @Nullable
-  private Consumer<Submission> submissionCallback;
+  @Nullable private Consumer<Submission> submissionCallback;
 
   @Hot(replays = true)
-  private MutableLiveData<Submission> selectedSubmission = new MutableLiveData<>();
+  private final MutableLiveData<Submission> selectedSubmission = new MutableLiveData<>();
 
   @Inject
   SubmissionListItemViewModel(Application application) {

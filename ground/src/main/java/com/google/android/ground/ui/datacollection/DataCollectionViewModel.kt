@@ -28,48 +28,45 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import javax.inject.Inject
 
-/**
- * View model for the Data Collection fragment.
- */
-class DataCollectionViewModel @Inject internal constructor(
-    private val submissionRepository: SubmissionRepository,
-    private val locationOfInterestHelper: LocationOfInterestHelper
+/** View model for the Data Collection fragment. */
+class DataCollectionViewModel
+@Inject
+internal constructor(
+  private val submissionRepository: SubmissionRepository,
+  private val locationOfInterestHelper: LocationOfInterestHelper
 ) : AbstractViewModel() {
-    val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
-    val jobName: @Hot(replays = true) LiveData<String>
-    val loiName: @Hot(replays = true) LiveData<String>
+  val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
+  val jobName: @Hot(replays = true) LiveData<String>
+  val loiName: @Hot(replays = true) LiveData<String>
 
-    private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
-        BehaviorProcessor.create()
+  private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
+    BehaviorProcessor.create()
 
-    init {
-        val submissionStream: Flowable<Loadable<Submission>> =
-            argsProcessor.switchMapSingle { args ->
-                submissionRepository.createSubmission(
-                    args.surveyId, args.locationOfInterestId, args.submissionId
-                ).map { Loadable.loaded(it) }.onErrorReturn { Loadable.error(it) }
-            }
+  init {
+    val submissionStream: Flowable<Loadable<Submission>> =
+      argsProcessor.switchMapSingle { args ->
+        submissionRepository
+          .createSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
+          .map { Loadable.loaded(it) }
+          .onErrorReturn { Loadable.error(it) }
+      }
 
-        submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
+    submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
 
-        jobName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
-            submission.value().map {
-                it.locationOfInterest.job?.name
-            }.orElse("")
-        })
+    jobName =
+      LiveDataReactiveStreams.fromPublisher(
+        submissionStream.map { submission ->
+          submission.value().map { it.locationOfInterest.job.name }.orElse("")
+        }
+      )
 
-        loiName = LiveDataReactiveStreams.fromPublisher(submissionStream.map { submission ->
-            submission.value().map {
-                it.locationOfInterest
-            }
-        }.map { locationOfInterest ->
-            locationOfInterestHelper.getLabel(
-                locationOfInterest
-            )
-        })
-    }
+    loiName =
+      LiveDataReactiveStreams.fromPublisher(
+        submissionStream
+          .map { submission -> submission.value().map { it.locationOfInterest } }
+          .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
+      )
+  }
 
-    fun loadSubmissionDetails(
-        args: DataCollectionFragmentArgs
-    ) = argsProcessor.onNext(args)
+  fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 }

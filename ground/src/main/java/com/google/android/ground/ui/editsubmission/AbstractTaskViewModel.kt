@@ -29,68 +29,67 @@ import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import java8.util.Optional
 
-/** Defines the state of an inflated [Task] and controls its UI.  */
+/** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor(private val resources: Resources) :
-    AbstractViewModel() {
+  AbstractViewModel() {
 
-    /** Current value. */
-    val response: LiveData<Optional<Response>>
+  /** Current value. */
+  val response: LiveData<Optional<Response>>
 
-    /** Transcoded text to be displayed for the current [AbstractTaskViewModel.response]. */
-    val responseText: LiveData<String>
+  /** Transcoded text to be displayed for the current [AbstractTaskViewModel.response]. */
+  val responseText: LiveData<String>
 
-    /** Error message to be displayed for the current [AbstractTaskViewModel.response]. */
-    val error: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+  /** Error message to be displayed for the current [AbstractTaskViewModel.response]. */
+  val error: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
-    private val responseSubject: @Hot(replays = true) BehaviorProcessor<Optional<Response>> =
-        BehaviorProcessor.create()
+  private val responseSubject: @Hot(replays = true) BehaviorProcessor<Optional<Response>> =
+    BehaviorProcessor.create()
 
-    lateinit var task: Task
+  lateinit var task: Task
 
-    // TODO: Add a reference of Task in Response for simplification.
-    fun initialize(task: Task, response: Optional<Response>) {
-        this.task = task
-        setResponse(response)
+  // TODO: Add a reference of Task in Response for simplification.
+  fun initialize(task: Task, response: Optional<Response>) {
+    this.task = task
+    setResponse(response)
+  }
+
+  protected val detailsTextFlowable: @Cold(stateful = true, terminates = false) Flowable<String> =
+    responseSubject.distinctUntilChanged().map { responseOptional: Optional<Response> ->
+      responseOptional.map { it.getDetailsText() }.orElse("")
     }
 
-    protected val detailsTextFlowable: @Cold(stateful = true, terminates = false) Flowable<String> =
-        responseSubject
-            .distinctUntilChanged()
-            .map { responseOptional: Optional<Response> ->
-                responseOptional.map { it.getDetailsText() }.orElse("")
-            }
+  /** Checks if the current response is valid and updates error value. */
+  fun validate(): Optional<String> {
+    val result = validate(task, responseSubject.value)
+    error.postValue(result.orElse(null))
+    return result
+  }
 
-    /** Checks if the current response is valid and updates error value. */
-    fun validate(): Optional<String> {
-        val result = validate(task, responseSubject.value)
-        error.postValue(result.orElse(null))
-        return result
-    }
+  // TODO: Check valid response values
+  private fun validate(task: Task, response: Optional<Response>?): Optional<String> =
+    if (task.isRequired && (response == null || response.isEmpty))
+      Optional.of(resources.getString(R.string.required_task))
+    else Optional.empty()
 
-    // TODO: Check valid response values
-    private fun validate(task: Task, response: Optional<Response>?): Optional<String> =
-        if (task.isRequired && (response == null || response.isEmpty))
-            Optional.of(resources.getString(R.string.required_task))
-        else
-            Optional.empty()
+  fun taskLabel(): String =
+    StringBuilder(task.label)
+      .apply {
+        if (task.isRequired) {
+          append(" *")
+        }
+      }
+      .toString()
 
-    fun taskLabel(): String =
-        StringBuilder(task.label).apply {
-            if (task.isRequired) {
-                append(" *")
-            }
-        }.toString()
+  fun setResponse(response: Optional<Response>) {
+    responseSubject.onNext(response)
+  }
 
-    fun setResponse(response: Optional<Response>) {
-        responseSubject.onNext(response)
-    }
+  fun clearResponse() {
+    setResponse(Optional.empty())
+  }
 
-    fun clearResponse() {
-        setResponse(Optional.empty())
-    }
-
-    init {
-        response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged())
-        responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable)
-    }
+  init {
+    response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged())
+    responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable)
+  }
 }

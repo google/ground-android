@@ -26,17 +26,22 @@ import javax.inject.Inject
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS: Long = 30
 
-class TermsOfServiceRepository @Inject constructor(
-    private val remoteDataStore: RemoteDataStore, private val localValueStore: LocalValueStore) {
+class TermsOfServiceRepository
+@Inject
+constructor(
+  private val remoteDataStore: RemoteDataStore,
+  private val localValueStore: LocalValueStore
+) {
 
-    val termsOfService: @Cold Maybe<TermsOfService>
-        get() = remoteDataStore
-            .loadTermsOfService()
-            .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
+  val termsOfService: @Cold Maybe<TermsOfService>
+    get() =
+      remoteDataStore
+        .loadTermsOfService()
+        .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
 
-    var isTermsOfServiceAccepted: Boolean
-        get() = localValueStore.isTermsOfServiceAccepted
-        set(value) {
-            localValueStore.isTermsOfServiceAccepted = value
-        }
+  var isTermsOfServiceAccepted: Boolean
+    get() = localValueStore.isTermsOfServiceAccepted
+    set(value) {
+      localValueStore.isTermsOfServiceAccepted = value
+    }
 }

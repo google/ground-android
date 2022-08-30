@@ -25,14 +25,14 @@ import javax.inject.Singleton
 @Singleton
 class MapsRepository @Inject constructor(private val localValueStore: LocalValueStore) {
 
-    private val mutableMapType: MutableLiveData<Int> = MutableLiveData(mapType)
+  private val mutableMapType: MutableLiveData<Int> = MutableLiveData(mapType)
 
-    fun observableMapType(): LiveData<Int> = mutableMapType
+  fun observableMapType(): LiveData<Int> = mutableMapType
 
-    var mapType: Int
-        get() = localValueStore.lastMapType
-        set(value) {
-            localValueStore.lastMapType = value
-            mutableMapType.postValue(value)
-        }
+  var mapType: Int
+    get() = localValueStore.lastMapType
+    set(value) {
+      localValueStore.lastMapType = value
+      mutableMapType.postValue(value)
+    }
 }

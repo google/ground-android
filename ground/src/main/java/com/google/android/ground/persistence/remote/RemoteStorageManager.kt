@@ -26,12 +26,12 @@ import java.io.File
  * are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteStorageManager {
-    /** Returns a URL that can be used to download a file at the specified path in remote storage.  */
-    fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri>
+  /** Returns a URL that can be used to download a file at the specified path in remote storage. */
+  fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri>
 
-    /** Uploads file to a remote path, streaming progress in the returned [Flowable].  */
-    fun uploadMediaFromFile(
-        file: File,
-        remoteDestinationPath: String
-    ): @Cold Flowable<TransferProgress>
+  /** Uploads file to a remote path, streaming progress in the returned [Flowable]. */
+  fun uploadMediaFromFile(
+    file: File,
+    remoteDestinationPath: String
+  ): @Cold Flowable<TransferProgress>
 }

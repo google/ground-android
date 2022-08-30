@@ -31,7 +31,10 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.kotlin.*
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -41,84 +44,77 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
 
-    private lateinit var dataCollectionFragment: DataCollectionFragment
-    private lateinit var activity: MainActivity
+  private lateinit var dataCollectionFragment: DataCollectionFragment
+  private lateinit var activity: MainActivity
 
-    @BindValue
-    @Mock
-    lateinit var dataCollectionViewModel: DataCollectionViewModel
+  @BindValue @Mock lateinit var dataCollectionViewModel: DataCollectionViewModel
 
-    @Inject
-    lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-    @Before
-    override fun setUp() {
-        super.setUp()
+  @Before
+  override fun setUp() {
+    super.setUp()
 
-        val activityController = Robolectric.buildActivity(
-            MainActivity::class.java
-        ).setup()
-        activity = activityController.get()
-    }
+    val activityController = Robolectric.buildActivity(MainActivity::class.java).setup()
+    activity = activityController.get()
+  }
 
-    @Test
-    fun created_submissionIsLoaded() {
-        setupFragment()
-        verify(dataCollectionViewModel).loadSubmissionDetails(
-            eq(DataCollectionTestData.args)
-        )
-    }
+  @Test
+  fun created_submissionIsLoaded() {
+    setupFragment()
+    verify(dataCollectionViewModel).loadSubmissionDetails(eq(DataCollectionTestData.args))
+  }
 
-    @Test
-    fun created_submissionIsLoaded_viewPagerAdapterIsSet() {
-        setupFragment()
+  @Test
+  fun created_submissionIsLoaded_viewPagerAdapterIsSet() {
+    setupFragment()
 
-        val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
-        assertThat(viewPager).isNotNull()
-        assertThat(viewPager.adapter).isInstanceOf(DataCollectionViewPagerAdapter::class.java)
-    }
+    val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
+    assertThat(viewPager).isNotNull()
+    assertThat(viewPager.adapter).isInstanceOf(DataCollectionViewPagerAdapter::class.java)
+  }
 
-    @Test
-    fun onNextClicked_viewPagerItemIsUpdated() {
-        setupFragment()
+  @Test
+  fun onNextClicked_viewPagerItemIsUpdated() {
+    setupFragment()
 
-        val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
-        assertThat(viewPager.currentItem).isEqualTo(0)
-        dataCollectionFragment.view!!.findViewById<Button>(R.id.data_collection_next_button)
-            .performClick()
-        assertThat(viewPager.currentItem).isEqualTo(1)
-    }
+    val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
+    assertThat(viewPager.currentItem).isEqualTo(0)
+    dataCollectionFragment.view!!
+      .findViewById<Button>(R.id.data_collection_next_button)
+      .performClick()
+    assertThat(viewPager.currentItem).isEqualTo(1)
+  }
 
-    @Test
-    fun onNextClicked_thenOnBack_viewPagerItemIsUpdated() {
-        setupFragment()
+  @Test
+  fun onNextClicked_thenOnBack_viewPagerItemIsUpdated() {
+    setupFragment()
 
-        val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
-        assertThat(viewPager.currentItem).isEqualTo(0)
-        dataCollectionFragment.view!!.findViewById<Button>(R.id.data_collection_next_button)
-            .performClick()
-        assertThat(viewPager.currentItem).isEqualTo(1)
-        assertThat(dataCollectionFragment.onBack()).isTrue()
-        assertThat(viewPager.currentItem).isEqualTo(0)
-    }
+    val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
+    assertThat(viewPager.currentItem).isEqualTo(0)
+    dataCollectionFragment.view!!
+      .findViewById<Button>(R.id.data_collection_next_button)
+      .performClick()
+    assertThat(viewPager.currentItem).isEqualTo(1)
+    assertThat(dataCollectionFragment.onBack()).isTrue()
+    assertThat(viewPager.currentItem).isEqualTo(0)
+  }
 
-    @Test
-    fun onBack_firstViewPagerItem_returnsFalse() {
-        setupFragment()
+  @Test
+  fun onBack_firstViewPagerItem_returnsFalse() {
+    setupFragment()
 
-        assertThat(dataCollectionFragment.onBack()).isFalse()
-    }
+    assertThat(dataCollectionFragment.onBack()).isFalse()
+  }
 
-    private fun setupFragment() {
-        whenever(dataCollectionViewModel.submission).doReturn(
-            MutableLiveData(Loadable.loaded(DataCollectionTestData.submission))
-        )
+  private fun setupFragment() {
+    whenever(dataCollectionViewModel.submission)
+      .doReturn(MutableLiveData(Loadable.loaded(DataCollectionTestData.submission)))
 
-        dataCollectionFragment = DataCollectionFragment()
-        dataCollectionFragment.arguments = DataCollectionTestData.args.toBundle()
-        activity.supportFragmentManager.beginTransaction().add(dataCollectionFragment, null)
-            .commitNow()
+    dataCollectionFragment = DataCollectionFragment()
+    dataCollectionFragment.arguments = DataCollectionTestData.args.toBundle()
+    activity.supportFragmentManager.beginTransaction().add(dataCollectionFragment, null).commitNow()
 
-        shadowOf(getMainLooper()).idle()
-    }
+    shadowOf(getMainLooper()).idle()
+  }
 }

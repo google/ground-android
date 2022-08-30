@@ -18,9 +18,9 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Firestore representation of map layers.  */
+/** Firestore representation of map layers. */
 @IgnoreExtraProperties
 data class JobNestedObject(
-    val name: String? = null,
-    val tasks: Map<String, TaskNestedObject>? = null
+  val name: String? = null,
+  val tasks: Map<String, TaskNestedObject>? = null
 )

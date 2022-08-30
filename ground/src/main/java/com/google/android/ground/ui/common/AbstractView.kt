@@ -28,27 +28,26 @@ import javax.inject.Inject
 
 abstract class AbstractView(context: Context) : FrameLayout(context) {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+  @Inject lateinit var viewModelFactory: ViewModelFactory
 
-    protected val activity: FragmentActivity
-        get() {
-            var context = context
-            while (context is ContextWrapper) {
-                if (context is FragmentActivity) return context
-                context = context.baseContext
-            }
-            throw IllegalStateException("View is not contained in FragmentActivity")
-        }
+  protected val activity: FragmentActivity
+    get() {
+      var context = context
+      while (context is ContextWrapper) {
+        if (context is FragmentActivity) return context
+        context = context.baseContext
+      }
+      throw IllegalStateException("View is not contained in FragmentActivity")
+    }
 
-    protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
-        viewModelFactory.get(activity, modelClass)
+  protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
+    viewModelFactory.get(activity, modelClass)
 
-    protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding =
-        DataBindingUtil.inflate(
-            (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater),
-            layoutId,
-            this,
-            true
-        )
+  protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding =
+    DataBindingUtil.inflate(
+      (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater),
+      layoutId,
+      this,
+      true
+    )
 }

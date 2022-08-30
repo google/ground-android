@@ -69,6 +69,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   /** True if submission is currently being saved, otherwise false. */
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+
   private final SubmissionRepository submissionRepository;
   private final Resources resources;
 
@@ -285,11 +286,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       if (currentResponse.equals(originalResponse)) {
         continue;
       }
-      deltas.add(
-          new ResponseDelta(
-              taskId,
-              task.getType(),
-              currentResponse));
+      deltas.add(new ResponseDelta(taskId, task.getType(), currentResponse));
     }
     ImmutableList<ResponseDelta> result = deltas.build();
     Timber.v("Deltas: %s", result);

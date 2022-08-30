@@ -25,23 +25,21 @@ import java.time.ZoneId
 import java.util.*
 
 class DateTimeResponseTest {
-    @Test
-    fun testTimeResponse_textDetails() {
-        val instant = LocalDate.now()
-            .atTime(7, 30, 45)
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-        val detailsText = TimeResponse(Date.from(instant)).getDetailsText()
-        assertThat(detailsText).isEqualTo("07:30")
-    }
+  @Test
+  fun testTimeResponse_textDetails() {
+    val instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant()
+    val detailsText = TimeResponse(Date.from(instant)).getDetailsText()
+    assertThat(detailsText).isEqualTo("07:30")
+  }
 
-    @Test
-    fun testDateResponse_textDetails() {
-        val instant = LocalDate.of(2021, Month.OCTOBER, 23)
-            .atStartOfDay()
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-        val detailsText = DateResponse(Date.from(instant)).getDetailsText()
-        assertThat(detailsText).isEqualTo("2021-10-23")
-    }
+  @Test
+  fun testDateResponse_textDetails() {
+    val instant =
+      LocalDate.of(2021, Month.OCTOBER, 23)
+        .atStartOfDay()
+        .atZone(ZoneId.systemDefault())
+        .toInstant()
+    val detailsText = DateResponse(Date.from(instant)).getDetailsText()
+    assertThat(detailsText).isEqualTo("2021-10-23")
+  }
 }

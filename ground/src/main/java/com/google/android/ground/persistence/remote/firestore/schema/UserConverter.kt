@@ -18,11 +18,11 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.User
 
-/** Converts between Firestore objects and [User] instances.  */
+/** Converts between Firestore objects and [User] instances. */
 internal object UserConverter {
 
-    fun toNestedObject(user: User) = UserNestedObject(user.id, user.email, user.displayName)
+  fun toNestedObject(user: User) = UserNestedObject(user.id, user.email, user.displayName)
 
-    fun toUser(ud: UserNestedObject?): User =
-        User(ud?.id.orEmpty(), ud?.email.orEmpty(), ud?.displayName.orEmpty())
+  fun toUser(ud: UserNestedObject?): User =
+    User(ud?.id.orEmpty(), ud?.email.orEmpty(), ud?.displayName.orEmpty())
 }

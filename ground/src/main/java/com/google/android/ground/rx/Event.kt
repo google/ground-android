@@ -22,21 +22,21 @@ import java8.util.function.Consumer
  * prevent events that trigger dialogs or other notifications from re-triggering when views are
  * restored on configuration change.
  *
- * @param <T> The event data.
-</T> */
+ * @param <T> The event data. </T>
+ */
 class Event<T> private constructor(private val data: T) : Action() {
 
-    /** Invokes the provided consumer if the value has not yet been handled.  */
-    @Synchronized
-    fun ifUnhandled(consumer: Consumer<T>) {
-        ifUnhandled(Runnable { consumer.accept(data) })
-    }
+  /** Invokes the provided consumer if the value has not yet been handled. */
+  @Synchronized
+  fun ifUnhandled(consumer: Consumer<T>) {
+    ifUnhandled(Runnable { consumer.accept(data) })
+  }
 
-    companion object {
-        /** Returns a new event with the specified event data.  */
-        @JvmStatic
-        fun <T> create(data: T): Event<T> {
-            return Event(data)
-        }
+  companion object {
+    /** Returns a new event with the specified event data. */
+    @JvmStatic
+    fun <T> create(data: T): Event<T> {
+      return Event(data)
     }
+  }
 }

@@ -24,9 +24,10 @@ import java.io.File
 import javax.inject.Inject
 
 class FakeRemoteStorageManager @Inject internal constructor() : RemoteStorageManager {
-    override fun getDownloadUrl(remoteDestinationPath: String): Single<Uri> = Single.never()
+  override fun getDownloadUrl(remoteDestinationPath: String): Single<Uri> = Single.never()
 
-    override fun uploadMediaFromFile(
-        file: File, remoteDestinationPath: String
-    ): Flowable<TransferProgress> = Flowable.never()
+  override fun uploadMediaFromFile(
+    file: File,
+    remoteDestinationPath: String
+  ): Flowable<TransferProgress> = Flowable.never()
 }
