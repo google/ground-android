@@ -13,101 +13,86 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest.persistence.remote
 
-package com.sharedtest.persistence.remote;
-
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.TermsOfService;
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.persistence.remote.RemoteDataEvent;
-import com.google.android.ground.persistence.remote.RemoteDataStore;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.sharedtest.FakeData;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.Collections;
-import java.util.List;
-import java8.util.Optional;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import kotlin.Result;
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.model.User
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.persistence.remote.RemoteDataEvent
+import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.rx.annotations.Cold
+import com.google.common.collect.ImmutableCollection
+import com.google.common.collect.ImmutableList
+import com.sharedtest.FakeData
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
+import java8.util.Optional
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
-public class FakeRemoteDataStore implements RemoteDataStore {
+class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
+  private var loiEvent: RemoteDataEvent<LocationOfInterest?>? = null
 
-  private RemoteDataEvent<LocationOfInterest> loiEvent;
   // TODO(#1045): Allow default survey to be initialized by tests.
-  private List<Survey> testSurveys = Collections.singletonList(FakeData.SURVEY);
+  private var testSurveys = listOf(FakeData.SURVEY)
+
   // TODO(#1045): Allow default ToS to be initialized by tests.
-  private Optional<TermsOfService> termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE);
-
-  @Inject
-  FakeRemoteDataStore() {}
+  private var termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE)
 
   /**
    * Set this before the test scenario is loaded.
    *
-   * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
+   * In that case, launch scenario manually using ActivityScenario.launch instead of using
    * ActivityScenarioRule.
    */
-  public void setTestSurvey(Survey survey) {
-    this.testSurveys = Collections.singletonList(survey);
+  fun setTestSurvey(survey: Survey) {
+    testSurveys = listOf(survey)
   }
 
   /**
    * Set this before the test scenario is loaded.
    *
-   * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
+   * In that case, launch scenario manually using ActivityScenario.launch instead of using
    * ActivityScenarioRule.
    */
-  public void setTestSurveys(List<Survey> surveys) {
-    this.testSurveys = surveys;
+  fun setTestSurveys(surveys: List<Survey>) {
+    testSurveys = surveys
   }
 
-  @Override
-  public Single<List<Survey>> loadSurveySummaries(User user) {
-    return Single.just(testSurveys);
+  override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(testSurveys)
+
+  override fun loadSurvey(surveyId: String): Single<Survey> = Single.just(testSurveys[0])
+
+  fun setTermsOfService(termsOfService: Optional<TermsOfService>) {
+    this.termsOfService = termsOfService
   }
 
-  @Override
-  public Single<Survey> loadSurvey(String surveyId) {
-    return Single.just(testSurveys.get(0));
+  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
+    if (termsOfService.isEmpty) Maybe.empty() else Maybe.just(termsOfService.get())
+
+  override fun loadLocationsOfInterestOnceAndStreamChanges(
+    survey: Survey
+  ): Flowable<RemoteDataEvent<LocationOfInterest?>> {
+    return if (loiEvent == null) Flowable.empty() else Flowable.just(loiEvent)
   }
 
-  public void setTermsOfService(Optional<TermsOfService> termsOfService) {
-    this.termsOfService = termsOfService;
+  override fun loadSubmissions(
+    locationOfInterest: LocationOfInterest
+  ): Single<ImmutableList<Result<Submission>>> {
+    throw NotImplementedError()
   }
 
-  @Override
-  public @Cold Maybe<TermsOfService> loadTermsOfService() {
-    return termsOfService.isEmpty() ? Maybe.empty() : Maybe.just(termsOfService.get());
+  override fun applyMutations(mutations: ImmutableCollection<Mutation>?, user: User): Completable {
+    throw NotImplementedError()
   }
 
-  @Override
-  public Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
-      Survey survey) {
-    return loiEvent == null ? Flowable.empty() : Flowable.just(loiEvent);
-  }
-
-  @Override
-  public Single<ImmutableList<Result<Submission>>> loadSubmissions(
-      LocationOfInterest locationOfInterest) {
-    return null;
-  }
-
-  @Override
-  public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
-    return null;
-  }
-
-  public void streamLoiOnce(RemoteDataEvent<LocationOfInterest> loiEvent) {
-    this.loiEvent = loiEvent;
+  fun streamLoiOnce(loiEvent: RemoteDataEvent<LocationOfInterest?>) {
+    this.loiEvent = loiEvent
   }
 }
