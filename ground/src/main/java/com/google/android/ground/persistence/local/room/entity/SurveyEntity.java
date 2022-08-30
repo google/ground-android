@@ -71,7 +71,7 @@ public abstract class SurveyEntity {
 
   public static Survey toSurvey(SurveyEntityAndRelations surveyEntityAndRelations) {
     ImmutableMap.Builder<String, Job> jobMap = ImmutableMap.builder();
-    ImmutableList.Builder<BaseMap> baseMaps = ImmutableList.<BaseMap>builder();
+    ImmutableList.Builder<BaseMap> baseMaps = ImmutableList.builder();
 
     for (JobEntityAndRelations jobEntityAndRelations :
         surveyEntityAndRelations.jobEntityAndRelations) {

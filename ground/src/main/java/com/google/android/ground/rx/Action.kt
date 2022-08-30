@@ -21,14 +21,14 @@ package com.google.android.ground.rx
  * restored on configuration change.
  */
 open class Action protected constructor() {
-    private var handled = false
+  private var handled = false
 
-    /** Invokes the provided handler if the value has not yet been handled.  */
-    @Synchronized
-    fun ifUnhandled(handler: Runnable) {
-        if (!handled) {
-            handled = true
-            handler.run()
-        }
+  /** Invokes the provided handler if the value has not yet been handled. */
+  @Synchronized
+  fun ifUnhandled(handler: Runnable) {
+    if (!handled) {
+      handled = true
+      handler.run()
     }
+  }
 }

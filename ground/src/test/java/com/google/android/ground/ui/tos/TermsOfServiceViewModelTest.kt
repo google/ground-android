@@ -29,25 +29,22 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceViewModelTest : BaseHiltTest() {
-    @Inject
-    lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-    @Inject
-    lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
-    @Inject
-    lateinit var viewModel: TermsOfServiceViewModel
+  @Inject lateinit var viewModel: TermsOfServiceViewModel
 
-    @Test
-    fun testOnButtonClicked() {
-        val testObserver = navigator.navigateRequests.test()
+  @Test
+  fun testOnButtonClicked() {
+    val testObserver = navigator.navigateRequests.test()
 
-        viewModel.onButtonClicked()
+    viewModel.onButtonClicked()
 
-        assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
-        testObserver
-            .assertNoErrors()
-            .assertNotComplete()
-            .assertValue(HomeScreenFragmentDirections.showHomeScreen())
-    }
+    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+    testObserver
+      .assertNoErrors()
+      .assertNotComplete()
+      .assertValue(HomeScreenFragmentDirections.showHomeScreen())
+  }
 }

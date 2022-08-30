@@ -17,6 +17,5 @@ package com.google.android.ground.model.geometry
 
 /** A coordinate on a two-dimensional Cartesian plane. */
 data class Coordinate(val x: Double, val y: Double) : Comparable<Coordinate> {
-    override fun compareTo(other: Coordinate): Int =
-        compareValuesBy(this, other, { it.x }, { it.y })
+  override fun compareTo(other: Coordinate): Int = compareValuesBy(this, other, { it.x }, { it.y })
 }

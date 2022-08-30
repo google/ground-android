@@ -32,37 +32,36 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
-    @Inject
-    lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapsRepository: MapsRepository
 
-    private lateinit var binding: MapTypeDialogFragmentBinding
-    private lateinit var mapTypes: Array<MapType>
+  private lateinit var binding: MapTypeDialogFragmentBinding
+  private lateinit var mapTypes: Array<MapType>
 
-    // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
-    @SuppressLint("UseRequireInsteadOfGet")
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes
-        binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+  // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
+  @SuppressLint("UseRequireInsteadOfGet")
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes
+    binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
+    return binding.root
+  }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
-        binding.dialogCloseBtn.setOnClickListener { dismiss() }
+    binding.dialogCloseBtn.setOnClickListener { dismiss() }
 
-        val currentMapType = mapsRepository.mapType
-        val index = mapTypes.indexOfFirst { it.type == currentMapType }
-        val recyclerview = binding.recyclerView
-        recyclerview.adapter =
-            MapTypeAdapter(requireContext(), mapTypes, index) { handleMapTypeSelected(it) }
-    }
+    val currentMapType = mapsRepository.mapType
+    val index = mapTypes.indexOfFirst { it.type == currentMapType }
+    val recyclerview = binding.recyclerView
+    recyclerview.adapter =
+      MapTypeAdapter(requireContext(), mapTypes, index) { handleMapTypeSelected(it) }
+  }
 
-    private fun handleMapTypeSelected(position: Int) {
-        mapsRepository.mapType = mapTypes[position].type
-    }
+  private fun handleMapTypeSelected(position: Int) {
+    mapsRepository.mapType = mapTypes[position].type
+  }
 }

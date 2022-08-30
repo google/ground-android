@@ -29,96 +29,93 @@ import javax.inject.Inject
 
 abstract class AbstractDialogFragment : AppCompatDialogFragment() {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+  @Inject lateinit var viewModelFactory: ViewModelFactory
 
-    /**
-     * Uses [ViewModelFactory] to obtain an instance of the view model of the specified class.
-     */
-    protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
-        viewModelFactory.get(this, modelClass)
+  /** Uses [ViewModelFactory] to obtain an instance of the view model of the specified class. */
+  protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
+    viewModelFactory.get(this, modelClass)
 
-    override fun onAttach(context: Context) {
-        Debug.logLifecycleEvent(this)
-        super.onAttach(context)
-    }
+  override fun onAttach(context: Context) {
+    Debug.logLifecycleEvent(this)
+    super.onAttach(context)
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onCreate(savedInstanceState)
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onCreate(savedInstanceState)
+  }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        Debug.logLifecycleEvent(this)
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? {
+    Debug.logLifecycleEvent(this)
+    return super.onCreateView(inflater, container, savedInstanceState)
+  }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        Debug.logLifecycleEvent(this)
-        return super.onCreateDialog(savedInstanceState)
-    }
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    Debug.logLifecycleEvent(this)
+    return super.onCreateDialog(savedInstanceState)
+  }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onViewCreated(view, savedInstanceState)
-    }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onViewCreated(view, savedInstanceState)
+  }
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        Debug.logLifecycleEvent(this)
-        super.onAttachFragment(childFragment)
-    }
+  override fun onAttachFragment(childFragment: Fragment) {
+    Debug.logLifecycleEvent(this)
+    super.onAttachFragment(childFragment)
+  }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onActivityCreated(savedInstanceState)
-    }
+  override fun onActivityCreated(savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onActivityCreated(savedInstanceState)
+  }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        Debug.logLifecycleEvent(this)
-        super.onViewStateRestored(savedInstanceState)
-    }
+  override fun onViewStateRestored(savedInstanceState: Bundle?) {
+    Debug.logLifecycleEvent(this)
+    super.onViewStateRestored(savedInstanceState)
+  }
 
-    override fun onStart() {
-        Debug.logLifecycleEvent(this)
-        super.onStart()
-    }
+  override fun onStart() {
+    Debug.logLifecycleEvent(this)
+    super.onStart()
+  }
 
-    override fun onResume() {
-        Debug.logLifecycleEvent(this)
-        super.onResume()
-    }
+  override fun onResume() {
+    Debug.logLifecycleEvent(this)
+    super.onResume()
+  }
 
-    override fun onPause() {
-        Debug.logLifecycleEvent(this)
-        super.onPause()
-    }
+  override fun onPause() {
+    Debug.logLifecycleEvent(this)
+    super.onPause()
+  }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        Debug.logLifecycleEvent(this)
-        super.onSaveInstanceState(outState)
-    }
+  override fun onSaveInstanceState(outState: Bundle) {
+    Debug.logLifecycleEvent(this)
+    super.onSaveInstanceState(outState)
+  }
 
-    override fun onStop() {
-        Debug.logLifecycleEvent(this)
-        super.onStop()
-    }
+  override fun onStop() {
+    Debug.logLifecycleEvent(this)
+    super.onStop()
+  }
 
-    override fun onDestroyView() {
-        Debug.logLifecycleEvent(this)
-        super.onDestroyView()
-    }
+  override fun onDestroyView() {
+    Debug.logLifecycleEvent(this)
+    super.onDestroyView()
+  }
 
-    override fun onDestroy() {
-        Debug.logLifecycleEvent(this)
-        super.onDestroy()
-    }
+  override fun onDestroy() {
+    Debug.logLifecycleEvent(this)
+    super.onDestroy()
+  }
 
-    override fun onDetach() {
-        Debug.logLifecycleEvent(this)
-        super.onDetach()
-    }
+  override fun onDetach() {
+    Debug.logLifecycleEvent(this)
+    super.onDetach()
+  }
 }

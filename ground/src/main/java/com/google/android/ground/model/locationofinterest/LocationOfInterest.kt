@@ -26,47 +26,48 @@ import java.util.*
 
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(
-    /** A system-defined ID for this LOI. */
-    val id: String,
-    /** The survey ID associated with this LOI. */
-    val surveyId: String,
-    /** The job associated with this LOI. */
-    val job: Job,
-    /** A user-specified ID for this location of interest. */
-    val customId: String? = null,
-    /** A human readable caption for this location of interest. */
-    val caption: String? = null,
-    /** User and time audit info pertaining to the creation of this LOI. */
-    val created: AuditInfo,
-    /** User and time audit info pertaining to the last modification of this LOI. */
-    val lastModified: AuditInfo,
-    /** Geometry associated with this LOI. */
-    val geometry: Geometry,
+  /** A system-defined ID for this LOI. */
+  val id: String,
+  /** The survey ID associated with this LOI. */
+  val surveyId: String,
+  /** The job associated with this LOI. */
+  val job: Job,
+  /** A user-specified ID for this location of interest. */
+  val customId: String? = null,
+  /** A human readable caption for this location of interest. */
+  val caption: String? = null,
+  /** User and time audit info pertaining to the creation of this LOI. */
+  val created: AuditInfo,
+  /** User and time audit info pertaining to the last modification of this LOI. */
+  val lastModified: AuditInfo,
+  /** Geometry associated with this LOI. */
+  val geometry: Geometry,
 ) {
 
-    // TODO: Delete me once we no longer have Java callers.
-    /** Returns the type of this LOI based on its Geometry. */
-    val type: LocationOfInterestType =
-        when (geometry) {
-            is Point -> LocationOfInterestType.POINT
-            is Polygon -> LocationOfInterestType.POLYGON
-            is LineString -> LocationOfInterestType.LINE_STRING
-            is LinearRing -> LocationOfInterestType.LINEAR_RING
-            is MultiPolygon -> LocationOfInterestType.MULTIPOLYGON
-        }
-
-    /**
-     * Converts this LOI to a mutation that can be used to update this LOI in the remote and local database.
-     */
-    fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation {
-        return builder()
-            .setJobId(job.id)
-            .setType(type)
-            .setSyncStatus(SyncStatus.PENDING)
-            .setSurveyId(surveyId)
-            .setLocationOfInterestId(id)
-            .setUserId(userId)
-            .setClientTimestamp(Date())
-            .build()
+  // TODO: Delete me once we no longer have Java callers.
+  /** Returns the type of this LOI based on its Geometry. */
+  val type: LocationOfInterestType =
+    when (geometry) {
+      is Point -> LocationOfInterestType.POINT
+      is Polygon -> LocationOfInterestType.POLYGON
+      is LineString -> LocationOfInterestType.LINE_STRING
+      is LinearRing -> LocationOfInterestType.LINEAR_RING
+      is MultiPolygon -> LocationOfInterestType.MULTIPOLYGON
     }
+
+  /**
+   * Converts this LOI to a mutation that can be used to update this LOI in the remote and local
+   * database.
+   */
+  fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation {
+    return builder()
+      .setJobId(job.id)
+      .setType(type)
+      .setSyncStatus(SyncStatus.PENDING)
+      .setSurveyId(surveyId)
+      .setLocationOfInterestId(id)
+      .setUserId(userId)
+      .setClientTimestamp(Date())
+      .build()
+  }
 }

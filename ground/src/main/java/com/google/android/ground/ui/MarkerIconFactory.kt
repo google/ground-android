@@ -32,32 +32,32 @@ import javax.inject.Singleton
 
 @Singleton
 class MarkerIconFactory @Inject constructor(@ApplicationContext private val context: Context) {
-    fun getMarkerBitmap(color: Int, currentZoomLevel: Float): Bitmap {
-        val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
-        val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
-        val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
-        // TODO: Adjust size based on selection state.
-        var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-        if (currentZoomLevel >= MapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
-            scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
-        }
-        val width = (outline!!.intrinsicWidth * scale).toInt()
-        val height = (outline.intrinsicHeight * scale).toInt()
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        outline.setBounds(0, 0, width, height)
-        outline.draw(canvas)
-        fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-        fill.setBounds(0, 0, width, height)
-        fill.draw(canvas)
-        overlay!!.setBounds(0, 0, width, height)
-        overlay.draw(canvas)
-        return bitmap
+  fun getMarkerBitmap(color: Int, currentZoomLevel: Float): Bitmap {
+    val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
+    val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
+    val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
+    // TODO: Adjust size based on selection state.
+    var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
+    if (currentZoomLevel >= MapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
+      scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
     }
+    val width = (outline!!.intrinsicWidth * scale).toInt()
+    val height = (outline.intrinsicHeight * scale).toInt()
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    outline.setBounds(0, 0, width, height)
+    outline.draw(canvas)
+    fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    fill.setBounds(0, 0, width, height)
+    fill.draw(canvas)
+    overlay!!.setBounds(0, 0, width, height)
+    overlay.draw(canvas)
+    return bitmap
+  }
 
-    fun getMarkerIcon(@ColorInt color: Int, currentZoomLevel: Float): BitmapDescriptor {
-        val bitmap = getMarkerBitmap(color, currentZoomLevel)
-        // TODO: Cache rendered bitmaps.
-        return BitmapDescriptorFactory.fromBitmap(bitmap)
-    }
+  fun getMarkerIcon(@ColorInt color: Int, currentZoomLevel: Float): BitmapDescriptor {
+    val bitmap = getMarkerBitmap(color, currentZoomLevel)
+    // TODO: Cache rendered bitmaps.
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
+  }
 }

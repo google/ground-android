@@ -18,10 +18,10 @@ package com.google.android.ground.model.geometry
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 
-/** A collection of [Polygon]s.*/
+/** A collection of [Polygon]s. */
 data class MultiPolygon(val polygons: ImmutableList<Polygon>) : Geometry {
-    /** Constructs a [MultiPolygon] using an immutable copy of the provided mutable list. */
-    constructor(polygons: List<Polygon>) : this(ImmutableList.copyOf(polygons))
+  /** Constructs a [MultiPolygon] using an immutable copy of the provided mutable list. */
+  constructor(polygons: List<Polygon>) : this(ImmutableList.copyOf(polygons))
 
-    override val vertices: ImmutableList<Point> = polygons.flatMap { it.vertices }.toImmutableList()
+  override val vertices: ImmutableList<Point> = polygons.flatMap { it.vertices }.toImmutableList()
 }

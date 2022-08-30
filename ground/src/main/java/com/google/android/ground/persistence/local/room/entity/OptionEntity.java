@@ -29,11 +29,11 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @Entity(
     tableName = "option",
     foreignKeys =
-    @ForeignKey(
-        entity = TaskEntity.class,
-        parentColumns = "id",
-        childColumns = "task_id",
-        onDelete = ForeignKey.CASCADE),
+        @ForeignKey(
+            entity = TaskEntity.class,
+            parentColumns = "id",
+            childColumns = "task_id",
+            onDelete = ForeignKey.CASCADE),
     indices = {@Index("task_id")},
     primaryKeys = {"id"})
 public abstract class OptionEntity {
@@ -68,11 +68,7 @@ public abstract class OptionEntity {
   }
 
   public static Option toOption(OptionEntity optionEntity) {
-    return new Option(
-        optionEntity.getId(),
-        optionEntity.getCode(),
-        optionEntity.getLabel()
-    );
+    return new Option(optionEntity.getId(), optionEntity.getCode(), optionEntity.getLabel());
   }
 
   public static OptionEntity create(String id, String code, String label, String taskId) {

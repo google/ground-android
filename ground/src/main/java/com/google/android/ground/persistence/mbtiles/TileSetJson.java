@@ -28,9 +28,7 @@ import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- * Describes a tile set source, including its id, extents, and source URL.
- */
+/** Describes a tile set source, including its id, extents, and source URL. */
 class TileSetJson {
 
   private static final String GEOMETRY_KEY = "geometry";

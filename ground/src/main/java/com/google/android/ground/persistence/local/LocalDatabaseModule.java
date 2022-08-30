@@ -35,8 +35,8 @@ public abstract class LocalDatabaseModule {
   @Singleton
   static LocalDatabase localDatabase(@ApplicationContext Context context) {
     return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
-      // TODO(#128): Disable before official release.
-      .fallbackToDestructiveMigration()
-      .build();
+        // TODO(#128): Disable before official release.
+        .fallbackToDestructiveMigration()
+        .build();
   }
 }

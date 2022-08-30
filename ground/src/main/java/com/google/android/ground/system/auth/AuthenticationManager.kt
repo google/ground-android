@@ -19,10 +19,10 @@ import com.google.android.ground.model.User
 import io.reactivex.Observable
 
 interface AuthenticationManager {
-    val signInState: Observable<SignInState>
-    val currentUser: User
+  val signInState: Observable<SignInState>
+  val currentUser: User
 
-    fun init()
-    fun signIn()
-    fun signOut()
+  fun init()
+  fun signIn()
+  fun signOut()
 }

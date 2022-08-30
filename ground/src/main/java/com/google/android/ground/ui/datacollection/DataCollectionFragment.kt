@@ -32,63 +32,63 @@ import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-/** Fragment allowing the user to collect data to complete a task.  */
+/** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
-    @Inject
-    lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-    private lateinit var viewModel: DataCollectionViewModel
-    private val args: DataCollectionFragmentArgs by navArgs()
-    private lateinit var viewPager: ViewPager2
+  private lateinit var viewModel: DataCollectionViewModel
+  private val args: DataCollectionFragmentArgs by navArgs()
+  private lateinit var viewPager: ViewPager2
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = getViewModel(DataCollectionViewModel::class.java)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(DataCollectionViewModel::class.java)
+  }
 
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
+    val binding = DataCollectionFragBinding.inflate(inflater, container, false)
+    viewPager = binding.root.findViewById(R.id.pager)
+    viewPager.isUserInputEnabled = false
+    viewPager.offscreenPageLimit = 1
+
+    viewModel.loadSubmissionDetails(args)
+    viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
+      submission.value().ifPresent {
+        viewPager.adapter = DataCollectionViewPagerAdapter(this, it.job.tasksSorted)
+      }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        val binding = DataCollectionFragBinding.inflate(inflater, container, false)
-        viewPager = binding.root.findViewById(R.id.pager)
-        viewPager.isUserInputEnabled = false
-        viewPager.offscreenPageLimit = 1
+    binding.viewModel = viewModel
+    binding.dataCollectionNextButton.setOnClickListener { onNextClick() }
+    binding.lifecycleOwner = this
 
-        viewModel.loadSubmissionDetails(args)
-        viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
-            submission.value().ifPresent {
-                viewPager.adapter = DataCollectionViewPagerAdapter(this, it.job.tasksSorted)
-            }
-        }
-
-        binding.viewModel = viewModel
-        binding.dataCollectionNextButton.setOnClickListener { onNextClick() }
-        binding.lifecycleOwner = this
-
-        (activity as MainActivity?)?.let {
-            it.setActionBar(binding.dataCollectionToolbar, showTitle = false)
-        }
-
-        return binding.root
+    (activity as MainActivity?)?.let {
+      it.setActionBar(binding.dataCollectionToolbar, showTitle = false)
     }
 
-    override fun onBack(): Boolean {
-        return if (viewPager.currentItem == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
-            false
-        } else {
-            // Otherwise, select the previous step.
-            viewPager.currentItem = viewPager.currentItem - 1
-            true
-        }
-    }
+    return binding.root
+  }
 
-    private fun onNextClick() {
-        // TODO(#1146): Handle the scenario when the user clicks next on the last step.
-        viewPager.currentItem = viewPager.currentItem + 1
+  override fun onBack(): Boolean {
+    return if (viewPager.currentItem == 0) {
+      // If the user is currently looking at the first step, allow the system to handle the
+      // Back button. This calls finish() on this activity and pops the back stack.
+      false
+    } else {
+      // Otherwise, select the previous step.
+      viewPager.currentItem = viewPager.currentItem - 1
+      true
     }
+  }
+
+  private fun onNextClick() {
+    // TODO(#1146): Handle the scenario when the user clicks next on the last step.
+    viewPager.currentItem = viewPager.currentItem + 1
+  }
 }

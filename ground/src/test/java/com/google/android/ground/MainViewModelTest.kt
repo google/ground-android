@@ -43,138 +43,130 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
 
-    @Inject
-    lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-    @Inject
-    lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-    @Inject
-    lateinit var viewModel: MainViewModel
+  @Inject lateinit var viewModel: MainViewModel
 
-    @Inject
-    lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
+  @Inject lateinit var sharedPreferences: SharedPreferences
 
-    @Inject
-    lateinit var tosRepository: TermsOfServiceRepository
+  @Inject lateinit var tosRepository: TermsOfServiceRepository
 
-    @Inject
-    lateinit var userRepository: UserRepository
+  @Inject lateinit var userRepository: UserRepository
 
-    private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
+  private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
 
-    @Before
-    override fun setUp() {
-        // TODO: Add a test for syncLois
-        super.setUp()
+  @Before
+  override fun setUp() {
+    // TODO: Add a test for syncLois
+    super.setUp()
 
-        // Subscribe to navigation requests
-        navDirectionsTestObserver = navigator.navigateRequests.test()
-    }
+    // Subscribe to navigation requests
+    navDirectionsTestObserver = navigator.navigateRequests.test()
+  }
 
-    private fun setupUserPreferences() {
-        sharedPreferences.edit().putString("foo", "bar").apply()
-    }
+  private fun setupUserPreferences() {
+    sharedPreferences.edit().putString("foo", "bar").apply()
+  }
 
-    private fun verifyUserPreferencesCleared() {
-        assertThat(sharedPreferences.all).isEmpty()
-    }
+  private fun verifyUserPreferencesCleared() {
+    assertThat(sharedPreferences.all).isEmpty()
+  }
 
-    private fun verifyUserSaved() {
-        userRepository.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
-    }
+  private fun verifyUserSaved() {
+    userRepository.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+  }
 
-    private fun verifyUserNotSaved() {
-        userRepository.getUser(FakeData.USER.id).test()
-            .assertError(NoSuchElementException::class.java)
-    }
+  private fun verifyUserNotSaved() {
+    userRepository.getUser(FakeData.USER.id).test().assertError(NoSuchElementException::class.java)
+  }
 
-    private fun verifyProgressDialogVisible(visible: Boolean) {
-        observeUntilFirstChange(viewModel.signInProgressDialogVisibility)
-        assertThat(viewModel.signInProgressDialogVisibility.value).isEqualTo(visible)
-    }
+  private fun verifyProgressDialogVisible(visible: Boolean) {
+    observeUntilFirstChange(viewModel.signInProgressDialogVisibility)
+    assertThat(viewModel.signInProgressDialogVisibility.value).isEqualTo(visible)
+  }
 
-    private fun verifyNavigationRequested(vararg navDirections: NavDirections) {
-        navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(*navDirections)
-    }
+  private fun verifyNavigationRequested(vararg navDirections: NavDirections) {
+    navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(*navDirections)
+  }
 
-    @Test
-    fun testSignInStateChanged_onSignedOut() {
-        setupUserPreferences()
-        fakeAuthenticationManager.signOut()
+  @Test
+  fun testSignInStateChanged_onSignedOut() {
+    setupUserPreferences()
+    fakeAuthenticationManager.signOut()
 
-        verifyProgressDialogVisible(false)
-        verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
-        verifyUserPreferencesCleared()
-        verifyUserNotSaved()
-        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
+    verifyUserPreferencesCleared()
+    verifyUserNotSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 
-    @Test
-    fun testSignInStateChanged_onSigningIn() {
-        fakeAuthenticationManager.setState(signingIn())
+  @Test
+  fun testSignInStateChanged_onSigningIn() {
+    fakeAuthenticationManager.setState(signingIn())
 
-        verifyProgressDialogVisible(true)
-        verifyNavigationRequested()
-        verifyUserNotSaved()
-        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+    verifyProgressDialogVisible(true)
+    verifyNavigationRequested()
+    verifyUserNotSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 
-    @Test
-    fun testSignInStateChanged_onSignedIn_whenTosAccepted() {
-        tosRepository.isTermsOfServiceAccepted = true
-        fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
-        fakeAuthenticationManager.setUser(FakeData.USER)
-        fakeAuthenticationManager.signIn()
+  @Test
+  fun testSignInStateChanged_onSignedIn_whenTosAccepted() {
+    tosRepository.isTermsOfServiceAccepted = true
+    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    fakeAuthenticationManager.setUser(FakeData.USER)
+    fakeAuthenticationManager.signIn()
 
-        verifyProgressDialogVisible(false)
-        verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
-        verifyUserSaved()
-        assertThat(tosRepository.isTermsOfServiceAccepted).isTrue()
-    }
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
+    verifyUserSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isTrue()
+  }
 
-    @Test
-    fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
-        tosRepository.isTermsOfServiceAccepted = false
-        fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
-        fakeAuthenticationManager.setUser(FakeData.USER)
-        fakeAuthenticationManager.signIn()
-        verifyProgressDialogVisible(false)
-        verifyNavigationRequested(
-            (SignInFragmentDirections.showTermsOfService()
-                .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections)
-        )
-        verifyUserSaved()
-        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+  @Test
+  fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
+    tosRepository.isTermsOfServiceAccepted = false
+    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    fakeAuthenticationManager.setUser(FakeData.USER)
+    fakeAuthenticationManager.signIn()
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(
+      (SignInFragmentDirections.showTermsOfService()
+        .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections)
+    )
+    verifyUserSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 
-    @Test
-    fun testSignInStateChanged_onSignedIn_whenTosMissing() {
-        tosRepository.isTermsOfServiceAccepted = false
-        fakeRemoteDataStore.setTermsOfService(Optional.empty())
-        fakeAuthenticationManager.setUser(FakeData.USER)
-        fakeAuthenticationManager.signIn()
+  @Test
+  fun testSignInStateChanged_onSignedIn_whenTosMissing() {
+    tosRepository.isTermsOfServiceAccepted = false
+    fakeRemoteDataStore.setTermsOfService(Optional.empty())
+    fakeAuthenticationManager.setUser(FakeData.USER)
+    fakeAuthenticationManager.signIn()
 
-        verifyProgressDialogVisible(false)
-        verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
-        verifyUserSaved()
-        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
+    verifyUserSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 
-    @Test
-    fun testSignInStateChanged_onSignInError() {
-        setupUserPreferences()
+  @Test
+  fun testSignInStateChanged_onSignInError() {
+    setupUserPreferences()
 
-        fakeAuthenticationManager.setState(error(Exception()))
+    fakeAuthenticationManager.setState(error(Exception()))
 
-        assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful")
-        verifyProgressDialogVisible(false)
-        verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
-        verifyUserPreferencesCleared()
-        verifyUserNotSaved()
-        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+    assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful")
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
+    verifyUserPreferencesCleared()
+    verifyUserNotSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 }

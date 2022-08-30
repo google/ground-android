@@ -19,11 +19,11 @@ package com.google.android.ground.persistence.remote.firestore.schema
 import com.google.android.ground.model.TermsOfService
 import com.google.firebase.firestore.DocumentSnapshot
 
-/** Converts between Firestore documents and [TermsOfService] instances.  */
+/** Converts between Firestore documents and [TermsOfService] instances. */
 object TermsOfServiceConverter {
 
-    fun toTerms(doc: DocumentSnapshot): TermsOfService {
-        val pd = doc.toObject(TermsOfServiceDocument::class.java)
-        return TermsOfService(doc.id, pd!!.text)
-    }
+  fun toTerms(doc: DocumentSnapshot): TermsOfService {
+    val pd = doc.toObject(TermsOfServiceDocument::class.java)
+    return TermsOfService(doc.id, pd!!.text)
+  }
 }

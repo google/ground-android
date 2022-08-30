@@ -20,6 +20,4 @@ import androidx.room.Dao;
 import com.google.android.ground.persistence.local.room.entity.TaskEntity;
 
 @Dao
-public interface TaskDao extends BaseDao<TaskEntity> {
-
-}
+public interface TaskDao extends BaseDao<TaskEntity> {}

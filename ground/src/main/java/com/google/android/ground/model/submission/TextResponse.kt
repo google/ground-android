@@ -18,17 +18,17 @@ package com.google.android.ground.model.submission
 import java8.util.Optional
 import kotlinx.serialization.Serializable
 
-/** A user provided response to a text question task.  */
+/** A user provided response to a text question task. */
 @Serializable
 data class TextResponse(val text: String) : Response {
-    override fun getDetailsText(): String = text
+  override fun getDetailsText(): String = text
 
-    override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
+  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
 
-    companion object {
-        @JvmStatic
-        fun fromString(text: String): Optional<Response> {
-            return if (text.isEmpty()) Optional.empty() else Optional.of(TextResponse(text))
-        }
+  companion object {
+    @JvmStatic
+    fun fromString(text: String): Optional<Response> {
+      return if (text.isEmpty()) Optional.empty() else Optional.of(TextResponse(text))
     }
+  }
 }

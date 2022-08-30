@@ -23,17 +23,15 @@ import timber.log.Timber
 
 object JsonObjectTypeConverter {
 
-    @JvmStatic
-    @TypeConverter
-    fun toString(jsonObject: JSONObject?): String? = jsonObject?.toString()
+  @JvmStatic @TypeConverter fun toString(jsonObject: JSONObject?): String? = jsonObject?.toString()
 
-    @JvmStatic
-    @TypeConverter
-    fun fromString(jsonString: String?): JSONObject? =
-        try {
-            jsonString?.let { JSONObject(it) }
-        } catch (e: JSONException) {
-            Timber.d(e, "Invalid JSON in db")
-            JSONObject()
-        }
+  @JvmStatic
+  @TypeConverter
+  fun fromString(jsonString: String?): JSONObject? =
+    try {
+      jsonString?.let { JSONObject(it) }
+    } catch (e: JSONException) {
+      Timber.d(e, "Invalid JSON in db")
+      JSONObject()
+    }
 }

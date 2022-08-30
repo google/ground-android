@@ -18,6 +18,7 @@ package com.google.android.ground.model.geometry
 /**
  * Represents types of geometry errors.
  *
- * Typically thrown when a construction does not satisfy definitional constraints for a given geometry.
+ * Typically thrown when a construction does not satisfy definitional constraints for a given
+ * geometry.
  */
 sealed class InvalidGeometryException(override val message: String) : Throwable(message)

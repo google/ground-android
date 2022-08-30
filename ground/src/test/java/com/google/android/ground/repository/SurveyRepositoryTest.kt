@@ -37,23 +37,20 @@ import javax.inject.Inject
 @UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-    @BindValue
-    @Mock
-    lateinit var mockLocalDataStore: LocalDataStore
+  @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
 
-    @Inject
-    lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
 
-    @Test
-    fun testActivateSurvey() {
-        val survey = Survey("", "", "", ImmutableMap.of())
-        setTestSurvey(survey)
-        surveyRepository.activateSurvey("id")
-        surveyRepository.activeSurvey.test().assertValue(Optional.of(survey))
-    }
+  @Test
+  fun testActivateSurvey() {
+    val survey = Survey("", "", "", ImmutableMap.of())
+    setTestSurvey(survey)
+    surveyRepository.activateSurvey("id")
+    surveyRepository.activeSurvey.test().assertValue(Optional.of(survey))
+  }
 
-    private fun setTestSurvey(survey: Survey) {
-        Mockito.`when`(mockLocalDataStore.getSurveyById(ArgumentMatchers.any()))
-            .thenReturn(Maybe.just(survey))
-    }
+  private fun setTestSurvey(survey: Survey) {
+    Mockito.`when`(mockLocalDataStore.getSurveyById(ArgumentMatchers.any()))
+      .thenReturn(Maybe.just(survey))
+  }
 }

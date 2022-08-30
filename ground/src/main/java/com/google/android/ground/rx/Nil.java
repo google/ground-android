@@ -17,8 +17,8 @@
 package com.google.android.ground.rx;
 
 /**
- * Singleton value used for use as value in Rx streams where presence of value indicates some
- * event, but there's no meaningful value to emit (e.g., button clicks).
+ * Singleton value used for use as value in Rx streams where presence of value indicates some event,
+ * but there's no meaningful value to emit (e.g., button clicks).
  */
 public enum Nil {
   NIL

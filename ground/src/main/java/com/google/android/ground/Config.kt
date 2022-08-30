@@ -17,21 +17,21 @@ package com.google.android.ground
 
 import android.content.Context
 
-/** Application configuration.  */
+/** Application configuration. */
 object Config {
-    // Shared preferences.
-    const val SHARED_PREFS_NAME = "shared_prefs"
-    const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
+  // Shared preferences.
+  const val SHARED_PREFS_NAME = "shared_prefs"
+  const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
-    // Local db settings.
-    // TODO(#128): Reset version to 1 before releasing.
-    const val DB_VERSION = 94
-    const val DB_NAME = "ground.db"
+  // Local db settings.
+  // TODO(#128): Reset version to 1 before releasing.
+  const val DB_VERSION = 94
+  const val DB_NAME = "ground.db"
 
-    // Firebase Cloud Firestore settings.
-    const val FIRESTORE_PERSISTENCE_ENABLED = false
-    const val FIRESTORE_LOGGING_ENABLED = true
+  // Firebase Cloud Firestore settings.
+  const val FIRESTORE_PERSISTENCE_ENABLED = false
+  const val FIRESTORE_LOGGING_ENABLED = true
 
-    // Photos
-    const val PHOTO_EXT = ".jpg"
+  // Photos
+  const val PHOTO_EXT = ".jpg"
 }

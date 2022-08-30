@@ -28,33 +28,33 @@ import io.reactivex.Single
 import javax.inject.Inject
 
 /**
- * Coordinates persistence of [User] instance in local data store. For more details on this
- * pattern and overall architecture, see * https://developer.android.com/jetpack/docs/guide.
+ * Coordinates persistence of [User] instance in local data store. For more details on this pattern
+ * and overall architecture, see * https://developer.android.com/jetpack/docs/guide.
  */
-class UserRepository @Inject constructor(
-    private val authenticationManager: AuthenticationManager,
-    private val localDataStore: LocalDataStore,
-    private val localValueStore: LocalValueStore,
-    private val schedulers: Schedulers,
-    private val surveyRepository: SurveyRepository
+class UserRepository
+@Inject
+constructor(
+  private val authenticationManager: AuthenticationManager,
+  private val localDataStore: LocalDataStore,
+  private val localValueStore: LocalValueStore,
+  private val schedulers: Schedulers,
+  private val surveyRepository: SurveyRepository
 ) {
 
-    val currentUser: User
-        get() = authenticationManager.currentUser
+  val currentUser: User
+    get() = authenticationManager.currentUser
 
-    fun getUserRole(surveyId: String): Role {
-        val survey = surveyRepository.getSurvey(surveyId).blockingGet()
-        val value = survey.acl[currentUser.email]
-        return if (value == null) Role.UNKNOWN else toEnum(Role::class.java, value)
-    }
+  fun getUserRole(surveyId: String): Role {
+    val survey = surveyRepository.getSurvey(surveyId).blockingGet()
+    val value = survey.acl[currentUser.email]
+    return if (value == null) Role.UNKNOWN else toEnum(Role::class.java, value)
+  }
 
-    fun saveUser(user: User): @Cold Completable =
-        localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io())
+  fun saveUser(user: User): @Cold Completable =
+    localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io())
 
-    fun getUser(userId: String): @Cold Single<User> =
-        localDataStore.getUser(userId)
+  fun getUser(userId: String): @Cold Single<User> = localDataStore.getUser(userId)
 
-    /** Clears all user-specific preferences and settings.  */
-    fun clearUserPreferences() =
-        localValueStore.clear()
+  /** Clears all user-specific preferences and settings. */
+  fun clearUserPreferences() = localValueStore.clear()
 }

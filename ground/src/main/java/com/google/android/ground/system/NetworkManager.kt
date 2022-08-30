@@ -22,22 +22,22 @@ import com.google.android.ground.rx.RxCompletable.completeOrError
 import io.reactivex.Completable
 import java.net.ConnectException
 
-/** Abstracts access to network state.  */
+/** Abstracts access to network state. */
 object NetworkManager {
 
-    /** Returns true iff the device has internet connectivity, false otherwise.  */
-    @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-    private fun isNetworkAvailable(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = cm.activeNetworkInfo
-        return networkInfo?.isConnected ?: false
-    }
+  /** Returns true iff the device has internet connectivity, false otherwise. */
+  @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+  private fun isNetworkAvailable(context: Context): Boolean {
+    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val networkInfo = cm.activeNetworkInfo
+    return networkInfo?.isConnected ?: false
+  }
 
-    /**
-     * Returns a Completable that completes immediately on subscribe if network is available, or fails
-     * in error if not.
-     */
-    @JvmStatic
-    fun requireActiveNetwork(context: Context): Completable =
-        completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
+  /**
+   * Returns a Completable that completes immediately on subscribe if network is available, or fails
+   * in error if not.
+   */
+  @JvmStatic
+  fun requireActiveNetwork(context: Context): Completable =
+    completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
 }

@@ -26,7 +26,7 @@ import java8.util.Optional
  * @property newResponse the new value of the response, or empty if removed.
  */
 data class ResponseDelta(
-    val taskId: String,
-    val taskType: Task.Type,
-    val newResponse: Optional<Response>
+  val taskId: String,
+  val taskType: Task.Type,
+  val newResponse: Optional<Response>
 )

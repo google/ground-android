@@ -28,38 +28,40 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class ApplicationErrorManagerTest : BaseHiltTest() {
-    @Inject
-    lateinit var errorManager: ApplicationErrorManager
+  @Inject lateinit var errorManager: ApplicationErrorManager
 
-    @Test
-    fun testHandleException() {
-        for (input in INPUT_DATA) {
-            val exception = input[0] as Exception
-            val isConsumed = input[1] as Boolean
-            assertThat(errorManager.handleException(exception)).isEqualTo(isConsumed)
+  @Test
+  fun testHandleException() {
+    for (input in INPUT_DATA) {
+      val exception = input[0] as Exception
+      val isConsumed = input[1] as Boolean
+      assertThat(errorManager.handleException(exception)).isEqualTo(isConsumed)
 
-            // Expect an error message if the error is consumed.
-            if (isConsumed) {
-                errorManager.exceptions.test().assertValue(input[2] as String)
-            } else {
-                errorManager.exceptions.test().assertNoValues()
-            }
-        }
+      // Expect an error message if the error is consumed.
+      if (isConsumed) {
+        errorManager.exceptions.test().assertValue(input[2] as String)
+      } else {
+        errorManager.exceptions.test().assertNoValues()
+      }
     }
+  }
 
-    companion object {
-        /**
-         * TODO: Use [ParameterizedRobolectricTestRunner] instead of doing it manually. Currently,
-         *  it fails to initialize [FirebaseFirestoreException] needed to generating test input.
-         */
-        private val INPUT_DATA = listOf(
-            arrayOf<Any>(Exception(), false),
-            arrayOf<Any>(
-                FirebaseFirestoreException(
-                    "User not in pass-list",
-                    FirebaseFirestoreException.Code.PERMISSION_DENIED
-                ), true, "Permission denied! Check user pass-list."
-            )
+  companion object {
+    /**
+     * TODO: Use [ParameterizedRobolectricTestRunner] instead of doing it manually. Currently, it
+     * fails to initialize [FirebaseFirestoreException] needed to generating test input.
+     */
+    private val INPUT_DATA =
+      listOf(
+        arrayOf<Any>(Exception(), false),
+        arrayOf<Any>(
+          FirebaseFirestoreException(
+            "User not in pass-list",
+            FirebaseFirestoreException.Code.PERMISSION_DENIED
+          ),
+          true,
+          "Permission denied! Check user pass-list."
         )
-    }
+      )
+  }
 }

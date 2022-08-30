@@ -21,29 +21,24 @@ import java8.util.Optional
 
 data class CameraPosition(val target: Point, val zoomLevel: Float) {
 
-    override fun toString(): String {
-        return "Position: $target Zoom level: $zoomLevel"
+  override fun toString(): String {
+    return "Position: $target Zoom level: $zoomLevel"
+  }
+
+  fun serialize(): String =
+    arrayOf<Any>(target.coordinate.x, target.coordinate.y, zoomLevel).joinToString { it.toString() }
+
+  companion object {
+
+    fun deserialize(serializedValue: String): Optional<CameraPosition> {
+      if (serializedValue.isEmpty()) return Optional.empty()
+      val (lat, long, zoomLevel) = serializedValue.split(",")
+      return Optional.of(
+        CameraPosition(
+          Point(Coordinate(lat.toDouble(), long.toDouble())),
+          java.lang.Float.valueOf(zoomLevel)
+        )
+      )
     }
-
-    fun serialize(): String =
-        arrayOf<Any>(
-            target.coordinate.x,
-            target.coordinate.y,
-            zoomLevel
-        ).joinToString { it.toString() }
-
-    companion object {
-
-        fun deserialize(serializedValue: String): Optional<CameraPosition> {
-            if (serializedValue.isEmpty()) return Optional.empty()
-            val (lat, long, zoomLevel) = serializedValue.split(",")
-            return Optional.of(
-                CameraPosition(
-                    Point(Coordinate(lat.toDouble(), long.toDouble())),
-                    java.lang.Float.valueOf(zoomLevel)
-                )
-            )
-        }
-
-    }
+  }
 }

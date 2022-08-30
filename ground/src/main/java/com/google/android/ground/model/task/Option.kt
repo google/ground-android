@@ -17,12 +17,5 @@ package com.google.android.ground.model.task
 
 import kotlinx.serialization.Serializable
 
-/**
- * Describes a single valid option to a multiple choice question.
- */
-@Serializable
-data class Option(
-    val id: String,
-    val code: String,
-    val label: String
-)
+/** Describes a single valid option to a multiple choice question. */
+@Serializable data class Option(val id: String, val code: String, val label: String)

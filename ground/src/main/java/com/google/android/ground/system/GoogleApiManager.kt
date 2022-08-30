@@ -28,45 +28,43 @@ import javax.inject.Inject
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
 @ActivityScoped
-class GoogleApiManager @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-    private val googleApiAvailability: GoogleApiAvailability,
-    private val activityStreams: ActivityStreams
+class GoogleApiManager
+@Inject
+constructor(
+  @param:ApplicationContext private val context: Context,
+  private val googleApiAvailability: GoogleApiAvailability,
+  private val activityStreams: ActivityStreams
 ) {
 
-    /**
-     * Returns a stream that either completes immediately if Google Play Services are already
-     * installed, otherwise shows install dialog. Terminates with error if install not possible or
-     * cancelled.
-     */
-    fun installGooglePlayServices(): Completable =
-        requestInstallOrComplete().ambWith(getNextInstallApiResult())
+  /**
+   * Returns a stream that either completes immediately if Google Play Services are already
+   * installed, otherwise shows install dialog. Terminates with error if install not possible or
+   * cancelled.
+   */
+  fun installGooglePlayServices(): Completable =
+    requestInstallOrComplete().ambWith(getNextInstallApiResult())
 
-    private fun requestInstallOrComplete(): Completable =
-        Completable.create { emitter: CompletableEmitter ->
-            val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-            if (status == ConnectionResult.SUCCESS) {
-                emitter.onComplete()
-            } else if (googleApiAvailability.isUserResolvableError(status)) {
-                activityStreams.withActivity {
-                    googleApiAvailability.showErrorDialogFragment(
-                        it,
-                        status,
-                        INSTALL_API_REQUEST_CODE
-                    ) { emitter.onError(Exception()) } // TODO: Throw appropriate Exception.
-                }
-            } else {
-                emitter.onError(Exception()) // TODO: Throw appropriate Exception.
-            }
+  private fun requestInstallOrComplete(): Completable =
+    Completable.create { emitter: CompletableEmitter ->
+      val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
+      if (status == ConnectionResult.SUCCESS) {
+        emitter.onComplete()
+      } else if (googleApiAvailability.isUserResolvableError(status)) {
+        activityStreams.withActivity {
+          googleApiAvailability.showErrorDialogFragment(it, status, INSTALL_API_REQUEST_CODE) {
+            emitter.onError(Exception())
+          } // TODO: Throw appropriate Exception.
         }
+      } else {
+        emitter.onError(Exception()) // TODO: Throw appropriate Exception.
+      }
+    }
 
-    private fun getNextInstallApiResult(): Completable =
-        activityStreams
-            .getNextActivityResult(INSTALL_API_REQUEST_CODE)
-            .flatMapCompletable {
-                RxCompletable.completeOrError(
-                    { it.isOk() },
-                    Exception::class.java // TODO: Throw appropriate Exception.
-                )
-            }
+  private fun getNextInstallApiResult(): Completable =
+    activityStreams.getNextActivityResult(INSTALL_API_REQUEST_CODE).flatMapCompletable {
+      RxCompletable.completeOrError(
+        { it.isOk() },
+        Exception::class.java // TODO: Throw appropriate Exception.
+      )
+    }
 }

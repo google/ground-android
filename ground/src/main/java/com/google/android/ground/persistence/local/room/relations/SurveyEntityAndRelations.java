@@ -35,9 +35,6 @@ public class SurveyEntityAndRelations {
   @Relation(parentColumn = "id", entityColumn = "survey_id", entity = JobEntity.class)
   public List<JobEntityAndRelations> jobEntityAndRelations;
 
-  @Relation(
-      parentColumn = "id",
-      entityColumn = "survey_id",
-      entity = BaseMapEntity.class)
+  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = BaseMapEntity.class)
   public List<BaseMapEntity> baseMapEntityAndRelations;
 }

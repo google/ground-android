@@ -37,61 +37,63 @@ private const val UPDATE_INTERVAL: Long = 1000 /* 1 sec */
 
 private const val FASTEST_INTERVAL: Long = 250 /* 250 ms */
 
-private val FINE_LOCATION_UPDATES_REQUEST = LocationRequest()
+private val FINE_LOCATION_UPDATES_REQUEST =
+  LocationRequest()
     .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
     .setInterval(UPDATE_INTERVAL)
     .setFastestInterval(FASTEST_INTERVAL)
 
 @Singleton
-class LocationManager @Inject constructor(
-    private val permissionsManager: PermissionsManager,
-    private val settingsManager: SettingsManager,
-    private val locationClient: RxFusedLocationProviderClient
+class LocationManager
+@Inject
+constructor(
+  private val permissionsManager: PermissionsManager,
+  private val settingsManager: SettingsManager,
+  private val locationClient: RxFusedLocationProviderClient
 ) {
 
-    private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
-    private val locationUpdateCallback: RxLocationCallback =
-        RxLocationCallback.create(locationUpdates)
+  private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
+  private val locationUpdateCallback: RxLocationCallback =
+    RxLocationCallback.create(locationUpdates)
 
-    /**
-     * Returns the location update stream. New subscribers and downstream subscribers that can't keep
-     * up will only see the latest location.
-     */
-    fun getLocationUpdates(): Flowable<Location> =
-        locationUpdates
-            // There sometimes noticeable latency between when location update request succeeds and when
-            // the first location update is received. Requesting the last know location is usually
-            // immediate, so we merge into the stream to reduce perceived latency.
-            .startWith(locationClient.lastLocation.toObservable())
-            .toFlowable(BackpressureStrategy.LATEST)
+  /**
+   * Returns the location update stream. New subscribers and downstream subscribers that can't keep
+   * up will only see the latest location.
+   */
+  fun getLocationUpdates(): Flowable<Location> =
+    locationUpdates
+      // There sometimes noticeable latency between when location update request succeeds and when
+      // the first location update is received. Requesting the last know location is usually
+      // immediate, so we merge into the stream to reduce perceived latency.
+      .startWith(locationClient.lastLocation.toObservable())
+      .toFlowable(BackpressureStrategy.LATEST)
 
-    /**
-     * Asynchronously try to enable location permissions and settings, and if successful, turns on
-     * location updates exposed by [.getLocationUpdates].
-     */
-    @Synchronized
-    fun enableLocationUpdates(): Single<BooleanOrError> {
-        Timber.d("Attempting to enable location updates")
-        return permissionsManager
-            .obtainPermission(permission.ACCESS_FINE_LOCATION)
-            .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
-            .andThen(requestLocationUpdates())
-            .toSingle { trueValue() }
-            .onErrorReturn { BooleanOrError.error(it) }
-    }
+  /**
+   * Asynchronously try to enable location permissions and settings, and if successful, turns on
+   * location updates exposed by [.getLocationUpdates].
+   */
+  @Synchronized
+  fun enableLocationUpdates(): Single<BooleanOrError> {
+    Timber.d("Attempting to enable location updates")
+    return permissionsManager
+      .obtainPermission(permission.ACCESS_FINE_LOCATION)
+      .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
+      .andThen(requestLocationUpdates())
+      .toSingle { trueValue() }
+      .onErrorReturn { BooleanOrError.error(it) }
+  }
 
-    private fun requestLocationUpdates() =
-        locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback)
+  private fun requestLocationUpdates() =
+    locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback)
 
-    // TODO: Request/remove updates on resume/pause.
-    @Synchronized
-    fun disableLocationUpdates(): Single<BooleanOrError> =
-        removeLocationUpdates()
-            .toSingle { falseValue() }
-            // Ignore errors as they are usually caused by disabling the same callback multiple times.
-            .doOnError { Timber.e(it, "disableLocationUpdates") }
-            .onErrorReturn { falseValue() }
+  // TODO: Request/remove updates on resume/pause.
+  @Synchronized
+  fun disableLocationUpdates(): Single<BooleanOrError> =
+    removeLocationUpdates()
+      .toSingle { falseValue() }
+      // Ignore errors as they are usually caused by disabling the same callback multiple times.
+      .doOnError { Timber.e(it, "disableLocationUpdates") }
+      .onErrorReturn { falseValue() }
 
-    private fun removeLocationUpdates() =
-        locationClient.removeLocationUpdates(locationUpdateCallback)
+  private fun removeLocationUpdates() = locationClient.removeLocationUpdates(locationUpdateCallback)
 }

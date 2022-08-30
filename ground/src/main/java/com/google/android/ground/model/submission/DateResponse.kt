@@ -22,24 +22,20 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * A user-provided response to a date question task.
- */
+/** A user-provided response to a date question task. */
 @Serializable
 data class DateResponse(val date: @Contextual Date) : Response {
-    // TODO(#752): Use device localization preferences.
-    private val dateFormat: @Contextual DateFormat =
-        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+  // TODO(#752): Use device localization preferences.
+  private val dateFormat: @Contextual DateFormat =
+    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    override fun getDetailsText(): String = synchronized(dateFormat) { dateFormat.format(date) }
+  override fun getDetailsText(): String = synchronized(dateFormat) { dateFormat.format(date) }
 
-    override fun isEmpty(): Boolean = date.time == 0L
+  override fun isEmpty(): Boolean = date.time == 0L
 
-    companion object {
-        @JvmStatic
-        fun fromDate(date: Date?): Optional<Response> =
-            if (date == null || date.time == 0L) Optional.empty() else Optional.of(
-                DateResponse(date)
-            )
-    }
+  companion object {
+    @JvmStatic
+    fun fromDate(date: Date?): Optional<Response> =
+      if (date == null || date.time == 0L) Optional.empty() else Optional.of(DateResponse(date))
+  }
 }

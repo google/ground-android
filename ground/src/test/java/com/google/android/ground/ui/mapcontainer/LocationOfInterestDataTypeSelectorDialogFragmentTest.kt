@@ -36,49 +36,49 @@ import org.robolectric.Shadows.shadowOf
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
-    private lateinit var dialogFragment: LocationOfInterestDataTypeSelectorDialogFragment
-    private lateinit var onSelectLoiDataType: Consumer<Int>
-    private var selectedPosition = -1
+  private lateinit var dialogFragment: LocationOfInterestDataTypeSelectorDialogFragment
+  private lateinit var onSelectLoiDataType: Consumer<Int>
+  private var selectedPosition = -1
 
-    @Before
-    override fun setUp() {
-        super.setUp()
-        selectedPosition = -1
-        onSelectLoiDataType = Consumer { integer: Int -> selectedPosition = integer }
-        setUpFragment()
-    }
+  @Before
+  override fun setUp() {
+    super.setUp()
+    selectedPosition = -1
+    onSelectLoiDataType = Consumer { integer: Int -> selectedPosition = integer }
+    setUpFragment()
+  }
 
-    private fun setUpFragment() {
-        val activityController = Robolectric.buildActivity(MainActivity::class.java)
-        val activity = activityController.setup().get()
+  private fun setUpFragment() {
+    val activityController = Robolectric.buildActivity(MainActivity::class.java)
+    val activity = activityController.setup().get()
 
-        dialogFragment = LocationOfInterestDataTypeSelectorDialogFragment(onSelectLoiDataType)
+    dialogFragment = LocationOfInterestDataTypeSelectorDialogFragment(onSelectLoiDataType)
 
-        dialogFragment.showNow(
-            activity.supportFragmentManager,
-            SurveySelectorDialogFragment::class.java.simpleName
-        )
-        shadowOf(Looper.getMainLooper()).idle()
-    }
+    dialogFragment.showNow(
+      activity.supportFragmentManager,
+      SurveySelectorDialogFragment::class.java.simpleName
+    )
+    shadowOf(Looper.getMainLooper()).idle()
+  }
 
-    @Test
-    fun show_dialogIsShown() {
-        val listView = dialogFragment.dialog!!.currentFocus as ListView
+  @Test
+  fun show_dialogIsShown() {
+    val listView = dialogFragment.dialog!!.currentFocus as ListView
 
-        assertThat(listView.visibility).isEqualTo(View.VISIBLE)
-        assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
-    }
+    assertThat(listView.visibility).isEqualTo(View.VISIBLE)
+    assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
+  }
 
-    @Test
-    fun show_dataTypeSelected_correctDataTypeIsPassed() {
-        val listView = dialogFragment.dialog!!.currentFocus as ListView
+  @Test
+  fun show_dataTypeSelected_correctDataTypeIsPassed() {
+    val listView = dialogFragment.dialog!!.currentFocus as ListView
 
-        val positionToSelect = 1
-        shadowOf(listView).performItemClick(positionToSelect)
-        shadowOf(Looper.getMainLooper()).idle()
+    val positionToSelect = 1
+    shadowOf(listView).performItemClick(positionToSelect)
+    shadowOf(Looper.getMainLooper()).idle()
 
-        // Verify Dialog is dismissed
-        assertThat(dialogFragment.dialog).isNull()
-        assertThat(selectedPosition).isEqualTo(1)
-    }
+    // Verify Dialog is dismissed
+    assertThat(dialogFragment.dialog).isNull()
+    assertThat(selectedPosition).isEqualTo(1)
+  }
 }

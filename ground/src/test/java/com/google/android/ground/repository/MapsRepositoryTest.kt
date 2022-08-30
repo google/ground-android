@@ -29,27 +29,26 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class MapsRepositoryTest : BaseHiltTest() {
 
-    @Inject
-    lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapsRepository: MapsRepository
 
-    @Test
-    fun testGetMapType_returnsSatellite() {
-        assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
-    }
+  @Test
+  fun testGetMapType_returnsSatellite() {
+    assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+  }
 
-    @Test
-    fun testGetMapType_whenTerrain_returnsTerrain() {
-        mapsRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+  @Test
+  fun testGetMapType_whenTerrain_returnsTerrain() {
+    mapsRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
 
-        assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
-    }
+    assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+  }
 
-    @Test
-    fun testObservableMapType_whenTerrain_returnsTerrain() {
-        mapsRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+  @Test
+  fun testObservableMapType_whenTerrain_returnsTerrain() {
+    mapsRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
 
-        observeUntilFirstChange(mapsRepository.observableMapType())
+    observeUntilFirstChange(mapsRepository.observableMapType())
 
-        assertThat(mapsRepository.observableMapType().value).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
-    }
+    assertThat(mapsRepository.observableMapType().value).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+  }
 }

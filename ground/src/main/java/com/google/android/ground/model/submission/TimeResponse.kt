@@ -22,22 +22,22 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * A user-provided time response.
- */
+/** A user-provided time response. */
 @Serializable
 data class TimeResponse(val time: @Contextual Date) : Response {
-    // TODO(#752): Use device localization preferences.
-    private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+  // TODO(#752): Use device localization preferences.
+  private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    override fun getDetailsText(): String =
-        synchronized(timeFormat) { return timeFormat.format(time) }
-
-    override fun isEmpty(): Boolean = time.time == 0L
-
-    companion object {
-        @JvmStatic
-        fun fromDate(time: Date): Optional<Response> =
-            if (time.time == 0L) Optional.empty() else Optional.of(TimeResponse(time))
+  override fun getDetailsText(): String =
+    synchronized(timeFormat) {
+      return timeFormat.format(time)
     }
+
+  override fun isEmpty(): Boolean = time.time == 0L
+
+  companion object {
+    @JvmStatic
+    fun fromDate(time: Date): Optional<Response> =
+      if (time.time == 0L) Optional.empty() else Optional.of(TimeResponse(time))
+  }
 }

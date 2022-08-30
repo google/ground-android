@@ -26,36 +26,31 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import java8.util.function.Function
 
-abstract class FluentCollectionReference protected constructor(private val reference: CollectionReference) {
+abstract class FluentCollectionReference
+protected constructor(private val reference: CollectionReference) {
 
-    /**
-     * Returns a Completable that completes immediately on subscribe if network is available, or fails
-     * in error if not.
-     */
-    private fun requireActiveNetwork(): @Cold Completable {
-        return requireActiveNetwork(
-            reference.firestore.app.applicationContext
-        )
-    }
+  /**
+   * Returns a Completable that completes immediately on subscribe if network is available, or fails
+   * in error if not.
+   */
+  private fun requireActiveNetwork(): @Cold Completable {
+    return requireActiveNetwork(reference.firestore.app.applicationContext)
+  }
 
-    /**
-     * Runs the specified query, returning a Single containing a List of values created by applying
-     * the mappingFunction to all results. Fails immediately with an error if an active network is not
-     * available.
-     */
-    protected fun <T> runQuery(
-        query: Query, mappingFunction: Function<DocumentSnapshot, T>
-    ): @Cold Single<List<T>> {
-        return requireActiveNetwork()
-            .andThen(
-                FluentFirestore.toSingleList(
-                    RxFirestore.getCollection(query),
-                    mappingFunction
-                )
-            )
-    }
+  /**
+   * Runs the specified query, returning a Single containing a List of values created by applying
+   * the mappingFunction to all results. Fails immediately with an error if an active network is not
+   * available.
+   */
+  protected fun <T> runQuery(
+    query: Query,
+    mappingFunction: Function<DocumentSnapshot, T>
+  ): @Cold Single<List<T>> {
+    return requireActiveNetwork()
+      .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction))
+  }
 
-    protected fun reference(): CollectionReference = reference
+  protected fun reference(): CollectionReference = reference
 
-    override fun toString(): String = reference.path
+  override fun toString(): String = reference.path
 }

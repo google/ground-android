@@ -27,30 +27,29 @@ import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Single
 
 class SubmissionCollectionReference internal constructor(ref: CollectionReference) :
-    FluentCollectionReference(ref) {
+  FluentCollectionReference(ref) {
 
-    fun submission(id: String) = SubmissionDocumentReference(reference().document(id))
+  fun submission(id: String) = SubmissionDocumentReference(reference().document(id))
 
-    fun submissionsByLocationOfInterestId(
-        locationOfInterest: LocationOfInterest
-    ): @Cold Single<ImmutableList<Result<Submission>>> {
-        return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
-            .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
-            .toSingle(ImmutableList.of())
-    }
+  fun submissionsByLocationOfInterestId(
+    locationOfInterest: LocationOfInterest
+  ): @Cold Single<ImmutableList<Result<Submission>>> {
+    return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
+      .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
+      .toSingle(ImmutableList.of())
+  }
 
-    private fun convert(
-        querySnapshot: QuerySnapshot, locationOfInterest: LocationOfInterest
-    ): ImmutableList<Result<Submission>> {
-        return querySnapshot.documents
-            .map { doc: DocumentSnapshot ->
-                runCatching {
-                    SubmissionConverter.toSubmission(locationOfInterest, doc)
-                }
-            }
-            .toImmutableList()
-    }
+  private fun convert(
+    querySnapshot: QuerySnapshot,
+    locationOfInterest: LocationOfInterest
+  ): ImmutableList<Result<Submission>> {
+    return querySnapshot.documents
+      .map { doc: DocumentSnapshot ->
+        runCatching { SubmissionConverter.toSubmission(locationOfInterest, doc) }
+      }
+      .toImmutableList()
+  }
 
-    private fun byLoiId(loiId: String): Query =
-        reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId)
+  private fun byLoiId(loiId: String): Query =
+    reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId)
 }

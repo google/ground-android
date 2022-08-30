@@ -16,5 +16,5 @@
 package com.google.android.ground.ui.common
 
 interface BackPressListener {
-    fun onBack(): Boolean
+  fun onBack(): Boolean
 }

@@ -28,36 +28,38 @@ import java8.util.Optional
 import java.util.*
 
 object DataCollectionTestData {
-    private const val surveyId = "123"
-    private const val loiId = "456"
-    private const val submissionId = "789"
-    const val jobName = "jobName"
-    const val loiName = "loiName"
-    val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
-    private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-    val submission: Submission = Submission(
-        submissionId,
+  private const val surveyId = "123"
+  private const val loiId = "456"
+  private const val submissionId = "789"
+  const val jobName = "jobName"
+  const val loiName = "loiName"
+  val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
+  private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
+  val submission: Submission =
+    Submission(
+      submissionId,
+      surveyId,
+      LocationOfInterest(
+        loiId,
         surveyId,
-        LocationOfInterest(
-            loiId,
-            surveyId,
-            Job(name = jobName, id = "jobId"),
-            null,
-            loiName,
-            auditInfo,
-            auditInfo,
-            Point(Coordinate(0.0, 0.0))
-        ),
-        Job(
-            id = "taskId",
-            tasks = ImmutableMap.of(
-                "field id",
-                Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
-                "field id 2",
-                Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)
-            )
-        ),
+        Job(name = jobName, id = "jobId"),
+        null,
+        loiName,
         auditInfo,
-        auditInfo
+        auditInfo,
+        Point(Coordinate(0.0, 0.0))
+      ),
+      Job(
+        id = "taskId",
+        tasks =
+          ImmutableMap.of(
+            "field id",
+            Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
+            "field id 2",
+            Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)
+          )
+      ),
+      auditInfo,
+      auditInfo
     )
 }

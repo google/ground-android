@@ -33,44 +33,49 @@ private const val CHANNEL_ID = "channel_id"
 private const val CHANNEL_NAME = "sync channel"
 
 @Singleton
-class NotificationManager @Inject internal constructor(
-    @param:ApplicationContext private val context: Context
-) {
+class NotificationManager
+@Inject
+internal constructor(@param:ApplicationContext private val context: Context) {
 
-    init {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            createNotificationChannels(context)
-        }
+  init {
+    if (VERSION.SDK_INT >= VERSION_CODES.O) {
+      createNotificationChannels(context)
     }
+  }
 
-    @RequiresApi(api = VERSION_CODES.O)
-    private fun createNotificationChannels(context: Context) {
-        val channel =
-            NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
-        context.getSystemService(NotificationManager::class.java)
-            .createNotificationChannel(channel)
-    }
+  @RequiresApi(api = VERSION_CODES.O)
+  private fun createNotificationChannels(context: Context) {
+    val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
+    context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+  }
 
-    fun createSyncNotification(
-        state: UploadState, title: String, total: Int, progress: Int
-    ): Notification {
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_sync)
-            .setContentTitle(title)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setOnlyAlertOnce(false)
-            .setOngoing(false)
-            .setProgress(total, progress, false)
-        when (state) {
-            UploadState.STARTING -> notification.setContentText(context.getString(R.string.starting))
-            UploadState.IN_PROGRESS -> notification
-                .setContentText(context.getString(R.string.in_progress)) // only alert once and don't allow cancelling it
-                .setOnlyAlertOnce(true)
-                .setOngoing(true)
-            UploadState.PAUSED -> notification.setContentText(context.getString(R.string.paused))
-            UploadState.FAILED -> notification.setContentText(context.getString(R.string.failed))
-            UploadState.COMPLETED -> notification.setContentText(context.getString(R.string.completed))
-        }
-        return notification.build()
+  fun createSyncNotification(
+    state: UploadState,
+    title: String,
+    total: Int,
+    progress: Int
+  ): Notification {
+    val notification =
+      NotificationCompat.Builder(context, CHANNEL_ID)
+        .setSmallIcon(R.drawable.ic_sync)
+        .setContentTitle(title)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setOnlyAlertOnce(false)
+        .setOngoing(false)
+        .setProgress(total, progress, false)
+    when (state) {
+      UploadState.STARTING -> notification.setContentText(context.getString(R.string.starting))
+      UploadState.IN_PROGRESS ->
+        notification
+          .setContentText(
+            context.getString(R.string.in_progress)
+          ) // only alert once and don't allow cancelling it
+          .setOnlyAlertOnce(true)
+          .setOngoing(true)
+      UploadState.PAUSED -> notification.setContentText(context.getString(R.string.paused))
+      UploadState.FAILED -> notification.setContentText(context.getString(R.string.failed))
+      UploadState.COMPLETED -> notification.setContentText(context.getString(R.string.completed))
     }
+    return notification.build()
+  }
 }

@@ -15,8 +15,5 @@
  */
 package com.google.android.ground.model
 
-/** If present in remote db, terms of service must be accepted by user after sign in.  */
-data class TermsOfService(
-    val id: String,
-    val text: String?
-)
+/** If present in remote db, terms of service must be accepted by user after sign in. */
+data class TermsOfService(val id: String, val text: String?)

@@ -15,29 +15,29 @@
  */
 package com.google.android.ground.rx
 
-/** The result of an operation that can return either true, false, or fail with an exception.  */
+/** The result of an operation that can return either true, false, or fail with an exception. */
 class BooleanOrError private constructor(value: Boolean?, error: Throwable?) :
-    ValueOrError<Boolean?>(value, error) {
-    /**
-     * Returns true if the operation succeeded with a result of `true`, or false otherwise. Note
-     * that false is also returned if the operation failed in error.
-     */
-    val isTrue = value().orElse(false)!!
+  ValueOrError<Boolean?>(value, error) {
+  /**
+   * Returns true if the operation succeeded with a result of `true`, or false otherwise. Note that
+   * false is also returned if the operation failed in error.
+   */
+  val isTrue = value().orElse(false)!!
 
-    companion object {
-        @JvmStatic
-        fun trueValue(): BooleanOrError {
-            return BooleanOrError(true, null)
-        }
-
-        @JvmStatic
-        fun falseValue(): BooleanOrError {
-            return BooleanOrError(false, null)
-        }
-
-        @JvmStatic
-        fun error(t: Throwable?): BooleanOrError {
-            return BooleanOrError(null, t)
-        }
+  companion object {
+    @JvmStatic
+    fun trueValue(): BooleanOrError {
+      return BooleanOrError(true, null)
     }
+
+    @JvmStatic
+    fun falseValue(): BooleanOrError {
+      return BooleanOrError(false, null)
+    }
+
+    @JvmStatic
+    fun error(t: Throwable?): BooleanOrError {
+      return BooleanOrError(null, t)
+    }
+  }
 }

@@ -46,184 +46,232 @@ import java.util.*
 
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionConverterTest {
-    @Mock
-    private lateinit var submissionDocumentSnapshot: DocumentSnapshot
+  @Mock private lateinit var submissionDocumentSnapshot: DocumentSnapshot
 
-    private lateinit var job: Job
-    private lateinit var locationOfInterest: LocationOfInterest
+  private lateinit var job: Job
+  private lateinit var locationOfInterest: LocationOfInterest
 
-    @Test
-    fun testToSubmission() {
-        setUpTestSurvey(
-            "job001", "loi001", newTask("task1"), newTask(
-                "task2",
-                Task.Type.MULTIPLE_CHOICE,
-                MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
-            ), newTask("task3", Task.Type.MULTIPLE_CHOICE), newTask("task4", Task.Type.PHOTO)
+  @Test
+  fun testToSubmission() {
+    setUpTestSurvey(
+      "job001",
+      "loi001",
+      newTask("task1"),
+      newTask(
+        "task2",
+        Task.Type.MULTIPLE_CHOICE,
+        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
+      ),
+      newTask("task3", Task.Type.MULTIPLE_CHOICE),
+      newTask("task4", Task.Type.PHOTO)
+    )
+    mockSubmissionDocumentSnapshot(
+      SUBMISSION_ID,
+      SubmissionDocument(
+        "loi001",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        ImmutableMap.of(
+          "task1",
+          "Text response",
+          "task2",
+          ImmutableList.of("option2"),
+          "task3",
+          ImmutableList.of("optionA", "optionB"),
+          "task4",
+          "Photo URL"
         )
-        mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID, SubmissionDocument(
-                "loi001",
-                "task001",
-                AUDIT_INFO_1_NESTED_OBJECT,
-                AUDIT_INFO_2_NESTED_OBJECT,
-                ImmutableMap.of(
-                    "task1",
-                    "Text response",
-                    "task2",
-                    ImmutableList.of("option2"),
-                    "task3",
-                    ImmutableList.of("optionA", "optionB"),
-                    "task4",
-                    "Photo URL"
-                )
+      )
+    )
+    assertThat(toSubmission())
+      .isEqualTo(
+        Submission(
+          SUBMISSION_ID,
+          TEST_SURVEY_ID,
+          locationOfInterest,
+          job,
+          AUDIT_INFO_1,
+          AUDIT_INFO_2,
+          ResponseMap(
+            ImmutableMap.of(
+              "task1",
+              TextResponse("Text response"),
+              "task2",
+              MultipleChoiceResponse(
+                MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+                ImmutableList.of("option2")
+              ),
+              "task3",
+              MultipleChoiceResponse(
+                MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+                ImmutableList.of("optionA", "optionB")
+              ),
+              "task4",
+              TextResponse("Photo URL")
             )
+          )
         )
-        assertThat(toSubmission()).isEqualTo(
-            Submission(
-                SUBMISSION_ID,
-                TEST_SURVEY_ID,
-                locationOfInterest,
-                job,
-                AUDIT_INFO_1,
-                AUDIT_INFO_2,
-                ResponseMap(
-                    ImmutableMap.of(
-                        "task1", TextResponse("Text response"), "task2", MultipleChoiceResponse(
-                            MultipleChoice(
-                                persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE
-                            ), ImmutableList.of("option2")
-                        ), "task3", MultipleChoiceResponse(
-                            MultipleChoice(
-                                persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE
-                            ), ImmutableList.of("optionA", "optionB")
-                        ), "task4", TextResponse("Photo URL")
-                    )
-                )
-            )
-        )
-    }
+      )
+  }
 
-    @Test
-    fun testToSubmission_mismatchedLoiId() {
-        setUpTestSurvey("job001", "loi001", newTask("task1"))
-        mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID, SubmissionDocument(
-                "loi999",
-                "task001",
-                AUDIT_INFO_1_NESTED_OBJECT,
-                AUDIT_INFO_2_NESTED_OBJECT,
-                ImmutableMap.of("task1", "")
-            )
-        )
-        Assert.assertThrows(DataStoreException::class.java) { this.toSubmission() }
-    }
+  @Test
+  fun testToSubmission_mismatchedLoiId() {
+    setUpTestSurvey("job001", "loi001", newTask("task1"))
+    mockSubmissionDocumentSnapshot(
+      SUBMISSION_ID,
+      SubmissionDocument(
+        "loi999",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        ImmutableMap.of("task1", "")
+      )
+    )
+    Assert.assertThrows(DataStoreException::class.java) { this.toSubmission() }
+  }
 
-    @Test
-    fun testToSubmission_nullResponses() {
-        setUpTestSurvey("job001", "loi001", newTask("task1"))
-        mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID, SubmissionDocument(
-                "loi001", "task001", AUDIT_INFO_1_NESTED_OBJECT, AUDIT_INFO_2_NESTED_OBJECT, null
-            )
+  @Test
+  fun testToSubmission_nullResponses() {
+    setUpTestSurvey("job001", "loi001", newTask("task1"))
+    mockSubmissionDocumentSnapshot(
+      SUBMISSION_ID,
+      SubmissionDocument(
+        "loi001",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        null
+      )
+    )
+    assertThat(toSubmission())
+      .isEqualTo(
+        Submission(
+          SUBMISSION_ID,
+          TEST_SURVEY_ID,
+          locationOfInterest,
+          job,
+          AUDIT_INFO_1,
+          AUDIT_INFO_2
         )
-        assertThat(toSubmission()).isEqualTo(
-            Submission(
-                SUBMISSION_ID, TEST_SURVEY_ID, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2
-            )
-        )
-    }
+      )
+  }
 
-    @Test
-    fun testToSubmission_emptyTextResponse() {
-        setUpTestSurvey("job001", "loi001", newTask("task1"))
-        mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID, SubmissionDocument(
-                "loi001",
-                "task001",
-                AUDIT_INFO_1_NESTED_OBJECT,
-                AUDIT_INFO_2_NESTED_OBJECT,
-                ImmutableMap.of("task1", "")
-            )
+  @Test
+  fun testToSubmission_emptyTextResponse() {
+    setUpTestSurvey("job001", "loi001", newTask("task1"))
+    mockSubmissionDocumentSnapshot(
+      SUBMISSION_ID,
+      SubmissionDocument(
+        "loi001",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        ImmutableMap.of("task1", "")
+      )
+    )
+    assertThat(toSubmission())
+      .isEqualTo(
+        Submission(
+          SUBMISSION_ID,
+          TEST_SURVEY_ID,
+          locationOfInterest,
+          job,
+          AUDIT_INFO_1,
+          AUDIT_INFO_2
         )
-        assertThat(toSubmission()).isEqualTo(
-            Submission(
-                SUBMISSION_ID, TEST_SURVEY_ID, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2
-            )
-        )
-    }
+      )
+  }
 
-    @Test
-    fun testToSubmission_emptyMultipleChoiceResponse() {
-        setUpTestSurvey("job001", "loi001", newTask("task1"))
-        mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID, SubmissionDocument(
-                "loi001",
-                "task001",
-                AUDIT_INFO_1_NESTED_OBJECT,
-                AUDIT_INFO_2_NESTED_OBJECT,
-                ImmutableMap.of("task1", ImmutableList.of<Any>())
-            )
+  @Test
+  fun testToSubmission_emptyMultipleChoiceResponse() {
+    setUpTestSurvey("job001", "loi001", newTask("task1"))
+    mockSubmissionDocumentSnapshot(
+      SUBMISSION_ID,
+      SubmissionDocument(
+        "loi001",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        ImmutableMap.of("task1", ImmutableList.of<Any>())
+      )
+    )
+    assertThat(toSubmission())
+      .isEqualTo(
+        Submission(
+          SUBMISSION_ID,
+          TEST_SURVEY_ID,
+          locationOfInterest,
+          job,
+          AUDIT_INFO_1,
+          AUDIT_INFO_2
         )
-        assertThat(toSubmission()).isEqualTo(
-            Submission(
-                SUBMISSION_ID, TEST_SURVEY_ID, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2
-            )
-        )
-    }
+      )
+  }
 
-    @Test
-    fun testToSubmission_unknownFieldType() {
-        setUpTestSurvey("job001", "loi001", newTask("task1", Task.Type.UNKNOWN), newTask("task2"))
-        mockSubmissionDocumentSnapshot(
-            SUBMISSION_ID, SubmissionDocument(
-                "loi001",
-                "task001",
-                AUDIT_INFO_1_NESTED_OBJECT,
-                AUDIT_INFO_2_NESTED_OBJECT,
-                ImmutableMap.of("task1", "Unknown", "task2", "Text response")
-            )
+  @Test
+  fun testToSubmission_unknownFieldType() {
+    setUpTestSurvey("job001", "loi001", newTask("task1", Task.Type.UNKNOWN), newTask("task2"))
+    mockSubmissionDocumentSnapshot(
+      SUBMISSION_ID,
+      SubmissionDocument(
+        "loi001",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        ImmutableMap.of("task1", "Unknown", "task2", "Text response")
+      )
+    )
+    assertThat(toSubmission())
+      .isEqualTo(
+        Submission(
+          SUBMISSION_ID,
+          TEST_SURVEY_ID,
+          locationOfInterest,
+          job,
+          AUDIT_INFO_1,
+          AUDIT_INFO_2,
+          // Field "task1" with unknown field type ignored.
+          ResponseMap(ImmutableMap.of("task2", TextResponse("Text response")))
         )
-        assertThat(toSubmission()).isEqualTo(
-            Submission(
-                SUBMISSION_ID, TEST_SURVEY_ID, locationOfInterest, job, AUDIT_INFO_1, AUDIT_INFO_2,
-                // Field "task1" with unknown field type ignored.
-                ResponseMap(ImmutableMap.of("task2", TextResponse("Text response")))
-            )
-        )
-    }
+      )
+  }
 
-    private fun setUpTestSurvey(jobId: String, loiId: String, vararg tasks: Task) {
-        val taskMap = ImmutableMap.builder<String, Task>()
-        tasks.forEach { task: Task -> taskMap.put(task.id, task) }
-        job = Job(jobId, "jobName", taskMap.build())
-        locationOfInterest =
-            FakeData.POINT_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
-    }
+  private fun setUpTestSurvey(jobId: String, loiId: String, vararg tasks: Task) {
+    val taskMap = ImmutableMap.builder<String, Task>()
+    tasks.forEach { task: Task -> taskMap.put(task.id, task) }
+    job = Job(jobId, "jobName", taskMap.build())
+    locationOfInterest =
+      FakeData.POINT_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
+  }
 
-    /** Mock submission document snapshot to return the specified id and object representation.  */
-    private fun mockSubmissionDocumentSnapshot(id: String, doc: SubmissionDocument) {
-        Mockito.`when`(submissionDocumentSnapshot.id).thenReturn(id)
-        Mockito.`when`(submissionDocumentSnapshot.toObject(SubmissionDocument::class.java))
-            .thenReturn(doc)
-    }
+  /** Mock submission document snapshot to return the specified id and object representation. */
+  private fun mockSubmissionDocumentSnapshot(id: String, doc: SubmissionDocument) {
+    Mockito.`when`(submissionDocumentSnapshot.id).thenReturn(id)
+    Mockito.`when`(submissionDocumentSnapshot.toObject(SubmissionDocument::class.java))
+      .thenReturn(doc)
+  }
 
-    private fun toSubmission(): Submission {
-        return toSubmission(locationOfInterest, submissionDocumentSnapshot)
-    }
+  private fun toSubmission(): Submission {
+    return toSubmission(locationOfInterest, submissionDocumentSnapshot)
+  }
 
-    companion object {
-        private val AUDIT_INFO_1 =
-            AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-        private val AUDIT_INFO_2 =
-            AuditInfo(User("user2", "", ""), Date(200), Optional.of(Date(201)))
-        private val AUDIT_INFO_1_NESTED_OBJECT = AuditInfoNestedObject(
-            UserNestedObject("user1", null, null), Timestamp(Date(100)), Timestamp(Date(101))
-        )
-        private val AUDIT_INFO_2_NESTED_OBJECT = AuditInfoNestedObject(
-            UserNestedObject("user2", null, null), Timestamp(Date(200)), Timestamp(Date(201))
-        )
-        private const val SUBMISSION_ID = "submission123"
-        private const val TEST_SURVEY_ID = "survey001"
-    }
+  companion object {
+    private val AUDIT_INFO_1 = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
+    private val AUDIT_INFO_2 = AuditInfo(User("user2", "", ""), Date(200), Optional.of(Date(201)))
+    private val AUDIT_INFO_1_NESTED_OBJECT =
+      AuditInfoNestedObject(
+        UserNestedObject("user1", null, null),
+        Timestamp(Date(100)),
+        Timestamp(Date(101))
+      )
+    private val AUDIT_INFO_2_NESTED_OBJECT =
+      AuditInfoNestedObject(
+        UserNestedObject("user2", null, null),
+        Timestamp(Date(200)),
+        Timestamp(Date(201))
+      )
+    private const val SUBMISSION_ID = "submission123"
+    private const val TEST_SURVEY_ID = "survey001"
+  }
 }

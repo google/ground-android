@@ -39,144 +39,133 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MainActivity : AbstractActivity() {
-    @Inject
-    lateinit var activityStreams: ActivityStreams
+  @Inject lateinit var activityStreams: ActivityStreams
 
-    @Inject
-    lateinit var errorManager: ApplicationErrorManager
+  @Inject lateinit var errorManager: ApplicationErrorManager
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+  @Inject lateinit var viewModelFactory: ViewModelFactory
 
-    @Inject
-    lateinit var settingsManager: SettingsManager
+  @Inject lateinit var settingsManager: SettingsManager
 
-    @Inject
-    lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-    @Inject
-    lateinit var userRepository: UserRepository
+  @Inject lateinit var userRepository: UserRepository
 
-    @Inject
-    lateinit var popups: EphemeralPopups
+  @Inject lateinit var popups: EphemeralPopups
 
-    private lateinit var viewModel: MainViewModel
-    private lateinit var navHostFragment: NavHostFragment
+  private lateinit var viewModel: MainViewModel
+  private lateinit var navHostFragment: NavHostFragment
 
-    private var signInProgressDialog: ProgressDialog? = null
+  private var signInProgressDialog: ProgressDialog? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        // Make sure this is before calling super.onCreate()
-        setTheme(R.style.AppTheme)
-        super.onCreate(savedInstanceState)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    // Make sure this is before calling super.onCreate()
+    setTheme(R.style.AppTheme)
+    super.onCreate(savedInstanceState)
 
-        // Set up event streams first. Navigator must be listening when auth is first initialized.
-        activityStreams.activityRequests
-            .`as`(autoDisposable(this))
-            .subscribe { callback: Consumer<Activity> -> callback.accept(this) }
-
-        navigator.navigateRequests
-            .`as`(autoDisposable(this))
-            .subscribe { navDirections: NavDirections -> onNavigate(navDirections) }
-
-        navigator.navigateUpRequests
-            .`as`(autoDisposable(this))
-            .subscribe { navigateUp() }
-
-        val binding = MainActBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-
-        viewModel = viewModelFactory.get(this, MainViewModel::class.java)
-        viewModel.signInProgressDialogVisibility
-            .observe(this) { visible: Boolean -> onSignInProgress(visible) }
-
-        errorManager.exceptions
-            .`as`(autoDisposable(this))
-            .subscribe { onUnrecoverableError(it) }
+    // Set up event streams first. Navigator must be listening when auth is first initialized.
+    activityStreams.activityRequests.`as`(autoDisposable(this)).subscribe {
+      callback: Consumer<Activity> ->
+      callback.accept(this)
     }
 
-    private fun onUnrecoverableError(message: String) {
-        popups.showError(message)
-        finish()
+    navigator.navigateRequests.`as`(autoDisposable(this)).subscribe { navDirections: NavDirections
+      ->
+      onNavigate(navDirections)
     }
 
-    override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
-        super.onWindowInsetChanged(insets)
-        viewModel.windowInsets.postValue(insets)
+    navigator.navigateUpRequests.`as`(autoDisposable(this)).subscribe { navigateUp() }
+
+    val binding = MainActBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    navHostFragment =
+      supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+    viewModel = viewModelFactory.get(this, MainViewModel::class.java)
+    viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
+      onSignInProgress(visible)
     }
 
-    private fun onNavigate(navDirections: NavDirections) {
-        val navController = navHostFragment.navController
-        navController.navigate(navDirections)
-    }
+    errorManager.exceptions.`as`(autoDisposable(this)).subscribe { onUnrecoverableError(it) }
+  }
 
-    /**
-     * The Android permissions API requires this callback to live in an Activity; here we dispatch the
-     * result back to the PermissionManager for handling.
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        Timber.d("Permission result received")
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
+  private fun onUnrecoverableError(message: String) {
+    popups.showError(message)
+    finish()
+  }
 
-    /**
-     * The Android settings API requires this callback to live in an Activity; here we dispatch the
-     * result back to the SettingsManager for handling.
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        Timber.d("Activity result received")
-        super.onActivityResult(requestCode, resultCode, intent)
-        activityStreams.onActivityResult(requestCode, resultCode, intent)
-    }
+  override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
+    super.onWindowInsetChanged(insets)
+    viewModel.windowInsets.postValue(insets)
+  }
 
-    /** Override up button behavior to use Navigation Components back stack.  */
-    override fun onSupportNavigateUp(): Boolean = navigateUp()
+  private fun onNavigate(navDirections: NavDirections) {
+    val navController = navHostFragment.navController
+    navController.navigate(navDirections)
+  }
 
-    private fun navigateUp(): Boolean {
-        val navController = navHostFragment.navController
-        return navController.navigateUp()
-    }
+  /**
+   * The Android permissions API requires this callback to live in an Activity; here we dispatch the
+   * result back to the PermissionManager for handling.
+   */
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<String>,
+    grantResults: IntArray
+  ) {
+    Timber.d("Permission result received")
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults)
+  }
 
-    override fun onToolbarUpClicked() {
-        if (!dispatchBackPressed()) navigateUp()
-    }
+  /**
+   * The Android settings API requires this callback to live in an Activity; here we dispatch the
+   * result back to the SettingsManager for handling.
+   */
+  override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+    Timber.d("Activity result received")
+    super.onActivityResult(requestCode, resultCode, intent)
+    activityStreams.onActivityResult(requestCode, resultCode, intent)
+  }
 
-    override fun onBackPressed() {
-        if (!dispatchBackPressed()) super.onBackPressed()
-    }
+  /** Override up button behavior to use Navigation Components back stack. */
+  override fun onSupportNavigateUp(): Boolean = navigateUp()
 
-    private fun dispatchBackPressed(): Boolean {
-        val fragmentManager = navHostFragment.childFragmentManager
-        val currentFragment = fragmentManager.findFragmentById(R.id.nav_host_fragment)
-        return currentFragment is BackPressListener && currentFragment.onBack()
-    }
+  private fun navigateUp(): Boolean {
+    val navController = navHostFragment.navController
+    return navController.navigateUp()
+  }
 
-    private fun onSignInProgress(visible: Boolean) {
-        if (visible)
-            showSignInDialog()
-        else
-            dismissSignInDialog()
-    }
+  override fun onToolbarUpClicked() {
+    if (!dispatchBackPressed()) navigateUp()
+  }
 
-    private fun showSignInDialog() {
-        if (signInProgressDialog == null) {
-            signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in)
-        }
-        signInProgressDialog!!.show()
-    }
+  override fun onBackPressed() {
+    if (!dispatchBackPressed()) super.onBackPressed()
+  }
 
-    private fun dismissSignInDialog() {
-        if (signInProgressDialog != null) {
-            signInProgressDialog!!.dismiss()
-            signInProgressDialog = null
-        }
+  private fun dispatchBackPressed(): Boolean {
+    val fragmentManager = navHostFragment.childFragmentManager
+    val currentFragment = fragmentManager.findFragmentById(R.id.nav_host_fragment)
+    return currentFragment is BackPressListener && currentFragment.onBack()
+  }
+
+  private fun onSignInProgress(visible: Boolean) {
+    if (visible) showSignInDialog() else dismissSignInDialog()
+  }
+
+  private fun showSignInDialog() {
+    if (signInProgressDialog == null) {
+      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in)
     }
+    signInProgressDialog!!.show()
+  }
+
+  private fun dismissSignInDialog() {
+    if (signInProgressDialog != null) {
+      signInProgressDialog!!.dismiss()
+      signInProgressDialog = null
+    }
+  }
 }

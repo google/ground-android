@@ -35,68 +35,70 @@ import com.google.common.collect.ImmutableMap
  * the specific value is relevant to the test.
  */
 object FakeData {
-    // TODO: Replace constants with calls to newFoo() methods.
-    @JvmField
-    val TERMS_OF_SERVICE: TermsOfService =
-        TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
+  // TODO: Replace constants with calls to newFoo() methods.
+  @JvmField
+  val TERMS_OF_SERVICE: TermsOfService =
+    TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
-    @JvmField
-    val JOB = Job(name = "Job", id = "JOB")
+  @JvmField val JOB = Job(name = "Job", id = "JOB")
 
-    @JvmField
-    val USER = User("user_id", "user@gmail.com", "User")
+  @JvmField val USER = User("user_id", "user@gmail.com", "User")
 
-    @JvmField
-    val USER_2 = User("user_id_2", "user2@gmail.com", "User2")
+  @JvmField val USER_2 = User("user_id_2", "user2@gmail.com", "User2")
 
-    @JvmField
-    val SURVEY: Survey = Survey(
-        "SURVEY",
-        "Survey title",
-        "Test survey description",
-        ImmutableMap.of(),
-        ImmutableList.of(),
-        ImmutableMap.of(USER.email, "data_collector")
+  @JvmField
+  val SURVEY: Survey =
+    Survey(
+      "SURVEY",
+      "Survey title",
+      "Test survey description",
+      ImmutableMap.of(),
+      ImmutableList.of(),
+      ImmutableMap.of(USER.email, "data_collector")
     )
 
-    @JvmField
-    val POINT_OF_INTEREST = LocationOfInterest(
-        "loi id",
-        SURVEY.id,
-        JOB,
-        null,
-        null,
-        AuditInfo(USER),
-        AuditInfo(USER),
-        Point(Coordinate(0.0, 0.0))
+  @JvmField
+  val POINT_OF_INTEREST =
+    LocationOfInterest(
+      "loi id",
+      SURVEY.id,
+      JOB,
+      null,
+      null,
+      AuditInfo(USER),
+      AuditInfo(USER),
+      Point(Coordinate(0.0, 0.0))
     )
 
-    @JvmField
-    val VERTICES: ImmutableList<Point> = ImmutableList.of(
-        Point(Coordinate(0.0, 0.0)),
-        Point(Coordinate(10.0, 10.0)),
-        Point(Coordinate(20.0, 20.0)),
-        Point(Coordinate(0.0, 0.0)),
+  @JvmField
+  val VERTICES: ImmutableList<Point> =
+    ImmutableList.of(
+      Point(Coordinate(0.0, 0.0)),
+      Point(Coordinate(10.0, 10.0)),
+      Point(Coordinate(20.0, 20.0)),
+      Point(Coordinate(0.0, 0.0)),
     )
 
-    @JvmField
-    val AREA_OF_INTEREST: LocationOfInterest = LocationOfInterest(
-        "loi id",
-        SURVEY.id,
-        JOB,
-        "",
-        "",
-        AuditInfo(USER),
-        AuditInfo(USER),
-        Polygon(LinearRing(VERTICES.map { it.coordinate })),
+  @JvmField
+  val AREA_OF_INTEREST: LocationOfInterest =
+    LocationOfInterest(
+      "loi id",
+      SURVEY.id,
+      JOB,
+      "",
+      "",
+      AuditInfo(USER),
+      AuditInfo(USER),
+      Polygon(LinearRing(VERTICES.map { it.coordinate })),
     )
 
-    @JvmField
-    val POINT = Point(Coordinate(42.0, 18.0))
+  @JvmField val POINT = Point(Coordinate(42.0, 18.0))
 
-    @JvmStatic
-    @JvmOverloads
-    fun newTask(
-        id: String = "", type: Task.Type = Task.Type.TEXT, multipleChoice: MultipleChoice? = null
-    ): Task = Task(id, 0, type, "", false, multipleChoice)
+  @JvmStatic
+  @JvmOverloads
+  fun newTask(
+    id: String = "",
+    type: Task.Type = Task.Type.TEXT,
+    multipleChoice: MultipleChoice? = null
+  ): Task = Task(id, 0, type, "", false, multipleChoice)
 }

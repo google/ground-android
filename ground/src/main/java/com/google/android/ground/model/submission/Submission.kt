@@ -15,9 +15,9 @@
  */
 package com.google.android.ground.model.submission
 
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /**
  * Represents a single instance of data collected about a specific [LocationOfInterest].
@@ -26,12 +26,14 @@ import com.google.android.ground.model.job.Job
  * @property lastModified the user and time audit info pertaining to the last modification of this
  * submission.
  */
-data class Submission @JvmOverloads constructor(
-    val id: String,
-    val surveyId: String,
-    val locationOfInterest: LocationOfInterest,
-    val job: Job,
-    val created: AuditInfo,
-    val lastModified: AuditInfo,
-    val responses: ResponseMap = ResponseMap()
+data class Submission
+@JvmOverloads
+constructor(
+  val id: String,
+  val surveyId: String,
+  val locationOfInterest: LocationOfInterest,
+  val job: Job,
+  val created: AuditInfo,
+  val lastModified: AuditInfo,
+  val responses: ResponseMap = ResponseMap()
 )

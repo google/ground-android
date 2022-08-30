@@ -30,28 +30,27 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TimeTaskViewModelTest : BaseHiltTest() {
-    @Inject
-    lateinit var timeFieldViewModel: TimeTaskViewModel
+  @Inject lateinit var timeFieldViewModel: TimeTaskViewModel
 
-    @Test
-    fun testUpdateResponse() {
-        timeFieldViewModel.updateResponse(TEST_DATE)
+  @Test
+  fun testUpdateResponse() {
+    timeFieldViewModel.updateResponse(TEST_DATE)
 
-        observeUntilFirstChange(timeFieldViewModel.response)
-        assertThat(timeFieldViewModel.response.value).isEqualTo(fromDate(TEST_DATE))
-    }
+    observeUntilFirstChange(timeFieldViewModel.response)
+    assertThat(timeFieldViewModel.response.value).isEqualTo(fromDate(TEST_DATE))
+  }
 
-    @Test
-    fun testDialogClick() {
-        val testObserver = timeFieldViewModel.showDialogClicks.test()
+  @Test
+  fun testDialogClick() {
+    val testObserver = timeFieldViewModel.showDialogClicks.test()
 
-        timeFieldViewModel.onShowDialogClick()
+    timeFieldViewModel.onShowDialogClick()
 
-        testObserver.assertNoErrors().assertNotComplete().assertValue(Nil.NIL)
-    }
+    testObserver.assertNoErrors().assertNotComplete().assertValue(Nil.NIL)
+  }
 
-    companion object {
-        // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-        private val TEST_DATE = Date(1632501600000L)
-    }
+  companion object {
+    // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
+    private val TEST_DATE = Date(1632501600000L)
+  }
 }

@@ -23,11 +23,9 @@ import com.google.common.collect.ImmutableList
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
  */
-class DataCollectionViewPagerAdapter(
-    fragment: Fragment,
-    private val tasks: ImmutableList<Task>
-) : FragmentStateAdapter(fragment) {
-    override fun getItemCount(): Int = tasks.size
+class DataCollectionViewPagerAdapter(fragment: Fragment, private val tasks: ImmutableList<Task>) :
+  FragmentStateAdapter(fragment) {
+  override fun getItemCount(): Int = tasks.size
 
-    override fun createFragment(position: Int): Fragment = DataCollectionTaskFragment()
+  override fun createFragment(position: Int): Fragment = DataCollectionTaskFragment()
 }

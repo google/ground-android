@@ -18,35 +18,34 @@ package com.google.android.ground.persistence.remote.firestore.schema
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
 
-/** User details and timestamp for creation or modification of a model object.  */
+/** User details and timestamp for creation or modification of a model object. */
 data class AuditInfoNestedObject(
-    /**
-     * The user initiating the related action. This should never be missing, but we handle null
-     * values anyway since the Firestore is schema-less.
-     */
-    val user: UserNestedObject? = null,
+  /**
+   * The user initiating the related action. This should never be missing, but we handle null values
+   * anyway since the Firestore is schema-less.
+   */
+  val user: UserNestedObject? = null,
 
-    /**
-     * The time at which the user action was initiated, according to the user's device. See
-     * [System.currentTimestamp] for details. This should never be missing, but we handle null
-     * values anyway since the Firestore is schema-less.
-     */
-    val clientTimestamp: Timestamp? = null,
+  /**
+   * The time at which the user action was initiated, according to the user's device. See
+   * [System.currentTimestamp] for details. This should never be missing, but we handle null values
+   * anyway since the Firestore is schema-less.
+   */
+  val clientTimestamp: Timestamp? = null,
 
-    /**
-     * The time at which the server received the requested change according to the server's internal
-     * clock, or the updated server time was not yet received. See [System.currentTimestamp] for
-     * details. This will be null until the server updates the write time and syncs it back to the
-     * client.
-     */
-    @ServerTimestamp
-    val serverTimestamp: Timestamp? = null
+  /**
+   * The time at which the server received the requested change according to the server's internal
+   * clock, or the updated server time was not yet received. See [System.currentTimestamp] for
+   * details. This will be null until the server updates the write time and syncs it back to the
+   * client.
+   */
+  @ServerTimestamp val serverTimestamp: Timestamp? = null
 ) {
-    companion object {
-        private val EPOCH = Timestamp(0, 0)
+  companion object {
+    private val EPOCH = Timestamp(0, 0)
 
-        /** Value used to degrade gracefully when missing in remote db.  */
-        @JvmField
-        val FALLBACK_VALUE = AuditInfoNestedObject(UserNestedObject.UNKNOWN_USER, EPOCH, EPOCH)
-    }
+    /** Value used to degrade gracefully when missing in remote db. */
+    @JvmField
+    val FALLBACK_VALUE = AuditInfoNestedObject(UserNestedObject.UNKNOWN_USER, EPOCH, EPOCH)
+  }
 }

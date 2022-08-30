@@ -44,107 +44,110 @@ private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
 private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
 
 /**
- * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in
- * memory data stores. For more details on this pattern and overall architecture, see
+ * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in memory
+ * data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
 @Singleton
-class SurveyRepository @Inject constructor(
-    private val localDataStore: LocalDataStore,
-    private val remoteDataStore: RemoteDataStore,
-    private val localValueStore: LocalValueStore
+class SurveyRepository
+@Inject
+constructor(
+  private val localDataStore: LocalDataStore,
+  private val remoteDataStore: RemoteDataStore,
+  private val localValueStore: LocalValueStore
 ) {
 
-    /** Emits a survey id on {@see #activateSurvey} and empty on {@see #clearActiveSurvey}.  */
-    private val selectSurveyEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
+  /** Emits a survey id on {@see #activateSurvey} and empty on {@see #clearActiveSurvey}. */
+  private val selectSurveyEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
 
-    /** Emits the latest loading state of the current survey on subscribe and on change.  */
-    val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
-        BehaviorProcessor.create()
+  /** Emits the latest loading state of the current survey on subscribe and on change. */
+  val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
+    BehaviorProcessor.create()
 
-    var lastActiveSurveyId: String
-        get() = localValueStore.lastActiveSurveyId
-        set(value) {
-            localValueStore.lastActiveSurveyId = value
-        }
-
-    val activeSurvey: @Hot(replays = true) Flowable<Optional<Survey>>
-        get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
-
-    val offlineSurveys: @Cold Single<ImmutableList<Survey>>
-        get() = localDataStore.surveys
-
-    init {
-        // Kicks off the loading process whenever a new survey id is selected.
-        selectSurveyEvent
-            .distinctUntilChanged()
-            .switchMap { selectSurvey(it) }
-            .onBackpressureLatest()
-            .subscribe(surveyLoadingState)
+  var lastActiveSurveyId: String
+    get() = localValueStore.lastActiveSurveyId
+    set(value) {
+      localValueStore.lastActiveSurveyId = value
     }
 
-    private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
-        // Empty id indicates intent to deactivate the current survey or first login.
-        return if (surveyId.isEmpty())
-            Flowable.just(Loadable.notFound())
-        else
-            syncSurveyWithRemote(surveyId)
-                .onErrorResumeNext { getSurvey(surveyId) }
-                .map { attachJobPermissions(it) }
-                .doOnSuccess { lastActiveSurveyId = surveyId }
-                .toFlowable()
-                .compose { Loadable.loadingOnceAndWrap(it) }
+  val activeSurvey: @Hot(replays = true) Flowable<Optional<Survey>>
+    get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
+
+  val offlineSurveys: @Cold Single<ImmutableList<Survey>>
+    get() = localDataStore.surveys
+
+  init {
+    // Kicks off the loading process whenever a new survey id is selected.
+    selectSurveyEvent
+      .distinctUntilChanged()
+      .switchMap { selectSurvey(it) }
+      .onBackpressureLatest()
+      .subscribe(surveyLoadingState)
+  }
+
+  private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
+    // Empty id indicates intent to deactivate the current survey or first login.
+    return if (surveyId.isEmpty()) Flowable.just(Loadable.notFound())
+    else
+      syncSurveyWithRemote(surveyId)
+        .onErrorResumeNext { getSurvey(surveyId) }
+        .map { attachJobPermissions(it) }
+        .doOnSuccess { lastActiveSurveyId = surveyId }
+        .toFlowable()
+        .compose { Loadable.loadingOnceAndWrap(it) }
+  }
+
+  private fun attachJobPermissions(survey: Survey): Survey {
+    // TODO: Use Map once migration of dependencies to Kotlin is complete.
+    val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
+    for (job in survey.jobs) {
+      jobs.put(job.id, job)
     }
+    return survey.copy(jobMap = jobs.build())
+  }
 
-    private fun attachJobPermissions(survey: Survey): Survey {
-        // TODO: Use Map once migration of dependencies to Kotlin is complete.
-        val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
-        for (job in survey.jobs) {
-            jobs.put(job.id, job)
-        }
-        return survey.copy(jobMap = jobs.build())
-    }
+  /** This only works if the survey is already cached to local db. */
+  fun getSurvey(surveyId: String): @Cold Single<Survey> =
+    localDataStore
+      .getSurveyById(surveyId)
+      .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
-    /** This only works if the survey is already cached to local db.  */
-    fun getSurvey(surveyId: String): @Cold Single<Survey> =
-        localDataStore
-            .getSurveyById(surveyId)
-            .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
+  private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
+    remoteDataStore
+      .loadSurvey(id)
+      .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
+      .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
+      .doOnSubscribe { Timber.d("Loading survey $id") }
+      .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-    private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
-        remoteDataStore
-            .loadSurvey(id)
-            .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
-            .doOnSubscribe { Timber.d("Loading survey $id") }
-            .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
+  fun loadLastActiveSurvey() = activateSurvey(lastActiveSurveyId)
 
-    fun loadLastActiveSurvey() = activateSurvey(lastActiveSurveyId)
+  fun activateSurvey(surveyId: String) = selectSurveyEvent.onNext(surveyId)
 
-    fun activateSurvey(surveyId: String) = selectSurveyEvent.onNext(surveyId)
+  fun clearActiveSurvey() = selectSurveyEvent.onNext("")
 
-    fun clearActiveSurvey() = selectSurveyEvent.onNext("")
+  fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
+    loadSurveySummariesFromRemote(user)
+      .doOnSubscribe { Timber.d("Loading survey list from remote") }
+      .doOnError { Timber.d(it, "Failed to load survey list from remote") }
+      .onErrorResumeNext { offlineSurveys }
+      .toFlowable()
+      .compose { Loadable.loadingOnceAndWrap(it) }
 
-    fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
-        loadSurveySummariesFromRemote(user)
-            .doOnSubscribe { Timber.d("Loading survey list from remote") }
-            .doOnError { Timber.d(it, "Failed to load survey list from remote") }
-            .onErrorResumeNext { offlineSurveys }
-            .toFlowable()
-            .compose { Loadable.loadingOnceAndWrap(it) }
+  private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
+    remoteDataStore
+      .loadSurveySummaries(user)
+      .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
 
-    private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
-        remoteDataStore
-            .loadSurveySummaries(user)
-            .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+  fun getMutationsOnceAndStream(
+    survey: Survey
+  ): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
+    return localDataStore.getMutationsOnceAndStream(survey)
+  }
 
-    fun getMutationsOnceAndStream(survey: Survey): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
-        return localDataStore.getMutationsOnceAndStream(survey)
-    }
+  fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
+    localValueStore.setLastCameraPosition(surveyId, cameraPosition)
 
-    fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
-        localValueStore.setLastCameraPosition(surveyId, cameraPosition)
-
-    fun getLastCameraPosition(surveyId: String): Optional<CameraPosition> =
-        localValueStore.getLastCameraPosition(surveyId)
+  fun getLastCameraPosition(surveyId: String): Optional<CameraPosition> =
+    localValueStore.getLastCameraPosition(surveyId)
 }
