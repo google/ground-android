@@ -204,8 +204,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     } // Fail with NoSuchElementException if not found.
         .toSingle().map { UserEntity.toUser(it) }.subscribeOn(schedulers.io())
 
-    override fun getSurveys(): Single<ImmutableList<Survey>> =
-        surveyDao.allSurveys.map { list: List<SurveyEntityAndRelations> ->
+    override val surveys: Single<ImmutableList<Survey>>
+        get() = surveyDao.allSurveys.map { list: List<SurveyEntityAndRelations> ->
             list.map { SurveyEntity.toSurvey(it) }.toImmutableList()
         }.subscribeOn(schedulers.io())
 
@@ -234,10 +234,10 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         survey: Survey
     ): Flowable<ImmutableSet<LocationOfInterest>> =
         locationOfInterestDao.findOnceAndStream(survey.id, EntityState.DEFAULT).map {
-                toLocationsOfInterest(
-                    survey, it
-                )
-            }.subscribeOn(schedulers.io())
+            toLocationsOfInterest(
+                survey, it
+            )
+        }.subscribeOn(schedulers.io())
 
     private fun toLocationsOfInterest(
         survey: Survey, locationOfInterestEntities: List<LocationOfInterestEntity>
@@ -281,8 +281,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         }
     }.toImmutableList()
 
-    override fun getTileSetsOnceAndStream(): Flowable<ImmutableSet<TileSet>> =
-        tileSetDao.findAllOnceAndStream().map { list: List<TileSetEntity> ->
+    override val tileSetsOnceAndStream: Flowable<ImmutableSet<TileSet>>
+        get() = tileSetDao.findAllOnceAndStream().map { list: List<TileSetEntity> ->
             list.map { TileSetEntity.toTileSet(it) }.toImmutableSet()
         }.subscribeOn(schedulers.io())
 
@@ -603,8 +603,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
             schedulers.io()
         )
 
-    override fun getPendingTileSets(): Single<ImmutableList<TileSet>> =
-        tileSetDao.findByState(TileSetEntityState.PENDING.intValue())
+    override val pendingTileSets: Single<ImmutableList<TileSet>>
+        get() = tileSetDao.findByState(TileSetEntityState.PENDING.intValue())
             .map { list: List<TileSetEntity> ->
                 list.map { TileSetEntity.toTileSet(it) }.toImmutableList()
             }.subscribeOn(schedulers.io())
@@ -612,8 +612,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     override fun insertOrUpdateOfflineArea(area: OfflineArea): Completable =
         offlineAreaDao.insertOrUpdate(OfflineAreaEntity.fromArea(area)).subscribeOn(schedulers.io())
 
-    override fun getOfflineAreasOnceAndStream(): Flowable<ImmutableList<OfflineArea>> =
-        offlineAreaDao.findAllOnceAndStream().map { areas: List<OfflineAreaEntity> ->
+    override val offlineAreasOnceAndStream: Flowable<ImmutableList<OfflineArea>>
+        get() = offlineAreaDao.findAllOnceAndStream().map { areas: List<OfflineAreaEntity> ->
             areas.map {
                 OfflineAreaEntity.toArea(it)
             }.toImmutableList()

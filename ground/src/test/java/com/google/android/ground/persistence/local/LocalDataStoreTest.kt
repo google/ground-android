@@ -185,7 +185,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         localDataStore.finalizePendingMutations(ImmutableList.of(TEST_LOI_MUTATION)).test()
             .assertComplete()
         localDataStore.getPendingMutations("loi id").test()
-            .assertValue { obj: ImmutableList<Mutation?> -> obj.isEmpty() }
+            .assertEmpty()
     }
 
     @Test

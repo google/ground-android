@@ -52,7 +52,7 @@ import io.reactivex.Single
  */
 interface LocalDataStore {
     /** Load surveys stored in local database.  */
-    fun getSurveys(): @Cold Single<ImmutableList<Survey>>
+    val surveys: @Cold Single<ImmutableList<Survey>>
 
     /** Load last active survey, if any.  */
     fun getSurveyById(id: String): @Cold Maybe<Survey>
@@ -116,7 +116,7 @@ interface LocalDataStore {
      * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
      * return the full set each time a tile is added/changed/removed.
      */
-    fun getTileSetsOnceAndStream(): @Cold(terminates = false) Flowable<ImmutableSet<TileSet>>
+    val tileSetsOnceAndStream: @Cold(terminates = false) Flowable<ImmutableSet<TileSet>>
 
     /**
      * Returns a long-lived stream that emits the full list of mutations for specified survey on
@@ -169,7 +169,7 @@ interface LocalDataStore {
     fun getTileSet(tileUrl: String): @Cold Maybe<TileSet>
 
     /** Returns all pending tiles from the local data store.  */
-    fun getPendingTileSets(): @Cold Single<ImmutableList<TileSet>>
+    val pendingTileSets: @Cold Single<ImmutableList<TileSet>>
 
     /**
      * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
@@ -178,7 +178,7 @@ interface LocalDataStore {
     fun insertOrUpdateOfflineArea(area: OfflineArea): @Cold Completable
 
     /** Returns all queued, failed, and completed offline areas from the local data store.  */
-    fun getOfflineAreasOnceAndStream(): @Cold(terminates = false) Flowable<ImmutableList<OfflineArea>>
+    val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<ImmutableList<OfflineArea>>
 
     /** Delete an offline area and any associated tiles that are no longer needed.  */
     fun deleteOfflineArea(offlineAreaId: String): @Cold Completable

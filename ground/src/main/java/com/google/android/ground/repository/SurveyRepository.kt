@@ -72,7 +72,7 @@ class SurveyRepository @Inject constructor(
         get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
 
     val offlineSurveys: @Cold Single<ImmutableList<Survey>>
-        get() = localDataStore.getSurveys()
+        get() = localDataStore.surveys
 
     init {
         // Kicks off the loading process whenever a new survey id is selected.
