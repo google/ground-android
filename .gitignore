@@ -49,6 +49,7 @@ captures/
 !/.idea/codeStyles/
 !/.editorconfig
 !/.idea/externalDependencies.xml
+!/.idea/ktfmt.xml
 
 # Ctags
 **/tags
