@@ -13,38 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest
 
-package com.sharedtest;
-
-import androidx.test.espresso.IdlingRegistry;
-import com.google.android.ground.rx.Schedulers;
-import com.squareup.rx2.idler.IdlingResourceScheduler;
-import com.squareup.rx2.idler.Rx2Idler;
-import io.reactivex.Scheduler;
-import javax.inject.Inject;
+import androidx.test.espresso.IdlingRegistry
+import com.google.android.ground.rx.Schedulers
+import com.squareup.rx2.idler.Rx2Idler
+import io.reactivex.Scheduler
+import javax.inject.Inject
 
 /**
  * Runs all tasks synchronously by executing the tasks on the current thread without any queueing
  * and blocking the call until finished.
  */
-public class TestScheduler implements Schedulers {
+class TestScheduler @Inject constructor() : Schedulers {
 
-  @Inject
-  TestScheduler() {}
+  private fun scheduler() = io.reactivex.schedulers.Schedulers.trampoline()
 
-  @Override
-  public Scheduler io() {
-    Scheduler scheduler = io.reactivex.schedulers.Schedulers.trampoline();
-    IdlingResourceScheduler wrapped = Rx2Idler.wrap(scheduler, "Test I/O Scheduler");
-    IdlingRegistry.getInstance().register(wrapped);
-    return wrapped;
+  override fun io(): Scheduler {
+    val wrapped = Rx2Idler.wrap(scheduler(), "Test I/O Scheduler")
+    IdlingRegistry.getInstance().register(wrapped)
+    return wrapped
   }
 
-  @Override
-  public Scheduler ui() {
-    Scheduler scheduler = io.reactivex.schedulers.Schedulers.trampoline();
-    IdlingResourceScheduler wrapped = Rx2Idler.wrap(scheduler, "Test UI Scheduler");
-    IdlingRegistry.getInstance().register(wrapped);
-    return wrapped;
+  override fun ui(): Scheduler {
+    val wrapped = Rx2Idler.wrap(scheduler(), "Test UI Scheduler")
+    IdlingRegistry.getInstance().register(wrapped)
+    return wrapped
   }
 }
