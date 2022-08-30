@@ -24,6 +24,7 @@ import com.google.android.ground.R
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.safeEq
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
@@ -89,7 +90,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
     val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
     // TODO: Replace mocks with inserting the survey in local db
-    Mockito.`when`(mockLocalDataStore.getSurveyById(eq(TEST_SURVEY_2.id)))
+    Mockito.`when`(mockLocalDataStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
       .thenReturn(Maybe.just(TEST_SURVEY_2))
     shadowOf(listView).performItemClick(1)
     shadowOf(Looper.getMainLooper()).idle()
