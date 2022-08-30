@@ -4,7 +4,6 @@ about: Create a bug report to help us improve
 title: ''
 labels: 'type: bug'
 assignees: ''
-project: google/19
 
 ---
 
