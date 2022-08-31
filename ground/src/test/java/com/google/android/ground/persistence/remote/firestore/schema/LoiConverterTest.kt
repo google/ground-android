@@ -23,6 +23,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.schema.LoiConverter.toLoi
 import com.google.common.collect.ImmutableMap
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.sharedtest.FakeData.newTask
@@ -74,7 +75,7 @@ class LoiConverterTest {
   }
 
   @Test
-  fun testToLoi_whenZeroVertices_throwsDataStoreException() {
+  fun testToLoi_whenZeroVertices_returnsFailure() {
     setUpTestGeometry()
     setUpTestSurvey(
       "job001",
@@ -100,7 +101,7 @@ class LoiConverterTest {
         AUDIT_INFO_2_NESTED_OBJECT
       )
     )
-    Assert.assertThrows(DataStoreException::class.java) { toLocationOfInterest() }
+    assertThat(toLocationOfInterest().isFailure).isTrue()
   }
 
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
@@ -121,7 +122,7 @@ class LoiConverterTest {
     Mockito.`when`(loiDocumentSnapshot.toObject(LoiDocument::class.java)).thenReturn(doc)
   }
 
-  private fun toLocationOfInterest(): LocationOfInterest {
+  private fun toLocationOfInterest(): Result<LocationOfInterest> {
     return toLoi(survey, loiDocumentSnapshot)
   }
 
