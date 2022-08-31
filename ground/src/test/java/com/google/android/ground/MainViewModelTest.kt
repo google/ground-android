@@ -65,7 +65,7 @@ class MainViewModelTest : BaseHiltTest() {
     super.setUp()
 
     // Subscribe to navigation requests
-    navDirectionsTestObserver = navigator.navigateRequests.test()
+    navDirectionsTestObserver = navigator.getNavigateRequests().test()
   }
 
   private fun setupUserPreferences() {

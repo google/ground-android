@@ -37,7 +37,7 @@ class TermsOfServiceViewModelTest : BaseHiltTest() {
 
   @Test
   fun testOnButtonClicked() {
-    val testObserver = navigator.navigateRequests.test()
+    val testObserver = navigator.getNavigateRequests().test()
 
     viewModel.onButtonClicked()
 
