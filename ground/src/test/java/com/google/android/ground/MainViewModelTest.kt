@@ -16,6 +16,7 @@
 package com.google.android.ground
 
 import android.content.SharedPreferences
+import android.os.Looper
 import androidx.navigation.NavDirections
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -32,10 +33,12 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.observers.TestObserver
 import java8.util.Optional
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowToast
 import javax.inject.Inject
 
@@ -97,6 +100,7 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedOut() {
     setupUserPreferences()
     fakeAuthenticationManager.signOut()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
@@ -108,6 +112,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSigningIn() {
     fakeAuthenticationManager.setState(signingIn())
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(true)
     verifyNavigationRequested()
@@ -121,6 +126,7 @@ class MainViewModelTest : BaseHiltTest() {
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
     fakeAuthenticationManager.setUser(FakeData.USER)
     fakeAuthenticationManager.signIn()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
@@ -134,6 +140,7 @@ class MainViewModelTest : BaseHiltTest() {
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
     fakeAuthenticationManager.setUser(FakeData.USER)
     fakeAuthenticationManager.signIn()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(
       (SignInFragmentDirections.showTermsOfService()
@@ -149,6 +156,7 @@ class MainViewModelTest : BaseHiltTest() {
     fakeRemoteDataStore.setTermsOfService(Optional.empty())
     fakeAuthenticationManager.setUser(FakeData.USER)
     fakeAuthenticationManager.signIn()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
@@ -161,6 +169,7 @@ class MainViewModelTest : BaseHiltTest() {
     setupUserPreferences()
 
     fakeAuthenticationManager.setState(error(Exception()))
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful")
     verifyProgressDialogVisible(false)
