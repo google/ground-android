@@ -18,3 +18,5 @@ continuation_indent_size = 4
 [*.yaml]
 indent_size=2
 
+[*.kt]
+indent_size=2
