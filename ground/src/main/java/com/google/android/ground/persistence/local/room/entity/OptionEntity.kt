@@ -13,83 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.entity
 
-package com.google.android.ground.persistence.local.room.entity;
-
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
-import com.google.android.ground.model.task.Option;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import com.google.android.ground.model.task.Option
+import com.google.auto.value.AutoValue
 
 @AutoValue
 @Entity(
-    tableName = "option",
-    foreignKeys =
-        @ForeignKey(
-            entity = TaskEntity.class,
-            parentColumns = "id",
-            childColumns = "task_id",
-            onDelete = ForeignKey.CASCADE),
-    indices = {@Index("task_id")},
-    primaryKeys = {"id"})
-public abstract class OptionEntity {
+  tableName = "option",
+  foreignKeys =
+    [
+      ForeignKey(
+        entity = TaskEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["task_id"],
+        onDelete = ForeignKey.CASCADE
+      )
+    ],
+  indices = [Index("task_id")],
+  primaryKeys = ["id"]
+)
+data class OptionEntity(
+  @ColumnInfo(name = "id") val id: String,
+  @ColumnInfo(name = "code") val code: String,
+  @ColumnInfo(name = "label") val label: String,
+  @ColumnInfo(name = "task_id") val taskId: String
+) {
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "id")
-  public abstract String getId();
+  companion object {
+    fun fromOption(taskId: String, option: Option): OptionEntity =
+      OptionEntity(id = option.id, code = option.code, label = option.label, taskId = taskId)
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "code")
-  public abstract String getCode();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "label")
-  public abstract String getLabel();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "task_id")
-  public abstract String getTaskId();
-
-  public static OptionEntity fromOption(String taskId, Option option) {
-    return OptionEntity.builder()
-        .setId(option.getId())
-        .setTaskId(taskId)
-        .setCode(option.getCode())
-        .setLabel(option.getLabel())
-        .build();
-  }
-
-  public static Option toOption(OptionEntity optionEntity) {
-    return new Option(optionEntity.getId(), optionEntity.getCode(), optionEntity.getLabel());
-  }
-
-  public static OptionEntity create(String id, String code, String label, String taskId) {
-    return builder().setId(id).setCode(code).setLabel(label).setTaskId(taskId).build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_OptionEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(@NonNull String id);
-
-    public abstract Builder setCode(String code);
-
-    public abstract Builder setLabel(String label);
-
-    public abstract Builder setTaskId(String taskId);
-
-    public abstract OptionEntity build();
+    @JvmStatic
+    fun toOption(optionEntity: OptionEntity): Option =
+      Option(optionEntity.id, optionEntity.code, optionEntity.label)
   }
 }
