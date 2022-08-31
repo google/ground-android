@@ -19,9 +19,10 @@ package com.google.android.ground.persistence.remote.firestore
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
+import timber.log.Timber
 
 /** Alias for maps whose keys represent an index in an ordered data structure like a [List]. */
-typealias IndexedMap<T> = Map<Int, T>
+typealias IndexedMap<T> = Map<String, T>
 
 /**
  * Converts between Geometry model objects and their equivalent remote representation using a
@@ -76,11 +77,14 @@ object GeometryConverter {
     GeoPoint(coordinate.x, coordinate.y)
 
   private fun <T> listToIndexedMap(list: List<T>): IndexedMap<T> =
-    list.mapIndexed { index, value -> index to value }.toMap()
+    list.mapIndexed { index, value -> index.toString() to value }.toMap()
 
   /** Converts a `Map` deserialized from Firestore into a `Geometry` instance. */
   fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> =
-    Result.runCatching { fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY)) }
+    Result.runCatching {
+        Timber.e(map.toString())
+        fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY))
+    }
 
   /**
    * If data is missing or of an unexpected type, this method may fail with [ClassCastException] or
@@ -122,8 +126,8 @@ object GeometryConverter {
    * [IllegalArgumentException] if keys aren't consecutive Ints starting from 0
    */
   private fun <T> indexedMapToList(map: IndexedMap<T>): List<T> {
-    val sortedEntries = map.entries.sortedBy { it.key }
-    if (sortedEntries.withIndex().any { it.index != it.value.key }) {
+    val sortedEntries = map.entries.sortedBy { it.key.toInt() }
+    if (sortedEntries.withIndex().any { it.index != it.value.key.toInt() }) {
       throw IllegalArgumentException("Invalid map $map")
     }
     return sortedEntries.map { it.value }
