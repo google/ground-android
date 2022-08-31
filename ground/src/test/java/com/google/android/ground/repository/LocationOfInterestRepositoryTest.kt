@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.capture
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -43,6 +44,7 @@ import io.reactivex.Single
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.*
+import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
 import java.util.*
 import javax.inject.Inject
@@ -69,7 +71,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   private fun mockApplyAndEnqueue() {
     Mockito.doReturn(Completable.complete())
       .`when`(mockLocalDataStore)
-      .applyAndEnqueue(captorLoiMutation.capture())
+      .applyAndEnqueue(capture(captorLoiMutation))
   }
 
   private fun mockEnqueueSyncWorker() {
@@ -93,7 +95,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     assertThat(syncStatus).isEqualTo(SyncStatus.PENDING)
     assertThat(locationOfInterestId).isEqualTo(FakeData.POINT_OF_INTEREST.id)
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
   }
@@ -103,7 +105,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     mockEnqueueSyncWorker()
     Mockito.doReturn(Completable.error(NullPointerException()))
       .`when`(mockLocalDataStore)
-      .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     locationOfInterestRepository
       .applyAndEnqueue(
         FakeData.POINT_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
@@ -112,7 +114,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertError(NullPointerException::class.java)
       .assertNotComplete()
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
   }
@@ -129,8 +131,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .test()
       .assertError(NullPointerException::class.java)
       .assertNotComplete()
+
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .applyAndEnqueue(ArgumentMatchers.any(LocationOfInterestMutation::class.java))
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
   }

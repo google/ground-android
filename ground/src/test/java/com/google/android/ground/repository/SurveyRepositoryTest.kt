@@ -28,6 +28,7 @@ import java8.util.Optional
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
@@ -50,7 +51,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   private fun setTestSurvey(survey: Survey) {
-    Mockito.`when`(mockLocalDataStore.getSurveyById(ArgumentMatchers.any()))
+    Mockito.`when`(mockLocalDataStore.getSurveyById(anyString()))
       .thenReturn(Maybe.just(survey))
   }
 }

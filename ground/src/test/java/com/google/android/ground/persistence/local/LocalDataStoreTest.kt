@@ -83,7 +83,7 @@ class LocalDataStoreTest : BaseHiltTest() {
   fun testDeleteSurvey() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
-    localDataStore.surveys.test().assertValue { obj: ImmutableList<Survey?> -> obj.isEmpty() }
+    localDataStore.surveys.test().assertValue { obj: ImmutableList<Survey> -> obj.isEmpty() }
   }
 
   @Test
@@ -197,10 +197,7 @@ class LocalDataStoreTest : BaseHiltTest() {
       .finalizePendingMutations(ImmutableList.of(TEST_LOI_MUTATION))
       .test()
       .assertComplete()
-    localDataStore.getPendingMutations("loi id").test().assertValue { obj: ImmutableList<Mutation?>
-      ->
-      obj.isEmpty()
-    }
+    localDataStore.getPendingMutations("loi id").test().assertValue { obj: ImmutableList<Mutation> -> obj.isEmpty() }
   }
 
   @Test
