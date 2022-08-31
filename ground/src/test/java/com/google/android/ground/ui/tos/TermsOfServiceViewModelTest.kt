@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.tos
 
+import android.os.Looper
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.ui.common.Navigator
@@ -24,6 +25,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import javax.inject.Inject
 
 @HiltAndroidTest
@@ -37,9 +39,10 @@ class TermsOfServiceViewModelTest : BaseHiltTest() {
 
   @Test
   fun testOnButtonClicked() {
-    val testObserver = navigator.navigateRequests.test()
+    val testObserver = navigator.getNavigateRequests().test()
 
     viewModel.onButtonClicked()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
     testObserver

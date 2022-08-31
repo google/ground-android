@@ -69,12 +69,12 @@ class MainActivity : AbstractActivity() {
       callback.accept(this)
     }
 
-    navigator.navigateRequests.`as`(autoDisposable(this)).subscribe { navDirections: NavDirections
+    navigator.getNavigateRequests().`as`(autoDisposable(this)).subscribe { navDirections: NavDirections
       ->
       onNavigate(navDirections)
     }
 
-    navigator.navigateUpRequests.`as`(autoDisposable(this)).subscribe { navigateUp() }
+    navigator.getNavigateUpRequests().`as`(autoDisposable(this)).subscribe { navigateUp() }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
