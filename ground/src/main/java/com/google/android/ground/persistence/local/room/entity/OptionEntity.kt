@@ -20,9 +20,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import com.google.android.ground.model.task.Option
-import com.google.auto.value.AutoValue
 
-@AutoValue
 @Entity(
   tableName = "option",
   foreignKeys =

@@ -20,10 +20,8 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.models.TaskEntityType
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
-import com.google.auto.value.AutoValue
 import timber.log.Timber
 
-@AutoValue
 @Entity(
   tableName = "task",
   foreignKeys =
