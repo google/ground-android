@@ -36,11 +36,11 @@ private constructor(val eventType: EventType, val result: Result<Pair<String, T?
 
   companion object {
     @JvmStatic
-    fun <T> loaded(entityId: String, entity: T): RemoteDataEvent<T> =
+    fun <T> loaded(entityId: String, entity: T): RemoteDataEvent<T?> =
       RemoteDataEvent(EventType.ENTITY_LOADED, success(Pair(entityId, entity)))
 
     @JvmStatic
-    fun <T> modified(entityId: String, entity: T): RemoteDataEvent<T> =
+    fun <T> modified(entityId: String, entity: T): RemoteDataEvent<T?> =
       RemoteDataEvent(EventType.ENTITY_MODIFIED, success(Pair(entityId, entity)))
 
     @JvmStatic
