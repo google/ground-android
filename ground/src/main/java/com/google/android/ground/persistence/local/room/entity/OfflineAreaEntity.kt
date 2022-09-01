@@ -13,150 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.entity
 
-package com.google.android.ground.persistence.local.room.entity;
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.persistence.local.room.models.OfflineAreaEntityState
 
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.ground.model.basemap.OfflineArea;
-import com.google.android.ground.persistence.local.room.models.OfflineAreaEntityState;
-import com.google.auto.value.AutoValue;
-
-/** Represents a {@link OfflineArea} in the local data store. */
-@AutoValue
+/** Represents a [OfflineArea] in the local data store. */
 @Entity(tableName = "offline_base_map")
-public abstract class OfflineAreaEntity {
-  @AutoValue.CopyAnnotations
-  @NonNull
-  @PrimaryKey
-  @ColumnInfo(name = "id")
-  public abstract String getId();
+data class OfflineAreaEntity(
+  @ColumnInfo(name = "id") @PrimaryKey val id: String,
+  @ColumnInfo(name = "name") val name: String,
+  @ColumnInfo(name = "state") val state: OfflineAreaEntityState,
+  @ColumnInfo(name = "north") val north: Double,
+  @ColumnInfo(name = "south") val south: Double,
+  @ColumnInfo(name = "east") val east: Double,
+  @ColumnInfo(name = "west") val west: Double
+) {
 
-  @AutoValue.CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "name")
-  public abstract String getName();
-
-  @AutoValue.CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract OfflineAreaEntityState getState();
-
-  @AutoValue.CopyAnnotations
-  @ColumnInfo(name = "north")
-  public abstract double getNorth();
-
-  @AutoValue.CopyAnnotations
-  @ColumnInfo(name = "south")
-  public abstract double getSouth();
-
-  @AutoValue.CopyAnnotations
-  @ColumnInfo(name = "east")
-  public abstract double getEast();
-
-  @AutoValue.CopyAnnotations
-  @ColumnInfo(name = "west")
-  public abstract double getWest();
-
-  public static OfflineArea toArea(OfflineAreaEntity offlineAreaEntity) {
-    LatLng northEast = new LatLng(offlineAreaEntity.getNorth(), offlineAreaEntity.getEast());
-    LatLng southWest = new LatLng(offlineAreaEntity.getSouth(), offlineAreaEntity.getWest());
-    LatLngBounds bounds = new LatLngBounds(southWest, northEast);
-
-    return new OfflineArea(
-        offlineAreaEntity.getId(),
-        toAreaState(offlineAreaEntity.getState()),
+  companion object {
+    fun toArea(offlineAreaEntity: OfflineAreaEntity): OfflineArea {
+      val northEast = LatLng(offlineAreaEntity.north, offlineAreaEntity.east)
+      val southWest = LatLng(offlineAreaEntity.south, offlineAreaEntity.west)
+      val bounds = LatLngBounds(southWest, northEast)
+      return OfflineArea(
+        offlineAreaEntity.id,
+        toAreaState(offlineAreaEntity.state),
         bounds,
-        offlineAreaEntity.getName());
-  }
-
-  private static OfflineArea.State toAreaState(OfflineAreaEntityState state) {
-    switch (state) {
-      case PENDING:
-        return OfflineArea.State.PENDING;
-      case IN_PROGRESS:
-        return OfflineArea.State.IN_PROGRESS;
-      case DOWNLOADED:
-        return OfflineArea.State.DOWNLOADED;
-      case FAILED:
-        return OfflineArea.State.FAILED;
-      default:
-        throw new IllegalArgumentException("Unknown area state: " + state);
+        offlineAreaEntity.name
+      )
     }
-  }
 
-  public static OfflineAreaEntity fromArea(OfflineArea offlineArea) {
-    OfflineAreaEntity.Builder entity =
-        OfflineAreaEntity.builder()
-            .setId(offlineArea.getId())
-            .setState(toEntityState(offlineArea.getState()))
-            .setName(offlineArea.getName())
-            .setNorth(offlineArea.getBounds().northeast.latitude)
-            .setEast(offlineArea.getBounds().northeast.longitude)
-            .setSouth(offlineArea.getBounds().southwest.latitude)
-            .setWest(offlineArea.getBounds().southwest.longitude);
-    return entity.build();
-  }
+    private fun toAreaState(state: OfflineAreaEntityState): OfflineArea.State =
+      when (state) {
+        OfflineAreaEntityState.PENDING -> OfflineArea.State.PENDING
+        OfflineAreaEntityState.IN_PROGRESS -> OfflineArea.State.IN_PROGRESS
+        OfflineAreaEntityState.DOWNLOADED -> OfflineArea.State.DOWNLOADED
+        OfflineAreaEntityState.FAILED -> OfflineArea.State.FAILED
+        else -> throw IllegalArgumentException("Unknown area state: $state")
+      }
 
-  private static OfflineAreaEntityState toEntityState(OfflineArea.State state) {
-    switch (state) {
-      case PENDING:
-        return OfflineAreaEntityState.PENDING;
-      case IN_PROGRESS:
-        return OfflineAreaEntityState.IN_PROGRESS;
-      case FAILED:
-        return OfflineAreaEntityState.FAILED;
-      case DOWNLOADED:
-        return OfflineAreaEntityState.DOWNLOADED;
-      default:
-        return OfflineAreaEntityState.UNKNOWN;
-    }
-  }
+    fun fromArea(offlineArea: OfflineArea): OfflineAreaEntity =
+      OfflineAreaEntity(
+        id = offlineArea.id,
+        state = toEntityState(offlineArea.state),
+        name = offlineArea.name,
+        north = offlineArea.bounds.northeast.latitude,
+        east = offlineArea.bounds.northeast.longitude,
+        south = offlineArea.bounds.southwest.latitude,
+        west = offlineArea.bounds.southwest.longitude
+      )
 
-  public static OfflineAreaEntity create(
-      String id,
-      String name,
-      OfflineAreaEntityState state,
-      double north,
-      double east,
-      double south,
-      double west) {
-    return builder()
-        .setId(id)
-        .setName(name)
-        .setState(state)
-        .setNorth(north)
-        .setEast(east)
-        .setSouth(south)
-        .setWest(west)
-        .build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_OfflineAreaEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(String newId);
-
-    public abstract Builder setName(String newName);
-
-    public abstract Builder setState(OfflineAreaEntityState newState);
-
-    public abstract Builder setNorth(double coordinate);
-
-    public abstract Builder setSouth(double coordinate);
-
-    public abstract Builder setEast(double coordinate);
-
-    public abstract Builder setWest(double coordinate);
-
-    public abstract OfflineAreaEntity build();
+    private fun toEntityState(state: OfflineArea.State): OfflineAreaEntityState =
+      when (state) {
+        OfflineArea.State.PENDING -> OfflineAreaEntityState.PENDING
+        OfflineArea.State.IN_PROGRESS -> OfflineAreaEntityState.IN_PROGRESS
+        OfflineArea.State.FAILED -> OfflineAreaEntityState.FAILED
+        OfflineArea.State.DOWNLOADED -> OfflineAreaEntityState.DOWNLOADED
+      }
   }
 }
