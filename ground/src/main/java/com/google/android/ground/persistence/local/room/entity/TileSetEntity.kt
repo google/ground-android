@@ -13,124 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.entity
 
-package com.google.android.ground.persistence.local.room.entity;
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.persistence.local.room.models.TileSetEntityState
 
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-import com.google.android.ground.model.basemap.tile.TileSet;
-import com.google.android.ground.persistence.local.room.models.TileSetEntityState;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
-
-@AutoValue
 @Entity(tableName = "tile_sources")
-public abstract class TileSetEntity {
-  @CopyAnnotations
-  @NonNull
-  @PrimaryKey
-  @ColumnInfo(name = "id")
-  public abstract String getId();
+data class TileSetEntity(
+  @ColumnInfo(name = "id") @PrimaryKey val id: String,
+  @ColumnInfo(name = "path") val path: String,
+  @ColumnInfo(name = "url") val url: String,
+  @ColumnInfo(name = "state") val state: TileSetEntityState,
+  @ColumnInfo(name = "basemap_count") val offlineAreaReferenceCount: Int
+) {
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "path")
-  public abstract String getPath();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "url")
-  public abstract String getUrl();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract TileSetEntityState getState();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "basemap_count")
-  public abstract int getOfflineAreaReferenceCount();
-
-  public static TileSet toTileSet(TileSetEntity tileSetEntity) {
-    return new TileSet(
-        tileSetEntity.getUrl(),
-        tileSetEntity.getId(),
-        tileSetEntity.getPath(),
-        toTileState(tileSetEntity.getState()),
-        tileSetEntity.getOfflineAreaReferenceCount());
-  }
-
-  private static TileSet.State toTileState(TileSetEntityState state) {
-    switch (state) {
-      case PENDING:
-        return TileSet.State.PENDING;
-      case IN_PROGRESS:
-        return TileSet.State.IN_PROGRESS;
-      case DOWNLOADED:
-        return TileSet.State.DOWNLOADED;
-      case FAILED:
-        return TileSet.State.FAILED;
-      default:
-        throw new IllegalArgumentException("Unknown tile source state: " + state);
+  companion object {
+    fun toTileSet(tileSetEntity: TileSetEntity): TileSet {
+      return TileSet(
+        tileSetEntity.url,
+        tileSetEntity.id,
+        tileSetEntity.path,
+        toTileState(tileSetEntity.state),
+        tileSetEntity.offlineAreaReferenceCount
+      )
     }
-  }
 
-  public static TileSetEntity fromTileSet(TileSet tileSet) {
-    TileSetEntity.Builder entity =
-        TileSetEntity.builder()
-            .setId(tileSet.getId())
-            .setPath(tileSet.getPath())
-            .setState(toEntityState(tileSet.getState()))
-            .setUrl(tileSet.getUrl())
-            .setOfflineAreaReferenceCount(tileSet.getOfflineAreaReferenceCount());
-    return entity.build();
-  }
-
-  private static TileSetEntityState toEntityState(TileSet.State state) {
-    switch (state) {
-      case PENDING:
-        return TileSetEntityState.PENDING;
-      case IN_PROGRESS:
-        return TileSetEntityState.IN_PROGRESS;
-      case FAILED:
-        return TileSetEntityState.FAILED;
-      case DOWNLOADED:
-        return TileSetEntityState.DOWNLOADED;
-      default:
-        return TileSetEntityState.UNKNOWN;
+    private fun toTileState(state: TileSetEntityState): TileSet.State {
+      return when (state) {
+        TileSetEntityState.PENDING -> TileSet.State.PENDING
+        TileSetEntityState.IN_PROGRESS -> TileSet.State.IN_PROGRESS
+        TileSetEntityState.DOWNLOADED -> TileSet.State.DOWNLOADED
+        TileSetEntityState.FAILED -> TileSet.State.FAILED
+        else -> throw IllegalArgumentException("Unknown tile source state: $state")
+      }
     }
-  }
 
-  public static TileSetEntity create(
-      String id, String path, TileSetEntityState state, String url, int offlineAreaReferenceCount) {
-    return builder()
-        .setId(id)
-        .setState(state)
-        .setPath(path)
-        .setUrl(url)
-        .setOfflineAreaReferenceCount(offlineAreaReferenceCount)
-        .build();
-  }
+    fun fromTileSet(tileSet: TileSet): TileSetEntity =
+      TileSetEntity(
+        id = tileSet.id,
+        path = tileSet.path,
+        state = toEntityState(tileSet.state),
+        url = tileSet.url,
+        offlineAreaReferenceCount = tileSet.offlineAreaReferenceCount
+      )
 
-  public static Builder builder() {
-    return new AutoValue_TileSetEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-    public abstract Builder setUrl(String url);
-
-    public abstract Builder setId(String newId);
-
-    public abstract Builder setPath(String newPath);
-
-    public abstract Builder setState(TileSetEntityState newState);
-
-    public abstract Builder setOfflineAreaReferenceCount(int offlineAreaReferenceCount);
-
-    public abstract TileSetEntity build();
+    private fun toEntityState(state: TileSet.State): TileSetEntityState {
+      return when (state) {
+        TileSet.State.PENDING -> TileSetEntityState.PENDING
+        TileSet.State.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
+        TileSet.State.FAILED -> TileSetEntityState.FAILED
+        TileSet.State.DOWNLOADED -> TileSetEntityState.DOWNLOADED
+      }
+    }
   }
 }
