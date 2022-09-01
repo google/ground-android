@@ -26,7 +26,6 @@ import com.google.android.ground.util.toImmutableList
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
-import java.lang.IllegalStateException
 import java8.util.function.Function
 import timber.log.Timber
 
@@ -49,28 +48,22 @@ internal object QuerySnapshotConverter {
     dc: DocumentChange,
     converter: Function<DocumentSnapshot, Result<T>>
   ): RemoteDataEvent<T?> {
-    Timber.v("${dc.document.reference.path}  ${dc.type}")
-    val id = dc.document.id
-    return when (dc.type) {
-      DocumentChange.Type.ADDED,
-      DocumentChange.Type.MODIFIED -> addedModifiedToEvent(dc, converter)
-      DocumentChange.Type.REMOVED -> removed<T>(id)
-      else -> error(DataStoreException("Unknown DocumentChange type: ${dc.type}"))
+    try {
+      Timber.v("${dc.document.reference.path}  ${dc.type}")
+      val id = dc.document.id
+      return when (dc.type) {
+        DocumentChange.Type.ADDED ->
+          loaded(id, converter.apply(dc.document).getOrThrow())
+        DocumentChange.Type.MODIFIED ->
+          modified(id, converter.apply(dc.document).getOrThrow())
+        DocumentChange.Type.REMOVED ->
+          removed<T>(id)
+        else ->
+          throw DataStoreException("Unknown DocumentChange type: ${dc.type}")
+      }
+    } catch (t: Throwable) {
+      return error(t)
     }
-  }
 
-  private fun <T> addedModifiedToEvent(
-    dc: DocumentChange,
-    converter: Function<DocumentSnapshot, Result<T>>
-  ): RemoteDataEvent<T?> {
-    val id = dc.document.id
-    val result = converter.apply(dc.document)
-    val entity = result.getOrNull() ?: return error(IllegalStateException(result.toString()))
-
-    return if (dc.type == DocumentChange.Type.ADDED) {
-      loaded(id, entity)
-    } else {
-      modified(id, entity)
-    }
   }
 }
