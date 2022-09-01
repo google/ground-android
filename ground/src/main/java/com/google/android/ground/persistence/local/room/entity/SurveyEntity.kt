@@ -13,122 +13,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.entity
 
-package com.google.android.ground.persistence.local.room.entity;
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.persistence.local.room.entity.BaseMapEntity.Companion.toModel
+import com.google.android.ground.persistence.local.room.entity.JobEntity.Companion.toJob
+import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
+import java.net.MalformedURLException
+import org.json.JSONObject
+import timber.log.Timber
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.basemap.BaseMap;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations;
-import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.net.MalformedURLException;
-import java.util.Iterator;
-import org.json.JSONObject;
-import timber.log.Timber;
-
-@AutoValue
 @Entity(tableName = "survey")
-public abstract class SurveyEntity {
+data class SurveyEntity(
+  @ColumnInfo(name = "id") @PrimaryKey val id: String,
+  @ColumnInfo(name = "title") val title: String?,
+  @ColumnInfo(name = "description") val description: String?,
+  @ColumnInfo(name = "acl") val acl: JSONObject?
+) {
 
-  @CopyAnnotations
-  @NonNull
-  @PrimaryKey
-  @ColumnInfo(name = "id")
-  public abstract String getId();
-
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "title")
-  public abstract String getTitle();
-
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "description")
-  public abstract String getDescription();
-
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "acl")
-  public abstract JSONObject getAcl();
-
-  public static SurveyEntity fromSurvey(Survey survey) {
-    return SurveyEntity.builder()
-        .setId(survey.getId())
-        .setTitle(survey.getTitle())
-        .setDescription(survey.getDescription())
-        .setAcl(new JSONObject(survey.getAcl()))
-        .build();
-  }
-
-  public static Survey toSurvey(SurveyEntityAndRelations surveyEntityAndRelations) {
-    ImmutableMap.Builder<String, Job> jobMap = ImmutableMap.builder();
-    ImmutableList.Builder<BaseMap> baseMaps = ImmutableList.builder();
-
-    for (JobEntityAndRelations jobEntityAndRelations :
-        surveyEntityAndRelations.jobEntityAndRelations) {
-      Job job = JobEntity.toJob(jobEntityAndRelations);
-      jobMap.put(job.getId(), job);
+  companion object {
+    fun fromSurvey(survey: Survey): SurveyEntity {
+      return SurveyEntity(
+        id = survey.id,
+        title = survey.title,
+        description = survey.description,
+        acl = JSONObject(survey.acl as Map<*, *>?)
+      )
     }
 
-    for (BaseMapEntity source : surveyEntityAndRelations.baseMapEntityAndRelations) {
-      try {
-        baseMaps.add(BaseMapEntity.toModel(source));
-      } catch (MalformedURLException e) {
-        Timber.d("Skipping basemap source with malformed URL %s", source.getUrl());
+    fun toSurvey(surveyEntityAndRelations: SurveyEntityAndRelations): Survey {
+      val jobMap = ImmutableMap.builder<String, Job>()
+      val baseMaps = ImmutableList.builder<BaseMap>()
+      for (jobEntityAndRelations in surveyEntityAndRelations.jobEntityAndRelations) {
+        val job = toJob(jobEntityAndRelations!!)
+        jobMap.put(job.id, job)
       }
-    }
-
-    SurveyEntity surveyEntity = surveyEntityAndRelations.surveyEntity;
-    return new Survey(
-        surveyEntity.getId(),
-        surveyEntity.getTitle(),
-        surveyEntity.getDescription(),
+      for (source in surveyEntityAndRelations.baseMapEntityAndRelations) {
+        try {
+          baseMaps.add(toModel(source))
+        } catch (e: MalformedURLException) {
+          Timber.d("Skipping basemap source with malformed URL %s", source.url)
+        }
+      }
+      val surveyEntity = surveyEntityAndRelations.surveyEntity
+      return Survey(
+        surveyEntity.id,
+        surveyEntity.title!!,
+        surveyEntity.description!!,
         jobMap.build(),
         baseMaps.build(),
-        toStringMap(surveyEntity.getAcl()));
-  }
-
-  private static ImmutableMap<String, String> toStringMap(JSONObject jsonObject) {
-    ImmutableMap.Builder builder = ImmutableMap.builder();
-    Iterator<String> keys = jsonObject.keys();
-    while (keys.hasNext()) {
-      String key = keys.next();
-      String value = jsonObject.optString(key, null);
-      if (value != null) {
-        builder.put(key, value);
-      }
+        toStringMap(surveyEntity.acl)
+      )
     }
-    return builder.build();
-  }
 
-  public static SurveyEntity create(String id, String title, String description, JSONObject acl) {
-    return builder().setId(id).setTitle(title).setDescription(description).setAcl(acl).build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_SurveyEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(String id);
-
-    public abstract Builder setTitle(String title);
-
-    public abstract Builder setDescription(String description);
-
-    public abstract Builder setAcl(JSONObject acl);
-
-    public abstract SurveyEntity build();
+    private fun toStringMap(jsonObject: JSONObject?): ImmutableMap<String, String> {
+      val builder: ImmutableMap.Builder<String, String> = ImmutableMap.builder()
+      val keys = jsonObject!!.keys()
+      while (keys.hasNext()) {
+        val key = keys.next()
+        val value = jsonObject.optString(key, null.toString())
+        builder.put(key, value)
+      }
+      return builder.build()
+    }
   }
 }
