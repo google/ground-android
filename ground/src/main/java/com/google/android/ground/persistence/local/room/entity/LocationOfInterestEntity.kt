@@ -13,258 +13,159 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.entity
 
-package com.google.android.ground.persistence.local.room.entity;
-
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.ColumnInfo;
-import androidx.room.Embedded;
-import androidx.room.Entity;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
-import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.geometry.Coordinate;
-import com.google.android.ground.model.geometry.Geometry;
-import com.google.android.ground.model.geometry.LinearRing;
-import com.google.android.ground.model.geometry.Point;
-import com.google.android.ground.model.geometry.Polygon;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
-import com.google.android.ground.model.mutation.LocationOfInterestMutation;
-import com.google.android.ground.persistence.local.LocalDataConsistencyException;
-import com.google.android.ground.persistence.local.room.models.Coordinates;
-import com.google.android.ground.persistence.local.room.models.EntityState;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import java.util.List;
-import java8.util.stream.Collectors;
+import androidx.room.*
+import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.LocationOfInterestType
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.persistence.local.LocalDataConsistencyException
+import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity.Companion.fromObject
+import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity.Companion.toObject
+import com.google.android.ground.persistence.local.room.models.Coordinates
+import com.google.android.ground.persistence.local.room.models.EntityState
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
+import com.google.common.reflect.TypeToken
+import com.google.gson.Gson
 
 /**
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields
  * and their respective types to determine database column names and types.
  */
-@AutoValue
-@Entity(
-    tableName = "location_of_interest",
-    indices = {@Index("survey_id")})
-public abstract class LocationOfInterestEntity {
-  @CopyAnnotations
-  @NonNull
-  @PrimaryKey
-  @ColumnInfo(name = "id")
-  public abstract String getId();
+@Entity(tableName = "location_of_interest", indices = [Index("survey_id")])
+data class LocationOfInterestEntity(
+  @ColumnInfo(name = "id") @PrimaryKey val id: String,
+  @ColumnInfo(name = "survey_id") val surveyId: String,
+  @ColumnInfo(name = "job_id") val jobId: String,
+  @ColumnInfo(name = "geo_json") val geoJson: String?,
+  @ColumnInfo(name = "polygon_vertices") val polygonVertices: String?,
+  @Embedded val location: Coordinates?,
+  @ColumnInfo(name = "state") val state: EntityState, // TODO: Rename to DeletionState.
+  @Embedded(prefix = "created_") val created: AuditInfoEntity,
+  @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
+) {
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "survey_id")
-  public abstract String getSurveyId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "job_id")
-  public abstract String getJobId();
-
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "geo_json")
-  public abstract String getGeoJson();
-
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "polygon_vertices")
-  public abstract String getPolygonVertices();
-
-  // TODO: Rename to DeletionState.
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract EntityState getState();
-
-  @CopyAnnotations
-  @Nullable
-  @Embedded
-  public abstract Coordinates getLocation();
-
-  @CopyAnnotations
-  @NonNull
-  @Embedded(prefix = "created_")
-  public abstract AuditInfoEntity getCreated();
-
-  @CopyAnnotations
-  @NonNull
-  @Embedded(prefix = "modified_")
-  public abstract AuditInfoEntity getLastModified();
-
-  @NonNull
-  public static LocationOfInterestEntity fromMutation(
-      LocationOfInterestMutation mutation, AuditInfo created) {
-    AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
-    LocationOfInterestEntity.Builder entity =
-        LocationOfInterestEntity.builder()
-            .setId(mutation.getLocationOfInterestId())
-            .setSurveyId(mutation.getSurveyId())
-            .setJobId(mutation.getJobId())
-            .setState(EntityState.DEFAULT)
-            .setCreated(authInfo)
-            .setLastModified(authInfo);
-    mutation.getLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
-    entity.setPolygonVertices(formatVertices(mutation.getPolygonVertices()));
-    return entity.build();
-  }
-
-  public static LocationOfInterestEntity fromLocationOfInterest(
-      LocationOfInterest locationOfInterest) {
-    LocationOfInterestEntity.Builder entity =
-        LocationOfInterestEntity.builder()
-            .setId(locationOfInterest.getId())
-            .setSurveyId(locationOfInterest.getSurveyId())
-            .setJobId(locationOfInterest.getJob().getId())
-            .setState(EntityState.DEFAULT)
-            .setCreated(AuditInfoEntity.fromObject(locationOfInterest.getCreated()))
-            .setLastModified(AuditInfoEntity.fromObject(locationOfInterest.getLastModified()));
-    // TODO(#1246): Convert to exhaustive when in Kotlin
-    if (locationOfInterest.getType() == LocationOfInterestType.POINT) {
-      entity.setLocation(
-          Coordinates.fromPoint(locationOfInterest.getGeometry().getVertices().get(0)));
-    } else {
-      // TODO(#1247): Add support for storing holes in the DB.
-      entity.setPolygonVertices(formatVertices(locationOfInterest.getGeometry().getVertices()));
-    }
-    return entity.build();
-  }
-
-  public static LocationOfInterest toLocationOfInterest(
-      LocationOfInterestEntity locationOfInterestEntity, Survey survey) {
-    if (locationOfInterestEntity.getLocation() != null) {
-      return fillLocationOfInterest(
-          locationOfInterestEntity, survey, locationOfInterestEntity.getLocation().toPoint());
+  companion object {
+    fun fromMutation(
+      mutation: LocationOfInterestMutation,
+      created: AuditInfo
+    ): LocationOfInterestEntity {
+      val authInfo = fromObject(created)
+      return LocationOfInterestEntity(
+        id = mutation.locationOfInterestId,
+        surveyId = mutation.surveyId,
+        jobId = mutation.jobId,
+        state = EntityState.DEFAULT,
+        created = authInfo,
+        lastModified = authInfo,
+        location = mutation.location.map { Coordinates.fromPoint(it) }.orElse(null),
+        polygonVertices = formatVertices(mutation.polygonVertices),
+        geoJson = null
+      )
     }
 
-    if (locationOfInterestEntity.getPolygonVertices() != null) {
-      ImmutableList<Point> points = parseVertices(locationOfInterestEntity.getPolygonVertices());
-      ImmutableList<Coordinate> coordinates =
-          stream(points).map(Point::getCoordinate).collect(toImmutableList());
-      LinearRing linearRing = new LinearRing(coordinates);
+    fun fromLocationOfInterest(locationOfInterest: LocationOfInterest): LocationOfInterestEntity {
+      var location: Coordinates? = null
+      var polygonVertices: String? = null
 
-      return fillLocationOfInterest(
-          locationOfInterestEntity, survey, new Polygon(linearRing, ImmutableList.of()));
+      when (locationOfInterest.type) {
+        LocationOfInterestType.POINT ->
+          location = Coordinates.fromPoint(locationOfInterest.geometry.vertices[0])
+        // TODO(#1247): Add support for storing holes in the DB.
+        else -> polygonVertices = formatVertices(locationOfInterest.geometry.vertices)
+      }
+
+      return LocationOfInterestEntity(
+        id = locationOfInterest.id,
+        surveyId = locationOfInterest.surveyId,
+        jobId = locationOfInterest.job.id,
+        state = EntityState.DEFAULT,
+        created = fromObject(locationOfInterest.created),
+        lastModified = fromObject(locationOfInterest.lastModified),
+        location = location,
+        polygonVertices = polygonVertices,
+        geoJson = null
+      )
     }
 
-    throw new LocalDataConsistencyException(
-        "No geometry data found in location of interest " + locationOfInterestEntity.getId());
-  }
-
-  @Nullable
-  public static String formatVertices(ImmutableList<Point> vertices) {
-    if (vertices.isEmpty()) {
-      return null;
+    fun toLocationOfInterest(
+      locationOfInterestEntity: LocationOfInterestEntity,
+      survey: Survey
+    ): LocationOfInterest {
+      if (locationOfInterestEntity.location != null) {
+        return fillLocationOfInterest(
+          locationOfInterestEntity,
+          survey,
+          locationOfInterestEntity.location.toPoint()
+        )
+      }
+      if (locationOfInterestEntity.polygonVertices != null) {
+        val points = parseVertices(locationOfInterestEntity.polygonVertices)
+        val coordinates = points.map(Point::coordinate)
+        val linearRing = LinearRing(coordinates)
+        return fillLocationOfInterest(
+          locationOfInterestEntity,
+          survey,
+          Polygon(linearRing, ImmutableList.of())
+        )
+      }
+      throw LocalDataConsistencyException(
+        "No geometry data found in location of interest " + locationOfInterestEntity.id
+      )
     }
-    Gson gson = new Gson();
-    List<List<Double>> verticesArray =
-        stream(vertices)
-            .map(
-                point ->
-                    ImmutableList.of(point.getCoordinate().getX(), point.getCoordinate().getY()))
-            .collect(Collectors.toList());
-    return gson.toJson(verticesArray);
-  }
 
-  public static ImmutableList<Point> parseVertices(@Nullable String vertices) {
-    if (vertices == null || vertices.isEmpty()) {
-      return ImmutableList.of();
+    @JvmStatic
+    fun formatVertices(vertices: ImmutableList<Point>): String? {
+      if (vertices.isEmpty()) {
+        return null
+      }
+      val gson = Gson()
+      val verticesArray =
+        vertices
+          .map { (coordinate): Point -> ImmutableList.of(coordinate.x, coordinate.y) }
+          .toList()
+      return gson.toJson(verticesArray)
     }
-    Gson gson = new Gson();
-    List<List<Double>> verticesArray =
-        gson.fromJson(vertices, new TypeToken<List<List<Double>>>() {}.getType());
 
-    return stream(verticesArray)
-        .map(vertex -> new Point(new Coordinate(vertex.get(0), vertex.get(1))))
-        .collect(toImmutableList());
-  }
+    @JvmStatic
+    fun parseVertices(vertices: String?): ImmutableList<Point> {
+      if (vertices == null || vertices.isEmpty()) {
+        return ImmutableList.of()
+      }
+      val gson = Gson()
+      val verticesArray =
+        gson.fromJson<List<List<Double>>>(
+          vertices,
+          object : TypeToken<List<List<Double?>?>?>() {}.type
+        )
+      return verticesArray
+        .map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
+        .toImmutableList()
+    }
 
-  public static LocationOfInterest fillLocationOfInterest(
-      LocationOfInterestEntity locationOfInterestEntity, Survey survey, Geometry geometry) {
-    String id = locationOfInterestEntity.getId();
-    String jobId = locationOfInterestEntity.getJobId();
-    Job job =
-        survey
-            .getJob(jobId)
-            .orElseThrow(
-                () ->
-                    new LocalDataConsistencyException(
-                        "Unknown jobId " + jobId + " in location of interest " + id));
-    return new LocationOfInterest(
-        id,
-        survey.getId(),
-        job,
-        null,
-        null,
-        AuditInfoEntity.toObject(locationOfInterestEntity.getCreated()),
-        AuditInfoEntity.toObject(locationOfInterestEntity.getLastModified()),
-        geometry);
-  }
-
-  public abstract LocationOfInterestEntity.Builder toBuilder();
-
-  // Boilerplate generated using Android Studio AutoValue plugin:
-
-  public static LocationOfInterestEntity create(
-      String id,
-      String surveyId,
-      String jobId,
-      String geoJson,
-      String polygonVertices,
-      EntityState state,
-      Coordinates location,
-      AuditInfoEntity created,
-      AuditInfoEntity lastModified) {
-    return builder()
-        .setId(id)
-        .setSurveyId(surveyId)
-        .setJobId(jobId)
-        .setGeoJson(geoJson)
-        .setPolygonVertices(polygonVertices)
-        .setState(state)
-        .setLocation(location)
-        .setCreated(created)
-        .setLastModified(lastModified)
-        .build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_LocationOfInterestEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(String newId);
-
-    public abstract Builder setSurveyId(String newSurveyId);
-
-    public abstract Builder setJobId(String newJobId);
-
-    public abstract Builder setGeoJson(@Nullable String newGeoJson);
-
-    public abstract Builder setPolygonVertices(@Nullable String newPolygonVertices);
-
-    public abstract Builder setState(EntityState newState);
-
-    public abstract Builder setLocation(@Nullable Coordinates newLocation);
-
-    public abstract Builder setCreated(AuditInfoEntity newCreated);
-
-    public abstract Builder setLastModified(AuditInfoEntity newLastModified);
-
-    public abstract LocationOfInterestEntity build();
+    private fun fillLocationOfInterest(
+      locationOfInterestEntity: LocationOfInterestEntity,
+      survey: Survey,
+      geometry: Geometry?
+    ): LocationOfInterest {
+      val id = locationOfInterestEntity.id
+      val jobId = locationOfInterestEntity.jobId
+      val job =
+        survey.getJob(jobId).orElseThrow {
+          LocalDataConsistencyException("Unknown jobId $jobId in location of interest $id")
+        }
+      return LocationOfInterest(
+        id = id,
+        surveyId = survey.id,
+        job = job,
+        created = toObject(locationOfInterestEntity.created),
+        lastModified = toObject(locationOfInterestEntity.lastModified),
+        geometry = geometry!!
+      )
+    }
   }
 }
