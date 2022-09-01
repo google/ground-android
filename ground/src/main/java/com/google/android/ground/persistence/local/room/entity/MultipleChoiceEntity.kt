@@ -13,82 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.entity
 
-package com.google.android.ground.persistence.local.room.entity;
+import androidx.room.*
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
+import com.google.android.ground.persistence.local.room.entity.OptionEntity.Companion.toOption
+import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType
+import com.google.common.collect.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
-import static kotlinx.collections.immutable.ExtensionsKt.toPersistentList;
-
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
-import com.google.android.ground.model.task.MultipleChoice;
-import com.google.android.ground.model.task.Option;
-import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-
-@AutoValue
 @Entity(
-    tableName = "multiple_choice",
-    foreignKeys =
-        @ForeignKey(
-            entity = TaskEntity.class,
-            parentColumns = "id",
-            childColumns = "task_id",
-            onDelete = ForeignKey.CASCADE),
-    indices = {@Index("task_id")})
-public abstract class MultipleChoiceEntity {
+  tableName = "multiple_choice",
+  foreignKeys =
+    [
+      ForeignKey(
+        entity = TaskEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["task_id"],
+        onDelete = ForeignKey.CASCADE
+      )
+    ],
+  indices = [Index("task_id")]
+)
+data class MultipleChoiceEntity(
+  @ColumnInfo(name = "task_id") @PrimaryKey val taskId: String,
+  @ColumnInfo(name = "type") val type: MultipleChoiceEntityType
+) {
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "type")
-  public abstract MultipleChoiceEntityType getType();
+  companion object {
+    fun fromMultipleChoice(taskId: String, multipleChoice: MultipleChoice): MultipleChoiceEntity =
+      MultipleChoiceEntity(
+        taskId = taskId,
+        type = MultipleChoiceEntityType.fromCardinality(multipleChoice.cardinality)
+      )
 
-  @CopyAnnotations
-  @PrimaryKey
-  @NonNull
-  @ColumnInfo(name = "task_id")
-  public abstract String getTaskId();
-
-  public static MultipleChoiceEntity fromMultipleChoice(
-      String taskId, MultipleChoice multipleChoice) {
-    return MultipleChoiceEntity.builder()
-        .setTaskId(taskId)
-        .setType(MultipleChoiceEntityType.fromCardinality(multipleChoice.getCardinality()))
-        .build();
-  }
-
-  static MultipleChoice toMultipleChoice(
-      MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
-    ImmutableList.Builder<Option> listBuilder = ImmutableList.builder();
-    for (OptionEntity optionEntity : optionEntities) {
-      listBuilder.add(OptionEntity.toOption(optionEntity));
+    fun toMultipleChoice(
+      multipleChoiceEntity: MultipleChoiceEntity,
+      optionEntities: List<OptionEntity?>
+    ): MultipleChoice {
+      val listBuilder = ImmutableList.builder<Option>()
+      for (optionEntity in optionEntities) {
+        listBuilder.add(toOption(optionEntity!!))
+      }
+      return MultipleChoice(
+        listBuilder.build().toPersistentList(),
+        multipleChoiceEntity.type.toCardinality()
+      )
     }
-
-    return new MultipleChoice(
-        toPersistentList(listBuilder.build()), multipleChoiceEntity.getType().toCardinality());
-  }
-
-  public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String taskId) {
-    return builder().setType(type).setTaskId(taskId).build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_MultipleChoiceEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setType(MultipleChoiceEntityType type);
-
-    public abstract Builder setTaskId(String taskId);
-
-    public abstract MultipleChoiceEntity build();
   }
 }
