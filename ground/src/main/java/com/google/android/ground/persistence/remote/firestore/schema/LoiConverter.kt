@@ -21,7 +21,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firestore.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
-import java.lang.IllegalStateException
 
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
@@ -35,15 +34,19 @@ object LoiConverter {
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
 
-  fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> {
-    val loiId = doc.id
-    val loiDoc = DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
-    val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry for loi: $loiId")
-    val geometry =
-      GeometryConverter.fromFirestoreMap(geometryMap).getOrNull()
-        ?: return Result.failure(IllegalStateException("Missing geometry for loi: $loiId"))
+  fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> =
+    runCatching {
+      toLoiUnchecked(survey, doc)
+    }
 
-    return Result.success(createLocationOfInterest(survey, loiId, loiDoc, geometry))
+  private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+    val loiId = doc.id
+    val loiDoc =
+      DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi document")
+    val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
+    val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
+
+    return createLocationOfInterest(survey, loiId, loiDoc, geometry)
   }
 
   private fun createLocationOfInterest(
