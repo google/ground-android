@@ -44,7 +44,7 @@ class LoiConverterTest {
   private lateinit var noVerticesGeometry: MutableMap<String, Any>
 
   @Test
-  fun testToLoi_whenNullLocation_throwsDataStoreException() {
+  fun testToLoi_whenNullLocation_returnsFailure() {
     setUpTestGeometry()
     setUpTestSurvey(
       "job001",
@@ -71,7 +71,7 @@ class LoiConverterTest {
         AUDIT_INFO_2_NESTED_OBJECT
       )
     )
-    Assert.assertThrows(DataStoreException::class.java) { toLocationOfInterest() }
+    assertThat(toLocationOfInterest().isFailure).isTrue()
   }
 
   @Test
