@@ -26,9 +26,9 @@ import com.google.android.ground.util.toImmutableList
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
+import java.lang.IllegalStateException
 import java8.util.function.Function
 import timber.log.Timber
-import java.lang.IllegalStateException
 
 /**
  * Converts Firestore [com.google.firebase.firestore.QuerySnapshot] to application-specific objects.
@@ -59,18 +59,18 @@ internal object QuerySnapshotConverter {
     }
   }
 
-    private fun <T> addedModifiedToEvent(
-        dc: DocumentChange,
-        converter: Function<DocumentSnapshot, Result<T>>
-    ): RemoteDataEvent<T?> {
-        val id = dc.document.id
-        val result = converter.apply(dc.document)
-        val entity = result.getOrNull() ?: return error(IllegalStateException(result.toString()))
+  private fun <T> addedModifiedToEvent(
+    dc: DocumentChange,
+    converter: Function<DocumentSnapshot, Result<T>>
+  ): RemoteDataEvent<T?> {
+    val id = dc.document.id
+    val result = converter.apply(dc.document)
+    val entity = result.getOrNull() ?: return error(IllegalStateException(result.toString()))
 
-        return if (dc.type == DocumentChange.Type.ADDED) {
-                loaded(id, entity)
-            } else {
-                modified(id, entity)
-            }
+    return if (dc.type == DocumentChange.Type.ADDED) {
+      loaded(id, entity)
+    } else {
+      modified(id, entity)
     }
+  }
 }
