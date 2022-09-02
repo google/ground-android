@@ -34,16 +34,17 @@ object LoiConverter {
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
 
-  fun toLoi(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+  fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> =
+    runCatching {
+      toLoiUnchecked(survey, doc)
+    }
+
+  private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
     val loiId = doc.id
-    val loiDoc = DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "LOI data")
+    val loiDoc =
+      DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi document")
     val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
-    // TODO(#929): Return `Result` instead of throwing exception.
-    val geometry =
-      DataStoreException.checkNotNull(
-        GeometryConverter.fromFirestoreMap(geometryMap).getOrNull(),
-        "geometry"
-      )
+    val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
 
     return createLocationOfInterest(survey, loiId, loiDoc, geometry)
   }

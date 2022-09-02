@@ -37,7 +37,7 @@ internal object QuerySnapshotConverter {
   /** Applies a converter function to document change events in the specified query snapshot. */
   fun <T> toEvents(
     snapshot: QuerySnapshot,
-    converter: Function<DocumentSnapshot, T>
+    converter: Function<DocumentSnapshot, Result<T>>
   ): Iterable<RemoteDataEvent<T?>> {
     return snapshot.documentChanges
       .map { dc: DocumentChange -> toEvent(dc, converter) }
@@ -46,15 +46,24 @@ internal object QuerySnapshotConverter {
 
   private fun <T> toEvent(
     dc: DocumentChange,
-    converter: Function<DocumentSnapshot, T>
+    converter: Function<DocumentSnapshot, Result<T>>
   ): RemoteDataEvent<T?> {
-    Timber.v("${dc.document.reference.path}  ${dc.type}")
-    val id = dc.document.id
-    return when (dc.type) {
-      DocumentChange.Type.ADDED -> loaded(id, converter.apply(dc.document))
-      DocumentChange.Type.MODIFIED -> modified(id, converter.apply(dc.document))
-      DocumentChange.Type.REMOVED -> removed<T>(id)
-      else -> error(DataStoreException("Unknown DocumentChange type: ${dc.type}"))
+    try {
+      Timber.v("${dc.document.reference.path}  ${dc.type}")
+      val id = dc.document.id
+      return when (dc.type) {
+        DocumentChange.Type.ADDED ->
+          loaded(id, converter.apply(dc.document).getOrThrow())
+        DocumentChange.Type.MODIFIED ->
+          modified(id, converter.apply(dc.document).getOrThrow())
+        DocumentChange.Type.REMOVED ->
+          removed<T>(id)
+        else ->
+          throw DataStoreException("Unknown DocumentChange type: ${dc.type}")
+      }
+    } catch (t: Throwable) {
+      return error(t)
     }
+
   }
 }
