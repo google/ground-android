@@ -292,9 +292,6 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     polygons[polygon] = mapsPolygon
   }
 
-  private fun isPolygonCompleted(vertices: List<Point>): Boolean =
-    vertices.size > 2 && vertices[vertices.size - 1] == vertices[0]
-
   private val polylineStrokeWidth: Int
     get() = resources.getDimension(R.dimen.polyline_stroke_width).toInt()
 
