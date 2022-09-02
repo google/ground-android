@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firestore.schema
 
+import com.google.android.ground.model.Constants
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
@@ -26,24 +27,22 @@ import com.google.firebase.firestore.FieldPath
 import io.reactivex.Single
 
 private const val ACL_FIELD = "acl"
-private const val OWNER = "owner"
-private const val SURVEY_ORGANIZER = "survey_organizer"
-private const val DATA_COLLECTOR = "data_collector"
-private const val VIEWER_ROLE = "viewer"
-private val VALID_ROLES = listOf(OWNER, SURVEY_ORGANIZER, DATA_COLLECTOR, VIEWER_ROLE)
+private val VALID_ROLES =
+  listOf(
+    Constants.OWNER,
+    Constants.SURVEY_ORGANIZER,
+    Constants.DATA_COLLECTOR,
+    Constants.VIEWER_ROLE
+  )
 
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
-    FluentCollectionReference(ref) {
+  FluentCollectionReference(ref) {
 
-    fun survey(id: String) = SurveyDocumentReference(reference().document(id))
+  fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
-    fun getReadable(user: User): @Cold Single<List<Survey>> =
-        runQuery(
-            reference().whereIn(
-                FieldPath.of(ACL_FIELD, user.email),
-                VALID_ROLES
-            )
-        ) { doc: DocumentSnapshot ->
-            SurveyConverter.toSurvey(doc)
-        }
+  fun getReadable(user: User): @Cold Single<List<Survey>> =
+    runQuery(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)) {
+      doc: DocumentSnapshot ->
+      SurveyConverter.toSurvey(doc)
+    }
 }
