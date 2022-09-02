@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -43,7 +44,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.util.BitmapUtil
-import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.maps.android.PolyUtil
@@ -59,7 +59,6 @@ import java.lang.Exception
 import java.lang.IllegalArgumentException
 import java.util.*
 import java8.util.function.Consumer
-import java8.util.stream.StreamSupport
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -96,7 +95,7 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
    * with current view and data state.
    */
   private val markers: MutableSet<Marker> = HashSet()
-  private val polygons: MutableMap<Geometry, Polyline> = HashMap()
+  private val polygons: MutableMap<Geometry, MapsPolygon> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -186,11 +185,14 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     val processed = ArrayList<String>()
 
     for ((mapLocationOfInterest, value) in polygons) {
-      val vertices = value.points
+      // TODO(jsunde): mapLocationOfInterest is now a geometry so it won't have an id.
+      //  I may need to revert back to storing a Map<LocationOfInterest, Polygon> to store the ids
       if (processed.contains((mapLocationOfInterest as MapPolygon).id)) {
         continue
       }
 
+
+      val vertices = value.points
       if (PolyUtil.containsLocation(latLng, vertices, false)) {
         candidates.add(mapLocationOfInterest)
         processed.add(mapLocationOfInterest.id)
@@ -272,23 +274,22 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     // TODO(jsunde): Remove before merging
     Timber.v("adding polygon with ${polygon.vertices} vertices")
 
-    val options = PolylineOptions()
+    val options = PolygonOptions()
     options.clickable(false)
-    val vertices = polygon.vertices.map { point: Point -> toLatLng(point) }.toImmutableList()
-    options.addAll(vertices)
+    val shellVertices = polygon.shell.vertices.map { toLatLng(it) }
+    options.addAll(shellVertices)
+    val holes =
+      polygon.holes.map { hole -> hole.vertices.map { point -> toLatLng(point) } }
+    holes.forEach { options.addHole(it) }
 
-    val polyline = getMap().addPolyline(options)
-    polyline.tag = polygon
-    if (!isPolygonCompleted(polygon.vertices)) {
-      polyline.startCap = customCap
-      polyline.endCap = customCap
-    }
-    polyline.width = polylineStrokeWidth.toFloat()
+    val mapsPolygon = getMap().addPolygon(options)
+    mapsPolygon.tag = polygon
+    mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
-    polyline.color = parseColor(Style().color)
-    polyline.jointType = JointType.ROUND
+    mapsPolygon.fillColor = parseColor(Style().color)
+    mapsPolygon.strokeJointType = JointType.ROUND
 
-    polygons[polygon] = polyline
+    polygons[polygon] = mapsPolygon
   }
 
   private fun isPolygonCompleted(vertices: List<Point>): Boolean =
@@ -309,7 +310,7 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
   }
 
   override fun setMapLocationsOfInterest(features: ImmutableSet<MapLocationOfInterest>) {
-    Timber.v("setMapLocationsOfInterest() called with %s locations of interest", features.size)
+    Timber.v("setMapLocationsOfInterest() called with ${features.size} locations of interest")
     val geometriesToUpdate: MutableSet<Geometry> =
       HashSet(features.mapNotNull { it.locationOfInterest?.geometry })
 
@@ -329,16 +330,16 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     //    // Update markers list.
     //    deletedMarkers.forEach { o: Marker -> markers.remove(o) }
 
-    val polylineIterator: MutableIterator<Map.Entry<Geometry, Polyline>> =
+    val polylineIterator: MutableIterator<Map.Entry<Geometry, MapsPolygon>> =
       polygons.entries.iterator()
     while (polylineIterator.hasNext()) {
-      val (geometry, polyline) = polylineIterator.next()
+      val (geometry, polygon) = polylineIterator.next()
       if (geometriesToUpdate.contains(geometry)) {
         // If polygon already exists on map, don't add it.
         geometriesToUpdate.remove(geometry)
       } else {
         // Remove existing polyline not in list of updatedLocationsOfInterest.
-        removePolygon(polyline)
+        removePolygon(polygon)
         polylineIterator.remove()
       }
     }
@@ -372,22 +373,20 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
   }
 
   private fun removeMarker(marker: Marker) {
-    Timber.v("Removing marker %s", marker.id)
+    Timber.v("Removing marker ${marker.id}")
     marker.remove()
   }
 
-  private fun removePolygon(polyline: Polyline) {
-    Timber.v("Removing polyline %s", polyline.id)
-    polyline.remove()
+  private fun removePolygon(polygon: MapsPolygon) {
+    Timber.v("Removing polygon ${polygon.id}")
+    polygon.remove()
   }
 
-  private fun parseColor(colorHexCode: String?): Int {
-    return try {
-      Color.parseColor(colorHexCode.toString())
-    } catch (e: IllegalArgumentException) {
-      Timber.w("Invalid color code in job style: %s", colorHexCode)
-      resources.getColor(R.color.colorMapAccent)
-    }
+  private fun parseColor(colorHexCode: String?): Int = try {
+    Color.parseColor(colorHexCode.toString())
+  } catch (e: IllegalArgumentException) {
+    Timber.w("Invalid color code in job style: $colorHexCode")
+    resources.getColor(R.color.colorMapAccent)
   }
 
   private fun onCameraIdle() {
@@ -418,7 +417,7 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     val mbtilesFile = File(requireContext().filesDir, filePath)
 
     if (!mbtilesFile.exists()) {
-      Timber.i("mbtiles file %s does not exist", mbtilesFile.absolutePath)
+      Timber.i("mbtiles file ${mbtilesFile.absolutePath} does not exist")
       return
     }
 
@@ -427,7 +426,7 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
       tileProviders.onNext(tileProvider)
       getMap().addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
     } catch (e: Exception) {
-      Timber.e(e, "Couldn't initialize tile provider for mbtiles file %s", mbtilesFile)
+      Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile%s")
     }
   }
 
