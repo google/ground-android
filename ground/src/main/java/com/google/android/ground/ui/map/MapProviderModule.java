@@ -16,7 +16,7 @@
 
 package com.google.android.ground.ui.map;
 
-import com.google.android.ground.ui.map.gms.GoogleMapsFragment;
+import com.google.android.ground.ui.map.gms.GoogleMapsFragmentV2;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -28,6 +28,6 @@ public abstract class MapProviderModule {
 
   @Provides
   static MapFragment providesGoogleMapFragment() {
-    return new GoogleMapsFragment();
+    return new GoogleMapsFragmentV2();
   }
 }
