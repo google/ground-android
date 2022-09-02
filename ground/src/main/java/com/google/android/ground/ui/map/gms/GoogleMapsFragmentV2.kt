@@ -37,6 +37,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.MarkerIconFactory
@@ -95,7 +96,7 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
    * with current view and data state.
    */
   private val markers: MutableSet<Marker> = HashSet()
-  private val polygons: MutableMap<Geometry, MapsPolygon> = HashMap()
+  private val polygons: MutableMap<MapLocationOfInterest, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -185,17 +186,15 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     val processed = ArrayList<String>()
 
     for ((mapLocationOfInterest, value) in polygons) {
-      // TODO(jsunde): mapLocationOfInterest is now a geometry so it won't have an id.
-      //  I may need to revert back to storing a Map<LocationOfInterest, Polygon> to store the ids
-      if (processed.contains((mapLocationOfInterest as MapPolygon).id)) {
+      val loiId = mapLocationOfInterest.locationOfInterest?.id ?: continue
+      if (processed.contains(loiId)) {
         continue
       }
 
 
-      val vertices = value.points
-      if (PolyUtil.containsLocation(latLng, vertices, false)) {
+      if (value.any { PolyUtil.containsLocation(latLng, it.points, false) }) {
         candidates.add(mapLocationOfInterest)
-        processed.add(mapLocationOfInterest.id)
+        processed.add(loiId)
       }
     }
     val result = candidates.build()
@@ -267,13 +266,10 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
   private fun getMarkerIcon(mapPin: MapPin): BitmapDescriptor =
     markerIconFactory.getMarkerIcon(parseColor(mapPin.style.color), currentZoomLevel)
 
-  private fun addMultiPolygon(multiPolygon: MultiPolygon) =
-    multiPolygon.polygons.forEach { addPolygon(it) }
+  private fun addMultiPolygon(locationOfInterest: MapLocationOfInterest, multiPolygon: MultiPolygon) =
+    multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
 
-  private fun addPolygon(polygon: Polygon) {
-    // TODO(jsunde): Remove before merging
-    Timber.v("adding polygon with ${polygon.vertices} vertices")
-
+  private fun addPolygon(locationOfInterest: MapLocationOfInterest, polygon: Polygon) {
     val options = PolygonOptions()
     options.clickable(false)
     val shellVertices = polygon.shell.vertices.map { toLatLng(it) }
@@ -283,13 +279,15 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
-    mapsPolygon.tag = polygon
+    mapsPolygon.tag = Pair(locationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
-    mapsPolygon.fillColor = parseColor(Style().color)
+    //  parseColor(Style().color)
+    mapsPolygon.fillColor = parseColor("#55ffffff")
+    mapsPolygon.strokeColor = parseColor(Style().color)
     mapsPolygon.strokeJointType = JointType.ROUND
 
-    polygons[polygon] = mapsPolygon
+    polygons.getOrPut(locationOfInterest) { mutableListOf()} .add(mapsPolygon)
   }
 
   private val polylineStrokeWidth: Int
@@ -308,8 +306,7 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
 
   override fun setMapLocationsOfInterest(features: ImmutableSet<MapLocationOfInterest>) {
     Timber.v("setMapLocationsOfInterest() called with ${features.size} locations of interest")
-    val geometriesToUpdate: MutableSet<Geometry> =
-      HashSet(features.mapNotNull { it.locationOfInterest?.geometry })
+    val features: MutableSet<MapLocationOfInterest> = HashSet(features)
 
     //    val deletedMarkers: MutableList<Marker> = ArrayList()
     //    for (marker in markers) {
@@ -327,30 +324,32 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     //    // Update markers list.
     //    deletedMarkers.forEach { o: Marker -> markers.remove(o) }
 
-    val polylineIterator: MutableIterator<Map.Entry<Geometry, MapsPolygon>> =
+    val mapsPolygonIterator =
       polygons.entries.iterator()
-    while (polylineIterator.hasNext()) {
-      val (geometry, polygon) = polylineIterator.next()
-      if (geometriesToUpdate.contains(geometry)) {
-        // If polygon already exists on map, don't add it.
-        geometriesToUpdate.remove(geometry)
+    while (mapsPolygonIterator.hasNext()) {
+      val (mapLocationOfInterest, polygons) = mapsPolygonIterator.next()
+      if (features.contains(mapLocationOfInterest)) {
+        // If polygons already exists on map, don't add them.
+        features.remove(mapLocationOfInterest)
       } else {
-        // Remove existing polyline not in list of updatedLocationsOfInterest.
-        removePolygon(polygon)
-        polylineIterator.remove()
+        // Remove existing polygons not in list of updatedLocationsOfInterest.
+        polygons.forEach { removePolygon(it) }
+        mapsPolygonIterator.remove()
       }
     }
 
-    if (geometriesToUpdate.isEmpty()) return
+    if (features.isEmpty()) return
 
-    Timber.v("Updating %d features", geometriesToUpdate.size)
-    geometriesToUpdate.forEach {
-      when (it) {
+    Timber.v("Updating ${features.size} features")
+    features.forEach {
+      val geometry = it.locationOfInterest?.geometry ?: return
+
+      when (geometry) {
         is LineString -> TODO()
         is LinearRing -> TODO()
-        is MultiPolygon -> addMultiPolygon(it)
+        is MultiPolygon -> addMultiPolygon(it, geometry)
         is Point -> TODO()
-        is Polygon -> addPolygon(it)
+        is Polygon -> addPolygon(it, geometry)
       }
     }
   }
@@ -450,6 +449,6 @@ class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
     private fun fromLatLng(latLng: LatLng): Point =
       Point(Coordinate(latLng.latitude, latLng.longitude))
 
-    private fun toLatLng(point: Point): LatLng = LatLng(point.coordinate.x, point.coordinate.y)
+    private fun toLatLng(point: Point): LatLng = LatLng(point.coordinate.y, point.coordinate.x)
   }
 }
