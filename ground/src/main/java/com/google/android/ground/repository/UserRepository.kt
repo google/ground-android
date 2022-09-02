@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.model.Constants
 import com.google.android.ground.model.Role
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalDataStore
@@ -47,7 +48,14 @@ constructor(
   fun getUserRole(surveyId: String): Role {
     val survey = surveyRepository.getSurvey(surveyId).blockingGet()
     val value = survey.acl[currentUser.email]
-    return if (value == null) Role.UNKNOWN else toEnum(Role::class.java, value)
+    return toRole(value)
+  }
+
+  private fun toRole(roleString: String?): Role = when (roleString) {
+    Constants.OWNER -> Role.OWNER
+    Constants.SURVEY_ORGANIZER -> Role.SURVEY_ORGANIZER
+    Constants.DATA_COLLECTOR -> Role.DATA_COLLECTOR
+    else -> Role.UNKNOWN
   }
 
   fun saveUser(user: User): @Cold Completable =

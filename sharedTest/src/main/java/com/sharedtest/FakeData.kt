@@ -54,7 +54,7 @@ object FakeData {
       "Test survey description",
       ImmutableMap.of(),
       ImmutableList.of(),
-      ImmutableMap.of(USER.email, "data_collector")
+      ImmutableMap.of(USER.email, "data-collector")
     )
 
   @JvmField

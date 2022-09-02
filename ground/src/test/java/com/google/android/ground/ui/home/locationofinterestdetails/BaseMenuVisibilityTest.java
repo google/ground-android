@@ -47,8 +47,8 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
           ImmutableList.of(),
           ImmutableMap.<String, String>builder()
               .put(TEST_USER_OWNER.getEmail(), "owner")
-              .put(TEST_USER_MANAGER.getEmail(), "survey_organizer")
-              .put(TEST_USER_CONTRIBUTOR.getEmail(), "data_collector")
+              .put(TEST_USER_MANAGER.getEmail(), "survey-organizer")
+              .put(TEST_USER_CONTRIBUTOR.getEmail(), "data-collector")
               .build());
 
   protected final User user;
@@ -58,7 +58,7 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
   @Inject LocationOfInterestDetailsViewModel viewModel;
 
-  public BaseMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
+  protected BaseMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
     this.user = user;
     this.locationOfInterest = locationOfInterest;
     this.visible = visible;
