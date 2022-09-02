@@ -70,7 +70,7 @@ import timber.log.Timber
  * on window insets.
  */
 @AndroidEntryPoint
-class GoogleMapsFragmentV2 : SupportMapFragment(), MapFragment {
+class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Marker click events. */
   private val markerClicks: @Hot Subject<MapPin> = PublishSubject.create()
 

@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.map
 
-package com.google.android.ground.ui.map;
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import com.google.android.ground.ui.map.gms.GoogleMapsFragment
+import dagger.Module
+import dagger.Provides
 
-import com.google.android.ground.ui.map.gms.GoogleMapsFragmentV2;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
-
-@InstallIn(SingletonComponent.class)
+@InstallIn(SingletonComponent::class)
 @Module
-public abstract class MapProviderModule {
-
+object MapProviderModule {
+  @JvmStatic
   @Provides
-  static MapFragment providesGoogleMapFragment() {
-    return new GoogleMapsFragmentV2();
-  }
+  fun providesGoogleMapFragment(): MapFragment = GoogleMapsFragment()
 }
