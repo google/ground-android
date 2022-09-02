@@ -82,7 +82,6 @@ object GeometryConverter {
   /** Converts a `Map` deserialized from Firestore into a `Geometry` instance. */
   fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> =
     Result.runCatching {
-        Timber.e(map.toString())
         fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY))
     }
 
