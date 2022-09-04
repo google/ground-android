@@ -37,8 +37,7 @@ import com.google.android.ground.persistence.local.room.models.EntityState
         parentColumns = ["id"],
         childColumns = ["location_of_interest_id"],
         onDelete = ForeignKey.CASCADE
-      )
-    ],
+      )],
   tableName = "submission",
   indices = [Index("location_of_interest_id", "job_id", "state")]
 )
