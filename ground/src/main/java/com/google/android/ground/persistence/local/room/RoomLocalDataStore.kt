@@ -280,11 +280,11 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           list.filter { it.surveyId == survey.id }.map { it.toMutation(survey) }.toImmutableList()
         }
         .subscribeOn(schedulers.io())
-    return Flowable.combineLatest(locationOfInterestMutations, submissionMutations) {
+    return Flowable.combineLatest(
       locationOfInterestMutations,
-      submissionMutations ->
-      combineAndSortMutations(locationOfInterestMutations, submissionMutations)
-    }
+      submissionMutations,
+      this::combineAndSortMutations
+    )
   }
 
   private fun combineAndSortMutations(
@@ -425,17 +425,12 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     val lastMutation = mutations[mutations.size - 1]
     val clientTimestamp = lastMutation.clientTimestamp
     Timber.v("Merging submission $this with mutations $mutations")
-    val builder = submission.toBuilder()
-    builder.setResponses(toString(applyMutations(job, submission, mutations)))
-    // Update modified user and time.
-    val lastModified =
-      AuditInfoEntity.builder()
-        .setUser(UserDetails.fromUser(user))
-        .setClientTimestamp(clientTimestamp)
-        .build()
-    builder.setLastModified(lastModified)
-    Timber.v("Merged submission ${builder.build()}")
-    return builder.build()
+
+    return submission.apply {
+      responses = toString(applyMutations(job, this, mutations))
+      lastModified = AuditInfoEntity(UserDetails.fromUser(user), clientTimestamp)
+      Timber.v("Merged submission $this")
+    }
   }
 
   private fun applyMutations(
@@ -474,7 +469,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     mutation: LocationOfInterestMutation
   ): Completable =
     locationOfInterestDao
-      .update(entity.toBuilder().setState(EntityState.DELETED).build())
+      .update(entity.apply { state = EntityState.DELETED })
       .doOnSubscribe { Timber.d("Marking location of interest as deleted : $mutation") }
       .ignoreElement()
 
@@ -563,7 +558,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     mutation: SubmissionMutation
   ): Completable =
     submissionDao
-      .update(entity.toBuilder().setState(EntityState.DELETED).build())
+      .update(entity.apply { state = EntityState.DELETED })
       .doOnSubscribe { Timber.d("Marking submission as deleted : $mutation") }
       .ignoreElement()
       .subscribeOn(schedulers.io())
@@ -616,11 +611,11 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .toSingle()
       .subscribeOn(schedulers.io())
 
-  override fun deleteOfflineArea(id: String): Completable =
+  override fun deleteOfflineArea(offlineAreaId: String): Completable =
     offlineAreaDao
-      .findById(id)
+      .findById(offlineAreaId)
       .toSingle()
-      .doOnSubscribe { Timber.d("Deleting offline area: $id") }
+      .doOnSubscribe { Timber.d("Deleting offline area: $offlineAreaId") }
       .flatMapCompletable { offlineAreaDao.delete(it) }
       .subscribeOn(schedulers.io())
 

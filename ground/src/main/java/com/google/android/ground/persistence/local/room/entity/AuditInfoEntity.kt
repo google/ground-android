@@ -36,7 +36,7 @@ data class AuditInfoEntity(
    * Returns the time at which the server received the requested change according to the server's
    * internal clock, or null if the updated server time was not yet received.
    */
-  val serverTimestamp: Long?
+  val serverTimestamp: Long? = null
 ) {
 
   companion object {
