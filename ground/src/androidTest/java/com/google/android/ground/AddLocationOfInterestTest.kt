@@ -13,50 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.hamcrest.Matchers.not;
-
-import com.sharedtest.FakeData;
-import com.sharedtest.system.auth.FakeAuthenticationManager;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import javax.inject.Inject;
-import org.junit.Test;
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import com.sharedtest.FakeData
+import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import org.hamcrest.Matchers.not
+import org.junit.Test
 
 @HiltAndroidTest
-public class AddLocationOfInterestTest extends BaseMainActivityTest {
+class AddLocationOfInterestTest : BaseMainActivityTest() {
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-  @Inject FakeAuthenticationManager fakeAuthenticationManager;
-
-  @Override
-  public void setUp() {
-    super.setUp();
-    fakeAuthenticationManager.setUser(FakeData.USER);
+  override fun setUp() {
+    super.setUp()
+    fakeAuthenticationManager.setUser(FakeData.USER)
   }
 
   // Given: a logged in user - with an active survey with no map markers.
   // When: they tap on the centre of the map.
   // Then: nothing happens - the feature fragment is not displayed.
   @Test
-  public void tappingCrosshairOnEmptyMapDoesNothing() {
-    dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
+  fun tappingCrosshairOnEmptyMapDoesNothing() {
+    dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
 
     // Tap on the checkbox
-    onView(withId(R.id.agreeCheckBox)).perform(click());
+    onView(withId(R.id.agreeCheckBox)).perform(click())
 
     // Tap on Submit on Terms Fragment
-    onView(withId(R.id.agreeButton)).perform(click());
+    onView(withId(R.id.agreeButton)).perform(click())
 
     // Tap on the cross-hair at the centre of the map.
-    onView(withId(R.id.map_crosshairs_img)).perform(click());
+    onView(withId(R.id.map_crosshairs_img)).perform(click())
 
     // Verify that the title is not displayed.
-    onView(withId(R.id.location_of_interest_title)).check(matches(not(isCompletelyDisplayed())));
+    onView(withId(R.id.location_of_interest_title)).check(matches(not(isCompletelyDisplayed())))
   }
 }

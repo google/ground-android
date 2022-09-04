@@ -40,8 +40,7 @@ class AcceptTermsOfServiceTest : BaseMainActivityTest() {
 
   // Given: a logged in user - with terms not accepted.
   // When: they tap on the checkbox of the TermsOfService Screen.
-  // Then: Agree button should be enabled and upon click of that next screen
-  //       should appear.
+  // Then: Agree button should be enabled and upon click of that next screen should appear.
   @Test
   fun acceptTerms() {
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
