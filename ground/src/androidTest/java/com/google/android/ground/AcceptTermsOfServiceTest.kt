@@ -13,35 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.not;
-
-import com.sharedtest.FakeData;
-import com.sharedtest.persistence.remote.FakeRemoteDataStore;
-import com.sharedtest.system.auth.FakeAuthenticationManager;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import javax.inject.Inject;
-import org.junit.Test;
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
+import com.sharedtest.FakeData
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import org.hamcrest.Matchers.not
+import org.junit.Test
 
 @HiltAndroidTest
-public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
+class AcceptTermsOfServiceTest : BaseMainActivityTest() {
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-  @Inject FakeAuthenticationManager fakeAuthenticationManager;
-  @Inject FakeRemoteDataStore fakeRemoteDataStore;
-
-  @Override
-  public void setUp() {
-    super.setUp();
-    fakeAuthenticationManager.setUser(FakeData.USER);
-    fakeRemoteDataStore.setTestSurvey(FakeData.SURVEY);
+  override fun setUp() {
+    super.setUp()
+    fakeAuthenticationManager.setUser(FakeData.USER)
+    fakeRemoteDataStore.setTestSurvey(FakeData.SURVEY)
   }
 
   // Given: a logged in user - with terms not accepted.
@@ -49,22 +43,22 @@ public class AcceptTermsOfServiceTest extends BaseMainActivityTest {
   // Then: Agree button should be enabled and upon click of that next screen
   //       should appear.
   @Test
-  public void acceptTerms() {
-    dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
+  fun acceptTerms() {
+    dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
 
     // Verify that the agree button is not enabled by default.
-    onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())));
+    onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())))
 
     // Tap on the checkbox.
-    onView(withId(R.id.agreeCheckBox)).perform(click());
+    onView(withId(R.id.agreeCheckBox)).perform(click())
 
     // Verify that the agree button is enabled when checkbox is checked.
-    onView(withId(R.id.agreeButton)).check(matches(isEnabled()));
+    onView(withId(R.id.agreeButton)).check(matches(isEnabled()))
 
     // Verify that the terms text matched with fake data.
-    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE.getText())));
+    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE.text)))
 
     // Tap on the button
-    onView(withId(R.id.agreeButton)).perform(click());
+    onView(withId(R.id.agreeButton)).perform(click())
   }
 }
