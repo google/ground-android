@@ -58,7 +58,8 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
   @Inject FakeAuthenticationManager fakeAuthenticationManager;
   @Inject LocationOfInterestDetailsViewModel viewModel;
 
-  protected BaseMenuVisibilityTest(User user, LocationOfInterest locationOfInterest, boolean visible) {
+  protected BaseMenuVisibilityTest(
+      User user, LocationOfInterest locationOfInterest, boolean visible) {
     this.user = user;
     this.locationOfInterest = locationOfInterest;
     this.visible = visible;
