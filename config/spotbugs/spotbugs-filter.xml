@@ -55,6 +55,7 @@
       <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
       <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
       <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
+      <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
       <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
     </Or>
   </Match>

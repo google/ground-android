@@ -23,10 +23,7 @@ import androidx.room.TypeConverter;
 import com.google.android.ground.model.mutation.Mutation.SyncStatus;
 import com.google.android.ground.persistence.local.room.IntEnum;
 
-/**
- * Mutually exclusive mutations states shared by @{@link
- * com.google.android.ground.persistence.local.room.entity.MutationEntity}.
- */
+/** Mutually exclusive mutations states. */
 public enum MutationEntitySyncStatus implements IntEnum {
   // TODO(#950): Set IN_PROGRESS and FAILED statuses when necessary. On failure, set retry count and
   // error and update to PENDING.
