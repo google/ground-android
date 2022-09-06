@@ -47,14 +47,14 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.util.*
 import java8.util.Optional
+import javax.inject.Inject
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.util.*
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -197,7 +197,7 @@ class LocalDataStoreTest : BaseHiltTest() {
       .finalizePendingMutations(ImmutableList.of(TEST_LOI_MUTATION))
       .test()
       .assertComplete()
-    localDataStore.getPendingMutations("loi id").test().assertValue { obj: ImmutableList<Mutation> -> obj.isEmpty() }
+    localDataStore.getPendingMutations("loi id").test().assertValue { it.isEmpty() }
   }
 
   @Test

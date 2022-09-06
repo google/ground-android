@@ -38,8 +38,8 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import java8.util.Optional
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
 @SharedViewModel

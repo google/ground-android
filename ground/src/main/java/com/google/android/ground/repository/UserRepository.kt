@@ -23,7 +23,6 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
-import com.google.android.ground.util.Enums.toEnum
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -51,12 +50,13 @@ constructor(
     return toRole(value)
   }
 
-  private fun toRole(roleString: String?): Role = when (roleString) {
-    Constants.OWNER -> Role.OWNER
-    Constants.SURVEY_ORGANIZER -> Role.SURVEY_ORGANIZER
-    Constants.DATA_COLLECTOR -> Role.DATA_COLLECTOR
-    else -> Role.UNKNOWN
-  }
+  private fun toRole(roleString: String?): Role =
+    when (roleString) {
+      Constants.OWNER -> Role.OWNER
+      Constants.SURVEY_ORGANIZER -> Role.SURVEY_ORGANIZER
+      Constants.DATA_COLLECTOR -> Role.DATA_COLLECTOR
+      else -> Role.UNKNOWN
+    }
 
   fun saveUser(user: User): @Cold Completable =
     localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io())

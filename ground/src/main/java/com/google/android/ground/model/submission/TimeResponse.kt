@@ -15,12 +15,12 @@
  */
 package com.google.android.ground.model.submission
 
-import java8.util.Optional
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java8.util.Optional
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
 /** A user-provided time response. */
 @Serializable

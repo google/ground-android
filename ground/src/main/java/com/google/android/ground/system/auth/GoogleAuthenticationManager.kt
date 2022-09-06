@@ -31,8 +31,8 @@ import com.google.firebase.auth.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
 

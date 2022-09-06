@@ -18,8 +18,8 @@ package com.google.android.ground.model.mutation
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
-import java8.util.Optional
 import java.util.*
+import java8.util.Optional
 
 data class LocationOfInterestMutation(
   override val id: Long? = null,

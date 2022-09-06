@@ -34,6 +34,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.sharedtest.FakeData
 import com.sharedtest.FakeData.newTask
+import java.util.*
 import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert
@@ -42,7 +43,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.*
 
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionConverterTest {

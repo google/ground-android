@@ -20,7 +20,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -33,6 +32,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
@@ -56,8 +56,6 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.io.File
-import java.lang.Exception
-import java.lang.IllegalArgumentException
 import java.util.*
 import java8.util.function.Consumer
 import javax.inject.Inject
@@ -266,20 +264,22 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun getMarkerIcon(mapPin: MapPin): BitmapDescriptor =
     markerIconFactory.getMarkerIcon(parseColor(mapPin.style.color), currentZoomLevel)
 
-  private fun addMultiPolygon(locationOfInterest: MapLocationOfInterest, multiPolygon: MultiPolygon) =
-    multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
+  private fun addMultiPolygon(
+    locationOfInterest: MapLocationOfInterest,
+    multiPolygon: MultiPolygon
+  ) = multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
 
   private fun addPolygon(locationOfInterest: MapLocationOfInterest, polygon: Polygon) {
     val options = PolygonOptions()
     options.clickable(false)
     val shellVertices = polygon.shell.vertices.map { toLatLng(it) }
     options.addAll(shellVertices)
-    val holes =
-      polygon.holes.map { hole -> hole.vertices.map { point -> toLatLng(point) } }
+    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> toLatLng(point) } }
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
-    mapsPolygon.tag = Pair(locationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
+    mapsPolygon.tag =
+      Pair(locationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
     //  parseColor(Style().color)
@@ -287,7 +287,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     mapsPolygon.strokeColor = parseColor(Style().color)
     mapsPolygon.strokeJointType = JointType.ROUND
 
-    polygons.getOrPut(locationOfInterest) { mutableListOf()} .add(mapsPolygon)
+    polygons.getOrPut(locationOfInterest) { mutableListOf() }.add(mapsPolygon)
   }
 
   private val polylineStrokeWidth: Int
@@ -325,8 +325,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     //    // Update markers list.
     //    deletedMarkers.forEach { o: Marker -> markers.remove(o) }
 
-    val mapsPolygonIterator =
-      polygons.entries.iterator()
+    val mapsPolygonIterator = polygons.entries.iterator()
     while (mapsPolygonIterator.hasNext()) {
       val (mapLocationOfInterest, polygons) = mapsPolygonIterator.next()
       if (features.contains(mapLocationOfInterest)) {
@@ -379,12 +378,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     polygon.remove()
   }
 
-  private fun parseColor(colorHexCode: String?): Int = try {
-    Color.parseColor(colorHexCode.toString())
-  } catch (e: IllegalArgumentException) {
-    Timber.w("Invalid color code in job style: $colorHexCode")
-    resources.getColor(R.color.colorMapAccent)
-  }
+  private fun parseColor(colorHexCode: String?): Int =
+    try {
+      Color.parseColor(colorHexCode.toString())
+    } catch (e: IllegalArgumentException) {
+      Timber.w("Invalid color code in job style: $colorHexCode")
+      resources.getColor(R.color.colorMapAccent)
+    }
 
   private fun onCameraIdle() {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {

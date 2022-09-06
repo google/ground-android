@@ -30,7 +30,8 @@ import com.google.common.collect.ImmutableMap
         parentColumns = ["id"],
         childColumns = ["survey_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("survey_id")]
 )
 data class JobEntity(

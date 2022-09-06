@@ -24,8 +24,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableMap
-import java8.util.Optional
 import java.util.*
+import java8.util.Optional
 
 object DataCollectionTestData {
   private const val surveyId = "123"

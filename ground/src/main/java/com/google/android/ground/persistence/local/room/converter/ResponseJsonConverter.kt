@@ -20,14 +20,14 @@ import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.common.collect.ImmutableList
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import java8.util.Optional
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
 
 internal object ResponseJsonConverter {
 

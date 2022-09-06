@@ -33,8 +33,5 @@ fun <E : Any> Array<out E>.toImmutableList(): ImmutableList<E> = ImmutableList.c
 @JvmSynthetic
 fun <E : Any?> List<E>.toImmutableList(): ImmutableList<E> = ImmutableList.copyOf(this)
 
-/**
- * Converts a Kotlin set to a new [ImmutableSet].
- */
-@JvmSynthetic
-fun <E : Any?> List<E>.toImmutableSet(): ImmutableSet<E> = ImmutableSet.copyOf(this)
+/** Converts a Kotlin set to a new [ImmutableSet]. */
+@JvmSynthetic fun <E : Any?> List<E>.toImmutableSet(): ImmutableSet<E> = ImmutableSet.copyOf(this)

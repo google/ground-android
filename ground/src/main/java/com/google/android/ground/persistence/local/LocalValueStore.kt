@@ -20,9 +20,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
 import java8.util.Optional
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /**
  * Simple value store persisted locally on device. Unlike [LocalDataStore], this class provides a

@@ -56,8 +56,8 @@ import com.google.android.material.navigation.NavigationView
 import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView

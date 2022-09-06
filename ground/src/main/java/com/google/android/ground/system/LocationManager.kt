@@ -29,9 +29,9 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 private const val UPDATE_INTERVAL: Long = 1000 /* 1 sec */
 

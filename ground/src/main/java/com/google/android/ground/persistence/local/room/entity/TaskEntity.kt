@@ -31,7 +31,8 @@ import timber.log.Timber
         parentColumns = ["id"],
         childColumns = ["job_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("job_id")]
 )
 data class TaskEntity(
