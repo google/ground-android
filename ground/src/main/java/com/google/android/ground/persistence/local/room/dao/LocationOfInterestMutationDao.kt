@@ -13,39 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Dao;
-import androidx.room.Query;
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity;
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus;
-import com.google.android.ground.rx.annotations.Cold;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
+import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.rx.annotations.Cold
+import io.reactivex.Flowable
+import io.reactivex.Single
 
 /**
- * Provides low-level read/write operations of {@link LocationOfInterestMutationEntity} to/from the
- * local db.
+ * Provides low-level read/write operations of [LocationOfInterestMutationEntity] to/from the local
+ * db.
  */
 @Dao
-public interface LocationOfInterestMutationDao extends BaseDao<LocationOfInterestMutationEntity> {
+interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEntity> {
   @Query("SELECT * FROM location_of_interest_mutation")
-  Flowable<List<LocationOfInterestMutationEntity>> loadAllOnceAndStream();
+  fun loadAllOnceAndStream(): Flowable<List<LocationOfInterestMutationEntity>>
 
   @Query(
-      "SELECT * FROM location_of_interest_mutation "
-          + "WHERE location_of_interest_id = :locationOfInterestId "
-          + "AND state IN (:allowedStates)")
-  Single<List<LocationOfInterestMutationEntity>> findByLocationOfInterestId(
-      String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
+    "SELECT * FROM location_of_interest_mutation " +
+      "WHERE location_of_interest_id = :locationOfInterestId " +
+      "AND state IN (:allowedStates)"
+  )
+  fun findByLocationOfInterestId(
+    locationOfInterestId: String,
+    vararg allowedStates: MutationEntitySyncStatus
+  ): Single<List<LocationOfInterestMutationEntity>>
 
-  @Cold(terminates = false)
   @Query(
-      "SELECT * FROM location_of_interest_mutation "
-          + "WHERE location_of_interest_id = :locationOfInterestId "
-          + "AND state IN (:allowedStates)")
-  Flowable<List<LocationOfInterestMutationEntity>> findByLocationOfInterestIdOnceAndStream(
-      String locationOfInterestId, MutationEntitySyncStatus... allowedStates);
+    "SELECT * FROM location_of_interest_mutation " +
+      "WHERE location_of_interest_id = :locationOfInterestId " +
+      "AND state IN (:allowedStates)"
+  )
+  fun findByLocationOfInterestIdOnceAndStream(
+    locationOfInterestId: String,
+    vararg allowedStates: MutationEntitySyncStatus
+  ): @Cold(terminates = false) Flowable<List<LocationOfInterestMutationEntity>>
 }

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
+import androidx.room.Dao
+import com.google.android.ground.persistence.local.room.entity.TaskEntity
 
-import androidx.room.Dao;
-import com.google.android.ground.persistence.local.room.entity.TaskEntity;
-
-@Dao
-public interface TaskDao extends BaseDao<TaskEntity> {}
+@Dao interface TaskDao : BaseDao<TaskEntity>

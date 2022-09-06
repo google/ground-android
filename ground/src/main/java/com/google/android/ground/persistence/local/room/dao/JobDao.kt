@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Dao;
-import androidx.room.Query;
-import com.google.android.ground.persistence.local.room.entity.JobEntity;
-import io.reactivex.Completable;
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.JobEntity
+import io.reactivex.Completable
 
 @Dao
-public interface JobDao extends BaseDao<JobEntity> {
-
+interface JobDao : BaseDao<JobEntity> {
   @Query("DELETE FROM job WHERE survey_id = :surveyId")
-  Completable deleteBySurveyId(String surveyId);
+  fun deleteBySurveyId(surveyId: String): Completable
 }

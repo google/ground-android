@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Dao;
-import androidx.room.Query;
-import com.google.android.ground.persistence.local.room.entity.SubmissionEntity;
-import com.google.android.ground.persistence.local.room.models.EntityState;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
+import com.google.android.ground.persistence.local.room.models.EntityState
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
-public interface SubmissionDao extends BaseDao<SubmissionEntity> {
-
+interface SubmissionDao : BaseDao<SubmissionEntity> {
   /** Returns the submission with the specified UUID, if found. */
   @Query("SELECT * FROM submission WHERE id = :submissionId")
-  Maybe<SubmissionEntity> findById(String submissionId);
+  fun findById(submissionId: String): Maybe<SubmissionEntity>
 
   /**
    * Returns the list submissions associated with the specified location of interest, task and
    * state.
    */
   @Query(
-      "SELECT * FROM submission "
-          + "WHERE location_of_interest_id = :locationOfInterestId "
-          + "AND job_id = :jobId AND state = :state")
-  Single<List<SubmissionEntity>> findByLocationOfInterestId(
-      String locationOfInterestId, String jobId, EntityState state);
+    "SELECT * FROM submission " +
+      "WHERE location_of_interest_id = :locationOfInterestId " +
+      "AND job_id = :jobId AND state = :state"
+  )
+  fun findByLocationOfInterestId(
+    locationOfInterestId: String,
+    jobId: String,
+    state: EntityState
+  ): Single<List<SubmissionEntity>>
 }

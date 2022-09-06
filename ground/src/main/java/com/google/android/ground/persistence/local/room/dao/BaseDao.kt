@@ -13,37 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.Update;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Update
+import io.reactivex.Completable
+import io.reactivex.Single
 
 /**
  * Base interface for DAOs that implement operations on a specific entity type.
  *
- * @param <E> the type of entity that is persisted by sub-interfaces.
+ * @param <E> the type of entity that is persisted by sub-interfaces. </E>
  */
-public interface BaseDao<E> {
+interface BaseDao<E> {
+  @Insert fun insert(entity: E): Completable
 
-  @Insert
-  Completable insert(E entity);
+  @Update fun update(entity: E): Single<Int>
 
-  @Update
-  Single<Integer> update(E entity);
+  @Update fun updateAll(entities: List<E>): Completable
 
-  @Update
-  Completable updateAll(List<E> entities);
+  @Delete fun delete(entity: E): Completable
+}
 
-  @Delete
-  Completable delete(E entity);
-
-  /** Try to update the specified entity, and if it doesn't yet exist, create it. */
-  default Completable insertOrUpdate(E entity) {
-    return update(entity).filter(n -> n == 0).flatMapCompletable(__ -> insert(entity));
-  }
+/** Try to update the specified entity, and if it doesn't yet exist, create it. */
+fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable {
+  return update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
 }

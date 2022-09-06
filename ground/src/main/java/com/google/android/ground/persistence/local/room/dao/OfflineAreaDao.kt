@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
+import io.reactivex.Flowable
+import io.reactivex.Maybe
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import java.util.List;
-
-/** Provides read/write operations for writing {@link OfflineAreaEntity} to the local db. */
+/** Provides read/write operations for writing [OfflineAreaEntity] to the local db. */
 @Dao
-public interface OfflineAreaDao extends BaseDao<OfflineAreaEntity> {
+interface OfflineAreaDao : BaseDao<OfflineAreaEntity> {
   @Query("SELECT * FROM offline_base_map")
-  Flowable<List<OfflineAreaEntity>> findAllOnceAndStream();
+  fun findAllOnceAndStream(): Flowable<List<OfflineAreaEntity>>
 
   @Query("SELECT * FROM offline_base_map WHERE id = :id")
-  Maybe<OfflineAreaEntity> findById(String id);
+  fun findById(id: String): Maybe<OfflineAreaEntity>
 }

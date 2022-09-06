@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
+import com.google.android.ground.persistence.local.room.models.EntityState
+import io.reactivex.Flowable
+import io.reactivex.Maybe
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity;
-import com.google.android.ground.persistence.local.room.models.EntityState;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import java.util.List;
-
-/**
- * Provides low-level read/write operations of {@link LocationOfInterestEntity} to/from the local
- * db.
- */
+/** Provides low-level read/write operations of [LocationOfInterestEntity] to/from the local db. */
 @Dao
-public interface LocationOfInterestDao extends BaseDao<LocationOfInterestEntity> {
+interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
   @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")
-  Flowable<List<LocationOfInterestEntity>> findOnceAndStream(String surveyId, EntityState state);
+  fun findOnceAndStream(
+    surveyId: String,
+    state: EntityState
+  ): Flowable<List<LocationOfInterestEntity>>
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
-  Maybe<LocationOfInterestEntity> findById(String id);
+  fun findById(id: String): Maybe<LocationOfInterestEntity>
 }

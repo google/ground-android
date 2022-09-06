@@ -13,38 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Dao;
-import androidx.room.Query;
-import com.google.android.ground.persistence.local.room.entity.TileSetEntity;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.TileSetEntity
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
-public interface TileSetDao extends BaseDao<TileSetEntity> {
-
-  @Query("SELECT * FROM tile_sources")
-  Flowable<List<TileSetEntity>> findAllOnceAndStream();
+interface TileSetDao : BaseDao<TileSetEntity> {
+  @Query("SELECT * FROM tile_sources") fun findAllOnceAndStream(): Flowable<List<TileSetEntity>>
 
   @Query("SELECT * FROM tile_sources WHERE state = :state")
-  Single<List<TileSetEntity>> findByState(int state);
+  fun findByState(state: Int): Single<List<TileSetEntity>>
 
-  @Query("SELECT * FROM tile_sources WHERE id = :id")
-  Maybe<TileSetEntity> findById(String id);
+  @Query("SELECT * FROM tile_sources WHERE id = :id") fun findById(id: String): Maybe<TileSetEntity>
 
   @Query("SELECT * FROM tile_sources WHERE url = :url")
-  Maybe<TileSetEntity> findByUrl(String url);
+  fun findByUrl(url: String): Maybe<TileSetEntity>
 
   @Query("SELECT * FROM tile_sources WHERE path = :path")
-  Maybe<TileSetEntity> findByPath(String path);
+  fun findByPath(path: String): Maybe<TileSetEntity>
 
   @Query("UPDATE tile_sources SET basemap_count=:newCount WHERE url = :url")
-  Single<Integer> updateBasemapReferenceCount(int newCount, String url);
+  fun updateBasemapReferenceCount(newCount: Int, url: String): Single<Int>
 
-  @Query("DELETE FROM tile_sources WHERE url = :url")
-  Maybe<Integer> deleteByUrl(String url);
+  @Query("DELETE FROM tile_sources WHERE url = :url") fun deleteByUrl(url: String): Maybe<Int>
 }

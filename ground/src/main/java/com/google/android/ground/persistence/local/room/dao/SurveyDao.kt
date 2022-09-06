@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Dao;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import com.google.android.ground.persistence.local.room.entity.SurveyEntity;
-import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Transaction
+import com.google.android.ground.persistence.local.room.entity.SurveyEntity
+import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
-public interface SurveyDao extends BaseDao<SurveyEntity> {
-
+interface SurveyDao : BaseDao<SurveyEntity> {
   @Transaction
   @Query("SELECT * FROM survey")
-  Single<List<SurveyEntityAndRelations>> getAllSurveys();
+  fun getAllSurveys(): Single<List<SurveyEntityAndRelations>>
 
   @Transaction
   @Query("SELECT * FROM survey WHERE id = :id")
-  Maybe<SurveyEntityAndRelations> getSurveyById(String id);
+  fun getSurveyById(id: String): Maybe<SurveyEntityAndRelations>
 }

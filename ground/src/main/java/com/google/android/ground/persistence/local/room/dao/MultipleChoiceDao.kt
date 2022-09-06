@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
+import androidx.room.Dao
+import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
 
-import androidx.room.Dao;
-import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity;
-
-@Dao
-public interface MultipleChoiceDao extends BaseDao<MultipleChoiceEntity> {}
+@Dao interface MultipleChoiceDao : BaseDao<MultipleChoiceEntity>
