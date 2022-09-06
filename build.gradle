@@ -61,6 +61,7 @@ plugins {
     id "com.github.spotbugs" version "4.7.2" apply false
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
+    id "com.ncorti.ktfmt.gradle" version "0.9.0"
 }
 
 allprojects {
@@ -75,8 +76,17 @@ allprojects {
     }
 }
 
+subprojects {
+    apply plugin: "com.ncorti.ktfmt.gradle" // Version should be inherited from parent
+
+    // https://github.com/cortinico/ktfmt-gradle
+    ktfmt {
+        googleStyle()
+    }
+}
+
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugsDebug']
+    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugsDebug', 'ktfmtCheck']
 }
 
 task clean(type: Delete) {
