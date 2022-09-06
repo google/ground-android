@@ -120,8 +120,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun setWatermarkPadding(view: View, left: Int, top: Int, right: Int, bottom: Int) {
-    val watermark = view.findViewWithTag<ImageView>("GoogleWatermark") ?: return
     // Watermark may be null if Maps failed to load.
+    val watermark = view.findViewWithTag<ImageView>("GoogleWatermark") ?: return
     val params = watermark.layoutParams as RelativeLayout.LayoutParams
     params.setMargins(left, top, right, bottom)
     watermark.layoutParams = params
@@ -191,11 +191,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
         continue
       }
 
-
       if (value.any { PolyUtil.containsLocation(latLng, it.points, false) }) {
         candidates.add(mapLocationOfInterest)
-        processed.add(loiId)
       }
+
+      processed.add(loiId)
     }
     val result = candidates.build()
     if (!result.isEmpty()) {
@@ -308,6 +308,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     Timber.v("setMapLocationsOfInterest() called with ${features.size} locations of interest")
     val features: MutableSet<MapLocationOfInterest> = HashSet(features)
 
+    // TODO: add support for markers to the new geometry model rendering
     //    val deletedMarkers: MutableList<Marker> = ArrayList()
     //    for (marker in markers) {
     //      val pin = marker.tag as MapPin
