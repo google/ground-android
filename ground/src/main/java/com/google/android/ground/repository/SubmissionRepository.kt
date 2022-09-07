@@ -36,10 +36,10 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
 

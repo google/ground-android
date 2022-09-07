@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firestore
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
-import timber.log.Timber
 
 /** Alias for maps whose keys represent an index in an ordered data structure like a [List]. */
 typealias IndexedMap<T> = Map<String, T>
@@ -81,9 +80,7 @@ object GeometryConverter {
 
   /** Converts a `Map` deserialized from Firestore into a `Geometry` instance. */
   fun fromFirestoreMap(map: Map<String, *>?): Result<Geometry> =
-    Result.runCatching {
-        fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY))
-    }
+    Result.runCatching { fromFirestoreGeometry(map?.get(TYPE_KEY), map?.get(COORDINATES_KEY)) }
 
   /**
    * If data is missing or of an unexpected type, this method may fail with [ClassCastException] or

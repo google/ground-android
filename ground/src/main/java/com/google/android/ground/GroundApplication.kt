@@ -26,8 +26,8 @@ import androidx.work.WorkManager
 import com.akaita.java.rxjava2debug.RxJava2Debug
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 @HiltAndroidApp
 class GroundApplication : MultiDexApplication(), Configuration.Provider {

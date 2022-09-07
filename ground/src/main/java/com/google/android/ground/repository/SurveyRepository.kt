@@ -34,11 +34,11 @@ import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import java8.util.Optional
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
 private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30

@@ -18,11 +18,11 @@ package com.google.android.ground.persistence.local
 import com.google.android.ground.model.submission.DateResponse
 import com.google.android.ground.model.submission.TimeResponse
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneId
 import java.util.*
+import org.junit.Test
 
 class DateTimeResponseTest {
   @Test

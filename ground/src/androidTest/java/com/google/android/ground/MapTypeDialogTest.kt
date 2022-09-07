@@ -26,8 +26,8 @@ import com.google.common.truth.Truth
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Test
 import javax.inject.Inject
+import org.junit.Test
 
 @HiltAndroidTest
 class MapTypeDialogTest : BaseMainActivityTest() {

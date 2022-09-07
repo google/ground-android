@@ -40,7 +40,8 @@ import java8.util.Optional
         parentColumns = ["id"],
         childColumns = ["location_of_interest_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("location_of_interest_id")]
 )
 data class LocationOfInterestMutationEntity(

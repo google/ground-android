@@ -30,7 +30,8 @@ import java.net.URL
         parentColumns = ["id"],
         childColumns = ["survey_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("survey_id")]
 )
 data class BaseMapEntity(

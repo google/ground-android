@@ -34,10 +34,9 @@ object LoiConverter {
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
 
-  fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> =
-    runCatching {
-      toLoiUnchecked(survey, doc)
-    }
+  fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
+    toLoiUnchecked(survey, doc)
+  }
 
   private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
     val loiId = doc.id

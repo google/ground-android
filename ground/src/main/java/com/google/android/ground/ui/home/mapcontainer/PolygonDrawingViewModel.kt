@@ -48,8 +48,8 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 @SharedViewModel
 class PolygonDrawingViewModel

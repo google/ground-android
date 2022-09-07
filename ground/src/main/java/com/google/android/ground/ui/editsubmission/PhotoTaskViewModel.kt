@@ -26,10 +26,10 @@ import com.google.android.ground.persistence.remote.firestore.FirestoreStorageMa
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel.PhotoResult
-import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject

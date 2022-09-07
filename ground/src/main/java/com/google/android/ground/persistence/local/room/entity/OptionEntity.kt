@@ -30,7 +30,8 @@ import com.google.android.ground.model.task.Option
         parentColumns = ["id"],
         childColumns = ["task_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("task_id")],
   primaryKeys = ["id"]
 )

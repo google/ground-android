@@ -37,12 +37,12 @@ object StreamUtil {
     }
   }
 
-    fun <R> logErrorsAndSkipKt(supplier: Supplier<R>): Iterable<R> {
-        return try {
-            setOf(supplier.get())
-        } catch (e: RuntimeException) {
-            Timber.e(e)
-            emptySet()
-        }
+  fun <R> logErrorsAndSkipKt(supplier: Supplier<R>): Iterable<R> {
+    return try {
+      setOf(supplier.get())
+    } catch (e: RuntimeException) {
+      Timber.e(e)
+      emptySet()
     }
+  }
 }

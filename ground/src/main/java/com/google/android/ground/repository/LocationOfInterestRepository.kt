@@ -36,11 +36,11 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.*
-import java8.util.Optional
-import timber.log.Timber
 import java.util.*
+import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and

@@ -41,13 +41,13 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import java.util.*
+import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.*
 import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
-import java.util.*
-import javax.inject.Inject
 
 // TODO: Include a test for Polygon locationOfInterest
 @HiltAndroidTest

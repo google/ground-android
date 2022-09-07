@@ -24,9 +24,9 @@ import com.google.android.ground.persistence.remote.firestore.schema.JobConverte
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.DocumentSnapshot
-import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
+import timber.log.Timber
 
 /** Converts between Firestore documents and [Survey] instances. */
 internal object SurveyConverter {

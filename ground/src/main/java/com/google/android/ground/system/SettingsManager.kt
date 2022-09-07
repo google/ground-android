@@ -23,9 +23,9 @@ import com.google.android.ground.rx.RxCompletable.completeOrError
 import com.google.android.ground.system.rx.RxSettingsClient
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 private val LOCATION_SETTINGS_REQUEST_CODE = SettingsManager::class.java.hashCode() and 0xffff
 

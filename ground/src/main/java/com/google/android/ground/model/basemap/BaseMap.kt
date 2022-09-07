@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.model.basemap
 
-import org.apache.commons.io.FilenameUtils
 import java.net.URL
+import org.apache.commons.io.FilenameUtils
 
 /** Represents a possible source for offline base map data. */
 data class BaseMap(val url: URL, val type: BaseMapType) {

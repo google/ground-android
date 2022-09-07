@@ -22,11 +22,11 @@ import com.google.android.ground.R
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Single
-import java8.util.Optional
-import timber.log.Timber
 import java.io.IOException
+import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /** Abstracts native geocoding facilities. */
 @Singleton

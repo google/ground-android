@@ -31,8 +31,8 @@ import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.function.Consumer
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.
@@ -69,8 +69,8 @@ class MainActivity : AbstractActivity() {
       callback.accept(this)
     }
 
-    navigator.getNavigateRequests().`as`(autoDisposable(this)).subscribe { navDirections: NavDirections
-      ->
+    navigator.getNavigateRequests().`as`(autoDisposable(this)).subscribe {
+      navDirections: NavDirections ->
       onNavigate(navDirections)
     }
 

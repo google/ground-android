@@ -52,18 +52,13 @@ internal object QuerySnapshotConverter {
       Timber.v("${dc.document.reference.path}  ${dc.type}")
       val id = dc.document.id
       return when (dc.type) {
-        DocumentChange.Type.ADDED ->
-          loaded(id, converter.apply(dc.document).getOrThrow())
-        DocumentChange.Type.MODIFIED ->
-          modified(id, converter.apply(dc.document).getOrThrow())
-        DocumentChange.Type.REMOVED ->
-          removed<T>(id)
-        else ->
-          throw DataStoreException("Unknown DocumentChange type: ${dc.type}")
+        DocumentChange.Type.ADDED -> loaded(id, converter.apply(dc.document).getOrThrow())
+        DocumentChange.Type.MODIFIED -> modified(id, converter.apply(dc.document).getOrThrow())
+        DocumentChange.Type.REMOVED -> removed<T>(id)
+        else -> throw DataStoreException("Unknown DocumentChange type: ${dc.type}")
       }
     } catch (t: Throwable) {
       return error(t)
     }
-
   }
 }

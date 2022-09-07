@@ -25,9 +25,9 @@ import com.google.android.ground.rx.RxCompletable.completeOrError
 import com.google.android.ground.rx.annotations.Cold
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Completable
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /** Provides access to obtain and check the app's permissions. */
 @Singleton

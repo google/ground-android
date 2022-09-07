@@ -27,11 +27,11 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableEmitter
 import io.reactivex.Single
-import java8.util.StringJoiner
-import timber.log.Timber
 import java.io.File
+import java8.util.StringJoiner
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 // TODO: Add column to Submission table for storing uploaded media urls
 // TODO: Synced to remote db as well

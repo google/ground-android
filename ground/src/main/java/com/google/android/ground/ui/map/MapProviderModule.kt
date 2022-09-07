@@ -15,16 +15,14 @@
  */
 package com.google.android.ground.ui.map
 
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import com.google.android.ground.ui.map.gms.GoogleMapsFragment
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 @InstallIn(SingletonComponent::class)
 @Module
 object MapProviderModule {
-  @JvmStatic
-  @Provides
-  fun providesGoogleMapFragment(): MapFragment = GoogleMapsFragment()
+  @JvmStatic @Provides fun providesGoogleMapFragment(): MapFragment = GoogleMapsFragment()
 }

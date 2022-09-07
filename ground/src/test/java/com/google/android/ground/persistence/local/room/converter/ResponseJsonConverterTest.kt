@@ -23,8 +23,8 @@ import com.google.android.ground.persistence.local.room.converter.ResponseJsonCo
 import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.toJsonObject
 import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.toResponse
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.util.*
+import org.junit.Test
 
 class ResponseJsonConverterTest {
 

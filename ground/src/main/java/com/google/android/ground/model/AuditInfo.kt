@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.model
 
-import java8.util.Optional
 import java.util.*
+import java8.util.Optional
 
 /**
  * User details and timestamp for creation or modification of a model object.

@@ -25,14 +25,13 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Maybe
 import java8.util.Optional
+import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @UninstallModules(LocalDataStoreModule::class)
@@ -51,7 +50,6 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   private fun setTestSurvey(survey: Survey) {
-    Mockito.`when`(mockLocalDataStore.getSurveyById(anyString()))
-      .thenReturn(Maybe.just(survey))
+    Mockito.`when`(mockLocalDataStore.getSurveyById(anyString())).thenReturn(Maybe.just(survey))
   }
 }

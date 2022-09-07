@@ -22,9 +22,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /**
  * Collects exceptions from lower-level components (like LocalDataStore, RemoteDataStore, etc.) and

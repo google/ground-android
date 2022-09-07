@@ -32,7 +32,8 @@ import kotlinx.collections.immutable.toPersistentList
         parentColumns = ["id"],
         childColumns = ["task_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("task_id")]
 )
 data class MultipleChoiceEntity(

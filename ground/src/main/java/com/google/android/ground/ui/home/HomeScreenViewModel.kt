@@ -46,10 +46,10 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java8.util.Optional
-import timber.log.Timber
 import java.util.*
+import java8.util.Optional
 import javax.inject.Inject
+import timber.log.Timber
 
 @SharedViewModel
 class HomeScreenViewModel
