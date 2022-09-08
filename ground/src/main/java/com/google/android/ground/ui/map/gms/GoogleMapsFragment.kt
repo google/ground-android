@@ -142,11 +142,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     layoutInflater: LayoutInflater,
     viewGroup: ViewGroup?,
     bundle: Bundle?
-  ): View = super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
-      onApplyWindowInsets(view, insets)
+  ): View =
+    super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
+      ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
+        onApplyWindowInsets(view, insets)
+      }
     }
-  }
 
   override fun attachToFragment(
     containerFragment: AbstractFragment,
@@ -250,11 +251,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val marker =
       getMap()
         .addMarker(
-          MarkerOptions()
-            .position(position)
-            .icon(getMarkerIcon())
-            .anchor(0.5f, 0.85f)
-            .alpha(1.0f)
+          MarkerOptions().position(position).icon(getMarkerIcon()).anchor(0.5f, 0.85f).alpha(1.0f)
         )
     markers[marker] = mapLocationOfInterest
     marker.tag = Pair(mapLocationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
@@ -436,8 +433,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
         .add(MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo))
         .build()
 
-    private fun LatLng.fromLatLng(): Point =
-      Point(Coordinate(latitude, longitude))
+    private fun LatLng.fromLatLng(): Point = Point(Coordinate(latitude, longitude))
 
     private fun Point.toLatLng(): LatLng = LatLng(coordinate.y, coordinate.x)
   }
