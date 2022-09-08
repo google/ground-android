@@ -70,7 +70,7 @@ import timber.log.Timber
 @AndroidEntryPoint
 class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Marker click events. */
-  private val markerClicks: @Hot Subject<MapPin> = PublishSubject.create()
+  private val markerClicks: @Hot Subject<MapLocationOfInterest> = PublishSubject.create()
 
   /** Ambiguous click events. */
   private val locationOfInterestClicks: @Hot Subject<ImmutableList<MapLocationOfInterest>> =
@@ -202,7 +202,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMarkerClick(marker: Marker): Boolean =
     if (getMap().uiSettings.isZoomGesturesEnabled) {
-      markerClicks.onNext(marker.tag as MapPin)
+      markers[marker]?.let { markerClicks.onNext(it) }
       // Allow map to pan to marker.
       false
     } else {
@@ -210,7 +210,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       true
     }
 
-  override fun getMapPinClicks(): @Hot Observable<MapPin> = markerClicks
+  override fun getMarkerClicks(): @Hot Observable<MapLocationOfInterest> = markerClicks
 
   override fun getLocationOfInterestClicks():
     @Hot Observable<ImmutableList<MapLocationOfInterest>> = locationOfInterestClicks

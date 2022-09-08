@@ -113,10 +113,8 @@ internal constructor(
     openDrawerRequests.onNext(Nil.NIL)
   }
 
-  fun onMarkerClick(marker: MapPin) {
-    if (marker.locationOfInterest != null) {
-      showBottomSheet(marker.locationOfInterest)
-    }
+  fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
+    mapLocationOfInterest.locationOfInterest?.let { showBottomSheet(it) }
   }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {

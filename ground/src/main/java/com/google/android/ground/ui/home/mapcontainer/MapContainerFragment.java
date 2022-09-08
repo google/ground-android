@@ -72,11 +72,11 @@ public class MapContainerFragment extends AbstractMapViewerFragment {
         getViewModel(LocationOfInterestRepositionViewModel.class);
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel.class);
     getMapFragment()
-        .getMapPinClicks()
+        .getMarkerClicks()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onMarkerClick);
     getMapFragment()
-        .getMapPinClicks()
+        .getMarkerClicks()
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onMarkerClick);
     getMapFragment()

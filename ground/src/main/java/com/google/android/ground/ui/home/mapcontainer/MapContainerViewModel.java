@@ -34,6 +34,7 @@ import com.google.android.ground.R;
 import com.google.android.ground.model.Survey;
 import com.google.android.ground.model.basemap.tile.TileSet;
 import com.google.android.ground.model.geometry.Coordinate;
+import com.google.android.ground.model.geometry.Geometry;
 import com.google.android.ground.model.geometry.Point;
 import com.google.android.ground.model.job.Style;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
@@ -419,8 +420,14 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
-  public void onMarkerClick(MapPin pin) {
-    panAndZoomCamera(pin.getPosition());
+  public void onMarkerClick(MapLocationOfInterest mapLocationOfInterest) {
+    LocationOfInterest locationOfInterest = mapLocationOfInterest.getLocationOfInterest();
+    if (locationOfInterest != null) {
+      Geometry geometry = locationOfInterest.getGeometry();
+      if (geometry instanceof Point) {
+        panAndZoomCamera((Point) geometry);
+      }
+    }
   }
 
   public void panAndZoomCamera(CameraPosition cameraPosition) {
