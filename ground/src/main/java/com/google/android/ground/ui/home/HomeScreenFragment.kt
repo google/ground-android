@@ -298,7 +298,7 @@ class HomeScreenFragment :
       Timber.e("BottomSheetState is null")
       return false
     }
-    val loi = Optional.ofNullable(state.locationOfInterest)
+    val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)
     when (item.itemId) {
       R.id.move_loi_menu_item -> {
         hideBottomSheet()
