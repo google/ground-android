@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.local.room.dao;
-
-import androidx.room.Dao;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import com.google.android.ground.persistence.local.room.entity.UserEntity;
-import io.reactivex.Maybe;
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Transaction
+import com.google.android.ground.persistence.local.room.entity.UserEntity
+import io.reactivex.Maybe
 
 @Dao
-public interface UserDao extends BaseDao<UserEntity> {
+interface UserDao : BaseDao<UserEntity> {
   @Transaction
   @Query("SELECT * FROM user WHERE id = :id")
-  Maybe<UserEntity> findById(String id);
+  fun findById(id: String): Maybe<UserEntity>
 }
