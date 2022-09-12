@@ -148,16 +148,7 @@ internal constructor(
       ImmutableSet.builder()
     val selectedLocationOfInterestId = selectedLocationOfInterest.get().id
     for (locationOfInterest in locationsOfInterest) {
-      if (locationOfInterest is MapGeoJson) {
-        val geoJsonLocationOfInterestId = locationOfInterest.locationOfInterest!!.id
-        if (geoJsonLocationOfInterestId == selectedLocationOfInterestId) {
-          Timber.v("Restyling selected GeoJSON location of interest $selectedLocationOfInterestId")
-          updatedLocationsOfInterest.add(
-            locationOfInterest.toBuilder().setStrokeWidth(selectedPolygonStrokeWidth).build()
-          )
-          continue
-        }
-      }
+      // TODO: Update strokewidth of non MapGeoJson locationOfInterest
       updatedLocationsOfInterest.add(locationOfInterest)
     }
     return updatedLocationsOfInterest.build()
