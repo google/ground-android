@@ -18,14 +18,14 @@ package com.google.android.ground.rx
 import java8.util.Optional
 
 /** The result of an operation that can return either true, false, or fail with an exception. */
+// TODO: Remove BooleanOrError and use Result<Boolean> once all java references are migrated to
+// kotlin.
 data class BooleanOrError(val result: Result<Boolean>) {
   /**
    * Returns true if the operation succeeded with a result of `true`, or false otherwise. Note that
    * false is also returned if the operation failed in error.
    */
-  val isTrue = value().orElse(false)!!
-
-  fun value(): Optional<Boolean> = Optional.ofNullable(result.getOrNull())
+  val isTrue = result.getOrDefault(false)
 
   fun error(): Optional<Throwable?> = Optional.ofNullable(result.exceptionOrNull())
 
