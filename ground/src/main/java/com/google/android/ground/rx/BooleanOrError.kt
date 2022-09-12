@@ -18,31 +18,31 @@ package com.google.android.ground.rx
 import java8.util.Optional
 
 /** The result of an operation that can return either true, false, or fail with an exception. */
-class BooleanOrError private constructor(val value: Boolean?, val error: Throwable?) {
+data class BooleanOrError(val result: Result<Boolean>) {
   /**
    * Returns true if the operation succeeded with a result of `true`, or false otherwise. Note that
    * false is also returned if the operation failed in error.
    */
   val isTrue = value().orElse(false)!!
 
-  fun value(): Optional<Boolean> = Optional.ofNullable(value)
+  fun value(): Optional<Boolean> = Optional.ofNullable(result.getOrNull())
 
-  fun error(): Optional<Throwable?> = Optional.ofNullable(error)
+  fun error(): Optional<Throwable?> = Optional.ofNullable(result.exceptionOrNull())
 
   companion object {
     @JvmStatic
     fun trueValue(): BooleanOrError {
-      return BooleanOrError(true, null)
+      return BooleanOrError(Result.success(true))
     }
 
     @JvmStatic
     fun falseValue(): BooleanOrError {
-      return BooleanOrError(false, null)
+      return BooleanOrError(Result.success(false))
     }
 
     @JvmStatic
-    fun error(t: Throwable?): BooleanOrError {
-      return BooleanOrError(null, t)
+    fun error(t: Throwable): BooleanOrError {
+      return BooleanOrError(Result.failure(t))
     }
   }
 }
