@@ -160,7 +160,9 @@ internal constructor(
     val mapPins =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POINT }
-        .map { toMapPin(it) }
+        .map { SimpleMapLocationOfInterest(
+          it
+        ) }
         .toImmutableSet()
 
     // TODO: Add support for polylines similar to mapPins.
@@ -378,17 +380,8 @@ internal constructor(
 
     private fun concatLocationsOfInterestSets(
       objects: Array<Any>
-    ): ImmutableSet<MapLocationOfInterest> {
-      return listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
-    }
-
-    private fun toMapPin(pointOfInterest: LocationOfInterest): MapLocationOfInterest =
-      MapPin.newBuilder()
-        .setId(pointOfInterest.id)
-        .setPosition(pointOfInterest.geometry.vertices[0])
-        .setStyle(Style())
-        .setLocationOfInterest(pointOfInterest)
-        .build()
+    ): ImmutableSet<MapLocationOfInterest> =
+      listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
 
     private fun toMapPolygon(areaOfInterest: LocationOfInterest): MapLocationOfInterest =
       MapPolygon.newBuilder()
