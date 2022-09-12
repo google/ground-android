@@ -18,6 +18,7 @@ package com.google.android.ground.ui.home.mapcontainer
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapPin
@@ -190,8 +191,12 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
       for (mapLocationOfInterest in mapLois) {
         if (mapLocationOfInterest is MapPolygon) {
           actualMapPolygonCount++
-        } else if (mapLocationOfInterest is MapPin) {
-          actualMapPinCount++
+        } else {
+          when (mapLocationOfInterest.locationOfInterest!!.geometry) {
+            is Point -> actualMapPinCount++
+            is Polygon -> actualMapPolygonCount++
+            else -> {}
+          }
         }
       }
 
