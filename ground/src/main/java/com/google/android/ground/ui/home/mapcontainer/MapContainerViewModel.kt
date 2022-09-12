@@ -160,9 +160,7 @@ internal constructor(
     val mapPins =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POINT }
-        .map { SimpleMapLocationOfInterest(
-          it
-        ) }
+        .map { SimpleMapLocationOfInterest(it) }
         .toImmutableSet()
 
     // TODO: Add support for polylines similar to mapPins.
