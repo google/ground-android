@@ -70,7 +70,7 @@ import timber.log.Timber
 @AndroidEntryPoint
 class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Marker click events. */
-  private val markerClicks: @Hot Subject<MapPin> = PublishSubject.create()
+  private val markerClicks: @Hot Subject<MapLocationOfInterest> = PublishSubject.create()
 
   /** Ambiguous click events. */
   private val locationOfInterestClicks: @Hot Subject<ImmutableList<MapLocationOfInterest>> =
@@ -93,7 +93,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
    * with current view and data state.
    */
-  private val markers: MutableSet<Marker> = HashSet()
+  private val markers: MutableMap<Marker, MapLocationOfInterest> = HashMap()
   private val polygons: MutableMap<MapLocationOfInterest, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
@@ -107,6 +107,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
    */
   private lateinit var customCap: CustomCap
   private var cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
+
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
     val insetBottom = insets.systemWindowInsetBottom
     // TODO: Move extra padding to dimens.xml.
@@ -141,13 +142,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     layoutInflater: LayoutInflater,
     viewGroup: ViewGroup?,
     bundle: Bundle?
-  ): View {
-    val view = super.onCreateView(layoutInflater, viewGroup, bundle)
-    ViewCompat.setOnApplyWindowInsetsListener(view!!) { view, insets ->
-      onApplyWindowInsets(view, insets)
+  ): View =
+    super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
+      ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
+        onApplyWindowInsets(view, insets)
+      }
     }
-    return view
-  }
 
   override fun attachToFragment(
     containerFragment: AbstractFragment,
@@ -203,7 +203,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMarkerClick(marker: Marker): Boolean =
     if (getMap().uiSettings.isZoomGesturesEnabled) {
-      markerClicks.onNext(marker.tag as MapPin)
+      markers[marker]?.let { markerClicks.onNext(it) }
       // Allow map to pan to marker.
       false
     } else {
@@ -211,7 +211,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       true
     }
 
-  override fun getMapPinClicks(): @Hot Observable<MapPin> = markerClicks
+  override fun getMarkerClicks(): @Hot Observable<MapLocationOfInterest> = markerClicks
 
   override fun getLocationOfInterestClicks():
     @Hot Observable<ImmutableList<MapLocationOfInterest>> = locationOfInterestClicks
@@ -228,8 +228,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       return 0.toDouble()
     }
     val projection = map!!.projection
-    val loc1 = projection.toScreenLocation(toLatLng(point1))
-    val loc2 = projection.toScreenLocation(toLatLng(point2))
+    val loc1 = projection.toScreenLocation(point1.toLatLng())
+    val loc2 = projection.toScreenLocation(point2.toLatLng())
     val dx = (loc1.x - loc2.x).toDouble()
     val dy = (loc1.y - loc2.y).toDouble()
     return sqrt(dx * dx + dy * dy)
@@ -240,29 +240,25 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun disableGestures() = getMap().uiSettings.setAllGesturesEnabled(false)
 
   override fun moveCamera(point: Point) =
-    getMap().moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)))
+    getMap().moveCamera(CameraUpdateFactory.newLatLng(point.toLatLng()))
 
   override fun moveCamera(point: Point, zoomLevel: Float) =
-    getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel))
+    getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel))
 
-  private fun addMapPin(mapPin: MapPin) {
-    val position = toLatLng(mapPin.position)
+  private fun addMapPin(mapLocationOfInterest: MapLocationOfInterest, point: Point) {
+    val position = point.toLatLng()
     // TODO: add the anchor values into the resource dimensions file
     val marker =
       getMap()
         .addMarker(
-          MarkerOptions()
-            .position(position)
-            .icon(getMarkerIcon(mapPin))
-            .anchor(0.5f, 0.85f)
-            .alpha(1.0f)
+          MarkerOptions().position(position).icon(getMarkerIcon()).anchor(0.5f, 0.85f).alpha(1.0f)
         )
-    markers.add(marker)
-    marker.tag = mapPin
+    markers[marker] = mapLocationOfInterest
+    marker.tag = Pair(mapLocationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
   }
 
-  private fun getMarkerIcon(mapPin: MapPin): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(parseColor(mapPin.style.color), currentZoomLevel)
+  private fun getMarkerIcon(): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel)
 
   private fun addMultiPolygon(
     locationOfInterest: MapLocationOfInterest,
@@ -272,9 +268,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addPolygon(locationOfInterest: MapLocationOfInterest, polygon: Polygon) {
     val options = PolygonOptions()
     options.clickable(false)
-    val shellVertices = polygon.shell.vertices.map { toLatLng(it) }
+    val shellVertices = polygon.shell.vertices.map { it.toLatLng() }
     options.addAll(shellVertices)
-    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> toLatLng(point) } }
+    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> point.toLatLng() } }
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
@@ -306,31 +302,29 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun setMapLocationsOfInterest(features: ImmutableSet<MapLocationOfInterest>) {
     Timber.v("setMapLocationsOfInterest() called with ${features.size} locations of interest")
-    val features: MutableSet<MapLocationOfInterest> = HashSet(features)
+    val featuresToUpdate: MutableSet<MapLocationOfInterest> = HashSet(features)
 
-    // TODO: add support for markers to the new geometry model rendering
-    //    val deletedMarkers: MutableList<Marker> = ArrayList()
-    //    for (marker in markers) {
-    //      val pin = marker.tag as MapPin
-    //      if (features.contains(pin)) {
-    //        // If existing pin is present and up-to-date, don't update it.
-    //        geometriesToUpdate.remove(pin)
-    //      } else {
-    //        // If pin isn't present or up-to-date, remove it so it can be added back later.
-    //        removeMarker(marker)
-    //        deletedMarkers.add(marker)
-    //      }
-    //    }
+    val deletedMarkers: MutableList<Marker> = ArrayList()
+    for ((marker, pinLocationOfInterest) in markers) {
+      if (features.contains(pinLocationOfInterest)) {
+        // If existing pin is present and up-to-date, don't update it.
+        featuresToUpdate.remove(pinLocationOfInterest)
+      } else {
+        // If pin isn't present or up-to-date, remove it so it can be added back later.
+        removeMarker(marker)
+        deletedMarkers.add(marker)
+      }
+    }
 
-    //    // Update markers list.
-    //    deletedMarkers.forEach { o: Marker -> markers.remove(o) }
+    // Update markers list.
+    deletedMarkers.forEach { markers.remove(it) }
 
     val mapsPolygonIterator = polygons.entries.iterator()
     while (mapsPolygonIterator.hasNext()) {
       val (mapLocationOfInterest, polygons) = mapsPolygonIterator.next()
       if (features.contains(mapLocationOfInterest)) {
         // If polygons already exists on map, don't add them.
-        features.remove(mapLocationOfInterest)
+        featuresToUpdate.remove(mapLocationOfInterest)
       } else {
         // Remove existing polygons not in list of updatedLocationsOfInterest.
         polygons.forEach { removePolygon(it) }
@@ -348,19 +342,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
         is LineString -> TODO()
         is LinearRing -> TODO()
         is MultiPolygon -> addMultiPolygon(it, geometry)
-        is Point -> TODO()
+        is Point -> addMapPin(it, geometry)
         is Polygon -> addPolygon(it, geometry)
       }
     }
   }
 
-  override fun refreshMarkerIcons() {
-    for (marker in markers) {
-      val mapPin = marker.tag as MapPin
-
-      marker.setIcon(getMarkerIcon(mapPin))
-    }
-  }
+  override fun refreshMarkerIcons() = markers.keys.forEach { it.setIcon(getMarkerIcon()) }
 
   override fun getMapType(): Int = getMap().mapType
 
@@ -390,7 +378,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
       val target = getMap().cameraPosition.target
       val zoom = getMap().cameraPosition.zoom
-      cameraMovedEvents.onNext(CameraPosition(fromLatLng(target), zoom))
+      cameraMovedEvents.onNext(CameraPosition(target.fromLatLng(), zoom))
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
     }
   }
@@ -402,9 +390,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun getViewport(): LatLngBounds {
-    return getMap().projection.visibleRegion.latLngBounds
-  }
+  override fun getViewport(): LatLngBounds = getMap().projection.visibleRegion.latLngBounds
 
   override fun setViewport(bounds: LatLngBounds) {
     getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0))
@@ -423,7 +409,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       tileProviders.onNext(tileProvider)
       getMap().addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
     } catch (e: Exception) {
-      Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile%s")
+      Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile")
     }
   }
 
@@ -447,9 +433,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
         .add(MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo))
         .build()
 
-    private fun fromLatLng(latLng: LatLng): Point =
-      Point(Coordinate(latLng.latitude, latLng.longitude))
+    private fun LatLng.fromLatLng(): Point = Point(Coordinate(latitude, longitude))
 
-    private fun toLatLng(point: Point): LatLng = LatLng(point.coordinate.y, point.coordinate.x)
+    private fun Point.toLatLng(): LatLng = LatLng(coordinate.y, coordinate.x)
   }
 }

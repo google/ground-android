@@ -37,7 +37,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
 import com.google.android.ground.ui.map.MapLocationOfInterest
-import com.google.android.ground.ui.map.MapPin
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
@@ -113,10 +112,8 @@ internal constructor(
     openDrawerRequests.onNext(Nil.NIL)
   }
 
-  fun onMarkerClick(marker: MapPin) {
-    if (marker.locationOfInterest != null) {
-      showBottomSheet(marker.locationOfInterest)
-    }
+  fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
+    mapLocationOfInterest.locationOfInterest?.let { showBottomSheet(it) }
   }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {

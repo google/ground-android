@@ -45,7 +45,7 @@ public interface MapFragment {
 
   /** Returns marker click events. */
   @Hot
-  Observable<MapPin> getMapPinClicks();
+  Observable<MapLocationOfInterest> getMarkerClicks();
 
   @Hot
   Observable<ImmutableList<MapLocationOfInterest>> getLocationOfInterestClicks();
