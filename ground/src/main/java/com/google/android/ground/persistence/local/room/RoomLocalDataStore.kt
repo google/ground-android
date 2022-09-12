@@ -172,7 +172,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   override val surveys: Single<ImmutableList<Survey>>
     get() =
-      surveyDao.allSurveys
+      surveyDao
+        .getAllSurveys()
         .map { list: List<SurveyEntityAndRelations> ->
           list.map { SurveyEntity.toSurvey(it) }.toImmutableList()
         }
