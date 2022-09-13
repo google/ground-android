@@ -19,7 +19,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.ground.ui.home.BottomSheetMetrics
 import com.google.android.ground.R
 
 /**
@@ -34,7 +33,9 @@ abstract class BottomSheetDependentBehavior<V : View?>(context: Context, attrs: 
    * and when the bottom sheet is scrolled up or down.
    */
   protected abstract fun onBottomSheetChanged(
-    parent: CoordinatorLayout, child: V, metrics: BottomSheetMetrics
+    parent: CoordinatorLayout,
+    child: V,
+    metrics: BottomSheetMetrics
   )
 
   override fun layoutDependsOn(parent: CoordinatorLayout, child: V, dependency: View): Boolean =

@@ -18,18 +18,18 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import com.google.android.ground.ui.home.BottomSheetDependentBehavior
 import android.widget.FrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.ground.ui.home.BottomSheetMetrics
 import com.google.android.ground.R
+import com.google.android.ground.ui.home.BottomSheetDependentBehavior
+import com.google.android.ground.ui.home.BottomSheetMetrics
 
 class MapContainerLayoutBehavior(context: Context, attrs: AttributeSet) :
-  BottomSheetDependentBehavior<FrameLayout>(
-    context, attrs
-  ) {
+  BottomSheetDependentBehavior<FrameLayout>(context, attrs) {
   override fun onBottomSheetChanged(
-    parent: CoordinatorLayout, mapContainerLayout: FrameLayout, metrics: BottomSheetMetrics
+    parent: CoordinatorLayout,
+    mapContainerLayout: FrameLayout,
+    metrics: BottomSheetMetrics
   ) {
     if (metrics.peekHeight <= 0) {
       return
