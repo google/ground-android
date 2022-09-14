@@ -13,174 +13,146 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.common
 
-package com.google.android.ground.ui.common;
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.ground.MainViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.editsubmission.*
+import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel
+import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel
+import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
+import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
+import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestRepositionViewModel
+import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
+import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel
+import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel
+import com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel
+import com.google.android.ground.ui.signin.SignInViewModel
+import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel
+import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
+import com.google.android.ground.ui.syncstatus.SyncStatusViewModel
+import com.google.android.ground.ui.tos.TermsOfServiceViewModel
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoMap
 
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
-import com.google.android.ground.MainViewModel;
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel;
-import com.google.android.ground.ui.editsubmission.DateTaskViewModel;
-import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel;
-import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel;
-import com.google.android.ground.ui.editsubmission.NumberTaskViewModel;
-import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel;
-import com.google.android.ground.ui.editsubmission.TextTaskViewModel;
-import com.google.android.ground.ui.editsubmission.TimeTaskViewModel;
-import com.google.android.ground.ui.home.HomeScreenViewModel;
-import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel;
-import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel;
-import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel;
-import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel;
-import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestRepositionViewModel;
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel;
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel;
-import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel;
-import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel;
-import com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel;
-import com.google.android.ground.ui.signin.SignInViewModel;
-import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel;
-import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel;
-import com.google.android.ground.ui.syncstatus.SyncStatusViewModel;
-import com.google.android.ground.ui.tos.TermsOfServiceViewModel;
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
-import dagger.multibindings.IntoMap;
-
-@InstallIn(SingletonComponent.class)
+@InstallIn(SingletonComponent::class)
 @Module
-public abstract class ViewModelModule {
+abstract class ViewModelModule {
+  @Binds
+  @IntoMap
+  @ViewModelKey(LocationOfInterestRepositionViewModel::class)
+  abstract fun bindLocationOfInterestRepositionViewModel(
+    viewModel: LocationOfInterestRepositionViewModel
+  ): ViewModel
 
   @Binds
   @IntoMap
-  @ViewModelKey(LocationOfInterestRepositionViewModel.class)
-  abstract ViewModel bindLocationOfInterestRepositionViewModel(
-      LocationOfInterestRepositionViewModel viewModel);
+  @ViewModelKey(PolygonDrawingViewModel::class)
+  abstract fun bindPolygonDrawingViewModel(viewModel: PolygonDrawingViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(MapContainerViewModel::class)
+  abstract fun bindMapContainerViewModel(viewModel: MapContainerViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(OfflineAreaSelectorViewModel::class)
+  abstract fun bindOfflineAreaSelectorViewModel(viewModel: OfflineAreaSelectorViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(SyncStatusViewModel::class)
+  abstract fun bindSyncStatusViewModel(viewModel: SyncStatusViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(DataCollectionViewModel::class)
+  abstract fun bindDataCollectionViewModel(viewModel: DataCollectionViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(OfflineAreasViewModel::class)
+  abstract fun bindOfflineAreasViewModel(viewModel: OfflineAreasViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(OfflineAreaViewerViewModel::class)
+  abstract fun bindOfflineAreaViewerViewModel(viewModel: OfflineAreaViewerViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(MainViewModel::class)
+  abstract fun bindMainViewModel(viewModel: MainViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(SignInViewModel::class)
+  abstract fun bindSignInVideModel(viewModel: SignInViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(TermsOfServiceViewModel::class)
+  abstract fun bindTermsViewModel(viewModel: TermsOfServiceViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(HomeScreenViewModel::class)
+  abstract fun bindHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(LocationOfInterestDetailsViewModel::class)
+  abstract fun bindLocationOfInterestDetailsViewModel(
+    viewModel: LocationOfInterestDetailsViewModel
+  ): ViewModel
 
   @Binds
   @IntoMap
-  @ViewModelKey(PolygonDrawingViewModel.class)
-  abstract ViewModel bindPolygonDrawingViewModel(PolygonDrawingViewModel viewModel);
-
+  @ViewModelKey(SurveySelectorViewModel::class)
+  abstract fun bindSurveySelectorViewModel(viewModel: SurveySelectorViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(MapContainerViewModel.class)
-  abstract ViewModel bindMapContainerViewModel(MapContainerViewModel viewModel);
-
+  @ViewModelKey(SubmissionListItemViewModel::class)
+  abstract fun bindSubmissionListItemViewModel(viewModel: SubmissionListItemViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineAreaSelectorViewModel.class)
-  abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineAreaSelectorViewModel viewModel);
-
+  @ViewModelKey(SubmissionListViewModel::class)
+  abstract fun bindSubmissionListViewModel(viewModel: SubmissionListViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(SyncStatusViewModel.class)
-  abstract ViewModel bindSyncStatusViewModel(SyncStatusViewModel viewModel);
-
+  @ViewModelKey(SubmissionDetailsViewModel::class)
+  abstract fun bindSubmissionDetailsViewModel(viewModel: SubmissionDetailsViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(DataCollectionViewModel.class)
-  abstract ViewModel bindDataCollectionViewModel(DataCollectionViewModel viewModel);
-
+  @ViewModelKey(EditSubmissionViewModel::class)
+  abstract fun bindEditSubmissionViewModel(viewModel: EditSubmissionViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineAreasViewModel.class)
-  abstract ViewModel bindOfflineAreasViewModel(OfflineAreasViewModel viewModel);
-
+  @ViewModelKey(PhotoTaskViewModel::class)
+  abstract fun bindPhotoTaskViewModel(viewModel: PhotoTaskViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineAreaViewerViewModel.class)
-  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineAreaViewerViewModel viewModel);
-
+  @ViewModelKey(MultipleChoiceTaskViewModel::class)
+  abstract fun bindMultipleChoiceTaskViewModel(viewModel: MultipleChoiceTaskViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(MainViewModel.class)
-  abstract ViewModel bindMainViewModel(MainViewModel viewModel);
-
+  @ViewModelKey(TextTaskViewModel::class)
+  abstract fun bindTextTaskViewModel(viewModel: TextTaskViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(SignInViewModel.class)
-  abstract ViewModel bindSignInVideModel(SignInViewModel viewModel);
-
+  @ViewModelKey(NumberTaskViewModel::class)
+  abstract fun bindNumberTaskViewModel(viewModel: NumberTaskViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(TermsOfServiceViewModel.class)
-  abstract ViewModel bindTermsViewModel(TermsOfServiceViewModel viewModel);
-
+  @ViewModelKey(DateTaskViewModel::class)
+  abstract fun bindDateTaskViewModel(viewModel: DateTaskViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(HomeScreenViewModel.class)
-  abstract ViewModel bindHomeScreenViewModel(HomeScreenViewModel viewModel);
-
+  @ViewModelKey(TimeTaskViewModel::class)
+  abstract fun bindTimeTaskViewModel(viewModel: TimeTaskViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(LocationOfInterestDetailsViewModel.class)
-  abstract ViewModel bindLocationOfInterestDetailsViewModel(
-      LocationOfInterestDetailsViewModel viewModel);
+  @ViewModelKey(LocationOfInterestSelectorViewModel::class)
+  abstract fun bindLocationOfInterestSelectorViewModel(
+    viewModel: LocationOfInterestSelectorViewModel
+  ): ViewModel
 
-  @Binds
-  @IntoMap
-  @ViewModelKey(SurveySelectorViewModel.class)
-  abstract ViewModel bindSurveySelectorViewModel(SurveySelectorViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionListItemViewModel.class)
-  abstract ViewModel bindSubmissionListItemViewModel(SubmissionListItemViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionListViewModel.class)
-  abstract ViewModel bindSubmissionListViewModel(SubmissionListViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionDetailsViewModel.class)
-  abstract ViewModel bindSubmissionDetailsViewModel(SubmissionDetailsViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(EditSubmissionViewModel.class)
-  abstract ViewModel bindEditSubmissionViewModel(EditSubmissionViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(PhotoTaskViewModel.class)
-  abstract ViewModel bindPhotoTaskViewModel(PhotoTaskViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(MultipleChoiceTaskViewModel.class)
-  abstract ViewModel bindMultipleChoiceTaskViewModel(MultipleChoiceTaskViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(TextTaskViewModel.class)
-  abstract ViewModel bindTextTaskViewModel(TextTaskViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(NumberTaskViewModel.class)
-  abstract ViewModel bindNumberTaskViewModel(NumberTaskViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(DateTaskViewModel.class)
-  abstract ViewModel bindDateTaskViewModel(DateTaskViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(TimeTaskViewModel.class)
-  abstract ViewModel bindTimeTaskViewModel(TimeTaskViewModel viewModel);
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(LocationOfInterestSelectorViewModel.class)
-  abstract ViewModel bindLocationOfInterestSelectorViewModel(
-      LocationOfInterestSelectorViewModel viewModel);
-
-  @Binds
-  abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
+  @Binds abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }

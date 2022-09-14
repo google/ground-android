@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.sync
 
-package com.google.android.ground.persistence.sync;
+import android.content.Context
+import androidx.work.WorkManager
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-import android.content.Context;
-import androidx.work.WorkManager;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import dagger.hilt.components.SingletonComponent;
-import javax.inject.Singleton;
-
-@InstallIn(SingletonComponent.class)
+@InstallIn(SingletonComponent::class)
 @Module
-public abstract class WorkManagerModule {
-
+object WorkManagerModule {
   @Provides
   @Singleton
-  static WorkManager provideWorkManager(@ApplicationContext Context context) {
-    return WorkManager.getInstance(context);
+  fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+    return WorkManager.getInstance(context)
   }
 }

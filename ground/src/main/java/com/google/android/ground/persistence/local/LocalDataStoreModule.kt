@@ -13,102 +13,88 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local
 
-package com.google.android.ground.persistence.local;
+import com.google.android.ground.persistence.local.room.LocalDatabase
+import com.google.android.ground.persistence.local.room.RoomLocalDataStore
+import com.google.android.ground.persistence.local.room.dao.*
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-import com.google.android.ground.persistence.local.room.LocalDatabase;
-import com.google.android.ground.persistence.local.room.RoomLocalDataStore;
-import com.google.android.ground.persistence.local.room.dao.BaseMapDao;
-import com.google.android.ground.persistence.local.room.dao.JobDao;
-import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao;
-import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao;
-import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao;
-import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao;
-import com.google.android.ground.persistence.local.room.dao.OptionDao;
-import com.google.android.ground.persistence.local.room.dao.SubmissionDao;
-import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao;
-import com.google.android.ground.persistence.local.room.dao.SurveyDao;
-import com.google.android.ground.persistence.local.room.dao.TaskDao;
-import com.google.android.ground.persistence.local.room.dao.TileSetDao;
-import com.google.android.ground.persistence.local.room.dao.UserDao;
-import dagger.Binds;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
-import javax.inject.Singleton;
-
-@InstallIn(SingletonComponent.class)
+@InstallIn(SingletonComponent::class)
 @Module
-public abstract class LocalDataStoreModule {
+abstract class LocalDataStoreModule {
 
-  @Provides
-  static LocationOfInterestDao locationOfInterestDao(LocalDatabase localDatabase) {
-    return localDatabase.locationOfInterestDao();
+  @Binds @Singleton abstract fun localDataStore(ds: RoomLocalDataStore): LocalDataStore
+
+  companion object {
+    @Provides
+    fun locationOfInterestDao(localDatabase: LocalDatabase): LocationOfInterestDao {
+      return localDatabase.locationOfInterestDao()
+    }
+
+    @Provides
+    fun locationOfInterestMutationDao(localDatabase: LocalDatabase): LocationOfInterestMutationDao {
+      return localDatabase.locationOfInterestMutationDao()
+    }
+
+    @Provides
+    fun taskDao(localDatabase: LocalDatabase): TaskDao {
+      return localDatabase.taskDao()
+    }
+
+    @Provides
+    fun jobDao(localDatabase: LocalDatabase): JobDao {
+      return localDatabase.jobDao()
+    }
+
+    @Provides
+    fun multipleChoiceDao(localDatabase: LocalDatabase): MultipleChoiceDao {
+      return localDatabase.multipleChoiceDao()
+    }
+
+    @Provides
+    fun optionDao(localDatabase: LocalDatabase): OptionDao {
+      return localDatabase.optionDao()
+    }
+
+    @Provides
+    fun surveyDao(localDatabase: LocalDatabase): SurveyDao {
+      return localDatabase.surveyDao()
+    }
+
+    @Provides
+    fun submissionDao(localDatabase: LocalDatabase): SubmissionDao {
+      return localDatabase.submissionDao()
+    }
+
+    @Provides
+    fun submissionMutationDao(localDatabase: LocalDatabase): SubmissionMutationDao {
+      return localDatabase.submissionMutationDao()
+    }
+
+    @Provides
+    fun tileSetDao(localDatabase: LocalDatabase): TileSetDao {
+      return localDatabase.tileSetDao()
+    }
+
+    @Provides
+    fun offlineAreaDao(localDatabase: LocalDatabase): OfflineAreaDao {
+      return localDatabase.offlineAreaDao()
+    }
+
+    @Provides
+    fun baseMapDao(localDatabase: LocalDatabase): BaseMapDao {
+      return localDatabase.baseMapDao()
+    }
+
+    @Provides
+    fun userDao(localDatabase: LocalDatabase): UserDao {
+      return localDatabase.userDao()
+    }
   }
-
-  @Provides
-  static LocationOfInterestMutationDao locationOfInterestMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.locationOfInterestMutationDao();
-  }
-
-  @Provides
-  static TaskDao taskDao(LocalDatabase localDatabase) {
-    return localDatabase.taskDao();
-  }
-
-  @Provides
-  static JobDao jobDao(LocalDatabase localDatabase) {
-    return localDatabase.jobDao();
-  }
-
-  @Provides
-  static MultipleChoiceDao multipleChoiceDao(LocalDatabase localDatabase) {
-    return localDatabase.multipleChoiceDao();
-  }
-
-  @Provides
-  static OptionDao optionDao(LocalDatabase localDatabase) {
-    return localDatabase.optionDao();
-  }
-
-  @Provides
-  static SurveyDao surveyDao(LocalDatabase localDatabase) {
-    return localDatabase.surveyDao();
-  }
-
-  @Provides
-  static SubmissionDao submissionDao(LocalDatabase localDatabase) {
-    return localDatabase.submissionDao();
-  }
-
-  @Provides
-  static SubmissionMutationDao submissionMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.submissionMutationDao();
-  }
-
-  @Provides
-  static TileSetDao tileSetDao(LocalDatabase localDatabase) {
-    return localDatabase.tileSetDao();
-  }
-
-  @Provides
-  static OfflineAreaDao offlineAreaDao(LocalDatabase localDatabase) {
-    return localDatabase.offlineAreaDao();
-  }
-
-  @Provides
-  static BaseMapDao baseMapDao(LocalDatabase localDatabase) {
-    return localDatabase.baseMapDao();
-  }
-
-  @Provides
-  static UserDao userDao(LocalDatabase localDatabase) {
-    return localDatabase.userDao();
-  }
-
-  /** Provides the Room implementation of local data store. */
-  @Binds
-  @Singleton
-  abstract LocalDataStore localDataStore(RoomLocalDataStore ds);
 }

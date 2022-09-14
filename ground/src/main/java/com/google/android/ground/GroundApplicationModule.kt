@@ -13,49 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Resources
+import android.location.Geocoder
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.ground.ui.common.ViewModelModule
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.location.Geocoder;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.ground.ui.common.ViewModelModule;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import dagger.hilt.components.SingletonComponent;
-import javax.inject.Singleton;
-
-@InstallIn(SingletonComponent.class)
-@Module(includes = {ViewModelModule.class})
-abstract class GroundApplicationModule {
+@InstallIn(SingletonComponent::class)
+@Module(includes = [ViewModelModule::class])
+object GroundApplicationModule {
 
   @Provides
   @Singleton
-  static GoogleApiAvailability googleApiAvailability() {
-    return GoogleApiAvailability.getInstance();
+  fun googleApiAvailability(): GoogleApiAvailability {
+    return GoogleApiAvailability.getInstance()
   }
 
   @Provides
   @Singleton
-  static SharedPreferences provideSharedPreferences(Application application) {
-    return application
-        .getApplicationContext()
-        .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
+  fun provideSharedPreferences(application: Application): SharedPreferences {
+    return application.applicationContext.getSharedPreferences(
+      Config.SHARED_PREFS_NAME,
+      Config.SHARED_PREFS_MODE
+    )
   }
 
   @Provides
   @Singleton
-  static Geocoder provideGeocoder(@ApplicationContext Context context) {
-    return new Geocoder(context);
+  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
+    return Geocoder(context)
   }
 
   @Provides
-  static Resources provideResources(@ApplicationContext Context context) {
-    return context.getResources();
+  fun provideResources(@ApplicationContext context: Context): Resources {
+    return context.resources
   }
 }
