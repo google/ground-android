@@ -13,121 +13,105 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import android.view.View;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.IdlingResource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import android.R
+import android.view.View
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.FragmentActivity
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.IdlingResource
+import java.util.*
 
 /**
  * Used to make Espresso work with DataBinding. Without it the tests will be flaky because
  * DataBinding uses Choreographer class to synchronize its view updates hence using this to monitor
  * a launched fragment in fragment scenario will make Espresso wait before doing additional checks
  */
-public class DataBindingIdlingResource implements IdlingResource {
-  // Give it a unique id to work around an Espresso bug where you cannot register/unregister
-  // an idling resource with the same name.
-  private static final String ID = UUID.randomUUID().toString();
-  // List of registered callbacks
-  private static final List<IdlingResource.ResourceCallback> IDLING_CALLBACKS = new ArrayList<>();
+class DataBindingIdlingResource : IdlingResource {
   // Holds whether isIdle was called and the result was false. We track this to avoid calling
   // onTransitionToIdle callbacks if Espresso never thought we were idle in the first place.
-  private boolean wasNotIdle;
-  private FragmentActivity activity;
-
-  @Override
-  public String getName() {
-    return String.format("DataBinding %s", ID);
+  private var wasNotIdle = false
+  private var activity: FragmentActivity? = null
+  override fun getName(): String {
+    return String.format("DataBinding %s", ID)
   }
 
-  @Override
-  public boolean isIdleNow() {
-    boolean idle = false;
-    for (ViewDataBinding b : getBindings()) {
+  override fun isIdleNow(): Boolean {
+    var idle = false
+    for (b in bindings) {
       if (b == null) {
-        continue;
+        continue
       }
       if (!b.hasPendingBindings()) {
-        idle = true;
-        break;
+        idle = true
+        break
       }
     }
     if (idle) {
       if (wasNotIdle) {
         // Notify observers to avoid Espresso race detector.
-        for (ResourceCallback cb : IDLING_CALLBACKS) {
-          cb.onTransitionToIdle();
+        for (cb in IDLING_CALLBACKS) {
+          cb.onTransitionToIdle()
         }
       }
-      wasNotIdle = false;
+      wasNotIdle = false
     } else {
-      wasNotIdle = true;
+      wasNotIdle = true
       // Check next frame.
       if (activity != null) {
-        activity.findViewById(android.R.id.content).postDelayed(this::isIdleNow, 16);
+        activity!!.findViewById<View>(R.id.content).postDelayed({ this.isIdleNow }, 16)
       }
     }
-    return idle;
+    return idle
   }
 
-  @Override
-  public void registerIdleTransitionCallback(ResourceCallback callback) {
-    IDLING_CALLBACKS.add(callback);
+  override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback) {
+    IDLING_CALLBACKS.add(callback)
   }
 
   /** Sets the activity from an [ActivityScenario] to be used from [DataBindingIdlingResource]. */
-  public <T extends FragmentActivity> void monitorActivity(ActivityScenario<T> activityScenario) {
-    activityScenario.onActivity(this::monitorActivity);
+  fun <T : FragmentActivity?> monitorActivity(activityScenario: ActivityScenario<T>) {
+    activityScenario.onActivity { activity: T -> this.activity = activity }
   }
 
-  public <T extends FragmentActivity> void monitorActivity(T activity) {
-    this.activity = activity;
+  private fun getBinding(view: View?): ViewDataBinding? {
+    return DataBindingUtil.getBinding(view!!)
   }
 
-  public <T extends Fragment> void monitorFragment(T fragment) {
-    activity = fragment.requireActivity();
-  }
-
-  @Nullable
-  private ViewDataBinding getBinding(View view) {
-    return DataBindingUtil.getBinding(view);
-  }
-
-  private List<ViewDataBinding> getBindings() {
-    List<Fragment> fragments =
-        activity == null
-            ? Collections.emptyList()
-            : activity.getSupportFragmentManager().getFragments();
-
-    List<ViewDataBinding> bindings = new ArrayList<>();
-    for (Fragment f : fragments) {
-      if (f.getView() == null) {
-        continue;
-      }
-      bindings.add(getBinding(f.getView()));
-      for (Fragment cf : f.getChildFragmentManager().getFragments()) {
-        if (cf.getView() == null) {
-          continue;
+  private val bindings: List<ViewDataBinding?>
+    get() {
+      val fragments =
+        if (activity == null) emptyList() else activity!!.supportFragmentManager.fragments
+      val bindings: MutableList<ViewDataBinding?> = ArrayList()
+      for (f in fragments) {
+        if (f.view == null) {
+          continue
         }
-        bindings.add(getBinding(cf.getView()));
-        for (Fragment cf2 : cf.getChildFragmentManager().getFragments()) {
-          if (cf2.getView() == null) {
-            continue;
+        bindings.add(getBinding(f.view))
+        for (cf in f.childFragmentManager.fragments) {
+          if (cf.view == null) {
+            continue
           }
-          bindings.add(getBinding(cf2.getView()));
+          bindings.add(getBinding(cf.view))
+          for (cf2 in cf.childFragmentManager.fragments) {
+            if (cf2.view == null) {
+              continue
+            }
+            bindings.add(getBinding(cf2.view))
+          }
         }
       }
+      return bindings
     }
-    return bindings;
+
+  companion object {
+    // Give it a unique id to work around an Espresso bug where you cannot register/unregister
+    // an idling resource with the same name.
+    private val ID = UUID.randomUUID().toString()
+
+    // List of registered callbacks
+    private val IDLING_CALLBACKS: MutableList<IdlingResource.ResourceCallback> = ArrayList()
   }
 }
