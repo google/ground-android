@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.system.auth.AuthenticationModule;
-import com.sharedtest.system.auth.FakeAuthenticationManager;
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.components.SingletonComponent;
-import dagger.hilt.testing.TestInstallIn;
-import javax.inject.Singleton;
+import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.system.auth.AuthenticationModule
+import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = AuthenticationModule.class)
+@TestInstallIn(components = [SingletonComponent::class], replaces = [AuthenticationModule::class])
 abstract class TestAuthenticationModule {
-
   @Binds
   @Singleton
-  abstract AuthenticationManager bindAuthenticationManager(
-      FakeAuthenticationManager authenticationManager);
+  abstract fun bindAuthenticationManager(
+    authenticationManager: FakeAuthenticationManager
+  ): AuthenticationManager
 }
