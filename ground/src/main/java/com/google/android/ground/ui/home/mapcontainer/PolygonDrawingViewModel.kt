@@ -28,8 +28,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.BooleanOrError
-import com.google.android.ground.rx.BooleanOrError.Companion.falseValue
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -72,7 +70,7 @@ internal constructor(
 
   val iconTint: LiveData<Int>
   private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
-  private val locationLockState: LiveData<BooleanOrError>
+  private val locationLockState: LiveData<Result<Boolean>>
   private val vertices: MutableList<Point> = ArrayList()
 
   /** The currently selected job and survey for the polygon drawing. */
@@ -89,7 +87,7 @@ internal constructor(
 
   private var mapPolygon = Optional.empty<MapPolygon>()
 
-  private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
+  private fun createLocationLockStateFlowable(): Flowable<Result<Boolean>> =
     locationLockChangeRequests
       .switchMapSingle { enabled ->
         if (enabled) locationManager.enableLocationUpdates()
@@ -195,7 +193,7 @@ internal constructor(
 
   fun onLocationLockClick() = locationLockChangeRequests.onNext(!isLocationLockEnabled())
 
-  private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.isTrue
+  private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.getOrDefault(false)
 
   // TODO : current location is not working value is always false.
   fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
@@ -296,11 +294,15 @@ internal constructor(
     // TODO: Create custom ui component for location lock button and share across app.
     val locationLockStateFlowable = createLocationLockStateFlowable().share()
     locationLockState =
-      LiveDataReactiveStreams.fromPublisher(locationLockStateFlowable.startWith(falseValue()))
+      LiveDataReactiveStreams.fromPublisher(
+        locationLockStateFlowable.startWith(Result.success(false))
+      )
     iconTint =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable
-          .map { locked -> if (locked.isTrue) R.color.colorMapBlue else R.color.colorGrey800 }
+          .map { locked ->
+            if (locked.getOrDefault(false)) R.color.colorMapBlue else R.color.colorGrey800
+          }
           .startWith(R.color.colorGrey800)
       )
     val polygonFlowable =
