@@ -29,7 +29,8 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.MapsRepository
-import com.google.android.ground.rx.*
+import com.google.android.ground.rx.BooleanOrError
+import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.common.AbstractMapViewerFragment
@@ -89,10 +90,12 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
     polygonDrawingViewModel.unsavedMapLocationsOfInterest.observe(this) {
       mapContainerViewModel.setUnsavedMapLocationsOfInterest(it)
     }
-    locationOfInterestRepositionViewModel.confirmButtonClicks
+    locationOfInterestRepositionViewModel
+      .getConfirmButtonClicks()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { showConfirmationDialog(it) }
-    locationOfInterestRepositionViewModel.cancelButtonClicks
+    locationOfInterestRepositionViewModel
+      .getCancelButtonClicks()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT) }
     mapContainerViewModel
@@ -109,16 +112,12 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
-  ): View? {
+  ): View {
     binding = MapContainerFragBinding.inflate(inflater, container, false)
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
     return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
   }
 
   override fun onMapReady(map: MapFragment) {
@@ -150,13 +149,13 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
   }
 
   private fun attachCustomViews(map: MapFragment) {
-    val repositionView = LocationOfInterestRepositionView(context, map)
+    val repositionView = LocationOfInterestRepositionView(requireContext(), map)
     mapContainerViewModel.moveLocationOfInterestVisibility.observe(this) {
       repositionView.visibility = it
     }
     binding.mapOverlay.addView(repositionView)
 
-    val polygonDrawingView = PolygonDrawingView(context, map)
+    val polygonDrawingView = PolygonDrawingView(requireContext(), map)
     mapContainerViewModel.getAddPolygonVisibility().observe(this) {
       polygonDrawingView.visibility = it
     }
