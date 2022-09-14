@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.res.Resources
 import android.location.Location
 import android.view.View
-import androidx.annotation.ColorRes
 import androidx.annotation.Dimension
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
