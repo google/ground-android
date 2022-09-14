@@ -13,36 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import com.google.android.ground.persistence.remote.RemoteDataStore;
-import com.google.android.ground.persistence.remote.RemoteStorageManager;
-import com.google.android.ground.persistence.remote.RemoteStorageModule;
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import com.sharedtest.persistence.remote.FakeRemoteDataStore;
-import com.sharedtest.persistence.remote.FakeRemoteStorageManager;
-import com.sharedtest.persistence.uuid.FakeUuidGenerator;
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.components.SingletonComponent;
-import dagger.hilt.testing.TestInstallIn;
-import javax.inject.Singleton;
+import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.persistence.remote.RemoteStorageManager
+import com.google.android.ground.persistence.remote.RemoteStorageModule
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.persistence.remote.FakeRemoteStorageManager
+import com.sharedtest.persistence.uuid.FakeUuidGenerator
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = RemoteStorageModule.class)
+@TestInstallIn(components = [SingletonComponent::class], replaces = [RemoteStorageModule::class])
 abstract class TestRemoteStorageModule {
-
   @Binds
   @Singleton
-  abstract RemoteDataStore bindRemoteDataStore(FakeRemoteDataStore remoteDataStore);
-
+  abstract fun bindRemoteDataStore(remoteDataStore: FakeRemoteDataStore): RemoteDataStore
   @Binds
   @Singleton
-  abstract RemoteStorageManager bindRemoteStorageManager(
-      FakeRemoteStorageManager remoteStorageManager);
-
+  abstract fun bindRemoteStorageManager(
+    remoteStorageManager: FakeRemoteStorageManager
+  ): RemoteStorageManager
   @Binds
   @Singleton
-  abstract OfflineUuidGenerator offlineUuidGenerator(FakeUuidGenerator uuidGenerator);
+  abstract fun offlineUuidGenerator(uuidGenerator: FakeUuidGenerator): OfflineUuidGenerator
 }

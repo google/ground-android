@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import androidx.work.WorkManager;
-import com.google.android.ground.persistence.sync.WorkManagerModule;
-import com.sharedtest.persistence.sync.FakeWorkManager;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.components.SingletonComponent;
-import dagger.hilt.testing.TestInstallIn;
-import javax.inject.Singleton;
+import androidx.work.WorkManager
+import com.google.android.ground.persistence.sync.WorkManagerModule
+import com.sharedtest.persistence.sync.FakeWorkManager
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = WorkManagerModule.class)
-abstract class TestWorkManagerModule {
-
+@TestInstallIn(components = [SingletonComponent::class], replaces = [WorkManagerModule::class])
+object TestWorkManagerModule {
   @Provides
   @Singleton
-  static WorkManager provideWorkManager() {
-    return new FakeWorkManager();
+  fun provideWorkManager(): WorkManager {
+    return FakeWorkManager()
   }
 }

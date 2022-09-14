@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import android.content.Context;
-import androidx.room.Room;
-import com.google.android.ground.persistence.local.LocalDatabaseModule;
-import com.google.android.ground.persistence.local.room.LocalDatabase;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import dagger.hilt.components.SingletonComponent;
-import dagger.hilt.testing.TestInstallIn;
-import javax.inject.Singleton;
+import android.content.Context
+import androidx.room.Room
+import com.google.android.ground.persistence.local.LocalDatabaseModule
+import com.google.android.ground.persistence.local.room.LocalDatabase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = LocalDatabaseModule.class)
-abstract class TestLocalDatabaseModule {
-
+@TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])
+object TestLocalDatabaseModule {
   @Provides
   @Singleton
-  static LocalDatabase localDatabaseProvider(@ApplicationContext Context context) {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
-        .allowMainThreadQueries()
-        .build();
+  fun localDatabaseProvider(@ApplicationContext context: Context): LocalDatabase {
+    return Room.inMemoryDatabaseBuilder(context, LocalDatabase::class.java)
+      .allowMainThreadQueries()
+      .build()
   }
 }
