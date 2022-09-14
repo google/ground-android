@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.sync
 
-package com.google.android.ground;
+import android.content.Context
+import androidx.work.WorkManager
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-import androidx.work.WorkManager;
-import com.google.android.ground.persistence.sync.WorkManagerModule;
-import com.sharedtest.persistence.sync.FakeWorkManager;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.components.SingletonComponent;
-import dagger.hilt.testing.TestInstallIn;
-import javax.inject.Singleton;
-
+@InstallIn(SingletonComponent::class)
 @Module
-@TestInstallIn(components = SingletonComponent.class, replaces = WorkManagerModule.class)
-abstract class TestWorkManagerModule {
-
+object WorkManagerModule {
   @Provides
   @Singleton
-  static WorkManager provideWorkManager() {
-    return new FakeWorkManager();
+  fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+    return WorkManager.getInstance(context)
   }
 }

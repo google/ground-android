@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.locationofinterestdetails
 
-package com.google.android.ground.ui.home.locationofinterestdetails;
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.FragmentComponent
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.FragmentComponent;
-
-@InstallIn(FragmentComponent.class)
+@InstallIn(FragmentComponent::class)
 @Module
-public class FragmentManagerModule {
-
+class FragmentManagerModule {
   @Provides
-  public FragmentManager fragmentManager(Fragment fragment) {
-    return fragment.getChildFragmentManager();
+  fun fragmentManager(fragment: Fragment): FragmentManager {
+    return fragment.childFragmentManager
   }
 }

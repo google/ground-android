@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.rx
 
-package com.google.android.ground.rx;
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
-import javax.inject.Singleton;
-
-@InstallIn(SingletonComponent.class)
+@InstallIn(SingletonComponent::class)
 @Module
-public abstract class SchedulersModule {
-
-  @Binds
-  @Singleton
-  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
+abstract class SchedulersModule {
+  @Binds @Singleton abstract fun schedulers(rxSchedulers: RxSchedulers): Schedulers
 }
