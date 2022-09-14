@@ -13,43 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import static com.google.android.ground.persistence.local.LocalValueStore.ACTIVE_SURVEY_ID_KEY;
-
-import android.content.SharedPreferences;
-import androidx.test.core.app.ApplicationProvider;
-import com.sharedtest.FakeData;
-import dagger.hilt.EntryPoint;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.EntryPointAccessors;
-import dagger.hilt.components.SingletonComponent;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import android.content.SharedPreferences
+import androidx.test.core.app.ApplicationProvider
+import com.google.android.ground.persistence.local.LocalValueStore
+import com.sharedtest.FakeData
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 
 /**
  * Rule to be used in tests that sets the SharedPreferences needed to avoid login and survey
  * selection.
  */
-class SetPreferencesRule extends TestWatcher {
-
-  @InstallIn(SingletonComponent.class)
+internal class SetPreferencesRule : TestWatcher() {
+  @InstallIn(SingletonComponent::class)
   @EntryPoint
-  interface SetPreferencesRuleEntryPoint {
-
-    SharedPreferences preferenceStorage();
+  internal interface SetPreferencesRuleEntryPoint {
+    fun preferenceStorage(): SharedPreferences
   }
 
-  @Override
-  public void starting(Description description) {
-    super.starting(description);
-
-    SharedPreferences prefs =
-        EntryPointAccessors.fromApplication(
-                ApplicationProvider.getApplicationContext(), SetPreferencesRuleEntryPoint.class)
-            .preferenceStorage();
-
-    prefs.edit().clear().putString(ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.getId()).apply();
+  public override fun starting(description: Description) {
+    super.starting(description)
+    val prefs =
+      EntryPointAccessors.fromApplication(
+          ApplicationProvider.getApplicationContext(),
+          SetPreferencesRuleEntryPoint::class.java
+        )
+        .preferenceStorage()
+    prefs.edit().clear().putString(LocalValueStore.ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.id).apply()
   }
 }
