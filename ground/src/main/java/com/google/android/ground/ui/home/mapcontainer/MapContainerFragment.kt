@@ -25,7 +25,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapContainerFragBinding
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
@@ -50,8 +49,8 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment : AbstractMapViewerFragment() {
-  @Inject lateinit var mapsRepository: MapsRepository
+class MapContainerFragment @Inject constructor(private var mapsRepository: MapsRepository) :
+  AbstractMapViewerFragment() {
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -120,7 +119,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    disableAddLocationOfInterestBtn()
   }
 
   override fun onMapReady(map: MapFragment) {
@@ -140,7 +138,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     mapContainerViewModel.cameraUpdateRequests.observe(this) { update ->
       update.ifUnhandled { data -> onCameraUpdate(data, map) }
     }
-    mapContainerViewModel.surveyLoadingState.observe(this) { onSurveyChange(it) }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, map)
     }
@@ -200,17 +197,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       return
     }
     val loi = locationOfInterest.get()
-    val newPointOfInterest =
-      loi.copy(
-        loi.id,
-        loi.surveyId,
-        loi.job,
-        loi.customId,
-        loi.caption,
-        loi.created,
-        loi.lastModified,
-        point
-      )
+    val newPointOfInterest = loi.copy(geometry = point)
     homeScreenViewModel.updateLocationOfInterest(newPointOfInterest)
   }
 
@@ -229,25 +216,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       }
       BottomSheetState.Visibility.HIDDEN -> map.enableGestures()
     }
-  }
-
-  private fun onSurveyChange(survey: Loadable<Survey>) {
-    if (survey.isLoaded) {
-      enableAddLocationOfInterestBtn()
-    } else {
-      disableAddLocationOfInterestBtn()
-    }
-  }
-
-  private fun enableAddLocationOfInterestBtn() {
-    mapContainerViewModel.setLocationOfInterestButtonBackgroundTint(R.color.colorMapAccent)
-  }
-
-  private fun disableAddLocationOfInterestBtn() {
-    // NOTE: We don't call addLocationOfInterestBtn.setEnabled(false) here since calling it before
-    // the fab is
-    // shown corrupts its padding when used with useCompatPadding="true".
-    mapContainerViewModel.setLocationOfInterestButtonBackgroundTint(R.color.colorGrey500)
   }
 
   private fun onLocationLockStateChange(result: BooleanOrError, map: MapFragment) {

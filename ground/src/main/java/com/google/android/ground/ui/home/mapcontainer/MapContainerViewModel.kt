@@ -97,9 +97,6 @@ internal constructor(
 
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
-  private val locationOfInterestAddButtonBackgroundTint: @Hot(replays = true) MutableLiveData<Int> =
-    MutableLiveData(R.color.colorGrey500)
-
   val mbtilesFilePaths: LiveData<ImmutableSet<String>>
   val iconTint: LiveData<Int>
   val isLocationUpdatesEnabled: LiveData<Boolean>
@@ -337,10 +334,6 @@ internal constructor(
   /** Called when a LOI is (de)selected. */
   fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
-  fun setLocationOfInterestButtonBackgroundTint(@ColorRes colorRes: Int) {
-    locationOfInterestAddButtonBackgroundTint.postValue(colorRes)
   }
 
   fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled

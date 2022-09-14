@@ -86,11 +86,12 @@ class HomeScreenFragment :
 
   @Inject lateinit var schedulers: Schedulers
 
+  @Inject lateinit var mapContainerFragment: MapContainerFragment
+
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
-  private lateinit var mapContainerFragment: MapContainerFragment
   private lateinit var mapContainerViewModel: MapContainerViewModel
   private lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var surveySelectorViewModel: SurveySelectorViewModel
@@ -208,7 +209,6 @@ class HomeScreenFragment :
     binding.navView.setNavigationItemSelectedListener(this)
     requireView().viewTreeObserver.addOnGlobalLayoutListener(this)
     if (savedInstanceState == null) {
-      mapContainerFragment = MapContainerFragment()
       replaceFragment(R.id.map_container_fragment, mapContainerFragment)
     } else {
       mapContainerFragment =
