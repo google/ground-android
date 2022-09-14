@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.res.Resources
 import android.location.Location
 import android.view.View
-import androidx.annotation.ColorRes
 import androidx.annotation.Dimension
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
@@ -96,9 +95,6 @@ internal constructor(
     MutableLiveData(View.GONE)
 
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-
-  private val locationOfInterestAddButtonBackgroundTint: @Hot(replays = true) MutableLiveData<Int> =
-    MutableLiveData(R.color.colorGrey500)
 
   val mbtilesFilePaths: LiveData<ImmutableSet<String>>
   val iconTint: LiveData<Int>
@@ -337,10 +333,6 @@ internal constructor(
   /** Called when a LOI is (de)selected. */
   fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
-  fun setLocationOfInterestButtonBackgroundTint(@ColorRes colorRes: Int) {
-    locationOfInterestAddButtonBackgroundTint.postValue(colorRes)
   }
 
   fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
