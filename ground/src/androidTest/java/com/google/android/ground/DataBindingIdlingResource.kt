@@ -34,9 +34,8 @@ class DataBindingIdlingResource : IdlingResource {
   // onTransitionToIdle callbacks if Espresso never thought we were idle in the first place.
   private var wasNotIdle = false
   private var activity: FragmentActivity? = null
-  override fun getName(): String {
-    return String.format("DataBinding %s", ID)
-  }
+
+  override fun getName(): String = String.format("DataBinding $ID")
 
   override fun isIdleNow(): Boolean {
     var idle = false
@@ -82,24 +81,17 @@ class DataBindingIdlingResource : IdlingResource {
 
   private val bindings: List<ViewDataBinding?>
     get() {
-      val fragments =
-        if (activity == null) emptyList() else activity!!.supportFragmentManager.fragments
+      val fragments = activity?.supportFragmentManager?.fragments ?: emptyList()
       val bindings: MutableList<ViewDataBinding?> = ArrayList()
       for (f in fragments) {
-        if (f.view == null) {
-          continue
-        }
-        bindings.add(getBinding(f.view))
+        val fv: View = f.view ?: continue
+        bindings.add(getBinding(fv))
         for (cf in f.childFragmentManager.fragments) {
-          if (cf.view == null) {
-            continue
-          }
-          bindings.add(getBinding(cf.view))
+          val cfv: View = cf.view ?: continue
+          bindings.add(getBinding(cfv))
           for (cf2 in cf.childFragmentManager.fragments) {
-            if (cf2.view == null) {
-              continue
-            }
-            bindings.add(getBinding(cf2.view))
+            val cf2v: View = cf2.view ?: continue
+            bindings.add(getBinding(cf2v))
           }
         }
       }
