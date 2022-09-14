@@ -16,7 +16,7 @@
 package com.google.android.ground
 
 import android.content.SharedPreferences
-import androidx.test.core.app.ApplicationProvider
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.sharedtest.FakeData
 import dagger.hilt.EntryPoint
@@ -39,12 +39,13 @@ internal class SetPreferencesRule : TestWatcher() {
 
   public override fun starting(description: Description) {
     super.starting(description)
-    val prefs =
-      EntryPointAccessors.fromApplication(
-          ApplicationProvider.getApplicationContext(),
-          SetPreferencesRuleEntryPoint::class.java
-        )
-        .preferenceStorage()
-    prefs.edit().clear().putString(LocalValueStore.ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.id).apply()
+    EntryPointAccessors.fromApplication(
+        getApplicationContext(),
+        SetPreferencesRuleEntryPoint::class.java
+      )
+      .preferenceStorage()
+      .apply {
+        edit().clear().putString(LocalValueStore.ACTIVE_SURVEY_ID_KEY, FakeData.SURVEY.id).apply()
+      }
   }
 }
