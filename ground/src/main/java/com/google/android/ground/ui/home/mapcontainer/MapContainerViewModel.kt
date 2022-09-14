@@ -34,11 +34,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.BooleanOrError
-import com.google.android.ground.rx.BooleanOrError.Companion.falseValue
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.Companion.getValue
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -69,9 +66,9 @@ internal constructor(
   private val locationManager: LocationManager,
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
-  val surveyLoadingState: LiveData<Loadable<Survey>>
+  private val surveyLoadingState: LiveData<Loadable<Survey>>
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
-  val locationLockState: LiveData<BooleanOrError>
+  val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
 
   private val cameraPosition: @Hot(replays = true) MutableLiveData<CameraPosition> =
@@ -178,9 +175,9 @@ internal constructor(
     return ImmutableSet.builder<MapLocationOfInterest>().addAll(mapPins).addAll(mapPolygons).build()
   }
 
-  private fun createLocationAccuracyFlowable(lockState: Flowable<BooleanOrError>) =
+  private fun createLocationAccuracyFlowable(lockState: Flowable<Result<Boolean>>) =
     lockState.switchMap { booleanOrError ->
-      if (booleanOrError.isTrue)
+      if (booleanOrError.getOrDefault(false))
         locationManager.getLocationUpdates().map {
           resources.getString(R.string.location_accuracy, it.accuracy)
         }
@@ -188,21 +185,17 @@ internal constructor(
     }
 
   private fun createCameraUpdateFlowable(
-    locationLockStateFlowable: Flowable<BooleanOrError>
+    locationLockStateFlowable: Flowable<Result<Boolean>>
   ): Flowable<Event<CameraUpdate>> =
     cameraUpdateSubject
       .toFlowable(BackpressureStrategy.LATEST)
-      .mergeWith(
-        locationLockStateFlowable.switchMap { lockState: BooleanOrError ->
-          createLocationLockCameraUpdateFlowable(lockState)
-        }
-      )
+      .mergeWith(locationLockStateFlowable.switchMap { createLocationLockCameraUpdateFlowable(it) })
       .map { Event.create(it) }
 
   private fun createLocationLockCameraUpdateFlowable(
-    lockState: BooleanOrError
+    lockState: Result<Boolean>
   ): Flowable<CameraUpdate> {
-    if (!lockState.isTrue) {
+    if (!lockState.getOrDefault(false)) {
       return Flowable.empty()
     }
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
@@ -214,7 +207,7 @@ internal constructor(
       .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
   }
 
-  private fun createLocationLockStateFlowable(): Flowable<BooleanOrError> =
+  private fun createLocationLockStateFlowable(): Flowable<Result<Boolean>> =
     locationLockChangeRequests
       .switchMapSingle { enabled ->
         if (enabled) locationManager.enableLocationUpdates()
@@ -239,7 +232,7 @@ internal constructor(
     return cameraPosition
   }
 
-  private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.isTrue
+  private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.getOrDefault(false)
 
   fun onCameraMove(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
@@ -406,18 +399,20 @@ internal constructor(
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     val locationLockStateFlowable = createLocationLockStateFlowable().share()
     locationLockState =
-      LiveDataReactiveStreams.fromPublisher(locationLockStateFlowable.startWith(falseValue()))
+      LiveDataReactiveStreams.fromPublisher(
+        locationLockStateFlowable.startWith(Result.success(false))
+      )
     iconTint =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable
-          .map { locked: BooleanOrError ->
-            if (locked.isTrue) R.color.colorMapBlue else R.color.colorGrey800
+          .map { locked: Result<Boolean> ->
+            if (locked.getOrDefault(false)) R.color.colorMapBlue else R.color.colorGrey800
           }
           .startWith(R.color.colorGrey800)
       )
     isLocationUpdatesEnabled =
       LiveDataReactiveStreams.fromPublisher(
-        locationLockStateFlowable.map(BooleanOrError::isTrue).startWith(false)
+        locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
       )
     locationAccuracy =
       LiveDataReactiveStreams.fromPublisher(

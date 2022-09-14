@@ -29,7 +29,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.MapsRepository
-import com.google.android.ground.rx.BooleanOrError
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
@@ -131,8 +130,8 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.mapLocationsOfInterest.observe(this) { map.setMapLocationsOfInterest(it) }
-    mapContainerViewModel.locationLockState.observe(this) { state ->
-      onLocationLockStateChange(state, map)
+    mapContainerViewModel.locationLockState.observe(this) { result ->
+      onLocationLockStateChange(result, map)
     }
     mapContainerViewModel.cameraUpdateRequests.observe(this) { update ->
       update.ifUnhandled { data -> onCameraUpdate(data, map) }
@@ -217,14 +216,18 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
     }
   }
 
-  private fun onLocationLockStateChange(result: BooleanOrError, map: MapFragment) {
-    result.error().ifPresent { t: Throwable? -> onLocationLockError(t) }
-    if (result.isTrue) {
-      Timber.d("Location lock enabled")
-      map.enableCurrentLocationIndicator()
-    } else {
-      Timber.d("Location lock disabled")
-    }
+  private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
+    result.fold(
+      { isSuccessful: Boolean ->
+        {
+          Timber.d("Location lock: $isSuccessful")
+          if (isSuccessful) {
+            map.enableCurrentLocationIndicator()
+          }
+        }
+      },
+      { exception: Throwable -> onLocationLockError(exception) }
+    )
   }
 
   private fun onLocationLockError(t: Throwable?) {

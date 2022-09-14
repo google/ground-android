@@ -18,9 +18,6 @@ package com.google.android.ground.system
 import android.Manifest.permission
 import android.location.Location
 import com.google.android.gms.location.LocationRequest
-import com.google.android.ground.rx.BooleanOrError
-import com.google.android.ground.rx.BooleanOrError.Companion.falseValue
-import com.google.android.ground.rx.BooleanOrError.Companion.trueValue
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.rx.RxFusedLocationProviderClient
 import com.google.android.ground.system.rx.RxLocationCallback
@@ -73,14 +70,14 @@ constructor(
    * location updates exposed by [.getLocationUpdates].
    */
   @Synchronized
-  fun enableLocationUpdates(): Single<BooleanOrError> {
+  fun enableLocationUpdates(): Single<Result<Boolean>> {
     Timber.d("Attempting to enable location updates")
     return permissionsManager
       .obtainPermission(permission.ACCESS_FINE_LOCATION)
       .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
       .andThen(requestLocationUpdates())
-      .toSingle { trueValue() }
-      .onErrorReturn { BooleanOrError.error(it) }
+      .toSingle { Result.success(true) }
+      .onErrorReturn { Result.failure(it) }
   }
 
   private fun requestLocationUpdates() =
@@ -88,12 +85,12 @@ constructor(
 
   // TODO: Request/remove updates on resume/pause.
   @Synchronized
-  fun disableLocationUpdates(): Single<BooleanOrError> =
+  fun disableLocationUpdates(): Single<Result<Boolean>> =
     removeLocationUpdates()
-      .toSingle { falseValue() }
+      .toSingle { Result.success(false) }
       // Ignore errors as they are usually caused by disabling the same callback multiple times.
       .doOnError { Timber.e(it, "disableLocationUpdates") }
-      .onErrorReturn { falseValue() }
+      .onErrorReturn { Result.success(false) }
 
   private fun removeLocationUpdates() = locationClient.removeLocationUpdates(locationUpdateCallback)
 }
