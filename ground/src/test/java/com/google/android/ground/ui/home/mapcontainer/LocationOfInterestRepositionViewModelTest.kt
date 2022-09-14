@@ -36,13 +36,13 @@ class LocationOfInterestRepositionViewModelTest : BaseHiltTest() {
 
     viewModel.onConfirmButtonClick()
 
-    viewModel.confirmButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
+    viewModel.getConfirmButtonClicks().test().assertNoValues().assertNoErrors().assertNotComplete()
   }
 
   @Test
   fun testConfirmButtonClicks() {
     viewModel.onCameraMoved(TEST_POINT)
-    val testObserver = viewModel.confirmButtonClicks.test()
+    val testObserver = viewModel.getConfirmButtonClicks().test()
 
     viewModel.onConfirmButtonClick()
 
@@ -53,12 +53,12 @@ class LocationOfInterestRepositionViewModelTest : BaseHiltTest() {
   fun testCancelButtonClicks_notReplayed() {
     viewModel.onCancelButtonClick()
 
-    viewModel.cancelButtonClicks.test().assertNoValues().assertNoErrors().assertNotComplete()
+    viewModel.getCancelButtonClicks().test().assertNoValues().assertNoErrors().assertNotComplete()
   }
 
   @Test
   fun testCancelButtonClicks() {
-    val testObserver = viewModel.cancelButtonClicks.test()
+    val testObserver = viewModel.getCancelButtonClicks().test()
 
     viewModel.onCancelButtonClick()
 
