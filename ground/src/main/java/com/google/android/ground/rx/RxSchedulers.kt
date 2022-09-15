@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.rx
 
-package com.google.android.ground.rx;
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers as RxSchedulers
+import javax.inject.Inject
 
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import javax.inject.Inject;
-
-public class RxSchedulers implements Schedulers {
-
-  @Inject
-  RxSchedulers() {}
-
-  @Override
-  public Scheduler io() {
-    return io.reactivex.schedulers.Schedulers.io();
-  }
-
-  @Override
-  public Scheduler ui() {
-    return AndroidSchedulers.mainThread();
-  }
+class RxSchedulers @Inject constructor() : Schedulers {
+  override fun io(): Scheduler = RxSchedulers.io()
+  override fun ui(): Scheduler = AndroidSchedulers.mainThread()
 }
