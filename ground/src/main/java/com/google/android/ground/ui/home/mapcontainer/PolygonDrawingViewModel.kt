@@ -34,8 +34,8 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.MapLocationOfInterest
-import com.google.android.ground.ui.map.MapPin
 import com.google.android.ground.ui.map.MapPolygon
+import com.google.android.ground.ui.map.SimpleMapLocationOfInterest
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
@@ -257,37 +257,43 @@ internal constructor(
     }
   }
 
+  /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon]. */
+  private fun unsavedLocationsOfInterestFromPolygon(
+    mapPolygon: MapPolygon
+  ): ImmutableSet<MapLocationOfInterest> {
+    check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
+    val vertices = mapPolygon.vertices
+
+    if (vertices.isEmpty()) {
+      return ImmutableSet.of()
+    }
+
+    val auditInfo = AuditInfo(authManager.currentUser)
+    // Include the given polygon and add 1 LOI with a Point for each of its vertex.
+    return ImmutableSet.builder<MapLocationOfInterest>()
+      .add(mapPolygon)
+      .addAll(
+        vertices
+          .map { point ->
+            SimpleMapLocationOfInterest(
+              LocationOfInterest(
+                mapPolygon.id,
+                selectedSurvey.value!!.id,
+                selectedJob.value!!,
+                created = auditInfo,
+                lastModified = auditInfo,
+                geometry = point
+              )
+            )
+          }
+          .toList()
+      )
+      .build()
+  }
+
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
     const val DISTANCE_THRESHOLD_DP = 24
-
-    /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon]. */
-    private fun unsavedLocationsOfInterestFromPolygon(
-      mapPolygon: MapPolygon
-    ): ImmutableSet<MapLocationOfInterest> {
-      val vertices = mapPolygon.vertices
-
-      if (vertices.isEmpty()) {
-        return ImmutableSet.of()
-      }
-
-      // Include the given polygon and add 1 MapPin for each of its vertex.
-      return ImmutableSet.builder<MapLocationOfInterest>()
-        .add(mapPolygon)
-        .addAll(
-          vertices
-            .map { point ->
-              MapPin.newBuilder()
-                .setId(mapPolygon.id)
-                .setPosition(point)
-                // TODO: Use different marker style for unsaved markers.
-                .setStyle(mapPolygon.style)
-                .build()
-            }
-            .toList()
-        )
-        .build()
-    }
   }
 
   init {
