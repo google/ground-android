@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.converter.GeometryModelToLocalDbConverter
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.basemap.OfflineArea
@@ -48,7 +49,6 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
-import java8.util.Optional
 import javax.inject.Inject
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
@@ -404,12 +404,12 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testParseVertices_emptyString() {
-    assertThat(LocationOfInterestEntity.parseVertices("")).isEqualTo(ImmutableList.of<Any>())
+    assertThat(GeometryModelToLocalDbConverter.parseVertices("")).isEqualTo(ImmutableList.of<Any>())
   }
 
   @Test
   fun testFormatVertices_emptyList() {
-    assertThat(LocationOfInterestEntity.formatVertices(ImmutableList.of())).isNull()
+    assertThat(GeometryModelToLocalDbConverter.formatVertices(ImmutableList.of())).isNull()
   }
 
   @Test
@@ -495,8 +495,7 @@ class LocalDataStoreTest : BaseHiltTest() {
     private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation {
       return LocationOfInterestMutation.builder()
         .setJobId("job id")
-        .setLocation(Optional.ofNullable(point))
-        .setPolygonVertices(ImmutableList.of())
+        .setGeometry(point)
         .setId(1L)
         .setLocationOfInterestId("loi id")
         .setType(Mutation.Type.CREATE)
@@ -512,8 +511,7 @@ class LocalDataStoreTest : BaseHiltTest() {
     ): LocationOfInterestMutation {
       return LocationOfInterestMutation.builder()
         .setJobId("job id")
-        .setLocation(Optional.empty())
-        .setPolygonVertices(polygonVertices)
+        .setGeometry(Polygon(LinearRing(polygonVertices.map { it.coordinate })))
         .setId(1L)
         .setLocationOfInterestId("loi id")
         .setType(Mutation.Type.CREATE)

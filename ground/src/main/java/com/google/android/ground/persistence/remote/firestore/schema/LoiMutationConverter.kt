@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.remote.firestore.schema
 
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.firestore.schema.AuditInfoConverter.fromMutationAndUser
@@ -40,14 +41,17 @@ internal object LoiMutationConverter {
 
     map.put(LoiConverter.JOB_ID, mutation.jobId)
 
-    mutation.location
-      .map { toGeoPoint(it) }
-      .ifPresent { point: GeoPoint -> map.put(LoiConverter.LOCATION, point) }
-
-    val geometry: MutableMap<String, Any> = HashMap()
-    geometry[LoiConverter.GEOMETRY_COORDINATES] = toGeoPointList(mutation.polygonVertices)
-    geometry[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
-    map.put(LoiConverter.GEOMETRY, geometry)
+    when (mutation.geometry) {
+      is Point -> map.put(LoiConverter.LOCATION, toGeoPoint(mutation.geometry))
+      is Polygon -> {
+        val geometryMap: MutableMap<String, Any> = HashMap()
+        geometryMap[LoiConverter.GEOMETRY_COORDINATES] =
+          toGeoPointList(mutation.geometry.shell.vertices)
+        geometryMap[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
+        map.put(LoiConverter.GEOMETRY, geometryMap)
+      }
+      else -> {}
+    }
 
     val auditInfo = fromMutationAndUser(mutation, user)
     when (mutation.type) {
