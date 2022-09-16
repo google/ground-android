@@ -28,10 +28,14 @@ import com.google.android.ground.persistence.local.room.models.EntityState
  * Converts [LocationOfInterest] model objects associated with a given [Survey] to/from a persisted
  * database representation.
  */
+// TODO: Change this to a singleton object. We only need a class to encapsulate the `survey` we'll
+// use to deserialize LOI jobs. Instead, we should only store job ids in LOIs and simplify this
+// implementation.
 class LocationOfInterestModelToLocalDbConverter(val survey: Survey) :
   Converter<LocationOfInterest, LocationOfInterestEntity> {
 
-  companion object : Converter<LocationOfInterest, LocationOfInterestEntity> {
+  // TODO: Remove once we store job ids in LocationOfInterest
+  companion object {
     fun fromMutation(
       mutation: LocationOfInterestMutation,
       created: AuditInfo
@@ -49,7 +53,7 @@ class LocationOfInterestModelToLocalDbConverter(val survey: Survey) :
     }
 
     // Permits serialization w/o having to pass a `survey`.
-    override fun convertTo(model: LocationOfInterest): LocationOfInterestEntity =
+    fun convertTo(model: LocationOfInterest): LocationOfInterestEntity =
       LocationOfInterestEntity(
         id = model.id,
         surveyId = model.surveyId,
@@ -59,8 +63,6 @@ class LocationOfInterestModelToLocalDbConverter(val survey: Survey) :
         lastModified = AuditInfoEntity.fromObject(model.lastModified),
         geometry = GeometryModelToLocalDbConverter.convertTo(model.geometry)
       )
-
-    override fun convertFrom(entity: LocationOfInterestEntity): LocationOfInterest? = null
   }
 
   // We can serialize perfectly fine without passing a `survey`; delegate to the companion.

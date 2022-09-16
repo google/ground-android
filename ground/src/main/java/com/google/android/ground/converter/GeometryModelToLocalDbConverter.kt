@@ -82,7 +82,7 @@ object GeometryModelToLocalDbConverter : Converter<Geometry, GeometryEntity> {
   }
 
   private fun parseHoles(holes: String?): List<ImmutableList<Point>> {
-    if (holes == null || holes.isEmpty()) {
+    if (holes.isNullOrEmpty()) {
       return ImmutableList.of()
     }
 
@@ -99,7 +99,7 @@ object GeometryModelToLocalDbConverter : Converter<Geometry, GeometryEntity> {
   }
 
   fun parseVertices(vertices: String?): ImmutableList<Point> {
-    if (vertices == null || vertices.isEmpty()) {
+    if (vertices.isNullOrEmpty()) {
       return ImmutableList.of()
     }
     val gson = Gson()
