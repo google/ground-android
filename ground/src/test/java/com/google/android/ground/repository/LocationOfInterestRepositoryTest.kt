@@ -255,7 +255,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     assertThat(locationOfInterestId).isEqualTo("TEST UUID")
     assertThat(surveyId).isEqualTo("foo_survey_id")
     assertThat(jobId).isEqualTo("foo_job_id")
-    assertThat(location.get()).isEqualTo(FakeData.POINT)
+    assertThat(location).isEqualTo(FakeData.POINT)
     assertThat(userId).isEqualTo(FakeData.USER.id)
     assertThat(clientTimestamp).isEqualTo(testDate)
   }
@@ -264,20 +264,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   fun testNewPolygonOfInterest() {
     fakeAuthenticationManager.setUser(FakeData.USER)
     val testDate = Date()
-    val (
-      id,
-      _,
-      _,
-      surveyId,
-      locationOfInterestId,
-      userId,
-      clientTimestamp,
-      _,
-      _,
-      jobId,
-      _,
-      polygonVertices
-    ) =
+    val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, polygon) =
       locationOfInterestRepository.newPolygonOfInterestMutation(
         "foo_survey_id",
         "foo_job_id",
@@ -288,7 +275,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     assertThat(locationOfInterestId).isEqualTo("TEST UUID")
     assertThat(surveyId).isEqualTo("foo_survey_id")
     assertThat(jobId).isEqualTo("foo_job_id")
-    assertThat(polygonVertices).isEqualTo(FakeData.VERTICES)
+    assertThat(polygon?.vertices).isEqualTo(FakeData.VERTICES)
     assertThat(userId).isEqualTo(FakeData.USER.id)
     assertThat(clientTimestamp).isEqualTo(testDate)
   }

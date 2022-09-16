@@ -16,7 +16,9 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
@@ -37,7 +39,6 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.*
 import java.util.*
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -127,7 +128,7 @@ constructor(
   ): LocationOfInterestMutation =
     builder()
       .setJobId(jobId)
-      .setLocation(Optional.of(point))
+      .setGeometry(point)
       .setType(Mutation.Type.CREATE)
       .setSyncStatus(SyncStatus.PENDING)
       .setLocationOfInterestId(uuidGenerator.generateUuid())
@@ -144,7 +145,7 @@ constructor(
   ): LocationOfInterestMutation =
     builder()
       .setJobId(jobId)
-      .setPolygonVertices(vertices)
+      .setGeometry(Polygon(LinearRing(vertices.map { it.coordinate })))
       .setType(Mutation.Type.CREATE)
       .setSyncStatus(SyncStatus.PENDING)
       .setLocationOfInterestId(uuidGenerator.generateUuid())

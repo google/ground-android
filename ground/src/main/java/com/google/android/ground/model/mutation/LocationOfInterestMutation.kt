@@ -15,11 +15,10 @@
  */
 package com.google.android.ground.model.mutation
 
-import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import java.util.*
-import java8.util.Optional
 
 data class LocationOfInterestMutation(
   override val id: Long? = null,
@@ -32,16 +31,14 @@ data class LocationOfInterestMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   val jobId: String = "",
-  val location: Optional<Point> = Optional.empty(),
-  val polygonVertices: ImmutableList<Point> = ImmutableList.of(),
+  val geometry: Geometry? = null,
 ) : Mutation() {
 
   override fun toBuilder(): Builder {
     return Builder()
       .also {
         it.jobId = this.jobId
-        it.location = this.location
-        it.polygonVertices = this.polygonVertices
+        it.geometry = this.geometry
       }
       .fromMutation(this) as Builder
   }
@@ -50,18 +47,11 @@ data class LocationOfInterestMutation(
   inner class Builder : Mutation.Builder<LocationOfInterestMutation>() {
     var jobId: String = ""
       @JvmSynthetic set
-    var location: Optional<Point> = Optional.empty()
-      @JvmSynthetic set
-    var polygonVertices: ImmutableList<Point> = ImmutableList.of()
+    var geometry: Geometry? = null
       @JvmSynthetic set
 
     fun setJobId(jobId: String): Builder = apply { this.jobId = jobId }
-
-    fun setLocation(newLocation: Optional<Point>): Builder = apply { this.location = newLocation }
-
-    fun setPolygonVertices(newVertices: ImmutableList<Point>): Builder = apply {
-      this.polygonVertices = newVertices
-    }
+    fun setGeometry(geometry: Geometry?): Builder = apply { this.geometry = geometry }
 
     override fun build() =
       LocationOfInterestMutation(
@@ -75,8 +65,7 @@ data class LocationOfInterestMutation(
         retryCount,
         lastError,
         jobId,
-        location,
-        polygonVertices
+        geometry,
       )
   }
 

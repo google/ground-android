@@ -24,7 +24,7 @@ import org.junit.Test
 
 typealias Path = Array<Pair<Double, Double>>
 
-class GeometryConverterTest {
+class GeometryModelToLocalDbConverterTest {
   private val x = -42.121
   private val y = 28.482
   private val path1 =

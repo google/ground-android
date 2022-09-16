@@ -16,15 +16,8 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity.Companion.formatVertices
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity.Companion.parseVertices
-import com.google.android.ground.persistence.local.room.models.Coordinates
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.models.MutationEntityType
-import java.util.*
-import java8.util.Optional
 
 /**
  * Defines how Room persists LOI mutations for remote sync in the local db. By default, Room uses
@@ -55,44 +48,6 @@ data class LocationOfInterestMutationEntity(
   @ColumnInfo(name = "client_timestamp") val clientTimestamp: Long,
   @ColumnInfo(name = "location_of_interest_id") val locationOfInterestId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
-  /** Non-null if the LOI's location was updated, null if unchanged. */
-  @Embedded val newLocation: Coordinates?,
-  /** Non-empty if a polygon's vertices were updated, null if unchanged. */
-  @ColumnInfo(name = "polygon_vertices") val newPolygonVertices: String?
-) {
-
-  fun toMutation(): LocationOfInterestMutation {
-    return LocationOfInterestMutation.builder()
-      .setJobId(jobId)
-      .setLocation(Optional.ofNullable(newLocation).map { obj: Coordinates? -> obj!!.toPoint() })
-      .setPolygonVertices(parseVertices(newPolygonVertices))
-      .setId(id)
-      .setSurveyId(surveyId)
-      .setLocationOfInterestId(locationOfInterestId)
-      .setType(type.toMutationType())
-      .setSyncStatus(syncStatus.toMutationSyncStatus())
-      .setRetryCount(retryCount)
-      .setLastError(lastError)
-      .setUserId(userId)
-      .setClientTimestamp(Date(clientTimestamp))
-      .build()
-  }
-
-  companion object {
-    fun fromMutation(m: LocationOfInterestMutation): LocationOfInterestMutationEntity =
-      LocationOfInterestMutationEntity(
-        id = m.id,
-        surveyId = m.surveyId,
-        locationOfInterestId = m.locationOfInterestId,
-        jobId = m.jobId,
-        newLocation = m.location.map { point: Point? -> Coordinates.fromPoint(point) }.orElse(null),
-        newPolygonVertices = formatVertices(m.polygonVertices),
-        type = MutationEntityType.fromMutationType(m.type),
-        syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(m.syncStatus),
-        retryCount = m.retryCount,
-        lastError = m.lastError,
-        userId = m.userId,
-        clientTimestamp = m.clientTimestamp.time
-      )
-  }
-}
+  /** Non-null if the LOI's geometry was updated, null if unchanged. */
+  @Embedded val newGeometry: GeometryEntity?,
+)
