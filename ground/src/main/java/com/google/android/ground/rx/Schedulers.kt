@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.rx
 
-package com.google.android.ground.rx;
+import io.reactivex.Scheduler
 
-import io.reactivex.Scheduler;
-
-public interface Schedulers {
-
-  Scheduler io();
-
-  Scheduler ui();
+interface Schedulers {
+  fun io(): Scheduler
+  fun ui(): Scheduler
 }
