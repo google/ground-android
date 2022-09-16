@@ -28,7 +28,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -150,20 +149,20 @@ internal constructor(
   private fun toMapLocationsOfInterest(
     locationsOfInterest: ImmutableSet<LocationOfInterest>
   ): ImmutableSet<MapLocationOfInterest> {
-    val mapPins =
+    val points =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POINT }
         .map { SimpleMapLocationOfInterest(it) }
         .toImmutableSet()
 
     // TODO: Add support for polylines similar to mapPins.
-    val mapPolygons =
+    val polygons =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POLYGON }
-        .map { toMapPolygon(it) }
+        .map { SimpleMapLocationOfInterest(it) }
         .toImmutableSet()
 
-    return ImmutableSet.builder<MapLocationOfInterest>().addAll(mapPins).addAll(mapPolygons).build()
+    return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
   }
 
   private fun createLocationAccuracyFlowable(lockState: Flowable<Result<Boolean>>) =
@@ -365,14 +364,6 @@ internal constructor(
       objects: Array<Any>
     ): ImmutableSet<MapLocationOfInterest> =
       listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
-
-    private fun toMapPolygon(areaOfInterest: LocationOfInterest): MapLocationOfInterest =
-      MapPolygon.newBuilder()
-        .setId(areaOfInterest.id)
-        .setVertices(areaOfInterest.geometry.vertices)
-        .setStyle(Style())
-        .setLocationOfInterest(areaOfInterest)
-        .build()
 
     private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
   }

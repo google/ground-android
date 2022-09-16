@@ -25,7 +25,6 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
@@ -34,7 +33,6 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.MapLocationOfInterest
-import com.google.android.ground.ui.map.MapPolygon
 import com.google.android.ground.ui.map.SimpleMapLocationOfInterest
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
@@ -58,7 +56,10 @@ internal constructor(
   private val uuidGenerator: OfflineUuidGenerator
 ) : AbstractViewModel() {
   private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
-  private val mapPolygonFlowable: @Hot Subject<Optional<MapPolygon>> = PublishSubject.create()
+  private val polygonLocationOfInterestFlowable:
+    @Hot
+    Subject<Optional<SimpleMapLocationOfInterest>> =
+    PublishSubject.create()
 
   /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
   val isPolygonCompleted: @Hot LiveData<Boolean>
@@ -85,7 +86,7 @@ internal constructor(
    */
   private var isLastVertexNotSelectedByUser = false
 
-  private var mapPolygon = Optional.empty<MapPolygon>()
+  private var polygonLocationOfInterest = Optional.empty<SimpleMapLocationOfInterest>()
 
   private fun createLocationLockStateFlowable(): Flowable<Result<Boolean>> =
     locationLockChangeRequests
@@ -158,20 +159,26 @@ internal constructor(
   }
 
   private fun updateVertices(newVertices: ImmutableList<Point>) {
-    mapPolygon =
-      mapPolygon.map { polygon: MapPolygon -> polygon.toBuilder().setVertices(newVertices).build() }
-    mapPolygonFlowable.onNext(mapPolygon)
+    polygonLocationOfInterest =
+      polygonLocationOfInterest.map {
+        it.copy(
+          locationOfInterest =
+            it.locationOfInterest.copy(
+              geometry = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
+            )
+        )
+      }
+    polygonLocationOfInterestFlowable.onNext(polygonLocationOfInterest)
   }
 
   fun onCompletePolygonButtonClick() {
     check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
-    val polygon = mapPolygon.get()
-    check(polygon.isPolygonComplete) { "Polygon is not complete" }
+    val locationOfInterest = polygonLocationOfInterest.get().locationOfInterest
     val auditInfo = AuditInfo(authManager.currentUser)
     val areaOfInterest =
       LocationOfInterest(
-        id = polygon.id,
-        geometry = Polygon(LinearRing(polygon.vertices.map { it.coordinate })),
+        id = locationOfInterest.id,
+        geometry = locationOfInterest.geometry,
         surveyId = selectedSurvey.value!!.id,
         job = selectedJob.value!!,
         created = auditInfo,
@@ -184,12 +191,12 @@ internal constructor(
   private fun reset() {
     isLastVertexNotSelectedByUser = false
     vertices.clear()
-    mapPolygon = Optional.empty()
-    mapPolygonFlowable.onNext(Optional.empty())
+    polygonLocationOfInterest = Optional.empty()
+    polygonLocationOfInterestFlowable.onNext(Optional.empty())
   }
 
   val firstVertex: Optional<Point>
-    get() = mapPolygon.map { it.firstVertex }
+    get() = polygonLocationOfInterest.map { it.locationOfInterest.geometry.vertices[0] }
 
   fun onLocationLockClick() = locationLockChangeRequests.onNext(!isLocationLockEnabled())
 
@@ -203,13 +210,19 @@ internal constructor(
     this.selectedSurvey.onNext(selectedSurvey)
     polygonDrawingState.onNext(PolygonDrawingState.inProgress())
 
-    mapPolygon =
+    val auditInfo = AuditInfo(authManager.currentUser)
+    polygonLocationOfInterest =
       Optional.of(
-        MapPolygon.newBuilder()
-          .setId(uuidGenerator.generateUuid())
-          .setVertices(ImmutableList.of())
-          .setStyle(Style())
-          .build()
+        SimpleMapLocationOfInterest(
+          LocationOfInterest(
+            id = uuidGenerator.generateUuid(),
+            geometry = Polygon(LinearRing(ImmutableList.of())),
+            surveyId = selectedSurvey.id,
+            job = selectedJob,
+            created = auditInfo,
+            lastModified = auditInfo,
+          )
+        )
       )
   }
 
@@ -257,12 +270,16 @@ internal constructor(
     }
   }
 
-  /** Returns a set of [MapLocationOfInterest] to be drawn on map for the given [MapPolygon]. */
-  private fun unsavedLocationsOfInterestFromPolygon(
-    mapPolygon: MapPolygon
+  /**
+   * Returns a set of [MapLocationOfInterest] to be drawn on map for the given
+   * [SimpleMapLocationOfInterest].
+   */
+  private fun unsavedLocationsOfInterestFromLocationOfInterest(
+    polygonLocationOfInterest: SimpleMapLocationOfInterest
   ): ImmutableSet<MapLocationOfInterest> {
     check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
-    val vertices = mapPolygon.vertices
+    val locationOfInterest = polygonLocationOfInterest.locationOfInterest
+    val vertices = locationOfInterest.geometry.vertices
 
     if (vertices.isEmpty()) {
       return ImmutableSet.of()
@@ -271,13 +288,13 @@ internal constructor(
     val auditInfo = AuditInfo(authManager.currentUser)
     // Include the given polygon and add 1 LOI with a Point for each of its vertex.
     return ImmutableSet.builder<MapLocationOfInterest>()
-      .add(mapPolygon)
+      .add(polygonLocationOfInterest)
       .addAll(
         vertices
           .map { point ->
             SimpleMapLocationOfInterest(
               LocationOfInterest(
-                mapPolygon.id,
+                locationOfInterest.id,
                 selectedSurvey.value!!.id,
                 selectedJob.value!!,
                 created = auditInfo,
@@ -312,7 +329,10 @@ internal constructor(
           .startWith(R.color.colorGrey800)
       )
     val polygonFlowable =
-      mapPolygonFlowable.startWith(Optional.empty()).toFlowable(BackpressureStrategy.LATEST).share()
+      polygonLocationOfInterestFlowable
+        .startWith(Optional.empty())
+        .toFlowable(BackpressureStrategy.LATEST)
+        .share()
     isPolygonCompleted =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable
@@ -322,7 +342,9 @@ internal constructor(
     unsavedMapLocationsOfInterest =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable.map { polygon ->
-          polygon.map { unsavedLocationsOfInterestFromPolygon(it) }.orElse(ImmutableSet.of())
+          polygon
+            .map { unsavedLocationsOfInterestFromLocationOfInterest(it) }
+            .orElse(ImmutableSet.of())
         }
       )
   }
