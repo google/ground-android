@@ -17,12 +17,13 @@
   -->
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
   android:layout_margin="10dp"
   android:orientation="vertical">
-  <LinearLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -31,21 +32,50 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:padding="20dp"
-      tools:text="jobName" />
-    <TextView
-      android:id="@+id/loiId"
+      android:layout_marginStart="10dp"
+      android:layout_marginTop="10dp"
+      android:layout_marginEnd="10dp"
+      android:textSize="14sp"
+      android:textStyle="bold"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Map the terrain" />
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+      android:id="@+id/loiIcon"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      android:padding="20dp"
-      tools:text="loiId" />
+      android:layout_marginTop="10dp"
+      android:src="@drawable/ic_outline_room_24"
+      android:tint="@color/colorGrey800"
+      app:layout_constraintStart_toStartOf="@id/jobName"
+      app:layout_constraintTop_toBottomOf="@id/jobName" />
     <TextView
       android:id="@+id/loiName"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:padding="20dp"
-      tools:text="loiName" />
-  </LinearLayout>
+      android:layout_marginTop="10dp"
+      app:layout_constraintBottom_toBottomOf="@id/loiIcon"
+      app:layout_constraintStart_toEndOf="@id/loiIcon"
+      app:layout_constraintTop_toBottomOf="@id/jobName"
+      tools:text="Quilombolas" />
+    <TextView
+      android:id="@+id/status"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginTop="10dp"
+      app:layout_constraintStart_toStartOf="@id/jobName"
+      app:layout_constraintTop_toBottomOf="@id/loiName"
+      tools:text="Completed" />
+    <Button
+      android:id="@+id/button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="@android:color/transparent"
+      android:text="@string/submit"
+      android:textColor="@color/colorMapBlue"
+      app:layout_constraintStart_toEndOf="@id/jobName"
+      app:layout_constraintTop_toBottomOf="@id/status" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

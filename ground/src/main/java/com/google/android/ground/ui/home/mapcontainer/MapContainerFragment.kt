@@ -119,13 +119,14 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
         .stream()
         .map { loi ->
           LoiCard(
-            loiId = loi.id,
             loiName = loi.caption ?: "empty caption",
-            jobName = loi.job.name ?: "empty name"
+            jobName = loi.job.name ?: "empty name",
+            status = "Completed"
           )
         }
         .toList()
     adapter.updateData(list)
+    Toast.makeText(requireContext(), "Total size: ${list.size}", Toast.LENGTH_SHORT).show()
   }
 
   override fun onCreateView(

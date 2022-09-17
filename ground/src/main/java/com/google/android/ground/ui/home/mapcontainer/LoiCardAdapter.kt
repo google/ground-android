@@ -19,6 +19,7 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
@@ -42,9 +43,12 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   /** Binds [LoiCard] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val itemsViewModel = itemsList[position]
-    holder.loiId.text = itemsViewModel.loiId
     holder.loiName.text = itemsViewModel.loiName
     holder.jobName.text = itemsViewModel.jobName
+    holder.status.text = itemsViewModel.status
+    holder.button.setOnClickListener {
+      // TODO: Implement click listener
+    }
   }
 
   /** Returns the size of the list. */
@@ -58,8 +62,9 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   /** View item representing the [LoiCard] data in the list. */
   class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val loiId: TextView = view.findViewById(R.id.loiId)
+    val status: TextView = view.findViewById(R.id.status)
     val loiName: TextView = view.findViewById(R.id.loiName)
     val jobName: TextView = view.findViewById(R.id.jobName)
+    val button: Button = view.findViewById(R.id.button)
   }
 }

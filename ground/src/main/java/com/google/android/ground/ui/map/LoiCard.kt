@@ -16,8 +16,4 @@
 
 package com.google.android.ground.ui.map
 
-data class LoiCard(
-  val jobName: String = "job name",
-  val loiName: String = "loi name",
-  val loiId: String? = "123456"
-)
+data class LoiCard(val jobName: String, val loiName: String, val status: String)
