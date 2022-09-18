@@ -30,7 +30,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.rx.RxAutoDispose
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.common.AbstractMapViewerFragment
@@ -53,7 +52,7 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MapContainerFragment
 @Inject
-constructor(private var mapsRepository: MapsRepository, var scheduler: Schedulers) :
+constructor(private var mapsRepository: MapsRepository, private val loiCardSource: LoiCardSource) :
   AbstractMapViewerFragment() {
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
@@ -87,7 +86,10 @@ constructor(private var mapsRepository: MapsRepository, var scheduler: Scheduler
     mapFragment.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { mapContainerViewModel.onCameraMove(it) }
+      .subscribe {
+        mapContainerViewModel.onCameraMove(it)
+        loiCardSource.updateCameraPosition(it)
+      }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
@@ -111,7 +113,7 @@ constructor(private var mapsRepository: MapsRepository, var scheduler: Scheduler
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
-    mapContainerViewModel.locationsOfInterest.observe(this) { onLoiUpdated(it) }
+    loiCardSource.locationsOfInterest.observe(this) { onLoiUpdated(it) }
   }
 
   private fun onLoiUpdated(it: List<LocationOfInterest>) {
@@ -126,7 +128,6 @@ constructor(private var mapsRepository: MapsRepository, var scheduler: Scheduler
         }
         .toList()
     adapter.updateData(list)
-    Toast.makeText(requireContext(), "Total size: ${list.size}", Toast.LENGTH_SHORT).show()
   }
 
   override fun onCreateView(
