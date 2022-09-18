@@ -30,6 +30,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.common.AbstractMapViewerFragment
@@ -41,7 +42,6 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
@@ -51,7 +51,9 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment @Inject constructor(private var mapsRepository: MapsRepository) :
+class MapContainerFragment
+@Inject
+constructor(private var mapsRepository: MapsRepository, var scheduler: Schedulers) :
   AbstractMapViewerFragment() {
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
@@ -109,10 +111,10 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
-    mapContainerViewModel.locationsOfInterest.observe(this) { onLoiChange(it) }
+    mapContainerViewModel.locationsOfInterest.observe(this) { onLoiUpdated(it) }
   }
 
-  private fun onLoiChange(it: ImmutableSet<LocationOfInterest>) {
+  private fun onLoiUpdated(it: List<LocationOfInterest>) {
     val list =
       it
         .map { loi ->
@@ -161,6 +163,23 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
       onBottomSheetStateChange(state, map)
     }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
+
+    //    mapFragment.cameraMovedEvents
+    //      .onBackpressureLatest()
+    //      .map(CameraPosition::bounds)
+    //      .observeOn(scheduler.ui())
+    //      .doOnNext { latLngBounds ->
+    //        run {
+    //          if (latLngBounds != null) {
+    //            val northeast = latLngBounds.northeast
+    //            val southwest = latLngBounds.southwest
+    //            val center = latLngBounds.center
+    //            Timber.d("NE: $northeast, SW: $southwest, Center: $center")
+    //          }
+    //        }
+    //      }
+    //      .`as`(RxAutoDispose.disposeOnDestroy(activity))
+    //      .subscribe()
 
     // TODO: Do this the RxJava way
     val cameraPosition = mapContainerViewModel.getCameraPosition().value

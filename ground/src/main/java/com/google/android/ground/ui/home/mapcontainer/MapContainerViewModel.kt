@@ -23,6 +23,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -54,6 +55,7 @@ import io.reactivex.subjects.Subject
 import java.util.*
 import java8.util.Optional
 import javax.inject.Inject
+import kotlin.streams.toList
 import timber.log.Timber
 
 @SharedViewModel
@@ -67,7 +69,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
   private val surveyLoadingState: LiveData<Loadable<Survey>>
-  val locationsOfInterest: LiveData<ImmutableSet<LocationOfInterest>>
+  val locationsOfInterest: LiveData<List<LocationOfInterest>>
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
@@ -77,6 +79,7 @@ internal constructor(
 
   private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
   private val cameraUpdateSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
+  private val cameraPositionSubject: @Hot Subject<CameraPosition> = PublishSubject.create()
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
   private val unsavedMapLocationsOfInterest:
@@ -228,6 +231,7 @@ internal constructor(
 
   fun onCameraMove(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
+    cameraPositionSubject.onNext(newCameraPosition)
     onZoomChange(cameraPosition.value!!.zoomLevel, newCameraPosition.zoomLevel)
     cameraPosition.value = newCameraPosition
     surveyLoadingState.value?.value()?.ifPresent {
@@ -413,7 +417,21 @@ internal constructor(
         getLocationsOfInterestStream(activeProject)
       }
 
-    locationsOfInterest = LiveDataReactiveStreams.fromPublisher(loiStream.distinctUntilChanged())
+    locationsOfInterest =
+      LiveDataReactiveStreams.fromPublisher(
+        cameraPositionSubject
+          .toFlowable(BackpressureStrategy.LATEST)
+          .distinctUntilChanged()
+          .flatMap { cameraPosition ->
+            loiStream.distinctUntilChanged().map { lois ->
+              lois
+                .stream()
+                .filter { isLocationOfInterestWithinBounds(it, cameraPosition.bounds) }
+                .toList()
+            }
+          }
+          .distinctUntilChanged()
+      )
 
     val savedMapLocationsOfInterest =
       Flowable.combineLatest(
@@ -430,7 +448,9 @@ internal constructor(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
               unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
             )
-          ) { concatLocationsOfInterestSets(it) }
+          ) {
+            concatLocationsOfInterestSets(it)
+          }
           .distinctUntilChanged()
       )
 
@@ -445,5 +465,20 @@ internal constructor(
         onSurveyChange(project)
       }
     )
+  }
+
+  private fun isLocationOfInterestWithinBounds(
+    locationOfInterest: LocationOfInterest,
+    bounds: LatLngBounds?
+  ): Boolean {
+    if (bounds != null) {
+      val northeast = bounds.northeast
+      val southwest = bounds.southwest
+      val center = bounds.center
+      Timber.d("NE: $northeast, SW: $southwest, Center: $center")
+      Timber.d("LOI: $locationOfInterest")
+      return true
+    }
+    return false
   }
 }

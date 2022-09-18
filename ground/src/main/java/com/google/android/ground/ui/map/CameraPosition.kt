@@ -15,11 +15,16 @@
  */
 package com.google.android.ground.ui.map
 
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import java8.util.Optional
 
-data class CameraPosition(val target: Point, val zoomLevel: Float) {
+data class CameraPosition(
+  val target: Point,
+  val zoomLevel: Float,
+  var bounds: LatLngBounds? = null
+) {
 
   override fun toString(): String {
     return "Position: $target Zoom level: $zoomLevel"

@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -203,7 +204,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMarkerClick(marker: Marker): Boolean =
     if (getMap().uiSettings.isZoomGesturesEnabled) {
-      markers[marker]?.let { markerClicks.onNext(it) }
+      markers[marker]?.let {
+        //        markerClicks.onNext(it)
+        Toast.makeText(requireContext(), "${it.locationOfInterest?.geometry}", Toast.LENGTH_LONG)
+          .show()
+      }
       // Allow map to pan to marker.
       false
     } else {
@@ -378,7 +383,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
       val target = getMap().cameraPosition.target
       val zoom = getMap().cameraPosition.zoom
-      cameraMovedEvents.onNext(CameraPosition(target.fromLatLng(), zoom))
+      cameraMovedEvents.onNext(
+        CameraPosition(target.fromLatLng(), zoom, getMap().projection.visibleRegion.latLngBounds)
+      )
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
     }
   }
