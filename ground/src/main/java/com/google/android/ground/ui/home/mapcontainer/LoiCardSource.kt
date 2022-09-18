@@ -43,11 +43,13 @@ internal constructor(
   val locationsOfInterest: LiveData<List<LocationOfInterest>>
 
   init {
+    val loiStream = getAllLocationsOfInterest()
+
     locationsOfInterest =
       LiveDataReactiveStreams.fromPublisher(
         getCameraBoundUpdates()
           .flatMap { bounds ->
-            getAllLocationsOfInterest().map { lois ->
+            loiStream.map { lois ->
               lois.filter { isGeometryWithinBounds(it.geometry, bounds) }.toList()
             }
           }
