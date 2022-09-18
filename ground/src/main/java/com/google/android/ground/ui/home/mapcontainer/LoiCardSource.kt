@@ -24,6 +24,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.map.LoiCard
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -40,17 +41,20 @@ internal constructor(
 ) {
 
   private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
-  val locationsOfInterest: LiveData<List<LocationOfInterest>>
+  val locationsOfInterestCard: LiveData<List<LoiCard>>
 
   init {
     val loiStream = getAllLocationsOfInterest()
 
-    locationsOfInterest =
+    locationsOfInterestCard =
       LiveDataReactiveStreams.fromPublisher(
         getCameraBoundUpdates()
           .flatMap { bounds ->
             loiStream.map { lois ->
-              lois.filter { isGeometryWithinBounds(it.geometry, bounds) }.toList()
+              lois
+                .filter { isGeometryWithinBounds(it.geometry, bounds) }
+                .map { LoiCard.fromLocationOfInterest(it) }
+                .toList()
             }
           }
           .distinctUntilChanged()

@@ -36,7 +36,6 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.LoiCard
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
@@ -113,21 +112,7 @@ constructor(private var mapsRepository: MapsRepository, private val loiCardSourc
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
-    loiCardSource.locationsOfInterest.observe(this) { onLoiUpdated(it) }
-  }
-
-  private fun onLoiUpdated(it: List<LocationOfInterest>) {
-    val list =
-      it
-        .map { loi ->
-          LoiCard(
-            loiName = loi.caption ?: "empty caption",
-            jobName = loi.job.name ?: "empty name",
-            status = "Completed"
-          )
-        }
-        .toList()
-    adapter.updateData(list)
+    loiCardSource.locationsOfInterestCard.observe(this) { adapter.updateData(it) }
   }
 
   override fun onCreateView(
@@ -164,23 +149,6 @@ constructor(private var mapsRepository: MapsRepository, private val loiCardSourc
       onBottomSheetStateChange(state, map)
     }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
-
-    //    mapFragment.cameraMovedEvents
-    //      .onBackpressureLatest()
-    //      .map(CameraPosition::bounds)
-    //      .observeOn(scheduler.ui())
-    //      .doOnNext { latLngBounds ->
-    //        run {
-    //          if (latLngBounds != null) {
-    //            val northeast = latLngBounds.northeast
-    //            val southwest = latLngBounds.southwest
-    //            val center = latLngBounds.center
-    //            Timber.d("NE: $northeast, SW: $southwest, Center: $center")
-    //          }
-    //        }
-    //      }
-    //      .`as`(RxAutoDispose.disposeOnDestroy(activity))
-    //      .subscribe()
 
     // TODO: Do this the RxJava way
     val cameraPosition = mapContainerViewModel.getCameraPosition().value

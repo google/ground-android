@@ -16,4 +16,16 @@
 
 package com.google.android.ground.ui.map
 
-data class LoiCard(val jobName: String, val loiName: String, val status: String)
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+
+data class LoiCard(val jobName: String, val loiName: String, val status: String) {
+
+  companion object {
+    fun fromLocationOfInterest(locationOfInterest: LocationOfInterest): LoiCard =
+      LoiCard(
+        loiName = locationOfInterest.caption ?: "empty caption",
+        jobName = locationOfInterest.job.name ?: "empty name",
+        status = "Completed"
+      )
+  }
+}

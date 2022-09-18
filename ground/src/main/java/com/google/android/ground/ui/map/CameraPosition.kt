@@ -23,7 +23,7 @@ import java8.util.Optional
 data class CameraPosition(
   val target: Point,
   val zoomLevel: Float,
-  var bounds: LatLngBounds? = null
+  var bounds: LatLngBounds? = null // TODO: Handle serialization/deserialization
 ) {
 
   override fun toString(): String {
