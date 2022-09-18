@@ -20,7 +20,6 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -33,7 +32,6 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlin.streams.toList
-import timber.log.Timber
 
 /** Provides data for displaying cards for visible LOIs at the bottom of the screen. */
 class LoiCardSource
@@ -83,12 +81,6 @@ internal constructor(
 
   /** Returns true if the provided [geometry] is within [bounds]. */
   private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean {
-    return when (geometry) {
-      is Point -> bounds.contains(geometry.coordinate.toLatLng())
-      else -> {
-        Timber.d("Implement LatLng comparator for $geometry")
-        true
-      }
-    }
+    return geometry.vertices.any { bounds.contains(it.coordinate.toLatLng()) }
   }
 }

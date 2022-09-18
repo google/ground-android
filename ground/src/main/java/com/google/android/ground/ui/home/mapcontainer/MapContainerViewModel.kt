@@ -427,9 +427,7 @@ internal constructor(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
               unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
             )
-          ) {
-            concatLocationsOfInterestSets(it)
-          }
+          ) { concatLocationsOfInterestSets(it) }
           .distinctUntilChanged()
       )
 
