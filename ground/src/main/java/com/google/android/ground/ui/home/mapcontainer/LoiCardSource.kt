@@ -31,7 +31,6 @@ import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlin.streams.toList
 
 /** Provides data for displaying cards for visible LOIs at the bottom of the screen. */
 class LoiCardSource
@@ -50,14 +49,14 @@ internal constructor(
         getCameraBoundUpdates()
           .flatMap { bounds ->
             getAllLocationsOfInterest().map { lois ->
-              lois.stream().filter { isGeometryWithinBounds(it.geometry, bounds) }.toList()
+              lois.filter { isGeometryWithinBounds(it.geometry, bounds) }.toList()
             }
           }
           .distinctUntilChanged()
       )
   }
 
-  fun updateCameraPosition(cameraPosition: CameraPosition) {
+  fun onCameraPositionUpdated(cameraPosition: CameraPosition) {
     cameraPositionSubject.onNext(cameraPosition)
   }
 
@@ -80,7 +79,6 @@ internal constructor(
       .distinctUntilChanged()
 
   /** Returns true if the provided [geometry] is within [bounds]. */
-  private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean {
-    return geometry.vertices.any { bounds.contains(it.coordinate.toLatLng()) }
-  }
+  private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean =
+    geometry.vertices.any { bounds.contains(it.coordinate.toLatLng()) }
 }
