@@ -24,7 +24,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -40,7 +39,7 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
 ) {
 
-  private val cameraPositionSubject: @Hot Subject<CameraPosition> = PublishSubject.create()
+  private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
   val locationsOfInterest: LiveData<List<LocationOfInterest>>
 
   init {
@@ -56,17 +55,13 @@ internal constructor(
       )
   }
 
-  fun onCameraPositionUpdated(cameraPosition: CameraPosition) {
-    cameraPositionSubject.onNext(cameraPosition)
+  fun onCameraBoundsUpdated(newBounds: LatLngBounds?) {
+    newBounds?.let { cameraBoundsSubject.onNext(it) }
   }
 
   /** Returns a flowable of [LatLngBounds] whenever camera moves. */
   private fun getCameraBoundUpdates(): Flowable<LatLngBounds> =
-    cameraPositionSubject
-      .filter { it.bounds != null }
-      .map { it.bounds!! }
-      .toFlowable(BackpressureStrategy.LATEST)
-      .distinctUntilChanged()
+    cameraBoundsSubject.toFlowable(BackpressureStrategy.LATEST).distinctUntilChanged()
 
   /** Returns a flowable of all [LocationOfInterest] for the selected [Survey]. */
   private fun getAllLocationsOfInterest(): Flowable<ImmutableSet<LocationOfInterest>> =

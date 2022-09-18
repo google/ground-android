@@ -88,7 +88,7 @@ constructor(private var mapsRepository: MapsRepository, private val loiCardSourc
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe {
         mapContainerViewModel.onCameraMove(it)
-        loiCardSource.onCameraPositionUpdated(it)
+        loiCardSource.onCameraBoundsUpdated(it.bounds)
       }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
