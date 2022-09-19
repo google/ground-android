@@ -67,7 +67,6 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
   private val surveyLoadingState: LiveData<Loadable<Survey>>
-  val locationsOfInterest: LiveData<ImmutableSet<LocationOfInterest>>
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
@@ -412,8 +411,6 @@ internal constructor(
       surveyRepository.activeSurvey.switchMap { activeProject ->
         getLocationsOfInterestStream(activeProject)
       }
-
-    locationsOfInterest = LiveDataReactiveStreams.fromPublisher(loiStream.distinctUntilChanged())
 
     val savedMapLocationsOfInterest =
       Flowable.combineLatest(

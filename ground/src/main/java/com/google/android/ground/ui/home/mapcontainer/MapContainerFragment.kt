@@ -36,12 +36,10 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.LoiCard
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
@@ -51,7 +49,9 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment @Inject constructor(private var mapsRepository: MapsRepository) :
+class MapContainerFragment
+@Inject
+constructor(private var mapsRepository: MapsRepository, private val loiCardSource: LoiCardSource) :
   AbstractMapViewerFragment() {
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
@@ -85,7 +85,10 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
     mapFragment.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { mapContainerViewModel.onCameraMove(it) }
+      .subscribe {
+        mapContainerViewModel.onCameraMove(it)
+        loiCardSource.onCameraBoundsUpdated(it.bounds)
+      }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
@@ -109,22 +112,7 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
-    mapContainerViewModel.locationsOfInterest.observe(this) { onLoiChange(it) }
-  }
-
-  private fun onLoiChange(it: ImmutableSet<LocationOfInterest>) {
-    val list =
-      it
-        .map { loi ->
-          LoiCard(
-            loiName = loi.caption ?: "empty caption",
-            jobName = loi.job.name ?: "empty name",
-            status = "Completed"
-          )
-        }
-        .toList()
-    adapter.updateData(list)
-    Toast.makeText(requireContext(), "Total size: ${list.size}", Toast.LENGTH_SHORT).show()
+    loiCardSource.locationsOfInterestCard.observe(this) { adapter.updateData(it) }
   }
 
   override fun onCreateView(

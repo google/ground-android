@@ -378,7 +378,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
       val target = getMap().cameraPosition.target
       val zoom = getMap().cameraPosition.zoom
-      cameraMovedEvents.onNext(CameraPosition(target.fromLatLng(), zoom))
+      cameraMovedEvents.onNext(
+        CameraPosition(target.fromLatLng(), zoom, getMap().projection.visibleRegion.latLngBounds)
+      )
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
     }
   }
