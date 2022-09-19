@@ -49,14 +49,7 @@ internal constructor(
     locationsOfInterestCard =
       LiveDataReactiveStreams.fromPublisher(
         getCameraBoundUpdates()
-          .flatMap { bounds ->
-            loiStream.map { lois ->
-              lois
-                .filter { isGeometryWithinBounds(it.geometry, bounds) }
-                .map { LoiCard.fromLocationOfInterest(it) }
-                .toList()
-            }
-          }
+          .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
           .distinctUntilChanged()
       )
   }
@@ -78,6 +71,14 @@ internal constructor(
           .orElse(Flowable.just(ImmutableSet.of()))
       }
       .distinctUntilChanged()
+
+  /** Filters all [LocationOfInterest] within [bounds] and converts to [LoiCard]. */
+  private fun ImmutableSet<LocationOfInterest>.toLoiCardsWithinBounds(
+    bounds: LatLngBounds
+  ): List<LoiCard> =
+    this.filter { isGeometryWithinBounds(it.geometry, bounds) }
+      .map { LoiCard.fromLocationOfInterest(it) }
+      .toList()
 
   /** Returns true if the provided [geometry] is within [bounds]. */
   private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean =
