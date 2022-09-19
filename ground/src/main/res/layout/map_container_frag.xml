@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -64,8 +65,8 @@
         <TextView
           android:id="@+id/location_accuracy"
           android:layout_width="match_parent"
-          android:background="@android:color/white"
           android:layout_height="wrap_content"
+          android:background="@android:color/white"
           android:gravity="center"
           android:padding="5dp"
           android:text="@{viewModel.getLocationAccuracy()}"
@@ -78,8 +79,18 @@
       android:id="@+id/map_crosshairs_img"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_gravity="center"
       android:adjustViewBounds="false"
-      android:src="@drawable/ic_crosshairs"
-      android:layout_gravity="center"/>
+      android:src="@drawable/ic_crosshairs" />
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recycler_view"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom"
+      android:orientation="horizontal"
+      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+      tools:itemCount="3"
+      tools:listitem="@layout/loi_card_item" />
   </FrameLayout>
 </layout>

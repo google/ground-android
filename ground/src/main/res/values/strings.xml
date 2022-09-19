@@ -220,5 +220,6 @@
   <string name="map_type">Map Type</string>
   <string name="close">Close</string>
   <string name="next">Next</string>
+  <string name="submit">Submit</string>
 
 </resources>

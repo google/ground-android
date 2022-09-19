@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2022 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_margin="@dimen/loi_card_item_margin"
+  android:orientation="vertical">
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+      android:id="@+id/jobName"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginStart="@dimen/loi_card_item_margin"
+      android:layout_marginTop="@dimen/loi_card_item_margin"
+      android:layout_marginEnd="@dimen/loi_card_item_margin"
+      android:textSize="@dimen/loi_card_item_title_text_size"
+      android:textStyle="bold"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Map the terrain" />
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+      android:id="@+id/loiIcon"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/loi_card_item_margin"
+      android:tint="@color/colorGrey800"
+      app:layout_constraintStart_toStartOf="@id/jobName"
+      app:layout_constraintTop_toBottomOf="@id/jobName"
+      app:srcCompat="@drawable/ic_outline_room_24" />
+    <TextView
+      android:id="@+id/loiName"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginTop="@dimen/loi_card_item_margin"
+      app:layout_constraintBottom_toBottomOf="@id/loiIcon"
+      app:layout_constraintStart_toEndOf="@id/loiIcon"
+      app:layout_constraintTop_toBottomOf="@id/jobName"
+      tools:text="Quilombolas" />
+    <TextView
+      android:id="@+id/status"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginTop="@dimen/loi_card_item_margin"
+      app:layout_constraintStart_toStartOf="@id/jobName"
+      app:layout_constraintTop_toBottomOf="@id/loiName"
+      tools:text="Completed" />
+    <Button
+      android:id="@+id/button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="@android:color/transparent"
+      android:text="@string/submit"
+      android:textColor="@color/colorMapBlue"
+      app:layout_constraintStart_toEndOf="@id/jobName"
+      app:layout_constraintTop_toBottomOf="@id/status" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

@@ -67,6 +67,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
   private val surveyLoadingState: LiveData<Loadable<Survey>>
+  val locationsOfInterest: LiveData<ImmutableSet<LocationOfInterest>>
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
@@ -402,17 +403,21 @@ internal constructor(
       )
     cameraUpdateRequests =
       LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable(locationLockStateFlowable))
-    surveyLoadingState =
-      LiveDataReactiveStreams.fromPublisher<Loadable<Survey>>(surveyRepository.surveyLoadingState)
+    surveyLoadingState = LiveDataReactiveStreams.fromPublisher(surveyRepository.surveyLoadingState)
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
+    val loiStream =
+      surveyRepository.activeSurvey.switchMap { activeProject ->
+        getLocationsOfInterestStream(activeProject)
+      }
+
+    locationsOfInterest = LiveDataReactiveStreams.fromPublisher(loiStream.distinctUntilChanged())
+
     val savedMapLocationsOfInterest =
       Flowable.combineLatest(
-        surveyRepository.activeSurvey
-          .switchMap { activeProject -> getLocationsOfInterestStream(activeProject) }
-          .map { locationsOfInterest -> toMapLocationsOfInterest(locationsOfInterest) },
+        loiStream.map { locationsOfInterest -> toMapLocationsOfInterest(locationsOfInterest) },
         selectedLocationOfInterest
       ) { locationsOfInterest, selectedLocationOfInterest ->
         updateSelectedLocationOfInterest(locationsOfInterest, selectedLocationOfInterest)

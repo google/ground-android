@@ -36,10 +36,12 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.map.LoiCard
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
@@ -55,6 +57,8 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
   private lateinit var mapContainerViewModel: MapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: MapContainerFragBinding
+
+  private val adapter: LoiCardAdapter = LoiCardAdapter()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -105,6 +109,22 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
+    mapContainerViewModel.locationsOfInterest.observe(this) { onLoiChange(it) }
+  }
+
+  private fun onLoiChange(it: ImmutableSet<LocationOfInterest>) {
+    val list =
+      it
+        .map { loi ->
+          LoiCard(
+            loiName = loi.caption ?: "empty caption",
+            jobName = loi.job.name ?: "empty name",
+            status = "Completed"
+          )
+        }
+        .toList()
+    adapter.updateData(list)
+    Toast.makeText(requireContext(), "Total size: ${list.size}", Toast.LENGTH_SHORT).show()
   }
 
   override fun onCreateView(
@@ -116,6 +136,7 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
+    binding.recyclerView.adapter = adapter
     return binding.root
   }
 
