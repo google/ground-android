@@ -47,7 +47,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
 import kotlin.math.max
-import kotlin.streams.toList
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -116,7 +115,6 @@ class MapContainerFragment @Inject constructor(private var mapsRepository: MapsR
   private fun onLoiChange(it: ImmutableSet<LocationOfInterest>) {
     val list =
       it
-        .stream()
         .map { loi ->
           LoiCard(
             loiName = loi.caption ?: "empty caption",
