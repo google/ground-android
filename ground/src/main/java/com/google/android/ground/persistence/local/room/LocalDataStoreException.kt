@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.remote
+package com.google.android.ground.persistence.local.room
 
-/** Exception thrown when a remote entity is not found. */
-class NotFoundException(message: String) : DataStoreException(message)
+/**
+ * Checked exception used internally to ensure we catch and handle errors in [RoomLocalDataStore].
+ */
+class LocalDataStoreException(message: String) : Exception(message)
