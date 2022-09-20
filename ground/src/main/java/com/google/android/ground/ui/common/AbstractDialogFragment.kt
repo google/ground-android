@@ -33,7 +33,7 @@ abstract class AbstractDialogFragment : AppCompatDialogFragment() {
 
   /** Uses [ViewModelFactory] to obtain an instance of the view model of the specified class. */
   protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
-    viewModelFactory[this, modelClass]
+    viewModelFactory.get(this, modelClass)
 
   override fun onAttach(context: Context) {
     Debug.logLifecycleEvent(this)

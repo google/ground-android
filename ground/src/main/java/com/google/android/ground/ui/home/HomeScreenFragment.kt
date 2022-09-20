@@ -437,8 +437,7 @@ class HomeScreenFragment :
 
   private fun showSurveyLoadingDialog() {
     if (progressDialog == null) {
-      progressDialog =
-        ProgressDialogs.modalSpinner(requireContext(), R.string.survey_loading_please_wait)
+      progressDialog = ProgressDialogs.modalSpinner(context, R.string.survey_loading_please_wait)
       progressDialog?.show()
     }
   }

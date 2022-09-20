@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.common
 
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
+package com.google.android.ground.ui.common;
 
-/**
- * Annotates view models to indicate that a single instance should be shared by all fragments in an
- * activity. Only one instance of such view models will be created per activity by
- * [ViewModelFactory.get].
- */
-@Retention(RetentionPolicy.RUNTIME) annotation class SharedViewModel
+import androidx.lifecycle.ViewModel;
+import dagger.MapKey;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@MapKey
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ViewModelKey {
+  Class<? extends ViewModel> value();
+}
