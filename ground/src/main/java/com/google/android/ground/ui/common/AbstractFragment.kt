@@ -33,7 +33,7 @@ abstract class AbstractFragment : Fragment() {
   @Inject lateinit var viewModelFactory: ViewModelFactory
 
   protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
-    viewModelFactory.get(this, modelClass)
+    viewModelFactory[this, modelClass]
 
   override fun onAttach(context: Context) {
     Debug.logLifecycleEvent(this)
