@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.common
 
-import android.app.ProgressDialog
-import android.content.Context
-import androidx.annotation.StringRes
+package com.google.android.ground.ui.common;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import androidx.annotation.StringRes;
 
 // TODO(#712): Replace with custom View.
-object ProgressDialogs {
-  fun modalSpinner(context: Context, @StringRes messageId: Int): ProgressDialog {
-    val dialog = ProgressDialog(context)
-    dialog.setMessage(context.resources.getString(messageId))
-    dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-    dialog.setCancelable(false)
-    dialog.setCanceledOnTouchOutside(false)
-    return dialog
+public abstract class ProgressDialogs {
+  /** Do not instantiate. */
+  private ProgressDialogs() {}
+
+  public static ProgressDialog modalSpinner(Context context, @StringRes int messageId) {
+    ProgressDialog dialog = new ProgressDialog(context);
+    dialog.setMessage(context.getResources().getString(messageId));
+    dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    dialog.setCancelable(false);
+    dialog.setCanceledOnTouchOutside(false);
+    return dialog;
   }
 }
