@@ -38,27 +38,23 @@ internal object QuerySnapshotConverter {
   fun <T> toEvents(
     snapshot: QuerySnapshot,
     converter: Function<DocumentSnapshot, Result<T>>
-  ): Iterable<RemoteDataEvent<T?>> {
-    return snapshot.documentChanges
-      .map { dc: DocumentChange -> toEvent(dc, converter) }
-      .toImmutableList()
-  }
+  ): Iterable<RemoteDataEvent<T>> =
+    snapshot.documentChanges.map { dc: DocumentChange -> toEvent(dc, converter) }.toImmutableList()
 
   private fun <T> toEvent(
     dc: DocumentChange,
     converter: Function<DocumentSnapshot, Result<T>>
-  ): RemoteDataEvent<T?> {
+  ): RemoteDataEvent<T> =
     try {
       Timber.v("${dc.document.reference.path}  ${dc.type}")
       val id = dc.document.id
-      return when (dc.type) {
+      when (dc.type) {
         DocumentChange.Type.ADDED -> loaded(id, converter.apply(dc.document).getOrThrow())
         DocumentChange.Type.MODIFIED -> modified(id, converter.apply(dc.document).getOrThrow())
-        DocumentChange.Type.REMOVED -> removed<T>(id)
+        DocumentChange.Type.REMOVED -> removed(id)
         else -> throw DataStoreException("Unknown DocumentChange type: ${dc.type}")
       }
     } catch (t: Throwable) {
-      return error(t)
+      error(t)
     }
-  }
 }

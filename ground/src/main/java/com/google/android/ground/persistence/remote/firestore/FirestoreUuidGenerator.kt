@@ -24,5 +24,9 @@ class FirestoreUuidGenerator @Inject constructor() : OfflineUuidGenerator {
   // TODO: Check if this be replaced with the underlying implementation directly Util.autoId()
   //  Also remove Fake implementation if the dependency on firebase init is removed.
   override fun generateUuid(): String =
-    FirebaseFirestore.getInstance().collection(FirestoreDataStore.ID_COLLECTION).document().id
+    FirebaseFirestore.getInstance().collection(ID_COLLECTION).document().id
+
+  companion object {
+    const val ID_COLLECTION = "/ids"
+  }
 }

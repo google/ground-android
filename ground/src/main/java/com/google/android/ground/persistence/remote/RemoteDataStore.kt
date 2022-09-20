@@ -13,68 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote
 
-package com.google.android.ground.persistence.remote;
-
-import androidx.annotation.Nullable;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.model.TermsOfService;
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
-import kotlin.Result;
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.model.User
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.rx.annotations.Cold
+import com.google.common.collect.ImmutableCollection
+import com.google.common.collect.ImmutableList
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
-public interface RemoteDataStore {
-
-  @Cold
-  Single<List<Survey>> loadSurveySummaries(User user);
+interface RemoteDataStore {
+  fun loadSurveySummaries(user: User): @Cold Single<List<Survey>>
 
   /**
    * Loads the survey with the specified id from the remote data store. The return Single fails with
    * if the survey is not found, or if the remote data store is not available.
    */
-  @Cold
-  Single<Survey> loadSurvey(String surveyId);
+  fun loadSurvey(surveyId: String): @Cold Single<Survey>
 
   /**
    * Loads the survey terms from the remote data store. The returned Maybe is empty if not found,
    * otherwise it completes with the loaded terms of service.
    */
-  @Cold
-  Maybe<TermsOfService> loadTermsOfService();
+  fun loadTermsOfService(): @Cold Maybe<TermsOfService>
 
   /**
    * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set
    * of LOIs in the survey until all subscribers have been disposed.
    */
-  @Cold(stateful = true, terminates = false)
-  Flowable<RemoteDataEvent<LocationOfInterest>> loadLocationsOfInterestOnceAndStreamChanges(
-      Survey survey);
+  fun loadLocationsOfInterestOnceAndStreamChanges(
+    survey: Survey
+  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>>
 
   /**
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.
    */
-  @Cold
-  Single<ImmutableList<Result<Submission>>> loadSubmissions(LocationOfInterest locationOfInterest);
+  fun loadSubmissions(
+    locationOfInterest: LocationOfInterest
+  ): @Cold Single<ImmutableList<Result<Submission>>>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
-  @Cold
-  Completable applyMutations(@Nullable ImmutableCollection<Mutation> mutations, User user);
+  fun applyMutations(mutations: ImmutableCollection<Mutation>, user: User): @Cold Completable
 }
