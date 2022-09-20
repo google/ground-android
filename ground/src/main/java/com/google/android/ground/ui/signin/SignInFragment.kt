@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.signin
 
-package com.google.android.ground.ui.signin;
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import com.google.android.ground.databinding.SignInFragBinding;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.BackPressListener;
-import dagger.hilt.android.AndroidEntryPoint;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.ground.databinding.SignInFragBinding
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.BackPressListener
+import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: Remove scoping since Fragments are no longer injected.
 @AndroidEntryPoint
-public class SignInFragment extends AbstractFragment implements BackPressListener {
-  private SignInViewModel viewModel;
+class SignInFragment : AbstractFragment(), BackPressListener {
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    this.viewModel = getViewModel(SignInViewModel.class);
+  private lateinit var viewModel: SignInViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(SignInViewModel::class.java)
   }
 
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    SignInFragBinding binding = SignInFragBinding.inflate(inflater, container, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    return binding.getRoot();
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    val binding = SignInFragBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
+    return binding.root
   }
 
-  @Override
-  public boolean onBack() {
+  override fun onBack(): Boolean {
     // Workaround to exit on back from sign-in screen since for some reason
     // popUpTo is not working on signOut action.
-    getActivity().finish();
-    return false;
+    requireActivity().finish()
+    return false
   }
 }

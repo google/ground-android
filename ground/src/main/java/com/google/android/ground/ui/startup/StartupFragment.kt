@@ -13,56 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.startup
 
-package com.google.android.ground.ui.startup;
-
-import static com.google.android.ground.rx.RxAutoDispose.autoDisposable;
-
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import com.google.android.ground.R;
-import com.google.android.ground.system.GoogleApiManager;
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.EphemeralPopups;
-import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
-import timber.log.Timber;
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.ground.R
+import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.system.GoogleApiManager
+import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.EphemeralPopups
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import timber.log.Timber
 
 @AndroidEntryPoint
-public class StartupFragment extends AbstractFragment {
+class StartupFragment : AbstractFragment() {
 
-  @Inject GoogleApiManager googleApiManager;
-  @Inject AuthenticationManager authenticationManager;
-  @Inject EphemeralPopups popups;
+  @Inject lateinit var authenticationManager: AuthenticationManager
+  @Inject lateinit var googleApiManager: GoogleApiManager
+  @Inject lateinit var popups: EphemeralPopups
 
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.startup_frag, container, false);
-  }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? = inflater.inflate(R.layout.startup_frag, container, false)
 
-  @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-
+  override fun onAttach(context: Context) {
+    super.onAttach(context)
     googleApiManager
-        .installGooglePlayServices()
-        .as(autoDisposable(getActivity()))
-        .subscribe(this::onGooglePlayServicesReady, this::onGooglePlayServicesFailed);
+      .installGooglePlayServices()
+      .`as`(RxAutoDispose.autoDisposable<Any>(activity))
+      .subscribe({ onGooglePlayServicesReady() }) { t: Throwable -> onGooglePlayServicesFailed(t) }
   }
 
-  private void onGooglePlayServicesReady() {
-    authenticationManager.init();
+  private fun onGooglePlayServicesReady() {
+    authenticationManager.init()
   }
 
-  private void onGooglePlayServicesFailed(Throwable t) {
-    Timber.e(t, "Google Play Services install failed");
-    popups.showError(R.string.google_api_install_failed);
-    getActivity().finish();
+  private fun onGooglePlayServicesFailed(t: Throwable) {
+    Timber.e(t, "Google Play Services install failed")
+    popups.showError(R.string.google_api_install_failed)
+    requireActivity().finish()
   }
 }

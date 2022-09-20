@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.signin
 
-package com.google.android.ground.ui.signin;
+import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.ui.common.AbstractViewModel
+import javax.inject.Inject
 
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import javax.inject.Inject;
-
-public class SignInViewModel extends AbstractViewModel {
-  private final AuthenticationManager authenticationManager;
-
-  @Inject
-  SignInViewModel(AuthenticationManager authenticationManager) {
-    this.authenticationManager = authenticationManager;
-  }
-
-  public void onSignInButtonClick() {
-    authenticationManager.signIn();
+class SignInViewModel
+@Inject
+internal constructor(private val authenticationManager: AuthenticationManager) :
+  AbstractViewModel() {
+  fun onSignInButtonClick() {
+    authenticationManager.signIn()
   }
 }
