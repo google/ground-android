@@ -19,7 +19,6 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import java.util.*
@@ -59,15 +58,14 @@ data class LocationOfInterest(
    * Converts this LOI to a mutation that can be used to update this LOI in the remote and local
    * database.
    */
-  fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation {
-    return builder()
-      .setJobId(job.id)
-      .setType(type)
-      .setSyncStatus(SyncStatus.PENDING)
-      .setSurveyId(surveyId)
-      .setLocationOfInterestId(id)
-      .setUserId(userId)
-      .setClientTimestamp(Date())
-      .build()
-  }
+  fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation =
+    LocationOfInterestMutation(
+      jobId = job.id,
+      type = type,
+      syncStatus = SyncStatus.PENDING,
+      surveyId = surveyId,
+      locationOfInterestId = id,
+      userId = userId,
+      clientTimestamp = Date()
+    )
 }

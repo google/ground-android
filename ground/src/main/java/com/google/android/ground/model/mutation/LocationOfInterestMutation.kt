@@ -50,9 +50,6 @@ data class LocationOfInterestMutation(
     var geometry: Geometry? = null
       @JvmSynthetic set
 
-    fun setJobId(jobId: String): Builder = apply { this.jobId = jobId }
-    fun setGeometry(geometry: Geometry?): Builder = apply { this.geometry = geometry }
-
     override fun build() =
       LocationOfInterestMutation(
         id,
@@ -70,9 +67,6 @@ data class LocationOfInterestMutation(
   }
 
   companion object {
-    @JvmStatic fun builder(): Builder = LocationOfInterestMutation().toBuilder()
-
-    @JvmStatic
     fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<LocationOfInterestMutation> {
       return mutations
         .toTypedArray()

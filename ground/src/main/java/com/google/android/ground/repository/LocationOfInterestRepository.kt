@@ -21,7 +21,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.LocationOfInterestMutation.Companion.builder
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.LocalDataStore
@@ -126,16 +125,16 @@ constructor(
     point: Point,
     date: Date
   ): LocationOfInterestMutation =
-    builder()
-      .setJobId(jobId)
-      .setGeometry(point)
-      .setType(Mutation.Type.CREATE)
-      .setSyncStatus(SyncStatus.PENDING)
-      .setLocationOfInterestId(uuidGenerator.generateUuid())
-      .setSurveyId(surveyId)
-      .setUserId(authManager.currentUser.id)
-      .setClientTimestamp(date)
-      .build()
+    LocationOfInterestMutation(
+      jobId = jobId,
+      geometry = point,
+      type = Mutation.Type.CREATE,
+      syncStatus = SyncStatus.PENDING,
+      locationOfInterestId = uuidGenerator.generateUuid(),
+      surveyId = surveyId,
+      userId = authManager.currentUser.id,
+      clientTimestamp = date
+    )
 
   fun newPolygonOfInterestMutation(
     surveyId: String,
@@ -143,16 +142,16 @@ constructor(
     vertices: ImmutableList<Point>,
     date: Date
   ): LocationOfInterestMutation =
-    builder()
-      .setJobId(jobId)
-      .setGeometry(Polygon(LinearRing(vertices.map { it.coordinate })))
-      .setType(Mutation.Type.CREATE)
-      .setSyncStatus(SyncStatus.PENDING)
-      .setLocationOfInterestId(uuidGenerator.generateUuid())
-      .setSurveyId(surveyId)
-      .setUserId(authManager.currentUser.id)
-      .setClientTimestamp(date)
-      .build()
+    LocationOfInterestMutation(
+      jobId = jobId,
+      geometry = Polygon(LinearRing(vertices.map { it.coordinate })),
+      type = Mutation.Type.CREATE,
+      syncStatus = SyncStatus.PENDING,
+      locationOfInterestId = uuidGenerator.generateUuid(),
+      surveyId = surveyId,
+      userId = authManager.currentUser.id,
+      clientTimestamp = date
+    )
 
   /**
    * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
