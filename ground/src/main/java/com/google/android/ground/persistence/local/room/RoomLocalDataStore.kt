@@ -376,11 +376,11 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   private fun markComplete(mutations: ImmutableList<Mutation>): Completable {
     val locationOfInterestMutations =
       LocationOfInterestMutation.filter(mutations)
-        .map { it.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build() }
+        .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
         .map(LocationOfInterestMutationModelToLocalDbConverter::convertTo)
     val submissionMutations =
       SubmissionMutation.filter(mutations)
-        .map { it.toBuilder().setSyncStatus(SyncStatus.COMPLETED).build() }
+        .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
         .map { SubmissionMutationEntity.fromMutation(it) }
         .toImmutableList()
     return locationOfInterestMutationDao

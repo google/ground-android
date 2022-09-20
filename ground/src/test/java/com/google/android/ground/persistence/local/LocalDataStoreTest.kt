@@ -250,11 +250,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         )
       )
     val mutation =
-      TEST_SUBMISSION_MUTATION.toBuilder()
-        .setResponseDeltas(deltas)
-        .setId(2L)
-        .setType(Mutation.Type.UPDATE)
-        .build()
+      TEST_SUBMISSION_MUTATION.copy(responseDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
     localDataStore.applyAndEnqueue(mutation).test().assertComplete()
     localDataStore
       .getPendingMutations("loi id")
@@ -295,8 +291,7 @@ class LocalDataStoreTest : BaseHiltTest() {
     localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
-    val mutation =
-      TEST_SUBMISSION_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build()
+    val mutation = TEST_SUBMISSION_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local submission as deleted.
     localDataStore.applyAndEnqueue(mutation).blockingAwait()
@@ -329,7 +324,7 @@ class LocalDataStoreTest : BaseHiltTest() {
     // Assert that one LOI is streamed.
     val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     subscriber.assertValueAt(0, ImmutableSet.of(loi))
-    val mutation = TEST_LOI_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build()
+    val mutation = TEST_LOI_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local LOI as deleted.
     localDataStore.applyAndEnqueue(mutation).blockingAwait()
@@ -492,35 +487,33 @@ class LocalDataStoreTest : BaseHiltTest() {
         "Test Area"
       )
 
-    private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation {
-      return LocationOfInterestMutation.builder()
-        .setJobId("job id")
-        .setGeometry(point)
-        .setId(1L)
-        .setLocationOfInterestId("loi id")
-        .setType(Mutation.Type.CREATE)
-        .setSyncStatus(SyncStatus.PENDING)
-        .setUserId("user id")
-        .setSurveyId("survey id")
-        .setClientTimestamp(Date())
-        .build()
-    }
+    private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation =
+      LocationOfInterestMutation(
+        jobId = "job id",
+        geometry = point,
+        id = 1L,
+        locationOfInterestId = "loi id",
+        type = Mutation.Type.CREATE,
+        syncStatus = SyncStatus.PENDING,
+        userId = "user id",
+        surveyId = "survey id",
+        clientTimestamp = Date()
+      )
 
     private fun createTestAreaOfInterestMutation(
       polygonVertices: ImmutableList<Point>
-    ): LocationOfInterestMutation {
-      return LocationOfInterestMutation.builder()
-        .setJobId("job id")
-        .setGeometry(Polygon(LinearRing(polygonVertices.map { it.coordinate })))
-        .setId(1L)
-        .setLocationOfInterestId("loi id")
-        .setType(Mutation.Type.CREATE)
-        .setSyncStatus(SyncStatus.PENDING)
-        .setUserId("user id")
-        .setSurveyId("survey id")
-        .setClientTimestamp(Date())
-        .build()
-    }
+    ): LocationOfInterestMutation =
+      LocationOfInterestMutation(
+        jobId = "job id",
+        geometry = Polygon(LinearRing(polygonVertices.map { it.coordinate })),
+        id = 1L,
+        locationOfInterestId = "loi id",
+        type = Mutation.Type.CREATE,
+        syncStatus = SyncStatus.PENDING,
+        userId = "user id",
+        surveyId = "survey id",
+        clientTimestamp = Date()
+      )
 
     private fun assertEquivalent(mutation: SubmissionMutation, submission: Submission) {
       assertThat(mutation.submissionId).isEqualTo(submission.id)
