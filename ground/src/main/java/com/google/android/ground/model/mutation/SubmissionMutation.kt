@@ -56,14 +56,6 @@ data class SubmissionMutation(
     var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
       @JvmSynthetic set
 
-    fun setJob(job: Job): Builder = apply { this.job = job }
-
-    fun setSubmissionId(id: String): Builder = apply { this.submissionId = id }
-
-    fun setResponseDeltas(deltas: ImmutableList<ResponseDelta>): Builder = apply {
-      this.responseDeltas = deltas
-    }
-
     override fun build(): SubmissionMutation =
       SubmissionMutation(
         id,
@@ -82,11 +74,8 @@ data class SubmissionMutation(
   }
 
   companion object {
-    @JvmStatic fun builder(): Builder = SubmissionMutation().toBuilder()
-
-    @JvmStatic
-    fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> {
-      return mutations
+    fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> =
+      mutations
         .toTypedArray()
         .filter {
           when (it) {
@@ -97,6 +86,5 @@ data class SubmissionMutation(
         }
         .map { it as SubmissionMutation }
         .toImmutableList()
-    }
   }
 }

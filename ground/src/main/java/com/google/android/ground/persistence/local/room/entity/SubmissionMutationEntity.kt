@@ -73,20 +73,20 @@ data class SubmissionMutationEntity(
       survey.getJob(jobId).orElseThrow {
         LocalDataConsistencyException("Unknown jobId in submission mutation $id")
       }
-    return SubmissionMutation.builder()
-      .setJob(job)
-      .setSubmissionId(submissionId)
-      .setResponseDeltas(fromString(job, responseDeltas))
-      .setId(id)
-      .setSurveyId(surveyId)
-      .setLocationOfInterestId(locationOfInterestId)
-      .setType(type.toMutationType())
-      .setSyncStatus(syncStatus.toMutationSyncStatus())
-      .setRetryCount(retryCount)
-      .setLastError(lastError)
-      .setUserId(userId)
-      .setClientTimestamp(Date(clientTimestamp))
-      .build()
+    return SubmissionMutation(
+      job = job,
+      submissionId = submissionId,
+      responseDeltas = fromString(job, responseDeltas),
+      id = id,
+      surveyId = surveyId,
+      locationOfInterestId = locationOfInterestId,
+      type = type.toMutationType(),
+      syncStatus = syncStatus.toMutationSyncStatus(),
+      retryCount = retryCount,
+      lastError = lastError,
+      userId = userId,
+      clientTimestamp = Date(clientTimestamp)
+    )
   }
 
   companion object {
