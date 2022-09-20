@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.remote.firestore.schema
 
-package com.google.android.ground.persistence.remote.firestore.schema;
-
-import com.google.android.ground.persistence.remote.firestore.base.FluentFirestore;
-import com.google.firebase.firestore.FirebaseFirestore;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.android.ground.persistence.remote.firestore.base.FluentFirestore
+import com.google.firebase.firestore.FirebaseFirestore
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** Object representation of Ground Firestore database. */
 @Singleton
-public class GroundFirestore extends FluentFirestore {
-  private static final String SURVEYS = "surveys";
-  private static final String CONFIG = "config";
-
-  @Inject
-  GroundFirestore(FirebaseFirestore db) {
-    super(db);
+class GroundFirestore @Inject internal constructor(db: FirebaseFirestore) : FluentFirestore(db) {
+  fun surveys(): SurveysCollectionReference {
+    return SurveysCollectionReference(db().collection(SURVEYS))
   }
 
-  public SurveysCollectionReference surveys() {
-    return new SurveysCollectionReference(db().collection(SURVEYS));
+  fun termsOfService(): TermsOfServiceCollectionReference {
+    return TermsOfServiceCollectionReference(db().collection(CONFIG))
   }
 
-  public TermsOfServiceCollectionReference termsOfService() {
-    return new TermsOfServiceCollectionReference(db().collection(CONFIG));
+  companion object {
+    private const val SURVEYS = "surveys"
+    private const val CONFIG = "config"
   }
 }
