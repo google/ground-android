@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.ground.persistence.remote;
+package com.google.android.ground.persistence.remote
 
 /** Exception thrown when a remote entity is not found. */
-public class NotFoundException extends DataStoreException {
-
-  public NotFoundException(String message) {
-    super(message);
-  }
-}
+class NotFoundException(message: String) : DataStoreException(message)

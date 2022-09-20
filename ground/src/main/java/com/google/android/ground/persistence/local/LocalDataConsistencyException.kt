@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.ground.persistence.local;
+package com.google.android.ground.persistence.local
 
 /**
  * General purpose unchecked exception thrown when local database is in an inconsistent or invalid
  * state.
  */
-public class LocalDataConsistencyException extends RuntimeException {
-
-  public LocalDataConsistencyException(String message) {
-    super(message);
-  }
-}
+class LocalDataConsistencyException(message: String) : RuntimeException(message)

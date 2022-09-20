@@ -468,7 +468,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           .findById(mutation.locationOfInterestId)
           .flatMapCompletable { entity -> markLocationOfInterestForDeletion(entity, mutation) }
           .subscribeOn(schedulers.io())
-      else -> throw LocalDataStoreException.unknownMutationType(mutation.type)
+      UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
   }
 
@@ -532,7 +532,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         submissionDao.findById(mutation.submissionId).flatMapCompletable { entity ->
           markSubmissionForDeletion(entity, mutation)
         }
-      else -> throw LocalDataStoreException.unknownMutationType(mutation.type)
+      UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
   }
 
