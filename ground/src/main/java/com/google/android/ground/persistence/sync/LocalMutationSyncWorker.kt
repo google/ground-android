@@ -6,6 +6,7 @@ import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.android.ground.R
 import com.google.android.ground.model.User
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.ResponseDelta
@@ -127,11 +128,12 @@ constructor(
     mutations.map { m: Mutation -> incrementRetryCount(m, error) }.toImmutableList()
 
   private fun incrementRetryCount(mutation: Mutation, error: Throwable): Mutation =
-    mutation
-      .toBuilder()
-      .setRetryCount(mutation.retryCount + 1)
-      .setLastError(error.toString())
-      .build()
+    when (mutation) {
+      is LocationOfInterestMutation ->
+        mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
+      is SubmissionMutation ->
+        mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
+    }
 
   companion object {
     private const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
