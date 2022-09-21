@@ -34,38 +34,6 @@ data class LocationOfInterestMutation(
   val geometry: Geometry? = null,
 ) : Mutation() {
 
-  override fun toBuilder(): Builder {
-    return Builder()
-      .also {
-        it.jobId = this.jobId
-        it.geometry = this.geometry
-      }
-      .fromMutation(this) as Builder
-  }
-
-  // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
-  inner class Builder : Mutation.Builder<LocationOfInterestMutation>() {
-    var jobId: String = ""
-      @JvmSynthetic set
-    var geometry: Geometry? = null
-      @JvmSynthetic set
-
-    override fun build() =
-      LocationOfInterestMutation(
-        id,
-        type,
-        syncStatus,
-        surveyId,
-        locationOfInterestId,
-        userId,
-        clientTimestamp,
-        retryCount,
-        lastError,
-        jobId,
-        geometry,
-      )
-  }
-
   companion object {
     fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<LocationOfInterestMutation> {
       return mutations
