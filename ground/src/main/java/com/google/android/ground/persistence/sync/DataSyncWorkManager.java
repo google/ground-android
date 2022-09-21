@@ -52,7 +52,7 @@ public class DataSyncWorkManager extends BaseWorkManager {
     // worker
     // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
-    Data inputData = LocalMutationSyncWorker.createInputData(locationOfInterestId);
+    Data inputData = LocalMutationSyncWorker.Companion.createInputData(locationOfInterestId);
     workManager.enqueueUniqueWork(
         LocalMutationSyncWorker.class.getName(),
         ExistingWorkPolicy.APPEND,
