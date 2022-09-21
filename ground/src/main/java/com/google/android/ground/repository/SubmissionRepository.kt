@@ -20,7 +20,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.mutation.SubmissionMutation.Companion.builder
 import com.google.android.ground.model.submission.ResponseDelta
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.LocalDataStore
@@ -36,7 +35,6 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import timber.log.Timber
@@ -142,41 +140,36 @@ constructor(
     }
   }
 
-  fun deleteSubmission(submission: Submission): @Cold Completable {
-    return applyAndEnqueue(
-      builder()
-        .setJob(submission.job)
-        .setSubmissionId(submission.id)
-        .setResponseDeltas(ImmutableList.of())
-        .setType(Mutation.Type.DELETE)
-        .setSyncStatus(SyncStatus.PENDING)
-        .setSurveyId(submission.surveyId)
-        .setLocationOfInterestId(submission.locationOfInterest.id)
-        .setClientTimestamp(Date())
-        .setUserId(authManager.currentUser.id)
-        .build()
+  fun deleteSubmission(submission: Submission): @Cold Completable =
+    applyAndEnqueue(
+      SubmissionMutation(
+        job = submission.job,
+        submissionId = submission.id,
+        type = Mutation.Type.DELETE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = submission.surveyId,
+        locationOfInterestId = submission.locationOfInterest.id,
+        userId = authManager.currentUser.id
+      )
     )
-  }
 
   fun createOrUpdateSubmission(
     submission: Submission,
     responseDeltas: ImmutableList<ResponseDelta>,
     isNew: Boolean
-  ): @Cold Completable {
-    return applyAndEnqueue(
-      builder()
-        .setJob(submission.job)
-        .setSubmissionId(submission.id)
-        .setResponseDeltas(responseDeltas)
-        .setType(if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE)
-        .setSyncStatus(SyncStatus.PENDING)
-        .setSurveyId(submission.surveyId)
-        .setLocationOfInterestId(submission.locationOfInterest.id)
-        .setClientTimestamp(Date())
-        .setUserId(authManager.currentUser.id)
-        .build()
+  ): @Cold Completable =
+    applyAndEnqueue(
+      SubmissionMutation(
+        job = submission.job,
+        submissionId = submission.id,
+        responseDeltas = responseDeltas,
+        type = if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = submission.surveyId,
+        locationOfInterestId = submission.locationOfInterest.id,
+        userId = authManager.currentUser.id
+      )
     )
-  }
 
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
     localDataStore

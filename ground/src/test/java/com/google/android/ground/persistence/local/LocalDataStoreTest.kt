@@ -457,22 +457,20 @@ class LocalDataStoreTest : BaseHiltTest() {
     private val TEST_LOI_MUTATION = createTestLocationOfInterestMutation(TEST_POINT)
     private val TEST_POLYGON_LOI_MUTATION = createTestAreaOfInterestMutation(TEST_POLYGON_1)
     private val TEST_SUBMISSION_MUTATION =
-      SubmissionMutation.builder()
-        .setJob(TEST_JOB)
-        .setSubmissionId("submission id")
-        .setResponseDeltas(
+      SubmissionMutation(
+        job = TEST_JOB,
+        submissionId = "submission id",
+        responseDeltas =
           ImmutableList.of(
             ResponseDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated response"))
-          )
-        )
-        .setId(1L)
-        .setType(Mutation.Type.CREATE)
-        .setSyncStatus(SyncStatus.PENDING)
-        .setSurveyId("survey id")
-        .setLocationOfInterestId("loi id")
-        .setUserId("user id")
-        .setClientTimestamp(Date())
-        .build()
+          ),
+        id = 1L,
+        type = Mutation.Type.CREATE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = "survey id",
+        locationOfInterestId = "loi id",
+        userId = "user id"
+      )
     private val TEST_PENDING_TILE_SOURCE =
       TileSet("some_url 1", "id_1", "some_path 1", TileSet.State.PENDING, 1)
     private val TEST_DOWNLOADED_TILE_SOURCE =
