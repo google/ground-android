@@ -64,63 +64,8 @@ sealed class Mutation {
     FAILED
   }
 
-  abstract fun toBuilder(): Builder<*>
-
   override fun toString(): String {
     return "$syncStatus $type $clientTimestamp"
-  }
-
-  // TODO: Once callers of the class are all converted to kotlin, we won't need builders.
-  abstract inner class Builder<T : Mutation> {
-    var id: Long? = null
-      @JvmSynthetic set
-    var type: Type = Type.UNKNOWN
-      @JvmSynthetic set
-    var syncStatus: SyncStatus = SyncStatus.UNKNOWN
-      @JvmSynthetic set
-    var surveyId: String = ""
-      @JvmSynthetic set
-    var locationOfInterestId: String = ""
-      @JvmSynthetic set
-    var userId: String = ""
-      @JvmSynthetic set
-    var clientTimestamp: Date = Date()
-      @JvmSynthetic set
-    var retryCount: Long = 0
-      @JvmSynthetic set
-    var lastError: String = ""
-      @JvmSynthetic set
-
-    fun setId(id: Long?): Builder<T> = apply { this.id = id }
-    fun setType(type: Type): Builder<T> = apply { this.type = type }
-    fun setSyncStatus(syncStatus: SyncStatus): Builder<T> = apply { this.syncStatus = syncStatus }
-
-    fun setSurveyId(surveyId: String): Builder<T> = apply { this.surveyId = surveyId }
-    fun setLocationOfInterestId(locationOfInterestId: String): Builder<T> = apply {
-      this.locationOfInterestId = locationOfInterestId
-    }
-
-    fun setUserId(userId: String): Builder<T> = apply { this.userId = userId }
-    fun setClientTimestamp(timestamp: Date): Builder<T> = apply { this.clientTimestamp = timestamp }
-
-    fun setRetryCount(count: Long): Builder<T> = apply { this.retryCount = count }
-    fun setLastError(error: String): Builder<T> = apply { this.lastError = error }
-
-    fun fromMutation(mutation: T): Builder<T> {
-      return this.apply {
-        id = mutation.id
-        type = mutation.type
-        syncStatus = mutation.syncStatus
-        surveyId = mutation.surveyId
-        locationOfInterestId = mutation.locationOfInterestId
-        userId = mutation.userId
-        clientTimestamp = mutation.clientTimestamp
-        retryCount = mutation.retryCount
-        lastError = lastError
-      }
-    }
-
-    abstract fun build(): T
   }
 
   companion object {

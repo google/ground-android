@@ -36,42 +36,7 @@ data class SubmissionMutation(
   var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
 ) : Mutation() {
 
-  override fun toBuilder(): Builder {
-    return Builder()
-      .also {
-        it.job = this.job
-        it.submissionId = this.submissionId
-        it.responseDeltas = this.responseDeltas
-      }
-      .fromMutation(this) as Builder
-  }
-
   override fun toString(): String = super.toString() + "deltas= $responseDeltas"
-
-  inner class Builder : Mutation.Builder<SubmissionMutation>() {
-    var job: Job? = null
-      @JvmSynthetic set
-    var submissionId: String = ""
-      @JvmSynthetic set
-    var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
-      @JvmSynthetic set
-
-    override fun build(): SubmissionMutation =
-      SubmissionMutation(
-        id,
-        type,
-        syncStatus,
-        surveyId,
-        locationOfInterestId,
-        userId,
-        clientTimestamp,
-        retryCount,
-        lastError,
-        job,
-        submissionId,
-        responseDeltas
-      )
-  }
 
   companion object {
     fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> =
