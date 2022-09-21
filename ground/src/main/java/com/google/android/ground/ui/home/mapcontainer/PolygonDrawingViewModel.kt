@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -56,7 +57,7 @@ internal constructor(
   private val uuidGenerator: OfflineUuidGenerator
 ) : AbstractViewModel() {
   private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
-  private val polygonLocationOfInterestFlowable:
+  private val partialPolygonLocationOfInterestFlowable:
     @Hot
     Subject<Optional<SimpleMapLocationOfInterest>> =
     PublishSubject.create()
@@ -168,17 +169,19 @@ internal constructor(
             )
         )
       }
-    polygonLocationOfInterestFlowable.onNext(polygonLocationOfInterest)
+    partialPolygonLocationOfInterestFlowable.onNext(polygonLocationOfInterest)
   }
 
   fun onCompletePolygonButtonClick() {
     check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
     val locationOfInterest = polygonLocationOfInterest.get().locationOfInterest
     val auditInfo = AuditInfo(authManager.currentUser)
+    val completedPolygon =
+      Polygon(LinearRing(locationOfInterest.geometry.vertices.map { it.coordinate }))
     val areaOfInterest =
       LocationOfInterest(
         id = locationOfInterest.id,
-        geometry = locationOfInterest.geometry,
+        geometry = completedPolygon,
         surveyId = selectedSurvey.value!!.id,
         job = selectedJob.value!!,
         created = auditInfo,
@@ -192,7 +195,7 @@ internal constructor(
     isLastVertexNotSelectedByUser = false
     vertices.clear()
     polygonLocationOfInterest = Optional.empty()
-    polygonLocationOfInterestFlowable.onNext(Optional.empty())
+    partialPolygonLocationOfInterestFlowable.onNext(Optional.empty())
   }
 
   val firstVertex: Optional<Point>
@@ -216,7 +219,7 @@ internal constructor(
         SimpleMapLocationOfInterest(
           LocationOfInterest(
             id = uuidGenerator.generateUuid(),
-            geometry = Polygon(LinearRing(ImmutableList.of())),
+            geometry = LineString(ImmutableList.of()),
             surveyId = selectedSurvey.id,
             job = selectedJob,
             created = auditInfo,
@@ -329,14 +332,14 @@ internal constructor(
           .startWith(R.color.colorGrey800)
       )
     val polygonFlowable =
-      polygonLocationOfInterestFlowable
+      partialPolygonLocationOfInterestFlowable
         .startWith(Optional.empty())
         .toFlowable(BackpressureStrategy.LATEST)
         .share()
     isPolygonCompleted =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable
-          .map { polygon -> polygon.map { it.isPolygonComplete }.orElse(false) }
+          .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
           .startWith(false)
       )
     unsavedMapLocationsOfInterest =
@@ -347,5 +350,15 @@ internal constructor(
             .orElse(ImmutableSet.of())
         }
       )
+  }
+
+  private fun SimpleMapLocationOfInterest.isPolygonComplete(): Boolean {
+    val vertices = this.locationOfInterest.geometry.vertices
+    if (vertices.size < 4) {
+      return false
+    }
+    val first: Point = vertices[0]
+    val last: Point = vertices[vertices.lastIndex]
+    return first == last
   }
 }
