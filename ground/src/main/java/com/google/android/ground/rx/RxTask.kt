@@ -13,73 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.rx
 
-package com.google.android.ground.rx;
-
-import androidx.annotation.Nullable;
-import com.google.android.gms.tasks.Task;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import java8.util.function.Supplier;
+import com.google.android.gms.tasks.Task
+import io.reactivex.*
+import java8.util.function.Supplier
 
 /** Static helper methods for converting Google Play Services Tasks into Rx Observables. */
-public abstract class RxTask {
-  /** Container for static helper methods. Do not instantiate. */
-  private RxTask() {}
-
+object RxTask {
   /**
-   * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
-   * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
+   * Turns a non-void [Task] into an Rx [Single]. Null values are reported as an error result of
+   * [NullPointerException]. The provided supplier will be invoked only onSubscribe.
    */
-  public static <T> Maybe<T> toMaybe(Supplier<Task<T>> task) {
-    return Maybe.create(
-        emitter ->
-            task.get()
-                .addOnSuccessListener(result -> onSuccess(result, emitter))
-                .addOnFailureListener(emitter::onError));
-  }
+  @JvmStatic
+  fun <T> toMaybe(task: Supplier<Task<T>>): Maybe<T> =
+    Maybe.create { emitter: MaybeEmitter<T> ->
+      task
+        .get()
+        .addOnSuccessListener { result: T -> onSuccess(result, emitter) }
+        .addOnFailureListener { t: Exception -> emitter.onError(t) }
+    }
 
-  private static <T> void onSuccess(@Nullable T v, MaybeEmitter<T> emitter) {
+  private fun <T> onSuccess(v: T?, emitter: MaybeEmitter<T>) {
     if (v == null) {
-      emitter.onComplete();
+      emitter.onComplete()
     } else {
-      emitter.onSuccess(v);
+      emitter.onSuccess(v)
     }
   }
 
   /**
-   * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
-   * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
+   * Turns a non-void [Task] into an Rx [Single]. Null values are reported as an error result of
+   * [NullPointerException]. The provided supplier will be invoked only onSubscribe.
    */
-  public static <T> Single<T> toSingle(Supplier<Task<T>> task) {
-    return Single.create(
-        emitter ->
-            task.get()
-                .addOnSuccessListener(result -> onNullableSuccess(result, emitter))
-                .addOnFailureListener(emitter::onError));
-  }
+  @JvmStatic
+  fun <T> toSingle(task: Supplier<Task<T>>): Single<T> =
+    Single.create { emitter: SingleEmitter<T> ->
+      task
+        .get()
+        .addOnSuccessListener { result: T -> onNullableSuccess(result, emitter) }
+        .addOnFailureListener { t: Exception -> emitter.onError(t) }
+    }
 
   /**
-   * Turns any {@link Task} into an Rx {@link Completable}. Since the success value is ignored, this
-   * can also be used to convert <code>Task&lt;Void&gt;</code>. The provided supplier will be
-   * invoked only onSubscribe.
+   * Turns any [Task] into an Rx [Completable]. Since the success value is ignored, this can also be
+   * used to convert `Task<Void>`. The provided supplier will be invoked only `onSubscribe`.
    */
-  public static Completable toCompletable(Supplier<Task<?>> task) {
-    return Completable.create(
-        emitter ->
-            task.get()
-                .addOnSuccessListener(__ -> emitter.onComplete())
-                .addOnFailureListener(emitter::onError));
-  }
+  @JvmStatic
+  fun toCompletable(task: Supplier<Task<*>>): Completable =
+    Completable.create { emitter: CompletableEmitter ->
+      task
+        .get()
+        .addOnSuccessListener { emitter.onComplete() }
+        .addOnFailureListener { t: Exception -> emitter.onError(t) }
+    }
 
-  private static <T> void onNullableSuccess(@Nullable T v, SingleEmitter<T> emitter) {
+  private fun <T> onNullableSuccess(v: T?, emitter: SingleEmitter<T>) {
     if (v == null) {
-      emitter.onError(new NullPointerException());
+      emitter.onError(NullPointerException())
     } else {
-      emitter.onSuccess(v);
+      emitter.onSuccess(v)
     }
   }
 }

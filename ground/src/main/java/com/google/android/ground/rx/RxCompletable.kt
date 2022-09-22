@@ -13,51 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.rx
 
-package com.google.android.ground.rx;
-
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import java.util.concurrent.Callable;
-import java8.util.function.Consumer;
-import java8.util.function.Supplier;
+import io.reactivex.Completable
+import io.reactivex.Single
+import java.util.concurrent.Callable
+import java8.util.function.Consumer
+import java8.util.function.Supplier
 
 /** Helpers for working with RxJava Completable classes. */
-public abstract class RxCompletable {
-  /** Do not instantiate. */
-  private RxCompletable() {}
+object RxCompletable {
 
-  public static Completable completeIf(Callable<Boolean> conditionFunction) {
-    return Completable.create(
-        em -> {
-          if (conditionFunction.call()) {
-            em.onComplete();
-          }
-        });
-  }
+  fun completeIf(conditionFunction: Callable<Boolean>): Completable =
+    Completable.create {
+      if (conditionFunction.call()) {
+        it.onComplete()
+      }
+    }
 
-  public static Completable completeOrError(
-      Supplier<Boolean> supplier, Class<? extends Throwable> errorClass) {
-    return Completable.create(
-        em -> {
-          if (supplier.get()) {
-            em.onComplete();
-          } else {
-            em.onError(errorClass.newInstance());
-          }
-        });
-  }
+  fun completeOrError(supplier: Supplier<Boolean>, errorClass: Class<out Throwable>): Completable =
+    Completable.create {
+      if (supplier.get()) {
+        it.onComplete()
+      } else {
+        it.onError(errorClass.newInstance())
+      }
+    }
 
   /**
-   * Receives a {@link Completable} and returns a {@link Single} that emits <code>true</code> if the
-   * <code>Completable</code> completes successfully, <code>false</code> otherwise. In case any
-   * error occurs, the exception is consumed by the argument {@param exceptionConsumer}.
+   * Receives a [Completable] and returns a [Single] that emits `true` if the [Completable]
+   * completes successfully, `false` otherwise. In case any error occurs, the exception is consumed
+   * by the argument {@param exceptionConsumer}.
    */
-  public static Single<Boolean> toBooleanSingle(
-      Completable completable, Consumer<? super Throwable> exceptionConsumer) {
-    return completable
-        .doOnError(exceptionConsumer::accept)
-        .toSingleDefault(true)
-        .onErrorReturnItem(false);
-  }
+  fun toBooleanSingle(
+    completable: Completable,
+    exceptionConsumer: Consumer<in Throwable>
+  ): Single<Boolean> =
+    completable
+      .doOnError { exceptionConsumer.accept(it) }
+      .toSingleDefault(true)
+      .onErrorReturnItem(false)
 }

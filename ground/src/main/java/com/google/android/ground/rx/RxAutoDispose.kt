@@ -13,29 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.rx
 
-package com.google.android.ground.rx;
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import com.uber.autodispose.AutoDispose
+import com.uber.autodispose.AutoDisposeConverter
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import com.uber.autodispose.AutoDispose;
-import com.uber.autodispose.AutoDisposeConverter;
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
+/** Utility methods providing syntactic sugar for the [AutoDispose] library. */
+object RxAutoDispose {
+  @JvmStatic
+  fun <T> autoDisposable(lifecycleOwner: LifecycleOwner): AutoDisposeConverter<T> =
+    AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(lifecycleOwner))
 
-/**
- * Utility methods providing syntactic sugar for the {@link com.uber.autodispose.AutoDispose}
- * library.
- */
-public abstract class RxAutoDispose {
-  /** Do not instantiate. */
-  private RxAutoDispose() {}
-
-  public static <T> AutoDisposeConverter<T> autoDisposable(final LifecycleOwner lifecycleOwner) {
-    return AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(lifecycleOwner));
-  }
-
-  public static <T> AutoDisposeConverter<T> disposeOnDestroy(final LifecycleOwner lifecycleOwner) {
-    return AutoDispose.autoDisposable(
-        AndroidLifecycleScopeProvider.from(lifecycleOwner, Lifecycle.Event.ON_DESTROY));
-  }
+  fun <T> disposeOnDestroy(lifecycleOwner: LifecycleOwner): AutoDisposeConverter<T> =
+    AutoDispose.autoDisposable(
+      AndroidLifecycleScopeProvider.from(lifecycleOwner, Lifecycle.Event.ON_DESTROY)
+    )
 }
