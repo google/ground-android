@@ -21,7 +21,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.map.MapLocationOfInterest
-import com.google.android.ground.ui.map.MapPolygon
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver
@@ -183,25 +182,21 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
     polygonCompletedTestObserver.assertValue(isVisible)
   }
 
-  private fun validateMapLoiDrawn(expectedMapPolygonCount: Int, expectedPointCount: Int) {
+  private fun validateMapLoiDrawn(expectedPolygonCount: Int, expectedPointCount: Int) {
     drawnMapLoiTestObserver.assertValue { mapLois: ImmutableSet<MapLocationOfInterest> ->
-      var actualMapPolygonCount = 0
+      var actualPolygonCount = 0
       var actualPointCount = 0
       for (mapLocationOfInterest in mapLois) {
-        if (mapLocationOfInterest is MapPolygon) {
-          actualMapPolygonCount++
-        } else {
-          when (mapLocationOfInterest.locationOfInterest!!.geometry) {
-            is Point -> actualPointCount++
-            is Polygon -> actualMapPolygonCount++
-            else -> {}
-          }
+        when (mapLocationOfInterest.locationOfInterest!!.geometry) {
+          is Point -> actualPointCount++
+          is Polygon -> actualPolygonCount++
+          else -> {}
         }
       }
 
       // Check whether drawn LOIs contain expected number of polygons and pins.
       Truth.assertThat(actualPointCount).isEqualTo(expectedPointCount)
-      Truth.assertThat(actualMapPolygonCount).isEqualTo(expectedMapPolygonCount)
+      Truth.assertThat(actualPolygonCount).isEqualTo(expectedPolygonCount)
       true
     }
   }
