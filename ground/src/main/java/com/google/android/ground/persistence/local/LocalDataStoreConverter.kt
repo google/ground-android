@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.converter
+package com.google.android.ground.persistence.local
 
 /** Defines methods for converting classes to/from other representations. */
-sealed interface Converter<T, R> {
-  /** Converts a T object to its R representation. */
-  fun convertTo(model: T): R?
-  /** Converts an R object to its T representation. */
-  fun convertFrom(entity: R): T?
+interface LocalDataStoreConverter<T, R> {
+  /** Converts a model (T) object to its data store (R) representation. */
+  fun convertToDataStoreObject(model: T): R?
+  /** Converts an data store (R) object to its model (T) representation. */
+  fun convertFromDataStoreObject(entity: R): T?
 }

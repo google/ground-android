@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.converter
+package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.persistence.local.LocalDataStoreConverter
 import com.google.android.ground.persistence.local.room.entity.GeometryEntity
 import com.google.android.ground.persistence.local.room.models.Coordinates
 import com.google.android.ground.persistence.local.room.models.GeometryType
@@ -25,15 +26,15 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 
 /** Converts [Geometry] model objects to/from a persisted database representation. */
-object GeometryModelToLocalDbConverter : Converter<Geometry, GeometryEntity> {
-  override fun convertTo(model: Geometry): GeometryEntity? =
+object GeometryConverter : LocalDataStoreConverter<Geometry, GeometryEntity> {
+  override fun convertToDataStoreObject(model: Geometry): GeometryEntity? =
     when (model) {
       is Point -> fromPointModel(model)
       is Polygon -> fromPolygonModel(model)
       else -> null
     }
 
-  override fun convertFrom(entity: GeometryEntity): Geometry? =
+  override fun convertFromDataStoreObject(entity: GeometryEntity): Geometry? =
     when (entity.geometryType) {
       GeometryType.POINT.name -> toPointModel(entity)
       GeometryType.POLYGON.name -> toPolygonModel(entity)

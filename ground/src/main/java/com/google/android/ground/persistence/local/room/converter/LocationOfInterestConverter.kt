@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.converter
+package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
+import com.google.android.ground.persistence.local.LocalDataStoreConverter
 import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.models.EntityState
@@ -31,8 +32,8 @@ import com.google.android.ground.persistence.local.room.models.EntityState
 // TODO: Change this to a singleton object. We only need a class to encapsulate the `survey` we'll
 // use to deserialize LOI jobs. Instead, we should only store job ids in LOIs and simplify this
 // implementation.
-class LocationOfInterestModelToLocalDbConverter(val survey: Survey) :
-  Converter<LocationOfInterest, LocationOfInterestEntity> {
+class LocationOfInterestConverter(val survey: Survey) :
+  LocalDataStoreConverter<LocationOfInterest, LocationOfInterestEntity> {
 
   // TODO: Remove once we store job ids in LocationOfInterest
   companion object {
@@ -48,7 +49,7 @@ class LocationOfInterestModelToLocalDbConverter(val survey: Survey) :
         state = EntityState.DEFAULT,
         created = authInfo,
         lastModified = authInfo,
-        geometry = mutation.geometry?.let { GeometryModelToLocalDbConverter.convertTo(it) }
+        geometry = mutation.geometry?.let { GeometryConverter.convertToDataStoreObject(it) }
       )
     }
 
@@ -61,16 +62,16 @@ class LocationOfInterestModelToLocalDbConverter(val survey: Survey) :
         state = EntityState.DEFAULT,
         created = AuditInfoEntity.fromObject(model.created),
         lastModified = AuditInfoEntity.fromObject(model.lastModified),
-        geometry = GeometryModelToLocalDbConverter.convertTo(model.geometry)
+        geometry = GeometryConverter.convertToDataStoreObject(model.geometry)
       )
   }
 
   // We can serialize perfectly fine without passing a `survey`; delegate to the companion.
-  override fun convertTo(model: LocationOfInterest): LocationOfInterestEntity =
-    Companion.convertTo(model)
+  override fun convertToDataStoreObject(model: LocationOfInterest): LocationOfInterestEntity =
+    convertTo(model)
 
-  override fun convertFrom(entity: LocationOfInterestEntity): LocationOfInterest {
-    val geometry = entity.geometry?.let { GeometryModelToLocalDbConverter.convertFrom(it) }
+  override fun convertFromDataStoreObject(entity: LocationOfInterestEntity): LocationOfInterest {
+    val geometry = entity.geometry?.let { GeometryConverter.convertFromDataStoreObject(it) }
     if (geometry == null) {
       throw LocalDataConsistencyException("No geometry in location of interest $entity.id")
     } else {

@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.local
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.converter.GeometryModelToLocalDbConverter
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.basemap.OfflineArea
@@ -38,6 +37,7 @@ import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.GeometryConverter
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
@@ -399,12 +399,12 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testParseVertices_emptyString() {
-    assertThat(GeometryModelToLocalDbConverter.parseVertices("")).isEqualTo(ImmutableList.of<Any>())
+    assertThat(GeometryConverter.parseVertices("")).isEqualTo(ImmutableList.of<Any>())
   }
 
   @Test
   fun testFormatVertices_emptyList() {
-    assertThat(GeometryModelToLocalDbConverter.formatVertices(ImmutableList.of())).isNull()
+    assertThat(GeometryConverter.formatVertices(ImmutableList.of())).isNull()
   }
 
   @Test
