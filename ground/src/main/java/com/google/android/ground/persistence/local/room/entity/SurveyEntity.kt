@@ -22,7 +22,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.local.room.converter.BaseMapConverter
-import com.google.android.ground.persistence.local.room.entity.JobEntity.Companion.toJob
+import com.google.android.ground.persistence.local.room.converter.JobConverter
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
@@ -52,7 +52,7 @@ data class SurveyEntity(
       val jobMap = ImmutableMap.builder<String, Job>()
       val baseMaps = ImmutableList.builder<BaseMap>()
       for (jobEntityAndRelations in surveyEntityAndRelations.jobEntityAndRelations) {
-        val job = toJob(jobEntityAndRelations!!)
+        val job = JobConverter.convertFromDataStoreObjectWithRelations(jobEntityAndRelations!!)
         jobMap.put(job.id, job)
       }
       for (source in surveyEntityAndRelations.baseMapEntityAndRelations) {
