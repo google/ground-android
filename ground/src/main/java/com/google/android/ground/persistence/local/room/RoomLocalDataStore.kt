@@ -36,10 +36,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStore
-import com.google.android.ground.persistence.local.room.converter.LocationOfInterestConverter
-import com.google.android.ground.persistence.local.room.converter.LocationOfInterestMutationConverter
-import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter
-import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter
+import com.google.android.ground.persistence.local.room.converter.*
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter.toString
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.entity.*
@@ -146,7 +143,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun insertOfflineBaseMapSources(survey: Survey): Completable =
     Observable.fromIterable(survey.baseMaps).flatMapCompletable {
-      baseMapDao.insert(BaseMapEntity.fromModel(survey.id, it))
+      baseMapDao.insert(BaseMapConverter(surveyId = survey.id).convertToDataStoreObject(it))
     }
 
   @Transaction

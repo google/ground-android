@@ -21,7 +21,7 @@ import androidx.room.PrimaryKey
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.persistence.local.room.entity.BaseMapEntity.Companion.toModel
+import com.google.android.ground.persistence.local.room.converter.BaseMapConverter
 import com.google.android.ground.persistence.local.room.entity.JobEntity.Companion.toJob
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.common.collect.ImmutableList
@@ -57,7 +57,7 @@ data class SurveyEntity(
       }
       for (source in surveyEntityAndRelations.baseMapEntityAndRelations) {
         try {
-          baseMaps.add(toModel(source))
+          baseMaps.add(BaseMapConverter.convertFromDataStoreObject(source))
         } catch (e: MalformedURLException) {
           Timber.d("Skipping basemap source with malformed URL %s", source.url)
         }

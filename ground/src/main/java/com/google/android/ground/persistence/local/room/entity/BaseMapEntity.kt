@@ -16,10 +16,6 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.basemap.BaseMap
-import com.google.android.ground.model.basemap.BaseMap.BaseMapType
-import java.net.MalformedURLException
-import java.net.URL
 
 @Entity(
   tableName = "offline_base_map_source",
@@ -45,36 +41,5 @@ data class BaseMapEntity(
     GEOJSON,
     IMAGE,
     UNKNOWN
-  }
-
-  companion object {
-    @JvmStatic
-    @Throws(MalformedURLException::class)
-    fun toModel(source: BaseMapEntity): BaseMap {
-      return BaseMap(URL(source.url), entityToModelType(source))
-    }
-
-    private fun modelToEntityType(source: BaseMap): BaseMapEntityType {
-      return when (source.type) {
-        BaseMapType.TILED_WEB_MAP -> BaseMapEntityType.IMAGE
-        BaseMapType.MBTILES_FOOTPRINTS -> BaseMapEntityType.GEOJSON
-        else -> BaseMapEntityType.UNKNOWN
-      }
-    }
-
-    private fun entityToModelType(source: BaseMapEntity): BaseMapType {
-      return when (source.type) {
-        BaseMapEntityType.IMAGE -> BaseMapType.TILED_WEB_MAP
-        BaseMapEntityType.GEOJSON -> BaseMapType.MBTILES_FOOTPRINTS
-        else -> BaseMapType.UNKNOWN
-      }
-    }
-
-    fun fromModel(surveyId: String, source: BaseMap): BaseMapEntity =
-      BaseMapEntity(
-        surveyId = surveyId,
-        url = source.url.toString(),
-        type = modelToEntityType(source)
-      )
   }
 }
