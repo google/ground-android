@@ -175,6 +175,7 @@ internal constructor(
   fun onCompletePolygonButtonClick() {
     check(!(selectedJob.value == null || selectedSurvey.value == null)) { "Survey or job is null" }
     val locationOfInterest = polygonLocationOfInterest.get().locationOfInterest
+    check(polygonLocationOfInterest.get().isPolygonComplete()) { "Polygon is not complete" }
     val auditInfo = AuditInfo(authManager.currentUser)
     val completedPolygon =
       Polygon(LinearRing(locationOfInterest.geometry.vertices.map { it.coordinate }))
