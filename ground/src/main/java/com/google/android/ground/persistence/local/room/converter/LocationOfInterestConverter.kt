@@ -21,7 +21,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.LocalDataStoreConverter
-import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.models.EntityState
 
@@ -41,7 +40,7 @@ class LocationOfInterestConverter(val survey: Survey) :
       mutation: LocationOfInterestMutation,
       created: AuditInfo
     ): LocationOfInterestEntity {
-      val authInfo = AuditInfoEntity.fromObject(created)
+      val authInfo = AuditInfoConverter.convertToDataStoreObject(created)
       return LocationOfInterestEntity(
         id = mutation.locationOfInterestId,
         surveyId = mutation.surveyId,
@@ -60,8 +59,8 @@ class LocationOfInterestConverter(val survey: Survey) :
         surveyId = model.surveyId,
         jobId = model.job.id,
         state = EntityState.DEFAULT,
-        created = AuditInfoEntity.fromObject(model.created),
-        lastModified = AuditInfoEntity.fromObject(model.lastModified),
+        created = AuditInfoConverter.convertToDataStoreObject(model.created),
+        lastModified = AuditInfoConverter.convertToDataStoreObject(model.lastModified),
         geometry = GeometryConverter.convertToDataStoreObject(model.geometry)
       )
   }
@@ -78,8 +77,8 @@ class LocationOfInterestConverter(val survey: Survey) :
       return LocationOfInterest(
         id = entity.id,
         surveyId = entity.surveyId,
-        created = AuditInfoEntity.toObject(entity.created),
-        lastModified = AuditInfoEntity.toObject(entity.lastModified),
+        created = AuditInfoConverter.convertFromDataStoreObject(entity.created),
+        lastModified = AuditInfoConverter.convertFromDataStoreObject(entity.lastModified),
         geometry = geometry,
         job =
           this.survey.getJob(jobId = entity.jobId).orElseThrow {

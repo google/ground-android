@@ -22,10 +22,9 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
+import com.google.android.ground.persistence.local.room.converter.AuditInfoConverter
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter.fromString
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter.toString
-import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity.Companion.fromObject
-import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity.Companion.toObject
 import com.google.android.ground.persistence.local.room.models.EntityState
 
 /** Representation of a [Submission] in local db. */
@@ -60,12 +59,12 @@ data class SubmissionEntity(
         locationOfInterestId = submission.locationOfInterest.id,
         state = EntityState.DEFAULT,
         responses = toString(submission.responses),
-        created = fromObject(submission.created),
-        lastModified = fromObject(submission.lastModified)
+        created = AuditInfoConverter.convertToDataStoreObject(submission.created),
+        lastModified = AuditInfoConverter.convertToDataStoreObject(submission.lastModified)
       )
 
     fun fromMutation(mutation: SubmissionMutation, created: AuditInfo?): SubmissionEntity {
-      val authInfo = fromObject(created!!)
+      val authInfo = AuditInfoConverter.convertToDataStoreObject(created!!)
       return SubmissionEntity(
         id = mutation.submissionId,
         jobId = mutation.job!!.id,
@@ -91,8 +90,8 @@ data class SubmissionEntity(
         loi.surveyId,
         loi,
         job,
-        toObject(submission.created),
-        toObject(submission.lastModified),
+        AuditInfoConverter.convertFromDataStoreObject(submission.created),
+        AuditInfoConverter.convertFromDataStoreObject(submission.lastModified),
         fromString(job, submission.responses)
       )
     }
