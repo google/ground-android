@@ -47,7 +47,7 @@ class StartupFragment : AbstractFragment() {
     super.onAttach(context)
     googleApiManager
       .installGooglePlayServices()
-      .`as`(RxAutoDispose.autoDisposable<Any>(activity))
+      .`as`(RxAutoDispose.autoDisposable<Any>(requireActivity()))
       .subscribe({ onGooglePlayServicesReady() }) { t: Throwable -> onGooglePlayServicesFailed(t) }
   }
 
