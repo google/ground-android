@@ -19,7 +19,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import com.google.android.ground.model.task.Option
 
 @Entity(
   tableName = "option",
@@ -30,8 +29,7 @@ import com.google.android.ground.model.task.Option
         parentColumns = ["id"],
         childColumns = ["task_id"],
         onDelete = ForeignKey.CASCADE
-      )
-    ],
+      )],
   indices = [Index("task_id")],
   primaryKeys = ["id"]
 )
@@ -40,14 +38,4 @@ data class OptionEntity(
   @ColumnInfo(name = "code") val code: String,
   @ColumnInfo(name = "label") val label: String,
   @ColumnInfo(name = "task_id") val taskId: String
-) {
-
-  companion object {
-    fun fromOption(taskId: String, option: Option): OptionEntity =
-      OptionEntity(id = option.id, code = option.code, label = option.label, taskId = taskId)
-
-    @JvmStatic
-    fun toOption(optionEntity: OptionEntity): Option =
-      Option(optionEntity.id, optionEntity.code, optionEntity.label)
-  }
-}
+)

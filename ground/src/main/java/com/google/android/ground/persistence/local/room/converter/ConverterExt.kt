@@ -32,7 +32,7 @@ fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): M
   val listBuilder = ImmutableList.builder<Option>()
 
   for (optionEntity in optionEntities) {
-    listBuilder.add(OptionEntity.toOption(optionEntity))
+    listBuilder.add(optionEntity.toOption())
   }
 
   return MultipleChoice(listBuilder.build().toPersistentList(), this.type.toCardinality())
@@ -76,3 +76,8 @@ fun OfflineAreaEntity.toOfflineArea(): OfflineArea {
 
   return OfflineArea(this.id, this.state.toOfflineAreaState(), bounds, this.name)
 }
+
+fun Option.toOptionEntity(taskId: String) =
+  OptionEntity(id = this.id, code = this.code, label = this.label, taskId = taskId)
+
+fun OptionEntity.toOption() = Option(id = this.id, code = this.code, label = this.label)

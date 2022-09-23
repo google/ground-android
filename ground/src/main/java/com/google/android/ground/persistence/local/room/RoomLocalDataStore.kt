@@ -100,7 +100,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   @Inject lateinit var fileUtil: FileUtil
 
   private fun insertOrUpdateOption(taskId: String, option: Option): Completable =
-    optionDao.insertOrUpdate(OptionEntity.fromOption(taskId, option)).subscribeOn(schedulers.io())
+    optionDao.insertOrUpdate(option.toOptionEntity(taskId)).subscribeOn(schedulers.io())
 
   private fun insertOrUpdateOptions(
     taskId: String,
