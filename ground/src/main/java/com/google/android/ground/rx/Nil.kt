@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.ground.rx;
+package com.google.android.ground.rx
 
 /**
  * Singleton value used for use as value in Rx streams where presence of value indicates some event,
  * but there's no meaningful value to emit (e.g., button clicks).
  */
-public enum Nil {
+enum class Nil {
   NIL
 }
