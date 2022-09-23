@@ -15,10 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
+import androidx.room.*
 
 @Entity(
   tableName = "option",
@@ -29,7 +26,8 @@ import androidx.room.Index
         parentColumns = ["id"],
         childColumns = ["task_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("task_id")],
   primaryKeys = ["id"]
 )

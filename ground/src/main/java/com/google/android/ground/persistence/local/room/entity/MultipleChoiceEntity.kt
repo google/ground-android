@@ -27,7 +27,8 @@ import com.google.android.ground.persistence.local.room.models.MultipleChoiceEnt
         parentColumns = ["id"],
         childColumns = ["task_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("task_id")]
 )
 data class MultipleChoiceEntity(

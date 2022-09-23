@@ -37,7 +37,8 @@ import java.util.*
         parentColumns = ["id"],
         childColumns = ["submission_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("location_of_interest_id"), Index("submission_id")]
 )
 data class SubmissionMutationEntity(

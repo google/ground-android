@@ -27,7 +27,8 @@ import com.google.android.ground.persistence.local.room.models.TaskEntityType
         parentColumns = ["id"],
         childColumns = ["job_id"],
         onDelete = ForeignKey.CASCADE
-      )],
+      )
+    ],
   indices = [Index("job_id")]
 )
 data class TaskEntity(
