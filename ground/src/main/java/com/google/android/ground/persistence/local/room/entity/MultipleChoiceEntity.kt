@@ -16,12 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Option
-import com.google.android.ground.persistence.local.room.entity.OptionEntity.Companion.toOption
 import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType
-import com.google.common.collect.ImmutableList
-import kotlinx.collections.immutable.toPersistentList
 
 @Entity(
   tableName = "multiple_choice",
@@ -32,34 +27,10 @@ import kotlinx.collections.immutable.toPersistentList
         parentColumns = ["id"],
         childColumns = ["task_id"],
         onDelete = ForeignKey.CASCADE
-      )
-    ],
+      )],
   indices = [Index("task_id")]
 )
 data class MultipleChoiceEntity(
   @ColumnInfo(name = "task_id") @PrimaryKey val taskId: String,
   @ColumnInfo(name = "type") val type: MultipleChoiceEntityType
-) {
-
-  companion object {
-    fun fromMultipleChoice(taskId: String, multipleChoice: MultipleChoice): MultipleChoiceEntity =
-      MultipleChoiceEntity(
-        taskId = taskId,
-        type = MultipleChoiceEntityType.fromCardinality(multipleChoice.cardinality)
-      )
-
-    fun toMultipleChoice(
-      multipleChoiceEntity: MultipleChoiceEntity,
-      optionEntities: List<OptionEntity?>
-    ): MultipleChoice {
-      val listBuilder = ImmutableList.builder<Option>()
-      for (optionEntity in optionEntities) {
-        listBuilder.add(toOption(optionEntity!!))
-      }
-      return MultipleChoice(
-        listBuilder.build().toPersistentList(),
-        multipleChoiceEntity.type.toCardinality()
-      )
-    }
-  }
-}
+)

@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.*
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.toMultipleChoice
 import com.google.android.ground.persistence.local.room.models.TaskEntityType
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
 import timber.log.Timber
@@ -31,8 +32,7 @@ import timber.log.Timber
         parentColumns = ["id"],
         childColumns = ["job_id"],
         onDelete = ForeignKey.CASCADE
-      )
-    ],
+      )],
   indices = [Index("job_id")]
 )
 data class TaskEntity(
@@ -64,10 +64,7 @@ data class TaskEntity(
           Timber.e("More than 1 multiple choice found for task")
         }
         multipleChoice =
-          MultipleChoiceEntity.toMultipleChoice(
-            multipleChoiceEntities[0],
-            taskEntityAndRelations.optionEntities
-          )
+          multipleChoiceEntities[0].toMultipleChoice(taskEntityAndRelations.optionEntities)
       }
       return Task(
         taskEntity.id,

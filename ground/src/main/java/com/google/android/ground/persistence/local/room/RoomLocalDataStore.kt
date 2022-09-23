@@ -115,7 +115,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     multipleChoice: MultipleChoice
   ): Completable =
     multipleChoiceDao
-      .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(taskId, multipleChoice))
+      .insertOrUpdate(multipleChoice.toMultipleChoiceEntity(taskId))
       .andThen(insertOrUpdateOptions(taskId, multipleChoice.options))
       .subscribeOn(schedulers.io())
 
