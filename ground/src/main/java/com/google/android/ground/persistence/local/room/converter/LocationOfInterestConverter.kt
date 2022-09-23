@@ -40,7 +40,7 @@ class LocationOfInterestConverter(val survey: Survey) :
       mutation: LocationOfInterestMutation,
       created: AuditInfo
     ): LocationOfInterestEntity {
-      val authInfo = AuditInfoConverter.convertToDataStoreObject(created)
+      val authInfo = created.toLocalDataStoreObject()
       return LocationOfInterestEntity(
         id = mutation.locationOfInterestId,
         surveyId = mutation.surveyId,
@@ -59,8 +59,8 @@ class LocationOfInterestConverter(val survey: Survey) :
         surveyId = model.surveyId,
         jobId = model.job.id,
         state = EntityState.DEFAULT,
-        created = AuditInfoConverter.convertToDataStoreObject(model.created),
-        lastModified = AuditInfoConverter.convertToDataStoreObject(model.lastModified),
+        created = model.created.toLocalDataStoreObject(),
+        lastModified = model.lastModified.toLocalDataStoreObject(),
         geometry = GeometryConverter.convertToDataStoreObject(model.geometry)
       )
   }
@@ -77,8 +77,8 @@ class LocationOfInterestConverter(val survey: Survey) :
       return LocationOfInterest(
         id = entity.id,
         surveyId = entity.surveyId,
-        created = AuditInfoConverter.convertFromDataStoreObject(entity.created),
-        lastModified = AuditInfoConverter.convertFromDataStoreObject(entity.lastModified),
+        created = entity.created.toModelObject(),
+        lastModified = entity.lastModified.toModelObject(),
         geometry = geometry,
         job =
           this.survey.getJob(jobId = entity.jobId).orElseThrow {
