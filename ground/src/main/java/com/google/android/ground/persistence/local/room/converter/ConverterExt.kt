@@ -26,6 +26,7 @@ import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
@@ -180,6 +181,54 @@ fun JobEntityAndRelations.toModelObject(): Job {
   }
 
   return Job(jobEntity.id, jobEntity.name, taskMap.build())
+}
+
+fun LocationOfInterest.toLocalDataStoreObject() =
+  LocationOfInterestEntity(
+    id = id,
+    surveyId = surveyId,
+    jobId = job.id,
+    state = EntityState.DEFAULT,
+    created = created.toLocalDataStoreObject(),
+    lastModified = lastModified.toLocalDataStoreObject(),
+    geometry = geometry.toLocalDataStoreObject()
+  )
+
+fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
+  val geometry = geometry?.toModelObject()
+
+  if (geometry == null) {
+    throw LocalDataConsistencyException("No geometry in location of interest $this.id")
+  } else {
+    return LocationOfInterest(
+      id = id,
+      surveyId = surveyId,
+      created = created.toModelObject(),
+      lastModified = lastModified.toModelObject(),
+      geometry = geometry,
+      job =
+        survey.getJob(jobId = jobId).orElseThrow {
+          LocalDataConsistencyException(
+            "Unknown jobId $this.jobId in location of interest $this.id"
+          )
+        }
+    )
+  }
+}
+
+fun LocationOfInterestMutation.toLocalDataStoreObject(
+  created: AuditInfo
+): LocationOfInterestEntity {
+  val authInfo = created.toLocalDataStoreObject()
+  return LocationOfInterestEntity(
+    id = locationOfInterestId,
+    surveyId = surveyId,
+    jobId = jobId,
+    state = EntityState.DEFAULT,
+    created = authInfo,
+    lastModified = authInfo,
+    geometry = geometry?.toLocalDataStoreObject()
+  )
 }
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {

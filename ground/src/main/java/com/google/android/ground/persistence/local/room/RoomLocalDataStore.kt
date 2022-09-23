@@ -211,9 +211,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     locationOfInterestEntities: List<LocationOfInterestEntity>
   ): ImmutableSet<LocationOfInterest> =
     locationOfInterestEntities
-      .flatMap {
-        logErrorsAndSkipKt { LocationOfInterestConverter(survey).convertFromDataStoreObject(it) }
-      }
+      .flatMap { logErrorsAndSkipKt { it.toModelObject(survey) } }
       .toImmutableSet()
 
   override fun getLocationOfInterest(
@@ -222,7 +220,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   ): Maybe<LocationOfInterest> =
     locationOfInterestDao
       .findById(locationOfInterestId)
-      .map { LocationOfInterestConverter(survey).convertFromDataStoreObject(it) }
+      .map { it.toModelObject(survey) }
       .doOnError { Timber.e(it) }
       .onErrorComplete()
       .subscribeOn(schedulers.io())
@@ -389,7 +387,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   override fun mergeLocationOfInterest(locationOfInterest: LocationOfInterest): Completable =
     // TODO(#706): Apply pending local mutations before saving.
     locationOfInterestDao
-      .insertOrUpdate(LocationOfInterestConverter.convertTo(locationOfInterest))
+      .insertOrUpdate(locationOfInterest.toLocalDataStoreObject())
       .subscribeOn(schedulers.io())
 
   @Transaction
@@ -482,7 +480,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     user: User
   ): Completable =
     locationOfInterestDao
-      .insertOrUpdate(LocationOfInterestConverter.fromMutation(mutation, AuditInfo(user)))
+      .insertOrUpdate(mutation.toLocalDataStoreObject(AuditInfo(user)))
       .subscribeOn(schedulers.io())
 
   override fun deleteLocationOfInterest(locationOfInterestId: String): Completable =
