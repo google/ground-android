@@ -259,9 +259,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     get() =
       tileSetDao
         .findAllOnceAndStream()
-        .map { list: List<TileSetEntity> ->
-          list.map { TileSetEntity.toTileSet(it) }.toImmutableSet()
-        }
+        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toImmutableSet() }
         .subscribeOn(schedulers.io())
 
   override fun getMutationsOnceAndStream(
@@ -584,18 +582,16 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .subscribeOn(schedulers.io())
 
   override fun insertOrUpdateTileSet(tileSet: TileSet): Completable =
-    tileSetDao.insertOrUpdate(TileSetEntity.fromTileSet(tileSet)).subscribeOn(schedulers.io())
+    tileSetDao.insertOrUpdate(tileSet.toLocalDataStoreObject()).subscribeOn(schedulers.io())
 
   override fun getTileSet(tileUrl: String): Maybe<TileSet> =
-    tileSetDao.findByUrl(tileUrl).map { TileSetEntity.toTileSet(it) }.subscribeOn(schedulers.io())
+    tileSetDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
   override val pendingTileSets: Single<ImmutableList<TileSet>>
     get() =
       tileSetDao
         .findByState(TileSetEntityState.PENDING.intValue())
-        .map { list: List<TileSetEntity> ->
-          list.map { TileSetEntity.toTileSet(it) }.toImmutableList()
-        }
+        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toImmutableList() }
         .subscribeOn(schedulers.io())
 
   override fun insertOrUpdateOfflineArea(area: OfflineArea): Completable =

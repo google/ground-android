@@ -21,6 +21,7 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.SubmissionMutation
@@ -259,3 +260,38 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     multipleChoice
   )
 }
+
+private fun TileSetEntityState.toModelObject() =
+  when (this) {
+    TileSetEntityState.PENDING -> TileSet.State.PENDING
+    TileSetEntityState.IN_PROGRESS -> TileSet.State.IN_PROGRESS
+    TileSetEntityState.DOWNLOADED -> TileSet.State.DOWNLOADED
+    TileSetEntityState.FAILED -> TileSet.State.FAILED
+    else -> throw IllegalArgumentException("Unknown tile source state: $this")
+  }
+
+private fun TileSet.State.toLocalDataStoreObject() =
+  when (this) {
+    TileSet.State.PENDING -> TileSetEntityState.PENDING
+    TileSet.State.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
+    TileSet.State.FAILED -> TileSetEntityState.FAILED
+    TileSet.State.DOWNLOADED -> TileSetEntityState.DOWNLOADED
+  }
+
+fun TileSetEntity.toModelObject() =
+  TileSet(
+    id = id,
+    url = url,
+    path = path,
+    offlineAreaReferenceCount = offlineAreaReferenceCount,
+    state = state.toModelObject()
+  )
+
+fun TileSet.toLocalDataStoreObject() =
+  TileSetEntity(
+    id = id,
+    url = url,
+    path = path,
+    offlineAreaReferenceCount = offlineAreaReferenceCount,
+    state = state.toLocalDataStoreObject()
+  )
