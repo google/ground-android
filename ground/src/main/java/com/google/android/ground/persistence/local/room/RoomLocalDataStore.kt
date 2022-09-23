@@ -233,7 +233,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   ): Maybe<Submission> =
     submissionDao
       .findById(submissionId)
-      .map { SubmissionEntity.toSubmission(locationOfInterest, it) }
+      .map { it.toSubmission(locationOfInterest) }
       .doOnError { Timber.d(it) }
       .onErrorComplete()
       .subscribeOn(schedulers.io())
@@ -252,7 +252,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     submissionEntities: List<SubmissionEntity>
   ): ImmutableList<Submission> =
     submissionEntities
-      .flatMap { logErrorsAndSkipKt { SubmissionEntity.toSubmission(locationOfInterest, it) } }
+      .flatMap { logErrorsAndSkipKt { it.toSubmission(locationOfInterest) } }
       .toImmutableList()
 
   override val tileSetsOnceAndStream: Flowable<ImmutableSet<TileSet>>
@@ -395,7 +395,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   @Transaction
   override fun mergeSubmission(submission: Submission): Completable {
-    val submissionEntity = SubmissionEntity.fromSubmission(submission)
+    val submissionEntity = submission.toSubmissionEntity()
     return submissionMutationDao
       .findBySubmissionId(
         submission.id,
@@ -533,7 +533,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun createSubmission(mutation: SubmissionMutation, user: User): Completable =
     submissionDao
-      .insert(SubmissionEntity.fromMutation(mutation, AuditInfo(user)))
+      .insert(mutation.toSubmissionEntity(AuditInfo(user)))
       .doOnSubscribe { Timber.v("Inserting submission: $mutation") }
       .subscribeOn(schedulers.io())
 
@@ -555,7 +555,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
    */
   private fun fallbackSubmission(mutation: SubmissionMutation): SingleSource<SubmissionEntity> =
     SingleSource {
-      it.onSuccess(SubmissionEntity.fromMutation(mutation, AuditInfo(User("", "", ""))))
+      it.onSuccess(mutation.toSubmissionEntity(AuditInfo(User("", "", ""))))
     }
 
   private fun markSubmissionForDeletion(

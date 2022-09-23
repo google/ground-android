@@ -16,15 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.local.LocalDataConsistencyException
-import com.google.android.ground.persistence.local.room.converter.AuditInfoConverter
-import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter.fromString
-import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter.toString
 import com.google.android.ground.persistence.local.room.models.EntityState
 
 /** Representation of a [Submission] in local db. */
@@ -36,8 +28,7 @@ import com.google.android.ground.persistence.local.room.models.EntityState
         parentColumns = ["id"],
         childColumns = ["location_of_interest_id"],
         onDelete = ForeignKey.CASCADE
-      )
-    ],
+      )],
   tableName = "submission",
   indices = [Index("location_of_interest_id", "job_id", "state")]
 )
@@ -49,51 +40,4 @@ data class SubmissionEntity(
   @ColumnInfo(name = "responses") var responses: String?,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") var lastModified: AuditInfoEntity,
-) {
-
-  companion object {
-    fun fromSubmission(submission: Submission): SubmissionEntity =
-      SubmissionEntity(
-        id = submission.id,
-        jobId = submission.job.id,
-        locationOfInterestId = submission.locationOfInterest.id,
-        state = EntityState.DEFAULT,
-        responses = toString(submission.responses),
-        created = AuditInfoConverter.convertToDataStoreObject(submission.created),
-        lastModified = AuditInfoConverter.convertToDataStoreObject(submission.lastModified)
-      )
-
-    fun fromMutation(mutation: SubmissionMutation, created: AuditInfo?): SubmissionEntity {
-      val authInfo = AuditInfoConverter.convertToDataStoreObject(created!!)
-      return SubmissionEntity(
-        id = mutation.submissionId,
-        jobId = mutation.job!!.id,
-        locationOfInterestId = mutation.locationOfInterestId,
-        state = EntityState.DEFAULT,
-        responses = toString(ResponseMap().copyWithDeltas(mutation.responseDeltas)),
-        created = authInfo,
-        lastModified = authInfo
-      )
-    }
-
-    fun toSubmission(loi: LocationOfInterest, submission: SubmissionEntity): Submission {
-      val jobId = submission.jobId
-      val job = loi.job
-      if (job.id != jobId) {
-        throw LocalDataConsistencyException(
-          "LOI job id ${job.id} does not match submission ${submission.jobId}"
-        )
-      }
-      val id = submission.id
-      return Submission(
-        id,
-        loi.surveyId,
-        loi,
-        job,
-        AuditInfoConverter.convertFromDataStoreObject(submission.created),
-        AuditInfoConverter.convertFromDataStoreObject(submission.lastModified),
-        fromString(job, submission.responses)
-      )
-    }
-  }
-}
+)

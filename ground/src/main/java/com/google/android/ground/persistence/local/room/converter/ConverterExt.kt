@@ -17,12 +17,20 @@ package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.ResponseMap
+import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
+import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.room.entity.OptionEntity
+import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
+import com.google.android.ground.persistence.local.room.models.EntityState
 import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType
 import com.google.android.ground.persistence.local.room.models.OfflineAreaEntityState
 import com.google.common.collect.ImmutableList
@@ -81,3 +89,49 @@ fun Option.toOptionEntity(taskId: String) =
   OptionEntity(id = this.id, code = this.code, label = this.label, taskId = taskId)
 
 fun OptionEntity.toOption() = Option(id = this.id, code = this.code, label = this.label)
+
+fun SubmissionEntity.toSubmission(loi: LocationOfInterest): Submission {
+  val jobId = this.jobId
+  val job = loi.job
+
+  if (job.id != jobId) {
+    throw LocalDataConsistencyException(
+      "LOI job id ${job.id} does not match submission ${this.jobId}"
+    )
+  }
+
+  return Submission(
+    id = this.id,
+    surveyId = loi.surveyId,
+    locationOfInterest = loi,
+    job = job,
+    created = AuditInfoConverter.convertFromDataStoreObject(this.created),
+    lastModified = AuditInfoConverter.convertFromDataStoreObject(this.lastModified),
+    responses = ResponseMapConverter.fromString(job, this.responses)
+  )
+}
+
+fun Submission.toSubmissionEntity() =
+  SubmissionEntity(
+    id = this.id,
+    jobId = this.job.id,
+    locationOfInterestId = this.locationOfInterest.id,
+    state = EntityState.DEFAULT,
+    responses = ResponseMapConverter.toString(this.responses),
+    created = AuditInfoConverter.convertToDataStoreObject(this.created),
+    lastModified = AuditInfoConverter.convertToDataStoreObject(this.lastModified)
+  )
+
+fun SubmissionMutation.toSubmissionEntity(created: AuditInfo): SubmissionEntity {
+  val authInfo = AuditInfoConverter.convertToDataStoreObject(created)
+
+  return SubmissionEntity(
+    id = this.submissionId,
+    jobId = this.job!!.id,
+    locationOfInterestId = this.locationOfInterestId,
+    state = EntityState.DEFAULT,
+    responses = ResponseMapConverter.toString(ResponseMap().copyWithDeltas(this.responseDeltas)),
+    created = authInfo,
+    lastModified = authInfo
+  )
+}
