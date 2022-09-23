@@ -35,6 +35,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.models.*
+import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
 import com.google.android.ground.util.toImmutableList
@@ -165,6 +166,20 @@ private fun parseVertices(vertices: String?): ImmutableList<Point> {
   return verticesArray
     .map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
     .toImmutableList()
+}
+
+fun Job.toLocalDataStoreObject(surveyId: String) =
+  JobEntity(id = id, surveyId = surveyId, name = name)
+
+fun JobEntityAndRelations.toModelObject(): Job {
+  val taskMap = ImmutableMap.builder<String, Task>()
+
+  for (taskEntityAndRelations in taskEntityAndRelations) {
+    val task = taskEntityAndRelations.toModelObject()
+    taskMap.put(task.id, task)
+  }
+
+  return Job(jobEntity.id, jobEntity.name, taskMap.build())
 }
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
@@ -311,7 +326,7 @@ fun SurveyEntityAndRelations.toSurvey(): Survey {
   val baseMaps = ImmutableList.builder<BaseMap>()
 
   for (jobEntityAndRelations in jobEntityAndRelations) {
-    val job = JobConverter.convertFromDataStoreObjectWithRelations(jobEntityAndRelations!!)
+    val job = jobEntityAndRelations.toModelObject()
     jobMap.put(job.id, job)
   }
   for (source in baseMapEntityAndRelations) {

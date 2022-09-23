@@ -134,7 +134,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun insertOrUpdateJob(surveyId: String, job: Job): Completable =
     jobDao
-      .insertOrUpdate(JobConverter(surveyId).convertToDataStoreObject(job))
+      .insertOrUpdate(job.toLocalDataStoreObject(surveyId))
       .andThen(insertOrUpdateTasks(job.id, job.tasks.values))
       .subscribeOn(schedulers.io())
 
