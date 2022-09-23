@@ -15,11 +15,16 @@
  */
 package com.google.android.ground.persistence.local.room.converter
 
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
+import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.room.entity.OptionEntity
 import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType
+import com.google.android.ground.persistence.local.room.models.OfflineAreaEntityState
 import com.google.common.collect.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 
@@ -35,3 +40,39 @@ fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): M
 
 fun MultipleChoice.toMultipleChoiceEntity(taskId: String): MultipleChoiceEntity =
   MultipleChoiceEntity(taskId, MultipleChoiceEntityType.fromCardinality(this.cardinality))
+
+private fun OfflineAreaEntityState.toOfflineAreaState() =
+  when (this) {
+    OfflineAreaEntityState.PENDING -> OfflineArea.State.PENDING
+    OfflineAreaEntityState.IN_PROGRESS -> OfflineArea.State.IN_PROGRESS
+    OfflineAreaEntityState.DOWNLOADED -> OfflineArea.State.DOWNLOADED
+    OfflineAreaEntityState.FAILED -> OfflineArea.State.FAILED
+    else -> throw IllegalArgumentException("Unknown area state: $this")
+  }
+
+private fun OfflineArea.State.toOfflineAreaEntityState() =
+  when (this) {
+    OfflineArea.State.PENDING -> OfflineAreaEntityState.PENDING
+    OfflineArea.State.IN_PROGRESS -> OfflineAreaEntityState.IN_PROGRESS
+    OfflineArea.State.FAILED -> OfflineAreaEntityState.FAILED
+    OfflineArea.State.DOWNLOADED -> OfflineAreaEntityState.DOWNLOADED
+  }
+
+fun OfflineArea.toOfflineAreaEntity() =
+  OfflineAreaEntity(
+    id = this.id,
+    state = this.state.toOfflineAreaEntityState(),
+    name = this.name,
+    north = this.bounds.northeast.latitude,
+    east = this.bounds.northeast.longitude,
+    south = this.bounds.southwest.latitude,
+    west = this.bounds.southwest.longitude
+  )
+
+fun OfflineAreaEntity.toOfflineArea(): OfflineArea {
+  val northEast = LatLng(this.north, this.east)
+  val southWest = LatLng(this.south, this.west)
+  val bounds = LatLngBounds(southWest, northEast)
+
+  return OfflineArea(this.id, this.state.toOfflineAreaState(), bounds, this.name)
+}
