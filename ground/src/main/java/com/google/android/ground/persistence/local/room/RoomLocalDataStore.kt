@@ -149,7 +149,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   @Transaction
   override fun insertOrUpdateSurvey(survey: Survey): Completable =
     surveyDao
-      .insertOrUpdate(SurveyEntity.fromSurvey(survey))
+      .insertOrUpdate(survey.toSurveyEntity())
       .andThen(jobDao.deleteBySurveyId(survey.id))
       .andThen(insertOrUpdateJobs(survey.id, survey.jobs))
       .andThen(baseMapDao.deleteBySurveyId(survey.id))
@@ -174,15 +174,15 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       surveyDao
         .getAllSurveys()
         .map { list: List<SurveyEntityAndRelations> ->
-          list.map { SurveyEntity.toSurvey(it) }.toImmutableList()
+          list.map { it.toSurvey() }.toImmutableList()
         }
         .subscribeOn(schedulers.io())
 
   override fun getSurveyById(id: String): Maybe<Survey> =
-    surveyDao.getSurveyById(id).map { SurveyEntity.toSurvey(it) }.subscribeOn(schedulers.io())
+    surveyDao.getSurveyById(id).map { it.toSurvey() }.subscribeOn(schedulers.io())
 
   override fun deleteSurvey(survey: Survey): Completable =
-    surveyDao.delete(SurveyEntity.fromSurvey(survey)).subscribeOn(schedulers.io())
+    surveyDao.delete(survey.toSurveyEntity()).subscribeOn(schedulers.io())
 
   @Transaction
   override fun applyAndEnqueue(mutation: LocationOfInterestMutation): Completable {

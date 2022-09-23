@@ -19,7 +19,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.ResponseMap
@@ -29,9 +31,14 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.models.*
+import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
+import java.net.MalformedURLException
 import java.util.*
 import kotlinx.collections.immutable.toPersistentList
+import org.json.JSONObject
+import timber.log.Timber
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
   val listBuilder = ImmutableList.builder<Option>()
@@ -170,4 +177,52 @@ fun SubmissionMutation.toSubmissionMutationEntity() =
     lastError = lastError,
     userId = userId,
     clientTimestamp = clientTimestamp.time
+  )
+
+fun SurveyEntityAndRelations.toSurvey(): Survey {
+  val jobMap = ImmutableMap.builder<String, Job>()
+  val baseMaps = ImmutableList.builder<BaseMap>()
+
+  for (jobEntityAndRelations in jobEntityAndRelations) {
+    val job = JobConverter.convertFromDataStoreObjectWithRelations(jobEntityAndRelations!!)
+    jobMap.put(job.id, job)
+  }
+  for (source in baseMapEntityAndRelations) {
+    try {
+      baseMaps.add(BaseMapConverter.convertFromDataStoreObject(source))
+    } catch (e: MalformedURLException) {
+      Timber.d("Skipping basemap source with malformed URL %s", source.url)
+    }
+  }
+  val surveyEntity = surveyEntity
+
+  return Survey(
+    surveyEntity.id,
+    surveyEntity.title!!,
+    surveyEntity.description!!,
+    jobMap.build(),
+    baseMaps.build(),
+    surveyEntity.acl.toStringMap()
+  )
+}
+
+private fun JSONObject?.toStringMap(): ImmutableMap<String, String> {
+  val builder: ImmutableMap.Builder<String, String> = ImmutableMap.builder()
+  val keys = this!!.keys()
+
+  while (keys.hasNext()) {
+    val key = keys.next()
+    val value = this.optString(key, null.toString())
+    builder.put(key, value)
+  }
+
+  return builder.build()
+}
+
+fun Survey.toSurveyEntity() =
+  SurveyEntity(
+    id = id,
+    title = title,
+    description = description,
+    acl = JSONObject(acl as Map<*, *>?)
   )
