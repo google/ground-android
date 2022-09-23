@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.SubmissionMutation
@@ -26,14 +27,10 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
-import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
-import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
-import com.google.android.ground.persistence.local.room.entity.OptionEntity
-import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
-import com.google.android.ground.persistence.local.room.models.EntityState
-import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType
-import com.google.android.ground.persistence.local.room.models.OfflineAreaEntityState
+import com.google.android.ground.persistence.local.room.entity.*
+import com.google.android.ground.persistence.local.room.models.*
 import com.google.common.collect.ImmutableList
+import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
@@ -135,3 +132,42 @@ fun SubmissionMutation.toSubmissionEntity(created: AuditInfo): SubmissionEntity 
     lastModified = authInfo
   )
 }
+
+@Throws(LocalDataConsistencyException::class)
+fun SubmissionMutationEntity.toSubmissionMutation(survey: Survey): SubmissionMutation {
+  val job =
+    survey.getJob(jobId).orElseThrow {
+      LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+    }
+
+  return SubmissionMutation(
+    job = job,
+    submissionId = submissionId,
+    responseDeltas = ResponseDeltasConverter.fromString(job, responseDeltas),
+    id = id,
+    surveyId = surveyId,
+    locationOfInterestId = locationOfInterestId,
+    type = type.toMutationType(),
+    syncStatus = syncStatus.toMutationSyncStatus(),
+    retryCount = retryCount,
+    lastError = lastError,
+    userId = userId,
+    clientTimestamp = Date(clientTimestamp)
+  )
+}
+
+fun SubmissionMutation.toSubmissionMutationEntity() =
+  SubmissionMutationEntity(
+    id = id,
+    surveyId = surveyId,
+    locationOfInterestId = locationOfInterestId,
+    jobId = job!!.id,
+    submissionId = submissionId,
+    type = MutationEntityType.fromMutationType(type),
+    syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
+    responseDeltas = ResponseDeltasConverter.toString(responseDeltas),
+    retryCount = retryCount,
+    lastError = lastError,
+    userId = userId,
+    clientTimestamp = clientTimestamp.time
+  )

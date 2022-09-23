@@ -16,11 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.LocalDataConsistencyException
-import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter.fromString
-import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter.toString
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.models.MutationEntityType
 import java.util.*
@@ -41,8 +37,7 @@ import java.util.*
         parentColumns = ["id"],
         childColumns = ["submission_id"],
         onDelete = ForeignKey.CASCADE
-      )
-    ],
+      )],
   indices = [Index("location_of_interest_id"), Index("submission_id")]
 )
 data class SubmissionMutationEntity(
@@ -65,46 +60,4 @@ data class SubmissionMutationEntity(
    * This method returns `null` for mutation type [MutationEntityType.DELETE].
    */
   @ColumnInfo(name = "response_deltas") val responseDeltas: String?
-) {
-
-  @Throws(LocalDataConsistencyException::class)
-  fun toMutation(survey: Survey): SubmissionMutation {
-    val job =
-      survey.getJob(jobId).orElseThrow {
-        LocalDataConsistencyException("Unknown jobId in submission mutation $id")
-      }
-    return SubmissionMutation(
-      job = job,
-      submissionId = submissionId,
-      responseDeltas = fromString(job, responseDeltas),
-      id = id,
-      surveyId = surveyId,
-      locationOfInterestId = locationOfInterestId,
-      type = type.toMutationType(),
-      syncStatus = syncStatus.toMutationSyncStatus(),
-      retryCount = retryCount,
-      lastError = lastError,
-      userId = userId,
-      clientTimestamp = Date(clientTimestamp)
-    )
-  }
-
-  companion object {
-
-    fun fromMutation(m: SubmissionMutation): SubmissionMutationEntity =
-      SubmissionMutationEntity(
-        id = m.id,
-        surveyId = m.surveyId,
-        locationOfInterestId = m.locationOfInterestId,
-        jobId = m.job!!.id,
-        submissionId = m.submissionId,
-        type = MutationEntityType.fromMutationType(m.type),
-        syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(m.syncStatus),
-        responseDeltas = toString(m.responseDeltas),
-        retryCount = m.retryCount,
-        lastError = m.lastError,
-        userId = m.userId,
-        clientTimestamp = m.clientTimestamp.time
-      )
-  }
-}
+)

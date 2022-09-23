@@ -282,7 +282,10 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       submissionMutationDao
         .loadAllOnceAndStream()
         .map { list: List<SubmissionMutationEntity> ->
-          list.filter { it.surveyId == survey.id }.map { it.toMutation(survey) }.toImmutableList()
+          list
+            .filter { it.surveyId == survey.id }
+            .map { it.toSubmissionMutation(survey) }
+            .toImmutableList()
         }
         .subscribeOn(schedulers.io())
     return Flowable.combineLatest(
@@ -317,7 +320,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           .flatMap { ome ->
             getSurveyById(ome.surveyId)
               .toSingle()
-              .map { ome.toMutation(it) }
+              .map { ome.toSubmissionMutation(it) }
               .toObservable()
               .doOnError { Timber.e(it, "Submission mutation skipped") }
               .onErrorResumeNext(Observable.empty())
@@ -342,9 +345,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   private fun toSubmissionMutationEntities(
     mutations: ImmutableList<Mutation>
   ): ImmutableList<SubmissionMutationEntity> =
-    SubmissionMutation.filter(mutations)
-      .map { SubmissionMutationEntity.fromMutation(it) }
-      .toImmutableList()
+    SubmissionMutation.filter(mutations).map { it.toSubmissionMutationEntity() }.toImmutableList()
 
   private fun toLocationOfInterestMutationEntities(
     mutations: ImmutableList<Mutation>
@@ -378,7 +379,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     val submissionMutations =
       SubmissionMutation.filter(mutations)
         .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
-        .map { SubmissionMutationEntity.fromMutation(it) }
+        .map { it.toSubmissionMutationEntity() }
         .toImmutableList()
     return locationOfInterestMutationDao
       .updateAll(locationOfInterestMutations)
@@ -538,7 +539,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .subscribeOn(schedulers.io())
 
   private fun updateSubmission(mutation: SubmissionMutation, user: User): Completable {
-    val mutationEntity = SubmissionMutationEntity.fromMutation(mutation)
+    val mutationEntity = mutation.toSubmissionMutationEntity()
     return submissionDao
       .findById(mutation.submissionId)
       .doOnSubscribe { Timber.v("Applying mutation: $mutation") }
@@ -578,7 +579,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun enqueue(mutation: SubmissionMutation): Completable =
     submissionMutationDao
-      .insert(SubmissionMutationEntity.fromMutation(mutation))
+      .insert(mutation.toSubmissionMutationEntity())
       .doOnSubscribe { Timber.v("Enqueuing mutation: $mutation") }
       .subscribeOn(schedulers.io())
 
@@ -652,6 +653,6 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     submissionMutationDao
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
       .map { list: List<SubmissionMutationEntity> ->
-        list.map { it.toMutation(survey) }.toImmutableList()
+        list.map { it.toSubmissionMutation(survey) }.toImmutableList()
       }
 }
