@@ -48,7 +48,7 @@ class LocationOfInterestConverter(val survey: Survey) :
         state = EntityState.DEFAULT,
         created = authInfo,
         lastModified = authInfo,
-        geometry = mutation.geometry?.let { GeometryConverter.convertToDataStoreObject(it) }
+        geometry = mutation.geometry?.toLocalDataStoreObject()
       )
     }
 
@@ -61,7 +61,7 @@ class LocationOfInterestConverter(val survey: Survey) :
         state = EntityState.DEFAULT,
         created = model.created.toLocalDataStoreObject(),
         lastModified = model.lastModified.toLocalDataStoreObject(),
-        geometry = GeometryConverter.convertToDataStoreObject(model.geometry)
+        geometry = model.geometry.toLocalDataStoreObject()
       )
   }
 
@@ -70,7 +70,7 @@ class LocationOfInterestConverter(val survey: Survey) :
     convertTo(model)
 
   override fun convertFromDataStoreObject(entity: LocationOfInterestEntity): LocationOfInterest {
-    val geometry = entity.geometry?.let { GeometryConverter.convertFromDataStoreObject(it) }
+    val geometry = entity.geometry?.toModelObject()
     if (geometry == null) {
       throw LocalDataConsistencyException("No geometry in location of interest $entity.id")
     } else {

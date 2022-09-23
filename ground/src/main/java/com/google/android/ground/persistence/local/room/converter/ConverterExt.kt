@@ -23,6 +23,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.SubmissionMutation
@@ -36,8 +37,11 @@ import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.models.*
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
+import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.reflect.TypeToken
+import com.google.gson.Gson
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
@@ -78,6 +82,90 @@ fun BaseMap.toLocalDataStoreObject(surveyId: String) =
   BaseMapEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
 
 fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
+
+fun GeometryEntity.toModelObject() =
+  when (geometryType) {
+    GeometryType.POINT.name -> this.toPointModel()
+    GeometryType.POLYGON.name -> this.toPolygonModel()
+    else -> null
+  }
+
+fun Geometry.toLocalDataStoreObject() =
+  when (this) {
+    is Point -> this.toLocalDataStoreObject()
+    is Polygon -> this.toLocalDataStoreObject()
+    else -> null
+  }
+
+private fun GeometryEntity.toPointModel(): Geometry? = this.location?.toPoint()
+
+private fun GeometryEntity.toPolygonModel(): Geometry {
+  val shell = LinearRing(parseVertices(this.vertices).map { it.coordinate })
+  val holes = parseHoles(this.holes).map { LinearRing(it.map(Point::coordinate)) }
+
+  return Polygon(shell, holes)
+}
+
+private fun Point.toLocalDataStoreObject(): GeometryEntity =
+  GeometryEntity(GeometryType.POINT.name, Coordinates.fromPoint(this))
+
+private fun Polygon.toLocalDataStoreObject(): GeometryEntity {
+  val shell = formatVertices(this.vertices)
+  val holes = formatHoles(this.holes.map { it.vertices })
+
+  return GeometryEntity(GeometryType.POLYGON.name, null, shell, holes)
+}
+
+private fun formatHoles(holes: List<ImmutableList<Point>>): String? {
+  if (holes.isEmpty()) {
+    return null
+  }
+
+  val gson = Gson()
+  val holeArray =
+    holes.map { hole -> hole.map { ImmutableList.of(it.coordinate.x, it.coordinate.y) } }
+
+  return gson.toJson(holeArray)
+}
+
+private fun formatVertices(vertices: ImmutableList<Point>): String? {
+  if (vertices.isEmpty()) {
+    return null
+  }
+  val gson = Gson()
+  val verticesArray =
+    vertices.map { (coordinate): Point -> ImmutableList.of(coordinate.x, coordinate.y) }.toList()
+  return gson.toJson(verticesArray)
+}
+
+private fun parseHoles(holes: String?): List<ImmutableList<Point>> {
+  if (holes.isNullOrEmpty()) {
+    return ImmutableList.of()
+  }
+
+  val gson = Gson()
+  val holesArray =
+    gson.fromJson<List<List<List<Double>>>>(
+      holes,
+      object : TypeToken<List<List<List<Double?>?>?>?>() {}.type
+    )
+
+  return holesArray.map {
+    it.map { vertex -> Point(Coordinate(vertex[0], vertex[1])) }.toImmutableList()
+  }
+}
+
+private fun parseVertices(vertices: String?): ImmutableList<Point> {
+  if (vertices.isNullOrEmpty()) {
+    return ImmutableList.of()
+  }
+  val gson = Gson()
+  val verticesArray =
+    gson.fromJson<List<List<Double>>>(vertices, object : TypeToken<List<List<Double?>?>?>() {}.type)
+  return verticesArray
+    .map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
+    .toImmutableList()
+}
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
   val listBuilder = ImmutableList.builder<Option>()
