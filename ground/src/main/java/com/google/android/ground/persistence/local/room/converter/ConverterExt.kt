@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.User
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -295,3 +296,9 @@ fun TileSet.toLocalDataStoreObject() =
     offlineAreaReferenceCount = offlineAreaReferenceCount,
     state = state.toLocalDataStoreObject()
   )
+
+fun User.toLocalDataStoreObject() =
+  UserEntity(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
+
+fun UserEntity.toModelObject() =
+  User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)

@@ -157,7 +157,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .subscribeOn(schedulers.io())
 
   override fun insertOrUpdateUser(user: User): Completable =
-    userDao.insertOrUpdate(UserEntity.fromUser(user)).subscribeOn(schedulers.io())
+    userDao.insertOrUpdate(user.toLocalDataStoreObject()).subscribeOn(schedulers.io())
 
   override fun getUser(id: String): Single<User> =
     userDao
@@ -166,7 +166,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         Timber.e(it, "Error loading user from local db: $id")
       } // Fail with NoSuchElementException if not found.
       .toSingle()
-      .map { UserEntity.toUser(it) }
+      .map { it.toModelObject() }
       .subscribeOn(schedulers.io())
 
   override val surveys: Single<ImmutableList<Survey>>
