@@ -220,6 +220,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(
   created: AuditInfo
 ): LocationOfInterestEntity {
   val authInfo = created.toLocalDataStoreObject()
+
   return LocationOfInterestEntity(
     id = locationOfInterestId,
     surveyId = surveyId,
@@ -230,6 +231,36 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(
     geometry = geometry?.toLocalDataStoreObject()
   )
 }
+
+fun LocationOfInterestMutation.toLocalDataStoreObject() =
+  LocationOfInterestMutationEntity(
+    id = id,
+    surveyId = surveyId,
+    jobId = jobId,
+    type = MutationEntityType.fromMutationType(type),
+    newGeometry = geometry?.toLocalDataStoreObject(),
+    userId = userId,
+    locationOfInterestId = locationOfInterestId,
+    syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
+    clientTimestamp = clientTimestamp.time,
+    lastError = lastError,
+    retryCount = retryCount
+  )
+
+fun LocationOfInterestMutationEntity.toModelObject() =
+  LocationOfInterestMutation(
+    id = id,
+    surveyId = surveyId,
+    jobId = jobId,
+    type = type.toMutationType(),
+    geometry = newGeometry?.toModelObject(),
+    userId = userId,
+    locationOfInterestId = locationOfInterestId,
+    syncStatus = syncStatus.toMutationSyncStatus(),
+    clientTimestamp = Date(clientTimestamp),
+    lastError = lastError,
+    retryCount = retryCount,
+  )
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
   val listBuilder = ImmutableList.builder<Option>()

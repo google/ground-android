@@ -268,10 +268,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       locationOfInterestMutationDao
         .loadAllOnceAndStream()
         .map { list: List<LocationOfInterestMutationEntity> ->
-          list
-            .filter { it.surveyId == survey.id }
-            .map { LocationOfInterestMutationConverter.convertFromDataStoreObject(it) }
-            .toImmutableList()
+          list.filter { it.surveyId == survey.id }.map { it.toModelObject() }.toImmutableList()
         }
         .subscribeOn(schedulers.io())
     val submissionMutations =
@@ -307,7 +304,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     locationOfInterestMutationDao
       .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
       .flattenAsObservable { it }
-      .map(LocationOfInterestMutationConverter::convertFromDataStoreObject)
+      .map { it.toModelObject() }
       .cast(Mutation::class.java)
       .mergeWith(
         submissionMutationDao
@@ -347,7 +344,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     mutations: ImmutableList<Mutation>
   ): ImmutableList<LocationOfInterestMutationEntity> =
     LocationOfInterestMutation.filter(mutations)
-      .map(LocationOfInterestMutationConverter::convertToDataStoreObject)
+      .map { it.toLocalDataStoreObject() }
       .toImmutableList()
 
   override fun finalizePendingMutations(mutations: ImmutableList<Mutation>): Completable =
@@ -371,7 +368,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     val locationOfInterestMutations =
       LocationOfInterestMutation.filter(mutations)
         .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
-        .map(LocationOfInterestMutationConverter::convertToDataStoreObject)
+        .map { it.toLocalDataStoreObject() }
     val submissionMutations =
       SubmissionMutation.filter(mutations)
         .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
@@ -493,7 +490,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun enqueue(mutation: LocationOfInterestMutation): Completable =
     locationOfInterestMutationDao
-      .insert(LocationOfInterestMutationConverter.convertToDataStoreObject(mutation))
+      .insert(mutation.toLocalDataStoreObject())
       .subscribeOn(schedulers.io())
 
   @Transaction
@@ -636,7 +633,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     locationOfInterestMutationDao
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
       .map { list: List<LocationOfInterestMutationEntity> ->
-        list.map(LocationOfInterestMutationConverter::convertFromDataStoreObject).toImmutableList()
+        list.map { it.toModelObject() }.toImmutableList()
       }
 
   override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
