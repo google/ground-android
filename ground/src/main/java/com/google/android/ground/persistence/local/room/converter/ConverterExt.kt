@@ -39,6 +39,7 @@ import com.google.android.ground.persistence.local.room.relations.TaskEntityAndR
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import java.net.MalformedURLException
+import java.net.URL
 import java.util.*
 import java8.util.Optional
 import kotlinx.collections.immutable.toPersistentList
@@ -58,6 +59,25 @@ fun AuditInfoEntity.toModelObject() =
     Date(clientTimestamp),
     Optional.ofNullable(serverTimestamp).map { Date(it!!) }
   )
+
+private fun BaseMap.BaseMapType.toLocalDataStoreObject() =
+  when (this) {
+    BaseMap.BaseMapType.TILED_WEB_MAP -> BaseMapEntity.BaseMapEntityType.IMAGE
+    BaseMap.BaseMapType.MBTILES_FOOTPRINTS -> BaseMapEntity.BaseMapEntityType.GEOJSON
+    else -> BaseMapEntity.BaseMapEntityType.UNKNOWN
+  }
+
+private fun BaseMapEntity.BaseMapEntityType.toModelObject() =
+  when (this) {
+    BaseMapEntity.BaseMapEntityType.IMAGE -> BaseMap.BaseMapType.TILED_WEB_MAP
+    BaseMapEntity.BaseMapEntityType.GEOJSON -> BaseMap.BaseMapType.MBTILES_FOOTPRINTS
+    else -> BaseMap.BaseMapType.UNKNOWN
+  }
+
+fun BaseMap.toLocalDataStoreObject(surveyId: String) =
+  BaseMapEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
+
+fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
 
 fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
   val listBuilder = ImmutableList.builder<Option>()
@@ -208,7 +228,7 @@ fun SurveyEntityAndRelations.toSurvey(): Survey {
   }
   for (source in baseMapEntityAndRelations) {
     try {
-      baseMaps.add(BaseMapConverter.convertFromDataStoreObject(source))
+      baseMaps.add(source.toModelObject())
     } catch (e: MalformedURLException) {
       Timber.d("Skipping basemap source with malformed URL %s", source.url)
     }
