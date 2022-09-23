@@ -100,7 +100,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   @Inject lateinit var fileUtil: FileUtil
 
   private fun insertOrUpdateOption(taskId: String, option: Option): Completable =
-    optionDao.insertOrUpdate(option.toOptionEntity(taskId)).subscribeOn(schedulers.io())
+    optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId)).subscribeOn(schedulers.io())
 
   private fun insertOrUpdateOptions(
     taskId: String,
@@ -115,7 +115,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     multipleChoice: MultipleChoice
   ): Completable =
     multipleChoiceDao
-      .insertOrUpdate(multipleChoice.toMultipleChoiceEntity(taskId))
+      .insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId))
       .andThen(insertOrUpdateOptions(taskId, multipleChoice.options))
       .subscribeOn(schedulers.io())
 
@@ -149,7 +149,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   @Transaction
   override fun insertOrUpdateSurvey(survey: Survey): Completable =
     surveyDao
-      .insertOrUpdate(survey.toSurveyEntity())
+      .insertOrUpdate(survey.toLocalDataStoreObject())
       .andThen(jobDao.deleteBySurveyId(survey.id))
       .andThen(insertOrUpdateJobs(survey.id, survey.jobs))
       .andThen(baseMapDao.deleteBySurveyId(survey.id))
@@ -174,15 +174,15 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       surveyDao
         .getAllSurveys()
         .map { list: List<SurveyEntityAndRelations> ->
-          list.map { it.toSurvey() }.toImmutableList()
+          list.map { it.toModelObject() }.toImmutableList()
         }
         .subscribeOn(schedulers.io())
 
   override fun getSurveyById(id: String): Maybe<Survey> =
-    surveyDao.getSurveyById(id).map { it.toSurvey() }.subscribeOn(schedulers.io())
+    surveyDao.getSurveyById(id).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
   override fun deleteSurvey(survey: Survey): Completable =
-    surveyDao.delete(survey.toSurveyEntity()).subscribeOn(schedulers.io())
+    surveyDao.delete(survey.toLocalDataStoreObject()).subscribeOn(schedulers.io())
 
   @Transaction
   override fun applyAndEnqueue(mutation: LocationOfInterestMutation): Completable {
@@ -231,7 +231,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   ): Maybe<Submission> =
     submissionDao
       .findById(submissionId)
-      .map { it.toSubmission(locationOfInterest) }
+      .map { it.toModelObject(locationOfInterest) }
       .doOnError { Timber.d(it) }
       .onErrorComplete()
       .subscribeOn(schedulers.io())
@@ -250,7 +250,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     submissionEntities: List<SubmissionEntity>
   ): ImmutableList<Submission> =
     submissionEntities
-      .flatMap { logErrorsAndSkipKt { it.toSubmission(locationOfInterest) } }
+      .flatMap { logErrorsAndSkipKt { it.toModelObject(locationOfInterest) } }
       .toImmutableList()
 
   override val tileSetsOnceAndStream: Flowable<ImmutableSet<TileSet>>
@@ -277,7 +277,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         .map { list: List<SubmissionMutationEntity> ->
           list
             .filter { it.surveyId == survey.id }
-            .map { it.toSubmissionMutation(survey) }
+            .map { it.toModelObject(survey) }
             .toImmutableList()
         }
         .subscribeOn(schedulers.io())
@@ -313,7 +313,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           .flatMap { ome ->
             getSurveyById(ome.surveyId)
               .toSingle()
-              .map { ome.toSubmissionMutation(it) }
+              .map { ome.toModelObject(it) }
               .toObservable()
               .doOnError { Timber.e(it, "Submission mutation skipped") }
               .onErrorResumeNext(Observable.empty())
@@ -338,7 +338,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   private fun toSubmissionMutationEntities(
     mutations: ImmutableList<Mutation>
   ): ImmutableList<SubmissionMutationEntity> =
-    SubmissionMutation.filter(mutations).map { it.toSubmissionMutationEntity() }.toImmutableList()
+    SubmissionMutation.filter(mutations).map { it.toLocalDataStoreObject() }.toImmutableList()
 
   private fun toLocationOfInterestMutationEntities(
     mutations: ImmutableList<Mutation>
@@ -372,7 +372,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     val submissionMutations =
       SubmissionMutation.filter(mutations)
         .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
-        .map { it.toSubmissionMutationEntity() }
+        .map { it.toLocalDataStoreObject() }
         .toImmutableList()
     return locationOfInterestMutationDao
       .updateAll(locationOfInterestMutations)
@@ -389,7 +389,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   @Transaction
   override fun mergeSubmission(submission: Submission): Completable {
-    val submissionEntity = submission.toSubmissionEntity()
+    val submissionEntity = submission.toLocalDataStoreObject()
     return submissionMutationDao
       .findBySubmissionId(
         submission.id,
@@ -527,12 +527,12 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun createSubmission(mutation: SubmissionMutation, user: User): Completable =
     submissionDao
-      .insert(mutation.toSubmissionEntity(AuditInfo(user)))
+      .insert(mutation.toLocalDataStoreObject(AuditInfo(user)))
       .doOnSubscribe { Timber.v("Inserting submission: $mutation") }
       .subscribeOn(schedulers.io())
 
   private fun updateSubmission(mutation: SubmissionMutation, user: User): Completable {
-    val mutationEntity = mutation.toSubmissionMutationEntity()
+    val mutationEntity = mutation.toLocalDataStoreObject()
     return submissionDao
       .findById(mutation.submissionId)
       .doOnSubscribe { Timber.v("Applying mutation: $mutation") }
@@ -549,7 +549,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
    */
   private fun fallbackSubmission(mutation: SubmissionMutation): SingleSource<SubmissionEntity> =
     SingleSource {
-      it.onSuccess(mutation.toSubmissionEntity(AuditInfo(User("", "", ""))))
+      it.onSuccess(mutation.toLocalDataStoreObject(AuditInfo(User("", "", ""))))
     }
 
   private fun markSubmissionForDeletion(
@@ -572,7 +572,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun enqueue(mutation: SubmissionMutation): Completable =
     submissionMutationDao
-      .insert(mutation.toSubmissionMutationEntity())
+      .insert(mutation.toLocalDataStoreObject())
       .doOnSubscribe { Timber.v("Enqueuing mutation: $mutation") }
       .subscribeOn(schedulers.io())
 
@@ -597,12 +597,12 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       offlineAreaDao
         .findAllOnceAndStream()
         .map { areas: List<OfflineAreaEntity> ->
-          areas.map { it.toOfflineArea() }.toImmutableList()
+          areas.map { it.toModelObject() }.toImmutableList()
         }
         .subscribeOn(schedulers.io())
 
   override fun getOfflineAreaById(id: String): Single<OfflineArea> =
-    offlineAreaDao.findById(id).map { it.toOfflineArea() }.toSingle().subscribeOn(schedulers.io())
+    offlineAreaDao.findById(id).map { it.toModelObject() }.toSingle().subscribeOn(schedulers.io())
 
   override fun deleteOfflineArea(offlineAreaId: String): Completable =
     offlineAreaDao
@@ -644,6 +644,6 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     submissionMutationDao
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
       .map { list: List<SubmissionMutationEntity> ->
-        list.map { it.toSubmissionMutation(survey) }.toImmutableList()
+        list.map { it.toModelObject(survey) }.toImmutableList()
       }
 }

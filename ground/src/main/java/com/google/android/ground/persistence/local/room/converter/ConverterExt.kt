@@ -130,7 +130,7 @@ private fun formatHoles(holes: List<ImmutableList<Point>>): String? {
   return gson.toJson(holeArray)
 }
 
-private fun formatVertices(vertices: ImmutableList<Point>): String? {
+fun formatVertices(vertices: ImmutableList<Point>): String? {
   if (vertices.isEmpty()) {
     return null
   }
@@ -157,7 +157,7 @@ private fun parseHoles(holes: String?): List<ImmutableList<Point>> {
   }
 }
 
-private fun parseVertices(vertices: String?): ImmutableList<Point> {
+fun parseVertices(vertices: String?): ImmutableList<Point> {
   if (vertices.isNullOrEmpty()) {
     return ImmutableList.of()
   }
@@ -262,20 +262,20 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     retryCount = retryCount,
   )
 
-fun MultipleChoiceEntity.toMultipleChoice(optionEntities: List<OptionEntity>): MultipleChoice {
+fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
   val listBuilder = ImmutableList.builder<Option>()
 
   for (optionEntity in optionEntities) {
-    listBuilder.add(optionEntity.toOption())
+    listBuilder.add(optionEntity.toModelObject())
   }
 
   return MultipleChoice(listBuilder.build().toPersistentList(), this.type.toCardinality())
 }
 
-fun MultipleChoice.toMultipleChoiceEntity(taskId: String): MultipleChoiceEntity =
+fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
   MultipleChoiceEntity(taskId, MultipleChoiceEntityType.fromCardinality(this.cardinality))
 
-private fun OfflineAreaEntityState.toOfflineAreaState() =
+private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
     OfflineAreaEntityState.PENDING -> OfflineArea.State.PENDING
     OfflineAreaEntityState.IN_PROGRESS -> OfflineArea.State.IN_PROGRESS
@@ -284,7 +284,7 @@ private fun OfflineAreaEntityState.toOfflineAreaState() =
     else -> throw IllegalArgumentException("Unknown area state: $this")
   }
 
-private fun OfflineArea.State.toOfflineAreaEntityState() =
+private fun OfflineArea.State.toLocalDataStoreObject() =
   when (this) {
     OfflineArea.State.PENDING -> OfflineAreaEntityState.PENDING
     OfflineArea.State.IN_PROGRESS -> OfflineAreaEntityState.IN_PROGRESS
@@ -295,7 +295,7 @@ private fun OfflineArea.State.toOfflineAreaEntityState() =
 fun OfflineArea.toOfflineAreaEntity() =
   OfflineAreaEntity(
     id = this.id,
-    state = this.state.toOfflineAreaEntityState(),
+    state = this.state.toLocalDataStoreObject(),
     name = this.name,
     north = this.bounds.northeast.latitude,
     east = this.bounds.northeast.longitude,
@@ -303,20 +303,20 @@ fun OfflineArea.toOfflineAreaEntity() =
     west = this.bounds.southwest.longitude
   )
 
-fun OfflineAreaEntity.toOfflineArea(): OfflineArea {
+fun OfflineAreaEntity.toModelObject(): OfflineArea {
   val northEast = LatLng(this.north, this.east)
   val southWest = LatLng(this.south, this.west)
   val bounds = LatLngBounds(southWest, northEast)
 
-  return OfflineArea(this.id, this.state.toOfflineAreaState(), bounds, this.name)
+  return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name)
 }
 
-fun Option.toOptionEntity(taskId: String) =
+fun Option.toLocalDataStoreObject(taskId: String) =
   OptionEntity(id = this.id, code = this.code, label = this.label, taskId = taskId)
 
-fun OptionEntity.toOption() = Option(id = this.id, code = this.code, label = this.label)
+fun OptionEntity.toModelObject() = Option(id = this.id, code = this.code, label = this.label)
 
-fun SubmissionEntity.toSubmission(loi: LocationOfInterest): Submission {
+fun SubmissionEntity.toModelObject(loi: LocationOfInterest): Submission {
   val jobId = this.jobId
   val job = loi.job
 
@@ -337,7 +337,7 @@ fun SubmissionEntity.toSubmission(loi: LocationOfInterest): Submission {
   )
 }
 
-fun Submission.toSubmissionEntity() =
+fun Submission.toLocalDataStoreObject() =
   SubmissionEntity(
     id = this.id,
     jobId = this.job.id,
@@ -348,7 +348,7 @@ fun Submission.toSubmissionEntity() =
     lastModified = this.lastModified.toLocalDataStoreObject(),
   )
 
-fun SubmissionMutation.toSubmissionEntity(created: AuditInfo): SubmissionEntity {
+fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEntity {
   val authInfo = created.toLocalDataStoreObject()
 
   return SubmissionEntity(
@@ -363,7 +363,7 @@ fun SubmissionMutation.toSubmissionEntity(created: AuditInfo): SubmissionEntity 
 }
 
 @Throws(LocalDataConsistencyException::class)
-fun SubmissionMutationEntity.toSubmissionMutation(survey: Survey): SubmissionMutation {
+fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   val job =
     survey.getJob(jobId).orElseThrow {
       LocalDataConsistencyException("Unknown jobId in submission mutation $id")
@@ -385,7 +385,7 @@ fun SubmissionMutationEntity.toSubmissionMutation(survey: Survey): SubmissionMut
   )
 }
 
-fun SubmissionMutation.toSubmissionMutationEntity() =
+fun SubmissionMutation.toLocalDataStoreObject() =
   SubmissionMutationEntity(
     id = id,
     surveyId = surveyId,
@@ -401,7 +401,7 @@ fun SubmissionMutation.toSubmissionMutationEntity() =
     clientTimestamp = clientTimestamp.time
   )
 
-fun SurveyEntityAndRelations.toSurvey(): Survey {
+fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = ImmutableMap.builder<String, Job>()
   val baseMaps = ImmutableList.builder<BaseMap>()
 
@@ -441,7 +441,7 @@ private fun JSONObject?.toStringMap(): ImmutableMap<String, String> {
   return builder.build()
 }
 
-fun Survey.toSurveyEntity() =
+fun Survey.toLocalDataStoreObject() =
   SurveyEntity(
     id = id,
     title = title,
@@ -467,7 +467,7 @@ fun TaskEntityAndRelations.toModelObject(): Task {
       Timber.e("More than 1 multiple choice found for task")
     }
 
-    multipleChoice = multipleChoiceEntities[0].toMultipleChoice(optionEntities)
+    multipleChoice = multipleChoiceEntities[0].toModelObject(optionEntities)
   }
 
   return Task(

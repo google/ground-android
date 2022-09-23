@@ -16,7 +16,7 @@
 package com.sharedtest.persistence.local
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.persistence.local.room.converter.toSurveyEntity
+import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.dao.SurveyDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import io.reactivex.Completable
@@ -29,6 +29,6 @@ class LocalDataStoreHelper @Inject constructor(private val surveyDao: SurveyDao)
   }
 
   fun insertSurvey(survey: Survey) {
-    surveyDao.insertOrUpdate(survey.toSurveyEntity()).commit()
+    surveyDao.insertOrUpdate(survey.toLocalDataStoreObject()).commit()
   }
 }

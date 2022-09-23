@@ -37,7 +37,8 @@ import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.local.room.converter.GeometryConverter
+import com.google.android.ground.persistence.local.room.converter.formatVertices
+import com.google.android.ground.persistence.local.room.converter.parseVertices
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
@@ -399,12 +400,12 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testParseVertices_emptyString() {
-    assertThat(GeometryConverter.parseVertices("")).isEqualTo(ImmutableList.of<Any>())
+    assertThat(parseVertices("")).isEqualTo(ImmutableList.of<Any>())
   }
 
   @Test
   fun testFormatVertices_emptyList() {
-    assertThat(GeometryConverter.formatVertices(ImmutableList.of())).isNull()
+    assertThat(formatVertices(ImmutableList.of())).isNull()
   }
 
   @Test
