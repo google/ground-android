@@ -28,10 +28,12 @@ import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.models.*
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
+import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import java.net.MalformedURLException
@@ -226,3 +228,34 @@ fun Survey.toSurveyEntity() =
     description = description,
     acl = JSONObject(acl as Map<*, *>?)
   )
+
+fun Task.toLocalDataStoreObject(jobId: String?) =
+  TaskEntity(
+    id = id,
+    jobId = jobId,
+    index = index,
+    label = label,
+    isRequired = isRequired,
+    taskType = TaskEntityType.fromTaskType(type)
+  )
+
+fun TaskEntityAndRelations.toModelObject(): Task {
+  var multipleChoice: MultipleChoice? = null
+
+  if (multipleChoiceEntities.isNotEmpty()) {
+    if (multipleChoiceEntities.size > 1) {
+      Timber.e("More than 1 multiple choice found for task")
+    }
+
+    multipleChoice = multipleChoiceEntities[0].toMultipleChoice(optionEntities)
+  }
+
+  return Task(
+    taskEntity.id,
+    taskEntity.index,
+    taskEntity.taskType.toTaskType(),
+    taskEntity.label!!,
+    taskEntity.isRequired,
+    multipleChoice
+  )
+}

@@ -121,7 +121,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   private fun insertOrUpdateTask(jobId: String, task: Task): Completable =
     taskDao
-      .insertOrUpdate(TaskEntity.fromTask(jobId, task))
+      .insertOrUpdate(task.toLocalDataStoreObject(jobId))
       .andThen(
         Observable.just(task)
           .filter { task.multipleChoice != null }

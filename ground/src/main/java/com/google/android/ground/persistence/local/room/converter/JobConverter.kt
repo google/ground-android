@@ -19,7 +19,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStoreConverter
 import com.google.android.ground.persistence.local.room.entity.JobEntity
-import com.google.android.ground.persistence.local.room.entity.TaskEntity
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.common.collect.ImmutableMap
 
@@ -38,7 +37,7 @@ class JobConverter(val surveyId: String?) : LocalDataStoreConverter<Job, JobEnti
       val jobEntity = jobEntityAndRelations.jobEntity
       val taskMap = ImmutableMap.builder<String, Task>()
       for (taskEntityAndRelations in jobEntityAndRelations.taskEntityAndRelations) {
-        val task = TaskEntity.toTask(taskEntityAndRelations)
+        val task = taskEntityAndRelations.toModelObject()
         taskMap.put(task.id, task)
       }
       return Job(jobEntity.id, jobEntity.name, taskMap.build())
