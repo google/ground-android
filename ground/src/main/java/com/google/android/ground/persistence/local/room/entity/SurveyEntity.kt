@@ -18,17 +18,7 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.basemap.BaseMap
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.persistence.local.room.entity.BaseMapEntity.Companion.toModel
-import com.google.android.ground.persistence.local.room.entity.JobEntity.Companion.toJob
-import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
-import java.net.MalformedURLException
 import org.json.JSONObject
-import timber.log.Timber
 
 @Entity(tableName = "survey")
 data class SurveyEntity(
@@ -36,52 +26,4 @@ data class SurveyEntity(
   @ColumnInfo(name = "title") val title: String?,
   @ColumnInfo(name = "description") val description: String?,
   @ColumnInfo(name = "acl") val acl: JSONObject?
-) {
-
-  companion object {
-    fun fromSurvey(survey: Survey): SurveyEntity {
-      return SurveyEntity(
-        id = survey.id,
-        title = survey.title,
-        description = survey.description,
-        acl = JSONObject(survey.acl as Map<*, *>?)
-      )
-    }
-
-    fun toSurvey(surveyEntityAndRelations: SurveyEntityAndRelations): Survey {
-      val jobMap = ImmutableMap.builder<String, Job>()
-      val baseMaps = ImmutableList.builder<BaseMap>()
-      for (jobEntityAndRelations in surveyEntityAndRelations.jobEntityAndRelations) {
-        val job = toJob(jobEntityAndRelations!!)
-        jobMap.put(job.id, job)
-      }
-      for (source in surveyEntityAndRelations.baseMapEntityAndRelations) {
-        try {
-          baseMaps.add(toModel(source))
-        } catch (e: MalformedURLException) {
-          Timber.d("Skipping basemap source with malformed URL %s", source.url)
-        }
-      }
-      val surveyEntity = surveyEntityAndRelations.surveyEntity
-      return Survey(
-        surveyEntity.id,
-        surveyEntity.title!!,
-        surveyEntity.description!!,
-        jobMap.build(),
-        baseMaps.build(),
-        toStringMap(surveyEntity.acl)
-      )
-    }
-
-    private fun toStringMap(jsonObject: JSONObject?): ImmutableMap<String, String> {
-      val builder: ImmutableMap.Builder<String, String> = ImmutableMap.builder()
-      val keys = jsonObject!!.keys()
-      while (keys.hasNext()) {
-        val key = keys.next()
-        val value = jsonObject.optString(key, null.toString())
-        builder.put(key, value)
-      }
-      return builder.build()
-    }
-  }
-}
+)

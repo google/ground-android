@@ -16,10 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.Embedded
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.persistence.local.room.models.UserDetails
-import java.util.*
-import java8.util.Optional
 
 /** User details and timestamp for creation or modification of a model object. */
 data class AuditInfoEntity(
@@ -37,25 +34,4 @@ data class AuditInfoEntity(
    * internal clock, or null if the updated server time was not yet received.
    */
   val serverTimestamp: Long? = null
-) {
-
-  companion object {
-    /** Converts a model object into a local db entity. */
-    @JvmStatic
-    fun fromObject(o: AuditInfo): AuditInfoEntity =
-      AuditInfoEntity(
-        user = UserDetails.fromUser(o.user),
-        clientTimestamp = o.clientTimestamp.time,
-        serverTimestamp = o.serverTimestamp.map { obj: Date -> obj.time }.orElse(null)
-      )
-
-    @JvmStatic
-    fun toObject(entity: AuditInfoEntity): AuditInfo {
-      return AuditInfo(
-        UserDetails.toUser(entity.user),
-        Date(entity.clientTimestamp),
-        Optional.ofNullable(entity.serverTimestamp).map { Date(it!!) }
-      )
-    }
-  }
-}
+)

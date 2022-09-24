@@ -16,10 +16,6 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
-import com.google.common.collect.ImmutableMap
 
 @Entity(
   tableName = "job",
@@ -38,22 +34,4 @@ data class JobEntity(
   @PrimaryKey @ColumnInfo(name = "id") val id: String,
   @ColumnInfo(name = "name") val name: String?,
   @ColumnInfo(name = "survey_id") val surveyId: String?
-) {
-
-  companion object {
-    fun fromJob(surveyId: String?, job: Job): JobEntity {
-      return JobEntity(id = job.id, surveyId = surveyId, name = job.name)
-    }
-
-    @JvmStatic
-    fun toJob(jobEntityAndRelations: JobEntityAndRelations): Job {
-      val jobEntity = jobEntityAndRelations.jobEntity
-      val taskMap = ImmutableMap.builder<String, Task>()
-      for (taskEntityAndRelations in jobEntityAndRelations.taskEntityAndRelations) {
-        val task = TaskEntity.toTask(taskEntityAndRelations)
-        taskMap.put(task.id, task)
-      }
-      return Job(jobEntity.id, jobEntity.name, taskMap.build())
-    }
-  }
-}
+)

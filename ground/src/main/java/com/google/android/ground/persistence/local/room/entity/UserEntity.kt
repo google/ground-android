@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.android.ground.model.User
 
 @Entity(tableName = "user")
 data class UserEntity(
@@ -27,17 +26,4 @@ data class UserEntity(
   @ColumnInfo(name = "display_name") val displayName: String,
   // TODO(https://github.com/google/ground-android/issues/964): Save to remote db
   @ColumnInfo(name = "photo_url") val photoUrl: String?
-) {
-
-  companion object {
-    fun fromUser(user: User): UserEntity =
-      UserEntity(
-        id = user.id,
-        email = user.email,
-        displayName = user.displayName,
-        photoUrl = user.photoUrl
-      )
-
-    fun toUser(u: UserEntity): User = User(u.id, u.email, u.displayName, u.photoUrl)
-  }
-}
+)

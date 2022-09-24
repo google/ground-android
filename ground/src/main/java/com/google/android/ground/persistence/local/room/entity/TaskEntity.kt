@@ -16,11 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.models.TaskEntityType
-import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
-import timber.log.Timber
 
 @Entity(
   tableName = "task",
@@ -42,41 +38,4 @@ data class TaskEntity(
   @ColumnInfo(name = "label") val label: String?,
   @ColumnInfo(name = "is_required") val isRequired: Boolean,
   @ColumnInfo(name = "job_id") val jobId: String?
-) {
-
-  companion object {
-    fun fromTask(jobId: String?, task: Task): TaskEntity =
-      TaskEntity(
-        id = task.id,
-        jobId = jobId,
-        index = task.index,
-        label = task.label,
-        isRequired = task.isRequired,
-        taskType = TaskEntityType.fromTaskType(task.type)
-      )
-
-    fun toTask(taskEntityAndRelations: TaskEntityAndRelations): Task {
-      val taskEntity = taskEntityAndRelations.taskEntity
-      val multipleChoiceEntities = taskEntityAndRelations.multipleChoiceEntities
-      var multipleChoice: MultipleChoice? = null
-      if (multipleChoiceEntities.isNotEmpty()) {
-        if (multipleChoiceEntities.size > 1) {
-          Timber.e("More than 1 multiple choice found for task")
-        }
-        multipleChoice =
-          MultipleChoiceEntity.toMultipleChoice(
-            multipleChoiceEntities[0],
-            taskEntityAndRelations.optionEntities
-          )
-      }
-      return Task(
-        taskEntity.id,
-        taskEntity.index,
-        taskEntity.taskType.toTaskType(),
-        taskEntity.label!!,
-        taskEntity.isRequired,
-        multipleChoice
-      )
-    }
-  }
-}
+)

@@ -15,11 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import com.google.android.ground.model.task.Option
+import androidx.room.*
 
 @Entity(
   tableName = "option",
@@ -40,14 +36,4 @@ data class OptionEntity(
   @ColumnInfo(name = "code") val code: String,
   @ColumnInfo(name = "label") val label: String,
   @ColumnInfo(name = "task_id") val taskId: String
-) {
-
-  companion object {
-    fun fromOption(taskId: String, option: Option): OptionEntity =
-      OptionEntity(id = option.id, code = option.code, label = option.label, taskId = taskId)
-
-    @JvmStatic
-    fun toOption(optionEntity: OptionEntity): Option =
-      Option(optionEntity.id, optionEntity.code, optionEntity.label)
-  }
-}
+)
