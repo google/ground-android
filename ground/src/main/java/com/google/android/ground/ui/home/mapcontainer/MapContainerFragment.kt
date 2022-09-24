@@ -36,10 +36,7 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.MapController
-import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.map.MapLocationOfInterest
-import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.ui.map.*
 import com.google.common.collect.ImmutableList
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
@@ -257,7 +254,7 @@ constructor(
     Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdate(update: MapContainerViewModel.CameraUpdate, map: MapFragment) {
+  private fun onCameraUpdate(update: CameraUpdate, map: MapFragment) {
     Timber.v("Update camera: %s", update)
     if (update.zoomLevel.isPresent) {
       var zoomLevel = update.zoomLevel.get()

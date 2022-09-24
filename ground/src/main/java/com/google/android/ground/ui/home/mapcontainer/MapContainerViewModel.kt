@@ -322,29 +322,6 @@ internal constructor(
     MOVE_POINT
   }
 
-  class CameraUpdate(
-    val center: Point,
-    val zoomLevel: Optional<Float>,
-    val isAllowZoomOut: Boolean
-  ) {
-    override fun toString(): String =
-      if (zoomLevel.isPresent) {
-        "Pan + zoom"
-      } else {
-        "Pan"
-      }
-
-    companion object {
-      fun pan(center: Point): CameraUpdate = CameraUpdate(center, Optional.empty(), false)
-
-      fun panAndZoomIn(center: Point): CameraUpdate =
-        CameraUpdate(center, Optional.of(DEFAULT_LOI_ZOOM_LEVEL), false)
-
-      fun panAndZoom(cameraPosition: CameraPosition): CameraUpdate =
-        CameraUpdate(cameraPosition.target, Optional.of(cameraPosition.zoomLevel), true)
-    }
-  }
-
   companion object {
     // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
     const val ZOOM_LEVEL_THRESHOLD = 16f

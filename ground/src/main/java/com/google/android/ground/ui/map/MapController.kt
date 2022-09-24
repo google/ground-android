@@ -17,7 +17,6 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -28,19 +27,18 @@ import javax.inject.Singleton
 @Singleton
 class MapController @Inject constructor() {
 
-  private val cameraUpdatesSubject: @Hot Subject<MapContainerViewModel.CameraUpdate> =
-    PublishSubject.create()
+  private val cameraUpdatesSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
 
   /** Emits a stream of camera update requests. */
-  fun getCameraUpdates(): Flowable<MapContainerViewModel.CameraUpdate> {
+  fun getCameraUpdates(): Flowable<CameraUpdate> {
     return cameraUpdatesSubject.toFlowable(BackpressureStrategy.LATEST)
   }
 
   fun panAndZoomCamera(cameraPosition: CameraPosition) {
-    cameraUpdatesSubject.onNext(MapContainerViewModel.CameraUpdate.panAndZoom(cameraPosition))
+    cameraUpdatesSubject.onNext(CameraUpdate.panAndZoom(cameraPosition))
   }
 
   fun panAndZoomCamera(position: Point) {
-    cameraUpdatesSubject.onNext(MapContainerViewModel.CameraUpdate.panAndZoomIn(position))
+    cameraUpdatesSubject.onNext(CameraUpdate.panAndZoomIn(position))
   }
 }
