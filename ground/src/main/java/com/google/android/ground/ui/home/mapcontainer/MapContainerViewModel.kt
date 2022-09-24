@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import android.content.res.Resources
-import android.location.Location
 import android.view.View
 import androidx.annotation.Dimension
 import androidx.lifecycle.LiveData
@@ -60,7 +59,7 @@ internal constructor(
   private val resources: Resources,
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val locationLockController: LocationLockController,
+  private val locationController: LocationController,
   private val locationManager: LocationManager,
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
@@ -170,28 +169,8 @@ internal constructor(
       else Flowable.empty()
     }
 
-  private fun createCameraUpdateFlowable(
-    locationLockStateFlowable: Flowable<Result<Boolean>>
-  ): Flowable<Event<CameraUpdate>> =
-    mapController
-      .getCameraUpdates()
-      .mergeWith(locationLockStateFlowable.switchMap { createLocationLockCameraUpdateFlowable(it) })
-      .map { Event.create(it) }
-
-  private fun createLocationLockCameraUpdateFlowable(
-    lockState: Result<Boolean>
-  ): Flowable<CameraUpdate> {
-    if (!lockState.getOrDefault(false)) {
-      return Flowable.empty()
-    }
-    // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
-    // only pan the map.
-    val locationUpdates = locationManager.getLocationUpdates().map { it.toPoint() }
-    return locationUpdates
-      .take(1)
-      .map { CameraUpdate.panAndZoomIn(it) }
-      .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
-  }
+  private fun createCameraUpdateFlowable(): Flowable<Event<CameraUpdate>> =
+    mapController.getCameraUpdates().map { Event.create(it) }
 
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
@@ -231,7 +210,7 @@ internal constructor(
   fun onMapDrag() {
     if (isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock")
-      locationLockController.unlock()
+      locationController.unlock()
     }
   }
 
@@ -247,9 +226,9 @@ internal constructor(
 
   fun onLocationLockClick() {
     if (isLocationLockEnabled()) {
-      locationLockController.unlock()
+      locationController.unlock()
     } else {
-      locationLockController.lock()
+      locationController.lock()
     }
   }
 
@@ -323,13 +302,11 @@ internal constructor(
       objects: Array<Any>
     ): ImmutableSet<MapLocationOfInterest> =
       listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
-
-    private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
   }
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    val locationLockStateFlowable = locationLockController.getLocationLockUpdates()
+    val locationLockStateFlowable = locationController.getLocationLockUpdates()
     locationLockState =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable.startWith(Result.success(false))
@@ -350,8 +327,7 @@ internal constructor(
       LiveDataReactiveStreams.fromPublisher(
         createLocationAccuracyFlowable(locationLockStateFlowable)
       )
-    cameraUpdateRequests =
-      LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable(locationLockStateFlowable))
+    cameraUpdateRequests = LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo

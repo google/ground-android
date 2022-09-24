@@ -15,6 +15,9 @@
  */
 package com.google.android.ground.ui.map
 
+import android.location.Location
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import io.reactivex.BackpressureStrategy
@@ -25,7 +28,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LocationLockController @Inject constructor(private val locationManager: LocationManager) {
+class LocationController @Inject constructor(private val locationManager: LocationManager) {
 
   private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
 
@@ -36,6 +39,17 @@ class LocationLockController @Inject constructor(private val locationManager: Lo
       .toFlowable(BackpressureStrategy.LATEST)
       .share()
 
+  fun getLocationUpdates(): Flowable<Point> =
+    getLocationLockUpdates()
+      .map { it.getOrDefault(false) }
+      .switchMap { result: Boolean ->
+        if (!result) {
+          Flowable.empty()
+        } else {
+          locationManager.getLocationUpdates().map { it.toPoint() }
+        }
+      }
+
   private fun toggleLocationUpdates(result: Boolean) =
     if (result) locationManager.enableLocationUpdates()
     else locationManager.disableLocationUpdates()
@@ -43,4 +57,6 @@ class LocationLockController @Inject constructor(private val locationManager: Lo
   fun lock() = locationLockChangeRequests.onNext(true)
 
   fun unlock() = locationLockChangeRequests.onNext(false)
+
+  private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
 }

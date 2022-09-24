@@ -25,13 +25,25 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MapController @Inject constructor() {
+class MapController @Inject constructor(private val locationController: LocationController) {
 
   private val cameraUpdatesSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
 
-  /** Emits a stream of camera update requests. */
-  fun getCameraUpdates(): Flowable<CameraUpdate> {
-    return cameraUpdatesSubject.toFlowable(BackpressureStrategy.LATEST)
+  /** Emits a combined stream of camera update requests. */
+  fun getCameraUpdates(): Flowable<CameraUpdate> =
+    cameraUpdatesSubject
+      .toFlowable(BackpressureStrategy.LATEST)
+      .mergeWith(getCameraUpdatesFromLocationChanges())
+
+  /** Emits a stream of camera update requests due to location changes. */
+  private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraUpdate> {
+    val locationUpdates = locationController.getLocationUpdates()
+    // The first update pans and zooms the camera to the appropriate zoom level;
+    // subsequent ones only pan the map.
+    return locationUpdates
+      .take(1)
+      .map { CameraUpdate.panAndZoomIn(it) }
+      .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
   }
 
   fun panAndZoomCamera(cameraPosition: CameraPosition) {
