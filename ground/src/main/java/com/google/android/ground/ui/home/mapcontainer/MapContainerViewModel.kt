@@ -63,6 +63,7 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationManager: LocationManager,
+  private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
   private val surveyLoadingState: LiveData<Loadable<Survey>>
@@ -74,7 +75,6 @@ internal constructor(
     MutableLiveData(CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL))
 
   private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
-  private val cameraUpdateSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
   private val unsavedMapLocationsOfInterest:
@@ -123,7 +123,7 @@ internal constructor(
     project
       .map(Survey::id)
       .flatMap { surveyId: String -> surveyRepository.getLastCameraPosition(surveyId) }
-      .ifPresent { cameraPosition: CameraPosition -> this.panAndZoomCamera(cameraPosition) }
+      .ifPresent { mapController.panAndZoomCamera(it) }
 
   fun setUnsavedMapLocationsOfInterest(locationsOfInterest: ImmutableSet<MapLocationOfInterest>) =
     unsavedMapLocationsOfInterest.onNext(locationsOfInterest)
@@ -177,8 +177,8 @@ internal constructor(
   private fun createCameraUpdateFlowable(
     locationLockStateFlowable: Flowable<Result<Boolean>>
   ): Flowable<Event<CameraUpdate>> =
-    cameraUpdateSubject
-      .toFlowable(BackpressureStrategy.LATEST)
+    mapController
+      .getCameraUpdates()
       .mergeWith(locationLockStateFlowable.switchMap { createLocationLockCameraUpdateFlowable(it) })
       .map { Event.create(it) }
 
@@ -254,17 +254,9 @@ internal constructor(
     if (locationOfInterest != null) {
       val geometry = locationOfInterest.geometry
       if (geometry is Point) {
-        panAndZoomCamera(geometry)
+        mapController.panAndZoomCamera(geometry)
       }
     }
-  }
-
-  private fun panAndZoomCamera(cameraPosition: CameraPosition) {
-    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(cameraPosition))
-  }
-
-  fun panAndZoomCamera(position: Point) {
-    cameraUpdateSubject.onNext(CameraUpdate.panAndZoomIn(position))
   }
 
   fun onLocationLockClick() {
