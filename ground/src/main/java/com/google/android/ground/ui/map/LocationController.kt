@@ -16,8 +16,6 @@
 package com.google.android.ground.ui.map
 
 import android.location.Location
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import io.reactivex.BackpressureStrategy
@@ -39,14 +37,15 @@ class LocationController @Inject constructor(private val locationManager: Locati
       .toFlowable(BackpressureStrategy.LATEST)
       .share()
 
-  fun getLocationUpdates(): Flowable<Point> =
+  /** Emits a stream of updated locations. */
+  fun getLocationUpdates(): Flowable<Location> =
     getLocationLockUpdates()
       .map { it.getOrDefault(false) }
       .switchMap { result: Boolean ->
         if (!result) {
           Flowable.empty()
         } else {
-          locationManager.getLocationUpdates().map { it.toPoint() }
+          locationManager.getLocationUpdates()
         }
       }
 
@@ -57,6 +56,4 @@ class LocationController @Inject constructor(private val locationManager: Locati
   fun lock() = locationLockChangeRequests.onNext(true)
 
   fun unlock() = locationLockChangeRequests.onNext(false)
-
-  private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
 }

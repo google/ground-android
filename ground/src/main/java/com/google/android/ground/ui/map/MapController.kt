@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.map
 
+import android.location.Location
+import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.rx.annotations.Hot
 import io.reactivex.BackpressureStrategy
@@ -37,7 +39,7 @@ class MapController @Inject constructor(private val locationController: Location
 
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraUpdate> {
-    val locationUpdates = locationController.getLocationUpdates()
+    val locationUpdates = locationController.getLocationUpdates().map { it.toPoint() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates
@@ -53,4 +55,6 @@ class MapController @Inject constructor(private val locationController: Location
   fun panAndZoomCamera(position: Point) {
     cameraUpdatesSubject.onNext(CameraUpdate.panAndZoomIn(position))
   }
+
+  private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
 }

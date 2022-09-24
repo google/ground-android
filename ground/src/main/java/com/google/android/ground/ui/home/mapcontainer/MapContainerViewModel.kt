@@ -17,7 +17,6 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import android.content.res.Resources
 import android.view.View
-import androidx.annotation.Dimension
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
@@ -35,7 +34,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
@@ -60,7 +58,6 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationController: LocationController,
-  private val locationManager: LocationManager,
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
@@ -92,14 +89,6 @@ internal constructor(
   val isLocationUpdatesEnabled: LiveData<Boolean>
   val locationAccuracy: LiveData<String>
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
-
-  @Dimension
-  private val defaultPolygonStrokeWidth: Int =
-    resources.getDimension(R.dimen.polyline_stroke_width).toInt()
-
-  @Dimension
-  private val selectedPolygonStrokeWidth: Int =
-    resources.getDimension(R.dimen.selected_polyline_stroke_width).toInt()
 
   /** The currently selected LOI on the map. */
   private val selectedLocationOfInterest =
@@ -160,13 +149,9 @@ internal constructor(
     return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
   }
 
-  private fun createLocationAccuracyFlowable(lockState: Flowable<Result<Boolean>>) =
-    lockState.switchMap { result ->
-      if (result.getOrDefault(false))
-        locationManager.getLocationUpdates().map {
-          resources.getString(R.string.location_accuracy, it.accuracy)
-        }
-      else Flowable.empty()
+  private fun createLocationAccuracyFlowable() =
+    locationController.getLocationUpdates().map {
+      resources.getString(R.string.location_accuracy, it.accuracy)
     }
 
   private fun createCameraUpdateFlowable(): Flowable<Event<CameraUpdate>> =
@@ -323,10 +308,7 @@ internal constructor(
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
       )
-    locationAccuracy =
-      LiveDataReactiveStreams.fromPublisher(
-        createLocationAccuracyFlowable(locationLockStateFlowable)
-      )
+    locationAccuracy = LiveDataReactiveStreams.fromPublisher(createLocationAccuracyFlowable())
     cameraUpdateRequests = LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
