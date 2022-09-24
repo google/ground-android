@@ -46,8 +46,20 @@
       app:fabSize="mini"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:tint="@{viewModel.getIconTint()}"
       app:useCompatPadding="true" />
+
+    <androidx.appcompat.widget.SearchView
+      android:id="@+id/search_bar"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_margin="15dp"
+      android:background="@color/colorBackground"
+      android:elevation="5dp"
+      app:iconifiedByDefault="false"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/hamburger_btn"
+      app:layout_constraintTop_toTopOf="parent"
+      app:queryHint="@string/search_hint" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/map_type_btn"
@@ -58,7 +70,7 @@
       app:backgroundTint="@color/colorBackground"
       app:fabSize="mini"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/search_bar"
       app:srcCompat="@drawable/map_layers"
       app:useCompatPadding="true" />
 

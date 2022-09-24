@@ -221,5 +221,6 @@
   <string name="close">Close</string>
   <string name="next">Next</string>
   <string name="submit">Submit</string>
+  <string name="search_hint">Search location</string>
 
 </resources>
