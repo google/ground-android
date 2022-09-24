@@ -17,8 +17,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
@@ -82,15 +81,5 @@
       android:layout_gravity="center"
       android:adjustViewBounds="false"
       android:src="@drawable/ic_crosshairs" />
-
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/recycler_view"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom"
-      android:orientation="horizontal"
-      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-      tools:itemCount="3"
-      tools:listitem="@layout/loi_card_item" />
   </FrameLayout>
 </layout>
