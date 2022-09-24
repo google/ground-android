@@ -56,5 +56,5 @@ class MapController @Inject constructor(private val locationController: Location
     cameraUpdatesSubject.onNext(CameraUpdate.panAndZoomIn(position))
   }
 
-  private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
+  private fun Location.toPoint(): Point = Point(Coordinate(longitude, latitude))
 }
