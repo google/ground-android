@@ -256,8 +256,8 @@ constructor(
 
   private fun onCameraUpdate(update: CameraUpdate, map: MapFragment) {
     Timber.v("Update camera: %s", update)
-    if (update.zoomLevel.isPresent) {
-      var zoomLevel = update.zoomLevel.get()
+    if (update.zoomLevel != null) {
+      var zoomLevel = update.zoomLevel
       if (!update.isAllowZoomOut) {
         zoomLevel = max(zoomLevel, map.currentZoomLevel)
       }

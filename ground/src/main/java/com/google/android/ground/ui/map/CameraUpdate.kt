@@ -17,28 +17,23 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
-import java8.util.Optional
 
-data class CameraUpdate(
-  val center: Point,
-  val zoomLevel: Optional<Float>,
-  val isAllowZoomOut: Boolean
-) {
+data class CameraUpdate(val center: Point, val zoomLevel: Float?, val isAllowZoomOut: Boolean) {
 
   override fun toString(): String =
-    if (zoomLevel.isPresent) {
+    if (zoomLevel != null) {
       "Pan + zoom"
     } else {
       "Pan"
     }
 
   companion object {
-    fun pan(center: Point): CameraUpdate = CameraUpdate(center, Optional.empty(), false)
+    fun pan(center: Point): CameraUpdate = CameraUpdate(center, null, false)
 
     fun panAndZoomIn(center: Point): CameraUpdate =
-      CameraUpdate(center, Optional.of(MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL), false)
+      CameraUpdate(center, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL, false)
 
     fun panAndZoom(cameraPosition: CameraPosition): CameraUpdate =
-      CameraUpdate(cameraPosition.target, Optional.of(cameraPosition.zoomLevel), true)
+      CameraUpdate(cameraPosition.target, cameraPosition.zoomLevel, true)
   }
 }
