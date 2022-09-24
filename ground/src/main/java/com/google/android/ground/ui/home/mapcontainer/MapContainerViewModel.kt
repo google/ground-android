@@ -42,7 +42,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
@@ -61,6 +60,7 @@ internal constructor(
   private val resources: Resources,
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val locationLockController: LocationLockController,
   private val locationManager: LocationManager,
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
@@ -71,8 +71,6 @@ internal constructor(
 
   private val cameraPosition: @Hot(replays = true) MutableLiveData<CameraPosition> =
     MutableLiveData(CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL))
-
-  private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
   private val unsavedMapLocationsOfInterest:
@@ -164,8 +162,8 @@ internal constructor(
   }
 
   private fun createLocationAccuracyFlowable(lockState: Flowable<Result<Boolean>>) =
-    lockState.switchMap { booleanOrError ->
-      if (booleanOrError.getOrDefault(false))
+    lockState.switchMap { result ->
+      if (result.getOrDefault(false))
         locationManager.getLocationUpdates().map {
           resources.getString(R.string.location_accuracy, it.accuracy)
         }
@@ -194,14 +192,6 @@ internal constructor(
       .map { CameraUpdate.panAndZoomIn(it) }
       .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
   }
-
-  private fun createLocationLockStateFlowable(): Flowable<Result<Boolean>> =
-    locationLockChangeRequests
-      .switchMapSingle { enabled ->
-        if (enabled) locationManager.enableLocationUpdates()
-        else locationManager.disableLocationUpdates()
-      }
-      .toFlowable(BackpressureStrategy.LATEST)
 
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
@@ -241,7 +231,7 @@ internal constructor(
   fun onMapDrag() {
     if (isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock")
-      locationLockChangeRequests.onNext(false)
+      locationLockController.unlock()
     }
   }
 
@@ -256,7 +246,11 @@ internal constructor(
   }
 
   fun onLocationLockClick() {
-    locationLockChangeRequests.onNext(!isLocationLockEnabled())
+    if (isLocationLockEnabled()) {
+      locationLockController.unlock()
+    } else {
+      locationLockController.lock()
+    }
   }
 
   // TODO(#691): Create our own wrapper/interface for MbTiles providers.
@@ -335,7 +329,7 @@ internal constructor(
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    val locationLockStateFlowable = createLocationLockStateFlowable().share()
+    val locationLockStateFlowable = locationLockController.getLocationLockUpdates()
     locationLockState =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable.startWith(Result.success(false))
