@@ -18,7 +18,11 @@ package com.google.android.ground.ui.map
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
 
-data class CameraUpdate(val center: Point, val zoomLevel: Float?, val isAllowZoomOut: Boolean) {
+data class CameraUpdate(
+  val center: Point,
+  val zoomLevel: Float? = null,
+  val isAllowZoomOut: Boolean = false
+) {
 
   override fun toString(): String =
     if (zoomLevel != null) {
@@ -28,12 +32,12 @@ data class CameraUpdate(val center: Point, val zoomLevel: Float?, val isAllowZoo
     }
 
   companion object {
-    fun pan(center: Point): CameraUpdate = CameraUpdate(center, null, false)
+    fun pan(center: Point) = CameraUpdate(center)
 
-    fun panAndZoomIn(center: Point): CameraUpdate =
-      CameraUpdate(center, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL, false)
+    fun panAndZoomIn(center: Point) =
+      CameraUpdate(center, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL)
 
-    fun panAndZoom(cameraPosition: CameraPosition): CameraUpdate =
+    fun panAndZoom(cameraPosition: CameraPosition) =
       CameraUpdate(cameraPosition.target, cameraPosition.zoomLevel, true)
   }
 }
