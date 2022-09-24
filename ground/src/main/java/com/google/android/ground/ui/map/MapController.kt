@@ -18,6 +18,7 @@ package com.google.android.ground.ui.map
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -27,7 +28,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MapController @Inject constructor(private val locationController: LocationController) {
+class MapController
+@Inject
+constructor(
+  private val locationController: LocationController,
+  private val surveyRepository: SurveyRepository
+) {
 
   private val cameraUpdatesSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
 
@@ -36,6 +42,7 @@ class MapController @Inject constructor(private val locationController: Location
     cameraUpdatesSubject
       .toFlowable(BackpressureStrategy.LATEST)
       .mergeWith(getCameraUpdatesFromLocationChanges())
+      .mergeWith(getCameraUpdatedFromSurveyChanges())
 
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraUpdate> {
@@ -48,9 +55,14 @@ class MapController @Inject constructor(private val locationController: Location
       .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
   }
 
-  fun panAndZoomCamera(cameraPosition: CameraPosition) {
-    cameraUpdatesSubject.onNext(CameraUpdate.panAndZoom(cameraPosition))
-  }
+  /** Emits a stream of camera update requests due to active survey changes. */
+  private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraUpdate> =
+    surveyRepository.activeSurvey.map { surveyOptional ->
+      surveyOptional
+        .flatMap { surveyRepository.getLastCameraPosition(it.id) }
+        .map { CameraUpdate.panAndZoom(it) }
+        .get()
+    }
 
   fun panAndZoomCamera(position: Point) {
     cameraUpdatesSubject.onNext(CameraUpdate.panAndZoomIn(position))

@@ -103,12 +103,6 @@ internal constructor(
   /** LocationOfInterest selected for repositioning. */
   var reposLocationOfInterest: Optional<LocationOfInterest> = Optional.empty()
 
-  private fun onSurveyChange(project: Optional<Survey>) =
-    project
-      .map(Survey::id)
-      .flatMap { surveyId: String -> surveyRepository.getLastCameraPosition(surveyId) }
-      .ifPresent { mapController.panAndZoomCamera(it) }
-
   fun setUnsavedMapLocationsOfInterest(locationsOfInterest: ImmutableSet<MapLocationOfInterest>) =
     unsavedMapLocationsOfInterest.onNext(locationsOfInterest)
 
@@ -344,10 +338,5 @@ internal constructor(
           set.map(TileSet::path).toImmutableSet()
         }
       )
-    disposeOnClear(
-      surveyRepository.activeSurvey.subscribe { project: Optional<Survey> ->
-        onSurveyChange(project)
-      }
-    )
   }
 }
