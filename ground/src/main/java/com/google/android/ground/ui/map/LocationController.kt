@@ -20,6 +20,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
@@ -49,7 +50,7 @@ class LocationController @Inject constructor(private val locationManager: Locati
         }
       }
 
-  private fun toggleLocationUpdates(result: Boolean) =
+  private fun toggleLocationUpdates(result: Boolean): Single<Result<Boolean>> =
     if (result) locationManager.enableLocationUpdates()
     else locationManager.disableLocationUpdates()
 
