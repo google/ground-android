@@ -203,6 +203,10 @@ internal constructor(
     }
   }
 
+  fun panAndZoomCamera(position: Point) {
+    mapController.panAndZoomCamera(position)
+  }
+
   fun onLocationLockClick() {
     if (isLocationLockEnabled()) {
       locationController.unlock()

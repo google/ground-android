@@ -36,7 +36,10 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.CameraUpdate
+import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.MapType
 import com.google.common.collect.ImmutableList
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,11 +52,8 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MapContainerFragment
 @Inject
-constructor(
-  private val loiCardSource: LoiCardSource,
-  private val mapController: MapController,
-  private val mapsRepository: MapsRepository
-) : AbstractMapViewerFragment() {
+constructor(private val loiCardSource: LoiCardSource, private val mapsRepository: MapsRepository) :
+  AbstractMapViewerFragment() {
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -220,7 +220,7 @@ constructor(
         // vertices.
         loi
           .filter { it.type === LocationOfInterestType.POINT }
-          .ifPresent { mapController.panAndZoomCamera(it.geometry.vertices[0]) }
+          .ifPresent { mapContainerViewModel.panAndZoomCamera(it.geometry.vertices[0]) }
       }
       BottomSheetState.Visibility.HIDDEN -> map.enableGestures()
     }
