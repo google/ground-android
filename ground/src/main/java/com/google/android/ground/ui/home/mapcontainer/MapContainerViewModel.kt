@@ -34,7 +34,6 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -66,7 +65,6 @@ internal constructor(
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
-  private val surveyLoadingState: LiveData<Loadable<Survey>>
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
@@ -228,9 +226,7 @@ internal constructor(
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(cameraPosition.value!!.zoomLevel, newCameraPosition.zoomLevel)
     cameraPosition.value = newCameraPosition
-    surveyLoadingState.value?.value()?.ifPresent {
-      surveyRepository.setCameraPosition(it.id, newCameraPosition)
-    }
+    surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
   }
 
   private fun onZoomChange(oldZoomLevel: Float, newZoomLevel: Float) {
@@ -362,7 +358,6 @@ internal constructor(
       )
     cameraUpdateRequests =
       LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable(locationLockStateFlowable))
-    surveyLoadingState = LiveDataReactiveStreams.fromPublisher(surveyRepository.surveyLoadingState)
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
