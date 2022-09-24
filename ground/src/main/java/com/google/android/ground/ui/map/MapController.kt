@@ -61,12 +61,16 @@ constructor(
       surveyOptional
         .flatMap { surveyRepository.getLastCameraPosition(it.id) }
         .map { CameraUpdate.panAndZoom(it) }
-        .get()
+        .orElse(CameraUpdate(DEFAULT_POINT))
     }
 
   fun panAndZoomCamera(position: Point) {
     cameraUpdatesSubject.onNext(CameraUpdate.panAndZoomIn(position))
   }
 
-  private fun Location.toPoint(): Point = Point(Coordinate(longitude, latitude))
+  companion object {
+    private val DEFAULT_POINT: Point = Point(Coordinate(0.0, 0.0))
+
+    private fun Location.toPoint(): Point = Point(Coordinate(longitude, latitude))
+  }
 }
