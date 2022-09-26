@@ -20,7 +20,8 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_CAMERA_POSITION
+import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -52,7 +53,7 @@ constructor(
     // subsequent ones only pan the map.
     return locationUpdates
       .take(1)
-      .map { CameraPosition(it, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL) }
+      .map { CameraPosition(it, DEFAULT_LOI_ZOOM_LEVEL) }
       .concatWith(locationUpdates.map { CameraPosition(it) }.skip(1))
   }
 
@@ -60,15 +61,13 @@ constructor(
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
     surveyRepository.activeSurvey.map { surveyOptional ->
       surveyOptional
-        .flatMap { surveyRepository.getLastCameraPosition(it.id) }
-        .map { it.copy(isAllowZoomOut = true) }
-        .orElse(CameraPosition(MapContainerViewModel.DEFAULT_MAP_POINT))
+        .map { surveyRepository.getLastCameraPosition(it.id) }
+        .map { it?.copy(isAllowZoomOut = true) }
+        .orElse(DEFAULT_CAMERA_POSITION)
     }
 
   fun panAndZoomCamera(position: Point) {
-    cameraUpdatesSubject.onNext(
-      CameraPosition(position, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL)
-    )
+    cameraUpdatesSubject.onNext(CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL))
   }
 
   companion object {

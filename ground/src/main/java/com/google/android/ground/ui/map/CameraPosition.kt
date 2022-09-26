@@ -18,7 +18,6 @@ package com.google.android.ground.ui.map
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
-import java8.util.Optional
 
 data class CameraPosition(
   val target: Point,
@@ -38,12 +37,10 @@ data class CameraPosition(
 
   companion object {
 
-    fun deserialize(serializedValue: String): Optional<CameraPosition> {
-      if (serializedValue.isEmpty()) return Optional.empty()
+    fun deserialize(serializedValue: String): CameraPosition? {
+      if (serializedValue.isEmpty()) return null
       val (lat, long, zoomLevel) = serializedValue.split(",")
-      return Optional.of(
-        CameraPosition(Point(Coordinate(lat.toDouble(), long.toDouble())), zoomLevel.toFloat())
-      )
+      return CameraPosition(Point(Coordinate(lat.toDouble(), long.toDouble())), zoomLevel.toFloat())
     }
   }
 }

@@ -65,8 +65,7 @@ internal constructor(
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
 
-  private val cameraPosition: @Hot(replays = true) MutableLiveData<CameraPosition> =
-    MutableLiveData(CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL))
+  private var lastCameraPosition: CameraPosition? = null
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
   private val unsavedMapLocationsOfInterest:
@@ -167,9 +166,9 @@ internal constructor(
 
   fun onCameraMove(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
-    onZoomChange(cameraPosition.value?.zoomLevel, newCameraPosition.zoomLevel)
-    cameraPosition.value = newCameraPosition
+    onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
+    lastCameraPosition = newCameraPosition
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
@@ -276,7 +275,8 @@ internal constructor(
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
     private const val DEFAULT_MAP_ZOOM_LEVEL = 0.0f
-    val DEFAULT_MAP_POINT = Point(Coordinate(0.0, 0.0))
+    private val DEFAULT_MAP_POINT = Point(Coordinate(0.0, 0.0))
+    val DEFAULT_CAMERA_POSITION = CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL)
 
     private fun concatLocationsOfInterestSets(
       objects: Array<Any>
