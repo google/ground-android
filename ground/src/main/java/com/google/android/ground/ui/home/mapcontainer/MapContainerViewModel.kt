@@ -16,9 +16,7 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import android.content.res.Resources
-import android.location.Location
 import android.view.View
-import androidx.annotation.Dimension
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
@@ -34,16 +32,13 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
@@ -62,19 +57,16 @@ internal constructor(
   private val resources: Resources,
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val locationManager: LocationManager,
+  private val locationController: LocationController,
+  private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
-  private val surveyLoadingState: LiveData<Loadable<Survey>>
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
 
   private val cameraPosition: @Hot(replays = true) MutableLiveData<CameraPosition> =
     MutableLiveData(CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL))
-
-  private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
-  private val cameraUpdateSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
   private val unsavedMapLocationsOfInterest:
@@ -98,14 +90,6 @@ internal constructor(
   val locationAccuracy: LiveData<String>
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
-  @Dimension
-  private val defaultPolygonStrokeWidth: Int =
-    resources.getDimension(R.dimen.polyline_stroke_width).toInt()
-
-  @Dimension
-  private val selectedPolygonStrokeWidth: Int =
-    resources.getDimension(R.dimen.selected_polyline_stroke_width).toInt()
-
   /** The currently selected LOI on the map. */
   private val selectedLocationOfInterest =
     BehaviorProcessor.createDefault(Optional.empty<LocationOfInterest>())
@@ -118,12 +102,6 @@ internal constructor(
   // result.
   /** LocationOfInterest selected for repositioning. */
   var reposLocationOfInterest: Optional<LocationOfInterest> = Optional.empty()
-
-  private fun onSurveyChange(project: Optional<Survey>) =
-    project
-      .map(Survey::id)
-      .flatMap { surveyId: String -> surveyRepository.getLastCameraPosition(surveyId) }
-      .ifPresent { cameraPosition: CameraPosition -> this.panAndZoomCamera(cameraPosition) }
 
   fun setUnsavedMapLocationsOfInterest(locationsOfInterest: ImmutableSet<MapLocationOfInterest>) =
     unsavedMapLocationsOfInterest.onNext(locationsOfInterest)
@@ -165,45 +143,13 @@ internal constructor(
     return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
   }
 
-  private fun createLocationAccuracyFlowable(lockState: Flowable<Result<Boolean>>) =
-    lockState.switchMap { booleanOrError ->
-      if (booleanOrError.getOrDefault(false))
-        locationManager.getLocationUpdates().map {
-          resources.getString(R.string.location_accuracy, it.accuracy)
-        }
-      else Flowable.empty()
+  private fun createLocationAccuracyFlowable() =
+    locationController.getLocationUpdates().map {
+      resources.getString(R.string.location_accuracy, it.accuracy)
     }
 
-  private fun createCameraUpdateFlowable(
-    locationLockStateFlowable: Flowable<Result<Boolean>>
-  ): Flowable<Event<CameraUpdate>> =
-    cameraUpdateSubject
-      .toFlowable(BackpressureStrategy.LATEST)
-      .mergeWith(locationLockStateFlowable.switchMap { createLocationLockCameraUpdateFlowable(it) })
-      .map { Event.create(it) }
-
-  private fun createLocationLockCameraUpdateFlowable(
-    lockState: Result<Boolean>
-  ): Flowable<CameraUpdate> {
-    if (!lockState.getOrDefault(false)) {
-      return Flowable.empty()
-    }
-    // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
-    // only pan the map.
-    val locationUpdates = locationManager.getLocationUpdates().map { it.toPoint() }
-    return locationUpdates
-      .take(1)
-      .map { CameraUpdate.panAndZoomIn(it) }
-      .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
-  }
-
-  private fun createLocationLockStateFlowable(): Flowable<Result<Boolean>> =
-    locationLockChangeRequests
-      .switchMapSingle { enabled ->
-        if (enabled) locationManager.enableLocationUpdates()
-        else locationManager.disableLocationUpdates()
-      }
-      .toFlowable(BackpressureStrategy.LATEST)
+  private fun createCameraUpdateFlowable(): Flowable<Event<CameraUpdate>> =
+    mapController.getCameraUpdates().map { Event.create(it) }
 
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
@@ -228,9 +174,7 @@ internal constructor(
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(cameraPosition.value!!.zoomLevel, newCameraPosition.zoomLevel)
     cameraPosition.value = newCameraPosition
-    surveyLoadingState.value?.value()?.ifPresent {
-      surveyRepository.setCameraPosition(it.id, newCameraPosition)
-    }
+    surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
   }
 
   private fun onZoomChange(oldZoomLevel: Float, newZoomLevel: Float) {
@@ -245,7 +189,7 @@ internal constructor(
   fun onMapDrag() {
     if (isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock")
-      locationLockChangeRequests.onNext(false)
+      locationController.unlock()
     }
   }
 
@@ -254,21 +198,21 @@ internal constructor(
     if (locationOfInterest != null) {
       val geometry = locationOfInterest.geometry
       if (geometry is Point) {
-        panAndZoomCamera(geometry)
+        mapController.panAndZoomCamera(geometry)
       }
     }
   }
 
-  private fun panAndZoomCamera(cameraPosition: CameraPosition) {
-    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(cameraPosition))
-  }
-
   fun panAndZoomCamera(position: Point) {
-    cameraUpdateSubject.onNext(CameraUpdate.panAndZoomIn(position))
+    mapController.panAndZoomCamera(position)
   }
 
   fun onLocationLockClick() {
-    locationLockChangeRequests.onNext(!isLocationLockEnabled())
+    if (isLocationLockEnabled()) {
+      locationController.unlock()
+    } else {
+      locationController.lock()
+    }
   }
 
   // TODO(#691): Create our own wrapper/interface for MbTiles providers.
@@ -330,29 +274,6 @@ internal constructor(
     MOVE_POINT
   }
 
-  class CameraUpdate(
-    val center: Point,
-    val zoomLevel: Optional<Float>,
-    val isAllowZoomOut: Boolean
-  ) {
-    override fun toString(): String =
-      if (zoomLevel.isPresent) {
-        "Pan + zoom"
-      } else {
-        "Pan"
-      }
-
-    companion object {
-      fun pan(center: Point): CameraUpdate = CameraUpdate(center, Optional.empty(), false)
-
-      fun panAndZoomIn(center: Point): CameraUpdate =
-        CameraUpdate(center, Optional.of(DEFAULT_LOI_ZOOM_LEVEL), false)
-
-      fun panAndZoom(cameraPosition: CameraPosition): CameraUpdate =
-        CameraUpdate(cameraPosition.target, Optional.of(cameraPosition.zoomLevel), true)
-    }
-  }
-
   companion object {
     // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
     const val ZOOM_LEVEL_THRESHOLD = 16f
@@ -364,13 +285,11 @@ internal constructor(
       objects: Array<Any>
     ): ImmutableSet<MapLocationOfInterest> =
       listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
-
-    private fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
   }
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    val locationLockStateFlowable = createLocationLockStateFlowable().share()
+    val locationLockStateFlowable = locationController.getLocationLockUpdates()
     locationLockState =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable.startWith(Result.success(false))
@@ -387,13 +306,8 @@ internal constructor(
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
       )
-    locationAccuracy =
-      LiveDataReactiveStreams.fromPublisher(
-        createLocationAccuracyFlowable(locationLockStateFlowable)
-      )
-    cameraUpdateRequests =
-      LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable(locationLockStateFlowable))
-    surveyLoadingState = LiveDataReactiveStreams.fromPublisher(surveyRepository.surveyLoadingState)
+    locationAccuracy = LiveDataReactiveStreams.fromPublisher(createLocationAccuracyFlowable())
+    cameraUpdateRequests = LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
@@ -428,10 +342,5 @@ internal constructor(
           set.map(TileSet::path).toImmutableSet()
         }
       )
-    disposeOnClear(
-      surveyRepository.activeSurvey.subscribe { project: Optional<Survey> ->
-        onSurveyChange(project)
-      }
-    )
   }
 }

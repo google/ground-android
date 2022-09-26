@@ -36,6 +36,7 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.map.CameraUpdate
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
@@ -51,7 +52,7 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MapContainerFragment
 @Inject
-constructor(private var mapsRepository: MapsRepository, private val loiCardSource: LoiCardSource) :
+constructor(private val loiCardSource: LoiCardSource, private val mapsRepository: MapsRepository) :
   AbstractMapViewerFragment() {
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
@@ -253,10 +254,10 @@ constructor(private var mapsRepository: MapsRepository, private val loiCardSourc
     Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdate(update: MapContainerViewModel.CameraUpdate, map: MapFragment) {
+  private fun onCameraUpdate(update: CameraUpdate, map: MapFragment) {
     Timber.v("Update camera: %s", update)
-    if (update.zoomLevel.isPresent) {
-      var zoomLevel = update.zoomLevel.get()
+    if (update.zoomLevel != null) {
+      var zoomLevel = update.zoomLevel
       if (!update.isAllowZoomOut) {
         zoomLevel = max(zoomLevel, map.currentZoomLevel)
       }
