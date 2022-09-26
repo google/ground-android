@@ -81,7 +81,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
     assertThat(viewPager.currentItem).isEqualTo(0)
     dataCollectionFragment.view!!
-      .findViewById<Button>(R.id.data_collection_next_button)
+      .findViewById<Button>(R.id.data_collection_continue_button)
       .performClick()
     assertThat(viewPager.currentItem).isEqualTo(1)
   }
@@ -93,7 +93,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
     assertThat(viewPager.currentItem).isEqualTo(0)
     dataCollectionFragment.view!!
-      .findViewById<Button>(R.id.data_collection_next_button)
+      .findViewById<Button>(R.id.data_collection_continue_button)
       .performClick()
     assertThat(viewPager.currentItem).isEqualTo(1)
     assertThat(dataCollectionFragment.onBack()).isTrue()

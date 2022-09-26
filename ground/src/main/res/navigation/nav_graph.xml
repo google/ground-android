@@ -112,6 +112,12 @@
       type="string" />
   </fragment>
   <fragment
+    android:id="@+id/question_data_collection_fragment"
+    android:name="com.google.android.ground.ui.datacollection.QuestionDataCollectionFragment"
+    android:label="@string/collect_data"
+    tools:layout="@layout/question_data_collection_frag">
+  </fragment>
+  <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.ground.ui.offlinebasemap.OfflineAreasFragment"
     android:label="@string/offline_base_maps"

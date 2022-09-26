@@ -116,6 +116,7 @@
 
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
+    <item name="boxStrokeColor">@color/colorAccent</item>
   </style>
 
   <style name="ImageButton" parent="Widget.AppCompat.ImageButton">

@@ -141,6 +141,8 @@
   <!-- TODO(#1146): Remove temporary task name text and populate from the label of the Task  -->
   <string name="collect_data_task_name">Test Task Name</string>
   <string name="collect_data">Collect data</string>
+  <string name="question_data_collection_title">Question</string>
+  <string name="task_number">Task %1$s:</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>
@@ -220,6 +222,7 @@
   <string name="map_type">Map Type</string>
   <string name="close">Close</string>
   <string name="next">Next</string>
+  <string name="continue_text">Continue</string>
   <string name="submit">Submit</string>
 
 </resources>
