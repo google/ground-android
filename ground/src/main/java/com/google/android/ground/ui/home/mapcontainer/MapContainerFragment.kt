@@ -124,7 +124,7 @@ constructor(private var mapsRepository: MapsRepository, private val loiCardSourc
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
-    binding.recyclerView.adapter = adapter
+    binding.mapControls.recyclerView.adapter = adapter
     return binding.root
   }
 
