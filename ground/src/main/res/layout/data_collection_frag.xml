@@ -41,8 +41,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:subtitle="@{viewModel.loiName}"
-      app:title="@{viewModel.jobName}"
-      app:titleTextColor="@color/colorBackground" />
+      app:title="@{viewModel.jobName}" />
 
     <androidx.viewpager2.widget.ViewPager2
       android:id="@+id/pager"

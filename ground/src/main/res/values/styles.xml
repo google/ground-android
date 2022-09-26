@@ -52,10 +52,10 @@
   </style>
 
   <style name="PrimaryToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
-    <item name="android:background">@color/colorPrimary</item>
-    <item name="gndToolbarTitleStyle">@style/PrimaryToolbarTitle</item>
-    <item name="gndToolbarSubtitleStyle">@style/PrimaryToolbarSubtitle</item>
-    <item name="colorControlNormal">@color/colorBackground</item>
+    <item name="android:background">@color/colorBackground</item>
+    <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
+    <item name="gndToolbarSubtitleStyle">@style/WhiteToolbarSubtitle</item>
+    <item name="colorControlNormal">@color/colorAccent</item>
   </style>
 
   <style name="PrimaryToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">

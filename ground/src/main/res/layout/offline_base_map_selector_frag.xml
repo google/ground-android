@@ -54,8 +54,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/offline_base_map_selector"
-        app:titleTextColor="@color/colorBackground">
+        app:title="@string/offline_base_map_selector">
 
         <com.google.android.material.button.MaterialButton
           android:id="@+id/download_button"

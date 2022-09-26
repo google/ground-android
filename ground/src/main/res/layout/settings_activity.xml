@@ -35,8 +35,7 @@
         android:layout_height="wrap_content"
         android:elevation="@dimen/toolbar_elevation"
         android:theme="@style/PrimaryToolbarTheme"
-        app:title="@string/settings"
-        app:titleTextColor="@color/colorBackground" />
+        app:title="@string/settings" />
 
       <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
