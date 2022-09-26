@@ -22,7 +22,8 @@ import java8.util.Optional
 
 data class CameraPosition(
   val target: Point,
-  val zoomLevel: Float,
+  val zoomLevel: Float? = null,
+  val isAllowZoomOut: Boolean = false, // TODO: Handle serialization/deserialization
   var bounds: LatLngBounds? = null // TODO: Handle serialization/deserialization
 ) {
 
@@ -31,7 +32,9 @@ data class CameraPosition(
   }
 
   fun serialize(): String =
-    arrayOf<Any>(target.coordinate.x, target.coordinate.y, zoomLevel).joinToString { it.toString() }
+    arrayOf<Any>(target.coordinate.x, target.coordinate.y, zoomLevel ?: "").joinToString {
+      it.toString()
+    }
 
   companion object {
 
@@ -39,10 +42,7 @@ data class CameraPosition(
       if (serializedValue.isEmpty()) return Optional.empty()
       val (lat, long, zoomLevel) = serializedValue.split(",")
       return Optional.of(
-        CameraPosition(
-          Point(Coordinate(lat.toDouble(), long.toDouble())),
-          java.lang.Float.valueOf(zoomLevel)
-        )
+        CameraPosition(Point(Coordinate(lat.toDouble(), long.toDouble())), zoomLevel.toFloat())
       )
     }
   }

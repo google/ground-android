@@ -20,6 +20,7 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -35,42 +36,42 @@ constructor(
   private val surveyRepository: SurveyRepository
 ) {
 
-  private val cameraUpdatesSubject: @Hot Subject<CameraUpdate> = PublishSubject.create()
+  private val cameraUpdatesSubject: @Hot Subject<CameraPosition> = PublishSubject.create()
 
   /** Emits a combined stream of camera update requests. */
-  fun getCameraUpdates(): Flowable<CameraUpdate> =
+  fun getCameraUpdates(): Flowable<CameraPosition> =
     cameraUpdatesSubject
       .toFlowable(BackpressureStrategy.LATEST)
       .mergeWith(getCameraUpdatesFromLocationChanges())
       .mergeWith(getCameraUpdatedFromSurveyChanges())
 
   /** Emits a stream of camera update requests due to location changes. */
-  private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraUpdate> {
+  private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraPosition> {
     val locationUpdates = locationController.getLocationUpdates().map { it.toPoint() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates
       .take(1)
-      .map { CameraUpdate.panAndZoomIn(it) }
-      .concatWith(locationUpdates.map { CameraUpdate.pan(it) }.skip(1))
+      .map { CameraPosition(it, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL) }
+      .concatWith(locationUpdates.map { CameraPosition(it) }.skip(1))
   }
 
   /** Emits a stream of camera update requests due to active survey changes. */
-  private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraUpdate> =
+  private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
     surveyRepository.activeSurvey.map { surveyOptional ->
       surveyOptional
         .flatMap { surveyRepository.getLastCameraPosition(it.id) }
-        .map { CameraUpdate.panAndZoom(it) }
-        .orElse(CameraUpdate(DEFAULT_POINT))
+        .map { it.copy(isAllowZoomOut = true) }
+        .orElse(CameraPosition(MapContainerViewModel.DEFAULT_MAP_POINT))
     }
 
   fun panAndZoomCamera(position: Point) {
-    cameraUpdatesSubject.onNext(CameraUpdate.panAndZoomIn(position))
+    cameraUpdatesSubject.onNext(
+      CameraPosition(position, MapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL)
+    )
   }
 
   companion object {
-    private val DEFAULT_POINT: Point = Point(Coordinate(0.0, 0.0))
-
     private fun Location.toPoint(): Point = Point(Coordinate(longitude, latitude))
   }
 }

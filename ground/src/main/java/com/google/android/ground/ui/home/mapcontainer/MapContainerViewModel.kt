@@ -63,7 +63,7 @@ internal constructor(
 ) : AbstractViewModel() {
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
-  val cameraUpdateRequests: LiveData<Event<CameraUpdate>>
+  val cameraUpdateRequests: LiveData<Event<CameraPosition>>
 
   private val cameraPosition: @Hot(replays = true) MutableLiveData<CameraPosition> =
     MutableLiveData(CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL))
@@ -148,7 +148,7 @@ internal constructor(
       resources.getString(R.string.location_accuracy, it.accuracy)
     }
 
-  private fun createCameraUpdateFlowable(): Flowable<Event<CameraUpdate>> =
+  private fun createCameraUpdateFlowable(): Flowable<Event<CameraPosition>> =
     mapController.getCameraUpdates().map { Event.create(it) }
 
   private fun getLocationsOfInterestStream(
@@ -163,21 +163,18 @@ internal constructor(
       }
       .orElse(Flowable.just(ImmutableSet.of()))
 
-  fun getCameraPosition(): LiveData<CameraPosition> {
-    Timber.d("Current position is ${cameraPosition.value}")
-    return cameraPosition
-  }
-
   private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.getOrDefault(false)
 
   fun onCameraMove(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
-    onZoomChange(cameraPosition.value!!.zoomLevel, newCameraPosition.zoomLevel)
+    onZoomChange(cameraPosition.value?.zoomLevel, newCameraPosition.zoomLevel)
     cameraPosition.value = newCameraPosition
     surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
   }
 
-  private fun onZoomChange(oldZoomLevel: Float, newZoomLevel: Float) {
+  private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
+    if (oldZoomLevel == null || newZoomLevel == null) return
+
     val zoomThresholdCrossed =
       (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
         oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD)
@@ -279,7 +276,7 @@ internal constructor(
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
     private const val DEFAULT_MAP_ZOOM_LEVEL = 0.0f
-    private val DEFAULT_MAP_POINT = Point(Coordinate(0.0, 0.0))
+    val DEFAULT_MAP_POINT = Point(Coordinate(0.0, 0.0))
 
     private fun concatLocationsOfInterestSets(
       objects: Array<Any>
