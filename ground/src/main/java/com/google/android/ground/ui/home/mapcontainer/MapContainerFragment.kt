@@ -36,7 +36,7 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.CameraUpdate
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
@@ -151,9 +151,6 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
     }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
 
-    // TODO: Do this the RxJava way
-    val cameraPosition = mapContainerViewModel.getCameraPosition().value
-    cameraPosition?.let { map.moveCamera(it.target, it.zoomLevel) }
     mapsRepository.observableMapType().observe(this) { map.mapType = it }
   }
 
@@ -254,16 +251,16 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
     Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdate(update: CameraUpdate, map: MapFragment) {
-    Timber.v("Update camera: %s", update)
-    if (update.zoomLevel != null) {
-      var zoomLevel = update.zoomLevel
-      if (!update.isAllowZoomOut) {
+  private fun onCameraUpdate(newPosition: CameraPosition, map: MapFragment) {
+    Timber.v("Update camera: %s", newPosition)
+    if (newPosition.zoomLevel != null) {
+      var zoomLevel = newPosition.zoomLevel
+      if (!newPosition.isAllowZoomOut) {
         zoomLevel = max(zoomLevel, map.currentZoomLevel)
       }
-      map.moveCamera(update.center, zoomLevel)
+      map.moveCamera(newPosition.target, zoomLevel)
     } else {
-      map.moveCamera(update.center)
+      map.moveCamera(newPosition.target)
     }
   }
 

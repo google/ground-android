@@ -19,7 +19,6 @@ import android.content.SharedPreferences
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -78,16 +77,16 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       .apply()
   }
 
-  fun getLastCameraPosition(surveyId: String): Optional<CameraPosition> {
+  fun getLastCameraPosition(surveyId: String): CameraPosition? {
     return try {
       val stringVal = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
       CameraPosition.deserialize(stringVal)
     } catch (e: NumberFormatException) {
       Timber.e(e, "Invalid camera pos in prefs")
-      Optional.empty()
+      null
     } catch (e: ArrayIndexOutOfBoundsException) {
       Timber.e(e, "Invalid camera pos in prefs")
-      Optional.empty()
+      null
     }
   }
 
