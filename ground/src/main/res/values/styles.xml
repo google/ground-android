@@ -35,26 +35,19 @@
     <item name="android:textColor">@color/colorForeground</item>
   </style>
 
-  <style name="WhiteToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
-    <item name="android:background">@color/colorBackground</item>
-    <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
-    <item name="gndToolbarSubtitleStyle">@style/WhiteToolbarSubtitle</item>
-    <item name="colorControlNormal">@color/colorAccent</item>
-  </style>
-
-  <style name="WhiteToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+  <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <item name="android:textColor">@color/colorForeground</item>
   </style>
 
-  <style name="WhiteToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+  <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
     <item name="android:textColor">@color/colorGrey600</item>
     <item name="android:textSize">12sp</item>
   </style>
 
   <style name="PrimaryToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
     <item name="android:background">@color/colorBackground</item>
-    <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
-    <item name="gndToolbarSubtitleStyle">@style/WhiteToolbarSubtitle</item>
+    <item name="gndToolbarTitleStyle">@style/ToolbarTitle</item>
+    <item name="gndToolbarSubtitleStyle">@style/ToolbarSubtitle</item>
     <item name="colorControlNormal">@color/colorAccent</item>
   </style>
 
