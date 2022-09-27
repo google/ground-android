@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
 import com.google.android.ground.ui.map.LoiCard
-import com.google.android.material.card.MaterialCardView
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LoiCard] data with the [ViewHolder]
@@ -48,13 +47,14 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     holder.loiName.text = itemsViewModel.loiName
     holder.jobName.text = itemsViewModel.jobName
     holder.status.text = itemsViewModel.status
-    if (selectedIndex == position) {
-      holder.loiCard.strokeColor = R.color.colorAccent
-      holder.loiCard.strokeWidth = R.dimen.card_stroke_width_selected
-    } else {
-      holder.loiCard.strokeColor = R.color.colorBackground
-      holder.loiCard.strokeWidth = R.dimen.card_stroke_width_normal
-    }
+    holder.wrapperView.background =
+      holder.itemView.resources.getDrawable(
+        if (selectedIndex == position) {
+          R.drawable.border
+        } else {
+          R.color.colorBackground
+        }
+      )
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
 
@@ -80,6 +80,6 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     val loiName: TextView = view.findViewById(R.id.loiName)
     val jobName: TextView = view.findViewById(R.id.jobName)
     val button: Button = view.findViewById(R.id.button)
-    val loiCard: MaterialCardView = view.findViewById(R.id.loi_card)
+    val wrapperView: View = view.findViewById(R.id.wrapper_view)
   }
 }
