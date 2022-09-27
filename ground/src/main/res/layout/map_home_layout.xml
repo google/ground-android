@@ -46,7 +46,6 @@
       app:fabSize="mini"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:tint="@{viewModel.getIconTint()}"
       app:useCompatPadding="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
