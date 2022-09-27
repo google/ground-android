@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
@@ -48,12 +49,14 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     holder.jobName.text = itemsViewModel.jobName
     holder.status.text = itemsViewModel.status
     holder.wrapperView.background =
-      holder.itemView.resources.getDrawable(
+      ResourcesCompat.getDrawable(
+        holder.itemView.resources,
         if (selectedIndex == position) {
           R.drawable.border
         } else {
           R.color.colorBackground
-        }
+        },
+        null
       )
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
