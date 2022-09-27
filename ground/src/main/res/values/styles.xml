@@ -51,15 +51,6 @@
     <item name="colorControlNormal">@color/colorAccent</item>
   </style>
 
-  <style name="PrimaryToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-    <item name="android:textColor">@color/colorBackground</item>
-  </style>
-
-  <style name="PrimaryToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
-    <item name="android:textColor">@color/colorBackground</item>
-    <item name="android:textSize">12sp</item>
-  </style>
-
   <style name="SubmissionListText">
     <item name="android:textSize">@dimen/submission_list_text_size</item>
   </style>
