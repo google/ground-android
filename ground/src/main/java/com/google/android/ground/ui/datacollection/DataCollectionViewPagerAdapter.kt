@@ -27,5 +27,11 @@ class DataCollectionViewPagerAdapter(fragment: Fragment, private val tasks: Immu
   FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
-  override fun createFragment(position: Int): Fragment = DataCollectionTaskFragment()
+  override fun createFragment(position: Int): Fragment {
+    val task = tasks[position]
+    return when (task.type) {
+      Task.Type.TEXT -> QuestionDataCollectionFragment(task)
+      else -> DataCollectionTaskFragment()
+    }
+  }
 }

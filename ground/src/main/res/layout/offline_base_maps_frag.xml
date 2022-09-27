@@ -39,8 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_base_maps"
-      app:titleTextColor="@color/colorBackground" />
+      app:title="@string/offline_base_maps" />
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/offline_areas_list"

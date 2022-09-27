@@ -65,7 +65,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
     binding.viewModel = viewModel
-    binding.dataCollectionNextButton.setOnClickListener { onNextClick() }
+    binding.dataCollectionContinueButton.setOnClickListener { onNextClick() }
     binding.lifecycleOwner = this
 
     (activity as MainActivity?)?.let {

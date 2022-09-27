@@ -51,7 +51,7 @@
           android:layout_width="match_parent"
           android:layout_height="?attr/actionBarSize"
           android:layout_gravity="top"
-          android:theme="@style/WhiteToolbarTheme"
+          android:theme="@style/PrimaryToolbarTheme"
           app:title="@string/tos_title" />
 
       </LinearLayout>
