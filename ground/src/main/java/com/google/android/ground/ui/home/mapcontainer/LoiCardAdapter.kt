@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
 import com.google.android.ground.ui.map.LoiCard
+import com.google.android.material.card.MaterialCardView
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LoiCard] data with the [ViewHolder]
@@ -32,6 +33,7 @@ import com.google.android.ground.ui.map.LoiCard
  */
 class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
+  private var selectedIndex: Int = -1
   private val itemsList: MutableList<LoiCard> = mutableListOf()
 
   /** Creates a new [ViewHolder] item without any data. */
@@ -46,9 +48,14 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     holder.loiName.text = itemsViewModel.loiName
     holder.jobName.text = itemsViewModel.jobName
     holder.status.text = itemsViewModel.status
-    holder.button.setOnClickListener {
-      // TODO: Implement click listener
+    if (selectedIndex == position) {
+      holder.loiCard.strokeColor = R.color.colorAccent
+      holder.loiCard.strokeWidth = R.dimen.card_stroke_width_selected
+    } else {
+      holder.loiCard.strokeColor = R.color.colorBackground
+      holder.loiCard.strokeWidth = R.dimen.card_stroke_width_normal
     }
+    holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
 
   /** Returns the size of the list. */
@@ -57,6 +64,13 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   fun updateData(newItemsList: List<LoiCard>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)
+    selectedIndex = -1
+    notifyDataSetChanged()
+  }
+
+  /** Updates the currently selected item. */
+  private fun handleItemClicked(position: Int) {
+    selectedIndex = position
     notifyDataSetChanged()
   }
 
@@ -66,5 +80,6 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     val loiName: TextView = view.findViewById(R.id.loiName)
     val jobName: TextView = view.findViewById(R.id.jobName)
     val button: Button = view.findViewById(R.id.button)
+    val loiCard: MaterialCardView = view.findViewById(R.id.loi_card)
   }
 }

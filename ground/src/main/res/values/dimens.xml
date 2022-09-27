@@ -119,4 +119,6 @@
   <!-- LOI bottom card -->
   <dimen name="loi_card_item_margin">10dp</dimen>
   <dimen name="loi_card_item_title_text_size">14sp</dimen>
+  <dimen name="card_stroke_width_selected">5</dimen>
+  <dimen name="card_stroke_width_normal">1</dimen>
 </resources>
