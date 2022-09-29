@@ -16,7 +16,6 @@
 package com.google.android.ground.rx
 
 import androidx.lifecycle.LiveData
-import com.google.android.ground.persistence.remote.NotFoundException
 import io.reactivex.Flowable
 import java8.util.Optional
 import org.reactivestreams.Publisher
@@ -32,7 +31,6 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
   enum class LoadState {
     LOADING,
     LOADED,
-    NOT_FOUND,
     ERROR
   }
 
@@ -45,14 +43,13 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
   val isLoaded = state == LoadState.LOADED
 
   companion object {
-    @JvmStatic fun <T> notFound(): Loadable<T> = Loadable(LoadState.NOT_FOUND, Result.success(null))
-
     private fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, Result.success(null))
 
     @JvmStatic
     fun <T> loaded(data: T): Loadable<T> = Loadable(LoadState.LOADED, Result.success(data))
 
-    @JvmStatic fun <T> error(t: Throwable): Loadable<T> = Loadable(t.toState(), Result.failure(t))
+    @JvmStatic
+    fun <T> error(t: Throwable): Loadable<T> = Loadable(LoadState.ERROR, Result.failure(t))
 
     @JvmStatic
     fun <T> getValue(liveData: LiveData<Loadable<T?>?>): Optional<T?> =
@@ -75,7 +72,6 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
      * @param source the stream responsible for loading values.
      * @param <T> the type of entity being loaded </T>
      */
-    @JvmStatic
     fun <T> loadingOnceAndWrap(source: Flowable<T>): Flowable<Loadable<T>> =
       source
         .map { data: T -> loaded(data) }
@@ -83,9 +79,3 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
         .startWith(loading())
   }
 }
-
-private fun Throwable.toState(): Loadable.LoadState =
-  when (this) {
-    is NotFoundException -> Loadable.LoadState.NOT_FOUND
-    else -> Loadable.LoadState.ERROR
-  }

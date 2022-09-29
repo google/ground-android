@@ -83,7 +83,6 @@ public class SurveySelectorDialogFragment extends AbstractDialogFragment {
       case LOADED:
         surveySummaries.value().ifPresent(this::showSurveyList);
         break;
-      case NOT_FOUND:
       case ERROR:
         onSurveyListLoadError(surveySummaries.error().orElse(new UnknownError()));
         break;

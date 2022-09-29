@@ -392,7 +392,6 @@ class HomeScreenFragment :
 
   private fun onActiveSurveyChange(loadable: Loadable<Survey>) {
     when (loadable.state) {
-      LoadState.NOT_FOUND -> showSurveySelector()
       LoadState.LOADED -> {
         dismissSurveyLoadingDialog()
         updateNavDrawer(loadable.value().get())
