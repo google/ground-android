@@ -37,6 +37,7 @@ import com.google.android.ground.ui.signin.SignInFragmentDirections
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
@@ -53,8 +54,10 @@ constructor(
   private val popups: EphemeralPopups,
   navigator: Navigator,
   authenticationManager: AuthenticationManager,
-  schedulers: Schedulers
+  private val schedulers: Schedulers
 ) : AbstractViewModel() {
+
+  private var surveySyncSubscription: Disposable? = null
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
@@ -63,14 +66,6 @@ constructor(
   val signInProgressDialogVisibility: MutableLiveData<Boolean> = MutableLiveData()
 
   init {
-    // TODO: Move to background service.
-    disposeOnClear(
-      surveyRepository.activeSurvey
-        .observeOn(schedulers.io())
-        .switchMapCompletable { syncLocationsOfInterest(it) }
-        .subscribe()
-    )
-
     disposeOnClear(
       authenticationManager.signInState
         .observeOn(schedulers.ui())
@@ -118,12 +113,24 @@ constructor(
   }
 
   private fun onUserSignedOut(): Observable<NavDirections> {
+    // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
+    // attempts to maintain a connection even after user has logged out and throws an error.
+    surveySyncSubscription?.dispose()
+
     surveyRepository.clearActiveSurvey()
     userRepository.clearUserPreferences()
     return Observable.just(SignInFragmentDirections.showSignInScreen())
   }
 
   private fun onUserSignedIn(user: User): Observable<NavDirections> {
+    // TODO: Move to background service.
+    surveySyncSubscription =
+      surveyRepository.activeSurvey
+        .observeOn(schedulers.io())
+        .switchMapCompletable { syncLocationsOfInterest(it) }
+        .subscribe()
+    surveySyncSubscription?.let { disposeOnClear(it) }
+
     return userRepository
       .saveUser(user)
       .andThen(
