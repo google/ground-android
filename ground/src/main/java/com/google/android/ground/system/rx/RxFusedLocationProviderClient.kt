@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.system.rx
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.os.Looper
@@ -36,9 +37,11 @@ class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext cont
     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
   }
 
+  @get:SuppressLint("MissingPermission")
   val lastLocation: Maybe<Location>
     get() = toMaybe { fusedLocationProviderClient.lastLocation }
 
+  @SuppressLint("MissingPermission")
   fun requestLocationUpdates(
     locationRequest: LocationRequest,
     locationCallback: RxLocationCallback
