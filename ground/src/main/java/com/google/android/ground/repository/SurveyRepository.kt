@@ -87,7 +87,7 @@ constructor(
 
   private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
     // Empty id indicates intent to deactivate the current survey or first login.
-    return if (surveyId.isEmpty()) Flowable.just(Loadable.notFound())
+    return if (surveyId.isEmpty()) Flowable.never()
     else
       syncSurveyWithRemote(surveyId)
         .onErrorResumeNext { getSurvey(surveyId) }

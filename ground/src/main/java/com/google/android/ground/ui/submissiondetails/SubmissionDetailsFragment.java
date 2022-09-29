@@ -98,7 +98,6 @@ public class SubmissionDetailsFragment extends AbstractFragment {
       case LOADED:
         submission.value().ifPresent(this::showSubmission);
         break;
-      case NOT_FOUND:
       case ERROR:
         // TODO: Replace w/error view?
         Timber.e("Failed to load submission");
