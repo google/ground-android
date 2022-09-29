@@ -50,8 +50,7 @@ constructor(
 ) {
 
   private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
-  private val locationUpdateCallback: RxLocationCallback =
-    RxLocationCallback.create(locationUpdates)
+  private val locationUpdateCallback: RxLocationCallback = RxLocationCallback(locationUpdates)
 
   /**
    * Returns the location update stream. New subscribers and downstream subscribers that can't keep

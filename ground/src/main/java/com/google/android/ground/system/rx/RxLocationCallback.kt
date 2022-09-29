@@ -22,18 +22,12 @@ import com.google.android.gms.location.LocationResult
 import io.reactivex.Observer
 
 /** Implementation of [LocationCallback] linked to a Reactive [Observer]. */
-class RxLocationCallback private constructor(private val locationObserver: Observer<Location>) :
-  LocationCallback() {
+class RxLocationCallback(private val locationObserver: Observer<Location>) : LocationCallback() {
   override fun onLocationResult(locationResult: LocationResult) {
     locationObserver.onNext(locationResult.lastLocation)
   }
 
   override fun onLocationAvailability(locationAvailability: LocationAvailability) {
     // This happens sometimes when GPS signal is temporarily lost.
-  }
-
-  companion object {
-    fun create(locationObserver: Observer<Location>): RxLocationCallback =
-      RxLocationCallback(locationObserver)
   }
 }
