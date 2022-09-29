@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.system.rx
 
-package com.google.android.ground.system.rx;
+import android.content.Context
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsResponse
+import com.google.android.gms.location.SettingsClient
+import com.google.android.ground.rx.RxTask.toSingle
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.reactivex.Single
+import javax.inject.Inject
 
-import android.content.Context;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.ground.rx.RxTask;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import io.reactivex.Single;
-import javax.inject.Inject;
+/** Thin wrapper around [SettingsClient] exposing key features as reactive streams. */
+class RxSettingsClient @Inject constructor(@ApplicationContext context: Context) {
+  private val settingsClient: SettingsClient
 
-/** Thin wrapper around {@link SettingsClient} exposing key features as reactive streams. */
-public class RxSettingsClient {
-
-  private final SettingsClient settingsClient;
-
-  @Inject
-  public RxSettingsClient(@ApplicationContext Context context) {
-    this.settingsClient = LocationServices.getSettingsClient(context);
+  init {
+    settingsClient = LocationServices.getSettingsClient(context)
   }
 
-  public Single<LocationSettingsResponse> checkLocationSettings(
-      LocationSettingsRequest settingsRequest) {
-    return RxTask.toSingle(() -> settingsClient.checkLocationSettings(settingsRequest));
-  }
+  fun checkLocationSettings(request: LocationSettingsRequest): Single<LocationSettingsResponse> =
+    toSingle {
+      settingsClient.checkLocationSettings(request)
+    }
 }

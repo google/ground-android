@@ -13,49 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.system.rx
 
-package com.google.android.ground.system.rx;
+import android.content.Context
+import android.location.Location
+import android.os.Looper
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.ground.rx.RxTask.toCompletable
+import com.google.android.ground.rx.RxTask.toMaybe
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.reactivex.Completable
+import io.reactivex.Maybe
+import javax.inject.Inject
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.location.Location;
-import android.os.Looper;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.ground.rx.RxTask;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import javax.inject.Inject;
+/** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
+class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {
+  private val fusedLocationProviderClient: FusedLocationProviderClient
 
-/**
- * Thin wrapper around {@link FusedLocationProviderClient} exposing key LOIs as reactive streams.
- */
-public class RxFusedLocationProviderClient {
-  private final FusedLocationProviderClient fusedLocationProviderClient;
-
-  @Inject
-  public RxFusedLocationProviderClient(@ApplicationContext Context context) {
-    this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+  init {
+    fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
   }
 
-  @SuppressLint("MissingPermission")
-  public Maybe<Location> getLastLocation() {
-    return RxTask.toMaybe(fusedLocationProviderClient::getLastLocation);
+  val lastLocation: Maybe<Location>
+    get() = toMaybe { fusedLocationProviderClient.lastLocation }
+
+  fun requestLocationUpdates(
+    locationRequest: LocationRequest,
+    locationCallback: RxLocationCallback
+  ): Completable = toCompletable {
+    fusedLocationProviderClient.requestLocationUpdates(
+      locationRequest,
+      locationCallback,
+      Looper.myLooper()
+    )
   }
 
-  @SuppressLint("MissingPermission")
-  public Completable requestLocationUpdates(
-      LocationRequest locationRequest, RxLocationCallback locationCallback) {
-    return RxTask.toCompletable(
-        () ->
-            fusedLocationProviderClient.requestLocationUpdates(
-                locationRequest, locationCallback, Looper.myLooper()));
-  }
-
-  public Completable removeLocationUpdates(RxLocationCallback locationCallback) {
-    return RxTask.toCompletable(
-        () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback));
+  fun removeLocationUpdates(locationCallback: RxLocationCallback): Completable = toCompletable {
+    fusedLocationProviderClient.removeLocationUpdates(locationCallback)
   }
 }

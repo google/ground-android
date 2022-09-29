@@ -13,34 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.system.rx
 
-package com.google.android.ground.system.rx;
+import android.location.Location
+import com.google.android.gms.location.LocationAvailability
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import io.reactivex.Observer
 
-import android.location.Location;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import io.reactivex.Observer;
-
-/** Implementation of {@link LocationCallback} linked to a Reactive {@link Observer}. */
-public class RxLocationCallback extends LocationCallback {
-  private final Observer<Location> locationObserver;
-
-  private RxLocationCallback(Observer<Location> locationObserver) {
-    this.locationObserver = locationObserver;
+/** Implementation of [LocationCallback] linked to a Reactive [Observer]. */
+class RxLocationCallback private constructor(private val locationObserver: Observer<Location>) :
+  LocationCallback() {
+  override fun onLocationResult(locationResult: LocationResult) {
+    locationObserver.onNext(locationResult.lastLocation)
   }
 
-  public static RxLocationCallback create(Observer<Location> locationObserver) {
-    return new RxLocationCallback(locationObserver);
-  }
-
-  @Override
-  public void onLocationResult(LocationResult locationResult) {
-    locationObserver.onNext(locationResult.getLastLocation());
-  }
-
-  @Override
-  public void onLocationAvailability(LocationAvailability locationAvailability) {
+  override fun onLocationAvailability(locationAvailability: LocationAvailability) {
     // This happens sometimes when GPS signal is temporarily lost.
+  }
+
+  companion object {
+    fun create(locationObserver: Observer<Location>): RxLocationCallback =
+      RxLocationCallback(locationObserver)
   }
 }
