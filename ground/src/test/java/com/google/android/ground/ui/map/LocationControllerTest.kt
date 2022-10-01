@@ -48,11 +48,9 @@ class LocationControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetLocationLockUpdates_whenLockRequest() {
-    Mockito.`when`(locationManager.enableLocationUpdates())
-      .thenReturn(Single.just(Result.success(true)))
+    setupEnableLocationUpdates()
 
     val locationLockUpdatesSubscriber = locationController.getLocationLockUpdates().test()
-
     locationController.lock()
 
     locationLockUpdatesSubscriber.assertValue { it.getOrNull() == true }
@@ -60,11 +58,9 @@ class LocationControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetLocationLockUpdates_whenUnlockRequest() {
-    Mockito.`when`(locationManager.disableLocationUpdates())
-      .thenReturn(Single.just(Result.success(false)))
+    setupDisableLocationUpdates()
 
     val locationLockUpdatesSubscriber = locationController.getLocationLockUpdates().test()
-
     locationController.unlock()
 
     locationLockUpdatesSubscriber.assertValue { it.getOrNull() == false }
@@ -72,27 +68,41 @@ class LocationControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetLocationUpdates_whenLocked() {
-    val location = Location("test provider")
-    Mockito.`when`(locationManager.getLocationUpdates()).thenReturn(Flowable.just(location))
-    Mockito.`when`(locationManager.enableLocationUpdates())
-      .thenReturn(Single.just(Result.success(true)))
+    setupTestLocation()
+    setupEnableLocationUpdates()
 
     val locationUpdatesSubscriber = locationController.getLocationUpdates().test()
     locationController.lock()
 
-    locationUpdatesSubscriber.assertValue { it == location }
+    locationUpdatesSubscriber.assertValue { it == TEST_LOCATION }
   }
 
   @Test
   fun testGetLocationUpdates_whenUnlocked() {
-    val location = Location("test provider")
-    Mockito.`when`(locationManager.getLocationUpdates()).thenReturn(Flowable.just(location))
-    Mockito.`when`(locationManager.disableLocationUpdates())
-      .thenReturn(Single.just(Result.success(false)))
+    setupTestLocation()
+    setupDisableLocationUpdates()
 
     val locationUpdatesSubscriber = locationController.getLocationUpdates().test()
     locationController.unlock()
 
     locationUpdatesSubscriber.assertNoValues()
+  }
+
+  private fun setupTestLocation() {
+    Mockito.`when`(locationManager.getLocationUpdates()).thenReturn(Flowable.just(TEST_LOCATION))
+  }
+
+  private fun setupEnableLocationUpdates() {
+    Mockito.`when`(locationManager.enableLocationUpdates())
+      .thenReturn(Single.just(Result.success(true)))
+  }
+
+  private fun setupDisableLocationUpdates() {
+    Mockito.`when`(locationManager.disableLocationUpdates())
+      .thenReturn(Single.just(Result.success(false)))
+  }
+
+  companion object {
+    private val TEST_LOCATION = Location("test provider")
   }
 }
