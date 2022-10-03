@@ -53,7 +53,7 @@ class QuestionDataCollectionFragment constructor(private val task: Task) :
   }
 
   override fun onContinueClicked(): Result<Response?> =
-    if (isResponseValid()) {
+    if (isResponseValid() || !task.isRequired) {
       Result.success(TextResponse(binding.userResponseText.text.toString()))
     } else {
       Result.failure(
