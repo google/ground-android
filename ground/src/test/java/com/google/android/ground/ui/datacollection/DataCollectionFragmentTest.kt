@@ -17,6 +17,8 @@ package com.google.android.ground.ui.datacollection
 
 import android.os.Looper.getMainLooper
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.BaseHiltTest
@@ -24,6 +26,7 @@ import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.material.textfield.TextInputEditText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -75,11 +78,18 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onNextClicked_viewPagerItemIsUpdated() {
+  fun onContinueClicked_viewPagerItemIsUpdated() {
     setupFragment()
 
     val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)
+
+    shadowOf(getMainLooper()).idle()
+
     assertThat(viewPager.currentItem).isEqualTo(0)
+
+    // TODO(jsunde): Figure out why taskFragment hasn't been set
+    dataCollectionFragment.taskFragment.view!!
+      .findViewById<TextInputEditText>(R.id.user_response_text).setText("user input")
     dataCollectionFragment.view!!
       .findViewById<Button>(R.id.data_collection_continue_button)
       .performClick()
@@ -87,7 +97,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onNextClicked_thenOnBack_viewPagerItemIsUpdated() {
+  fun onContinueClicked_thenOnBack_viewPagerItemIsUpdated() {
     setupFragment()
 
     val viewPager = dataCollectionFragment.view!!.findViewById<ViewPager2>(R.id.pager)

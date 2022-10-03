@@ -54,9 +54,9 @@ object DataCollectionTestData {
         tasks =
           ImmutableMap.of(
             "field id",
-            Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
+            Task("field id", 0, Task.Type.TEXT, "field", true),
             "field id 2",
-            Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)
+            Task("field id 2", 1, Task.Type.TEXT, "field 2", true)
           )
       ),
       auditInfo,

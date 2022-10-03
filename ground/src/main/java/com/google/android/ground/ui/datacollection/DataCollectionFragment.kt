@@ -44,7 +44,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
   private lateinit var viewPager: ViewPager2
-  private lateinit var taskFragment: DataCollectionTaskFragment
+  lateinit var taskFragment: DataCollectionTaskFragment
   private val responses: MutableList<Response> = mutableListOf()
 
   override fun onCreate(savedInstanceState: Bundle?) {
