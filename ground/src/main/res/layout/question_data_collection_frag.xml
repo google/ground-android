@@ -72,12 +72,12 @@
         android:paddingTop="24dp"
         android:text="@{task.label}"
         android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/text_input_layout"
+        app:layout_constraintBottom_toTopOf="@+id/user_response"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/data_collection_task_name" />
 
       <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_layout"
+        android:id="@+id/user_response"
         style="@style/EditSubmission.Task.Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -86,6 +86,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/data_collection_question">
         <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/user_response_text"
           android:layout_width="200dp"
           android:layout_height="wrap_content"
           android:inputType="text" />

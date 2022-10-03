@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
+import java.lang.IllegalStateException
 
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
@@ -31,7 +32,7 @@ class DataCollectionViewPagerAdapter(fragment: Fragment, private val tasks: Immu
     val task = tasks[position]
     return when (task.type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task)
-      else -> DataCollectionTaskFragment()
+      else -> throw IllegalStateException("No TaskFragment found for task type: ${task.type}")
     }
   }
 }

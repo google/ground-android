@@ -24,22 +24,28 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var ephemeralPopups: Provider<EphemeralPopups>
 
   private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
   private lateinit var viewPager: ViewPager2
+  private lateinit var taskFragment: DataCollectionTaskFragment
+  private val responses: MutableList<Response> = mutableListOf()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -68,15 +74,17 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     binding.dataCollectionContinueButton.setOnClickListener { onNextClick() }
     binding.lifecycleOwner = this
 
-    (activity as MainActivity?)?.let {
-      it.setActionBar(binding.dataCollectionToolbar, showTitle = false)
-    }
+    (activity as MainActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
   }
 
-  override fun onBack(): Boolean {
-    return if (viewPager.currentItem == 0) {
+  fun setCurrentPage(taskFragment: DataCollectionTaskFragment) {
+    this.taskFragment = taskFragment
+  }
+
+  override fun onBack(): Boolean =
+    if (viewPager.currentItem == 0) {
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
       false
@@ -85,10 +93,16 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       viewPager.currentItem = viewPager.currentItem - 1
       true
     }
-  }
 
   private fun onNextClick() {
-    // TODO(#1146): Handle the scenario when the user clicks next on the last step.
-    viewPager.currentItem = viewPager.currentItem + 1
+    // TODO(#1146): Handle the scenario when the user clicks next on the last step. This will
+    //  include persisting the list of responses to the database
+    taskFragment
+      .onContinueClicked()
+      .onSuccess { response ->
+        response?.let { responses.add(it) }
+        viewPager.currentItem = viewPager.currentItem + 1
+      }
+      .onFailure { ephemeralPopups.get().showError(it.message!!) }
   }
 }
