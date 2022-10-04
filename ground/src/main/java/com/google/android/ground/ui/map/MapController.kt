@@ -66,6 +66,7 @@ constructor(
         .orElse(DEFAULT_CAMERA_POSITION)
     }
 
+  /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
   fun panAndZoomCamera(position: Point) {
     cameraUpdatesSubject.onNext(CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL))
   }

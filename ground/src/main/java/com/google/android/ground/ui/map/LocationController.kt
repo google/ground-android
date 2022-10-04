@@ -54,7 +54,9 @@ class LocationController @Inject constructor(private val locationManager: Locati
     if (result) locationManager.enableLocationUpdates()
     else locationManager.disableLocationUpdates()
 
+  /** Enables location lock by requesting location updates. */
   fun lock() = locationLockChangeRequests.onNext(true)
 
+  /** Releases location lock by disabling location updates. */
   fun unlock() = locationLockChangeRequests.onNext(false)
 }
