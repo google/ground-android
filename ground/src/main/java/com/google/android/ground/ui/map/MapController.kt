@@ -70,8 +70,4 @@ constructor(
   fun panAndZoomCamera(position: Point) {
     cameraUpdatesSubject.onNext(CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL))
   }
-
-  companion object {
-    private fun Location.toPoint(): Point = Point(Coordinate(longitude, latitude))
-  }
 }
