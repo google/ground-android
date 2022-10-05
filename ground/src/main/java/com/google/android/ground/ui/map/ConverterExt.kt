@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.geometry
+package com.google.android.ground.ui.map
 
-/** A coordinate on a two-dimensional Cartesian plane. */
-data class Coordinate(val x: Double, val y: Double) : Comparable<Coordinate> {
-  override fun compareTo(other: Coordinate): Int = compareValuesBy(this, other, { it.x }, { it.y })
-}
+import android.location.Location
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Point
+
+fun LatLng.toPoint(): Point = Point(Coordinate(latitude, longitude))
+
+fun Point.toLatLng(): LatLng = LatLng(coordinate.x, coordinate.y)
+
+fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))

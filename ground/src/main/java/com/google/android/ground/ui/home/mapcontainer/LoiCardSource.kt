@@ -25,6 +25,7 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.LoiCard
+import com.google.android.ground.ui.map.toLatLng
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -82,5 +83,5 @@ internal constructor(
 
   /** Returns true if the provided [geometry] is within [bounds]. */
   private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean =
-    geometry.vertices.any { bounds.contains(it.coordinate.toLatLng()) }
+    geometry.vertices.any { bounds.contains(it.toLatLng()) }
 }

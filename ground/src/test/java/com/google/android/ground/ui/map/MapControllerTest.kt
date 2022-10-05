@@ -73,8 +73,8 @@ class MapControllerTest : BaseHiltTest() {
       .thenReturn(
         Flowable.just(
           Location("test provider").apply {
-            latitude = TEST_POINT.coordinate.y
-            longitude = TEST_POINT.coordinate.x
+            latitude = TEST_POINT.coordinate.x
+            longitude = TEST_POINT.coordinate.y
           }
         )
       )

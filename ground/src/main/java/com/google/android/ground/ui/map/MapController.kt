@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.map
 
-import android.location.Location
-import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
@@ -69,9 +67,5 @@ constructor(
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
   fun panAndZoomCamera(position: Point) {
     cameraUpdatesSubject.onNext(CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL))
-  }
-
-  companion object {
-    private fun Location.toPoint(): Point = Point(Coordinate(longitude, latitude))
   }
 }

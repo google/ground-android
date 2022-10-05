@@ -378,7 +378,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
       cameraMovedEvents.onNext(
         CameraPosition(
-          getMap().cameraPosition.target.fromLatLng(),
+          getMap().cameraPosition.target.toPoint(),
           getMap().cameraPosition.zoom,
           false,
           getMap().projection.visibleRegion.latLngBounds
@@ -437,9 +437,5 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
         .add(MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ground_logo))
         .add(MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo))
         .build()
-
-    private fun LatLng.fromLatLng(): Point = Point(Coordinate(latitude, longitude))
-
-    private fun Point.toLatLng(): LatLng = LatLng(coordinate.y, coordinate.x)
   }
 }
