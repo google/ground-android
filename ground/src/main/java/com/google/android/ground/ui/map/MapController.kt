@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.map
 
-import android.location.Location
-import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
