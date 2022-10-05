@@ -64,6 +64,17 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   /** Returns the size of the list. */
   override fun getItemCount() = itemsList.size
 
+  fun updateSelectedPosition(newSelectedIndex: Int) {
+    if (newSelectedIndex < 0 || newSelectedIndex >= itemCount || selectedIndex == newSelectedIndex)
+      return
+
+    val lastSelectedIndex = selectedIndex
+    selectedIndex = newSelectedIndex
+
+    notifyItemChanged(lastSelectedIndex)
+    notifyItemChanged(selectedIndex)
+  }
+
   fun updateData(newItemsList: List<LoiCard>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)

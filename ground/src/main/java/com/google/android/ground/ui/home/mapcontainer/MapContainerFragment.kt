@@ -23,6 +23,8 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.model.geometry.Point
@@ -125,8 +127,24 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
-    binding.mapControls.recyclerView.adapter = adapter
+    setupRecyclerView(binding.mapControls.recyclerView)
     return binding.root
+  }
+
+  private fun setupRecyclerView(recyclerView: RecyclerView) {
+    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+    recyclerView.addOnScrollListener(
+      object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+          super.onScrollStateChanged(recyclerView, newState)
+          val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+          val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+          val midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
+          adapter.updateSelectedPosition(midPosition)
+        }
+      }
+    )
+    recyclerView.adapter = adapter
   }
 
   override fun onMapReady(map: MapFragment) {
