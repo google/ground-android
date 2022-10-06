@@ -24,7 +24,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.map.LoiCard
 import com.google.android.ground.ui.map.toLatLng
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
@@ -42,12 +41,12 @@ internal constructor(
 ) {
 
   private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
-  val locationsOfInterestCard: LiveData<List<LoiCard>>
+  val locationsOfInterest: LiveData<List<LocationOfInterest>>
 
   init {
     val loiStream = getAllLocationsOfInterest()
 
-    locationsOfInterestCard =
+    locationsOfInterest =
       LiveDataReactiveStreams.fromPublisher(
         getCameraBoundUpdates()
           .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
@@ -73,13 +72,10 @@ internal constructor(
       }
       .distinctUntilChanged()
 
-  /** Filters all [LocationOfInterest] within [bounds] and converts to [LoiCard]. */
+  /** Filters all [LocationOfInterest] within [bounds]. */
   private fun ImmutableSet<LocationOfInterest>.toLoiCardsWithinBounds(
     bounds: LatLngBounds
-  ): List<LoiCard> =
-    this.filter { isGeometryWithinBounds(it.geometry, bounds) }
-      .map { LoiCard.fromLocationOfInterest(it) }
-      .toList()
+  ): List<LocationOfInterest> = this.filter { isGeometryWithinBounds(it.geometry, bounds) }
 
   /** Returns true if the provided [geometry] is within [bounds]. */
   private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean =
