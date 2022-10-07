@@ -53,13 +53,12 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment
-@Inject
-constructor(
-  private val loiCardSource: LoiCardSource,
-  private val mapsRepository: MapsRepository,
-  private val navigator: Navigator
-) : AbstractMapViewerFragment() {
+class MapContainerFragment : AbstractMapViewerFragment() {
+
+  @Inject lateinit var loiCardSource: LoiCardSource
+  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var navigator: Navigator
+
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel

@@ -45,7 +45,6 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
-import com.google.android.ground.ui.home.mapcontainer.MapContainerFragment
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
@@ -75,18 +74,11 @@ class HomeScreenFragment :
   //  make this more intuitive.
 
   @Inject lateinit var authenticationManager: AuthenticationManager
-
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
-
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
-
   @Inject lateinit var navigator: Navigator
-
   @Inject lateinit var popups: EphemeralPopups
-
   @Inject lateinit var schedulers: Schedulers
-
-  @Inject lateinit var mapContainerFragment: MapContainerFragment
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -208,12 +200,6 @@ class HomeScreenFragment :
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     binding.navView.setNavigationItemSelectedListener(this)
     requireView().viewTreeObserver.addOnGlobalLayoutListener(this)
-    if (savedInstanceState == null) {
-      replaceFragment(R.id.map_container_fragment, mapContainerFragment)
-    } else {
-      mapContainerFragment =
-        restoreChildFragment(savedInstanceState, MapContainerFragment::class.java)
-    }
     updateNavHeader()
     setUpBottomSheetBehavior()
   }
@@ -222,11 +208,6 @@ class HomeScreenFragment :
     val navHeader = binding.navView.getHeaderView(0)
     val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
     headerBinding.user = authenticationManager.currentUser
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    saveChildFragment(outState, mapContainerFragment, MapContainerFragment::class.java.name)
   }
 
   /** Fetches offline saved surveys and adds them to navigation drawer. */
