@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.map
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
@@ -22,25 +23,43 @@ import com.google.android.ground.model.geometry.Point
 data class CameraPosition(
   val target: Point,
   val zoomLevel: Float? = null,
-  val isAllowZoomOut: Boolean = false, // TODO: Handle serialization/deserialization
-  var bounds: LatLngBounds? = null // TODO: Handle serialization/deserialization
+  val isAllowZoomOut: Boolean = false,
+  var bounds: LatLngBounds? = null
 ) {
 
-  override fun toString(): String {
-    return "Position: $target Zoom level: $zoomLevel"
-  }
-
   fun serialize(): String =
-    arrayOf<Any>(target.coordinate.x, target.coordinate.y, zoomLevel ?: "").joinToString {
-      it.toString()
-    }
+    arrayOf<Any>(
+        target.coordinate.x,
+        target.coordinate.y,
+        zoomLevel.toString(),
+        isAllowZoomOut,
+        bounds?.southwest?.latitude.toString(),
+        bounds?.southwest?.longitude.toString(),
+        bounds?.northeast?.latitude.toString(),
+        bounds?.northeast?.longitude.toString(),
+      )
+      .joinToString { it.toString() }
 
   companion object {
 
     fun deserialize(serializedValue: String): CameraPosition? {
       if (serializedValue.isEmpty()) return null
-      val (lat, long, zoomLevel) = serializedValue.split(",")
-      return CameraPosition(Point(Coordinate(lat.toDouble(), long.toDouble())), zoomLevel.toFloat())
+      val parts = serializedValue.split(",")
+      val lat = parts[0].trim().toDouble()
+      val long = parts[1].trim().toDouble()
+      val zoomLevel = parts[2].trim().toFloatOrNull()
+      val isAllowZoomOut = parts[3].trim().toBoolean()
+      val swLat = parts[4].trim().toDoubleOrNull()
+      val swLong = parts[5].trim().toDoubleOrNull()
+      val neLat = parts[6].trim().toDoubleOrNull()
+      val neLong = parts[7].trim().toDoubleOrNull()
+
+      var bounds: LatLngBounds? = null
+      if (swLat != null && swLong != null && neLat != null && neLong != null) {
+        bounds = LatLngBounds(LatLng(swLat, swLong), LatLng(neLat, neLong))
+      }
+
+      return CameraPosition(Point(Coordinate(lat, long)), zoomLevel, isAllowZoomOut, bounds)
     }
   }
 }
