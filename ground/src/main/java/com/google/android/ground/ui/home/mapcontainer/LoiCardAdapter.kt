@@ -24,17 +24,18 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
-import com.google.android.ground.ui.map.LoiCard
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [LoiCard] data with the [ViewHolder]
- * views.
+ * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
+ * [ViewHolder] views.
  */
 class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex: Int = -1
-  private val itemsList: MutableList<LoiCard> = mutableListOf()
+  private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
+  private var callback: ((LocationOfInterest) -> Unit)? = null
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -42,15 +43,16 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     return ViewHolder(view)
   }
 
-  /** Binds [LoiCard] data to [ViewHolder]. */
+  /** Binds [LocationOfInterest] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val itemsViewModel = itemsList[position]
-    holder.loiName.text = itemsViewModel.loiName
-    holder.jobName.text = itemsViewModel.jobName
-    holder.status.text = itemsViewModel.status
+    val locationOfInterest = itemsList[position]
+    val context = holder.itemView.context
+    holder.loiName.text = locationOfInterest.caption ?: context.getString(R.string.empty_caption)
+    holder.jobName.text = locationOfInterest.job.name ?: context.getString(R.string.empty_name)
+    holder.status.text = context.getString(R.string.completed)
     holder.wrapperView.background =
       ResourcesCompat.getDrawable(
-        holder.itemView.resources,
+        context.resources,
         if (selectedIndex == position) {
           R.drawable.border
         } else {
@@ -58,7 +60,8 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
         },
         null
       )
-    holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
+    holder.itemView.setOnClickListener { handleItemClicked(position) }
+    holder.button.setOnClickListener { handleButtonClicked(position) }
   }
 
   /** Returns the size of the list. */
@@ -75,11 +78,15 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     notifyItemChanged(selectedIndex)
   }
 
-  fun updateData(newItemsList: List<LoiCard>) {
+  fun updateData(newItemsList: List<LocationOfInterest>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)
     selectedIndex = -1
     notifyDataSetChanged()
+  }
+
+  fun setItemClickCallback(callback: (LocationOfInterest) -> Unit) {
+    this.callback = callback
   }
 
   /** Updates the currently selected item. */
@@ -88,7 +95,11 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     notifyDataSetChanged()
   }
 
-  /** View item representing the [LoiCard] data in the list. */
+  private fun handleButtonClicked(position: Int) {
+    callback?.invoke(itemsList[position])
+  }
+
+  /** View item representing the [LocationOfInterest] data in the list. */
   class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val status: TextView = view.findViewById(R.id.status)
     val loiName: TextView = view.findViewById(R.id.loiName)

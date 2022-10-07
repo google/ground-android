@@ -21,9 +21,9 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.ui.map.LoiCard
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
@@ -50,7 +50,7 @@ class LoiCardSourceTest : BaseHiltTest() {
   @Mock lateinit var surveyRepository: SurveyRepository
 
   private lateinit var loiCardSource: LoiCardSource
-  private lateinit var loiCardTestObserver: TestObserver<List<LoiCard>>
+  private lateinit var loisTestObserver: TestObserver<List<LocationOfInterest>>
 
   @Before
   override fun setUp() {
@@ -63,12 +63,12 @@ class LoiCardSourceTest : BaseHiltTest() {
       .thenReturn(Flowable.just(TEST_LOCATIONS_OF_INTEREST))
 
     loiCardSource = LoiCardSource(surveyRepository, locationOfInterestRepository)
-    loiCardTestObserver = TestObserver.test(loiCardSource.locationsOfInterestCard)
+    loisTestObserver = TestObserver.test(loiCardSource.locationsOfInterest)
   }
 
   @Test
   fun testLoiCards_whenBoundsNotAvailable_returnsNothing() {
-    loiCardTestObserver.assertNoValue()
+    loisTestObserver.assertNoValue()
   }
 
   @Test
@@ -77,7 +77,7 @@ class LoiCardSourceTest : BaseHiltTest() {
     val northeast = LatLng(-50.0, -50.0)
     loiCardSource.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
-    assertThat(loiCardTestObserver.awaitValue().value()).isEmpty()
+    assertThat(loisTestObserver.awaitValue().value()).isEmpty()
   }
 
   @Test
@@ -87,13 +87,8 @@ class LoiCardSourceTest : BaseHiltTest() {
 
     loiCardSource.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
-    assertThat(loiCardTestObserver.value())
-      .isEqualTo(
-        listOf(
-          LoiCard.fromLocationOfInterest(TEST_POINT_OF_INTEREST_1),
-          LoiCard.fromLocationOfInterest(TEST_AREA_OF_INTEREST_1)
-        )
-      )
+    assertThat(loisTestObserver.value())
+      .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
   }
 
   @Test
@@ -103,14 +98,14 @@ class LoiCardSourceTest : BaseHiltTest() {
 
     loiCardSource.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
-    assertThat(loiCardTestObserver.value())
+    assertThat(loisTestObserver.value())
       .isEqualTo(
         listOf(
-          LoiCard.fromLocationOfInterest(TEST_POINT_OF_INTEREST_1),
-          LoiCard.fromLocationOfInterest(TEST_POINT_OF_INTEREST_2),
-          LoiCard.fromLocationOfInterest(TEST_POINT_OF_INTEREST_3),
-          LoiCard.fromLocationOfInterest(TEST_AREA_OF_INTEREST_1),
-          LoiCard.fromLocationOfInterest(TEST_AREA_OF_INTEREST_2)
+          TEST_POINT_OF_INTEREST_1,
+          TEST_POINT_OF_INTEREST_2,
+          TEST_POINT_OF_INTEREST_3,
+          TEST_AREA_OF_INTEREST_1,
+          TEST_AREA_OF_INTEREST_2
         )
       )
   }
