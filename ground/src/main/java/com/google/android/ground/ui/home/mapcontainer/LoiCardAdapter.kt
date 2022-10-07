@@ -46,12 +46,13 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   /** Binds [LocationOfInterest] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val locationOfInterest = itemsList[position]
-    holder.loiName.text = locationOfInterest.caption ?: "empty caption"
-    holder.jobName.text = locationOfInterest.job.name ?: "empty name"
-    holder.status.text = "Completed"
+    val context = holder.itemView.context
+    holder.loiName.text = locationOfInterest.caption ?: context.getString(R.string.empty_caption)
+    holder.jobName.text = locationOfInterest.job.name ?: context.getString(R.string.empty_name)
+    holder.status.text = context.getString(R.string.completed)
     holder.wrapperView.background =
       ResourcesCompat.getDrawable(
-        holder.itemView.resources,
+        context.resources,
         if (selectedIndex == position) {
           R.drawable.border
         } else {
