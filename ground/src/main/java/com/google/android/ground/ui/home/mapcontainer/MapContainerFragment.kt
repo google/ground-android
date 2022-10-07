@@ -70,13 +70,13 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
     val locationOfInterestRepositionViewModel =
       getViewModel(LocationOfInterestRepositionViewModel::class.java)
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
-    mapFragment.markerClicks.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      mapContainerViewModel.onMarkerClick(it)
-    }
-    mapFragment.markerClicks.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      homeScreenViewModel.onMarkerClick(it)
-    }
-    mapFragment.locationOfInterestClicks
+    mapFragment.locationOfInterestInteractions
+      .`as`(RxAutoDispose.disposeOnDestroy(this))
+      .subscribe { mapContainerViewModel.onMarkerClick(it) }
+    mapFragment.locationOfInterestInteractions
+      .`as`(RxAutoDispose.disposeOnDestroy(this))
+      .subscribe { homeScreenViewModel.onMarkerClick(it) }
+    mapFragment.ambiguousLocationOfInterestInteractions
       .`as`<ObservableSubscribeProxy<ImmutableList<MapLocationOfInterest>>>(
         RxAutoDispose.disposeOnDestroy(this)
       )
@@ -147,29 +147,31 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
     recyclerView.adapter = adapter
   }
 
-  override fun onMapReady(map: MapFragment) {
+  override fun onMapReady(mapFragment: MapFragment) {
     Timber.d("MapAdapter ready. Updating subscriptions")
 
     // Custom views rely on the same instance of MapFragment. That couldn't be injected via Dagger.
     // Hence, initializing them here instead of inflating in layout.
-    attachCustomViews(map)
+    attachCustomViews(mapFragment)
     mapContainerViewModel.setLocationLockEnabled(true)
     polygonDrawingViewModel.setLocationLockEnabled(true)
 
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.mapLocationsOfInterest.observe(this) { map.setMapLocationsOfInterest(it) }
+    mapContainerViewModel.mapLocationsOfInterest.observe(this) {
+      mapFragment.renderLocationsOfInterest(it)
+    }
     mapContainerViewModel.locationLockState.observe(this) { result ->
-      onLocationLockStateChange(result, map)
+      onLocationLockStateChange(result, mapFragment)
     }
     mapContainerViewModel.cameraUpdateRequests.observe(this) { update ->
-      update.ifUnhandled { data -> onCameraUpdate(data, map) }
+      update.ifUnhandled { data -> onCameraUpdate(data, mapFragment) }
     }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
-      onBottomSheetStateChange(state, map)
+      onBottomSheetStateChange(state, mapFragment)
     }
-    mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
+    mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
 
-    mapsRepository.observableMapType().observe(this) { map.mapType = it }
+    mapsRepository.observableMapType().observe(this) { mapFragment.mapType = it }
   }
 
   private fun attachCustomViews(map: MapFragment) {
@@ -285,7 +287,7 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")
 
-    mapFragment.refreshMarkerIcons()
+    mapFragment.refreshRenderedLocationsOfInterest()
   }
 
   override fun onDestroy() {
