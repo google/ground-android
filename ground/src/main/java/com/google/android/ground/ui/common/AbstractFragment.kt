@@ -109,18 +109,5 @@ abstract class AbstractFragment : Fragment() {
     childFragmentManager.beginTransaction().replace(containerViewId, fragment).commit()
   }
 
-  protected fun saveChildFragment(outState: Bundle?, fragment: Fragment?, key: String?) {
-    val fragmentManager = childFragmentManager
-    if (fragment != null && fragmentManager === fragment.fragmentManager) {
-      fragmentManager.putFragment(outState!!, key!!, fragment)
-    }
-  }
-
-  private fun <T> restoreChildFragment(savedInstanceState: Bundle, key: String): T =
-    childFragmentManager.getFragment(savedInstanceState, key) as T
-
-  protected fun <T> restoreChildFragment(savedInstanceState: Bundle, fragmentClass: Class<T>): T =
-    restoreChildFragment<Any>(savedInstanceState, fragmentClass.name) as T
-
   protected fun getMainActivity(): MainActivity = requireActivity() as MainActivity
 }

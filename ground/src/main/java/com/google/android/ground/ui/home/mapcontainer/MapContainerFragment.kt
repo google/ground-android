@@ -35,6 +35,7 @@ import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.common.AbstractMapViewerFragment
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
@@ -52,10 +53,12 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment
-@Inject
-constructor(private val loiCardSource: LoiCardSource, private val mapsRepository: MapsRepository) :
-  AbstractMapViewerFragment() {
+class MapContainerFragment : AbstractMapViewerFragment() {
+
+  @Inject lateinit var loiCardSource: LoiCardSource
+  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var navigator: Navigator
+
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: MapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -115,7 +118,7 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
-    loiCardSource.locationsOfInterestCard.observe(this) { adapter.updateData(it) }
+    loiCardSource.locationsOfInterest.observe(this) { adapter.updateData(it) }
   }
 
   override fun onCreateView(
@@ -144,7 +147,18 @@ constructor(private val loiCardSource: LoiCardSource, private val mapsRepository
         }
       }
     )
+    adapter.setItemClickCallback { navigateToDataCollectionFragment(it) }
     recyclerView.adapter = adapter
+  }
+
+  private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
+    navigator.navigate(
+      HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+        /* surveyId = */ loi.surveyId,
+        /* locationOfInterestId = */ loi.id,
+        /* submissionId = */ "dummy submission id"
+      )
+    )
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
