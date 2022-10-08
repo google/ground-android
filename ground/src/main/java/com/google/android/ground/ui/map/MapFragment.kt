@@ -109,5 +109,5 @@ interface MapFragment {
   fun getDistanceInPixels(point1: Point, point2: Point): Double
 
   /** Update UI of rendered [LocationOfInterest]. */
-  fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest)
+  fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?)
 }

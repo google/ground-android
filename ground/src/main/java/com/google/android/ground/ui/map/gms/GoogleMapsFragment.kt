@@ -441,8 +441,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun addRemoteTileOverlays(urls: ImmutableList<String>) =
     urls.forEach { addRemoteTileOverlay(it) }
 
-  override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest) {
-    activeLocationOfInterest = locationOfInterest.id
+  override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?) {
+    activeLocationOfInterest = locationOfInterest?.id
 
     // TODO: Optimize the performance by refreshing old and new rendered geometries
     refreshRenderedLocationsOfInterest()
