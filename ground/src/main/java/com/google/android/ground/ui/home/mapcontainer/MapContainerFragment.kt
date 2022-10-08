@@ -147,7 +147,8 @@ class MapContainerFragment : AbstractMapViewerFragment() {
         }
       }
     )
-    adapter.setItemClickCallback { navigateToDataCollectionFragment(it) }
+    adapter.setItemClickCallback { mapFragment.setActiveLocationOfInterest(it) }
+    adapter.setSubmitCallback { navigateToDataCollectionFragment(it) }
     recyclerView.adapter = adapter
   }
 
