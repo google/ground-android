@@ -32,7 +32,8 @@ import javax.inject.Singleton
 
 @Singleton
 class MarkerIconFactory @Inject constructor(@ApplicationContext private val context: Context) {
-  fun getMarkerBitmap(color: Int, currentZoomLevel: Float): Bitmap {
+
+  fun getMarkerBitmap(color: Int, currentZoomLevel: Float, isSelected: Boolean = false): Bitmap {
     val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
     val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
     val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
@@ -40,6 +41,10 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
     if (currentZoomLevel >= MapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
       scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
+    }
+    if (isSelected) {
+      // TODO: Revisit scale for selected markers
+      scale += 1
     }
     val width = (outline!!.intrinsicWidth * scale).toInt()
     val height = (outline.intrinsicHeight * scale).toInt()
@@ -55,8 +60,12 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     return bitmap
   }
 
-  fun getMarkerIcon(@ColorInt color: Int, currentZoomLevel: Float): BitmapDescriptor {
-    val bitmap = getMarkerBitmap(color, currentZoomLevel)
+  fun getMarkerIcon(
+    @ColorInt color: Int,
+    currentZoomLevel: Float,
+    isSelected: Boolean = false
+  ): BitmapDescriptor {
+    val bitmap = getMarkerBitmap(color, currentZoomLevel, isSelected)
     // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
