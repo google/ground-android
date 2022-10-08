@@ -103,6 +103,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private var map: GoogleMap? = null
 
   /**
+   * User selected [LocationOfInterest] by either clicking the bottom card or horizontal scrolling.
+   */
+  private var activeLocationOfInterest: String? = null
+
+  /**
    * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
    * start and end of polygon.
    */
@@ -260,8 +265,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     marker.tag = Pair(mapLocationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
   }
 
-  private fun getMarkerIcon(): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel)
+  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel, isSelected)
 
   private fun addMultiPolygon(
     locationOfInterest: MapLocationOfInterest,
@@ -352,8 +357,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun refreshRenderedLocationsOfInterest() =
-    markers.keys.forEach { it.setIcon(getMarkerIcon()) }
+  override fun refreshRenderedLocationsOfInterest() {
+    for ((marker, mapLocationOfInterest) in markers) {
+      val isSelected = mapLocationOfInterest.locationOfInterest?.id == activeLocationOfInterest
+      marker.setIcon(getMarkerIcon(isSelected))
+    }
+  }
 
   override var mapType: Int
     get() = getMap().mapType
@@ -431,6 +440,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun addRemoteTileOverlays(urls: ImmutableList<String>) =
     urls.forEach { addRemoteTileOverlay(it) }
+
+  override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest) {
+    activeLocationOfInterest = locationOfInterest.id
+
+    // TODO: Optimize the performance by refreshing old and new rendered geometries
+    refreshRenderedLocationsOfInterest()
+  }
 
   companion object {
     // TODO(#936): Remove placeholder with appropriate images

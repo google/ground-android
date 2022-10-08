@@ -20,6 +20,7 @@ import androidx.annotation.IdRes
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
@@ -104,5 +105,9 @@ interface MapFragment {
   /** Render remote tile overlays on the map. */
   fun addRemoteTileOverlays(urls: ImmutableList<String>)
 
+  /** Returns the actual distance in pixels between provided points. */
   fun getDistanceInPixels(point1: Point, point2: Point): Double
+
+  /** Update UI of rendered [LocationOfInterest]. */
+  fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest)
 }
