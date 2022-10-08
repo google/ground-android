@@ -35,7 +35,8 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex: Int = -1
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
-  private var callback: ((LocationOfInterest) -> Unit)? = null
+  private lateinit var clickCallback: (LocationOfInterest) -> Unit
+  private lateinit var submitCallback: (LocationOfInterest) -> Unit
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -70,12 +71,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   fun updateSelectedPosition(newSelectedIndex: Int) {
     if (newSelectedIndex < 0 || newSelectedIndex >= itemCount || selectedIndex == newSelectedIndex)
       return
-
-    val lastSelectedIndex = selectedIndex
-    selectedIndex = newSelectedIndex
-
-    notifyItemChanged(lastSelectedIndex)
-    notifyItemChanged(selectedIndex)
+    handleItemClicked(newSelectedIndex)
   }
 
   fun updateData(newItemsList: List<LocationOfInterest>) {
@@ -86,17 +82,22 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   }
 
   fun setItemClickCallback(callback: (LocationOfInterest) -> Unit) {
-    this.callback = callback
+    this.clickCallback = callback
+  }
+
+  fun setSubmitCallback(callback: (LocationOfInterest) -> Unit) {
+    this.submitCallback = callback
   }
 
   /** Updates the currently selected item. */
   private fun handleItemClicked(position: Int) {
     selectedIndex = position
     notifyDataSetChanged()
+    clickCallback.invoke(itemsList[position])
   }
 
   private fun handleButtonClicked(position: Int) {
-    callback?.invoke(itemsList[position])
+    submitCallback.invoke(itemsList[position])
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */
