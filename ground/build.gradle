@@ -308,6 +308,7 @@ dependencies {
     // Fragments
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 }
 
 apply plugin: 'androidx.navigation.safeargs'
