@@ -20,7 +20,7 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   crossinline action: Fragment.() -> Unit = {}
-) {
+): ActivityScenario<HiltTestActivity> {
   val startActivityIntent =
     Intent.makeMainActivity(
         ComponentName(ApplicationProvider.getApplicationContext(), HiltTestActivity::class.java)
@@ -30,7 +30,7 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
         themeResId
       )
 
-  ActivityScenario.launch<HiltTestActivity>(startActivityIntent).onActivity { activity ->
+  return ActivityScenario.launch<HiltTestActivity>(startActivityIntent).onActivity { activity ->
     val fragment: Fragment =
       activity.supportFragmentManager.fragmentFactory.instantiate(
         Preconditions.checkNotNull(T::class.java.classLoader),

@@ -7,6 +7,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.system.auth.SignInState
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -36,6 +37,15 @@ class SignInFragmentTest : BaseHiltTest() {
     fakeAuthenticationManager.signInState
       .test()
       .assertValue(SignInState(SignInState.State.SIGNED_IN, Result.success(TEST_USER)))
+  }
+
+  @Test
+  fun pressBack_shouldFinishActivity() {
+    launchFragmentInHiltContainer<SignInFragment> {
+      val fragment = this as SignInFragment
+      assertThat(fragment.onBack()).isFalse()
+      assertThat(activity?.isFinishing).isTrue()
+    }
   }
 
   companion object {
