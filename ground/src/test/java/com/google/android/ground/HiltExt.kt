@@ -16,18 +16,17 @@ import androidx.test.core.app.ApplicationProvider
  * equivalent. It requires you to add [HiltTestActivity] in the debug folder and include it in the
  * debug AndroidManifest.xml file as can be found in this project.
  */
- inline fun <reified T : Fragment> launchFragmentInHiltContainer(
+inline fun <reified T : Fragment> launchFragmentInHiltContainer(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   crossinline action: Fragment.() -> Unit = {}
- ) {
+) {
   val startActivityIntent =
     Intent.makeMainActivity(
         ComponentName(ApplicationProvider.getApplicationContext(), HiltTestActivity::class.java)
       )
       .putExtra(
-
- "androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY",
+        "androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY",
         themeResId
       )
 
@@ -45,5 +44,4 @@ import androidx.test.core.app.ApplicationProvider
 
     fragment.action()
   }
- }
-
+}
