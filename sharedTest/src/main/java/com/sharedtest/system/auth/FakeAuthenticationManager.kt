@@ -13,62 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest.system.auth
 
-package com.sharedtest.system.auth;
-
-import com.google.android.ground.model.User;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.system.auth.SignInState;
-import com.sharedtest.FakeData;
-import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.android.ground.model.User
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.system.auth.SignInState
+import com.google.android.ground.system.auth.SignInState.Companion.signedIn
+import com.google.android.ground.system.auth.SignInState.Companion.signedOut
+import com.sharedtest.FakeData
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
-public class FakeAuthenticationManager implements AuthenticationManager {
+class FakeAuthenticationManager @Inject constructor() : AuthenticationManager {
 
-  @Hot(replays = true)
-  private final Subject<SignInState> behaviourSubject = BehaviorSubject.create();
+  private val behaviourSubject: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
   // TODO(#1045): Allow default user to be initialized by tests.
-  private User user = FakeData.USER;
+  override var currentUser = FakeData.USER
+    private set
 
-  @Inject
-  public FakeAuthenticationManager() {}
+  override val signInState: Observable<SignInState>
+    get() = behaviourSubject
 
-  @Override
-  public Observable<SignInState> getSignInState() {
-    return behaviourSubject;
+  fun setUser(user: User) {
+    currentUser = user
   }
 
-  @Override
-  public User getCurrentUser() {
-    return user;
-  }
+  fun setState(state: SignInState) = behaviourSubject.onNext(state)
 
-  public void setUser(User user) {
-    this.user = user;
-  }
+  override fun init() = behaviourSubject.onNext(signedIn(currentUser))
 
-  public void setState(SignInState state) {
-    behaviourSubject.onNext(state);
-  }
+  override fun signIn() = behaviourSubject.onNext(signedIn(currentUser))
 
-  @Override
-  public void init() {
-    behaviourSubject.onNext(SignInState.signedIn(user));
-  }
-
-  @Override
-  public void signIn() {
-    behaviourSubject.onNext(SignInState.signedIn(user));
-  }
-
-  @Override
-  public void signOut() {
-    behaviourSubject.onNext(SignInState.signedOut());
-  }
+  override fun signOut() = behaviourSubject.onNext(signedOut())
 }
