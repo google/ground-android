@@ -21,7 +21,6 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.system.auth.SignInState.Companion.signedIn
 import com.google.android.ground.system.auth.SignInState.Companion.signedOut
-import com.sharedtest.FakeData
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
@@ -33,8 +32,7 @@ class FakeAuthenticationManager @Inject constructor() : AuthenticationManager {
 
   private val behaviourSubject: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
-  // TODO(#1045): Allow default user to be initialized by tests.
-  override var currentUser = FakeData.USER
+  override lateinit var currentUser: User
     private set
 
   override val signInState: Observable<SignInState>

@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
@@ -48,9 +49,9 @@ import org.robolectric.Shadows.shadowOf
 @RunWith(RobolectricTestRunner::class)
 @UninstallModules(LocalDataStoreModule::class)
 class SurveySelectorDialogFragmentTest : BaseHiltTest() {
-  @Inject lateinit var surveyRepository: SurveyRepository
-
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
 
@@ -60,6 +61,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     fakeRemoteDataStore.setTestSurveys(ImmutableList.of(TEST_SURVEY_1, TEST_SURVEY_2))
+    fakeAuthenticationManager.setUser(FakeData.USER)
     setUpFragment()
   }
 
