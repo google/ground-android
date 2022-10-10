@@ -21,6 +21,7 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.system.auth.SignInState.Companion.signedIn
 import com.google.android.ground.system.auth.SignInState.Companion.signedOut
+import com.sharedtest.FakeData
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
@@ -32,7 +33,9 @@ class FakeAuthenticationManager @Inject constructor() : AuthenticationManager {
 
   private val behaviourSubject: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
-  override lateinit var currentUser: User
+  // TODO: Remove default user once instrumentation tests can set it during the test. Currently, the
+  // activity gets launched before the user can be set in setUp()
+  override var currentUser: User = FakeData.USER
     private set
 
   override val signInState: Observable<SignInState>
