@@ -73,7 +73,7 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
     this.userRepository = userRepository;
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(
-            drawableUtil.getColor(R.color.colorGrey600), DEFAULT_LOI_ZOOM_LEVEL);
+            drawableUtil.getColor(R.color.colorGrey600), DEFAULT_LOI_ZOOM_LEVEL, false);
     this.title =
         LiveDataReactiveStreams.fromPublisher(
             selectedLocationOfInterest.map(locationOfInterestHelper::getLabel));
