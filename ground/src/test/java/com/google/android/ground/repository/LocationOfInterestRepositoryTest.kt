@@ -55,18 +55,19 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
-
   @BindValue @Mock lateinit var mockSurveyRepository: SurveyRepository
-
   @BindValue @Mock lateinit var mockWorkManager: DataSyncWorkManager
 
   @Captor lateinit var captorLoiMutation: ArgumentCaptor<LocationOfInterestMutation>
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
+
+  override fun setUp() {
+    super.setUp()
+    fakeAuthenticationManager.setUser(FakeData.USER)
+  }
 
   private fun mockApplyAndEnqueue() {
     Mockito.doReturn(Completable.complete())
@@ -242,7 +243,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testNewLocationOfInterest() {
-    fakeAuthenticationManager.setUser(FakeData.USER)
     val testDate = Date()
     val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, location) =
       locationOfInterestRepository.newMutation(
@@ -262,7 +262,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testNewPolygonOfInterest() {
-    fakeAuthenticationManager.setUser(FakeData.USER)
     val testDate = Date()
     val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, polygon) =
       locationOfInterestRepository.newPolygonOfInterestMutation(

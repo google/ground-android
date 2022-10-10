@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver
 import com.sharedtest.FakeData
+import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.junit.Assert
@@ -35,6 +36,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class PolygonDrawingViewModelTest : BaseHiltTest() {
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
@@ -42,6 +44,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
+    fakeAuthenticationManager.setUser(FakeData.USER)
     polygonCompletedTestObserver = TestObserver.test(viewModel.isPolygonCompleted)
     drawnMapLoiTestObserver = TestObserver.test(viewModel.unsavedMapLocationsOfInterest)
 
