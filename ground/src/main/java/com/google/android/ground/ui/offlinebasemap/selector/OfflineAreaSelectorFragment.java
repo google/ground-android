@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding;
@@ -33,6 +34,7 @@ import com.google.android.ground.ui.common.AbstractMapViewerFragment;
 import com.google.android.ground.ui.common.EphemeralPopups;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.map.MapFragment;
+import com.google.android.ground.ui.map.gms.ConverterExtKt;
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
@@ -95,6 +97,7 @@ public class OfflineAreaSelectorFragment extends AbstractMapViewerFragment {
     map.getCameraMovedEvents()
         .map(__ -> map.getViewport())
         .startWith(map.getViewport())
+        .map(ConverterExtKt::toGoogleMapsObject)
         .as(autoDisposable(this))
         .subscribe(viewModel::setViewport);
   }

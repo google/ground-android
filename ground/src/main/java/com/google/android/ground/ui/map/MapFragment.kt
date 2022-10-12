@@ -18,9 +18,11 @@ package com.google.android.ground.ui.map
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.map.Bounds
+import com.google.android.ground.model.map.MapLocationOfInterest
+import com.google.android.ground.model.map.MapType
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
@@ -42,7 +44,7 @@ interface MapFragment {
   var mapType: Int
 
   /** Get or set the bounds of the currently visible viewport. */
-  var viewport: LatLngBounds
+  var viewport: Bounds
 
   /** Adds the [MapFragment] to a fragment. */
   fun attachToFragment(

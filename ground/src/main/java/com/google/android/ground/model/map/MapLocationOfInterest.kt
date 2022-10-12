@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map
+package com.google.android.ground.model.map
 
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
-/**
- * Simple wrapper around LocationOfInterest, implementing MapLocationOfInterest. Can be cleaned up
- * when the MapLocationOfInterest is removed.
- */
-data class SimpleMapLocationOfInterest(private val locationOfInterest: LocationOfInterest) :
-  MapLocationOfInterest() {
-  override fun getLocationOfInterest(): LocationOfInterest = locationOfInterest
-}
+/** A [LocationOfInterest] associated with a map. */
+data class MapLocationOfInterest(val locationOfInterest: LocationOfInterest)

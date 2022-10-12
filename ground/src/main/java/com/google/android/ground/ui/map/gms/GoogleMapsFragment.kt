@@ -38,6 +38,9 @@ import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.map.Bounds
+import com.google.android.ground.model.map.MapLocationOfInterest
+import com.google.android.ground.model.map.MapType
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.MarkerIconFactory
@@ -409,9 +412,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override var viewport: LatLngBounds
-    get() = getMap().projection.visibleRegion.latLngBounds
-    set(bounds) = getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0))
+  override var viewport: Bounds
+    get() = getMap().projection.visibleRegion.latLngBounds.toModelObject()
+    set(bounds) =
+      getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 0))
 
   private fun addTileOverlay(filePath: String) {
     val mbtilesFile = File(requireContext().filesDir, filePath)

@@ -23,7 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.MapTypeDialogFragmentBinding
 import com.google.android.ground.repository.MapsRepository
-import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.model.map.MapType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

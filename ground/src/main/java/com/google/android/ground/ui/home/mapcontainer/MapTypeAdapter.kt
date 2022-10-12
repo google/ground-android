@@ -26,7 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
-import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.model.map.MapType
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [MapType] data with the [ViewHolder]

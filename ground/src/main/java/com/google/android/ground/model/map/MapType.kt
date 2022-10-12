@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map
+package com.google.android.ground.model.map
 
 import android.os.Parcelable
 import androidx.annotation.DrawableRes

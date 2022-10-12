@@ -28,6 +28,7 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
+import com.google.android.ground.model.map.MapLocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -129,14 +130,14 @@ internal constructor(
     val points =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POINT }
-        .map { SimpleMapLocationOfInterest(it) }
+        .map { MapLocationOfInterest(it) }
         .toImmutableSet()
 
     // TODO: Add support for polylines similar to mapPins.
     val polygons =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POLYGON }
-        .map { SimpleMapLocationOfInterest(it) }
+        .map { MapLocationOfInterest(it) }
         .toImmutableSet()
 
     return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
@@ -329,7 +330,9 @@ internal constructor(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
               unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
             )
-          ) { concatLocationsOfInterestSets(it) }
+          ) {
+            concatLocationsOfInterestSets(it)
+          }
           .distinctUntilChanged()
       )
 
