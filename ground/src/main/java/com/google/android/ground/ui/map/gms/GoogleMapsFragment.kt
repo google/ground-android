@@ -46,7 +46,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
-import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.model.map.CameraPosition
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
@@ -398,7 +398,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           getMap().cameraPosition.target.toPoint(),
           getMap().cameraPosition.zoom,
           false,
-          getMap().projection.visibleRegion.latLngBounds
+          getMap().projection.visibleRegion.latLngBounds.toModelObject()
         )
       )
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION

@@ -41,8 +41,9 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.model.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.common.collect.ImmutableList
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
@@ -93,7 +94,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe {
         mapContainerViewModel.onCameraMove(it)
-        loiCardSource.onCameraBoundsUpdated(it.bounds)
+        loiCardSource.onCameraBoundsUpdated(it.bounds?.toGoogleMapsObject())
       }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)

@@ -21,6 +21,7 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.map.Bounds
+import com.google.android.ground.model.map.CameraPosition
 import com.google.android.ground.model.map.MapLocationOfInterest
 import com.google.android.ground.model.map.MapType
 import com.google.android.ground.rx.Nil

@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map
+package com.google.android.ground.model.map
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 
@@ -24,7 +22,7 @@ data class CameraPosition(
   val target: Point,
   val zoomLevel: Float? = null,
   val isAllowZoomOut: Boolean = false,
-  var bounds: LatLngBounds? = null
+  var bounds: Bounds? = null
 ) {
 
   fun serialize(): String =
@@ -33,10 +31,10 @@ data class CameraPosition(
         target.coordinate.y,
         zoomLevel.toString(),
         isAllowZoomOut,
-        bounds?.southwest?.latitude.toString(),
-        bounds?.southwest?.longitude.toString(),
-        bounds?.northeast?.latitude.toString(),
-        bounds?.northeast?.longitude.toString(),
+        bounds?.southwest?.x.toString(),
+        bounds?.southwest?.y.toString(),
+        bounds?.northeast?.x.toString(),
+        bounds?.northeast?.y.toString(),
       )
       .joinToString { it.toString() }
 
@@ -54,9 +52,9 @@ data class CameraPosition(
       val neLat = parts[6].trim().toDoubleOrNull()
       val neLong = parts[7].trim().toDoubleOrNull()
 
-      var bounds: LatLngBounds? = null
+      var bounds: Bounds? = null
       if (swLat != null && swLong != null && neLat != null && neLong != null) {
-        bounds = LatLngBounds(LatLng(swLat, swLong), LatLng(neLat, neLong))
+        bounds = Bounds(Coordinate(swLat, swLong), Coordinate(neLat, neLong))
       }
 
       return CameraPosition(Point(Coordinate(lat, long)), zoomLevel, isAllowZoomOut, bounds)

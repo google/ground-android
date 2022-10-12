@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.map.CameraPosition
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_CAMERA_POSITION
