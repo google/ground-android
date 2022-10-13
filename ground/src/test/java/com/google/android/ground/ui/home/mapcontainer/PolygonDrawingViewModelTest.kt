@@ -19,7 +19,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth

@@ -17,7 +17,7 @@ package com.google.android.ground.persistence.local
 
 import android.content.SharedPreferences
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.model.map.CameraPosition
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
 import javax.inject.Inject
 import javax.inject.Singleton

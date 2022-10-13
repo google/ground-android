@@ -19,7 +19,6 @@ import android.location.Location
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.map.CameraPosition
 import com.google.android.ground.repository.SurveyRepository
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest

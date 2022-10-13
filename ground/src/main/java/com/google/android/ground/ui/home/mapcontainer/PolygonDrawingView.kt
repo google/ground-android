@@ -21,7 +21,7 @@ import com.google.android.ground.databinding.PolygonDrawingControlsBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractView
-import com.google.android.ground.model.map.CameraPosition
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.WithFragmentBindings

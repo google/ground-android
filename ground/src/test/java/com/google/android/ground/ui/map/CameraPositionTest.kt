@@ -16,8 +16,6 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.map.Bounds
-import com.google.android.ground.model.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import org.junit.Test

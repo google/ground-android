@@ -30,8 +30,8 @@ import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
-import com.google.android.ground.model.map.MapLocationOfInterest
-import com.google.android.ground.model.map.MapType
+import com.google.android.ground.ui.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.PermissionDeniedException
@@ -41,7 +41,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.model.map.CameraPosition
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.common.collect.ImmutableList

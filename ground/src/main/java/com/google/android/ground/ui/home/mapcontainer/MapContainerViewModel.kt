@@ -28,8 +28,8 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
-import com.google.android.ground.model.map.CameraPosition
-import com.google.android.ground.model.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository

@@ -253,7 +253,7 @@
     android:label="MapTypeDialogFragment">
     <argument
       android:name="mapTypes"
-      app:argType="com.google.android.ground.model.map.MapType[]" />
+      app:argType="com.google.android.ground.ui.map.MapType[]" />
   </dialog>
 
 </navigation>

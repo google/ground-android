@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.map
+package com.google.android.ground.ui.map
 
-import android.os.Parcelable
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import kotlinx.parcelize.Parcelize
+import com.google.android.ground.model.geometry.Coordinate
 
 /**
- * MapType refers to the basemap shown below map LOIs and offline satellite imagery. It's called
- * "map styles" in Mapbox and "basemaps" in Leaflet.
+ * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
+ * northeast coordinates.
  */
-@Parcelize
-data class MapType(
-  val type: Int,
-  @field:StringRes @param:StringRes val labelId: Int,
-  @field:DrawableRes @param:DrawableRes val imageId: Int
-) : Parcelable
+data class Bounds(val southwest: Coordinate, val northeast: Coordinate)

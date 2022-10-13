@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.map.Bounds
+import com.google.android.ground.ui.map.Bounds
 
 fun LatLng.toModelObject(): Coordinate = Coordinate(this.latitude, this.longitude)
 

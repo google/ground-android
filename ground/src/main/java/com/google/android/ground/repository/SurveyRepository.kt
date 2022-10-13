@@ -26,7 +26,7 @@ import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.model.map.CameraPosition
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import io.reactivex.Flowable
