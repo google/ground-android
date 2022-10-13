@@ -38,7 +38,7 @@ public class TaskViewFactory {
   @Inject
   TaskViewFactory() {}
 
-  private static Class<? extends AbstractTaskViewModel> getViewModelClass(Task.Type taskType) {
+  public static Class<? extends AbstractTaskViewModel> getViewModelClass(Task.Type taskType) {
     switch (taskType) {
       case TEXT:
         return TextTaskViewModel.class;

@@ -25,17 +25,26 @@ import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Loadable
+import com.google.android.ground.rx.RxAutoDispose.autoDisposable
+import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
+import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var ephemeralPopups: Provider<EphemeralPopups>
+  @Inject lateinit var schedulers: Schedulers
+  @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
@@ -60,35 +69,44 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewModel.loadSubmissionDetails(args)
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-        viewPager.adapter = DataCollectionViewPagerAdapter(this, it.job.tasksSorted)
+        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
       }
     }
 
+    viewModel.currentPosition.observe(viewLifecycleOwner) {
+      viewPager.currentItem = it
+    }
+
+    viewModel
+      .continueResults
+      .observeOn(schedulers.ui())
+      .`as`(autoDisposable(viewLifecycleOwner))
+      .subscribe { error ->
+        handleContinueClickError(error)
+      }
+
     binding.viewModel = viewModel
-    binding.dataCollectionContinueButton.setOnClickListener { onNextClick() }
     binding.lifecycleOwner = this
 
-    (activity as MainActivity?)?.let {
-      it.setActionBar(binding.dataCollectionToolbar, showTitle = false)
-    }
+    (activity as MainActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
   }
 
-  override fun onBack(): Boolean {
-    return if (viewPager.currentItem == 0) {
+  override fun onBack(): Boolean =
+    if (viewPager.currentItem == 0) {
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
       false
     } else {
       // Otherwise, select the previous step.
-      viewPager.currentItem = viewPager.currentItem - 1
+      viewModel.currentPosition.value = viewModel.currentPosition.value!! - 1
       true
     }
-  }
 
-  private fun onNextClick() {
-    // TODO(#1146): Handle the scenario when the user clicks next on the last step.
-    viewPager.currentItem = viewPager.currentItem + 1
+  private fun handleContinueClickError(error: String?) {
+    error?.let {
+      ephemeralPopups.get().showError(it)
+    }
   }
 }
