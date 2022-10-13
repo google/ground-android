@@ -18,7 +18,6 @@ package com.google.android.ground.ui.map
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_CAMERA_POSITION
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -57,11 +56,15 @@ constructor(
 
   /** Emits a stream of camera update requests due to active survey changes. */
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
-    surveyRepository.activeSurvey.map { surveyOptional ->
-      surveyOptional
-        .map { surveyRepository.getLastCameraPosition(it.id) }
-        .map { it?.copy(isAllowZoomOut = true) }
-        .orElse(DEFAULT_CAMERA_POSITION)
+    surveyRepository.activeSurvey.flatMap { surveyOptional ->
+      val position: CameraPosition? =
+        surveyOptional.map { surveyRepository.getLastCameraPosition(it.id) }.orElse(null)
+
+      if (position == null) {
+        Flowable.empty()
+      } else {
+        Flowable.just(position.copy(isAllowZoomOut = true))
+      }
     }
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
