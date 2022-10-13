@@ -34,7 +34,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -56,7 +59,6 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.io.File
-import java.util.*
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -190,7 +192,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val processed = ArrayList<String>()
 
     for ((mapLocationOfInterest, value) in polygons) {
-      val loiId = mapLocationOfInterest.locationOfInterest?.id ?: continue
+      val loiId = mapLocationOfInterest.locationOfInterest.id
       if (processed.contains(loiId)) {
         continue
       }
@@ -262,7 +264,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           MarkerOptions().position(position).icon(getMarkerIcon()).anchor(0.5f, 0.85f).alpha(1.0f)
         )
     markers[marker] = mapLocationOfInterest
-    marker.tag = Pair(mapLocationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
+    marker.tag = Pair(mapLocationOfInterest.locationOfInterest.id, LocationOfInterest::javaClass)
   }
 
   private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
@@ -282,8 +284,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
-    mapsPolygon.tag =
-      Pair(locationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
+    mapsPolygon.tag = Pair(locationOfInterest.locationOfInterest.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
     //  parseColor(Style().color)
@@ -345,7 +346,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     Timber.v("Updating ${features.size} features")
     features.forEach {
-      val geometry = it.locationOfInterest?.geometry ?: return
+      val geometry = it.locationOfInterest.geometry
 
       when (geometry) {
         is LineString -> TODO()
@@ -359,7 +360,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun refreshRenderedLocationsOfInterest() {
     for ((marker, mapLocationOfInterest) in markers) {
-      val isSelected = mapLocationOfInterest.locationOfInterest?.id == activeLocationOfInterest
+      val isSelected = mapLocationOfInterest.locationOfInterest.id == activeLocationOfInterest
       marker.setIcon(getMarkerIcon(isSelected))
     }
   }
@@ -395,7 +396,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           getMap().cameraPosition.target.toPoint(),
           getMap().cameraPosition.zoom,
           false,
-          getMap().projection.visibleRegion.latLngBounds
+          getMap().projection.visibleRegion.latLngBounds.toModelObject()
         )
       )
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
@@ -409,9 +410,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override var viewport: LatLngBounds
-    get() = getMap().projection.visibleRegion.latLngBounds
-    set(bounds) = getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0))
+  override var viewport: Bounds
+    get() = getMap().projection.visibleRegion.latLngBounds.toModelObject()
+    set(bounds) =
+      getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 0))
 
   private fun addTileOverlay(filePath: String) {
     val mbtilesFile = File(requireContext().filesDir, filePath)

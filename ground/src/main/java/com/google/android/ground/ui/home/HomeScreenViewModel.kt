@@ -113,7 +113,7 @@ internal constructor(
   }
 
   fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
-    mapLocationOfInterest.locationOfInterest?.let { showBottomSheet(it) }
+    mapLocationOfInterest.locationOfInterest.let { showBottomSheet(it) }
   }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {

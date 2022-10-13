@@ -15,13 +15,10 @@
  */
 package com.google.android.ground.ui.map
 
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.geometry.Coordinate
 
 /**
- * Simple wrapper around LocationOfInterest, implementing MapLocationOfInterest. Can be cleaned up
- * when the MapLocationOfInterest is removed.
+ * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
+ * northeast coordinates.
  */
-data class SimpleMapLocationOfInterest(private val locationOfInterest: LocationOfInterest) :
-  MapLocationOfInterest() {
-  override fun getLocationOfInterest(): LocationOfInterest = locationOfInterest
-}
+data class Bounds(val southwest: Coordinate, val northeast: Coordinate)

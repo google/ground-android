@@ -27,6 +27,7 @@ import com.google.android.ground.model.basemap.OfflineArea;
 import com.google.android.ground.ui.common.AbstractMapViewerFragment;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.map.MapFragment;
+import com.google.android.ground.ui.map.gms.ConverterExtKt;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
@@ -72,7 +73,7 @@ public class OfflineAreaViewerFragment extends AbstractMapViewerFragment {
   }
 
   private void panMap(OfflineArea offlineArea) {
-    getMapFragment().setViewport(offlineArea.getBounds());
+    getMapFragment().setViewport(ConverterExtKt.toModelObject(offlineArea.getBounds()));
   }
 
   /** Removes the area associated with this fragment from the user's device. */

@@ -43,6 +43,7 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.common.collect.ImmutableList
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,7 +57,9 @@ import timber.log.Timber
 class MapContainerFragment : AbstractMapViewerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
+
   @Inject lateinit var mapsRepository: MapsRepository
+
   @Inject lateinit var navigator: Navigator
 
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
@@ -313,6 +316,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
 
   private fun onCameraMoved(position: CameraPosition) {
     mapContainerViewModel.onCameraMove(position)
-    loiCardSource.onCameraBoundsUpdated(position.bounds)
+    loiCardSource.onCameraBoundsUpdated(position.bounds?.toGoogleMapsObject())
   }
 }

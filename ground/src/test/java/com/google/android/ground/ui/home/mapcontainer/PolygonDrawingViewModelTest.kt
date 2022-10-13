@@ -190,7 +190,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
       var actualPolygonCount = 0
       var actualPointCount = 0
       for (mapLocationOfInterest in mapLois) {
-        when (mapLocationOfInterest.locationOfInterest!!.geometry) {
+        when (mapLocationOfInterest.locationOfInterest.geometry) {
           is Point -> actualPointCount++
           is Polygon -> actualPolygonCount++
           else -> {}

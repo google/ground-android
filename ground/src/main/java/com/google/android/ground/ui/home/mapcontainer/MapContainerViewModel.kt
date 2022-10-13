@@ -35,7 +35,10 @@ import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.LocationController
+import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
@@ -44,7 +47,6 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java.util.*
 import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
@@ -128,14 +130,14 @@ internal constructor(
     val points =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POINT }
-        .map { SimpleMapLocationOfInterest(it) }
+        .map { MapLocationOfInterest(it) }
         .toImmutableSet()
 
     // TODO: Add support for polylines similar to mapPins.
     val polygons =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POLYGON }
-        .map { SimpleMapLocationOfInterest(it) }
+        .map { MapLocationOfInterest(it) }
         .toImmutableSet()
 
     return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
