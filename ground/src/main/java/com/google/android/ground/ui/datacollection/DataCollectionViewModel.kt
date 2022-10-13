@@ -15,14 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.content.res.Resources
-import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
@@ -31,8 +28,6 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
-import com.google.android.ground.ui.editsubmission.EditSubmissionFragment
-import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
