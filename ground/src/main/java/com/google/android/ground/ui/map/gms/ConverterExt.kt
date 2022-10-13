@@ -15,9 +15,11 @@
  */
 package com.google.android.ground.ui.map.gms
 
+import android.location.Location
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.map.Bounds
 
 fun LatLng.toModelObject(): Coordinate = Coordinate(this.latitude, this.longitude)
@@ -29,3 +31,9 @@ fun LatLngBounds.toModelObject(): Bounds =
 
 fun Bounds.toGoogleMapsObject(): LatLngBounds =
   LatLngBounds(this.southwest.toGoogleMapsObject(), this.northeast.toGoogleMapsObject())
+
+fun LatLng.toPoint(): Point = Point(Coordinate(latitude, longitude))
+
+fun Point.toLatLng(): LatLng = LatLng(coordinate.x, coordinate.y)
+
+fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))

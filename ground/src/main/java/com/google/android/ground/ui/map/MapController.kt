@@ -21,6 +21,7 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_CAMERA_POSITION
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
+import com.google.android.ground.ui.map.gms.toPoint
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
