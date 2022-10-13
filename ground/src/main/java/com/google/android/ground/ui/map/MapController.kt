@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
@@ -31,6 +32,7 @@ class MapController
 @Inject
 constructor(
   private val locationController: LocationController,
+  private val mapsRepository: MapsRepository,
   private val surveyRepository: SurveyRepository
 ) {
 
@@ -58,11 +60,8 @@ constructor(
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
     surveyRepository.activeSurvey
       .filter { it.isPresent }
-      .map { it.get().id }
-      .flatMap { surveyId ->
-        surveyRepository.getLastCameraPosition(surveyId)?.let {
-          Flowable.just(it.copy(isAllowZoomOut = true))
-        }
+      .flatMap {
+        mapsRepository.lastCameraPosition?.let { Flowable.just(it.copy(isAllowZoomOut = true)) }
       }
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */

@@ -18,12 +18,18 @@ package com.google.android.ground.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.ui.map.CameraPosition
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /** Coordinates persistence and retrieval of map type from local value store. */
 @Singleton
-class MapsRepository @Inject constructor(private val localValueStore: LocalValueStore) {
+class MapsRepository
+@Inject
+constructor(
+  private val localValueStore: LocalValueStore,
+  private val surveyRepository: SurveyRepository
+) {
 
   private val mutableMapType: MutableLiveData<Int> = MutableLiveData(mapType)
 
@@ -34,5 +40,11 @@ class MapsRepository @Inject constructor(private val localValueStore: LocalValue
     set(value) {
       localValueStore.lastMapType = value
       mutableMapType.postValue(value)
+    }
+
+  var lastCameraPosition: CameraPosition?
+    get() = localValueStore.getLastCameraPosition(surveyRepository.lastActiveSurveyId)
+    set(value) {
+      localValueStore.setLastCameraPosition(surveyRepository.lastActiveSurveyId, value!!)
     }
 }

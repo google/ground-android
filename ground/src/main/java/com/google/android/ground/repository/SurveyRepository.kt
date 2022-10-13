@@ -26,7 +26,6 @@ import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import io.reactivex.Flowable
@@ -144,10 +143,4 @@ constructor(
   ): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
     return localDataStore.getMutationsOnceAndStream(survey)
   }
-
-  fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
-    localValueStore.setLastCameraPosition(surveyId, cameraPosition)
-
-  fun getLastCameraPosition(surveyId: String): CameraPosition? =
-    localValueStore.getLastCameraPosition(surveyId)
 }

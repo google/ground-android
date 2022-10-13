@@ -28,6 +28,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
@@ -54,17 +55,16 @@ class MapContainerViewModel
 @Inject
 internal constructor(
   private val resources: Resources,
-  private val surveyRepository: SurveyRepository,
+  surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
+  private val mapsRepository: MapsRepository,
   offlineAreaRepository: OfflineAreaRepository
 ) : AbstractViewModel() {
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
   val locationLockState: LiveData<Result<Boolean>>
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
-
-  private var lastCameraPosition: CameraPosition? = null
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
   private val unsavedMapLocationsOfInterest:
@@ -165,9 +165,9 @@ internal constructor(
 
   fun onCameraMove(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
-    onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
-    lastCameraPosition = newCameraPosition
+    val oldZoomLevel = mapsRepository.lastCameraPosition?.zoomLevel
+    mapsRepository.lastCameraPosition = newCameraPosition
+    onZoomChange(oldZoomLevel, newCameraPosition.zoomLevel)
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
