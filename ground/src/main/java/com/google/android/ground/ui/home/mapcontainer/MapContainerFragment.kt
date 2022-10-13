@@ -91,10 +91,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     mapFragment.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe {
-        mapContainerViewModel.onCameraMove(it)
-        loiCardSource.onCameraBoundsUpdated(it.bounds)
-      }
+      .subscribe { onCameraMoved(it) }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
@@ -179,7 +176,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       onLocationLockStateChange(result, mapFragment)
     }
     mapContainerViewModel.cameraUpdateRequests.observe(this) { update ->
-      update.ifUnhandled { data -> onCameraUpdate(data, mapFragment) }
+      update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, mapFragment)
@@ -286,7 +283,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdate(newPosition: CameraPosition, map: MapFragment) {
+  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapFragment) {
     Timber.v("Update camera: %s", newPosition)
     if (newPosition.zoomLevel != null) {
       var zoomLevel = newPosition.zoomLevel
@@ -297,6 +294,10 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     } else {
       map.moveCamera(newPosition.target)
     }
+
+    // Manually notify that the camera has moved as `mapFragment.cameraMovedEvents` only returns
+    // an event when the map is moved by the user (REASON_GESTURE).
+    onCameraMoved(newPosition)
   }
 
   private fun onZoomThresholdCrossed() {
@@ -308,5 +309,10 @@ class MapContainerFragment : AbstractMapViewerFragment() {
   override fun onDestroy() {
     mapContainerViewModel.closeProviders()
     super.onDestroy()
+  }
+
+  private fun onCameraMoved(position: CameraPosition) {
+    mapContainerViewModel.onCameraMove(position)
+    loiCardSource.onCameraBoundsUpdated(position.bounds)
   }
 }
