@@ -56,16 +56,14 @@ constructor(
 
   /** Emits a stream of camera update requests due to active survey changes. */
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
-    surveyRepository.activeSurvey.flatMap { surveyOptional ->
-      val position: CameraPosition? =
-        surveyOptional.map { surveyRepository.getLastCameraPosition(it.id) }.orElse(null)
-
-      if (position == null) {
-        Flowable.empty()
-      } else {
-        Flowable.just(position.copy(isAllowZoomOut = true))
+    surveyRepository.activeSurvey
+      .filter { it.isPresent }
+      .map { it.get().id }
+      .flatMap { surveyId ->
+        surveyRepository.getLastCameraPosition(surveyId)?.let {
+          Flowable.just(it.copy(isAllowZoomOut = true))
+        }
       }
-    }
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
   fun panAndZoomCamera(position: Point) {
