@@ -20,6 +20,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.getOrAwaitValue
@@ -37,6 +38,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Provider
 
 @HiltAndroidTest
 @UninstallModules(LocalDataStoreModule::class)
@@ -53,6 +55,8 @@ class DataCollectionViewModelTest : BaseHiltTest() {
 
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
 
+  @Inject lateinit var popups: Provider<EphemeralPopups>
+
   @Before
   override fun setUp() {
     super.setUp()
@@ -60,7 +64,7 @@ class DataCollectionViewModelTest : BaseHiltTest() {
     whenever(submissionRepository.createSubmission(any(), any(), any()))
       .doReturn(Single.just(DataCollectionTestData.submission))
     dataCollectionViewModel =
-      DataCollectionViewModel(submissionRepository, locationOfInterestHelper)
+      DataCollectionViewModel(submissionRepository, locationOfInterestHelper, popups)
   }
 
   @Test
