@@ -22,7 +22,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -37,6 +36,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
@@ -86,9 +86,7 @@ internal constructor(
       addLocationOfInterestRequests.onNext(
         locationOfInterestRepository.newMutation(survey.id, job.id, point, Date())
       )
-    }) {
-      throw IllegalStateException("Empty survey")
-    }
+    }) { throw IllegalStateException("Empty survey") }
   }
 
   fun addPolygonOfInterest(areaOfInterest: LocationOfInterest) {
@@ -101,9 +99,7 @@ internal constructor(
           Date()
         )
       )
-    }) {
-      throw IllegalStateException("Empty survey")
-    }
+    }) { throw IllegalStateException("Empty survey") }
   }
 
   fun updateLocationOfInterest(locationOfInterest: LocationOfInterest) {
@@ -117,7 +113,7 @@ internal constructor(
   }
 
   fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
-    mapLocationOfInterest.locationOfInterest?.let { showBottomSheet(it) }
+    mapLocationOfInterest.locationOfInterest.let { showBottomSheet(it) }
   }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {

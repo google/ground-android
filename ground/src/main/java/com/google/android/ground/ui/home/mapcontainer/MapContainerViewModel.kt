@@ -28,8 +28,6 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -38,7 +36,10 @@ import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.LocationController
+import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
@@ -47,7 +48,6 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java.util.*
 import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
@@ -331,9 +331,7 @@ internal constructor(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
               unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
             )
-          ) {
-            concatLocationsOfInterestSets(it)
-          }
+          ) { concatLocationsOfInterestSets(it) }
           .distinctUntilChanged()
       )
 

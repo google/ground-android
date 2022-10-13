@@ -27,13 +27,13 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet

@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding;

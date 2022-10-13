@@ -19,8 +19,8 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver
@@ -190,7 +190,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
       var actualPolygonCount = 0
       var actualPointCount = 0
       for (mapLocationOfInterest in mapLois) {
-        when (mapLocationOfInterest.locationOfInterest!!.geometry) {
+        when (mapLocationOfInterest.locationOfInterest.geometry) {
           is Point -> actualPointCount++
           is Polygon -> actualPolygonCount++
           else -> {}
