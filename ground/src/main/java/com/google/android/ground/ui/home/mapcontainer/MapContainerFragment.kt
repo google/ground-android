@@ -43,6 +43,7 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.common.collect.ImmutableList
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,7 +57,9 @@ import timber.log.Timber
 class MapContainerFragment : AbstractMapViewerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
+
   @Inject lateinit var mapsRepository: MapsRepository
+
   @Inject lateinit var navigator: Navigator
 
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
@@ -73,13 +76,13 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     val locationOfInterestRepositionViewModel =
       getViewModel(LocationOfInterestRepositionViewModel::class.java)
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
-    mapFragment.markerClicks.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      mapContainerViewModel.onMarkerClick(it)
-    }
-    mapFragment.markerClicks.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      homeScreenViewModel.onMarkerClick(it)
-    }
-    mapFragment.locationOfInterestClicks
+    mapFragment.locationOfInterestInteractions
+      .`as`(RxAutoDispose.disposeOnDestroy(this))
+      .subscribe { mapContainerViewModel.onMarkerClick(it) }
+    mapFragment.locationOfInterestInteractions
+      .`as`(RxAutoDispose.disposeOnDestroy(this))
+      .subscribe { homeScreenViewModel.onMarkerClick(it) }
+    mapFragment.ambiguousLocationOfInterestInteractions
       .`as`<ObservableSubscribeProxy<ImmutableList<MapLocationOfInterest>>>(
         RxAutoDispose.disposeOnDestroy(this)
       )
@@ -91,10 +94,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     mapFragment.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe {
-        mapContainerViewModel.onCameraMove(it)
-        loiCardSource.onCameraBoundsUpdated(it.bounds)
-      }
+      .subscribe { onCameraMoved(it) }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
@@ -147,7 +147,8 @@ class MapContainerFragment : AbstractMapViewerFragment() {
         }
       }
     )
-    adapter.setItemClickCallback { navigateToDataCollectionFragment(it) }
+    adapter.setLoiCardSelectedCallback { mapFragment.setActiveLocationOfInterest(it) }
+    adapter.setCollectDataCallback { navigateToDataCollectionFragment(it) }
     recyclerView.adapter = adapter
   }
 
@@ -161,29 +162,31 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     )
   }
 
-  override fun onMapReady(map: MapFragment) {
+  override fun onMapReady(mapFragment: MapFragment) {
     Timber.d("MapAdapter ready. Updating subscriptions")
 
     // Custom views rely on the same instance of MapFragment. That couldn't be injected via Dagger.
     // Hence, initializing them here instead of inflating in layout.
-    attachCustomViews(map)
+    attachCustomViews(mapFragment)
     mapContainerViewModel.setLocationLockEnabled(true)
     polygonDrawingViewModel.setLocationLockEnabled(true)
 
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.mapLocationsOfInterest.observe(this) { map.setMapLocationsOfInterest(it) }
+    mapContainerViewModel.mapLocationsOfInterest.observe(this) {
+      mapFragment.renderLocationsOfInterest(it)
+    }
     mapContainerViewModel.locationLockState.observe(this) { result ->
-      onLocationLockStateChange(result, map)
+      onLocationLockStateChange(result, mapFragment)
     }
     mapContainerViewModel.cameraUpdateRequests.observe(this) { update ->
-      update.ifUnhandled { data -> onCameraUpdate(data, map) }
+      update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
-      onBottomSheetStateChange(state, map)
+      onBottomSheetStateChange(state, mapFragment)
     }
-    mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
+    mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
 
-    mapsRepository.observableMapType().observe(this) { map.mapType = it }
+    mapsRepository.observableMapType().observe(this) { mapFragment.mapType = it }
   }
 
   private fun attachCustomViews(map: MapFragment) {
@@ -283,7 +286,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdate(newPosition: CameraPosition, map: MapFragment) {
+  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapFragment) {
     Timber.v("Update camera: %s", newPosition)
     if (newPosition.zoomLevel != null) {
       var zoomLevel = newPosition.zoomLevel
@@ -294,16 +297,25 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     } else {
       map.moveCamera(newPosition.target)
     }
+
+    // Manually notify that the camera has moved as `mapFragment.cameraMovedEvents` only returns
+    // an event when the map is moved by the user (REASON_GESTURE).
+    onCameraMoved(newPosition)
   }
 
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")
 
-    mapFragment.refreshMarkerIcons()
+    mapFragment.refreshRenderedLocationsOfInterest()
   }
 
   override fun onDestroy() {
     mapContainerViewModel.closeProviders()
     super.onDestroy()
+  }
+
+  private fun onCameraMoved(position: CameraPosition) {
+    mapContainerViewModel.onCameraMove(position)
+    loiCardSource.onCameraBoundsUpdated(position.bounds?.toGoogleMapsObject())
   }
 }

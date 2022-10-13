@@ -24,7 +24,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.map.toLatLng
+import com.google.android.ground.ui.map.gms.toLatLng
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

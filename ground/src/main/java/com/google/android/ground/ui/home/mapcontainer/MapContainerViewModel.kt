@@ -24,7 +24,6 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
-import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
@@ -36,7 +35,10 @@ import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.LocationController
+import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
@@ -45,7 +47,6 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java.util.*
 import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
@@ -129,14 +130,14 @@ internal constructor(
     val points =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POINT }
-        .map { SimpleMapLocationOfInterest(it) }
+        .map { MapLocationOfInterest(it) }
         .toImmutableSet()
 
     // TODO: Add support for polylines similar to mapPins.
     val polygons =
       locationsOfInterest
         .filter { it.type === LocationOfInterestType.POLYGON }
-        .map { SimpleMapLocationOfInterest(it) }
+        .map { MapLocationOfInterest(it) }
         .toImmutableSet()
 
     return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
@@ -274,9 +275,6 @@ internal constructor(
     // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
-    private const val DEFAULT_MAP_ZOOM_LEVEL = 0.0f
-    private val DEFAULT_MAP_POINT = Point(Coordinate(0.0, 0.0))
-    val DEFAULT_CAMERA_POSITION = CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL)
 
     private fun concatLocationsOfInterestSets(
       objects: Array<Any>

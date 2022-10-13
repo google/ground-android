@@ -26,20 +26,20 @@
   </data>
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.tos.TermsOfServiceFragment">
 
     <!-- CardView is used to create the drop shadow effect. -->
     <androidx.cardview.widget.CardView
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
       android:id="@+id/terms_header"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       app:cardCornerRadius="0dp"
-      app:cardElevation="@dimen/toolbar_elevation">
+      app:cardElevation="@dimen/toolbar_elevation"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
 
       <LinearLayout
         android:layout_width="match_parent"
@@ -61,12 +61,12 @@
     <ScrollView
       android:layout_width="0dp"
       android:layout_height="0dp"
-      app:layout_constraintBottom_toTopOf="@+id/agreeCheckBox"
-      app:layout_constraintEnd_toEndOf="parent"
       android:layout_margin="16dp"
       android:fillViewport="true"
       android:fitsSystemWindows="true"
       android:scrollbars="vertical"
+      app:layout_constraintBottom_toTopOf="@+id/agreeCheckBox"
+      app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/terms_header">
 
@@ -83,23 +83,21 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
-      android:text="@string/agree_terms"
       android:enabled="@{viewModel.agreeCheckboxChecked}"
+      android:onClick="@{() -> viewModel.onButtonClicked()}"
+      android:text="@string/agree_terms"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      android:onClick="@{() -> viewModel.onButtonClicked()}" />
+      app:layout_constraintStart_toStartOf="parent" />
     <CheckBox
-      app:layout_constraintBottom_toTopOf="@id/agreeButton"
       android:id="@+id/agreeCheckBox"
-      android:checked="@={viewModel.agreeCheckboxChecked}"
       android:layout_width="0dp"
-      android:layout_margin="16dp"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
       android:layout_height="wrap_content"
-      android:text="@string/agree_checkbox" />
-
-
+      android:layout_margin="16dp"
+      android:checked="@={viewModel.agreeCheckboxChecked}"
+      android:text="@string/agree_checkbox"
+      app:layout_constraintBottom_toTopOf="@id/agreeButton"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

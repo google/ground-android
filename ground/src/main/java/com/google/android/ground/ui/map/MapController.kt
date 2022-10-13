@@ -18,8 +18,8 @@ package com.google.android.ground.ui.map
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_CAMERA_POSITION
 import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
+import com.google.android.ground.ui.map.gms.toPoint
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -57,12 +57,14 @@ constructor(
 
   /** Emits a stream of camera update requests due to active survey changes. */
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
-    surveyRepository.activeSurvey.map { surveyOptional ->
-      surveyOptional
-        .map { surveyRepository.getLastCameraPosition(it.id) }
-        .map { it?.copy(isAllowZoomOut = true) }
-        .orElse(DEFAULT_CAMERA_POSITION)
-    }
+    surveyRepository.activeSurvey
+      .filter { it.isPresent }
+      .map { it.get().id }
+      .flatMap { surveyId ->
+        surveyRepository.getLastCameraPosition(surveyId)?.let {
+          Flowable.just(it.copy(isAllowZoomOut = true))
+        }
+      }
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
   fun panAndZoomCamera(position: Point) {

@@ -35,7 +35,7 @@ class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val args = TermsOfServiceFragmentArgs.fromBundle(arguments!!)
+    val args = TermsOfServiceFragmentArgs.fromBundle(requireNotNull(arguments))
     viewModel = getViewModel(TermsOfServiceViewModel::class.java)
     viewModel.termsOfServiceText = args.termsOfServiceText.orEmpty()
   }

@@ -66,6 +66,8 @@ class MainViewModelTest : BaseHiltTest() {
     // TODO: Add a test for syncLois
     super.setUp()
 
+    fakeAuthenticationManager.setUser(FakeData.USER)
+
     // Subscribe to navigation requests
     navDirectionsTestObserver = navigator.getNavigateRequests().test()
   }
@@ -123,7 +125,6 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedIn_whenTosAccepted() {
     tosRepository.isTermsOfServiceAccepted = true
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
-    fakeAuthenticationManager.setUser(FakeData.USER)
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -137,7 +138,6 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
-    fakeAuthenticationManager.setUser(FakeData.USER)
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
     verifyProgressDialogVisible(false)
@@ -153,7 +153,6 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedIn_whenTosMissing() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.setTermsOfService(Optional.empty())
-    fakeAuthenticationManager.setUser(FakeData.USER)
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 

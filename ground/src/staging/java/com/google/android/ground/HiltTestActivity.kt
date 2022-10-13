@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map
+package com.google.android.ground
 
-import android.location.Location
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.Point
+import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 
-fun LatLng.toPoint(): Point = Point(Coordinate(latitude, longitude))
-
-fun Point.toLatLng(): LatLng = LatLng(coordinate.x, coordinate.y)
-
-fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
+@AndroidEntryPoint class HiltTestActivity : AppCompatActivity()

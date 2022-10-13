@@ -35,6 +35,7 @@ apply from: '../config/jacoco/jacoco.gradle'
 project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.7.4"
+    fragmentVersion = "1.5.3"
     hiltJetpackVersion = "1.0.0"
     lifecycleVersion = "2.2.0"
     roomVersion = "2.3.0"
@@ -303,6 +304,11 @@ dependencies {
     annotationProcessor "com.uber.nullaway:nullaway:0.9.1"
     errorprone "com.google.errorprone:error_prone_core:2.4.0"
     errorproneJavac "com.google.errorprone:javac:9+181-r4173-1"
+
+    // Fragments
+    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
+    debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 }
 
 apply plugin: 'androidx.navigation.safeargs'

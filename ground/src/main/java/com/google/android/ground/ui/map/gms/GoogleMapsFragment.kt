@@ -34,7 +34,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -56,7 +59,6 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.io.File
-import java.util.*
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -77,16 +79,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     PublishSubject.create()
 
   /** Map drag events. Emits items when the map drag has started. */
-  private val startDragEvents: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
+  private val startDragEventsProcessor: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
 
   /** Camera move events. Emits items after the camera has stopped moving. */
-  private val cameraMovedEvents: @Hot FlowableProcessor<CameraPosition> = PublishProcessor.create()
+  private val cameraMovedEventsProcessor: @Hot FlowableProcessor<CameraPosition> =
+    PublishProcessor.create()
 
   // TODO(#693): Simplify impl of tile providers.
   // TODO(#691): This is a limitation of the MapBox tile provider we're using;
   // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
   // instead we must retain explicit reference to the concrete type.
-  private val tileProviders: @Hot PublishSubject<MapBoxOfflineTileProvider> =
+  private val tileProvidersSubject: @Hot PublishSubject<MapBoxOfflineTileProvider> =
     PublishSubject.create()
 
   /**
@@ -100,6 +103,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
   private var map: GoogleMap? = null
+
+  /**
+   * User selected [LocationOfInterest] by either clicking the bottom card or horizontal scrolling.
+   */
+  private var activeLocationOfInterest: String? = null
 
   /**
    * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
@@ -126,7 +134,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     watermark.layoutParams = params
   }
 
-  override fun getAvailableMapTypes(): ImmutableList<MapType> = MAP_TYPES
+  override val availableMapTypes: ImmutableList<MapType> = MAP_TYPES
 
   private fun getMap(): GoogleMap {
     checkNotNull(map) { "Map is not ready" }
@@ -152,12 +160,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    mapReadyAction: Consumer<MapFragment>
+    mapAdapter: Consumer<MapFragment>
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
-      mapReadyAction.accept(this)
+      mapAdapter.accept(this)
     }
   }
 
@@ -184,7 +192,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val processed = ArrayList<String>()
 
     for ((mapLocationOfInterest, value) in polygons) {
-      val loiId = mapLocationOfInterest.locationOfInterest?.id ?: continue
+      val loiId = mapLocationOfInterest.locationOfInterest.id
       if (processed.contains(loiId)) {
         continue
       }
@@ -211,16 +219,18 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       true
     }
 
-  override fun getMarkerClicks(): @Hot Observable<MapLocationOfInterest> = markerClicks
+  override val locationOfInterestInteractions: @Hot Observable<MapLocationOfInterest> = markerClicks
 
-  override fun getLocationOfInterestClicks():
-    @Hot Observable<ImmutableList<MapLocationOfInterest>> = locationOfInterestClicks
+  override val ambiguousLocationOfInterestInteractions:
+    @Hot
+    Observable<ImmutableList<MapLocationOfInterest>> =
+    locationOfInterestClicks
 
-  override fun getStartDragEvents(): @Hot Flowable<Nil> = startDragEvents
+  override val startDragEvents: @Hot Flowable<Nil> = this.startDragEventsProcessor
 
-  override fun getCameraMovedEvents(): @Hot Flowable<CameraPosition> = cameraMovedEvents
+  override val cameraMovedEvents: @Hot Flowable<CameraPosition> = cameraMovedEventsProcessor
 
-  override fun getTileProviders(): @Hot Observable<MapBoxOfflineTileProvider> = tileProviders
+  override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
   override fun getDistanceInPixels(point1: Point, point2: Point): Double {
     if (map == null) {
@@ -254,11 +264,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           MarkerOptions().position(position).icon(getMarkerIcon()).anchor(0.5f, 0.85f).alpha(1.0f)
         )
     markers[marker] = mapLocationOfInterest
-    marker.tag = Pair(mapLocationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
+    marker.tag = Pair(mapLocationOfInterest.locationOfInterest.id, LocationOfInterest::javaClass)
   }
 
-  private fun getMarkerIcon(): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel)
+  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel, isSelected)
 
   private fun addMultiPolygon(
     locationOfInterest: MapLocationOfInterest,
@@ -274,8 +284,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
-    mapsPolygon.tag =
-      Pair(locationOfInterest.locationOfInterest!!.id, LocationOfInterest::javaClass)
+    mapsPolygon.tag = Pair(locationOfInterest.locationOfInterest.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
     //  parseColor(Style().color)
@@ -291,7 +300,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMapClick(latLng: LatLng) = handleAmbiguity(latLng)
 
-  override fun getCurrentZoomLevel(): Float = getMap().cameraPosition.zoom
+  override val currentZoomLevel: Float
+    get() = getMap().cameraPosition.zoom
 
   @SuppressLint("MissingPermission")
   override fun enableCurrentLocationIndicator() {
@@ -300,7 +310,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun setMapLocationsOfInterest(features: ImmutableSet<MapLocationOfInterest>) {
+  override fun renderLocationsOfInterest(features: ImmutableSet<MapLocationOfInterest>) {
     Timber.v("setMapLocationsOfInterest() called with ${features.size} locations of interest")
     val featuresToUpdate: MutableSet<MapLocationOfInterest> = HashSet(features)
 
@@ -336,7 +346,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     Timber.v("Updating ${features.size} features")
     features.forEach {
-      val geometry = it.locationOfInterest?.geometry ?: return
+      val geometry = it.locationOfInterest.geometry
 
       when (geometry) {
         is LineString -> TODO()
@@ -348,13 +358,18 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun refreshMarkerIcons() = markers.keys.forEach { it.setIcon(getMarkerIcon()) }
-
-  override fun getMapType(): Int = getMap().mapType
-
-  override fun setMapType(mapType: Int) {
-    getMap().mapType = mapType
+  override fun refreshRenderedLocationsOfInterest() {
+    for ((marker, mapLocationOfInterest) in markers) {
+      val isSelected = mapLocationOfInterest.locationOfInterest.id == activeLocationOfInterest
+      marker.setIcon(getMarkerIcon(isSelected))
+    }
   }
+
+  override var mapType: Int
+    get() = getMap().mapType
+    set(mapType) {
+      getMap().mapType = mapType
+    }
 
   private fun removeMarker(marker: Marker) {
     Timber.v("Removing marker ${marker.id}")
@@ -376,12 +391,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onCameraIdle() {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      cameraMovedEvents.onNext(
+      cameraMovedEventsProcessor.onNext(
         CameraPosition(
           getMap().cameraPosition.target.toPoint(),
           getMap().cameraPosition.zoom,
           false,
-          getMap().projection.visibleRegion.latLngBounds
+          getMap().projection.visibleRegion.latLngBounds.toModelObject()
         )
       )
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
@@ -391,15 +406,14 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun onCameraMoveStarted(reason: Int) {
     cameraChangeReason = reason
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      startDragEvents.onNext(Nil.NIL)
+      this.startDragEventsProcessor.onNext(Nil.NIL)
     }
   }
 
-  override fun getViewport(): LatLngBounds = getMap().projection.visibleRegion.latLngBounds
-
-  override fun setViewport(bounds: LatLngBounds) {
-    getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0))
-  }
+  override var viewport: Bounds
+    get() = getMap().projection.visibleRegion.latLngBounds.toModelObject()
+    set(bounds) =
+      getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 0))
 
   private fun addTileOverlay(filePath: String) {
     val mbtilesFile = File(requireContext().filesDir, filePath)
@@ -411,7 +425,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     try {
       val tileProvider = MapBoxOfflineTileProvider(mbtilesFile)
-      tileProviders.onNext(tileProvider)
+      tileProvidersSubject.onNext(tileProvider)
       getMap().addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
     } catch (e: Exception) {
       Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile")
@@ -428,6 +442,15 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun addRemoteTileOverlays(urls: ImmutableList<String>) =
     urls.forEach { addRemoteTileOverlay(it) }
+
+  override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?) {
+    val newId = locationOfInterest?.id
+    if (activeLocationOfInterest == newId) return
+
+    activeLocationOfInterest = newId
+    // TODO: Optimize the performance by refreshing old and new rendered geometries
+    refreshRenderedLocationsOfInterest()
+  }
 
   companion object {
     // TODO(#936): Remove placeholder with appropriate images

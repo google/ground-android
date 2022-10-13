@@ -44,9 +44,6 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetCurrentUser() {
-    fakeAuthenticationManager.setUser(null)
-    assertThat(userRepository.currentUser).isNull()
-
     fakeAuthenticationManager.setUser(FakeData.USER)
     assertThat(userRepository.currentUser).isEqualTo(FakeData.USER)
   }

@@ -83,15 +83,12 @@ class MapControllerTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsDefaultPosition() {
+  fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsNothing() {
     Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
     Mockito.`when`(surveyRepository.getLastCameraPosition(any())).thenReturn(null)
 
-    mapController
-      .getCameraUpdates()
-      .test()
-      .assertValues(CameraPosition(Point(Coordinate(0.0, 0.0)), 0.0f))
+    mapController.getCameraUpdates().test().assertNoValues()
   }
 
   @Test
