@@ -24,7 +24,6 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
-import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
@@ -274,9 +273,6 @@ internal constructor(
     // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
-    private const val DEFAULT_MAP_ZOOM_LEVEL = 0.0f
-    private val DEFAULT_MAP_POINT = Point(Coordinate(0.0, 0.0))
-    val DEFAULT_CAMERA_POSITION = CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL)
 
     private fun concatLocationsOfInterestSets(
       objects: Array<Any>
