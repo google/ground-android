@@ -209,22 +209,22 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       ((PhotoInputTaskBindingImpl) binding).setEditSubmissionViewModel(viewModel);
     }
 
-    AbstractTaskViewModel fieldViewModel = getViewModel(binding);
-    fieldViewModel.initialize(task, viewModel.getResponse(task.getId()));
+    AbstractTaskViewModel taskViewModel = getViewModel(binding);
+    taskViewModel.initialize(task, viewModel.getResponse(task.getId()));
 
-    if (fieldViewModel instanceof PhotoTaskViewModel) {
-      initPhotoTask((PhotoTaskViewModel) fieldViewModel);
-    } else if (fieldViewModel instanceof MultipleChoiceTaskViewModel) {
-      observeSelectChoiceClicks((MultipleChoiceTaskViewModel) fieldViewModel);
-    } else if (fieldViewModel instanceof DateTaskViewModel) {
-      observeDateDialogClicks((DateTaskViewModel) fieldViewModel);
-    } else if (fieldViewModel instanceof TimeTaskViewModel) {
-      observeTimeDialogClicks((TimeTaskViewModel) fieldViewModel);
+    if (taskViewModel instanceof PhotoTaskViewModel) {
+      initPhotoTask((PhotoTaskViewModel) taskViewModel);
+    } else if (taskViewModel instanceof MultipleChoiceTaskViewModel) {
+      observeSelectChoiceClicks((MultipleChoiceTaskViewModel) taskViewModel);
+    } else if (taskViewModel instanceof DateTaskViewModel) {
+      observeDateDialogClicks((DateTaskViewModel) taskViewModel);
+    } else if (taskViewModel instanceof TimeTaskViewModel) {
+      observeTimeDialogClicks((TimeTaskViewModel) taskViewModel);
     }
 
-    fieldViewModel.getResponse().observe(this, response -> viewModel.setResponse(task, response));
+    taskViewModel.getResponse().observe(this, response -> viewModel.setResponse(task, response));
 
-    taskViewModels.add(fieldViewModel);
+    taskViewModels.add(taskViewModel);
   }
 
   public void onSaveClick(View view) {
@@ -243,9 +243,10 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private Map<String, String> getValidationErrors() {
     HashMap<String, String> errors = new HashMap<>();
     for (AbstractTaskViewModel fieldViewModel : taskViewModels) {
-      fieldViewModel
-          .validate()
-          .ifPresent(error -> errors.put(fieldViewModel.getTask().getId(), error));
+      String error = fieldViewModel.validate();
+      if (error != null) {
+        errors.put(fieldViewModel.getTask().getId(), error);
+      }
     }
     return errors;
   }

@@ -39,6 +39,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import com.google.android.ground.launchFragmentInHiltContainer
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -111,9 +112,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     whenever(dataCollectionViewModel.submission)
       .doReturn(MutableLiveData(Loadable.loaded(DataCollectionTestData.submission)))
 
-    dataCollectionFragment = DataCollectionFragment()
-    dataCollectionFragment.arguments = DataCollectionTestData.args.toBundle()
-    activity.supportFragmentManager.beginTransaction().add(dataCollectionFragment, null).commitNow()
+    val args = DataCollectionTestData.args.toBundle()
+    launchFragmentInHiltContainer<DataCollectionFragment>(args) {
+      dataCollectionFragment = this as DataCollectionFragment
+    }
 
     shadowOf(getMainLooper()).idle()
   }

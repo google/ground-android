@@ -19,15 +19,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.R
+import com.google.android.ground.BR
 import com.google.android.ground.databinding.QuestionDataCollectionFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class QuestionDataCollectionFragment constructor(private val task: Task) : AbstractFragment() {
+class QuestionDataCollectionFragment constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) : AbstractFragment() {
   // TODO(#1146): Use the task to determine what UI should be shown to the user here
 
   // TODO(#1146): Persist the text contents when the user clicks next
@@ -45,11 +46,9 @@ class QuestionDataCollectionFragment constructor(private val task: Task) : Abstr
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = QuestionDataCollectionFragBinding.inflate(inflater, container, false)
 
-    binding.task = task
     binding.lifecycleOwner = this
+    binding.setVariable(BR.viewModel, viewModel)
 
     return binding.root
-
-    return inflater.inflate(R.layout.question_data_collection_frag, container, false)
   }
 }
