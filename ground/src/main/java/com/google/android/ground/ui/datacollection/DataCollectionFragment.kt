@@ -71,17 +71,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     }
 
-    viewModel.currentPosition.observe(viewLifecycleOwner) {
-      viewPager.currentItem = it
-    }
+    viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
 
-    viewModel
-      .continueResults
+    viewModel.continueResults
       .observeOn(schedulers.ui())
       .`as`(autoDisposable(viewLifecycleOwner))
-      .subscribe { error ->
-        handleContinueClickError(error)
-      }
+      .subscribe { error -> handleContinueClickError(error) }
 
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
@@ -103,8 +98,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
   private fun handleContinueClickError(error: String?) {
-    error?.let {
-      ephemeralPopups.get().showError(it)
-    }
+    error?.let { ephemeralPopups.get().showError(it) }
   }
 }

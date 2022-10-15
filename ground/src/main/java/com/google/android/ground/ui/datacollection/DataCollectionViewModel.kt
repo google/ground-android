@@ -53,9 +53,10 @@ internal constructor(
   /** Outcome of user clicking "Save". */
   val continueResults: Observable<String?>
 
-  private val taskViewModels: @Hot(replays = true) MutableLiveData<MutableList<AbstractTaskViewModel>> = MutableLiveData(
-    mutableListOf()
-  )
+  private val taskViewModels:
+    @Hot(replays = true)
+    MutableLiveData<MutableList<AbstractTaskViewModel>> =
+    MutableLiveData(mutableListOf())
   private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
     BehaviorProcessor.create()
 
@@ -89,10 +90,7 @@ internal constructor(
           .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
       )
 
-    continueResults =
-      continueClicks
-        .toObservable()
-        .switchMapSingle{ onContinueClicked() }
+    continueResults = continueClicks.toObservable().switchMapSingle { onContinueClicked() }
   }
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
