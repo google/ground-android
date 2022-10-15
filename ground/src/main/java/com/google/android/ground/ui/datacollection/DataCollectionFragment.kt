@@ -21,8 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.ground.MainActivity
-import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.Loadable
@@ -60,7 +58,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = DataCollectionFragBinding.inflate(inflater, container, false)
-    viewPager = binding.root.findViewById(R.id.pager)
+    viewPager = binding.pager
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
@@ -81,7 +79,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (activity as MainActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
+    getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
   }
