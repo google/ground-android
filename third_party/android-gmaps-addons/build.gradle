@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
+    namespace 'com.cocoahero.android.gmaps.addons'
     compileSdkVersion rootProject.androidCompileSdk
 
     defaultConfig {
@@ -8,12 +9,6 @@ android {
         targetSdkVersion rootProject.androidTargetSdk
     }
 
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-        }
-    }
     buildTypes {
         staging {
         }
