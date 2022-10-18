@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.relations
 
-package com.google.android.ground.persistence.local.room.relations;
-
-import androidx.room.Embedded;
-import androidx.room.Relation;
-import com.google.android.ground.persistence.local.room.entity.BaseMapEntity;
-import com.google.android.ground.persistence.local.room.entity.JobEntity;
-import com.google.android.ground.persistence.local.room.entity.SurveyEntity;
-import java.util.List;
+import androidx.room.Embedded
+import androidx.room.Relation
+import com.google.android.ground.persistence.local.room.entity.BaseMapEntity
+import com.google.android.ground.persistence.local.room.entity.JobEntity
+import com.google.android.ground.persistence.local.room.entity.SurveyEntity
 
 /**
  * Represents relationship between SurveyEntity and JobEntity.
  *
- * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
+ * Querying any of the below data class automatically loads the field annotated as @Relation.
  */
-public class SurveyEntityAndRelations {
-
-  @Embedded public SurveyEntity surveyEntity;
-
-  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = JobEntity.class)
-  public List<JobEntityAndRelations> jobEntityAndRelations;
-
-  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = BaseMapEntity.class)
-  public List<BaseMapEntity> baseMapEntityAndRelations;
-}
+data class SurveyEntityAndRelations(
+  @Embedded val surveyEntity: SurveyEntity,
+  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = JobEntity::class)
+  val jobEntityAndRelations: List<JobEntityAndRelations>,
+  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = BaseMapEntity::class)
+  val baseMapEntityAndRelations: List<BaseMapEntity>
+)

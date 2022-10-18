@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.relations
 
-package com.google.android.ground.persistence.local.room.relations;
-
-import androidx.room.Embedded;
-import androidx.room.Relation;
-import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity;
-import com.google.android.ground.persistence.local.room.entity.OptionEntity;
-import com.google.android.ground.persistence.local.room.entity.TaskEntity;
-import java.util.List;
+import androidx.room.Embedded
+import androidx.room.Relation
+import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
+import com.google.android.ground.persistence.local.room.entity.OptionEntity
+import com.google.android.ground.persistence.local.room.entity.TaskEntity
 
 /**
  * Represents relationship between TaskEntity, MultipleChoiceEntity, and OptionEntity.
  *
- * <p>Querying any of the below data classes automatically loads the task annotated as @Relation.
+ * Querying any of the below data classes automatically loads the task annotated as @Relation.
  */
-public class TaskEntityAndRelations {
-  @Embedded public TaskEntity taskEntity;
-
-  @Relation(parentColumn = "id", entityColumn = "task_id", entity = MultipleChoiceEntity.class)
-  public List<MultipleChoiceEntity> multipleChoiceEntities;
-
-  @Relation(parentColumn = "id", entityColumn = "task_id", entity = OptionEntity.class)
-  public List<OptionEntity> optionEntities;
-}
+data class TaskEntityAndRelations(
+  @Embedded val taskEntity: TaskEntity,
+  @Relation(parentColumn = "id", entityColumn = "task_id")
+  val multipleChoiceEntities: List<MultipleChoiceEntity>,
+  @Relation(parentColumn = "id", entityColumn = "task_id", entity = OptionEntity::class)
+  val optionEntities: List<OptionEntity>
+)
