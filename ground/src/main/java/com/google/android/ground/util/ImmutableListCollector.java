@@ -17,12 +17,8 @@
 package com.google.android.ground.util;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Collection;
-import java8.util.function.Function;
-import java8.util.function.Predicate;
 import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
-import java8.util.stream.StreamSupport;
 
 /**
  * Custom collector for compatibility between {@link Collector} compat class and Guava {@link
@@ -47,29 +43,5 @@ public abstract class ImmutableListCollector {
    */
   public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
     return (Collector) TO_IMMUTABLE_LIST;
-  }
-
-  /**
-   * Returns a function for use with RxJava Observables that maps a function over the contents of an
-   * immutable list and recollects the results back into an immutable list.
-   *
-   * <p>This eliminates list handling boilerplate when lists are used as rx stream values.
-   */
-  public static <E, T>
-      io.reactivex.functions.Function<Collection<T>, ImmutableList<E>> mapAndRecollect(
-          Function<T, E> func) {
-    return x -> StreamSupport.stream(x).map(func).collect(toImmutableList());
-  }
-
-  /**
-   * Returns a function for use with RxJava Observables that filters a list using a provided
-   * function and recollects the results back into an immutable list.
-   *
-   * <p>This eliminates list handling boilerplate when lists are used as rx stream values.
-   */
-  public static <T>
-      io.reactivex.functions.Function<Collection<T>, ImmutableList<T>> filterAndRecollect(
-          Predicate<T> func) {
-    return x -> StreamSupport.stream(x).filter(func).collect(toImmutableList());
   }
 }
