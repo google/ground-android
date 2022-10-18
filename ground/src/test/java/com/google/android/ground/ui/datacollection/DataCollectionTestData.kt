@@ -28,11 +28,13 @@ import java.util.*
 import java8.util.Optional
 
 object DataCollectionTestData {
-  private const val surveyId = "123"
-  private const val loiId = "456"
-  private const val submissionId = "789"
+  const val surveyId = "123"
+  const val loiId = "456"
+  const val submissionId = "789"
   const val jobName = "jobName"
   const val loiName = "loiName"
+  const val task1Name = "task 1"
+  const val task2Name = "task 2"
   val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()
   private val auditInfo = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
   val submission: Submission =
@@ -54,9 +56,9 @@ object DataCollectionTestData {
         tasks =
           ImmutableMap.of(
             "field id",
-            Task("field id", 0, Task.Type.MULTIPLE_CHOICE, "field", true),
+            Task("field id", 0, Task.Type.TEXT, task1Name, true),
             "field id 2",
-            Task("field id 2", 1, Task.Type.PHOTO, "field 2", true)
+            Task("field id 2", 1, Task.Type.TEXT, task2Name, true)
           )
       ),
       auditInfo,

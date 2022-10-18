@@ -15,7 +15,6 @@
  */
 package com.google.android.ground
 
-import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint class HiltTestActivity : AppCompatActivity()
+@AndroidEntryPoint class HiltTestActivity : AbstractActivity()

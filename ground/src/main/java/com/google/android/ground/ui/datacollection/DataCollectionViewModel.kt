@@ -53,9 +53,10 @@ internal constructor(
   /** Outcome of user clicking "Save". */
   val continueResults: Observable<String?>
 
-  private val taskViewModels: @Hot(replays = true) MutableLiveData<MutableList<AbstractTaskViewModel>> = MutableLiveData(
-    mutableListOf()
-  )
+  private val taskViewModels:
+    @Hot(replays = true)
+    MutableLiveData<MutableList<AbstractTaskViewModel>> =
+    MutableLiveData(mutableListOf())
   private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
     BehaviorProcessor.create()
 
@@ -89,10 +90,7 @@ internal constructor(
           .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
       )
 
-    continueResults =
-      continueClicks
-        .toObservable()
-        .switchMapSingle{ onContinueClicked() }
+    continueResults = continueClicks.toObservable().switchMapSingle { onContinueClicked() }
   }
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
@@ -111,7 +109,7 @@ internal constructor(
     if (validationError == null) {
       // TODO(#1146): Handle the scenario when the user clicks next on the last Task. This will
       //  include persisting the list of responses to the database
-      currentPosition.value = currentPosition.value!! + 1
+      currentPosition.postValue(currentPosition.value!! + 1)
 
       responses[currentTask.task.id] = currentTask.response.value?.orElse(null)
       return Single.never()

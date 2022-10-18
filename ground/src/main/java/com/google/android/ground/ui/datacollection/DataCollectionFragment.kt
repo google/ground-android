@@ -19,9 +19,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.VisibleForTesting
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.ground.MainActivity
+import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
@@ -44,7 +45,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private lateinit var viewModel: DataCollectionViewModel
+  @VisibleForTesting lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
   private lateinit var viewPager: ViewPager2
 
@@ -71,22 +72,17 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     }
 
-    viewModel.currentPosition.observe(viewLifecycleOwner) {
-      viewPager.currentItem = it
-    }
+    viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
 
-    viewModel
-      .continueResults
+    viewModel.continueResults
       .observeOn(schedulers.ui())
       .`as`(autoDisposable(viewLifecycleOwner))
-      .subscribe { error ->
-        handleContinueClickError(error)
-      }
+      .subscribe { error -> handleContinueClickError(error) }
 
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (activity as MainActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
+    (activity as AbstractActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
   }
@@ -103,8 +99,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
   private fun handleContinueClickError(error: String?) {
-    error?.let {
-      ephemeralPopups.get().showError(it)
-    }
+    error?.let { ephemeralPopups.get().showError(it) }
   }
 }
