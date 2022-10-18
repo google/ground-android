@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.relations
 
-package com.google.android.ground.persistence.local.room.relations;
-
-import androidx.room.Embedded;
-import androidx.room.Relation;
-import com.google.android.ground.persistence.local.room.entity.JobEntity;
-import com.google.android.ground.persistence.local.room.entity.TaskEntity;
-import java.util.List;
+import androidx.room.Embedded
+import androidx.room.Relation
+import com.google.android.ground.persistence.local.room.entity.JobEntity
+import com.google.android.ground.persistence.local.room.entity.TaskEntity
 
 /**
  * Represents relationship between JobEntity and TaskEntity.
  *
- * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
+ * Querying any of the below data class automatically loads the field annotated as @Relation.
  */
-public class JobEntityAndRelations {
-  @Embedded public JobEntity jobEntity;
-
-  @Relation(parentColumn = "id", entityColumn = "job_id", entity = TaskEntity.class)
-  public List<TaskEntityAndRelations> taskEntityAndRelations;
-}
+data class JobEntityAndRelations(
+  @Embedded val jobEntity: JobEntity,
+  @Relation(parentColumn = "id", entityColumn = "job_id", entity = TaskEntity::class)
+  var taskEntityAndRelations: List<TaskEntityAndRelations>
+)
