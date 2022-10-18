@@ -102,8 +102,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     onView(withText(DataCollectionTestData.task1Name)).check(matches(not(isDisplayed())))
     onView(withText(DataCollectionTestData.task2Name)).check(matches(isDisplayed()))
-
-    // assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful")
   }
 
   @Test
