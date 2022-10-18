@@ -40,7 +40,6 @@ import javax.inject.Provider
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var ephemeralPopups: Provider<EphemeralPopups>
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
@@ -73,11 +72,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
 
-    viewModel.continueResults
-      .observeOn(schedulers.ui())
-      .`as`(autoDisposable(viewLifecycleOwner))
-      .subscribe { error -> handleContinueClickError(error) }
-
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
@@ -96,8 +90,4 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       viewModel.currentPosition.value = viewModel.currentPosition.value!! - 1
       true
     }
-
-  private fun handleContinueClickError(error: String?) {
-    error?.let { ephemeralPopups.get().showError(it) }
-  }
 }
