@@ -64,10 +64,17 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun created_submissionIsLoaded() {
+  fun created_submissionIsLoaded_loiNameIsShown() {
     setupFragment()
 
     onView(withText(DataCollectionTestData.loiName)).check(matches(isDisplayed()))
+  }
+
+  @Test
+  fun created_submissionIsLoaded_jobNameIsShown() {
+    setupFragment()
+
+    onView(withText(DataCollectionTestData.jobName)).check(matches(isDisplayed()))
   }
 
   @Test
@@ -91,6 +98,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     onView(withId(R.id.data_collection_continue_button)).perform(click())
 
     assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("This field is required")
+    onView(withText(DataCollectionTestData.task1Name)).check(matches(isDisplayed()))
+    onView(withText(DataCollectionTestData.task2Name)).check(matches(not(isDisplayed())))
   }
 
   @Test
@@ -100,6 +109,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     onView(withId(R.id.data_collection_continue_button)).perform(click())
 
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
     onView(withText(DataCollectionTestData.task1Name)).check(matches(not(isDisplayed())))
     onView(withText(DataCollectionTestData.task2Name)).check(matches(isDisplayed()))
   }
@@ -114,6 +124,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     assertThat(fragment.onBack()).isTrue()
 
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
     onView(withText(DataCollectionTestData.task1Name)).check(matches(isDisplayed()))
     onView(withText(DataCollectionTestData.task2Name)).check(matches(not(isDisplayed())))
   }

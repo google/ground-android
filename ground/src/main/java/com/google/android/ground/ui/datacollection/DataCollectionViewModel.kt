@@ -25,7 +25,6 @@ import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import io.reactivex.Flowable
@@ -35,7 +34,6 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
-import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
 class DataCollectionViewModel
@@ -43,14 +41,13 @@ class DataCollectionViewModel
 internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
-  private val popups: Provider<EphemeralPopups>,
 ) : AbstractViewModel() {
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
   /** "Continue" button clicks. */
   private val continueClicks: @Hot PublishProcessor<Nil> = PublishProcessor.create()
-  /** Outcome of user clicking "Save". */
+  /** Outcome of user clicking "Continue". */
   val continueResults: Observable<String?>
 
   private val taskViewModels:
@@ -113,8 +110,6 @@ internal constructor(
 
       responses[currentTask.task.id] = currentTask.response.value?.orElse(null)
       return Single.never()
-    } else {
-      popups.get().showError(validationError)
     }
 
     return Single.just(validationError)

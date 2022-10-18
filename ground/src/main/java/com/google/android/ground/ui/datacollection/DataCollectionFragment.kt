@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.VisibleForTesting
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.AbstractActivity
@@ -45,7 +44,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  @VisibleForTesting lateinit var viewModel: DataCollectionViewModel
+  private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
   private lateinit var viewPager: ViewPager2
 
