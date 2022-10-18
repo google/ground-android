@@ -28,9 +28,9 @@ import java.util.*
 import java8.util.Optional
 
 object DataCollectionTestData {
-  private const val surveyId = "123"
-  private const val loiId = "456"
-  private const val submissionId = "789"
+  const val surveyId = "123"
+  const val loiId = "456"
+  const val submissionId = "789"
   const val jobName = "jobName"
   const val loiName = "loiName"
   val args = DataCollectionFragmentArgs.Builder(surveyId, loiId, submissionId).build()

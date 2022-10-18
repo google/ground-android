@@ -31,6 +31,7 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
+import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -42,7 +43,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private lateinit var viewModel: DataCollectionViewModel
+  lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
   private lateinit var viewPager: ViewPager2
 

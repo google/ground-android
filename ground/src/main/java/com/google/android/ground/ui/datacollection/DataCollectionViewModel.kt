@@ -104,12 +104,14 @@ internal constructor(
    * Progresses to the next Data Collection screen if the user input was valid.
    */
   fun onContinueClicked(): Single<String> {
-    val currentTask = taskViewModels.value!![currentPosition.value!!]
+    val currentTask = taskViewModels.value!![currentPosition.value ?: 0]
+    currentPosition.postValue((currentPosition.value ?: 0) + 1)
     val validationError = currentTask.validate()
     if (validationError == null) {
       // TODO(#1146): Handle the scenario when the user clicks next on the last Task. This will
       //  include persisting the list of responses to the database
-      currentPosition.value = currentPosition.value!! + 1
+      currentPosition.postValue((currentPosition.value ?: 0) + 1)
+      //      currentPosition.value = currentPosition.value!! + 1
 
       responses[currentTask.task.id] = currentTask.response.value?.orElse(null)
       return Single.never()
