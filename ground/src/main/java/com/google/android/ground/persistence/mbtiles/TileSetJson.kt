@@ -13,91 +13,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.mbtiles
 
-package com.google.android.ground.persistence.mbtiles;
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.util.toImmutableList
+import com.google.common.collect.ImmutableList
+import java8.util.Optional
+import org.json.JSONArray
+import org.json.JSONObject
 
-import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
+/**
+ * Describes a tile set source, including its id, extents, and source URL.
+ *
+ * A valid tile has the following information:
+ *
+ * - a geometry describing a polygon.
+ * - an id specifying cartesian coordinates.
+ * - a URL specifying a source for the tile imagery.
+ *
+ * GeoJSON Polygons are described using coordinate arrays that task a linear ring. The first and
+ * last value in a linear ring are equivalent. We assume coordinates are ordered, S/W, S/E, N/E,
+ * N/W, (S/W again, closing the ring).
+ *
+ * Interior rings, which describe holes in the polygon, are ignored.
+ */
+internal class TileSetJson(private val json: JSONObject) {
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
-import java8.util.Optional;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-/** Describes a tile set source, including its id, extents, and source URL. */
-class TileSetJson {
-
-  private static final String GEOMETRY_KEY = "geometry";
-  private static final String VERTICES_JSON_KEY = "coordinates";
-
-  private static final String ID_KEY = "id";
-  private static final String PROPERTIES_KEY = "properties";
-  private static final String URL_KEY = "url";
-
-  private final JSONObject json;
-
-  /**
-   * Constructs a TileSetSource based on the contents of {@param jsonObject}.
-   *
-   * <p>A valid tile has the following information:
-   *
-   * <p>- a geometry describing a polygon. - an id specifying cartesian coordinates. - a URL
-   * specifying a source for the tile imagery.
-   *
-   * <p>GeoJSON Polygons are described using coordinate arrays that task a linear ring. The first
-   * and last value in a linear ring are equivalent. We assume coordinates are ordered, S/W, S/E,
-   * N/E, N/W, (S/W again, closing the ring).
-   *
-   * <p>Interior rings, which describe holes in the polygon, are ignored.
-   */
-  TileSetJson(JSONObject jsonObject) {
-    this.json = jsonObject;
-  }
-
-  private ImmutableList<LatLng> getVertices() {
-    Optional<JSONArray> exteriorRing =
+  private val vertices: ImmutableList<LatLng>
+    get() {
+      val exteriorRing =
         Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY))
-            .flatMap(j -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)))
-            .map(j -> j.optJSONArray(0));
+          .flatMap { j: JSONObject -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)) }
+          .map { j: JSONArray -> j.optJSONArray(0) }
+      return ringCoordinatesToLatLngs(exteriorRing.orElse(null))
+    }
 
-    return ringCoordinatesToLatLngs(exteriorRing.orElse(null));
-  }
+  val id: Optional<String>
+    get() {
+      val value = json.optString(ID_KEY)
+      return if (value.isEmpty()) Optional.empty() else Optional.of(value)
+    }
 
-  public Optional<String> getId() {
-    String s = json.optString(ID_KEY);
-    return s.isEmpty() ? Optional.empty() : Optional.of(s);
-  }
+  val url: Optional<String>
+    get() = Optional.ofNullable(json.optJSONObject(PROPERTIES_KEY)).map { it.optString(URL_KEY) }
 
-  public Optional<String> getUrl() {
-    return Optional.ofNullable(json.optJSONObject(PROPERTIES_KEY)).map(j -> j.optString(URL_KEY));
-  }
+  fun boundsIntersect(bounds: LatLngBounds): Boolean = vertices.any { bounds.contains(it) }
 
-  boolean boundsIntersect(LatLngBounds bounds) {
-    return stream(this.getVertices()).anyMatch(bounds::contains);
-  }
-
-  private ImmutableList<LatLng> ringCoordinatesToLatLngs(JSONArray exteriorRing) {
+  private fun ringCoordinatesToLatLngs(exteriorRing: JSONArray?): ImmutableList<LatLng> {
     if (exteriorRing == null) {
-      return ImmutableList.of();
+      return ImmutableList.of()
     }
-
-    List<LatLng> coordinates = new ArrayList<>();
-
-    for (int i = 0; i < exteriorRing.length(); i++) {
-      JSONArray point = exteriorRing.optJSONArray(i);
-      double lat = point.optDouble(1, 0.0);
-      double lng = point.optDouble(0, 0.0);
-
-      // PMD complains about instantiating objects in loops, but here, we retain a reference to the
-      // object after the loop exits--the PMD recommendation here makes little sense, and is
-      // presumably intended to prevent short-lived allocations.
-      coordinates.add(new LatLng(lat, lng)); // NOPMD
+    val coordinates: MutableList<LatLng> = ArrayList()
+    for (i in 0 until exteriorRing.length()) {
+      val point = exteriorRing.optJSONArray(i)
+      val lat = point.optDouble(1, 0.0)
+      val lng = point.optDouble(0, 0.0)
+      coordinates.add(LatLng(lat, lng))
     }
+    return coordinates.toImmutableList()
+  }
 
-    return stream(coordinates).collect(toImmutableList());
+  companion object {
+    private const val GEOMETRY_KEY = "geometry"
+    private const val VERTICES_JSON_KEY = "coordinates"
+    private const val ID_KEY = "id"
+    private const val PROPERTIES_KEY = "properties"
+    private const val URL_KEY = "url"
   }
 }
