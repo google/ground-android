@@ -1,5 +1,3 @@
-package com.google.android.ground.ui.datacollection
-
 /*
  * Copyright 2022 Google LLC
  *
@@ -16,7 +14,8 @@ package com.google.android.ground.ui.datacollection
  * limitations under the License.
  */
 
-import android.os.Looper
+package com.google.android.ground.ui.datacollection
+
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowToast
 
 @HiltAndroidTest
