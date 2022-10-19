@@ -135,7 +135,7 @@ class LoiCardSourceTest : BaseHiltTest() {
       )
 
     private fun createPoint(id: String, coordinate: Coordinate) =
-      FakeData.POINT_OF_INTEREST.copy(
+      FakeData.LOCATION_OF_INTEREST.copy(
         id = id,
         geometry = Point(coordinate),
         surveyId = TEST_SURVEY.id

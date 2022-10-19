@@ -48,10 +48,6 @@ internal constructor(
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
-  /** "Continue" button clicks. */
-  private val continueClicks: @Hot PublishProcessor<Nil> = PublishProcessor.create()
-  /** Outcome of user clicking "Continue". */
-  private val continueResults: Observable<String?>
 
   private val taskViewModels:
     @Hot(replays = true)
@@ -89,8 +85,6 @@ internal constructor(
           .map { submission -> submission.value().map { it.locationOfInterest } }
           .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
       )
-
-    continueResults = continueClicks.toObservable().switchMapSingle { onContinueClicked() }
   }
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)

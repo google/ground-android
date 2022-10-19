@@ -27,6 +27,12 @@ import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData.JOB
+import com.sharedtest.FakeData.LOCATION_OF_INTEREST
+import com.sharedtest.FakeData.SUBMISSION
+import com.sharedtest.FakeData.SURVEY
+import com.sharedtest.FakeData.TASK_1_NAME
+import com.sharedtest.FakeData.TASK_2_NAME
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
@@ -53,28 +59,22 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
 
-    whenever(
-        surveyRepository.createSubmission(
-          DataCollectionTestData.surveyId,
-          DataCollectionTestData.loiId,
-          DataCollectionTestData.submissionId
-        )
-      )
-      .thenReturn(Single.just(DataCollectionTestData.submission))
+    whenever(surveyRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id))
+      .thenReturn(Single.just(SUBMISSION))
   }
 
   @Test
   fun created_submissionIsLoaded_loiNameIsShown() {
     setupFragment()
 
-    onView(withText(DataCollectionTestData.loiName)).check(matches(isDisplayed()))
+    onView(withText(LOCATION_OF_INTEREST.caption)).check(matches(isDisplayed()))
   }
 
   @Test
   fun created_submissionIsLoaded_jobNameIsShown() {
     setupFragment()
 
-    onView(withText(DataCollectionTestData.jobName)).check(matches(isDisplayed()))
+    onView(withText(JOB.name)).check(matches(isDisplayed()))
   }
 
   @Test
@@ -88,7 +88,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun created_submissionIsLoaded_firstTaskIsShown() {
     setupFragment()
 
-    onView(withText(DataCollectionTestData.task1Name)).check(matches(isDisplayed()))
+    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
   }
 
   @Test
@@ -98,8 +98,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     onView(withId(R.id.data_collection_continue_button)).perform(click())
 
     assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("This field is required")
-    onView(withText(DataCollectionTestData.task1Name)).check(matches(isDisplayed()))
-    onView(withText(DataCollectionTestData.task2Name)).check(matches(not(isDisplayed())))
+    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
+    onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
@@ -110,8 +110,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     onView(withId(R.id.data_collection_continue_button)).perform(click())
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
-    onView(withText(DataCollectionTestData.task1Name)).check(matches(not(isDisplayed())))
-    onView(withText(DataCollectionTestData.task2Name)).check(matches(isDisplayed()))
+    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
+    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
   }
 
   @Test
@@ -119,14 +119,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
     onView(withId(R.id.data_collection_continue_button)).perform(click())
-    onView(withText(DataCollectionTestData.task1Name)).check(matches(not(isDisplayed())))
-    onView(withText(DataCollectionTestData.task2Name)).check(matches(isDisplayed()))
+    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
+    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
     assertThat(fragment.onBack()).isTrue()
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
-    onView(withText(DataCollectionTestData.task1Name)).check(matches(isDisplayed()))
-    onView(withText(DataCollectionTestData.task2Name)).check(matches(not(isDisplayed())))
+    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
+    onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
@@ -136,10 +136,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     assertThat(fragment.onBack()).isFalse()
   }
 
-  private fun setupFragment() =
-    DataCollectionTestData.args.toBundle().let {
-      launchFragmentInHiltContainer<DataCollectionFragment>(it) {
-        fragment = this as DataCollectionFragment
-      }
+  private fun setupFragment() {
+    val argsBundle =
+      DataCollectionFragmentArgs.Builder(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id)
+        .build()
+        .toBundle()
+
+    launchFragmentInHiltContainer<DataCollectionFragment>(argsBundle) {
+      fragment = this as DataCollectionFragment
     }
+  }
 }
