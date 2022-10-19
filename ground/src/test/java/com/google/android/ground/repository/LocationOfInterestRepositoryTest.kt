@@ -219,7 +219,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .test()
       .assertResult(FakeData.LOCATION_OF_INTEREST)
     locationOfInterestRepository
-      .getLocationOfInterest(FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.UPDATE, "user_id"))
+      .getLocationOfInterest(
+        FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.UPDATE, "user_id")
+      )
       .test()
       .assertResult(FakeData.LOCATION_OF_INTEREST)
   }
