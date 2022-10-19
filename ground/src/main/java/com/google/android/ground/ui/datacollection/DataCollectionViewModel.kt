@@ -22,18 +22,15 @@ import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
-import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
 import javax.inject.Provider
 

@@ -18,24 +18,24 @@ package com.google.android.ground.ui.datacollection
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.common.collect.ImmutableList
-import dagger.assisted.AssistedInject
-import com.google.android.ground.ui.common.ViewModelFactory
 import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import java8.util.Optional
-
 
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
  */
-class DataCollectionViewPagerAdapter @AssistedInject constructor(
+class DataCollectionViewPagerAdapter
+@AssistedInject
+constructor(
   private val viewModelFactory: ViewModelFactory,
   @Assisted fragment: Fragment,
   @Assisted private val tasks: ImmutableList<Task>,
   @Assisted private val dataCollectionViewModel: DataCollectionViewModel
-) :
-  FragmentStateAdapter(fragment) {
+) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
   override fun createFragment(position: Int): Fragment {

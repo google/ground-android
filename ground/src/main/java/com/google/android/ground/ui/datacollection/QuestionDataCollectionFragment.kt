@@ -28,7 +28,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class QuestionDataCollectionFragment constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) : AbstractFragment() {
+class QuestionDataCollectionFragment
+constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) :
+  AbstractFragment() {
   // TODO(#1146): Use the task to determine what UI should be shown to the user here
 
   // TODO(#1146): Persist the text contents when the user clicks next
