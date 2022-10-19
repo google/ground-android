@@ -34,7 +34,7 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
     locationOfInterest
       .map { loi ->
         val caption = loi.caption?.trim { it <= ' ' } ?: ""
-        if (caption.isEmpty()) getLocationOfInterestType(loi) else caption
+        caption.ifEmpty { getLocationOfInterestType(loi) }
       }
       .orElse("")
 

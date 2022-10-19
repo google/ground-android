@@ -21,8 +21,8 @@
 
   <data>
     <variable
-      name="task"
-      type="com.google.android.ground.model.task.Task" />
+      name="viewModel"
+      type="com.google.android.ground.ui.editsubmission.TextTaskViewModel" />
   </data>
 
   <ScrollView
@@ -38,7 +38,7 @@
         android:id="@+id/data_collection_step_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@{@string/task_number(task.index + 1)}"
+        android:text="@{@string/task_number(viewModel.task.index + 1)}"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="24dp"
-        android:text="@{task.label}"
+        android:text="@{viewModel.task.label}"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/text_input_layout"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,8 +86,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/data_collection_question">
         <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/user_response_text"
           android:layout_width="200dp"
           android:layout_height="wrap_content"
+          android:text="@{viewModel.responseText}"
+          app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
           android:inputType="text" />
       </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

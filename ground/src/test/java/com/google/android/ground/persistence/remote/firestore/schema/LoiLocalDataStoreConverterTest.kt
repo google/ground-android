@@ -105,7 +105,7 @@ class LoiLocalDataStoreConverterTest {
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
     val taskMap = ImmutableMap.builder<String, Task>()
     tasks.forEach { task: Task -> taskMap.put(task.id, task) }
-    val job = Job(jobId, "jobName", taskMap.build())
+    val job = Job(jobId, "JOB_NAME", taskMap.build())
     survey = Survey("", "", "", ImmutableMap.builder<String, Job>().put(job.id, job).build())
   }
 

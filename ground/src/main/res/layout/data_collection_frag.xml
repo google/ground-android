@@ -60,6 +60,7 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="28dp"
       android:text="@string/continue_text"
+      android:onClick="@{() -> viewModel.onContinueClicked()}"
       app:layout_constraintWidth_default="wrap"
       app:backgroundTint="@color/colorAccent"
       app:layout_constraintStart_toStartOf="parent"

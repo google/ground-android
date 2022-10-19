@@ -25,6 +25,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.common.collect.ImmutableList
@@ -58,13 +59,13 @@ object FakeData {
     )
 
   @JvmField
-  val POINT_OF_INTEREST =
+  val LOCATION_OF_INTEREST =
     LocationOfInterest(
       "loi id",
       SURVEY.id,
       JOB,
       null,
-      null,
+      "loi name",
       AuditInfo(USER),
       AuditInfo(USER),
       Point(Coordinate(0.0, 0.0))
@@ -79,6 +80,8 @@ object FakeData {
       Point(Coordinate(0.0, 0.0)),
     )
 
+  private val AUDIT_INFO = AuditInfo(USER)
+
   @JvmField
   val AREA_OF_INTEREST: LocationOfInterest =
     LocationOfInterest(
@@ -87,8 +90,8 @@ object FakeData {
       JOB,
       "",
       "",
-      AuditInfo(USER),
-      AuditInfo(USER),
+      AUDIT_INFO,
+      AUDIT_INFO,
       Polygon(LinearRing(VERTICES.map { it.coordinate })),
     )
 
@@ -101,4 +104,27 @@ object FakeData {
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null
   ): Task = Task(id, 0, type, "", false, multipleChoice)
+
+  private const val SUBMISSION_ID = "789"
+  const val TASK_1_NAME = "task 1"
+  const val TASK_2_NAME = "task 2"
+
+  val SUBMISSION: Submission =
+    Submission(
+      SUBMISSION_ID,
+      SURVEY.id,
+      LOCATION_OF_INTEREST,
+      Job(
+        id = "taskId",
+        tasks =
+          ImmutableMap.of(
+            "field id",
+            Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true),
+            "field id 2",
+            Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true)
+          )
+      ),
+      AUDIT_INFO,
+      AUDIT_INFO
+    )
 }

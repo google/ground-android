@@ -36,7 +36,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Test
   fun testGetCreatedBy() {
     val user = FakeData.USER.copy(displayName = TEST_USER_NAME)
-    val loi = FakeData.POINT_OF_INTEREST.copy(created = AuditInfo(user))
+    val loi = FakeData.LOCATION_OF_INTEREST.copy(created = AuditInfo(user))
     assertCreatedBy(loi, "Added by $TEST_USER_NAME")
   }
 
@@ -52,7 +52,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
 
   @Test
   fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
-    val loi = FakeData.POINT_OF_INTEREST.copy(caption = "")
+    val loi = FakeData.LOCATION_OF_INTEREST.copy(caption = "")
     assertLabel(loi, "Point")
   }
 
@@ -64,7 +64,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
 
   @Test
   fun testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
-    val loi = FakeData.POINT_OF_INTEREST.copy(caption = TEST_CAPTION)
+    val loi = FakeData.LOCATION_OF_INTEREST.copy(caption = TEST_CAPTION)
     assertLabel(loi, TEST_CAPTION)
   }
 
@@ -76,7 +76,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
 
   @Test
   fun testGetSubtitle() {
-    val loi = FakeData.POINT_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
+    val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
     assertSubtitle(loi, "Job: $TEST_JOB_NAME")
   }
 

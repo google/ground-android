@@ -67,14 +67,14 @@ public abstract class BaseMenuVisibilityTest extends BaseHiltTest {
 
   static LocationOfInterest createPointOfInterest(User user) {
     return new LocationOfInterest(
-        FakeData.POINT_OF_INTEREST.getId(),
+        FakeData.LOCATION_OF_INTEREST.getId(),
         TEST_SURVEY.getId(),
-        FakeData.POINT_OF_INTEREST.getJob(),
-        FakeData.POINT_OF_INTEREST.getCustomId(),
-        FakeData.POINT_OF_INTEREST.getCaption(),
+        FakeData.LOCATION_OF_INTEREST.getJob(),
+        FakeData.LOCATION_OF_INTEREST.getCustomId(),
+        FakeData.LOCATION_OF_INTEREST.getCaption(),
         new AuditInfo(user),
-        FakeData.POINT_OF_INTEREST.getLastModified(),
-        FakeData.POINT_OF_INTEREST.getGeometry());
+        FakeData.LOCATION_OF_INTEREST.getLastModified(),
+        FakeData.LOCATION_OF_INTEREST.getGeometry());
   }
 
   static LocationOfInterest createAreaOfInterest(User user) {

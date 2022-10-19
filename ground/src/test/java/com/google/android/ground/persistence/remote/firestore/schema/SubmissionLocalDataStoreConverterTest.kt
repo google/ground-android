@@ -240,9 +240,9 @@ class SubmissionLocalDataStoreConverterTest {
   private fun setUpTestSurvey(jobId: String, loiId: String, vararg tasks: Task) {
     val taskMap = ImmutableMap.builder<String, Task>()
     tasks.forEach { task: Task -> taskMap.put(task.id, task) }
-    job = Job(jobId, "jobName", taskMap.build())
+    job = Job(jobId, "JOB_NAME", taskMap.build())
     locationOfInterest =
-      FakeData.POINT_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
+      FakeData.LOCATION_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */

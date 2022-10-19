@@ -59,9 +59,9 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     }
 
   /** Checks if the current response is valid and updates error value. */
-  fun validate(): Optional<String> {
-    val result = validate(task, responseSubject.value)
-    error.postValue(result.orElse(null))
+  fun validate(): String? {
+    val result = validate(task, responseSubject.value).orElse(null)
+    error.postValue(result)
     return result
   }
 

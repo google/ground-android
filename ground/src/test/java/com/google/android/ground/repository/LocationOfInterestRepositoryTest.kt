@@ -86,7 +86,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     mockEnqueueSyncWorker()
     locationOfInterestRepository
       .applyAndEnqueue(
-        FakeData.POINT_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
+        FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
       )
       .test()
       .assertNoErrors()
@@ -94,11 +94,11 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     val (_, type, syncStatus, _, locationOfInterestId) = captorLoiMutation.value
     assertThat(type).isEqualTo(Mutation.Type.CREATE)
     assertThat(syncStatus).isEqualTo(SyncStatus.PENDING)
-    assertThat(locationOfInterestId).isEqualTo(FakeData.POINT_OF_INTEREST.id)
+    assertThat(locationOfInterestId).isEqualTo(FakeData.LOCATION_OF_INTEREST.id)
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
       .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
-      .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
+      .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
 
   @Test
@@ -109,7 +109,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .applyAndEnqueue(any<LocationOfInterestMutation>())
     locationOfInterestRepository
       .applyAndEnqueue(
-        FakeData.POINT_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
+        FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
       )
       .test()
       .assertError(NullPointerException::class.java)
@@ -117,7 +117,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
       .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
-      .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
+      .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
 
   @Test
@@ -127,7 +127,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .thenReturn(Completable.error(NullPointerException()))
     locationOfInterestRepository
       .applyAndEnqueue(
-        FakeData.POINT_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
+        FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
       )
       .test()
       .assertError(NullPointerException::class.java)
@@ -136,13 +136,13 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
       .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
-      .enqueueSyncWorker(FakeData.POINT_OF_INTEREST.id)
+      .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
 
   @Test
   fun testSyncLocationsOfInterest_loaded() {
-    fakeRemoteDataStore.streamLoiOnce(loaded("entityId", FakeData.POINT_OF_INTEREST))
-    Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
+    fakeRemoteDataStore.streamLoiOnce(loaded("entityId", FakeData.LOCATION_OF_INTEREST))
+    Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST))
       .thenReturn(Completable.complete())
     locationOfInterestRepository
       .syncLocationsOfInterest(FakeData.SURVEY)
@@ -150,13 +150,13 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertNoErrors()
       .assertComplete()
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .mergeLocationOfInterest(FakeData.POINT_OF_INTEREST)
+      .mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
   fun testSyncLocationsOfInterest_modified() {
-    fakeRemoteDataStore.streamLoiOnce(modified("entityId", FakeData.POINT_OF_INTEREST))
-    Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.POINT_OF_INTEREST))
+    fakeRemoteDataStore.streamLoiOnce(modified("entityId", FakeData.LOCATION_OF_INTEREST))
+    Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST))
       .thenReturn(Completable.complete())
     locationOfInterestRepository
       .syncLocationsOfInterest(FakeData.SURVEY)
@@ -164,7 +164,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertNoErrors()
       .assertComplete()
     Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .mergeLocationOfInterest(FakeData.POINT_OF_INTEREST)
+      .mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
@@ -189,11 +189,11 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testGetLocationsOfInterestOnceAndStream() {
     Mockito.`when`(mockLocalDataStore.getLocationsOfInterestOnceAndStream(FakeData.SURVEY))
-      .thenReturn(Flowable.just(ImmutableSet.of(FakeData.POINT_OF_INTEREST)))
+      .thenReturn(Flowable.just(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST)))
     locationOfInterestRepository
       .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
       .test()
-      .assertValue(ImmutableSet.of(FakeData.POINT_OF_INTEREST))
+      .assertValue(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST))
   }
 
   @Test
@@ -211,17 +211,19 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
     Mockito.`when`(
-        mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.POINT_OF_INTEREST.id)
+        mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.LOCATION_OF_INTEREST.id)
       )
-      .thenReturn(Maybe.just(FakeData.POINT_OF_INTEREST))
+      .thenReturn(Maybe.just(FakeData.LOCATION_OF_INTEREST))
     locationOfInterestRepository
-      .getLocationOfInterest(FakeData.SURVEY.id, FakeData.POINT_OF_INTEREST.id)
+      .getLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
       .test()
-      .assertResult(FakeData.POINT_OF_INTEREST)
+      .assertResult(FakeData.LOCATION_OF_INTEREST)
     locationOfInterestRepository
-      .getLocationOfInterest(FakeData.POINT_OF_INTEREST.toMutation(Mutation.Type.UPDATE, "user_id"))
+      .getLocationOfInterest(
+        FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.UPDATE, "user_id")
+      )
       .test()
-      .assertResult(FakeData.POINT_OF_INTEREST)
+      .assertResult(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
@@ -229,11 +231,11 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
     Mockito.`when`(
-        mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.POINT_OF_INTEREST.id)
+        mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.LOCATION_OF_INTEREST.id)
       )
       .thenReturn(Maybe.empty())
     locationOfInterestRepository
-      .getLocationOfInterest(FakeData.SURVEY.id, FakeData.POINT_OF_INTEREST.id)
+      .getLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
       .test()
       .assertFailureAndMessage(
         NotFoundException::class.java,

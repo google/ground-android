@@ -142,6 +142,7 @@
   <string name="collect_data_task_name">Test Task Name</string>
   <string name="collect_data">Collect data</string>
   <string name="question_data_collection_title">Question</string>
+  <string name="question_data_collection_no_response">Please enter a response</string>
   <string name="task_number">Task %1$s:</string>
 
   <!-- Untranslated strings -->

@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
+package com.google.android.ground.ui.datacollection
 
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.fragment.app.Fragment
+import com.google.android.ground.model.task.Task
+import com.google.common.collect.ImmutableList
+import dagger.assisted.AssistedFactory
 
-@AndroidEntryPoint class HiltTestActivity : AbstractActivity()
+@AssistedFactory
+interface DataCollectionViewPagerAdapterFactory {
+  fun create(
+    fragment: Fragment,
+    tasks: ImmutableList<Task>,
+    dataCollectionViewModel: DataCollectionViewModel
+  ): DataCollectionViewPagerAdapter
+}
