@@ -13,45 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.util
 
-package com.google.android.ground.ui.util;
+import android.content.res.Resources
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.core.content.res.ResourcesCompat
+import javax.inject.Inject
 
-import android.app.Application;
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
-import androidx.annotation.DrawableRes;
-import androidx.core.content.res.ResourcesCompat;
-import javax.inject.Inject;
+class DrawableUtil @Inject constructor(private val resources: Resources) {
 
-public class DrawableUtil {
+  @ColorInt fun getColor(@ColorRes colorId: Int): Int = resources.getColor(colorId)
 
-  private final Context context;
+  private fun getDrawable(@DrawableRes drawableId: Int): Drawable? =
+    ResourcesCompat.getDrawable(resources, drawableId, null)
 
-  @Inject
-  public DrawableUtil(Application context) {
-    this.context = context;
-  }
-
-  private Resources getResources() {
-    return context.getResources();
-  }
-
-  @ColorInt
-  public int getColor(@ColorRes int colorId) {
-    return getResources().getColor(colorId);
-  }
-
-  public Drawable getDrawable(@DrawableRes int drawableId) {
-    return ResourcesCompat.getDrawable(getResources(), drawableId, null);
-  }
-
-  public Drawable getDrawable(@DrawableRes int drawableId, @ColorRes int colorId) {
-    Drawable drawable = getDrawable(drawableId);
-    drawable.setColorFilter(getColor(colorId), PorterDuff.Mode.SRC_ATOP);
-    return drawable;
+  fun getDrawable(@DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable? {
+    val drawable = getDrawable(drawableId)
+    drawable?.setColorFilter(getColor(colorId), PorterDuff.Mode.SRC_ATOP)
+    return drawable
   }
 }

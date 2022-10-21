@@ -13,41 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.util
 
-package com.google.android.ground.ui.util;
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import javax.inject.Inject
 
-import android.content.Context;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import java.io.File;
-import javax.inject.Inject;
-
-public class FileUtil {
-
-  private final Context context;
-
-  @Inject
-  public FileUtil(@ApplicationContext Context context) {
-    this.context = context;
-  }
-
+class FileUtil @Inject constructor(@param:ApplicationContext private val context: Context) {
   /**
    * Get a file by name relative to the app's file directory
    * /data/data/com.google.android.ground/files.
    *
-   * <p>If the file doesn't exist, creates a new empty file named {@param filename} in the app's
-   * file directory.
+   * If the file doesn't exist, creates a new empty file named {@param filename} in the app's file
+   * directory.
    */
-  public File getOrCreateFile(String filename) {
-    return new File(context.getFilesDir(), filename);
-  }
+  fun getOrCreateFile(filename: String): File = File(context.filesDir, filename)
 
   /** Attempts to delete a file relative to the app's file directory when it exists. */
-  public void deleteFile(String filename) {
-    File file = new File(context.getFilesDir(), filename);
+  fun deleteFile(filename: String) {
+    val file = getOrCreateFile(filename)
     if (!file.exists()) {
-      return;
+      return
     }
-
-    file.delete();
+    file.delete()
   }
 }

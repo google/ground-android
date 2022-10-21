@@ -13,49 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.util
 
-package com.google.android.ground.ui.util;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.IOException
+import javax.inject.Inject
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.provider.MediaStore.Images.Media;
-import androidx.core.content.ContextCompat;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import java.io.IOException;
-import javax.inject.Inject;
+class BitmapUtil
+@Inject
+internal constructor(@param:ApplicationContext private val context: Context) {
 
-public class BitmapUtil {
+  /** Retrieves an image for the given url as a [Bitmap]. */
+  @Throws(IOException::class)
+  fun fromUri(url: Uri?): Bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, url)
 
-  private final Context context;
-
-  @Inject
-  BitmapUtil(@ApplicationContext Context context) {
-    this.context = context;
-  }
-
-  /** Retrieves an image for the given url as a {@link Bitmap}. */
-  public Bitmap fromUri(Uri url) throws IOException {
-    return Media.getBitmap(context.getContentResolver(), url);
-  }
-
-  public BitmapDescriptor bitmapDescriptorFromVector(int resId) {
-    Drawable vectorDrawable = ContextCompat.getDrawable(context, resId);
+  fun bitmapDescriptorFromVector(resId: Int): BitmapDescriptor {
+    val vectorDrawable = ContextCompat.getDrawable(context, resId)!!
 
     // Specify a bounding rectangle for the Drawable.
-    vectorDrawable.setBounds(
-        0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-    Bitmap bitmap =
-        Bitmap.createBitmap(
-            vectorDrawable.getIntrinsicWidth(),
-            vectorDrawable.getIntrinsicHeight(),
-            Bitmap.Config.ARGB_8888);
-    Canvas canvas = new Canvas(bitmap);
-    vectorDrawable.draw(canvas);
-    return BitmapDescriptorFactory.fromBitmap(bitmap);
+    vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
+    val bitmap =
+      Bitmap.createBitmap(
+        vectorDrawable.intrinsicWidth,
+        vectorDrawable.intrinsicHeight,
+        Bitmap.Config.ARGB_8888
+      )
+    val canvas = Canvas(bitmap)
+    vectorDrawable.draw(canvas)
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
 }
