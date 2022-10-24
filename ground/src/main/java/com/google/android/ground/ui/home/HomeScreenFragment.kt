@@ -352,12 +352,12 @@ class HomeScreenFragment :
 
   private fun updateBottomSheetPeekHeight(insets: WindowInsetsCompat) {
     val width =
-      (ViewUtil.getScreenWidth(activity) +
+      (ViewUtil.getScreenWidth(requireActivity()) +
           insets.systemWindowInsetLeft +
           insets.systemWindowInsetRight)
         .toDouble()
     val height =
-      (ViewUtil.getScreenHeight(activity) +
+      (ViewUtil.getScreenHeight(requireActivity()) +
           insets.systemWindowInsetTop +
           insets.systemWindowInsetBottom)
         .toDouble()
