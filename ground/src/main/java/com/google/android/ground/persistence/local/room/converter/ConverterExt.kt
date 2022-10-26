@@ -28,8 +28,8 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task

@@ -18,8 +18,8 @@ package com.google.android.ground.ui.datacollection
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot

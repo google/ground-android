@@ -29,9 +29,9 @@ import com.google.android.ground.model.mutation.Mutation.Companion.byDescendingC
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.Mutation.Type.*
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TaskDataMap
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
