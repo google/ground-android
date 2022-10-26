@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
@@ -53,7 +53,7 @@ internal constructor(
   private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
     BehaviorProcessor.create()
 
-  private val responses: MutableMap<String, Response?> = HashMap()
+  private val responses: MutableMap<String, TaskData?> = HashMap()
 
   // Tracks the user's current position in the list of tasks for the current Job
   val currentPosition: MutableLiveData<Int> = MutableLiveData(0)
@@ -102,7 +102,7 @@ internal constructor(
       //  include persisting the list of responses to the database
       currentPosition.postValue(currentPosition.value!! + 1)
 
-      responses[currentTask.task.id] = currentTask.response.value?.orElse(null)
+      responses[currentTask.task.id] = currentTask.taskData.value?.orElse(null)
       return Single.never()
     } else {
       popups.get().showError(validationError)

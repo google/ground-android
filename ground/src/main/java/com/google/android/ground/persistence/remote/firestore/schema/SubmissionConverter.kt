@@ -56,11 +56,11 @@ internal object SubmissionConverter {
     submissionId: String,
     job: Job,
     docResponses: Map<String, Any>?
-  ): ResponseMap {
+  ): TaskDataMap {
     if (docResponses == null) {
-      return ResponseMap()
+      return TaskDataMap()
     }
-    val responses = ImmutableMap.builder<String, Response>()
+    val responses = ImmutableMap.builder<String, TaskData>()
     for ((taskId, value) in docResponses) {
       try {
         putResponse(taskId, job, value, responses)
@@ -68,14 +68,14 @@ internal object SubmissionConverter {
         Timber.e(e, "Task $taskId in remote db in submission $submissionId")
       }
     }
-    return ResponseMap(responses.build())
+    return TaskDataMap(responses.build())
   }
 
   private fun putResponse(
     taskId: String,
     job: Job,
     obj: Any,
-    responses: ImmutableMap.Builder<String, Response>
+    responses: ImmutableMap.Builder<String, TaskData>
   ) {
     val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
     when (task.type) {
@@ -93,10 +93,10 @@ internal object SubmissionConverter {
   private fun putNumberResponse(
     taskId: String,
     obj: Any,
-    responses: ImmutableMap.Builder<String, Response>
+    responses: ImmutableMap.Builder<String, TaskData>
   ) {
     val value = DataStoreException.checkType(Double::class.java, obj) as Double
-    NumberResponse.fromNumber(value.toString()).ifPresent { r: Response ->
+    NumberTaskData.fromNumber(value.toString()).ifPresent { r: TaskData ->
       responses.put(taskId, r)
     }
   }
@@ -104,10 +104,10 @@ internal object SubmissionConverter {
   private fun putTextResponse(
     taskId: String,
     obj: Any,
-    responses: ImmutableMap.Builder<String, Response>
+    responses: ImmutableMap.Builder<String, TaskData>
   ) {
     val value = DataStoreException.checkType(String::class.java, obj) as String
-    TextResponse.fromString(value.trim { it <= ' ' }).ifPresent { r: Response ->
+    TextTaskData.fromString(value.trim { it <= ' ' }).ifPresent { r: TaskData ->
       responses.put(taskId, r)
     }
   }
@@ -115,30 +115,30 @@ internal object SubmissionConverter {
   private fun putDateResponse(
     taskId: String,
     obj: Any,
-    responses: ImmutableMap.Builder<String, Response>
+    responses: ImmutableMap.Builder<String, TaskData>
   ) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    DateResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
+    DateTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses.put(taskId, r) }
   }
 
   private fun putTimeResponse(
     taskId: String,
     obj: Any,
-    responses: ImmutableMap.Builder<String, Response>
+    responses: ImmutableMap.Builder<String, TaskData>
   ) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    TimeResponse.fromDate(value.toDate()).ifPresent { r: Response -> responses.put(taskId, r) }
+    TimeTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses.put(taskId, r) }
   }
 
   private fun putMultipleChoiceResponse(
     taskId: String,
     multipleChoice: MultipleChoice?,
     obj: Any,
-    responses: ImmutableMap.Builder<String, Response>
+    responses: ImmutableMap.Builder<String, TaskData>
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
-    MultipleChoiceResponse.fromList(multipleChoice, values as List<String>).ifPresent {
+    MultipleChoiceTaskData.fromList(multipleChoice, values as List<String>).ifPresent {
       responses.put(taskId, it)
     }
   }

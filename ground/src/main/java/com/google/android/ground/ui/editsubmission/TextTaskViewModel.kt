@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import javax.inject.Inject
 
 class TextTaskViewModel @Inject constructor(resources: Resources) :

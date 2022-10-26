@@ -24,7 +24,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ResponseDelta
+import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -122,11 +122,11 @@ constructor(
   private fun processPhotoFieldMutations(mutations: ImmutableList<Mutation>): Completable {
     return Observable.fromIterable(mutations)
       .filter { mutation: Mutation -> mutation is SubmissionMutation }
-      .flatMapIterable { mutation: Mutation -> (mutation as SubmissionMutation).responseDeltas }
-      .filter { (_, taskType, newResponse): ResponseDelta ->
+      .flatMapIterable { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
+      .filter { (_, taskType, newResponse): TaskDataDelta ->
         taskType === Task.Type.PHOTO && newResponse.isPresent
       }
-      .map { (_, _, newResponse): ResponseDelta -> newResponse.get().toString() }
+      .map { (_, _, newResponse): TaskDataDelta -> newResponse.get().toString() }
       .flatMapCompletable { remotePath: String ->
         Completable.fromRunnable { photoSyncWorkManager.enqueueSyncWorker(remotePath) }
       }

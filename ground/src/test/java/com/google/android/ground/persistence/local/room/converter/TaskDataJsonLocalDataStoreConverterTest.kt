@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.persistence.local.room.converter
 
-import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.TimeResponse
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.dateToIsoString
 import com.google.android.ground.persistence.local.room.converter.ResponseJsonConverter.isoStringToDate
@@ -26,7 +26,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.*
 import org.junit.Test
 
-class ResponseJsonLocalDataStoreConverterTest {
+class TaskDataJsonLocalDataStoreConverterTest {
 
   @Test
   fun testDateToIsoString() {
@@ -50,28 +50,28 @@ class ResponseJsonLocalDataStoreConverterTest {
 
   @Test
   fun testResponseToObject_dateResponse() {
-    val response = toJsonObject(DateResponse(DATE))
+    val response = toJsonObject(DateTaskData(DATE))
     assertThat(response).isInstanceOf(Any::class.java)
   }
 
   @Test
   fun testResponseToObject_timeResponse() {
-    val response = toJsonObject(TimeResponse(DATE))
+    val response = toJsonObject(TimeTaskData(DATE))
     assertThat(response).isInstanceOf(Any::class.java)
   }
 
   @Test
   fun testObjectToResponse_dateResponse() {
-    val dateObject = toJsonObject(DateResponse(DATE))
+    val dateObject = toJsonObject(DateTaskData(DATE))
     val response = toResponse(Task("1", 0, Task.Type.DATE, "date", true), dateObject)
-    assertThat((response.get() as DateResponse).date).isEqualTo(DATE)
+    assertThat((response.get() as DateTaskData).date).isEqualTo(DATE)
   }
 
   @Test
   fun testObjectToResponse_timeResponse() {
-    val timeObject = toJsonObject(TimeResponse(DATE))
+    val timeObject = toJsonObject(TimeTaskData(DATE))
     val response = toResponse(Task("2", 1, Task.Type.TIME, "time", true), timeObject)
-    assertThat((response.get() as TimeResponse).time).isEqualTo(DATE)
+    assertThat((response.get() as TimeTaskData).time).isEqualTo(DATE)
   }
 
   companion object {

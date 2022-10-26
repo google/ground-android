@@ -28,9 +28,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.R;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.Response;
-import com.google.android.ground.model.submission.ResponseDelta;
-import com.google.android.ground.model.submission.ResponseMap;
+import com.google.android.ground.model.submission.TaskData;
+import com.google.android.ground.model.submission.TaskDataDelta;
+import com.google.android.ground.model.submission.TaskDataMap;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.SubmissionRepository;
@@ -84,7 +84,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
   /** Current task responses. */
-  private final Map<String, Response> responses = new HashMap<>();
+  private final Map<String, TaskData> responses = new HashMap<>();
   /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
   private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs = BehaviorProcessor.create();
@@ -107,8 +107,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   /** True if the submission is being added, false if editing an existing one. */
   private boolean isNew;
   /**
-   * Task id waiting for a photo response. As only 1 photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo response.
+   * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
+   * directly map it 1:1 with the task waiting for a photo taskData.
    */
   @Nullable private String taskWaitingForPhoto;
 
@@ -162,15 +162,15 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     viewArgs.onNext(args);
   }
 
-  Optional<Response> getResponse(String taskId) {
+  Optional<TaskData> getResponse(String taskId) {
     return Optional.ofNullable(responses.get(taskId));
   }
 
   /**
-   * Update the current value of a response. Called what tasks are initialized and on each
+   * Update the current value of a taskData. Called what tasks are initialized and on each
    * subsequent change.
    */
-  void setResponse(Task task, Optional<Response> newResponse) {
+  void setResponse(Task task, Optional<TaskData> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(task.getId(), r), () -> responses.remove(task.getId()));
   }
@@ -203,21 +203,21 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       toolbarTitle.setValue(resources.getString(R.string.edit_submission));
       submissionSingle = loadSubmission(viewArgs);
     }
-    HashMap<String, Response> restoredResponses = viewArgs.getRestoredResponses();
+    HashMap<String, TaskData> restoredResponses = viewArgs.getRestoredResponses();
     return submissionSingle
         .doOnSuccess(loadedSubmission -> onSubmissionLoaded(loadedSubmission, restoredResponses))
         .map(Submission::getJob);
   }
 
   private void onSubmissionLoaded(
-      Submission submission, @Nullable Map<String, Response> restoredResponses) {
+      Submission submission, @Nullable Map<String, TaskData> restoredResponses) {
     Timber.v("Submission loaded");
     this.originalSubmission = submission;
     responses.clear();
     if (restoredResponses == null) {
-      ResponseMap responseMap = submission.getResponses();
-      for (String taskId : responseMap.taskIds()) {
-        responseMap.getResponse(taskId).ifPresent(r -> responses.put(taskId, r));
+      TaskDataMap taskDataMap = submission.getResponses();
+      for (String taskId : taskDataMap.taskIds()) {
+        taskDataMap.getResponse(taskId).ifPresent(r -> responses.put(taskId, r));
       }
     } else {
       Timber.v("Restoring responses from bundle");
@@ -271,24 +271,24 @@ public class EditSubmissionViewModel extends AbstractViewModel {
         .toSingleDefault(SaveResult.SAVED);
   }
 
-  private ImmutableList<ResponseDelta> getResponseDeltas() {
+  private ImmutableList<TaskDataDelta> getResponseDeltas() {
     if (originalSubmission == null) {
-      Timber.e("Response diff attempted before submission loaded");
+      Timber.e("TaskData diff attempted before submission loaded");
       return ImmutableList.of();
     }
-    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
-    ResponseMap originalResponses = originalSubmission.getResponses();
+    ImmutableList.Builder<TaskDataDelta> deltas = ImmutableList.builder();
+    TaskDataMap originalResponses = originalSubmission.getResponses();
     Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Task task : originalSubmission.getJob().getTasksSorted()) {
       String taskId = task.getId();
-      Optional<Response> originalResponse = originalResponses.getResponse(taskId);
-      Optional<Response> currentResponse = getResponse(taskId).filter(r -> !r.isEmpty());
+      Optional<TaskData> originalResponse = originalResponses.getResponse(taskId);
+      Optional<TaskData> currentResponse = getResponse(taskId).filter(r -> !r.isEmpty());
       if (currentResponse.equals(originalResponse)) {
         continue;
       }
-      deltas.add(new ResponseDelta(taskId, task.getType(), currentResponse));
+      deltas.add(new TaskDataDelta(taskId, task.getType(), currentResponse));
     }
-    ImmutableList<ResponseDelta> result = deltas.build();
+    ImmutableList<TaskDataDelta> result = deltas.build();
     Timber.v("Deltas: %s", result);
     return result;
   }

@@ -32,10 +32,10 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ResponseDelta
-import com.google.android.ground.model.submission.ResponseMap
+import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.formatVertices
 import com.google.android.ground.persistence.local.room.converter.parseVertices
@@ -244,14 +244,14 @@ class LocalDataStoreTest : BaseHiltTest() {
     // now update the inserted submission with new responses
     val deltas =
       ImmutableList.of(
-        ResponseDelta(
+        TaskDataDelta(
           "task id",
           Task.Type.TEXT,
-          TextResponse.fromString("value for the really new task")
+          TextTaskData.fromString("value for the really new task")
         )
       )
     val mutation =
-      TEST_SUBMISSION_MUTATION.copy(responseDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
+      TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
     localDataStore.applyAndEnqueue(mutation).test().assertComplete()
     localDataStore
       .getPendingMutations("loi id")
@@ -275,14 +275,14 @@ class LocalDataStoreTest : BaseHiltTest() {
     localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
     val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val responseMap =
-      ResponseMap(ImmutableMap.of("task id", TextResponse.fromString("foo value").get()))
+    val taskDataMap =
+      TaskDataMap(ImmutableMap.of("task id", TextTaskData.fromString("foo value").get()))
     val submission =
-      localDataStore.getSubmission(loi, "submission id").blockingGet().copy(responses = responseMap)
+      localDataStore.getSubmission(loi, "submission id").blockingGet().copy(responses = taskDataMap)
     localDataStore.mergeSubmission(submission).test().assertComplete()
     val responses = localDataStore.getSubmission(loi, submission.id).test().values()[0].responses
     assertThat(responses.getResponse("task id"))
-      .isEqualTo(TextResponse.fromString("updated response"))
+      .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
 
   @Test
@@ -461,9 +461,9 @@ class LocalDataStoreTest : BaseHiltTest() {
       SubmissionMutation(
         job = TEST_JOB,
         submissionId = "submission id",
-        responseDeltas =
+        taskDataDeltas =
           ImmutableList.of(
-            ResponseDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated response"))
+            TaskDataDelta("task id", Task.Type.TEXT, TextTaskData.fromString("updated taskData"))
           ),
         id = 1L,
         type = Mutation.Type.CREATE,
@@ -522,7 +522,7 @@ class LocalDataStoreTest : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
-        ResponseMap().copyWithDeltas(mutation.responseDeltas),
+        TaskDataMap().copyWithDeltas(mutation.taskDataDeltas),
         Matchers.samePropertyValuesAs(submission.responses)
       )
     }

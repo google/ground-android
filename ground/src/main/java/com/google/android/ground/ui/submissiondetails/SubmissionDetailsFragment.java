@@ -35,7 +35,7 @@ import com.google.android.ground.databinding.SubmissionDetailsFragBinding;
 import com.google.android.ground.databinding.SubmissionDetailsFragBindingImpl;
 import com.google.android.ground.databinding.SubmissionDetailsTaskBinding;
 import com.google.android.ground.databinding.SubmissionDetailsTaskBindingImpl;
-import com.google.android.ground.model.submission.Response;
+import com.google.android.ground.model.submission.TaskData;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.rx.Loadable;
@@ -127,19 +127,19 @@ public class SubmissionDetailsFragment extends AbstractFragment {
         .getResponses()
         .getResponse(task.getId())
         .ifPresent(
-            response -> {
+            taskData -> {
               if (task.getType() == Task.Type.PHOTO) {
                 binding.taskValue.setVisibility(View.GONE);
-                addPhotoTask((ViewGroup) binding.getRoot(), response);
+                addPhotoTask((ViewGroup) binding.getRoot(), taskData);
               } else {
-                binding.taskValue.setText(response.getDetailsText());
+                binding.taskValue.setText(taskData.getDetailsText());
               }
             });
   }
 
-  private void addPhotoTask(ViewGroup container, Response response) {
+  private void addPhotoTask(ViewGroup container, TaskData taskData) {
     PhotoTaskViewModel photoFieldViewModel = viewModelFactory.create(PhotoTaskViewModel.class);
-    photoFieldViewModel.setResponse(Optional.of(response));
+    photoFieldViewModel.setResponse(Optional.of(taskData));
     PhotoTaskBinding photoFieldBinding = PhotoTaskBinding.inflate(getLayoutInflater());
     photoFieldBinding.setLifecycleOwner(this);
     photoFieldBinding.setViewModel(photoFieldViewModel);
