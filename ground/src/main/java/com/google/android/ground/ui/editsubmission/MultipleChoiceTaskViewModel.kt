@@ -16,8 +16,8 @@
 package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
@@ -27,8 +27,8 @@ import javax.inject.Inject
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   AbstractDialogTaskViewModel(resources) {
 
-  fun getCurrentResponse(): Optional<MultipleChoiceResponse> =
-    response.value?.map { it as MultipleChoiceResponse } ?: Optional.empty()
+  fun getCurrentResponse(): Optional<MultipleChoiceTaskData> =
+    taskData.value?.map { it as MultipleChoiceTaskData } ?: Optional.empty()
 
   fun updateResponse(options: ImmutableList<Option>) {
     setResponse(fromList(task.multipleChoice, options.map(Option::id).toImmutableList()))

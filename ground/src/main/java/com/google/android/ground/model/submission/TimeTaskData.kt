@@ -22,9 +22,9 @@ import java8.util.Optional
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
-/** A user-provided time response. */
+/** A user-provided time taskData. */
 @Serializable
-data class TimeResponse(val time: @Contextual Date) : Response {
+data class TimeTaskData(val time: @Contextual Date) : TaskData {
   // TODO(#752): Use device localization preferences.
   private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
@@ -37,7 +37,7 @@ data class TimeResponse(val time: @Contextual Date) : Response {
 
   companion object {
     @JvmStatic
-    fun fromDate(time: Date): Optional<Response> =
-      if (time.time == 0L) Optional.empty() else Optional.of(TimeResponse(time))
+    fun fromDate(time: Date): Optional<TaskData> =
+      if (time.time == 0L) Optional.empty() else Optional.of(TimeTaskData(time))
   }
 }

@@ -18,7 +18,7 @@ package com.google.android.ground.ui.editsubmission;
 
 import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
+import com.google.android.ground.model.submission.MultipleChoiceTaskData;
 import com.google.android.ground.model.task.Option;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -51,7 +51,7 @@ abstract class SingleSelectDialogFactory extends SelectDialogFactory {
   protected void initSelectedState() {
     checkedItem =
         getCurrentResponse()
-            .flatMap(MultipleChoiceResponse::getFirstId)
+            .flatMap(MultipleChoiceTaskData::getFirstId)
             .flatMap(getMultipleChoice()::getIndex)
             .orElse(-1);
   }

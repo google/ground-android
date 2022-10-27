@@ -82,6 +82,6 @@ constructor(
 
 /**
  * Indicates a request to grant the app permissions was denied. More specifically, it indicates the
- * requested permission was not in the list of granted permissions in the system's response.
+ * requested permission was not in the list of granted permissions in the system's taskData.
  */
 class PermissionDeniedException : Exception()

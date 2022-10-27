@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
@@ -34,40 +34,40 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   AbstractViewModel() {
 
   /** Current value. */
-  val response: LiveData<Optional<Response>>
+  val taskData: LiveData<Optional<TaskData>>
 
-  /** Transcoded text to be displayed for the current [AbstractTaskViewModel.response]. */
+  /** Transcoded text to be displayed for the current [AbstractTaskViewModel.taskData]. */
   val responseText: LiveData<String>
 
-  /** Error message to be displayed for the current [AbstractTaskViewModel.response]. */
+  /** Error message to be displayed for the current [AbstractTaskViewModel.taskData]. */
   val error: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
-  private val responseSubject: @Hot(replays = true) BehaviorProcessor<Optional<Response>> =
+  private val taskDataSubject: @Hot(replays = true) BehaviorProcessor<Optional<TaskData>> =
     BehaviorProcessor.create()
 
   lateinit var task: Task
 
-  // TODO: Add a reference of Task in Response for simplification.
-  fun initialize(task: Task, response: Optional<Response>) {
+  // TODO: Add a reference of Task in TaskData for simplification.
+  fun initialize(task: Task, taskData: Optional<TaskData>) {
     this.task = task
-    setResponse(response)
+    setResponse(taskData)
   }
 
   protected val detailsTextFlowable: @Cold(stateful = true, terminates = false) Flowable<String> =
-    responseSubject.distinctUntilChanged().map { responseOptional: Optional<Response> ->
-      responseOptional.map { it.getDetailsText() }.orElse("")
+    taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<TaskData> ->
+      taskDataOptional.map { it.getDetailsText() }.orElse("")
     }
 
-  /** Checks if the current response is valid and updates error value. */
+  /** Checks if the current taskData is valid and updates error value. */
   fun validate(): String? {
-    val result = validate(task, responseSubject.value).orElse(null)
+    val result = validate(task, taskDataSubject.value).orElse(null)
     error.postValue(result)
     return result
   }
 
-  // TODO: Check valid response values
-  private fun validate(task: Task, response: Optional<Response>?): Optional<String> =
-    if (task.isRequired && (response == null || response.isEmpty))
+  // TODO: Check valid taskData values
+  private fun validate(task: Task, taskData: Optional<TaskData>?): Optional<String> =
+    if (task.isRequired && (taskData == null || taskData.isEmpty))
       Optional.of(resources.getString(R.string.required_task))
     else Optional.empty()
 
@@ -80,8 +80,8 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
       }
       .toString()
 
-  fun setResponse(response: Optional<Response>) {
-    responseSubject.onNext(response)
+  fun setResponse(taskData: Optional<TaskData>) {
+    taskDataSubject.onNext(taskData)
   }
 
   fun clearResponse() {
@@ -89,7 +89,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   }
 
   init {
-    response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged())
+    taskData = LiveDataReactiveStreams.fromPublisher(taskDataSubject.distinctUntilChanged())
     responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable)
   }
 }

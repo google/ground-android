@@ -17,7 +17,7 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.ResponseDelta
+import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -27,17 +27,17 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 
-/** Converts between [ResponseDelta] and JSON strings used to represent them in the local db. */
+/** Converts between [TaskDataDelta] and JSON strings used to represent them in the local db. */
 object ResponseDeltasConverter {
 
   private const val KEY_TASK_TYPE = "taskType"
-  private const val KEY_NEW_RESPONSE = "newResponse"
+  private const val KEY_NEW_RESPONSE = "newTaskData"
 
   @JvmStatic
-  fun toString(responseDeltas: ImmutableList<ResponseDelta>): String =
+  fun toString(taskDataDeltas: ImmutableList<TaskDataDelta>): String =
     JSONObject()
       .apply {
-        for (delta in responseDeltas) {
+        for (delta in taskDataDeltas) {
           try {
             put(
               delta.taskId,
@@ -45,7 +45,7 @@ object ResponseDeltasConverter {
                 .put(KEY_TASK_TYPE, delta.taskType.name)
                 .put(
                   KEY_NEW_RESPONSE,
-                  delta.newResponse
+                  delta.newTaskData
                     .map { ResponseJsonConverter.toJsonObject(it) }
                     .orElse(JSONObject.NULL)
                 )
@@ -58,8 +58,8 @@ object ResponseDeltasConverter {
       .toString()
 
   @JvmStatic
-  fun fromString(job: Job, jsonString: String?): ImmutableList<ResponseDelta> {
-    val deltas = ImmutableList.builder<ResponseDelta>()
+  fun fromString(job: Job, jsonString: String?): ImmutableList<TaskDataDelta> {
+    val deltas = ImmutableList.builder<TaskDataDelta>()
     if (jsonString == null) {
       return deltas.build()
     }
@@ -75,16 +75,16 @@ object ResponseDeltasConverter {
             }
           val jsonDelta = jsonObject.getJSONObject(taskId)
           deltas.add(
-            ResponseDelta(
+            TaskDataDelta(
               taskId,
               toEnum(Task.Type::class.java, jsonDelta.getString(KEY_TASK_TYPE)),
               ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_RESPONSE])
             )
           )
         } catch (e: LocalDataConsistencyException) {
-          Timber.d("Bad response in local db: " + e.message)
+          Timber.d("Bad taskData in local db: " + e.message)
         } catch (e: DataStoreException) {
-          Timber.d("Bad response in local db: " + e.message)
+          Timber.d("Bad taskData in local db: " + e.message)
         }
       }
     } catch (e: JSONException) {

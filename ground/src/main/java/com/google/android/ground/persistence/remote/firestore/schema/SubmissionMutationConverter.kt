@@ -52,30 +52,30 @@ internal object SubmissionMutationConverter {
     }
     map.put(LOI_ID, mutation.locationOfInterestId)
     map.put(JOB_ID, mutation.job!!.id)
-    map.put(RESPONSES, toMap(mutation.responseDeltas))
+    map.put(RESPONSES, toMap(mutation.taskDataDeltas))
     return map.build()
   }
 
-  private fun toMap(responseDeltas: ImmutableList<ResponseDelta>): Map<String, Any> {
+  private fun toMap(taskDataDeltas: ImmutableList<TaskDataDelta>): Map<String, Any> {
     val map = ImmutableMap.builder<String, Any>()
-    for (delta in responseDeltas) {
-      delta.newResponse
-        .map { obj: Response -> toObject(obj) }
+    for (delta in taskDataDeltas) {
+      delta.newTaskData
+        .map { obj: TaskData -> toObject(obj) }
         .orElse(FieldValue.delete())
         ?.let { map.put(delta.taskId, it) }
     }
     return map.build()
   }
 
-  private fun toObject(response: Response): Any? =
-    when (response) {
-      is TextResponse -> response.text
-      is MultipleChoiceResponse -> response.selectedOptionIds
-      is NumberResponse -> response.value
-      is TimeResponse -> response.time
-      is DateResponse -> response.date
+  private fun toObject(taskData: TaskData): Any? =
+    when (taskData) {
+      is TextTaskData -> taskData.text
+      is MultipleChoiceTaskData -> taskData.selectedOptionIds
+      is NumberTaskData -> taskData.value
+      is TimeTaskData -> taskData.time
+      is DateTaskData -> taskData.date
       else -> {
-        Timber.e("Unknown response type: %s", response.javaClass.name)
+        Timber.e("Unknown taskData type: %s", taskData.javaClass.name)
         null
       }
     }

@@ -20,7 +20,7 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firestore.FirestoreStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
@@ -100,7 +100,7 @@ constructor(private val userMediaRepository: UserMediaRepository, resources: Res
       // Add image to gallery.
       userMediaRepository.addImageToGallery(path, filename)
 
-      // Update response.
+      // Update taskData.
       val remoteDestinationPath = getRemoteMediaPath(surveyId!!, submissionId!!, filename)
       updateResponse(remoteDestinationPath)
     } catch (e: IOException) {

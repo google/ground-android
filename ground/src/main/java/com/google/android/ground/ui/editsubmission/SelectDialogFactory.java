@@ -21,7 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.content.Context;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.ground.R;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
+import com.google.android.ground.model.submission.MultipleChoiceTaskData;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Option;
 import com.google.common.collect.ImmutableList;
@@ -79,7 +79,7 @@ public abstract class SelectDialogFactory {
 
   public abstract MultipleChoice getMultipleChoice();
 
-  public abstract Optional<MultipleChoiceResponse> getCurrentResponse();
+  public abstract Optional<MultipleChoiceTaskData> getCurrentResponse();
 
   public abstract Consumer<ImmutableList<Option>> getValueConsumer();
 
@@ -91,7 +91,7 @@ public abstract class SelectDialogFactory {
 
     public abstract B setMultipleChoice(MultipleChoice multipleChoice);
 
-    public abstract B setCurrentResponse(Optional<MultipleChoiceResponse> response);
+    public abstract B setCurrentResponse(Optional<MultipleChoiceTaskData> response);
 
     public abstract B setValueConsumer(Consumer<ImmutableList<Option>> consumer);
   }

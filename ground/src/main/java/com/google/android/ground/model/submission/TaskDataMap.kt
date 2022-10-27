@@ -20,34 +20,34 @@ import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 
 /**
- * An immutable map of task ids to related user responses.
+ * An immutable map of task ids to related user taskDatas.
  *
- * @property responses A map from task id to user response. This map is mutable and therefore should
+ * @property taskDatas A map from task id to taskData. This map is mutable and therefore should
  * never be exposed outside this class.
  */
-data class ResponseMap
-constructor(private val responses: Map<String, Response?> = ImmutableMap.of()) {
+data class TaskDataMap
+constructor(private val taskDatas: Map<String, TaskData?> = ImmutableMap.of()) {
 
   /**
-   * Returns the user response for the given task id, or empty if the user did not specify a
-   * response.
+   * Returns the user taskData for the given task id, or empty if the user did not specify a
+   * taskData.
    */
-  fun getResponse(taskId: String): Optional<Response> = Optional.ofNullable(responses[taskId])
+  fun getResponse(taskId: String): Optional<TaskData> = Optional.ofNullable(taskDatas[taskId])
 
   /** Returns an Iterable over the task ids in this map. */
-  fun taskIds(): Iterable<String> = responses.keys
+  fun taskIds(): Iterable<String> = taskDatas.keys
 
-  /** Adds, replaces, and/or removes responses based on the provided list of deltas. */
-  fun copyWithDeltas(responseDeltas: ImmutableList<ResponseDelta>): ResponseMap {
-    val newResponses = responses.toMutableMap()
-    responseDeltas.forEach {
-      if (it.newResponse.isPresent) {
-        newResponses[it.taskId] = it.newResponse.get()
+  /** Adds, replaces, and/or removes taskDatas based on the provided list of deltas. */
+  fun copyWithDeltas(taskDataDeltas: ImmutableList<TaskDataDelta>): TaskDataMap {
+    val newResponses = taskDatas.toMutableMap()
+    taskDataDeltas.forEach {
+      if (it.newTaskData.isPresent) {
+        newResponses[it.taskId] = it.newTaskData.get()
       } else {
         newResponses.remove(it.taskId)
       }
     }
 
-    return ResponseMap(newResponses)
+    return TaskDataMap(newResponses)
   }
 }

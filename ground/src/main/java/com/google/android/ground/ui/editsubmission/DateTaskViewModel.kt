@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.DateResponse.Companion.fromDate
+import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
 import java.util.*
 import javax.inject.Inject
 

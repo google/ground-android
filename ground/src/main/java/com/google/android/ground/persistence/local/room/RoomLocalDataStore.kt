@@ -29,9 +29,9 @@ import com.google.android.ground.model.mutation.Mutation.Companion.byDescendingC
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.Mutation.Type.*
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ResponseDelta
-import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -436,9 +436,9 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     job: Job?,
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>
-  ): ResponseMap {
+  ): TaskDataMap {
     val responseMap = ResponseMapConverter.fromString(job!!, submission.responses)
-    val deltas = ImmutableList.builder<ResponseDelta>()
+    val deltas = ImmutableList.builder<TaskDataDelta>()
     for (mutation in mutations) {
       // Merge changes to responses.
       deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.responseDeltas))
