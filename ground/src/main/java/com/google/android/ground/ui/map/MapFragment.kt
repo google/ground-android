@@ -88,11 +88,7 @@ interface MapFragment {
   /** Update the set of [MapLocationOfInterest]s rendered on the map. */
   fun renderLocationsOfInterest(mapLocationsOfInterest: ImmutableSet<MapLocationOfInterest>)
 
-  /**
-   * Refresh the set of rendered [MapLocationOfInterest], updating their size according to the map's
-   * current zoom level.
-   */
-  fun refreshRenderedLocationsOfInterest()
+  fun refresh()
 
   // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
   /** Returns TileProviders associated with this map adapter. */
