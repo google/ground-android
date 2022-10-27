@@ -20,17 +20,23 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
+import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -41,10 +47,12 @@ internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
+  private val navigator: Navigator
 ) : AbstractViewModel() {
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
+  private val taskCount: @Hot(replays = true) LiveData<Int>
 
   private val taskViewModels:
     @Hot(replays = true)
@@ -53,7 +61,7 @@ internal constructor(
   private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
     BehaviorProcessor.create()
 
-  private val responses: MutableMap<String, TaskData?> = HashMap()
+  private val responses: MutableMap<Task, TaskData?> = HashMap()
 
   // Tracks the user's current position in the list of tasks for the current Job
   val currentPosition: MutableLiveData<Int> = MutableLiveData(0)
@@ -82,6 +90,12 @@ internal constructor(
           .map { submission -> submission.value().map { it.locationOfInterest } }
           .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
       )
+
+    taskCount =
+      LiveDataReactiveStreams.fromPublisher(
+        submissionStream
+          .map { submission -> submission.value().map { it.job.tasks.size }.orElse(0) }
+      )
   }
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
@@ -98,11 +112,25 @@ internal constructor(
     val currentTask = taskViewModels.value!![currentPosition.value!!]
     val validationError = currentTask.validate()
     if (validationError == null) {
-      // TODO(#1146): Handle the scenario when the user clicks next on the last Task. This will
-      //  include persisting the list of responses to the database
+      responses[currentTask.task] = currentTask.taskData.value?.orElse(null)
+
+      // TODO(jsunde): Test this behavior
+      if (currentPosition.value!! == taskCount.value!! - 1) {
+        submission.value!!.value().ifPresent {
+          val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
+
+          responses.forEach { (task, taskData) ->
+            taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
+          }
+          submissionRepository.createOrUpdateSubmission(it, taskDataDeltas.build(), isNew = true)
+        }
+
+        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+        return Single.never()
+      }
+
       currentPosition.postValue(currentPosition.value!! + 1)
 
-      responses[currentTask.task.id] = currentTask.taskData.value?.orElse(null)
       return Single.never()
     } else {
       popups.get().showError(validationError)
