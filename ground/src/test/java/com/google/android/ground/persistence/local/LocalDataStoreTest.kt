@@ -32,9 +32,9 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TaskDataMap
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.formatVertices
