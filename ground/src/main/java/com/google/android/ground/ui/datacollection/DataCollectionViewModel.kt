@@ -93,8 +93,9 @@ internal constructor(
 
     taskCount =
       LiveDataReactiveStreams.fromPublisher(
-        submissionStream
-          .map { submission -> submission.value().map { it.job.tasks.size }.orElse(0) }
+        submissionStream.map { submission ->
+          submission.value().map { it.job.tasks.size }.orElse(0)
+        }
       )
   }
 
