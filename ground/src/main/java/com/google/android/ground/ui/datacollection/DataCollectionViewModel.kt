@@ -52,7 +52,6 @@ internal constructor(
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
-  private val taskCount: @Hot(replays = true) LiveData<Int>
 
   private val taskViewModels:
     @Hot(replays = true)
@@ -90,13 +89,6 @@ internal constructor(
           .map { submission -> submission.value().map { it.locationOfInterest } }
           .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
       )
-
-    taskCount =
-      LiveDataReactiveStreams.fromPublisher(
-        submissionStream.map { submission ->
-          submission.value().map { it.job.tasks.size }.orElse(0)
-        }
-      )
   }
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
@@ -114,9 +106,10 @@ internal constructor(
     val validationError = currentTask.validate()
     if (validationError == null) {
       responses[currentTask.task] = currentTask.taskData.value?.orElse(null)
+      val finalTaskPosition = submission.value!!.value().map { it.job.tasks.size }.orElse(0) - 1
 
       // TODO(jsunde): Test this behavior
-      if (currentPosition.value!! == taskCount.value!! - 1) {
+      if (currentPosition.value!! == finalTaskPosition) {
         submission.value!!.value().ifPresent {
           val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
 
