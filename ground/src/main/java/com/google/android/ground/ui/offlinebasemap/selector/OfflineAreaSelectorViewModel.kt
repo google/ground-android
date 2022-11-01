@@ -13,98 +13,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.offlinebasemap.selector
 
-package com.google.android.ground.ui.offlinebasemap.selector;
+import android.content.res.Resources
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.R
+import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.rx.Event
+import com.google.android.ground.rx.Nil
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.common.collect.ImmutableList
+import io.reactivex.Flowable
+import io.reactivex.processors.FlowableProcessor
+import io.reactivex.processors.PublishProcessor
+import javax.inject.Inject
+import timber.log.Timber
 
-import android.content.res.Resources;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.ground.R;
-import com.google.android.ground.model.basemap.OfflineArea;
-import com.google.android.ground.model.basemap.OfflineArea.State;
-import com.google.android.ground.model.basemap.tile.TileSet;
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.ground.repository.OfflineAreaRepository;
-import com.google.android.ground.rx.Event;
-import com.google.android.ground.rx.Nil;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import com.google.common.collect.ImmutableList;
-import io.reactivex.Flowable;
-import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.processors.PublishProcessor;
-import javax.inject.Inject;
-import timber.log.Timber;
-
-public class OfflineAreaSelectorViewModel extends AbstractViewModel {
-
-  enum DownloadMessage {
+class OfflineAreaSelectorViewModel
+@Inject
+internal constructor(
+  private val offlineAreaRepository: OfflineAreaRepository,
+  private val offlineUuidGenerator: OfflineUuidGenerator,
+  private val resources: Resources
+) : AbstractViewModel() {
+  enum class DownloadMessage {
     STARTED,
     FAILURE
   }
 
-  @Hot private final FlowableProcessor<OfflineArea> downloadClicks = PublishProcessor.create();
-  @Hot private final FlowableProcessor<Nil> remoteTileRequests = PublishProcessor.create();
-  private final LiveData<Event<DownloadMessage>> messages;
-  private final Flowable<ImmutableList<TileSet>> remoteTileSets;
-  private final OfflineUuidGenerator offlineUuidGenerator;
-  @Nullable private LatLngBounds viewport;
-  private final Resources resources;
+  private val downloadClicks: @Hot FlowableProcessor<OfflineArea> = PublishProcessor.create()
+  private val remoteTileRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
+  val downloadMessages: LiveData<Event<DownloadMessage>>
+  val remoteTileSets: Flowable<ImmutableList<TileSet>>
+  private var viewport: LatLngBounds? = null
 
-  @Inject
-  OfflineAreaSelectorViewModel(
-      OfflineAreaRepository offlineAreaRepository,
-      OfflineUuidGenerator offlineUuidGenerator,
-      Resources resources) {
-    this.messages =
-        LiveDataReactiveStreams.fromPublisher(
-            downloadClicks.switchMapSingle(
-                baseMap ->
-                    offlineAreaRepository
-                        .addOfflineAreaAndEnqueue(baseMap)
-                        .toSingleDefault(DownloadMessage.STARTED)
-                        .onErrorReturn(this::onEnqueueError)
-                        .map(Event::create)));
-    this.offlineUuidGenerator = offlineUuidGenerator;
-    this.resources = resources;
-    this.remoteTileSets =
-        remoteTileRequests.switchMapSingle(__ -> offlineAreaRepository.getTileSets());
+  init {
+    downloadMessages =
+      LiveDataReactiveStreams.fromPublisher(
+        downloadClicks.switchMapSingle { baseMap: OfflineArea ->
+          offlineAreaRepository
+            .addOfflineAreaAndEnqueue(baseMap)
+            .toSingleDefault(DownloadMessage.STARTED)
+            .onErrorReturn { e: Throwable -> onEnqueueError(e) }
+            .map { Event.create(it) }
+        }
+      )
+    remoteTileSets = remoteTileRequests.switchMapSingle { offlineAreaRepository.tileSets }
   }
 
-  private DownloadMessage onEnqueueError(Throwable e) {
-    Timber.e("Failed to add area and queue downloads: %s", e.getMessage());
-    return DownloadMessage.FAILURE;
+  private fun onEnqueueError(e: Throwable): DownloadMessage {
+    Timber.e("Failed to add area and queue downloads: %s", e.message)
+    return DownloadMessage.FAILURE
   }
 
-  public LiveData<Event<DownloadMessage>> getDownloadMessages() {
-    return this.messages;
+  fun setViewport(viewport: LatLngBounds?) {
+    this.viewport = viewport
   }
 
-  void setViewport(LatLngBounds viewport) {
-    this.viewport = viewport;
-  }
-
-  public void onDownloadClick() {
-    Timber.d("viewport:%s", viewport);
-    if (viewport == null) {
-      return;
+  fun onDownloadClick() {
+    viewport?.let {
+      downloadClicks.onNext(
+        OfflineArea(
+          offlineUuidGenerator.generateUuid(),
+          OfflineArea.State.PENDING,
+          it,
+          resources.getString(R.string.unnamed_area)
+        )
+      )
     }
-
-    downloadClicks.onNext(
-        new OfflineArea(
-            offlineUuidGenerator.generateUuid(),
-            State.PENDING,
-            viewport,
-            resources.getString(R.string.unnamed_area)));
   }
 
-  public Flowable<ImmutableList<TileSet>> getRemoteTileSets() {
-    return this.remoteTileSets;
-  }
-
-  public void requestRemoteTileSets() {
-    remoteTileRequests.onNext(Nil.NIL);
-  }
+  fun requestRemoteTileSets() = remoteTileRequests.onNext(Nil.NIL)
 }

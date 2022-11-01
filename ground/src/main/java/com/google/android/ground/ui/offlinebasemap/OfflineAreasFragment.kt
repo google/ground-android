@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.offlinebasemap
 
-package com.google.android.ground.ui.offlinebasemap;
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.MainActivity;
-import com.google.android.ground.databinding.OfflineBaseMapsFragBinding;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.Navigator;
-import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.ground.MainActivity
+import com.google.android.ground.databinding.OfflineBaseMapsFragBinding
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.Navigator
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -36,38 +33,36 @@ import javax.inject.Inject;
  * need or access the UI used to select and download a new area to the device.
  */
 @AndroidEntryPoint
-public class OfflineAreasFragment extends AbstractFragment {
-  @Inject Navigator navigator;
+class OfflineAreasFragment : AbstractFragment() {
 
-  private OfflineAreaListAdapter offlineAreaListAdapter;
-  private OfflineAreasViewModel viewModel;
+  @Inject lateinit var navigator: Navigator
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    viewModel = getViewModel(OfflineAreasViewModel.class);
-    offlineAreaListAdapter = new OfflineAreaListAdapter(navigator);
+  private lateinit var offlineAreaListAdapter: OfflineAreaListAdapter
+  private lateinit var viewModel: OfflineAreasViewModel
 
-    viewModel.getOfflineAreas().observe(this, offlineAreaListAdapter::update);
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(OfflineAreasViewModel::class.java)
+    offlineAreaListAdapter = OfflineAreaListAdapter(navigator)
+    viewModel.offlineAreas.observe(this) { offlineAreaListAdapter.update(it) }
   }
 
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    OfflineBaseMapsFragBinding binding =
-        OfflineBaseMapsFragBinding.inflate(inflater, container, false);
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
+    val binding = OfflineBaseMapsFragBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
 
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
+    (requireActivity() as MainActivity).setActionBar(binding.offlineAreasToolbar, true)
 
-    ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
-
-    RecyclerView recyclerView = binding.offlineAreasList;
-    recyclerView.setHasFixedSize(true);
-    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(offlineAreaListAdapter);
-
-    return binding.getRoot();
+    val recyclerView = binding.offlineAreasList
+    recyclerView.setHasFixedSize(true)
+    recyclerView.layoutManager = LinearLayoutManager(context)
+    recyclerView.adapter = offlineAreaListAdapter
+    return binding.root
   }
 }

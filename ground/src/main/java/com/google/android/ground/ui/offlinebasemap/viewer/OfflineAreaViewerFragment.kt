@@ -13,71 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.offlinebasemap.viewer
 
-package com.google.android.ground.ui.offlinebasemap.viewer;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.ground.MainActivity
+import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
+import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.ui.common.AbstractMapViewerFragment
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.gms.toModelObject
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import com.google.android.ground.MainActivity;
-import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding;
-import com.google.android.ground.model.basemap.OfflineArea;
-import com.google.android.ground.ui.common.AbstractMapViewerFragment;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.map.MapFragment;
-import com.google.android.ground.ui.map.gms.ConverterExtKt;
-import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
-
-/**
- * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
- * device.
- */
+/** The fragment provides a UI for managing a single offline area on the user's device. */
 @AndroidEntryPoint
-public class OfflineAreaViewerFragment extends AbstractMapViewerFragment {
+class OfflineAreaViewerFragment @Inject constructor() : AbstractMapViewerFragment() {
 
-  @Inject Navigator navigator;
+  @Inject lateinit var navigator: Navigator
 
-  private OfflineAreaViewerViewModel viewModel;
+  private lateinit var viewModel: OfflineAreaViewerViewModel
 
-  @Inject
-  public OfflineAreaViewerFragment() {}
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    OfflineAreaViewerFragmentArgs args = OfflineAreaViewerFragmentArgs.fromBundle(getArguments());
-    viewModel = getViewModel(OfflineAreaViewerViewModel.class);
-    viewModel.loadOfflineArea(args);
-    viewModel.getOfflineArea().observe(this, this::panMap);
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    val args = OfflineAreaViewerFragmentArgs.fromBundle(arguments)
+    viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
+    viewModel.loadOfflineArea(args)
+    viewModel.offlineArea.observe(this) { offlineArea: OfflineArea -> panMap(offlineArea) }
   }
 
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    OfflineBaseMapViewerFragBinding binding =
-        OfflineBaseMapViewerFragBinding.inflate(inflater, container, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.removeButton.setOnClickListener(__ -> onRemoveClick());
-    ((MainActivity) getActivity()).setActionBar(binding.offlineAreaViewerToolbar, true);
-    return binding.getRoot();
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
+    val binding = OfflineBaseMapViewerFragBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
+    binding.removeButton.setOnClickListener { onRemoveClick() }
+    (activity as MainActivity?)!!.setActionBar(binding.offlineAreaViewerToolbar, true)
+    return binding.root
   }
 
-  @Override
-  protected void onMapReady(MapFragment map) {
-    map.disableGestures();
+  override fun onMapReady(mapFragment: MapFragment) {
+    mapFragment.disableGestures()
   }
 
-  private void panMap(OfflineArea offlineArea) {
-    getMapFragment().setViewport(ConverterExtKt.toModelObject(offlineArea.getBounds()));
+  private fun panMap(offlineArea: OfflineArea) {
+    mapFragment.viewport = offlineArea.bounds.toModelObject()
   }
 
   /** Removes the area associated with this fragment from the user's device. */
-  public void onRemoveClick() {
-    viewModel.removeArea();
+  private fun onRemoveClick() {
+    viewModel.removeArea()
   }
 }

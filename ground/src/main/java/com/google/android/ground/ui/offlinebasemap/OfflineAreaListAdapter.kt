@@ -13,78 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.offlinebasemap
 
-package com.google.android.ground.ui.offlinebasemap;
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ground.databinding.OfflineBaseMapListItemBinding
+import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.ui.common.Navigator
+import com.google.common.collect.ImmutableList
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.databinding.OfflineBaseMapListItemBinding;
-import com.google.android.ground.model.basemap.OfflineArea;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.common.collect.ImmutableList;
+internal class OfflineAreaListAdapter(private val navigator: Navigator) :
+  RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder>() {
 
-class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
-  private final Navigator navigator;
-  private ImmutableList<OfflineArea> offlineAreas;
+  private var offlineAreas: ImmutableList<OfflineArea> = ImmutableList.of()
 
-  public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-    public OfflineBaseMapListItemBinding binding;
-    private ImmutableList<OfflineArea> areas;
-    private final Navigator navigator;
-
-    ViewHolder(
-        OfflineBaseMapListItemBinding binding,
-        ImmutableList<OfflineArea> areas,
-        Navigator navigator) {
-      super(binding.getRoot());
-      this.binding = binding;
-      this.areas = areas;
-      this.navigator = navigator;
-      binding.offlineAreaName.setOnClickListener(this);
+  class ViewHolder
+  internal constructor(
+    var binding: OfflineBaseMapListItemBinding,
+    var areas: ImmutableList<OfflineArea>,
+    private val navigator: Navigator
+  ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+    init {
+      binding.offlineAreaName.setOnClickListener(this)
     }
 
-    @Override
-    public void onClick(View v) {
-      if (areas.size() > 0) {
-        String id = areas.get(getAdapterPosition()).getId();
-        navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(id));
+    override fun onClick(v: View) {
+      if (areas.size > 0) {
+        val id = areas[adapterPosition].id
+        navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(id))
       }
     }
   }
 
-  OfflineAreaListAdapter(Navigator navigator) {
-    offlineAreas = ImmutableList.of();
-    this.navigator = navigator;
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    val offlineAreasListItemBinding =
+      OfflineBaseMapListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    return ViewHolder(offlineAreasListItemBinding, offlineAreas, navigator)
   }
 
-  @NonNull
-  @Override
-  public OfflineAreaListAdapter.ViewHolder onCreateViewHolder(
-      @NonNull ViewGroup parent, int viewType) {
-    OfflineBaseMapListItemBinding offlineAreasListItemBinding =
-        OfflineBaseMapListItemBinding.inflate(
-            LayoutInflater.from(parent.getContext()), parent, false);
-
-    return new ViewHolder(offlineAreasListItemBinding, offlineAreas, navigator);
+  override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+    viewHolder.areas = offlineAreas
+    viewHolder.binding.offlineAreaName.text = offlineAreas[position].name
   }
 
-  @Override
-  public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-    viewHolder.areas = offlineAreas;
-    viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getName());
+  override fun getItemCount(): Int {
+    return offlineAreas.size
   }
 
-  @Override
-  public int getItemCount() {
-    return offlineAreas.size();
-  }
-
-  void update(ImmutableList<OfflineArea> offlineAreas) {
-    this.offlineAreas = offlineAreas;
-    notifyDataSetChanged();
+  fun update(offlineAreas: ImmutableList<OfflineArea>) {
+    this.offlineAreas = offlineAreas
+    notifyDataSetChanged()
   }
 }
