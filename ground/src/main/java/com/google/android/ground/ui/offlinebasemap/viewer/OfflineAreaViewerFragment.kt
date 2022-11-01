@@ -39,7 +39,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapViewerFragmen
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val args = OfflineAreaViewerFragmentArgs.fromBundle(arguments)
+    val args = OfflineAreaViewerFragmentArgs.fromBundle(requireNotNull(arguments))
     viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
     viewModel.loadOfflineArea(args)
     viewModel.offlineArea.observe(this) { offlineArea: OfflineArea -> panMap(offlineArea) }

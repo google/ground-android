@@ -55,9 +55,9 @@ constructor(
   private val context: WeakReference<Context>
 
   /** Returns the offline area associated with this view model. */
-  val offlineArea: LiveData<OfflineArea>
-  var areaStorageSize: LiveData<Double>
-  var areaName: LiveData<String>
+  @JvmField val offlineArea: LiveData<OfflineArea>
+  @JvmField var areaStorageSize: LiveData<Double>
+  @JvmField var areaName: LiveData<String>
 
   private var offlineAreaId: String? = null
 
