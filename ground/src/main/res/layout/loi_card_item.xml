@@ -24,6 +24,8 @@
     <variable
       name="loi"
       type="com.google.android.ground.model.locationofinterest.LocationOfInterest" />
+    <import type="com.google.android.ground.model.job.Job.Type" />
+    <import type="com.google.android.ground.model.job.Job.Status" />
   </data>
 
   <com.google.android.material.card.MaterialCardView
@@ -101,8 +103,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/jobName"
         app:layout_constraintTop_toBottomOf="@id/type">
+        <!-- TODO: Add minimum submission count check to markComplete visibility -->
         <Button
           android:id="@+id/markComplete"
+          visible="@{loi.job.type == Type.MANUAL}"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"
@@ -110,6 +114,7 @@
           android:textColor="@color/colorMapBlue" />
         <Button
           android:id="@+id/review"
+          visible="@{loi.job.status != Status.NOT_STARTED}"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"
@@ -117,6 +122,7 @@
           android:textColor="@color/colorMapBlue" />
         <Button
           android:id="@+id/start"
+          visible="@{loi.job.status != Status.COMPLETE}"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"
