@@ -47,10 +47,15 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   /** Binds [LocationOfInterest] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val locationOfInterest = itemsList[position]
+
     val context = holder.itemView.context
     holder.loiName.text = locationOfInterest.caption ?: context.getString(R.string.empty_caption)
-    holder.jobName.text = locationOfInterest.job.name ?: context.getString(R.string.empty_name)
-    holder.status.text = context.getString(R.string.completed)
+
+    val job = locationOfInterest.job
+    holder.jobName.text = job.name ?: context.getString(R.string.empty_name)
+    holder.status.text = job.status.toString()
+    holder.type.text = job.type.toString()
+
     holder.wrapperView.background =
       ResourcesCompat.getDrawable(
         context.resources,
@@ -61,6 +66,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
         },
         null
       )
+
     holder.itemView.setOnClickListener { handleItemClicked(position) }
     holder.button.setOnClickListener { handleButtonClicked(position) }
   }
@@ -106,6 +112,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     val status: TextView = view.findViewById(R.id.status)
     val loiName: TextView = view.findViewById(R.id.loiName)
     val jobName: TextView = view.findViewById(R.id.jobName)
+    val type: TextView = view.findViewById(R.id.type)
     val button: Button = view.findViewById(R.id.button)
     val wrapperView: View = view.findViewById(R.id.wrapper_view)
   }

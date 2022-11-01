@@ -26,10 +26,23 @@ data class Job
 constructor(
   val id: String,
   val name: String? = null,
-  val tasks: ImmutableMap<String, Task> = ImmutableMap.of()
+  val tasks: ImmutableMap<String, Task> = ImmutableMap.of(),
+  val type: Type = Type.AUTOMATIC,
+  val status: Status = Status.NOT_STARTED
 ) {
   val tasksSorted: ImmutableList<Task>
     get() = tasks.values.sortedBy { it.id }.toImmutableList()
 
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
+
+  enum class Type {
+    AUTOMATIC,
+    MANUAL
+  }
+
+  enum class Status {
+    NOT_STARTED,
+    IN_PROGRESS,
+    COMPLETE
+  }
 }
