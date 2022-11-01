@@ -65,7 +65,7 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
           newTextView(task.getLabel(), R.style.SubmissionListText_TaskLabel));
       binding.taskValueRow.addView(
           newTextView(
-              response.map(TaskData::getSummaryText).orElse(""), R.style.SubmissionListText_Task));
+              response.map(TaskData::getDetailsText).orElse(""), R.style.SubmissionListText_Task));
     }
   }
 
