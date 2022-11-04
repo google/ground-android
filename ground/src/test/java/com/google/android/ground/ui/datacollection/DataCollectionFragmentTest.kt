@@ -23,9 +23,14 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
+import com.google.android.ground.capture
 import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.ui.common.Navigator
+import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
@@ -42,7 +47,11 @@ import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
+import org.mockito.Captor
 import org.mockito.Mock
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
@@ -52,14 +61,17 @@ import org.robolectric.shadows.ShadowToast
 class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var navigator: Navigator
-  @BindValue @Mock lateinit var surveyRepository: SubmissionRepository
+  @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
+  @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<ImmutableList<TaskDataDelta>>
   lateinit var fragment: DataCollectionFragment
 
   @Before
   override fun setUp() {
     super.setUp()
 
-    whenever(surveyRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id))
+    whenever(
+        submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id)
+      )
       .thenReturn(Single.just(SUBMISSION))
   }
 
@@ -127,6 +139,39 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
     onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
     onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
+  }
+
+  @Test
+  fun onContinueClicked_onFinalTask_resultIsSaved() {
+    setupFragment()
+    val task1Response = "response 1"
+    val task2Response = "response 2"
+    val expectedTaskDataDeltas =
+      ImmutableList.of(
+        TaskDataDelta(
+          SUBMISSION.job.tasksSorted[0].id,
+          Task.Type.TEXT,
+          TextTaskData.fromString(task1Response)
+        ),
+        TaskDataDelta(
+          SUBMISSION.job.tasksSorted[1].id,
+          Task.Type.TEXT,
+          TextTaskData.fromString(taskResponse)
+        ),
+      )
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
+    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
+    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
+
+    // Click continue on final task
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
+    onView(withId(R.id.data_collection_continue_button)).perform(click())
+
+    verify(submissionRepository)
+      .createOrUpdateSubmission(eq(SUBMISSION), capture(taskDataDeltaCaptor), eq(true))
+    val taskDataDeltas = taskDataDeltaCaptor.value
+    expectedTaskDataDeltas.forEach { taskData -> assertThat(taskDataDeltas).contains(taskData) }
   }
 
   @Test

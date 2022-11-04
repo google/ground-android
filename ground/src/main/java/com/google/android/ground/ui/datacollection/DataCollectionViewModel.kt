@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -31,6 +32,7 @@ import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.util.combineWith
 import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -63,7 +65,23 @@ internal constructor(
   private val responses: MutableMap<Task, TaskData?> = HashMap()
 
   // Tracks the user's current position in the list of tasks for the current Job
-  val currentPosition: MutableLiveData<Int> = MutableLiveData(0)
+  var currentPosition: @Hot(replays = true) MutableLiveData<Int> = MutableLiveData(0)
+
+  var currentTaskData: TaskData? = null
+
+  var currentTaskViewModel: AbstractTaskViewModel? = null
+
+  val currentTaskViewModelLiveData =
+    currentPosition.combineWith(taskViewModels) { position, viewModels ->
+      if (position!! < viewModels!!.size) {
+        currentTaskViewModel = viewModels[position]
+      }
+
+      currentTaskViewModel
+    }
+
+  val currentTaskDataLiveData =
+    Transformations.switchMap(currentTaskViewModelLiveData) { it?.taskData }
 
   init {
     val submissionStream: Flowable<Loadable<Submission>> =
@@ -94,7 +112,8 @@ internal constructor(
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
   fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
-    taskViewModels.value!!.add(taskViewModel)
+    taskViewModels.value?.add(taskViewModel)
+    taskViewModels.value = taskViewModels.value
   }
 
   /**
@@ -102,13 +121,12 @@ internal constructor(
    * Progresses to the next Data Collection screen if the user input was valid.
    */
   fun onContinueClicked(): Single<String> {
-    val currentTask = taskViewModels.value!![currentPosition.value!!]
+    val currentTask = currentTaskViewModel ?: return Single.never()
     val validationError = currentTask.validate()
     if (validationError == null) {
-      responses[currentTask.task] = currentTask.taskData.value?.orElse(null)
+      responses[currentTask.task] = currentTaskData
       val finalTaskPosition = submission.value!!.value().map { it.job.tasks.size }.orElse(0) - 1
 
-      // TODO(jsunde): Test this behavior
       if (currentPosition.value!! == finalTaskPosition) {
         submission.value!!.value().ifPresent {
           val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
