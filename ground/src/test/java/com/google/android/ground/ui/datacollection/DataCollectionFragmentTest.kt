@@ -156,7 +156,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         TaskDataDelta(
           SUBMISSION.job.tasksSorted[1].id,
           Task.Type.TEXT,
-          TextTaskData.fromString(taskResponse)
+          TextTaskData.fromString(task2Response)
         ),
       )
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
