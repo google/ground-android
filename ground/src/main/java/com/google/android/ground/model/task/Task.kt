@@ -16,7 +16,7 @@
 package com.google.android.ground.model.task
 
 /**
- * Describes a user-defined task. Does not contain actual task responses (see [Response] instead.
+ * Describes a user-defined task. Does not contain actual task responses (see [TaskData] instead.
  */
 data class Task
 @JvmOverloads

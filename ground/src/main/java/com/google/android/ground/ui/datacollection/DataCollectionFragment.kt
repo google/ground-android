@@ -68,6 +68,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
     viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
+    viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) {
+      viewModel.currentTaskData = it.orElse(null)
+    }
 
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
