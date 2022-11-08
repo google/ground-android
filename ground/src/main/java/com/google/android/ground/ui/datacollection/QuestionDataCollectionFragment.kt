@@ -31,15 +31,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class QuestionDataCollectionFragment
 constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) :
   AbstractFragment() {
-  // TODO(#1146): Use the task to determine what UI should be shown to the user here
-
-  // TODO(#1146): Persist the text contents when the user clicks next
-
-  // TODO(#1146): Restore the text contents if the user returns to this fragment
-
-  // TODO(#1146): use the isRequired field of the task to control whether or not the Next button is
-  //  enabled. Also update the text field in some way to indicate the it is required.
-
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
