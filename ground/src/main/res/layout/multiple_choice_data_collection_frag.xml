@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.TextTaskViewModel" />
+      type="com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel" />
   </data>
 
   <ScrollView
@@ -34,6 +34,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content">
+<!--      TODO(jsunde): Extract the step number, icon, and question to a shared component that
+                        can be used by all of the tasks. -->
       <TextView
         android:id="@+id/data_collection_step_number"
         android:layout_width="wrap_content"
@@ -76,23 +78,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/data_collection_task_name" />
 
-      <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_layout"
-        style="@style/EditSubmission.Task.Text"
-        android:layout_width="wrap_content"
+<!--      TODO(jsunde): Programmatically insert the RadioButtons (or checkboxes) based on the
+            MultipleChoice options for the given task. -->
+      <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/data_collection_question">
-        <com.google.android.material.textfield.TextInputEditText
-          android:id="@+id/user_response_text"
-          android:layout_width="200dp"
+        app:layout_constraintTop_toBottomOf="@+id/data_collection_question"
+        android:checkedButton="@id/radio_1">
+        <RadioButton
+          android:id="@+id/radio_1"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="@{viewModel.responseText}"
-          app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
-          android:inputType="text" />
-      </com.google.android.material.textfield.TextInputLayout>
+          android:button="@drawable/radio_button_background"
+          android:buttonTint="@color/colorAccent"
+          android:padding="16dp"
+          android:text="Button 1"/>
+        <RadioButton
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:button="@drawable/radio_button_background"
+          android:buttonTint="@color/colorAccent"
+          android:padding="16dp"
+          android:text="Button 2"/>
+        <RadioButton
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:button="@drawable/radio_button_background"
+          android:buttonTint="@color/colorAccent"
+          android:padding="16dp"
+          android:text="Button 3"/>
+      </RadioGroup>
     </androidx.constraintlayout.widget.ConstraintLayout>
   </ScrollView>
 </layout>

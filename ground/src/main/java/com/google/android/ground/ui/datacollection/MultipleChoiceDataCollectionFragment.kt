@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.BR
+import com.google.android.ground.databinding.MultipleChoiceDataCollectionFragBinding
 import com.google.android.ground.databinding.QuestionDataCollectionFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
@@ -31,25 +32,19 @@ import dagger.hilt.android.AndroidEntryPoint
 class MultipleChoiceDataCollectionFragment
 constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) :
   AbstractFragment() {
-  // TODO(#1146): Use the task to determine what UI should be shown to the user here
-
-  // TODO(#1146): Persist the text contents when the user clicks next
-
-  // TODO(#1146): Restore the text contents if the user returns to this fragment
-
-  // TODO(#1146): use the isRequired field of the task to control whether or not the Next button is
-  //  enabled. Also update the text field in some way to indicate the it is required.
-
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = QuestionDataCollectionFragBinding.inflate(inflater, container, false)
+    val binding = MultipleChoiceDataCollectionFragBinding.inflate(inflater, container, false)
 
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
+
+    // TODO(jsunde): Programmatically add options as RadioButtons or as CheckBoxes? depending on
+    //  whether the Task is choose one vs choose mutliple
 
     return binding.root
   }

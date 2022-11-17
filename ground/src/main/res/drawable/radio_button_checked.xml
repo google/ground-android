@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:shape="ring">
-  <stroke
-    android:color="?attr/colorControlNormal"/>
+  android:shape="oval">
+  <size android:width="40dp" android:height="40dp"/>
+  <solid android:color="@color/colorAccent" />
 </shape>

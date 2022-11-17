@@ -25,12 +25,17 @@ import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
+import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.collections.immutable.persistentListOf
 import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
@@ -61,9 +66,45 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.offscreenPageLimit = 1
 
     viewModel.loadSubmissionDetails(args)
+    val dummyData = ImmutableList.of(
+      Task("1",
+        0,
+        Task.Type.MULTIPLE_CHOICE,
+        "What does this farm grow?",
+        isRequired = false,
+        multipleChoice = MultipleChoice(persistentListOf(
+          Option(
+            "1",
+            "code1",
+            "Option 1"
+          ),
+          Option(
+            "2",
+            "code2",
+            "Option 2"
+          )
+        ), MultipleChoice.Cardinality.SELECT_ONE)),
+      Task("2",
+        1,
+        Task.Type.MULTIPLE_CHOICE,
+        "Second question example?",
+        isRequired = true,
+        multipleChoice = MultipleChoice(persistentListOf(
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "4",
+            "code4",
+            "Option 4"
+          )
+        ), MultipleChoice.Cardinality.SELECT_ONE)))
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+        viewPager.adapter = viewPagerAdapterFactory.create(this, dummyData, viewModel)
+//        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
       }
     }
 
