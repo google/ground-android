@@ -82,8 +82,88 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
             "2",
             "code2",
             "Option 2"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
+          ),
+          Option(
+            "3",
+            "code3",
+            "Option 3"
           )
-        ), MultipleChoice.Cardinality.SELECT_ONE)),
+        ), MultipleChoice.Cardinality.SELECT_MULTIPLE)),
       Task("2",
         1,
         Task.Type.MULTIPLE_CHOICE,
@@ -103,8 +183,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         ), MultipleChoice.Cardinality.SELECT_ONE)))
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, dummyData, viewModel)
-//        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+//        viewPager.adapter = viewPagerAdapterFactory.create(this, dummyData, viewModel)
+        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
       }
     }
 
