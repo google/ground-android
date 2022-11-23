@@ -2,13 +2,14 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
   <data>
     <variable
-      name="option"
-      type="com.google.android.ground.model.task.Option" />
+      name="viewModel"
+      type="com.google.android.ground.ui.datacollection.OptionViewModel" />
   </data>
+
   <CheckBox
     android:id="@+id/checkbox"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@{option.label}"
+    android:text="@{viewModel.option.label}"
     android:textSize="18sp" />
 </layout>

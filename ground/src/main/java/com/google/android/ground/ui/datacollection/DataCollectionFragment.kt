@@ -66,6 +66,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.offscreenPageLimit = 1
 
     viewModel.loadSubmissionDetails(args)
+    // TODO(jsunde): Remove dummy data before submitting
     val dummyData = ImmutableList.of(
       Task("1",
         0,
@@ -89,79 +90,79 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
             "Option 3"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "4",
+            "code4",
+            "Option 4"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "5",
+            "code5",
+            "Option 5"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "6",
+            "code6",
+            "Option 6"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "7",
+            "code7",
+            "Option 7"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "8",
+            "code8",
+            "Option 8"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "9",
+            "code9",
+            "Option 9"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "10",
+            "code10",
+            "Option 10"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "11",
+            "code11",
+            "Option 11"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "12",
+            "code12",
+            "Option 12"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "12",
+            "code12",
+            "Option 12"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "13",
+            "code13",
+            "Option 13"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "14",
+            "code14",
+            "Option 14"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "15",
+            "code15",
+            "Option 15"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "16",
+            "code16",
+            "Option 16"
           ),
           Option(
-            "3",
-            "code3",
-            "Option 3"
+            "17",
+            "code17",
+            "Option 17"
           )
         ), MultipleChoice.Cardinality.SELECT_MULTIPLE)),
       Task("2",
@@ -183,8 +184,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         ), MultipleChoice.Cardinality.SELECT_ONE)))
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-//        viewPager.adapter = viewPagerAdapterFactory.create(this, dummyData, viewModel)
-        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+        viewPager.adapter = viewPagerAdapterFactory.create(this, dummyData, viewModel)
+//        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
       }
     }
 

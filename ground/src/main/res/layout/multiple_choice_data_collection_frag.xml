@@ -27,7 +27,7 @@
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingStart="20dp"
     android:paddingEnd="20dp">
     <!--      TODO(jsunde): Extract the step number, icon, and question to a shared component that
@@ -79,49 +79,16 @@
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/select_one_option_list"
       android:layout_width="wrap_content"
-      android:layout_height="0dp"
+      android:layout_height="wrap_content"
       android:layout_marginTop="4dp"
       android:divider="@null"
       android:dividerHeight="0dp"
       android:orientation="vertical"
-      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+      app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
       app:layout_constrainedHeight="true"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/data_collection_question" />
 
-    <!--<RadioGroup
-      android:id="@+id/radio_group"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:paddingTop="16dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/data_collection_question"
-      android:checkedButton="@id/radio_1">
-      &lt;!&ndash;        TODO(jsunde): Programmatically insert one RadioButton for each option in the task &ndash;&gt;
-      <RadioButton
-        android:id="@+id/radio_1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:button="@drawable/radio_button_background"
-        android:buttonTint="@color/colorAccent"
-        android:padding="16dp"
-        android:text="Button 1"/>
-      <RadioButton
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:button="@drawable/radio_button_background"
-        android:buttonTint="@color/colorAccent"
-        android:padding="16dp"
-        android:text="Button 2"/>
-      <RadioButton
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:button="@drawable/radio_button_background"
-        android:buttonTint="@color/colorAccent"
-        android:padding="16dp"
-        android:text="Button 3"/>
-    </RadioGroup>-->
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

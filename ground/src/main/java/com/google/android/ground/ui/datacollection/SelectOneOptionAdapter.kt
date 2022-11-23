@@ -49,7 +49,6 @@ class SelectOneOptionAdapter(private val options: List<Option>) :
   /** View item representing the [LocationOfInterest] data in the list. */
   class ViewHolder(internal val binding: MultipleChoiceRadiobuttonItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
-
     fun bind(option: Option) {
       binding.option = option
     }

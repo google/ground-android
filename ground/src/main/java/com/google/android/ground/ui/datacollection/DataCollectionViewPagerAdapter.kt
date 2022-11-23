@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
@@ -49,10 +48,7 @@ constructor(
     dataCollectionViewModel.addTaskViewModel(viewModel)
     return when (task.type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
-      Task.Type.MULTIPLE_CHOICE ->
-        if (task.multipleChoice?.cardinality == MultipleChoice.Cardinality.SELECT_ONE)
-          SelectOneDataCollectionFragment(task, viewModel)
-        else SelectMultipleDataCollectionFragment(task, viewModel)
+      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
       else -> DataCollectionTaskFragment()
     }
   }
