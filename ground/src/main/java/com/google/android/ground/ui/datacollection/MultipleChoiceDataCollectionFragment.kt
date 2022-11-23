@@ -52,8 +52,7 @@ constructor(private val task: Task, private val viewModel: AbstractTaskViewModel
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
       // TODO(jsunde): Figure out why the Multiple Choice RecyclerView still scrolls back to the top
       //  then factor out any shared logic between these branches
-      val optionViewModels = multipleChoice.options.map { OptionViewModel(it, false) }
-      val optionAdapter = SelectMultipleOptionAdapter(optionViewModels)
+      val optionAdapter = SelectMultipleOptionAdapter(multipleChoice.options)
       optionAdapter.setHasStableIds(true)
       val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_one_option_list)
       optionListView.setHasFixedSize(true)

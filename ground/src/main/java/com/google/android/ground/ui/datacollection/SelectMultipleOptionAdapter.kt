@@ -10,10 +10,10 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.SelectMultipleOptionAdapter.ViewHolder
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [OptionViewModel]s with the
+ * An implementation of [RecyclerView.Adapter] that associates [Option]s with the
  * [ViewHolder] checkbox views.
  */
-class SelectMultipleOptionAdapter(private val options: List<OptionViewModel>) :
+class SelectMultipleOptionAdapter(private val options: List<Option>) :
   RecyclerView.Adapter<ViewHolder>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
@@ -33,15 +33,12 @@ class SelectMultipleOptionAdapter(private val options: List<OptionViewModel>) :
 
     holder.binding.checkbox.setOnClickListener {
       val clickedPosition = holder.adapterPosition
-//      val option = options[clickedPosition]
       if (clickedPosition in selectedPositions) {
         selectedPositions.remove(clickedPosition)
       } else {
         selectedPositions.add(clickedPosition)
       }
-//      option.isChecked = !option.isChecked
       notifyItemChanged(clickedPosition)
-//      holder.binding.checkbox.post { notifyItemChanged(clickedPosition) }
     }
   }
 
@@ -51,8 +48,8 @@ class SelectMultipleOptionAdapter(private val options: List<OptionViewModel>) :
 
   class ViewHolder(internal val binding: MultipleChoiceCheckboxItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
-    fun bind(option: OptionViewModel) {
-      binding.viewModel = option
+    fun bind(option: Option) {
+      binding.option = option
     }
   }
 }
