@@ -16,7 +16,7 @@
 package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.ResponseDelta
+import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import java.util.*
@@ -33,10 +33,10 @@ data class SubmissionMutation(
   override val lastError: String = "",
   val job: Job? = null,
   var submissionId: String = "",
-  var responseDeltas: ImmutableList<ResponseDelta> = ImmutableList.of()
+  var taskDataDeltas: ImmutableList<TaskDataDelta> = ImmutableList.of()
 ) : Mutation() {
 
-  override fun toString(): String = super.toString() + "deltas= $responseDeltas"
+  override fun toString(): String = super.toString() + "deltas= $taskDataDeltas"
 
   companion object {
     fun filter(mutations: ImmutableList<out Mutation>): ImmutableList<SubmissionMutation> =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,18 @@
  */
 package com.google.android.ground.model.submission
 
+import com.google.android.ground.model.task.Task
 import java8.util.Optional
-import kotlinx.serialization.Serializable
 
-/** A user provided response to a number question task. */
-@Serializable
-data class NumberResponse constructor(private val number: String) : Response {
-  val value: Double
-    get() = number.toDouble()
-
-  override fun getDetailsText(): String = number
-
-  override fun isEmpty(): Boolean = number.isEmpty()
-
-  companion object {
-    @JvmStatic
-    fun fromNumber(number: String): Optional<Response> =
-      if (number.isEmpty()) Optional.empty() else Optional.of(NumberResponse(number))
-  }
-}
+/**
+ * Represents a change to an individual taskData in a submission.
+ *
+ * @property taskId the id of the task task being updated.
+ * @property taskType the type of task being updated.
+ * @property newTaskData the new value of the taskData, or empty if removed.
+ */
+data class TaskDataDelta(
+  val taskId: String,
+  val taskType: Task.Type,
+  val newTaskData: Optional<TaskData>
+)

@@ -42,7 +42,7 @@ constructor(
     val task = tasks[position]
     val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(task.type))
 
-    // TODO(#1146): Pass in the existing response if there is one
+    // TODO(#1146): Pass in the existing taskData if there is one
     viewModel.initialize(task, Optional.empty())
 
     dataCollectionViewModel.addTaskViewModel(viewModel)

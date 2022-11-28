@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
+import com.google.android.ground.model.submission.MultipleChoiceTaskData;
 import com.google.android.ground.model.task.Option;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -57,7 +57,7 @@ abstract class MultiSelectDialogFactory extends SelectDialogFactory {
     getCurrentResponse().ifPresent(this::updateCurrentSelectedItems);
   }
 
-  private void updateCurrentSelectedItems(MultipleChoiceResponse response) {
+  private void updateCurrentSelectedItems(MultipleChoiceTaskData response) {
     IntStreams.range(0, size())
         .forEach(i -> requireNonNull(checkedItems)[i] = response.isSelected(getOption(i)));
   }

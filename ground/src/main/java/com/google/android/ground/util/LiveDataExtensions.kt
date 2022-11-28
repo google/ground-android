@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.submission
+package com.google.android.ground.util
 
-import com.google.android.ground.model.task.Task
-import java8.util.Optional
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 
-/**
- * Represents a change to an individual task response in a submission.
- *
- * @property taskId the id of the task task being updated.
- * @property taskType the type of task being updated.
- * @property newResponse the new value of the response, or empty if removed.
- */
-data class ResponseDelta(
-  val taskId: String,
-  val taskType: Task.Type,
-  val newResponse: Optional<Response>
-)
+/** Combines a LiveData<T> with a LiveData<K> and returns a LiveData<R> */
+fun <T, K, R> LiveData<T>.combineWith(liveData: LiveData<K>, block: (T?, K?) -> R): LiveData<R> {
+  val result = MediatorLiveData<R>()
+  result.addSource(this) { result.value = block(this.value, liveData.value) }
+  result.addSource(liveData) { result.value = block(this.value, liveData.value) }
+  return result
+}

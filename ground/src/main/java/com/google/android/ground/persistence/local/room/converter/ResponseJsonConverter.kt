@@ -34,14 +34,14 @@ internal object ResponseJsonConverter {
   private val ISO_INSTANT_FORMAT: DateFormat =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault())
 
-  fun toJsonObject(response: Response): Any =
-    when (response) {
-      is TextResponse -> response.text
-      is MultipleChoiceResponse -> toJsonArray(response)
-      is NumberResponse -> response.value
-      is DateResponse -> dateToIsoString(response.date)
-      is TimeResponse -> dateToIsoString(response.time)
-      else -> throw UnsupportedOperationException("Unimplemented response ${response.javaClass}")
+  fun toJsonObject(taskData: TaskData): Any =
+    when (taskData) {
+      is TextTaskData -> taskData.text
+      is MultipleChoiceTaskData -> toJsonArray(taskData)
+      is NumberTaskData -> taskData.value
+      is DateTaskData -> dateToIsoString(taskData.date)
+      is TimeTaskData -> dateToIsoString(taskData.time)
+      else -> throw UnsupportedOperationException("Unimplemented taskData ${taskData.javaClass}")
     }
 
   fun dateToIsoString(date: Date): String {
@@ -58,43 +58,43 @@ internal object ResponseJsonConverter {
     }
   }
 
-  private fun toJsonArray(response: MultipleChoiceResponse): JSONArray =
+  private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
 
-  fun toResponse(task: Task, obj: Any): Optional<Response> =
+  fun toResponse(task: Task, obj: Any): Optional<TaskData> =
     when (task.type) {
       Task.Type.TEXT,
       Task.Type.PHOTO -> {
         if (obj === JSONObject.NULL) {
-          TextResponse.fromString("")
+          TextTaskData.fromString("")
         } else {
           DataStoreException.checkType(String::class.java, obj)
-          TextResponse.fromString(obj as String)
+          TextTaskData.fromString(obj as String)
         }
       }
       Task.Type.MULTIPLE_CHOICE -> {
         if (obj === JSONObject.NULL) {
-          MultipleChoiceResponse.fromList(task.multipleChoice, emptyList())
+          MultipleChoiceTaskData.fromList(task.multipleChoice, emptyList())
         } else {
           DataStoreException.checkType(JSONArray::class.java, obj)
-          MultipleChoiceResponse.fromList(task.multipleChoice, toList(obj as JSONArray))
+          MultipleChoiceTaskData.fromList(task.multipleChoice, toList(obj as JSONArray))
         }
       }
       Task.Type.NUMBER -> {
         if (JSONObject.NULL === obj) {
-          NumberResponse.fromNumber("")
+          NumberTaskData.fromNumber("")
         } else {
           DataStoreException.checkType(Number::class.java, obj)
-          NumberResponse.fromNumber(obj.toString())
+          NumberTaskData.fromNumber(obj.toString())
         }
       }
       Task.Type.DATE -> {
         DataStoreException.checkType(String::class.java, obj)
-        DateResponse.fromDate(isoStringToDate(obj as String))
+        DateTaskData.fromDate(isoStringToDate(obj as String))
       }
       Task.Type.TIME -> {
         DataStoreException.checkType(String::class.java, obj)
-        TimeResponse.fromDate(isoStringToDate(obj as String))
+        TimeTaskData.fromDate(isoStringToDate(obj as String))
       }
       Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
     }

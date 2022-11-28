@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.editsubmission
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.DateResponse.Companion.fromDate
+import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
 import com.google.android.ground.rx.Nil
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.TestObservers.observeUntilFirstChange
@@ -36,8 +36,8 @@ class DateTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() {
     dateTaskViewModel.updateResponse(TEST_DATE)
 
-    observeUntilFirstChange(dateTaskViewModel.response)
-    assertThat(dateTaskViewModel.response.value).isEqualTo(fromDate(TEST_DATE))
+    observeUntilFirstChange(dateTaskViewModel.taskData)
+    assertThat(dateTaskViewModel.taskData.value).isEqualTo(fromDate(TEST_DATE))
   }
 
   @Test

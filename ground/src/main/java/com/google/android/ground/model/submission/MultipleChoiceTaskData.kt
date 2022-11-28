@@ -23,10 +23,10 @@ import kotlinx.serialization.Serializable
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 @Serializable
-class MultipleChoiceResponse(
+class MultipleChoiceTaskData(
   private val multipleChoice: MultipleChoice?,
   val selectedOptionIds: List<String>
-) : Response {
+) : TaskData {
 
   fun getFirstId(): Optional<String> = Optional.ofNullable(selectedOptionIds.firstOrNull())
 
@@ -43,7 +43,7 @@ class MultipleChoiceResponse(
   override fun isEmpty(): Boolean = selectedOptionIds.isEmpty()
 
   override fun equals(other: Any?): Boolean {
-    if (other is MultipleChoiceResponse) {
+    if (other is MultipleChoiceTaskData) {
       return selectedOptionIds == (other).selectedOptionIds
     }
     return false
@@ -55,11 +55,11 @@ class MultipleChoiceResponse(
 
   companion object {
     @JvmStatic
-    fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<Response> {
+    fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<TaskData> {
       return if (codes.isEmpty()) {
         Optional.empty()
       } else {
-        Optional.of(MultipleChoiceResponse(multipleChoice, codes))
+        Optional.of(MultipleChoiceTaskData(multipleChoice, codes))
       }
     }
   }

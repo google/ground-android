@@ -178,6 +178,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
     // Android legacy support Libraries.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

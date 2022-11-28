@@ -19,10 +19,10 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.ResponseMap
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -74,7 +74,7 @@ class SubmissionLocalDataStoreConverterTest {
         AUDIT_INFO_2_NESTED_OBJECT,
         ImmutableMap.of(
           "task1",
-          "Text response",
+          "Text taskData",
           "task2",
           ImmutableList.of("option2"),
           "task3",
@@ -93,22 +93,22 @@ class SubmissionLocalDataStoreConverterTest {
           job,
           AUDIT_INFO_1,
           AUDIT_INFO_2,
-          ResponseMap(
+          TaskDataMap(
             ImmutableMap.of(
               "task1",
-              TextResponse("Text response"),
+              TextTaskData("Text taskData"),
               "task2",
-              MultipleChoiceResponse(
+              MultipleChoiceTaskData(
                 MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
                 ImmutableList.of("option2")
               ),
               "task3",
-              MultipleChoiceResponse(
+              MultipleChoiceTaskData(
                 MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
                 ImmutableList.of("optionA", "optionB")
               ),
               "task4",
-              TextResponse("Photo URL")
+              TextTaskData("Photo URL")
             )
           )
         )
@@ -219,7 +219,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        ImmutableMap.of("task1", "Unknown", "task2", "Text response")
+        ImmutableMap.of("task1", "Unknown", "task2", "Text taskData")
       )
     )
     assertThat(toSubmission())
@@ -232,7 +232,7 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          ResponseMap(ImmutableMap.of("task2", TextResponse("Text response")))
+          TaskDataMap(ImmutableMap.of("task2", TextTaskData("Text taskData")))
         )
       )
   }

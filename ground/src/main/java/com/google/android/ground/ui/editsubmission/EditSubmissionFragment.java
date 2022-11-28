@@ -54,7 +54,7 @@ import com.google.android.ground.databinding.PhotoInputTaskBindingImpl;
 import com.google.android.ground.databinding.TextInputTaskBinding;
 import com.google.android.ground.databinding.TimeInputTaskBinding;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.MultipleChoiceResponse;
+import com.google.android.ground.model.submission.MultipleChoiceTaskData;
 import com.google.android.ground.model.task.MultipleChoice;
 import com.google.android.ground.model.task.Option;
 import com.google.android.ground.model.task.Task;
@@ -89,7 +89,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     /** Key used to store unsaved responses across activity re-creation. */
     private static final String RESTORED_RESPONSES = "restoredResponses";
 
-    /** Key used to store field ID waiting for photo response across activity re-creation. */
+    /** Key used to store field ID waiting for photo taskData across activity re-creation. */
     private static final String TASK_WAITING_FOR_PHOTO = "photoFieldId";
 
     /** Key used to store captured photo Uri across activity re-creation. */
@@ -222,7 +222,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       observeTimeDialogClicks((TimeTaskViewModel) taskViewModel);
     }
 
-    taskViewModel.getResponse().observe(this, response -> viewModel.setResponse(task, response));
+    taskViewModel.getTaskData().observe(this, response -> viewModel.setResponse(task, response));
 
     taskViewModels.add(taskViewModel);
   }
@@ -290,7 +290,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
 
   private AlertDialog createMultipleChoiceDialog(
       Task task,
-      Optional<MultipleChoiceResponse> response,
+      Optional<MultipleChoiceTaskData> response,
       Consumer<ImmutableList<Option>> consumer) {
     MultipleChoice multipleChoice = requireNonNull(task.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {

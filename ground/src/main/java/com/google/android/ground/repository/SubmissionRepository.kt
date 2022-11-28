@@ -20,8 +20,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ResponseDelta
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.NotFoundException
@@ -155,14 +155,14 @@ constructor(
 
   fun createOrUpdateSubmission(
     submission: Submission,
-    responseDeltas: ImmutableList<ResponseDelta>,
+    taskDataDeltas: ImmutableList<TaskDataDelta>,
     isNew: Boolean
   ): @Cold Completable =
     applyAndEnqueue(
       SubmissionMutation(
         job = submission.job,
         submissionId = submission.id,
-        responseDeltas = responseDeltas,
+        taskDataDeltas = taskDataDeltas,
         type = if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE,
         syncStatus = SyncStatus.PENDING,
         surveyId = submission.surveyId,

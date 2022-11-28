@@ -114,7 +114,7 @@ object FakeData {
       SUBMISSION_ID,
       SURVEY.id,
       LOCATION_OF_INTEREST,
-      Job(
+      JOB.copy(
         id = "taskId",
         tasks =
           ImmutableMap.of(

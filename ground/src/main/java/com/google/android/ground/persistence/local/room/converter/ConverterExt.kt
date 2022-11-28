@@ -28,8 +28,8 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ResponseMap
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -356,7 +356,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     jobId = this.job!!.id,
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(ResponseMap().copyWithDeltas(this.responseDeltas)),
+    responses = ResponseMapConverter.toString(TaskDataMap().copyWithDeltas(this.taskDataDeltas)),
     created = authInfo,
     lastModified = authInfo
   )
@@ -372,7 +372,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   return SubmissionMutation(
     job = job,
     submissionId = submissionId,
-    responseDeltas = ResponseDeltasConverter.fromString(job, responseDeltas),
+    taskDataDeltas = ResponseDeltasConverter.fromString(job, responseDeltas),
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
@@ -394,7 +394,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     submissionId = submissionId,
     type = MutationEntityType.fromMutationType(type),
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
-    responseDeltas = ResponseDeltasConverter.toString(responseDeltas),
+    responseDeltas = ResponseDeltasConverter.toString(taskDataDeltas),
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,

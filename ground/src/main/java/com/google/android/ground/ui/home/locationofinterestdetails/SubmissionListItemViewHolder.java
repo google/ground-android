@@ -26,8 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.SubmissionListItemBinding;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.Response;
 import com.google.android.ground.model.submission.Submission;
+import com.google.android.ground.model.submission.TaskData;
 import com.google.android.ground.model.task.Task;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
@@ -60,12 +60,12 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
     ImmutableList<Task> tasks = job.getTasksSorted();
     for (int i = 0; i < MAX_COLUMNS && i < tasks.size(); i++) {
       Task task = tasks.get(i);
-      Optional<Response> response = submission.getResponses().getResponse(task.getId());
+      Optional<TaskData> response = submission.getResponses().getResponse(task.getId());
       binding.taskLabelRow.addView(
           newTextView(task.getLabel(), R.style.SubmissionListText_TaskLabel));
       binding.taskValueRow.addView(
           newTextView(
-              response.map(Response::getSummaryText).orElse(""), R.style.SubmissionListText_Task));
+              response.map(TaskData::getDetailsText).orElse(""), R.style.SubmissionListText_Task));
     }
   }
 

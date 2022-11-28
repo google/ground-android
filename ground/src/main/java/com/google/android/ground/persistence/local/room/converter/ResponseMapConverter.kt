@@ -17,19 +17,19 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Response
-import com.google.android.ground.model.submission.ResponseMap
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.common.collect.ImmutableMap
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 
-/** Converts between [ResponseMap] and JSON strings used to represent them in the local db. */
+/** Converts between [TaskDataMap] and JSON strings used to represent them in the local db. */
 object ResponseMapConverter {
 
   @JvmStatic
-  fun toString(responseDeltas: ResponseMap): String =
+  fun toString(responseDeltas: TaskDataMap): String =
     JSONObject()
       .apply {
         for (taskId in responseDeltas.taskIds()) {
@@ -49,11 +49,11 @@ object ResponseMapConverter {
       .toString()
 
   @JvmStatic
-  fun fromString(job: Job, jsonString: String?): ResponseMap {
+  fun fromString(job: Job, jsonString: String?): TaskDataMap {
     if (jsonString == null) {
-      return ResponseMap()
+      return TaskDataMap()
     }
-    val map = ImmutableMap.builder<String, Response>()
+    val map = ImmutableMap.builder<String, TaskData>()
     try {
       val jsonObject = JSONObject(jsonString)
       val keys = jsonObject.keys()
@@ -68,12 +68,12 @@ object ResponseMapConverter {
             map.put(taskId, it)
           }
         } catch (e: LocalDataConsistencyException) {
-          Timber.d("Bad response in local db: ${e.message}")
+          Timber.d("Bad taskData in local db: ${e.message}")
         }
       }
     } catch (e: JSONException) {
       Timber.e(e, "Error parsing JSON string")
     }
-    return ResponseMap(map.build())
+    return TaskDataMap(map.build())
   }
 }

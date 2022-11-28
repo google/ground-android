@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.NumberResponse.Companion.fromNumber
+import com.google.android.ground.model.submission.NumberTaskData.Companion.fromNumber
 import javax.inject.Inject
 
 class NumberTaskViewModel @Inject constructor(resources: Resources) :
