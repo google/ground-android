@@ -108,6 +108,7 @@
           visible="@{loi.job.status != Status.NOT_STARTED}"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:clickable="false"
           android:background="@android:color/transparent"
           android:text="@string/review"
           android:textColor="@color/colorMapBlue" />
@@ -115,6 +116,7 @@
           android:id="@+id/start"
           visible="@{loi.job.status != Status.COMPLETE}"
           android:layout_width="wrap_content"
+          android:clickable="false"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"
           android:text="@string/start"

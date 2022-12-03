@@ -141,11 +141,11 @@ class MapContainerFragment : AbstractMapViewerFragment() {
           val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
           val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
           val midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
-          adapter.updateSelectedPosition(midPosition)
+          adapter.focusItemAtIndex(midPosition)
         }
       }
     )
-    adapter.setLoiCardSelectedCallback { mapFragment.setActiveLocationOfInterest(it) }
+    adapter.setLoiCardFocusedCallback { mapFragment.setActiveLocationOfInterest(it) }
     adapter.setCollectDataCallback { navigateToDataCollectionFragment(it) }
     adapter.setReviewDataCallback { TODO() }
     recyclerView.adapter = adapter
