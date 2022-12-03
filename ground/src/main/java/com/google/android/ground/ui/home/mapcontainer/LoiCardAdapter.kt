@@ -35,6 +35,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
   private lateinit var cardSelectedCallback: (LocationOfInterest?) -> Unit
   private lateinit var collectDataCallback: (LocationOfInterest) -> Unit
+  private lateinit var reviewDataCallback: (LocationOfInterest) -> Unit
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -44,7 +45,9 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   /** Binds [LocationOfInterest] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    holder.bind(itemsList[position])
+    val loi: LocationOfInterest = itemsList[position]
+
+    holder.bind(loi)
 
     // Add highlight border if selected.
     holder.binding.wrapperView.background =
@@ -60,9 +63,8 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
     // Handle action buttons.
     holder.binding.loiCard.setOnClickListener { handleItemClicked(position) }
-    holder.binding.start.setOnClickListener { handleButtonClicked(position) }
-    holder.binding.review.setOnClickListener { TODO() }
-    holder.binding.markComplete.setOnClickListener { TODO() }
+    holder.binding.start.setOnClickListener { collectDataCallback.invoke(loi) }
+    holder.binding.review.setOnClickListener { reviewDataCallback.invoke(loi) }
   }
 
   /** Returns the size of the list. */
@@ -97,8 +99,8 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     cardSelectedCallback.invoke(itemsList[position])
   }
 
-  private fun handleButtonClicked(position: Int) {
-    collectDataCallback.invoke(itemsList[position])
+  fun setReviewDataCallback(callback: (LocationOfInterest) -> Unit) {
+    this.reviewDataCallback = callback
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */

@@ -57,9 +57,7 @@ import timber.log.Timber
 class MapContainerFragment : AbstractMapViewerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
-
   @Inject lateinit var mapsRepository: MapsRepository
-
   @Inject lateinit var navigator: Navigator
 
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
@@ -149,6 +147,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     )
     adapter.setLoiCardSelectedCallback { mapFragment.setActiveLocationOfInterest(it) }
     adapter.setCollectDataCallback { navigateToDataCollectionFragment(it) }
+    adapter.setReviewDataCallback { TODO() }
     recyclerView.adapter = adapter
   }
 
