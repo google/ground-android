@@ -37,12 +37,10 @@ constructor(
 
   enum class Type {
     AUTOMATIC,
-    MANUAL
   }
 
   enum class Status {
     NOT_STARTED,
-    IN_PROGRESS,
     COMPLETE
   }
 }
