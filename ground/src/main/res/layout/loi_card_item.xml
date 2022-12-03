@@ -24,7 +24,6 @@
     <variable
       name="loi"
       type="com.google.android.ground.model.locationofinterest.LocationOfInterest" />
-    <import type="com.google.android.ground.model.job.Job.Type" />
     <import type="com.google.android.ground.model.job.Job.Status" />
   </data>
 
