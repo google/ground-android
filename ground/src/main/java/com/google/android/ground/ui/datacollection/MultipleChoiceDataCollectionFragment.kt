@@ -19,6 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.ItemKeyProvider
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.SelectionTracker.SelectionObserver
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.BR
 import com.google.android.ground.R
@@ -28,6 +33,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
+
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
@@ -49,20 +55,43 @@ constructor(private val task: Task, private val viewModel: AbstractTaskViewModel
     binding.setVariable(BR.viewModel, viewModel)
 
     val multipleChoice = task.multipleChoice!!
+    val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
+    optionListView.setHasFixedSize(true)
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      // TODO(jsunde): Figure out why the Multiple Choice RecyclerView still scrolls back to the top
-      //  then factor out any shared logic between these branches
-      val optionAdapter = SelectMultipleOptionAdapter(multipleChoice.options)
-      optionAdapter.setHasStableIds(true)
-      val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_one_option_list)
-      optionListView.setHasFixedSize(true)
-      optionListView.adapter = optionAdapter
+      val adapter = SelectMultipleOptionAdapter(multipleChoice.options)
+      adapter.setHasStableIds(true)
+      optionListView.adapter = adapter
+      setupMultipleSelectionTracker(optionListView, adapter)
     } else {
-      val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_one_option_list)
-      optionListView.setHasFixedSize(true)
       optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options)
     }
 
     return binding.root
+  }
+
+  private fun setupMultipleSelectionTracker(view: RecyclerView, adapter: SelectionAdapter<*>) {
+    val itemKeyProvider = object : ItemKeyProvider<Long>(SCOPE_CACHED) {
+      override fun getKey(position: Int): Long = adapter.getItemId(position)
+
+      override fun getPosition(key: Long): Int = key.toInt()
+    }
+
+    val itemDetailsLookup: ItemDetailsLookup<Long> = OptionListItemDetailsLookup(view)
+
+    val selectionTracker = SelectionTracker.Builder(
+      "option_selection",
+      view,
+      itemKeyProvider,
+      itemDetailsLookup,
+      StorageStrategy.createLongStorage()
+    )
+      .build()
+
+    selectionTracker.addObserver(
+      object : SelectionObserver<Long>() {
+        override fun onItemStateChanged(key: Long, selected: Boolean) {
+          adapter.handleItemStateChanged(key.toInt(), selected)
+        }
+      })
   }
 }

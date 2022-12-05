@@ -14,7 +14,7 @@ import com.google.android.ground.ui.datacollection.SelectMultipleOptionAdapter.V
  * [ViewHolder] checkbox views.
  */
 class SelectMultipleOptionAdapter(private val options: List<Option>) :
-  RecyclerView.Adapter<ViewHolder>() {
+  SelectionAdapter<ViewHolder>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
       MultipleChoiceCheckboxItemBinding.inflate(
@@ -30,21 +30,21 @@ class SelectMultipleOptionAdapter(private val options: List<Option>) :
     holder.bind(options[position])
 
     holder.binding.checkbox.isChecked = position in selectedPositions
-
-    holder.binding.checkbox.setOnClickListener {
-      val clickedPosition = holder.adapterPosition
-      if (clickedPosition in selectedPositions) {
-        selectedPositions.remove(clickedPosition)
-      } else {
-        selectedPositions.add(clickedPosition)
-      }
-      notifyItemChanged(clickedPosition)
-    }
   }
 
   override fun getItemCount(): Int = options.size
 
   override fun getItemId(position: Int): Long = position.toLong()
+
+  override fun getPosition(key: Long): Int = key.toInt()
+
+  override fun handleItemStateChanged(position: Int, selected: Boolean) {
+    if (position in selectedPositions) {
+      selectedPositions.remove(position)
+    } else {
+      selectedPositions.add(position)
+    }
+  }
 
   class ViewHolder(internal val binding: MultipleChoiceCheckboxItemBinding) :
     RecyclerView.ViewHolder(binding.root) {

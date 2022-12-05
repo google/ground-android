@@ -72,12 +72,12 @@
       android:paddingTop="24dp"
       android:text="@{viewModel.task.label}"
       android:textSize="16sp"
-      app:layout_constraintBottom_toTopOf="@+id/select_one_option_list"
+      app:layout_constraintBottom_toTopOf="@+id/select_option_list"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/data_collection_step_number" />
 
     <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/select_one_option_list"
+      android:id="@+id/select_option_list"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="4dp"
