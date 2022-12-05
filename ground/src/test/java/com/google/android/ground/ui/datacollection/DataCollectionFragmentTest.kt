@@ -136,8 +136,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment()
 
     onView(allOf(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.select_option_list))
-      .check(matches(allOf(isDisplayed(), hasChildCount(2))))
+    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
     onView(withText(option1Label))
       .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
   }
@@ -169,8 +168,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment()
 
     onView(allOf(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.select_option_list))
-      .check(matches(allOf(isDisplayed(), hasChildCount(2))))
+    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
     onView(withText(option1Label))
       .check(matches(allOf(isDisplayed(), instanceOf(RadioButton::class.java))))
   }
