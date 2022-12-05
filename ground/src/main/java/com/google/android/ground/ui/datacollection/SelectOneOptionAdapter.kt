@@ -9,8 +9,8 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.SelectOneOptionAdapter.ViewHolder
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [Option] data with the
- * [ViewHolder] RadioButton views.
+ * An implementation of [RecyclerView.Adapter] that associates [Option] data with the [ViewHolder]
+ * RadioButton views.
  */
 class SelectOneOptionAdapter(private val options: List<Option>) :
   RecyclerView.Adapter<ViewHolder>() {

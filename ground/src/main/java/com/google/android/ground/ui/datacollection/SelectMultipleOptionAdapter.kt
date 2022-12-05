@@ -1,27 +1,21 @@
 package com.google.android.ground.ui.datacollection
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceCheckboxItemBinding
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.SelectMultipleOptionAdapter.ViewHolder
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [Option]s with the
- * [ViewHolder] checkbox views.
+ * An implementation of [RecyclerView.Adapter] that associates [Option]s with the [ViewHolder]
+ * checkbox views.
  */
 class SelectMultipleOptionAdapter(private val options: List<Option>) :
   SelectionAdapter<ViewHolder>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
-      MultipleChoiceCheckboxItemBinding.inflate(
-        LayoutInflater.from(parent.context),
-        parent,
-        false
-      )
+      MultipleChoiceCheckboxItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     )
 
   private val selectedPositions = mutableSetOf<Int>()
