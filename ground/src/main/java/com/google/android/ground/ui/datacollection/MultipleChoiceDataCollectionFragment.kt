@@ -34,7 +34,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
  * task.
@@ -70,28 +69,31 @@ constructor(private val task: Task, private val viewModel: AbstractTaskViewModel
   }
 
   private fun setupMultipleSelectionTracker(view: RecyclerView, adapter: SelectionAdapter<*>) {
-    val itemKeyProvider = object : ItemKeyProvider<Long>(SCOPE_CACHED) {
-      override fun getKey(position: Int): Long = adapter.getItemId(position)
+    val itemKeyProvider =
+      object : ItemKeyProvider<Long>(SCOPE_CACHED) {
+        override fun getKey(position: Int): Long = adapter.getItemId(position)
 
-      override fun getPosition(key: Long): Int = key.toInt()
-    }
+        override fun getPosition(key: Long): Int = key.toInt()
+      }
 
     val itemDetailsLookup: ItemDetailsLookup<Long> = OptionListItemDetailsLookup(view)
 
-    val selectionTracker = SelectionTracker.Builder(
-      "option_selection",
-      view,
-      itemKeyProvider,
-      itemDetailsLookup,
-      StorageStrategy.createLongStorage()
-    )
-      .build()
+    val selectionTracker =
+      SelectionTracker.Builder(
+          "option_selection",
+          view,
+          itemKeyProvider,
+          itemDetailsLookup,
+          StorageStrategy.createLongStorage()
+        )
+        .build()
 
     selectionTracker.addObserver(
       object : SelectionObserver<Long>() {
         override fun onItemStateChanged(key: Long, selected: Boolean) {
           adapter.handleItemStateChanged(key.toInt(), selected)
         }
-      })
+      }
+    )
   }
 }
