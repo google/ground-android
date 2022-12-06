@@ -36,6 +36,8 @@
       android:layout_height="wrap_content"
       android:elevation="@dimen/toolbar_elevation"
       android:theme="@style/PrimaryToolbarTheme"
+      app:layout_constraintVertical_bias="0"
+      app:layout_constraintVertical_chainStyle="packed"
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintBottom_toTopOf="@+id/pager"
       app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +50,6 @@
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:paddingTop="20dp"
-      app:layout_constraintHeight_default="wrap"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar"
@@ -65,6 +66,7 @@
       app:backgroundTint="@color/colorAccent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/pager" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

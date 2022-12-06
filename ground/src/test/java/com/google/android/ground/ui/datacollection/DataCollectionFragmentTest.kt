@@ -16,6 +16,7 @@
 
 package com.google.android.ground.ui.datacollection
 
+import android.widget.RadioButton
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -27,10 +28,14 @@ import com.google.android.ground.capture
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
@@ -42,8 +47,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
 import javax.inject.Inject
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.not
+import kotlinx.collections.immutable.persistentListOf
+import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,10 +74,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
 
-    whenever(
-        submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id)
-      )
-      .thenReturn(Single.just(SUBMISSION))
+    setupSubmission()
   }
 
   @Test
@@ -98,9 +100,77 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_submissionIsLoaded_firstTaskIsShown() {
+    setupSubmission(
+      ImmutableMap.of("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true))
+    )
     setupFragment()
 
-    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
+    onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
+    onView(withId(R.id.text_input_layout)).check(matches(isDisplayed()))
+  }
+
+  @Test
+  fun created_multipleChoice_selectMultiple_submissionIsLoaded_properTaskIsShown() {
+    val label = "multiple_choice_task"
+    val option1Label = "Option 1"
+    setupSubmission(
+      ImmutableMap.of(
+        "field id",
+        Task(
+          "1",
+          0,
+          Task.Type.MULTIPLE_CHOICE,
+          label,
+          isRequired = false,
+          multipleChoice =
+            MultipleChoice(
+              persistentListOf(
+                Option("1", "code1", option1Label),
+                Option("2", "code2", "Option 2"),
+              ),
+              MultipleChoice.Cardinality.SELECT_MULTIPLE
+            )
+        )
+      )
+    )
+    setupFragment()
+
+    onView(allOf(withText(label))).check(matches(isDisplayed()))
+    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
+    onView(withText(option1Label))
+      .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
+  }
+
+  @Test
+  fun created_multipleChoice_selectOne_submissionIsLoaded_properTaskIsShown() {
+    val label = "multiple_choice_task"
+    val option1Label = "Option 1"
+    setupSubmission(
+      ImmutableMap.of(
+        "field id",
+        Task(
+          "1",
+          0,
+          Task.Type.MULTIPLE_CHOICE,
+          label,
+          isRequired = false,
+          multipleChoice =
+            MultipleChoice(
+              persistentListOf(
+                Option("1", "code1", option1Label),
+                Option("2", "code2", "Option 2"),
+              ),
+              MultipleChoice.Cardinality.SELECT_ONE
+            )
+        )
+      )
+    )
+    setupFragment()
+
+    onView(allOf(withText(label))).check(matches(isDisplayed()))
+    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
+    onView(withText(option1Label))
+      .check(matches(allOf(isDisplayed(), instanceOf(RadioButton::class.java))))
   }
 
   @Test
@@ -179,6 +249,18 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment()
 
     assertThat(fragment.onBack()).isFalse()
+  }
+
+  private fun setupSubmission(tasks: ImmutableMap<String, Task>? = null) {
+    var submission = SUBMISSION
+    if (tasks != null) {
+      submission = submission.copy(job = SUBMISSION.job.copy(tasks = tasks))
+    }
+
+    whenever(
+        submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id)
+      )
+      .thenReturn(Single.just(submission))
   }
 
   private fun setupFragment() {
