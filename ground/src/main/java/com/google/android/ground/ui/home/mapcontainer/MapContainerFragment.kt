@@ -140,7 +140,15 @@ class MapContainerFragment : AbstractMapViewerFragment() {
           super.onScrollStateChanged(recyclerView, newState)
           val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
           val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-          val midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
+          val firstCompletelyVisiblePosition =
+            layoutManager.findFirstCompletelyVisibleItemPosition()
+          var midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
+
+          // Focus the last card
+          if (firstCompletelyVisiblePosition > midPosition) {
+            midPosition = firstCompletelyVisiblePosition
+          }
+
           adapter.focusItemAtIndex(midPosition)
         }
       }
