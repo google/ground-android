@@ -31,10 +31,10 @@ import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
  */
 class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
-  private var selectedIndex: Int = -1
+  private var focusedIndex: Int = -1
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
-  private lateinit var cardSelectedCallback: (LocationOfInterest?) -> Unit
-  private lateinit var collectDataCallback: (LocationOfInterest) -> Unit
+  private lateinit var cardFocusedListener: (LocationOfInterest?) -> Unit
+  private lateinit var collectDataListener: (LocationOfInterest) -> Unit
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -44,13 +44,15 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   /** Binds [LocationOfInterest] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    holder.bind(itemsList[position])
+    val loi: LocationOfInterest = itemsList[position]
+
+    holder.bind(loi)
 
     // Add highlight border if selected.
     holder.binding.wrapperView.background =
       ResourcesCompat.getDrawable(
         holder.itemView.context.resources,
-        if (selectedIndex == position) {
+        if (focusedIndex == position) {
           R.drawable.border
         } else {
           R.color.colorBackground
@@ -58,47 +60,37 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
         null
       )
 
-    // Handle action buttons.
-    holder.binding.loiCard.setOnClickListener { handleItemClicked(position) }
-    holder.binding.start.setOnClickListener { handleButtonClicked(position) }
-    holder.binding.review.setOnClickListener { TODO() }
-    holder.binding.markComplete.setOnClickListener { TODO() }
+    holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(loi) }
   }
 
   /** Returns the size of the list. */
   override fun getItemCount() = itemsList.size
 
-  fun updateSelectedPosition(newSelectedIndex: Int) {
-    if (newSelectedIndex < 0 || newSelectedIndex >= itemCount || selectedIndex == newSelectedIndex)
-      return
-    handleItemClicked(newSelectedIndex)
+  /** Updates the currently focused item. */
+  fun focusItemAtIndex(newIndex: Int) {
+    if (newIndex < 0 || newIndex >= itemCount || focusedIndex == newIndex) return
+
+    focusedIndex = newIndex
+    notifyDataSetChanged()
+
+    cardFocusedListener.invoke(itemsList[newIndex])
   }
 
+  /** Overwrites existing cards. */
   fun updateData(newItemsList: List<LocationOfInterest>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)
-    selectedIndex = -1
+    focusedIndex = -1
     notifyDataSetChanged()
-    cardSelectedCallback.invoke(null)
+    cardFocusedListener.invoke(null)
   }
 
-  fun setLoiCardSelectedCallback(callback: (LocationOfInterest?) -> Unit) {
-    this.cardSelectedCallback = callback
+  fun setLoiCardFocusedListener(listener: (LocationOfInterest?) -> Unit) {
+    this.cardFocusedListener = listener
   }
 
-  fun setCollectDataCallback(callback: (LocationOfInterest) -> Unit) {
-    this.collectDataCallback = callback
-  }
-
-  /** Updates the currently selected item. */
-  private fun handleItemClicked(position: Int) {
-    selectedIndex = position
-    notifyDataSetChanged()
-    cardSelectedCallback.invoke(itemsList[position])
-  }
-
-  private fun handleButtonClicked(position: Int) {
-    collectDataCallback.invoke(itemsList[position])
+  fun setCollectDataListener(listener: (LocationOfInterest) -> Unit) {
+    this.collectDataListener = listener
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */
