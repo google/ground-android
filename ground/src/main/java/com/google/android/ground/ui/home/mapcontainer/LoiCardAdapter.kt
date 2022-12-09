@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -60,6 +61,9 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
         null
       )
 
+    val isCaptionMissing = loi.caption.isNullOrEmpty()
+    holder.binding.loiIcon.visibility = if (isCaptionMissing) View.GONE else View.VISIBLE
+    holder.binding.loiName.visibility = if (isCaptionMissing) View.GONE else View.VISIBLE
     holder.binding.loiCard.setOnClickListener { collectDataCallback.invoke(loi) }
   }
 
