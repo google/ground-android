@@ -17,7 +17,6 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -34,8 +33,8 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   private var focusedIndex: Int = -1
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
-  private lateinit var cardFocusedCallback: (LocationOfInterest?) -> Unit
-  private lateinit var collectDataCallback: (LocationOfInterest) -> Unit
+  private lateinit var cardFocusedListener: (LocationOfInterest?) -> Unit
+  private lateinit var collectDataListener: (LocationOfInterest) -> Unit
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -61,10 +60,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
         null
       )
 
-    val isCaptionMissing = loi.caption.isNullOrEmpty()
-    holder.binding.loiIcon.visibility = if (isCaptionMissing) View.GONE else View.VISIBLE
-    holder.binding.loiName.visibility = if (isCaptionMissing) View.GONE else View.VISIBLE
-    holder.binding.loiCard.setOnClickListener { collectDataCallback.invoke(loi) }
+    holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(loi) }
   }
 
   /** Returns the size of the list. */
@@ -77,7 +73,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     focusedIndex = newIndex
     notifyDataSetChanged()
 
-    cardFocusedCallback.invoke(itemsList[newIndex])
+    cardFocusedListener.invoke(itemsList[newIndex])
   }
 
   /** Overwrites existing cards. */
@@ -86,15 +82,15 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     itemsList.addAll(newItemsList)
     focusedIndex = -1
     notifyDataSetChanged()
-    cardFocusedCallback.invoke(null)
+    cardFocusedListener.invoke(null)
   }
 
-  fun setLoiCardFocusedCallback(callback: (LocationOfInterest?) -> Unit) {
-    this.cardFocusedCallback = callback
+  fun setLoiCardFocusedListener(listener: (LocationOfInterest?) -> Unit) {
+    this.cardFocusedListener = listener
   }
 
-  fun setCollectDataCallback(callback: (LocationOfInterest) -> Unit) {
-    this.collectDataCallback = callback
+  fun setCollectDataListener(listener: (LocationOfInterest) -> Unit) {
+    this.collectDataListener = listener
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */
