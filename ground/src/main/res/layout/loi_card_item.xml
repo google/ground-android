@@ -24,7 +24,6 @@
     <variable
       name="loi"
       type="com.google.android.ground.model.locationofinterest.LocationOfInterest" />
-    <import type="com.google.android.ground.model.job.Job.Status" />
   </data>
 
   <com.google.android.material.card.MaterialCardView
@@ -83,17 +82,7 @@
         app:layout_constraintStart_toEndOf="@+id/jobName"
         app:layout_constraintTop_toBottomOf="@id/loiName">
         <Button
-          android:id="@+id/review"
-          visible="@{loi.job.status != Status.NOT_STARTED}"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:clickable="false"
-          android:text="@string/review"
-          android:textColor="@color/colorMapBlue" />
-        <Button
           android:id="@+id/start"
-          visible="@{loi.job.status != Status.COMPLETE}"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"

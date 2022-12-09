@@ -22,7 +22,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.LoiCardItemBinding
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
 
@@ -36,7 +35,6 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
   private lateinit var cardFocusedCallback: (LocationOfInterest?) -> Unit
   private lateinit var collectDataCallback: (LocationOfInterest) -> Unit
-  private lateinit var reviewDataCallback: (LocationOfInterest) -> Unit
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -62,10 +60,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
         null
       )
 
-    val isJobPending = loi.job.status == Job.Status.NOT_STARTED
-    holder.binding.loiCard.setOnClickListener {
-      if (isJobPending) collectDataCallback.invoke(loi) else reviewDataCallback.invoke(loi)
-    }
+    holder.binding.loiCard.setOnClickListener { collectDataCallback.invoke(loi) }
   }
 
   /** Returns the size of the list. */
@@ -96,10 +91,6 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   fun setCollectDataCallback(callback: (LocationOfInterest) -> Unit) {
     this.collectDataCallback = callback
-  }
-
-  fun setReviewDataCallback(callback: (LocationOfInterest) -> Unit) {
-    this.reviewDataCallback = callback
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */

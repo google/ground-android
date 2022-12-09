@@ -147,7 +147,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     )
     adapter.setLoiCardFocusedCallback { mapFragment.setActiveLocationOfInterest(it) }
     adapter.setCollectDataCallback { navigateToDataCollectionFragment(it) }
-    adapter.setReviewDataCallback { TODO() }
     recyclerView.adapter = adapter
   }
 
