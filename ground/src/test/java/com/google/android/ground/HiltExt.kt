@@ -23,6 +23,7 @@ import androidx.core.util.Preconditions
 import androidx.fragment.app.Fragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import com.google.android.ground.HiltTestActivity as HiltTestActivity
 
 /**
  * `launchFragmentInContainer` from the androidx.fragment:fragment-testing library is NOT possible
