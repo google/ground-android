@@ -227,8 +227,6 @@
   <string name="submit">Submit</string>
   <string name="empty_caption">empty caption</string>
   <string name="empty_name">empty name</string>
-  <string name="mark_complete">Mark Complete</string>
-  <string name="review">Review</string>
   <string name="start">Start</string>
 
 </resources>

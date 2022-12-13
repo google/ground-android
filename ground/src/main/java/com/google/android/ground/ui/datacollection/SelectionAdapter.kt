@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.job
+package com.google.android.ground.ui.datacollection
 
-import com.google.android.ground.model.task.Task
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
-import java8.util.Optional
+import androidx.recyclerview.widget.RecyclerView
 
-data class Job
-@JvmOverloads
-constructor(
-  val id: String,
-  val name: String? = null,
-  val tasks: ImmutableMap<String, Task> = ImmutableMap.of()
-) {
-  val tasksSorted: ImmutableList<Task>
-    get() = tasks.values.sortedBy { it.id }.toImmutableList()
+/**
+ * Abstract class extending RecyclerView.Adapter, handling the selection states of items selected in
+ * the RecyclerView.
+ */
+abstract class SelectionAdapter<V : RecyclerView.ViewHolder> : RecyclerView.Adapter<V>() {
+  abstract fun getPosition(key: Long): Int
 
-  fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
+  abstract fun handleItemStateChanged(position: Int, selected: Boolean)
 }

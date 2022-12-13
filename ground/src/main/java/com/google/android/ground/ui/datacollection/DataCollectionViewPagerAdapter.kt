@@ -48,6 +48,7 @@ constructor(
     dataCollectionViewModel.addTaskViewModel(viewModel)
     return when (task.type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
+      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
       else -> DataCollectionTaskFragment()
     }
   }

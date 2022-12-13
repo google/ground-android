@@ -57,9 +57,7 @@ import timber.log.Timber
 class MapContainerFragment : AbstractMapViewerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
-
   @Inject lateinit var mapsRepository: MapsRepository
-
   @Inject lateinit var navigator: Navigator
 
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
@@ -142,13 +140,21 @@ class MapContainerFragment : AbstractMapViewerFragment() {
           super.onScrollStateChanged(recyclerView, newState)
           val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
           val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-          val midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
-          adapter.updateSelectedPosition(midPosition)
+          val firstCompletelyVisiblePosition =
+            layoutManager.findFirstCompletelyVisibleItemPosition()
+          var midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
+
+          // Focus the last card
+          if (firstCompletelyVisiblePosition > midPosition) {
+            midPosition = firstCompletelyVisiblePosition
+          }
+
+          adapter.focusItemAtIndex(midPosition)
         }
       }
     )
-    adapter.setLoiCardSelectedCallback { mapFragment.setActiveLocationOfInterest(it) }
-    adapter.setCollectDataCallback { navigateToDataCollectionFragment(it) }
+    adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
+    adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
     recyclerView.adapter = adapter
   }
 
