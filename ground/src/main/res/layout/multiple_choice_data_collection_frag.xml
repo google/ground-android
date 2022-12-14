@@ -30,51 +30,12 @@
     android:layout_height="wrap_content"
     android:paddingStart="20dp"
     android:paddingEnd="20dp">
-    <!--      TODO(jsunde): Extract the step number, icon, and question to a shared component that
-                          can be used by all of the tasks. -->
-    <TextView
-      android:id="@+id/data_collection_step_number"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@{@string/task_number(viewModel.task.index + 1)}"
-      android:textSize="16sp"
-      app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-      app:layout_constraintStart_toStartOf="parent"
+    <include
+      android:id="@+id/data_collection_header"
+      app:viewModel="@{viewModel}"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0"
-      app:layout_constraintVertical_chainStyle="packed" />
-    <ImageView
-      android:id="@+id/data_collection_task_icon"
-      android:layout_width="24dp"
-      android:layout_height="24dp"
-      android:layout_marginStart="8dp"
-      android:layout_marginLeft="8dp"
-      app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-      app:layout_constraintStart_toEndOf="@+id/data_collection_step_number"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/ic_question_answer" />
-    <TextView
-      android:id="@+id/data_collection_task_name"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:paddingStart="8dp"
-      android:paddingLeft="8dp"
-      android:text="@string/question_data_collection_title"
-      android:textSize="16sp"
-      app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-      app:layout_constraintStart_toEndOf="@+id/data_collection_task_icon"
-      app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-      android:id="@+id/data_collection_question"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:paddingTop="24dp"
-      android:text="@{viewModel.task.label}"
-      android:textSize="16sp"
       app:layout_constraintBottom_toTopOf="@+id/select_option_list"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/data_collection_step_number" />
+      layout="@layout/data_collection_header" />
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/select_option_list"
@@ -86,9 +47,9 @@
       android:orientation="vertical"
       app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
       app:layout_constrainedHeight="true"
+      app:layout_constraintTop_toBottomOf="@id/data_collection_header"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/data_collection_question" />
+      app:layout_constraintStart_toStartOf="parent" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
