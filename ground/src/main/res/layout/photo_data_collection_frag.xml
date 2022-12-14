@@ -37,47 +37,12 @@
     <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content">
-      <TextView
-        android:id="@+id/data_collection_step_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@{@string/task_number(viewModel.task.index + 1)}"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-      <ImageView
-        android:id="@+id/data_collection_task_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-        app:layout_constraintStart_toEndOf="@+id/data_collection_step_number"
+      <include
+        android:id="@+id/data_collection_header"
+        app:viewModel="@{viewModel}"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_question_answer" />
-      <TextView
-        android:id="@+id/data_collection_task_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="8dp"
-        android:paddingLeft="8dp"
-        android:text="@string/question_data_collection_title"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-        app:layout_constraintStart_toEndOf="@+id/data_collection_task_icon"
-        app:layout_constraintTop_toTopOf="parent" />
-
-      <TextView
-        android:id="@+id/data_collection_question"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="24dp"
-        android:text="@{viewModel.task.label}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/data_collection_task_name"
-        app:layout_constraintBottom_toTopOf="@+id/btn_select_photo" />
+        app:layout_constraintBottom_toTopOf="@+id/btn_select_photo"
+        layout="@layout/data_collection_header" />
 
       <!--      TODO(jsunde): Maybe update button visibility or text based on whether a photo has already
                   been selected. -->
@@ -89,7 +54,7 @@
         android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
         android:text="@string/add_photo"
         android:textColor="@color/colorAccent"
-        app:layout_constraintTop_toBottomOf="@id/data_collection_question"
+        app:layout_constraintTop_toBottomOf="@id/data_collection_header"
         app:layout_constraintBottom_toTopOf="@+id/photo_task"
         app:layout_constraintStart_toStartOf="parent"/>
 
