@@ -25,7 +25,6 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firestore.FirestoreStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel.PhotoResult
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
