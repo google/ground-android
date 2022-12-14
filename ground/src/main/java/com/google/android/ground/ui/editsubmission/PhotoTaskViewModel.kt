@@ -25,7 +25,6 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firestore.FirestoreStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel.PhotoResult
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -75,19 +74,19 @@ constructor(private val userMediaRepository: UserMediaRepository, resources: Res
   }
 
   fun onPhotoResult(photoResult: PhotoResult) {
-    if (photoResult.isHandled()) {
+    if (photoResult.isHandled) {
       return
     }
     if (surveyId == null || submissionId == null) {
       Timber.e("surveyId or submissionId not set")
       return
     }
-    if (!photoResult.hasTaskId(task.id)) {
+    if (photoResult.taskId != task.id) {
       // Update belongs to another task.
       return
     }
-    photoResult.setHandled(true)
-    if (photoResult.isEmpty) {
+    photoResult.isHandled = true
+    if (photoResult.isEmpty()) {
       clearResponse()
       Timber.v("Photo cleared")
       return
@@ -111,11 +110,11 @@ constructor(private val userMediaRepository: UserMediaRepository, resources: Res
 
   @Throws(IOException::class)
   private fun getFileFromResult(result: PhotoResult): File {
-    if (result.bitmap.isPresent) {
-      return userMediaRepository.savePhoto(result.bitmap.get(), result.taskId)
+    if (result.bitmap != null) {
+      return userMediaRepository.savePhoto(result.bitmap, result.taskId)
     }
-    if (result.path.isPresent) {
-      return File(result.path.get())
+    if (result.path != null) {
+      return File(result.path)
     }
     throw IllegalStateException("PhotoResult is empty")
   }
