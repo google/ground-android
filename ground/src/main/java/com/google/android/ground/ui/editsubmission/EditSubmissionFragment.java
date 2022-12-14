@@ -172,7 +172,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       viewModel.setTaskWaitingForPhoto(
           savedInstanceState.getString(BundleKeys.TASK_WAITING_FOR_PHOTO));
       viewModel.setCapturedPhotoPath(
-          savedInstanceState.getParcelable(BundleKeys.CAPTURED_PHOTO_PATH));
+          savedInstanceState.getString(BundleKeys.CAPTURED_PHOTO_PATH));
     }
     viewModel.initialize(EditSubmissionFragmentArgs.fromBundle(args));
   }
@@ -180,6 +180,8 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
+    // TODO(jsunde): Figure out if there is an easy way for us to save and restore the individual
+    //  TaskViewModels. Specifically the taskWaitingForPhoto and capturedPhotoPath fields.
     outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
     outState.putString(BundleKeys.TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto());
     outState.putString(BundleKeys.CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath());

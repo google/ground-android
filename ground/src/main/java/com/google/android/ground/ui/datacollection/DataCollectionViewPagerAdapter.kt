@@ -18,7 +18,9 @@ package com.google.android.ground.ui.datacollection
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.common.ViewModelFactory
+import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
@@ -32,6 +34,7 @@ class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
   private val viewModelFactory: ViewModelFactory,
+  private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
   @Assisted private val tasks: ImmutableList<Task>,
   @Assisted private val dataCollectionViewModel: DataCollectionViewModel
@@ -49,6 +52,7 @@ constructor(
     return when (task.type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
       Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
+      Task.Type.PHOTO -> PhotoDataCollectionFragment(task, viewModel as PhotoTaskViewModel, dataCollectionViewModel, userMediaRepository)
       else -> DataCollectionTaskFragment()
     }
   }

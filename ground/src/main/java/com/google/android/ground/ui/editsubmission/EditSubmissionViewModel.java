@@ -38,7 +38,7 @@ import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.system.PermissionsManager;
-import com.google.android.ground.ui.common.AbstractViewModel;
+import com.google.android.ground.ui.common.AbstractPhotoViewModel;
 import com.google.android.ground.ui.util.BitmapUtil;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -59,7 +59,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class EditSubmissionViewModel extends AbstractViewModel {
+public class EditSubmissionViewModel extends AbstractPhotoViewModel {
 
   // Injected dependencies.
 
@@ -368,6 +368,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     lastPhotoResult.onNext(result);
   }
 
+  @Override
   public void clearPhoto(String taskId) {
     lastPhotoResult.onNext(PhotoResult.createEmptyResult(taskId));
   }

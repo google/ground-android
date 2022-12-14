@@ -45,7 +45,7 @@
     <include
       layout="@layout/photo_task"
       app:viewModel="@{viewModel}"
-      app:editSubmissionViewModel="@{editSubmissionViewModel}"
+      app:photoViewModel="@{editSubmissionViewModel}"
       tools:visibility="visible" />
 
     <LinearLayout

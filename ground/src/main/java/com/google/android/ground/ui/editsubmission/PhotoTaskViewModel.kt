@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.editsubmission
 
+import android.Manifest.permission
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
@@ -24,17 +25,55 @@ import com.google.android.ground.model.submission.TextTaskData.Companion.fromStr
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firestore.FirestoreStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel.PhotoResult
+import com.google.android.ground.ui.util.BitmapUtil
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
-import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
-constructor(private val userMediaRepository: UserMediaRepository, resources: Resources) :
+constructor(private val userMediaRepository: UserMediaRepository,
+            private val permissionsManager: PermissionsManager,
+            private val bitmapUtil: BitmapUtil,
+            resources: Resources
+) :
   AbstractTaskViewModel(resources) {
+
+  // TODO(jsunde): Figure out how to return the result of the photo in the LiveData<Optional<TaskData>>
+
+  // TODO(jsunde): This is currently duplicated here and in EditSubmissionViewModel.
+  //  If it's here it can easily be used for the DataCollectionFragment, but is slightly more
+  //  complicated to reuse from the EditSubmissionFragment. I should explore some more to see if
+  //  it's possible to remove this logic from the EditSubmissionViewModel
+  /**
+   * Emits the last photo task id updated and either its photo result, or empty if removed. The last
+   * value is emitted on each subscription because {@see #onPhotoResult} is called before
+   * subscribers are created.
+   */
+  private val lastPhotoResult: Subject<PhotoResult> = BehaviorSubject.create()
+
+  /**
+   * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
+   * directly map it 1:1 with the task waiting for a photo taskData.
+   */
+  private var taskWaitingForPhoto: String? = null
+
+  /**
+   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
+   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
+   * result returns true/false based on whether the operation passed or not. As only 1 photo result
+   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
+   */
+  private var capturedPhotoPath: String? = null
 
   val uri: LiveData<Uri> =
     LiveDataReactiveStreams.fromPublisher(
@@ -106,6 +145,53 @@ constructor(private val userMediaRepository: UserMediaRepository, resources: Res
     } catch (e: IOException) {
       // TODO: Report error.
       Timber.e(e, "Failed to save photo")
+    }
+  }
+
+  fun obtainCapturePhotoPermissions(): @Cold Completable {
+    return permissionsManager
+      .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
+      .andThen(permissionsManager.obtainPermission(permission.CAMERA))
+  }
+
+  fun obtainSelectPhotoPermissions(): @Cold Completable {
+    return permissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE)
+  }
+
+  fun getTaskWaitingForPhoto(): String? {
+    return taskWaitingForPhoto
+  }
+
+  fun setTaskWaitingForPhoto(taskWaitingForPhoto: String?) {
+    this.taskWaitingForPhoto = taskWaitingForPhoto
+  }
+
+  fun getCapturedPhotoPath(): String? {
+    return capturedPhotoPath
+  }
+
+  fun setCapturedPhotoPath(photoUri: String?) {
+    this.capturedPhotoPath = photoUri
+  }
+
+  fun getLastPhotoResult(): Observable<PhotoResult?>? {
+    return lastPhotoResult
+  }
+
+  fun onSelectPhotoResult(uri: Uri?) {
+    if (uri == null) {
+      Timber.v("Select photo failed or canceled")
+      return
+    }
+    if (taskWaitingForPhoto == null) {
+      Timber.e("Photo captured but no task waiting for the result")
+      return
+    }
+    try {
+      onPhotoResult(PhotoResult.createSelectResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)))
+      Timber.v("Select photo result returned")
+    } catch (e: IOException) {
+      Timber.e(e, "Error getting photo selected from storage")
     }
   }
 
