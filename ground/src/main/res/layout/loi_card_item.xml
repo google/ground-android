@@ -24,8 +24,7 @@
     <variable
       name="loi"
       type="com.google.android.ground.model.locationofinterest.LocationOfInterest" />
-    <import type="com.google.android.ground.model.job.Job.Type" />
-    <import type="com.google.android.ground.model.job.Job.Status" />
+    <import type="android.text.TextUtils" />
   </data>
 
   <com.google.android.material.card.MaterialCardView
@@ -57,6 +56,7 @@
         tools:text="Map the terrain" />
       <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/loiIcon"
+        visible="@{!TextUtils.isEmpty(loi.caption)}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/loi_card_item_margin"
@@ -66,6 +66,7 @@
         app:srcCompat="@drawable/ic_outline_room_24" />
       <TextView
         android:id="@+id/loiName"
+        visible="@{!TextUtils.isEmpty(loi.caption)}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -75,26 +76,6 @@
         app:layout_constraintStart_toEndOf="@id/loiIcon"
         app:layout_constraintTop_toBottomOf="@id/jobName"
         tools:text="Quilombolas" />
-      <TextView
-        android:id="@+id/status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:text="@{loi.job.status.toString()}"
-        app:layout_constraintStart_toStartOf="@id/jobName"
-        app:layout_constraintTop_toBottomOf="@id/loiName"
-        tools:text="Completed" />
-      <TextView
-        android:id="@+id/type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:text="@{loi.job.type.toString()}"
-        app:layout_constraintStart_toStartOf="@id/jobName"
-        app:layout_constraintTop_toBottomOf="@id/status"
-        tools:text="Automatic" />
       <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -102,30 +83,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/jobName"
-        app:layout_constraintTop_toBottomOf="@id/type">
-        <!-- TODO: Add minimum submission count check to markComplete visibility -->
-        <Button
-          android:id="@+id/markComplete"
-          visible="@{loi.job.type == Type.MANUAL}"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:text="@string/mark_complete"
-          android:textColor="@color/colorMapBlue" />
-        <Button
-          android:id="@+id/review"
-          visible="@{loi.job.status != Status.NOT_STARTED}"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:text="@string/review"
-          android:textColor="@color/colorMapBlue" />
+        app:layout_constraintTop_toBottomOf="@id/loiName">
         <Button
           android:id="@+id/start"
-          visible="@{loi.job.status != Status.COMPLETE}"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"
+          android:clickable="false"
           android:text="@string/start"
           android:textColor="@color/colorMapBlue" />
       </LinearLayout>
