@@ -58,9 +58,6 @@
         app:layout_constraintBottom_toTopOf="@+id/photo_task"
         app:layout_constraintStart_toStartOf="parent"/>
 
-      <!-- TODO(jsunde): Figure out how to supply the EditSubmissionViewModel. We should probably
-        refactor the PhotoTask to take a ViewModel interface class that both the
-        EditSubmissionViewModel and DataCollectionViewModel can implement. -->
       <include
         layout="@layout/photo_task"
         android:id="@+id/photo_task"

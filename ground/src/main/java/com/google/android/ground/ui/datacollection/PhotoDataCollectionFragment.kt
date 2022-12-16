@@ -35,6 +35,7 @@ import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter.PhotoStorageResource
+import com.google.android.ground.ui.editsubmission.PhotoResult
 import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,16 +61,14 @@ constructor(
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     selectPhotoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-      // TODO(jsunde)
-//      viewModel.onSelectPhotoResult(
-//        uri
-//      )
+      viewModel.onSelectPhotoResult(
+        uri
+      )
     }
     capturePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-//      TODO(jsunde)
-//      viewModel.onCapturePhotoResult(
-//        result
-//      )
+      viewModel.onCapturePhotoResult(
+        result
+      )
     }
 
     val binding = PhotoDataCollectionFragBinding.inflate(inflater, container, false)
@@ -78,7 +77,11 @@ constructor(
     binding.setVariable(BR.viewModel, viewModel)
     binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
 
+    viewModel.setEditable(true)
+    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
+    viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
     observeSelectPhotoClicks()
+    observePhotoResults()
 
     return binding.root
   }
@@ -99,6 +102,17 @@ constructor(
     viewModel.getShowDialogClicks().observe(viewLifecycleOwner) {
       onShowPhotoSelectorDialog()
     }
+  }
+
+  private fun observePhotoResults() {
+    viewModel
+      .getLastPhotoResult()
+      .`as`(autoDisposable<PhotoResult>(viewLifecycleOwner))
+      .subscribe { photoResult ->
+        viewModel.onPhotoResult(
+          photoResult
+        )
+      }
   }
 
   // TODO(jsunde): Try to factor this logic out and share between here and EditSubmissionFragment
@@ -140,8 +154,6 @@ constructor(
     }
   }
 
-  // TODO(jsunde): Figure out if DataCollectionViewModel should implement those CapturedPhotoPath
-  //  and setTaskWaitingForPhoto methods
   private fun launchPhotoCapture(taskId: String) {
     val photoFile = userMediaRepository.createImageFile(taskId)
     val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)

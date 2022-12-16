@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
@@ -27,28 +26,19 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractPhotoViewModel
+import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
-import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel
-import com.google.android.ground.ui.editsubmission.EditSubmissionViewModel.PhotoResult
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.combineWith
 import com.google.common.collect.ImmutableList
-import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import java8.util.Optional
-import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -59,9 +49,8 @@ internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
-  private val navigator: Navigator,
-  private val bitmapUtil: BitmapUtil
-) : AbstractPhotoViewModel() {
+  private val navigator: Navigator
+) : AbstractViewModel() {
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
@@ -94,30 +83,15 @@ internal constructor(
   val currentTaskDataLiveData =
     Transformations.switchMap(currentTaskViewModelLiveData) { it?.taskData }
 
-  /**
-   * Emits the last photo task id updated and either its photo result, or empty if removed. The last
-   * value is emitted on each subscription because {@see #onPhotoResult} is called before
-   * subscribers are created.
-   */
-  private val lastPhotoResult: Subject<EditSubmissionViewModel.PhotoResult> = BehaviorSubject.create()
-
-  /**
-   * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo taskData.
-   */
-  private var taskWaitingForPhoto: String? = null
-
-  /**
-   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
-   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
-   * result returns true/false based on whether the operation passed or not. As only 1 photo result
-   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
-   */
-  private var capturedPhotoPath: String? = null
+  lateinit var surveyId: String
+  lateinit var submissionId: String
 
   init {
     val submissionStream: Flowable<Loadable<Submission>> =
       argsProcessor.switchMapSingle { args ->
+        surveyId = args.surveyId
+        submissionId = args.submissionId
+
         submissionRepository
           .createSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
           .map { Loadable.loaded(it) }
@@ -181,60 +155,5 @@ internal constructor(
     }
 
     return Single.just(validationError)
-  }
-
-  override fun clearPhoto(taskId: String) {
-    TODO("Not yet implemented")
-  }
-
-  override fun obtainCapturePhotoPermissions(): Completable {
-    TODO("Not yet implemented")
-  }
-
-  override fun obtainSelectPhotoPermissions(): Completable {
-    TODO("Not yet implemented")
-  }
-
-  fun getTaskWaitingForPhoto(): String? {
-    return taskWaitingForPhoto
-  }
-
-  fun setTaskWaitingForPhoto(taskWaitingForPhoto: String?) {
-    this.taskWaitingForPhoto = taskWaitingForPhoto
-  }
-
-  fun getCapturedPhotoPath(): String? {
-    return capturedPhotoPath
-  }
-
-  fun setCapturedPhotoPath(photoUri: String?) {
-    this.capturedPhotoPath = photoUri
-  }
-
-  fun getLastPhotoResult(): Observable<EditSubmissionViewModel.PhotoResult> {
-    return lastPhotoResult
-  }
-
-  fun onSelectPhotoResult(uri: Uri?) {
-    if (uri == null) {
-      Timber.v("Select photo failed or canceled")
-      return
-    }
-    if (taskWaitingForPhoto == null) {
-      Timber.e("Photo captured but no task waiting for the result")
-      return
-    }
-    try {
-      onPhotoResult(PhotoResult.createSelectResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)))
-      Timber.v("Select photo result returned")
-    } catch (e: IOException) {
-      Timber.e(e, "Error getting photo selected from storage")
-    }
-  }
-
-  private fun onPhotoResult(result: PhotoResult) {
-    capturedPhotoPath = null
-    taskWaitingForPhoto = null
-    lastPhotoResult.onNext(result)
   }
 }

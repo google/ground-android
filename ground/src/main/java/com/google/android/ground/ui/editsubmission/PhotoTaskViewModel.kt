@@ -44,12 +44,11 @@ constructor(private val userMediaRepository: UserMediaRepository,
             private val permissionsManager: PermissionsManager,
             private val bitmapUtil: BitmapUtil,
             resources: Resources
-) :
-  AbstractTaskViewModel(resources) {
+) : AbstractTaskViewModel(resources) {
 
-  // TODO(jsunde): Figure out how to return the result of the photo in the LiveData<Optional<TaskData>>
+  // TODO(jsunde): Figure out how to return the result of the photo in a LiveData<Optional<TaskData>>
 
-  // TODO(jsunde): This is currently duplicated here and in EditSubmissionViewModel.
+  // TODO(jsunde): This is currently logic duplicated here and in EditSubmissionViewModel.
   //  If it's here it can easily be used for the DataCollectionFragment, but is slightly more
   //  complicated to reuse from the EditSubmissionFragment. I should explore some more to see if
   //  it's possible to remove this logic from the EditSubmissionViewModel
@@ -165,33 +164,59 @@ constructor(private val userMediaRepository: UserMediaRepository,
     this.taskWaitingForPhoto = taskWaitingForPhoto
   }
 
-  fun getCapturedPhotoPath(): String? {
-    return capturedPhotoPath
-  }
+  fun getCapturedPhotoPath(): String? = capturedPhotoPath
 
   fun setCapturedPhotoPath(photoUri: String?) {
     this.capturedPhotoPath = photoUri
   }
 
-  fun getLastPhotoResult(): Observable<PhotoResult?>? {
-    return lastPhotoResult
-  }
+  fun getLastPhotoResult(): Observable<PhotoResult?> = lastPhotoResult
 
   fun onSelectPhotoResult(uri: Uri?) {
     if (uri == null) {
       Timber.v("Select photo failed or canceled")
       return
     }
-    if (taskWaitingForPhoto == null) {
+    val currentTask = taskWaitingForPhoto
+    if (currentTask == null) {
       Timber.e("Photo captured but no task waiting for the result")
       return
     }
     try {
-      onPhotoResult(PhotoResult.createSelectResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)))
+      onPhotoProvided(PhotoResult(currentTask, bitmapUtil.fromUri(uri)))
       Timber.v("Select photo result returned")
     } catch (e: IOException) {
       Timber.e(e, "Error getting photo selected from storage")
     }
+  }
+
+  fun onCapturePhotoResult(result: Boolean) {
+    if (!result) {
+      Timber.v("Capture photo failed or canceled")
+      // TODO: Cleanup created file if it exists.
+      return
+    }
+    val currentTask = taskWaitingForPhoto
+    if (currentTask == null) {
+      Timber.e("Photo captured but no task waiting for the result")
+      return
+    }
+    if (capturedPhotoPath == null) {
+      Timber.e("Photo captured but no path available to read the result")
+      return
+    }
+    onPhotoProvided(PhotoResult(currentTask,  /* bitmap=*/null, capturedPhotoPath))
+    Timber.v("Photo capture result returned")
+  }
+
+  private fun onPhotoProvided(result: PhotoResult) {
+    capturedPhotoPath = null
+    taskWaitingForPhoto = null
+    lastPhotoResult.onNext(result)
+  }
+
+  fun clearPhoto(taskId: String) {
+    lastPhotoResult.onNext(PhotoResult(taskId))
   }
 
   @Throws(IOException::class)

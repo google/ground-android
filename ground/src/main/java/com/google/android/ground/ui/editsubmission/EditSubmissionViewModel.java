@@ -16,9 +16,6 @@
 
 package com.google.android.ground.ui.editsubmission;
 
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 
 import android.content.res.Resources;
@@ -34,13 +31,10 @@ import com.google.android.ground.model.submission.TaskDataMap;
 import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.SubmissionRepository;
 import com.google.android.ground.rx.Nil;
-import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.system.PermissionsManager;
-import com.google.android.ground.ui.common.AbstractPhotoViewModel;
+import com.google.android.ground.ui.common.AbstractViewModel;
 import com.google.android.ground.ui.util.BitmapUtil;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -57,7 +51,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class EditSubmissionViewModel extends AbstractPhotoViewModel {
+public class EditSubmissionViewModel extends AbstractViewModel {
 
   // Injected dependencies.
 
@@ -72,7 +66,6 @@ public class EditSubmissionViewModel extends AbstractPhotoViewModel {
   private final Resources resources;
 
   // States.
-  private final PermissionsManager permissionsManager;
   private final BitmapUtil bitmapUtil;
   /** Job definition, loaded when view is initialized. */
   private final LiveData<Job> job;
@@ -122,11 +115,9 @@ public class EditSubmissionViewModel extends AbstractPhotoViewModel {
   EditSubmissionViewModel(
       Resources resources,
       SubmissionRepository submissionRepository,
-      PermissionsManager permissionsManager,
       BitmapUtil bitmapUtil) {
     this.resources = resources;
     this.submissionRepository = submissionRepository;
-    this.permissionsManager = permissionsManager;
     this.bitmapUtil = bitmapUtil;
     this.job = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
@@ -171,18 +162,6 @@ public class EditSubmissionViewModel extends AbstractPhotoViewModel {
   void setResponse(Task task, Optional<TaskData> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(task.getId(), r), () -> responses.remove(task.getId()));
-  }
-
-  @Cold
-  public Completable obtainCapturePhotoPermissions() {
-    return permissionsManager
-        .obtainPermission(WRITE_EXTERNAL_STORAGE)
-        .andThen(permissionsManager.obtainPermission(CAMERA));
-  }
-
-  @Cold
-  public Completable obtainSelectPhotoPermissions() {
-    return permissionsManager.obtainPermission(READ_EXTERNAL_STORAGE);
   }
 
   public void onSaveClick(Map<String, String> validationErrors) {
@@ -364,11 +343,6 @@ public class EditSubmissionViewModel extends AbstractPhotoViewModel {
     capturedPhotoPath = null;
     taskWaitingForPhoto = null;
     lastPhotoResult.onNext(result);
-  }
-
-  @Override
-  public void clearPhoto(String taskId) {
-    lastPhotoResult.onNext(new PhotoResult(taskId));
   }
 
   /** Possible outcomes of user clicking "Save". */

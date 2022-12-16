@@ -23,7 +23,7 @@
     <import type="android.view.View" />
     <variable
       name="photoViewModel"
-      type="com.google.android.ground.ui.common.AbstractPhotoViewModel" />
+      type="com.google.android.ground.ui.common.AbstractViewModel" />
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.editsubmission.PhotoTaskViewModel" />
@@ -47,7 +47,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"
-      android:onClick="@{() -> photoViewModel.clearPhoto(viewModel.getTask().getId())}"
+      android:onClick="@{() -> viewModel.clearPhoto(viewModel.getTask().getId())}"
       android:visibility="@{viewModel.isEditable() ? View.VISIBLE : View.GONE}"
       app:backgroundTint="@android:color/transparent"
       app:srcCompat="@drawable/ic_baseline_delete_24"
