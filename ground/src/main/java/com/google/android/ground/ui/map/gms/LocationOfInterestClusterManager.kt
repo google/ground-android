@@ -58,7 +58,7 @@ class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
 
   fun removeLocationsOfInterest(locationsOfInterest: Set<LocationOfInterest>) {
     val existingIds = algorithm.items.map { it.locationOfInterest.id }.toSet()
-    val deletedIds = existingIds - locationsOfInterest.map { it.id }.toSet()
+    val deletedIds = existingIds.intersect(locationsOfInterest.map { it.id }.toSet())
     val deletedPoints: Set<LocationOfInterestClusterItem> =
       algorithm.items.filter { deletedIds.contains(it.locationOfInterest.id) }.toSet()
 

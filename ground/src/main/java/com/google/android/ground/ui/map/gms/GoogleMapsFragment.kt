@@ -211,6 +211,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
+  /** Handles both cluster and marker clicks. */
   private fun onClusterItemClick(item: LocationOfInterestClusterItem): Boolean {
     return if (getMap().uiSettings.isZoomGesturesEnabled) {
       markerClicks.onNext(MapLocationOfInterest(item.locationOfInterest))
