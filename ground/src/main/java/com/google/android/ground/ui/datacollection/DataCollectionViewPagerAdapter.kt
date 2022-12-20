@@ -33,7 +33,6 @@ import java8.util.Optional
 class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
-  private val viewModelFactory: ViewModelFactory,
   private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
   @Assisted private val tasks: ImmutableList<Task>,
@@ -43,12 +42,8 @@ constructor(
 
   override fun createFragment(position: Int): Fragment {
     val task = tasks[position]
-    val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(task.type))
+    val viewModel = dataCollectionViewModel.getTaskViewModel(position, task)
 
-    // TODO(#1146): Pass in the existing taskData if there is one
-    viewModel.initialize(task, Optional.empty())
-
-    dataCollectionViewModel.addTaskViewModel(viewModel)
     return when (task.type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
       Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)

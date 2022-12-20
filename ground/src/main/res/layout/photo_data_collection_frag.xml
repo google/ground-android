@@ -54,7 +54,7 @@
         android:textColor="@color/colorAccent"
         app:layout_constraintTop_toBottomOf="@id/data_collection_header"
         app:layout_constraintBottom_toTopOf="@+id/photo_task"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
       <include
         layout="@layout/photo_task"
@@ -62,7 +62,8 @@
         app:viewModel="@{viewModel}"
         app:photoViewModel="@{dataCollectionViewModel}"
         app:layout_constraintTop_toBottomOf="@+id/btn_select_photo"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app_layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </ScrollView>
 </layout>
