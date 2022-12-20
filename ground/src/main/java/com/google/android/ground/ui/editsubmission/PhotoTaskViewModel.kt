@@ -33,22 +33,23 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
-import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
-constructor(private val userMediaRepository: UserMediaRepository,
-            private val permissionsManager: PermissionsManager,
-            private val bitmapUtil: BitmapUtil,
-            resources: Resources
+constructor(
+  private val userMediaRepository: UserMediaRepository,
+  private val permissionsManager: PermissionsManager,
+  private val bitmapUtil: BitmapUtil,
+  resources: Resources
 ) : AbstractTaskViewModel(resources) {
 
-  // TODO(jsunde): Figure out how to return the result of the photo in a LiveData<Optional<TaskData>>
+  // TODO(jsunde): Return the result of the photo in a LiveData<Optional<TaskData>>
 
-  // TODO(jsunde): This is currently logic duplicated here and in EditSubmissionViewModel.
+  // TODO(jsunde): This logic is currently duplicated here and in EditSubmissionViewModel.
   //  If it's here it can easily be used for the DataCollectionFragment, but is slightly more
   //  complicated to reuse from the EditSubmissionFragment. I should explore some more to see if
   //  it's possible to remove this logic from the EditSubmissionViewModel
@@ -146,19 +147,15 @@ constructor(private val userMediaRepository: UserMediaRepository,
     }
   }
 
-  fun obtainCapturePhotoPermissions(): @Cold Completable {
-    return permissionsManager
+  fun obtainCapturePhotoPermissions(): @Cold Completable =
+    permissionsManager
       .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
       .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-  }
 
-  fun obtainSelectPhotoPermissions(): @Cold Completable {
-    return permissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE)
-  }
+  fun obtainSelectPhotoPermissions(): @Cold Completable =
+    permissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE)
 
-  fun getTaskWaitingForPhoto(): String? {
-    return taskWaitingForPhoto
-  }
+  fun getTaskWaitingForPhoto(): String? = taskWaitingForPhoto
 
   fun setTaskWaitingForPhoto(taskWaitingForPhoto: String?) {
     this.taskWaitingForPhoto = taskWaitingForPhoto
@@ -205,7 +202,7 @@ constructor(private val userMediaRepository: UserMediaRepository,
       Timber.e("Photo captured but no path available to read the result")
       return
     }
-    onPhotoProvided(PhotoResult(currentTask,  /* bitmap=*/null, capturedPhotoPath))
+    onPhotoProvided(PhotoResult(currentTask, /* bitmap=*/ null, capturedPhotoPath))
     Timber.v("Photo capture result returned")
   }
 

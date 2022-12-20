@@ -44,8 +44,6 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_select_photo"
         layout="@layout/data_collection_header" />
 
-      <!--      TODO(jsunde): Maybe update button visibility or text based on whether a photo has already
-                  been selected. -->
       <Button
         android:id="@+id/btn_select_photo"
         style="?attr/materialButtonOutlinedStyle"

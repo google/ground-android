@@ -180,7 +180,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    // TODO(jsunde): Figure out if there is an easy way for us to save and restore the individual
+    // TODO(jsunde): Figure out if there is a way for us to save and restore the individual
     //  TaskViewModels. Specifically the taskWaitingForPhoto and capturedPhotoPath fields.
     outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
     outState.putString(BundleKeys.TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto());

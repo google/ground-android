@@ -60,16 +60,14 @@ constructor(
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    selectPhotoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-      viewModel.onSelectPhotoResult(
-        uri
-      )
-    }
-    capturePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      viewModel.onCapturePhotoResult(
-        result
-      )
-    }
+    selectPhotoLauncher =
+      registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        viewModel.onSelectPhotoResult(uri)
+      }
+    capturePhotoLauncher =
+      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+        viewModel.onCapturePhotoResult(result)
+      }
 
     val binding = PhotoDataCollectionFragBinding.inflate(inflater, container, false)
 
@@ -94,33 +92,24 @@ constructor(
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto());
-    outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath());
+    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto())
+    outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
   }
 
   private fun observeSelectPhotoClicks() {
-    viewModel.getShowDialogClicks().observe(viewLifecycleOwner) {
-      onShowPhotoSelectorDialog()
-    }
+    viewModel.getShowDialogClicks().observe(viewLifecycleOwner) { onShowPhotoSelectorDialog() }
   }
 
   private fun observePhotoResults() {
     viewModel
       .getLastPhotoResult()
       .`as`(autoDisposable<PhotoResult>(viewLifecycleOwner))
-      .subscribe { photoResult ->
-        viewModel.onPhotoResult(
-          photoResult
-        )
-      }
+      .subscribe { photoResult -> viewModel.onPhotoResult(photoResult) }
   }
 
-  // TODO(jsunde): Try to factor this logic out and share between here and EditSubmissionFragment
   private fun onShowPhotoSelectorDialog() {
     val addPhotoBottomSheetBinding: EditSubmissionBottomSheetBinding =
       EditSubmissionBottomSheetBinding.inflate(layoutInflater)
-    //    addPhotoBottomSheetBinding.setViewModel(viewModel)
-    //    addPhotoBottomSheetBinding.setTask(task)
     val bottomSheetDialog = BottomSheetDialog(requireContext())
     bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.root)
     bottomSheetDialog.setCancelable(true)
@@ -170,10 +159,10 @@ constructor(
   }
 
   companion object {
-    /** Key used to store field ID waiting for photo taskData across activity re-creation.  */
+    /** Key used to store field ID waiting for photo taskData across activity re-creation. */
     private const val TASK_WAITING_FOR_PHOTO = "dataCollectionPhotoFieldId"
 
-    /** Key used to store captured photo Uri across activity re-creation.  */
+    /** Key used to store captured photo Uri across activity re-creation. */
     private const val CAPTURED_PHOTO_PATH = "dataCollectionCapturedPhotoPath"
   }
 }
