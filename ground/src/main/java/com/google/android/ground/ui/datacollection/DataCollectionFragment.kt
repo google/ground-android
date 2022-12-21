@@ -25,13 +25,11 @@ import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
-import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -65,16 +63,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewModel.loadSubmissionDetails(args)
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-        val dummyData =
-          ImmutableList.of(
-            Task("1", 0, Task.Type.PHOTO, "Capture a photo", isRequired = false),
-            Task("2", 1, Task.Type.TEXT, "Second question example?", isRequired = true)
-          )
-
-        viewPager.adapter = viewPagerAdapterFactory.create(this, dummyData, viewModel)
-
-        //        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted,
-        // viewModel)
+                viewPager.adapter =
+                  viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
       }
     }
 

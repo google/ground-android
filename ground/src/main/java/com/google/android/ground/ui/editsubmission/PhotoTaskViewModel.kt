@@ -77,9 +77,7 @@ constructor(
 
   val uri: LiveData<Uri> =
     LiveDataReactiveStreams.fromPublisher(
-      detailsTextFlowable.switchMapSingle {
-        userMediaRepository.getDownloadUrl(it)
-      }
+      detailsTextFlowable.switchMapSingle { userMediaRepository.getDownloadUrl(it) }
     )
 
   val isPhotoPresent: LiveData<Boolean> =
