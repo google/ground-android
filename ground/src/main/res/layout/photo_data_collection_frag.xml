@@ -20,6 +20,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="dataCollectionViewModel"
       type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
@@ -31,17 +32,17 @@
   <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:paddingStart="20dp"
     android:paddingEnd="20dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
       <include
         android:id="@+id/data_collection_header"
         app:viewModel="@{viewModel}"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btn_select_photo"
         layout="@layout/data_collection_header" />
 
       <Button
@@ -52,18 +53,13 @@
         android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
         android:text="@string/add_photo"
         android:textColor="@color/colorAccent"
-        app:layout_constraintTop_toBottomOf="@id/data_collection_header"
-        app:layout_constraintBottom_toTopOf="@+id/photo_task"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}" />
 
       <include
         layout="@layout/photo_task"
         android:id="@+id/photo_task"
         app:viewModel="@{viewModel}"
-        app:photoViewModel="@{dataCollectionViewModel}"
-        app:layout_constraintTop_toBottomOf="@+id/btn_select_photo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app_layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:photoViewModel="@{dataCollectionViewModel}" />
+    </LinearLayout>
   </ScrollView>
 </layout>

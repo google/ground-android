@@ -32,6 +32,7 @@ import com.google.android.ground.ui.util.BitmapUtil
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.io.File
 import java.io.IOException
@@ -87,14 +88,15 @@ constructor(
   private var surveyId: String? = null
   private var submissionId: String? = null
 
-  private val showDialogClicks: @Hot(replays = true) MutableLiveData<Task> = MutableLiveData()
+  private val showDialogClicks: @Hot Subject<Task> = PublishSubject.create()
   private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
   fun onShowPhotoSelectorDialog() {
-    showDialogClicks.value = task
+    showDialogClicks.onNext(task)
   }
 
-  fun getShowDialogClicks(): LiveData<Task> = showDialogClicks
+  // TODO(jsunde): Switch this to a channel or a simple callback
+  fun getShowDialogClicks(): @Hot Observable<Task> = showDialogClicks
 
   fun setEditable(enabled: Boolean) {
     editable.postValue(enabled)

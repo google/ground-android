@@ -331,7 +331,8 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private void observeSelectPhotoClicks(PhotoTaskViewModel fieldViewModel) {
     fieldViewModel
         .getShowDialogClicks()
-        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getTask(), fieldViewModel));
+        .as(autoDisposable(getViewLifecycleOwner()))
+        .subscribe(__ -> onShowPhotoSelectorDialog(fieldViewModel.getTask(), fieldViewModel));
   }
 
   private void observePhotoResults(PhotoTaskViewModel fieldViewModel) {
