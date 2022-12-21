@@ -54,12 +54,6 @@ class LocationOfInterestClusterManagerTest : BaseHiltTest() {
   }
 
   @Test
-  fun addOrUpdateLocationOfInterest_doesNotAddPolygonLOIs() {
-    locationOfInterestClusterManager.addOrUpdateLocationOfInterest(FakeData.AREA_OF_INTEREST)
-    assertThat(locationOfInterestClusterManager.algorithm.items).isEmpty()
-  }
-
-  @Test
   fun removeLocationsOfInterest_removesLOIsById() {
     locationOfInterestClusterManager.addOrUpdateLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
     locationOfInterestClusterManager.removeLocationsOfInterest(setOf(FakeData.LOCATION_OF_INTEREST))

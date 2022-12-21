@@ -35,6 +35,7 @@ class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
 
   fun addOrUpdateLocationOfInterest(locationOfInterest: LocationOfInterest) {
     if (locationOfInterest.geometry !is Point) {
+      // TODO(#1152): Add support for polygons.
       Timber.d("can't manage a non-point")
       return
     }
