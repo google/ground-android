@@ -37,7 +37,6 @@ import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
-import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Provider
 

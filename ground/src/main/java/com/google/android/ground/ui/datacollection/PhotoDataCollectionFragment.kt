@@ -31,7 +31,6 @@ import com.google.android.ground.databinding.EditSubmissionBottomSheetBinding
 import com.google.android.ground.databinding.PhotoDataCollectionFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter
@@ -98,9 +97,9 @@ constructor(
   }
 
   private fun observeSelectPhotoClicks() {
-    viewModel.getShowDialogClicks()
-      .`as`(autoDisposable(viewLifecycleOwner))
-      .subscribe { onShowPhotoSelectorDialog() }
+    viewModel.getShowDialogClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
+      onShowPhotoSelectorDialog()
+    }
   }
 
   private fun observePhotoResults() {
