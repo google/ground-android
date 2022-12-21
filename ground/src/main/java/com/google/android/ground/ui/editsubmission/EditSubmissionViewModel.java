@@ -22,7 +22,6 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -40,7 +39,6 @@ import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.system.PermissionsManager;
 import com.google.android.ground.ui.common.AbstractViewModel;
 import com.google.android.ground.ui.util.BitmapUtil;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -337,7 +335,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       return;
     }
     try {
-      onPhotoResult(PhotoResult.createSelectResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)));
+      onPhotoResult(new PhotoResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)));
       Timber.v("Select photo result returned");
     } catch (IOException e) {
       Timber.e(e, "Error getting photo selected from storage");
@@ -358,7 +356,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       Timber.e("Photo captured but no path available to read the result");
       return;
     }
-    onPhotoResult(PhotoResult.createCaptureResult(taskWaitingForPhoto, capturedPhotoPath));
+    onPhotoResult(new PhotoResult(taskWaitingForPhoto, /* bitmap=*/ null, capturedPhotoPath));
     Timber.v("Photo capture result returned");
   }
 
@@ -369,7 +367,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   }
 
   public void clearPhoto(String taskId) {
-    lastPhotoResult.onNext(PhotoResult.createEmptyResult(taskId));
+    lastPhotoResult.onNext(new PhotoResult(taskId));
   }
 
   /** Possible outcomes of user clicking "Save". */
@@ -377,48 +375,5 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     HAS_VALIDATION_ERRORS,
     NO_CHANGES_TO_SAVE,
     SAVED
-  }
-
-  @AutoValue
-  public abstract static class PhotoResult {
-
-    boolean isHandled;
-
-    static PhotoResult createEmptyResult(String taskId) {
-      return new AutoValue_EditSubmissionViewModel_PhotoResult(
-          taskId, Optional.empty(), Optional.empty());
-    }
-
-    static PhotoResult createSelectResult(String taskId, Bitmap bitmap) {
-      return new AutoValue_EditSubmissionViewModel_PhotoResult(
-          taskId, Optional.of(bitmap), Optional.empty());
-    }
-
-    static PhotoResult createCaptureResult(String taskId, String path) {
-      return new AutoValue_EditSubmissionViewModel_PhotoResult(
-          taskId, Optional.empty(), Optional.of(path));
-    }
-
-    abstract String getTaskId();
-
-    abstract Optional<Bitmap> getBitmap();
-
-    abstract Optional<String> getPath();
-
-    public boolean isHandled() {
-      return isHandled;
-    }
-
-    public void setHandled(boolean handled) {
-      isHandled = handled;
-    }
-
-    public boolean hasTaskId(String taskId) {
-      return getTaskId().equals(taskId);
-    }
-
-    public boolean isEmpty() {
-      return getBitmap().isEmpty() && getPath().isEmpty();
-    }
   }
 }
