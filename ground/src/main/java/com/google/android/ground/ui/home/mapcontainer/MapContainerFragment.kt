@@ -312,7 +312,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")
 
-    mapFragment.refreshRenderedLocationsOfInterest()
+    mapFragment.refresh()
   }
 
   override fun onDestroy() {

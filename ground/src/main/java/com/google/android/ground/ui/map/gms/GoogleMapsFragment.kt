@@ -34,8 +34,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -96,13 +94,15 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
    * with current view and data state.
    */
-  private val markers: MutableMap<Marker, MapLocationOfInterest> = HashMap()
+  private val clusters: MutableMap<LocationOfInterestClusterItem, MapLocationOfInterest> = HashMap()
   private val polygons: MutableMap<MapLocationOfInterest, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
   private var map: GoogleMap? = null
+
+  private lateinit var clusterManager: LocationOfInterestClusterManager
 
   /**
    * User selected [LocationOfInterest] by either clicking the bottom card or horizontal scrolling.
@@ -171,19 +171,21 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMapReady(map: GoogleMap) {
     this.map = map
+    this.clusterManager = LocationOfInterestClusterManager(context, map)
+    clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
 
-    map.setOnMarkerClickListener { marker: Marker -> onMarkerClick(marker) }
+    map.setOnCameraIdleListener(this::onCameraIdle)
+    map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
+    map.setOnMapClickListener(this::onMapClick)
 
-    val uiSettings = map.uiSettings
-    uiSettings.isRotateGesturesEnabled = false
-    uiSettings.isTiltGesturesEnabled = false
-    uiSettings.isMyLocationButtonEnabled = false
-    uiSettings.isMapToolbarEnabled = false
-    uiSettings.isCompassEnabled = false
-    uiSettings.isIndoorLevelPickerEnabled = false
-    map.setOnCameraIdleListener { onCameraIdle() }
-    map.setOnCameraMoveStartedListener { reason: Int -> onCameraMoveStarted(reason) }
-    map.setOnMapClickListener { latLng: LatLng -> onMapClick(latLng) }
+    with(map.uiSettings) {
+      isRotateGesturesEnabled = false
+      isTiltGesturesEnabled = false
+      isMyLocationButtonEnabled = false
+      isMapToolbarEnabled = false
+      isCompassEnabled = false
+      isIndoorLevelPickerEnabled = false
+    }
   }
 
   // Handle taps on ambiguous features.
@@ -209,15 +211,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  private fun onMarkerClick(marker: Marker): Boolean =
-    if (getMap().uiSettings.isZoomGesturesEnabled) {
-      markers[marker]?.let { markerClicks.onNext(it) }
+  /** Handles both cluster and marker clicks. */
+  private fun onClusterItemClick(item: LocationOfInterestClusterItem): Boolean {
+    return if (getMap().uiSettings.isZoomGesturesEnabled) {
+      markerClicks.onNext(MapLocationOfInterest(item.locationOfInterest))
       // Allow map to pan to marker.
       false
     } else {
       // Prevent map from panning to marker.
       true
     }
+  }
 
   override val locationOfInterestInteractions: @Hot Observable<MapLocationOfInterest> = markerClicks
 
@@ -254,18 +258,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun moveCamera(point: Point, zoomLevel: Float) =
     getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel))
-
-  private fun addMapPin(mapLocationOfInterest: MapLocationOfInterest, point: Point) {
-    val position = point.toLatLng()
-    // TODO: add the anchor values into the resource dimensions file
-    val marker =
-      getMap()
-        .addMarker(
-          MarkerOptions().position(position).icon(getMarkerIcon()).anchor(0.5f, 0.85f).alpha(1.0f)
-        )
-    markers[marker] = mapLocationOfInterest
-    marker.tag = Pair(mapLocationOfInterest.locationOfInterest.id, LocationOfInterest::javaClass)
-  }
 
   private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
     markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel, isSelected)
@@ -310,76 +302,54 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun renderLocationsOfInterest(features: ImmutableSet<MapLocationOfInterest>) {
-    Timber.v("setMapLocationsOfInterest() called with ${features.size} locations of interest")
-    val featuresToUpdate: MutableSet<MapLocationOfInterest> = HashSet(features)
+  private fun removeStaleLocationsOfInterest(
+    mapLocationsOfInterest: ImmutableSet<MapLocationOfInterest>
+  ) {
+    clusterManager.removeLocationsOfInterest(
+      mapLocationsOfInterest.map { it.locationOfInterest }.toSet()
+    )
 
-    val deletedMarkers: MutableList<Marker> = ArrayList()
-    for ((marker, pinLocationOfInterest) in markers) {
-      if (features.contains(pinLocationOfInterest)) {
-        // If existing pin is present and up-to-date, don't update it.
-        featuresToUpdate.remove(pinLocationOfInterest)
-      } else {
-        // If pin isn't present or up-to-date, remove it so it can be added back later.
-        removeMarker(marker)
-        deletedMarkers.add(marker)
-      }
-    }
+    val deletedIds =
+      polygons.keys.map { it.locationOfInterest.id } -
+        mapLocationsOfInterest.map { it.locationOfInterest.id }.toSet()
+    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.locationOfInterest.id) }
+    deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
+    polygons.minusAssign(deletedPolygons.keys)
+  }
 
-    // Update markers list.
-    deletedMarkers.forEach { markers.remove(it) }
+  private fun addOrUpdateLocationOfInterest(mapLocationOfInterest: MapLocationOfInterest) {
+    val loi = mapLocationOfInterest.locationOfInterest
 
-    val mapsPolygonIterator = polygons.entries.iterator()
-    while (mapsPolygonIterator.hasNext()) {
-      val (mapLocationOfInterest, polygons) = mapsPolygonIterator.next()
-      if (features.contains(mapLocationOfInterest)) {
-        // If polygons already exists on map, don't add them.
-        featuresToUpdate.remove(mapLocationOfInterest)
-      } else {
-        // Remove existing polygons not in list of updatedLocationsOfInterest.
-        polygons.forEach { removePolygon(it) }
-        mapsPolygonIterator.remove()
-      }
-    }
-
-    if (features.isEmpty()) return
-
-    Timber.v("Updating ${features.size} features")
-    features.forEach {
-      val geometry = it.locationOfInterest.geometry
-
-      when (geometry) {
-        is LineString -> TODO()
-        is LinearRing -> TODO()
-        is MultiPolygon -> addMultiPolygon(it, geometry)
-        is Point -> addMapPin(it, geometry)
-        is Polygon -> addPolygon(it, geometry)
-      }
+    when (loi.geometry) {
+      is Point -> clusterManager.addOrUpdateLocationOfInterest(loi)
+      is Polygon -> addPolygon(mapLocationOfInterest, loi.geometry)
+      is MultiPolygon -> addMultiPolygon(mapLocationOfInterest, loi.geometry)
+      else -> TODO()
     }
   }
 
-  override fun refreshRenderedLocationsOfInterest() {
-    for ((marker, mapLocationOfInterest) in markers) {
-      val isSelected = mapLocationOfInterest.locationOfInterest.id == activeLocationOfInterest
-      marker.setIcon(getMarkerIcon(isSelected))
+  override fun renderLocationsOfInterest(
+    mapLocationsOfInterest: ImmutableSet<MapLocationOfInterest>
+  ) {
+    // Re-cluster and re-render
+    if (!mapLocationsOfInterest.isEmpty()) {
+      Timber.v(
+        "renderLocationsOfInterest() called with ${mapLocationsOfInterest.size} locations of interest"
+      )
+      removeStaleLocationsOfInterest(mapLocationsOfInterest)
+      Timber.v("Updating ${mapLocationsOfInterest.size} features")
+      mapLocationsOfInterest.forEach(this::addOrUpdateLocationOfInterest)
+      clusterManager.cluster()
     }
   }
+
+  override fun refresh() = renderLocationsOfInterest(clusterManager.getMapLocationsOfInterest())
 
   override var mapType: Int
     get() = getMap().mapType
     set(mapType) {
       getMap().mapType = mapType
     }
-
-  private fun removeMarker(marker: Marker) {
-    Timber.v("Removing marker ${marker.id}")
-    marker.remove()
-  }
-
-  private fun removePolygon(polygon: MapsPolygon) {
-    Timber.v("Removing polygon ${polygon.id}")
-    polygon.remove()
-  }
 
   private fun parseColor(colorHexCode: String?): Int =
     try {
@@ -390,6 +360,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
 
   private fun onCameraIdle() {
+    clusterManager.onCameraIdle()
+
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
       cameraMovedEventsProcessor.onNext(
         CameraPosition(
@@ -446,10 +418,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?) {
     val newId = locationOfInterest?.id
     if (activeLocationOfInterest == newId) return
+    clusterManager.activeLocationOfInterest = newId
 
-    activeLocationOfInterest = newId
-    // TODO: Optimize the performance by refreshing old and new rendered geometries
-    refreshRenderedLocationsOfInterest()
+    refresh()
   }
 
   companion object {

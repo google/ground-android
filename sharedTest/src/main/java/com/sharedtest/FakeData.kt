@@ -28,6 +28,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.map.gms.LocationOfInterestClusterItem
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 
@@ -69,6 +70,15 @@ object FakeData {
       AuditInfo(USER),
       AuditInfo(USER),
       Point(Coordinate(0.0, 0.0))
+    )
+
+  @JvmField
+  val LOCATION_OF_INTEREST_CLUSTER_ITEM =
+    LocationOfInterestClusterItem(
+      Point(Coordinate(0.0, 0.0)),
+      LOCATION_OF_INTEREST.caption ?: "",
+      LOCATION_OF_INTEREST.lastModified.toString(),
+      LOCATION_OF_INTEREST
     )
 
   @JvmField
