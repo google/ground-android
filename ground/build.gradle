@@ -202,13 +202,13 @@ dependencies {
     implementation "com.google.maps.android:android-maps-utils:2.2.0"
 
     // Firebase and related libraries.
-    implementation 'com.google.firebase:firebase-analytics:19.0.0'
-    implementation 'com.google.firebase:firebase-core:19.0.0'
-    implementation 'com.google.firebase:firebase-firestore:23.0.1'
-    implementation 'com.google.firebase:firebase-auth:21.0.1'
-    implementation 'com.google.firebase:firebase-perf:20.0.1'
-    implementation 'com.google.firebase:firebase-storage:20.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.0.1'
+    implementation platform('com.google.firebase:firebase-bom:31.1.1')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-perf'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
 
     // Hilt
