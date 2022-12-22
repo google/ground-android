@@ -48,8 +48,6 @@ constructor(
   resources: Resources
 ) : AbstractTaskViewModel(resources) {
 
-  // TODO(jsunde): Return the result of the photo in a LiveData<Optional<TaskData>>
-
   // TODO(jsunde): This logic is currently duplicated here and in EditSubmissionViewModel.
   //  If it's here it can easily be used for the DataCollectionFragment, but is slightly more
   //  complicated to reuse from the EditSubmissionFragment. I should explore some more to see if
