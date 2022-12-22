@@ -149,6 +149,10 @@ abstract class ViewModelModule {
   abstract fun bindTimeTaskViewModel(viewModel: TimeTaskViewModel): ViewModel
   @Binds
   @IntoMap
+  @ViewModelKey(GpsTaskViewModel::class)
+  abstract fun bindGpsTaskViewModel(viewModel: GpsTaskViewModel): ViewModel
+  @Binds
+  @IntoMap
   @ViewModelKey(LocationOfInterestSelectorViewModel::class)
   abstract fun bindLocationOfInterestSelectorViewModel(
     viewModel: LocationOfInterestSelectorViewModel

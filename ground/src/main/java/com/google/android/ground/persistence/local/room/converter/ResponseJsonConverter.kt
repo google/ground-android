@@ -96,6 +96,10 @@ internal object ResponseJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         TimeTaskData.fromDate(isoStringToDate(obj as String))
       }
+      Task.Type.GPS -> {
+        DataStoreException.checkType(String::class.java, obj)
+        GpsTaskData.fromLocation()
+      }
       Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
     }
 

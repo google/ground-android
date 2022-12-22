@@ -39,16 +39,20 @@ constructor(
   override fun getItemCount(): Int = tasks.size
 
   override fun createFragment(position: Int): Fragment {
+    // TODO: DELETE ME!
+    val type = Task.Type.GPS
+
     val task = tasks[position]
-    val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(task.type))
+    val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(type))
 
     // TODO(#1146): Pass in the existing taskData if there is one
     viewModel.initialize(task, Optional.empty())
 
     dataCollectionViewModel.addTaskViewModel(viewModel)
-    return when (task.type) {
+    return when (type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
       Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
+      Task.Type.GPS -> GpsDataCollectionFragment(task, viewModel)
       else -> DataCollectionTaskFragment()
     }
   }
