@@ -30,7 +30,6 @@ import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
-import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
@@ -57,7 +56,6 @@ import timber.log.Timber
 class MapContainerFragment : AbstractMapViewerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
-  @Inject lateinit var mapsRepository: MapsRepository
   @Inject lateinit var navigator: Navigator
 
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
@@ -191,8 +189,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       onBottomSheetStateChange(state, mapFragment)
     }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
-
-    mapsRepository.observableMapType().observe(this) { mapFragment.mapType = it }
   }
 
   private fun attachCustomViews(map: MapFragment) {

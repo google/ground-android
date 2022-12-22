@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import com.google.android.ground.R
+import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 
@@ -25,10 +26,16 @@ import javax.inject.Inject
 abstract class AbstractMapViewerFragment : AbstractFragment() {
 
   @Inject lateinit var mapFragment: MapFragment
+  @Inject lateinit var mapsRepository: MapsRepository
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    mapFragment.attachToFragment(this, R.id.map) { onMapReady(it) }
+    mapFragment.attachToFragment(this, R.id.map) { onMapAttached(it) }
+  }
+
+  private fun onMapAttached(mapFragment: MapFragment) {
+    mapsRepository.observableMapType().observe(viewLifecycleOwner) { mapFragment.mapType = it }
+    onMapReady(mapFragment)
   }
 
   protected abstract fun onMapReady(mapFragment: MapFragment)
