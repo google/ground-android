@@ -41,7 +41,7 @@ object StreamUtil {
     return try {
       setOf(supplier.get())
     } catch (e: RuntimeException) {
-      Timber.e(e)
+      Timber.d(e.message)
       emptySet()
     }
   }
