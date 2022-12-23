@@ -213,11 +213,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
   private fun showMapTypeSelectorDialog() {
     val types = mapFragment.availableMapTypes
     NavHostFragment.findNavController(this)
-      .navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToMapTypeDialogFragment(
-          types.toTypedArray()
-        )
-      )
+      .navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types.toTypedArray()))
   }
 
   private fun showConfirmationDialog(point: Point) {
