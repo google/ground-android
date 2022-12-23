@@ -60,9 +60,9 @@ object RxTask {
    * used to convert `Task<Void>`. The provided supplier will be invoked only `onSubscribe`.
    */
   @JvmStatic
-  fun toCompletable(task: Supplier<Task<*>>): Completable =
+  fun toCompletable(taskSupplier: Supplier<Task<*>>): Completable =
     Completable.create { emitter: CompletableEmitter ->
-      task
+      taskSupplier
         .get()
         .addOnSuccessListener { emitter.onComplete() }
         .addOnFailureListener { t: Exception -> emitter.onError(t) }
