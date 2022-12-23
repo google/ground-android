@@ -33,7 +33,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.LocationController
@@ -61,10 +60,8 @@ internal constructor(
   private val locationController: LocationController,
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
-) : AbstractViewModel() {
+) : BaseMapViewModel(locationController, mapController) {
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
-  val locationLockState: LiveData<Result<Boolean>>
-  val cameraUpdateRequests: LiveData<Event<CameraPosition>>
 
   private var lastCameraPosition: CameraPosition? = null
 
@@ -82,10 +79,7 @@ internal constructor(
   private val moveLocationsOfInterestVisibility: @Hot(replays = true) MutableLiveData<Int> =
     MutableLiveData(View.GONE)
 
-  private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-
   val mbtilesFilePaths: LiveData<ImmutableSet<String>>
-  val iconTint: LiveData<Int>
   val isLocationUpdatesEnabled: LiveData<Boolean>
   val locationAccuracy: LiveData<String>
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
@@ -95,7 +89,6 @@ internal constructor(
     BehaviorProcessor.createDefault(Optional.empty<LocationOfInterest>())
 
   /* UI Clicks */
-  private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
   // TODO: Move this in LocationOfInterestRepositionView and return the final updated LOI as the
@@ -148,9 +141,6 @@ internal constructor(
       resources.getString(R.string.location_accuracy, it.accuracy)
     }
 
-  private fun createCameraUpdateFlowable(): Flowable<Event<CameraPosition>> =
-    mapController.getCameraUpdates().map { Event.create(it) }
-
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
   ): Flowable<ImmutableSet<LocationOfInterest>> =
@@ -163,9 +153,7 @@ internal constructor(
       }
       .orElse(Flowable.just(ImmutableSet.of()))
 
-  private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.getOrDefault(false)
-
-  fun onCameraMove(newCameraPosition: CameraPosition) {
+  override fun onCameraMove(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
@@ -183,13 +171,6 @@ internal constructor(
     }
   }
 
-  fun onMapDrag() {
-    if (isLocationLockEnabled()) {
-      Timber.d("User dragged map. Disabling location lock")
-      locationController.unlock()
-    }
-  }
-
   fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
     val locationOfInterest = mapLocationOfInterest.locationOfInterest
     if (locationOfInterest != null) {
@@ -202,14 +183,6 @@ internal constructor(
 
   fun panAndZoomCamera(position: Point) {
     mapController.panAndZoomCamera(position)
-  }
-
-  fun onLocationLockClick() {
-    if (isLocationLockEnabled()) {
-      locationController.unlock()
-    } else {
-      locationController.lock()
-    }
   }
 
   // TODO(#691): Create our own wrapper/interface for MbTiles providers.
@@ -233,14 +206,6 @@ internal constructor(
     }
   }
 
-  fun onMapTypeButtonClicked() {
-    selectMapTypeClicks.onNext(Nil.NIL)
-  }
-
-  fun getSelectMapTypeClicks(): Observable<Nil> {
-    return selectMapTypeClicks
-  }
-
   fun getZoomThresholdCrossed(): Observable<Nil> {
     return zoomThresholdCrossed
   }
@@ -257,12 +222,6 @@ internal constructor(
   /** Called when a LOI is (de)selected. */
   fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
-  fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
-
-  fun setLocationLockEnabled(enabled: Boolean) {
-    locationLockEnabled.postValue(enabled)
   }
 
   enum class Mode {
@@ -285,24 +244,11 @@ internal constructor(
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     val locationLockStateFlowable = locationController.getLocationLockUpdates()
-    locationLockState =
-      LiveDataReactiveStreams.fromPublisher(
-        locationLockStateFlowable.startWith(Result.success(false))
-      )
-    iconTint =
-      LiveDataReactiveStreams.fromPublisher(
-        locationLockStateFlowable
-          .map { locked: Result<Boolean> ->
-            if (locked.getOrDefault(false)) R.color.colorMapBlue else R.color.colorGrey800
-          }
-          .startWith(R.color.colorGrey800)
-      )
     isLocationUpdatesEnabled =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
       )
     locationAccuracy = LiveDataReactiveStreams.fromPublisher(createLocationAccuracyFlowable())
-    cameraUpdateRequests = LiveDataReactiveStreams.fromPublisher(createCameraUpdateFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
@@ -327,7 +273,9 @@ internal constructor(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
               unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
             )
-          ) { concatLocationsOfInterestSets(it) }
+          ) {
+            concatLocationsOfInterestSets(it)
+          }
           .distinctUntilChanged()
       )
 

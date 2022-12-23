@@ -24,6 +24,7 @@ import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.mapcontainer.BaseMapViewModel
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toModelObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,6 +62,10 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapViewerFragmen
 
   override fun onMapReady(mapFragment: MapFragment) {
     mapFragment.disableGestures()
+  }
+
+  override fun getMapViewModel(): BaseMapViewModel {
+    TODO("Not yet implemented")
   }
 
   private fun panMap(offlineArea: OfflineArea) {

@@ -48,45 +48,10 @@
       app:layout_constraintTop_toTopOf="parent"
       app:useCompatPadding="true" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/map_type_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
-      android:tint="@color/colorGrey500"
-      app:backgroundTint="@color/colorBackground"
-      app:fabSize="mini"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/map_layers"
-      app:useCompatPadding="true" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/location_lock_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:enabled="@{viewModel.getLocationLockEnabled()}"
-      android:onClick="@{() -> viewModel.onLocationLockClick()}"
-      app:backgroundTint="@color/colorBackground"
-      app:fabSize="normal"
-      app:layout_constraintBottom_toTopOf="@+id/recycler_view"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:srcCompat="@drawable/ic_gps_lock"
-      app:tint="@{viewModel.getIconTint()}"
-      app:useCompatPadding="true" />
-
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/recycler_view"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom"
-      android:orientation="horizontal"
-      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      tools:itemCount="3"
-      tools:listitem="@layout/loi_card_item" />
+    <include
+      android:id="@+id/basemap"
+      layout="@layout/basemap"
+      app:viewModel="@{viewModel}" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

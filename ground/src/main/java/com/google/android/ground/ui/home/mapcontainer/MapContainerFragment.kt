@@ -19,10 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
@@ -31,8 +28,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.rx.RxAutoDispose
-import com.google.android.ground.system.PermissionDeniedException
-import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
@@ -41,14 +36,12 @@ import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapLocationOfInterest
-import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.common.collect.ImmutableList
 import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
-import kotlin.math.max
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -66,9 +59,12 @@ class MapContainerFragment : AbstractMapViewerFragment() {
   private val adapter: LoiCardAdapter = LoiCardAdapter()
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+    // ViewModels are used in the super class as well. So, we need to initialize them first.
     mapContainerViewModel = getViewModel(MapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
+
+    super.onCreate(savedInstanceState)
+
     val locationOfInterestRepositionViewModel =
       getViewModel(LocationOfInterestRepositionViewModel::class.java)
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
@@ -87,10 +83,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { mapContainerViewModel.onMapDrag() }
-    mapFragment.cameraMovedEvents
-      .onBackpressureLatest()
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { onCameraMoved(it) }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
@@ -107,10 +99,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT) }
     mapContainerViewModel
-      .getSelectMapTypeClicks()
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { showMapTypeSelectorDialog() }
-    mapContainerViewModel
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
@@ -126,7 +114,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
-    setupRecyclerView(binding.mapControls.recyclerView)
+    setupRecyclerView(binding.mapControls.basemap.recyclerView)
     return binding.root
   }
 
@@ -172,24 +160,19 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     // Custom views rely on the same instance of MapFragment. That couldn't be injected via Dagger.
     // Hence, initializing them here instead of inflating in layout.
     attachCustomViews(mapFragment)
-    mapContainerViewModel.setLocationLockEnabled(true)
     polygonDrawingViewModel.setLocationLockEnabled(true)
 
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.mapLocationsOfInterest.observe(this) {
       mapFragment.renderLocationsOfInterest(it)
     }
-    mapContainerViewModel.locationLockState.observe(this) { result ->
-      onLocationLockStateChange(result, mapFragment)
-    }
-    mapContainerViewModel.cameraUpdateRequests.observe(this) { update ->
-      update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
-    }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, mapFragment)
     }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
   }
+
+  override fun getMapViewModel() = mapContainerViewModel
 
   private fun attachCustomViews(map: MapFragment) {
     val repositionView = LocationOfInterestRepositionView(requireContext(), map)
@@ -203,17 +186,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
       polygonDrawingView.visibility = it
     }
     binding.mapOverlay.addView(polygonDrawingView)
-  }
-
-  /** Opens a dialog for selecting a [MapType] for the basemap layer. */
-  private fun showMapTypeSelectorDialog() {
-    val types = mapFragment.availableMapTypes
-    NavHostFragment.findNavController(this)
-      .navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToMapTypeDialogFragment(
-          types.toTypedArray()
-        )
-      )
   }
 
   private fun showConfirmationDialog(point: Point) {
@@ -260,51 +232,6 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     }
   }
 
-  private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
-    result.fold(
-      { isSuccessful: Boolean ->
-        {
-          Timber.d("Location lock: $isSuccessful")
-          if (isSuccessful) {
-            map.enableCurrentLocationIndicator()
-          }
-        }
-      },
-      { exception: Throwable -> onLocationLockError(exception) }
-    )
-  }
-
-  private fun onLocationLockError(t: Throwable?) {
-    when (t) {
-      is PermissionDeniedException ->
-        showUserActionFailureMessage(R.string.no_fine_location_permissions)
-      is SettingsChangeRequestCanceled ->
-        showUserActionFailureMessage(R.string.location_disabled_in_settings)
-      else -> showUserActionFailureMessage(R.string.location_updates_unknown_error)
-    }
-  }
-
-  private fun showUserActionFailureMessage(@StringRes resId: Int) {
-    Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
-  }
-
-  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapFragment) {
-    Timber.v("Update camera: %s", newPosition)
-    if (newPosition.zoomLevel != null) {
-      var zoomLevel = newPosition.zoomLevel
-      if (!newPosition.isAllowZoomOut) {
-        zoomLevel = max(zoomLevel, map.currentZoomLevel)
-      }
-      map.moveCamera(newPosition.target, zoomLevel)
-    } else {
-      map.moveCamera(newPosition.target)
-    }
-
-    // Manually notify that the camera has moved as `mapFragment.cameraMovedEvents` only returns
-    // an event when the map is moved by the user (REASON_GESTURE).
-    onCameraMoved(newPosition)
-  }
-
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")
 
@@ -316,8 +243,8 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     super.onDestroy()
   }
 
-  private fun onCameraMoved(position: CameraPosition) {
-    mapContainerViewModel.onCameraMove(position)
+  override fun onCameraMoved(position: CameraPosition) {
+    super.onCameraMoved(position)
     loiCardSource.onCameraBoundsUpdated(position.bounds?.toGoogleMapsObject())
   }
 }

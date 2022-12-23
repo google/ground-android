@@ -36,12 +36,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Placeholder for map implementation -->
-    <FrameLayout
-      android:id="@+id/map"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
-
+    <!-- TODO: Remove extra frame layout once the reposition view and
+          polygon draw view are cleaned. -->
     <FrameLayout
       android:id="@+id/map_overlay"
       android:layout_width="match_parent"
@@ -55,24 +51,25 @@
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
 
-      <com.google.android.material.card.MaterialCardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom"
-        android:layout_margin="10dp">
-
-        <TextView
-          android:id="@+id/location_accuracy"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@android:color/white"
-          android:gravity="center"
-          android:padding="5dp"
-          android:text="@{viewModel.getLocationAccuracy()}"
-          android:textColor="@color/colorPrimary"
-          app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
-      </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
+
+    <com.google.android.material.card.MaterialCardView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center|bottom"
+      android:layout_margin="10dp">
+
+      <TextView
+        android:id="@+id/location_accuracy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="@{viewModel.getLocationAccuracy()}"
+        android:textColor="@color/colorPrimary"
+        app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
+    </com.google.android.material.card.MaterialCardView>
 
     <ImageView
       android:id="@+id/map_crosshairs_img"

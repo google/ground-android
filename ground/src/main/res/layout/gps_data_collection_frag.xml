@@ -23,29 +23,24 @@
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.editsubmission.GpsTaskViewModel" />
+    <variable
+      name="mapViewModel"
+      type="com.google.android.ground.ui.home.mapcontainer.BaseMapViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <include
       android:id="@+id/data_collection_header"
       layout="@layout/data_collection_header"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
       app:viewModel="@{viewModel}" />
 
-    <!-- Placeholder for map implementation -->
-    <FrameLayout
-      android:id="@+id/map"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/data_collection_header" />
-
-  </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+      android:id="@+id/basemap"
+      layout="@layout/basemap"
+      app:viewModel="@{mapViewModel}" />
+  </LinearLayout>
 </layout>

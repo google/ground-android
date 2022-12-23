@@ -228,5 +228,7 @@
   <string name="empty_caption">empty caption</string>
   <string name="empty_name">empty name</string>
   <string name="start">Start</string>
+  <string name="basemap_type">BaseMap Type</string>
+  <string name="menu_drawer">Menu Drawer</string>
 
 </resources>

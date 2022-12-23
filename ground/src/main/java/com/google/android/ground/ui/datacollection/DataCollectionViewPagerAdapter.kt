@@ -20,6 +20,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
+import com.google.android.ground.ui.home.mapcontainer.BaseMapViewModel
+import com.google.android.ground.ui.map.LocationController
+import com.google.android.ground.ui.map.MapController
 import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -34,7 +37,9 @@ constructor(
   private val viewModelFactory: ViewModelFactory,
   @Assisted fragment: Fragment,
   @Assisted private val tasks: ImmutableList<Task>,
-  @Assisted private val dataCollectionViewModel: DataCollectionViewModel
+  @Assisted private val dataCollectionViewModel: DataCollectionViewModel,
+  private val locationController: LocationController,
+  private val mapController: MapController
 ) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
@@ -52,7 +57,12 @@ constructor(
     return when (type) {
       Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
       Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
-      Task.Type.GPS -> GpsDataCollectionFragment(task, viewModel)
+      Task.Type.GPS ->
+        GpsDataCollectionFragment(
+          task,
+          viewModel,
+          BaseMapViewModel(locationController, mapController)
+        )
       else -> DataCollectionTaskFragment()
     }
   }
