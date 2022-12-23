@@ -88,11 +88,11 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     mapFragment.startDragEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { mapContainerViewModel.onMapDrag() }
+      .subscribe { mapContainerViewModel.onMapDragged() }
     mapFragment.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { onCameraMoved(it) }
+      .subscribe { onMapCameraMoved(it) }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
@@ -302,7 +302,7 @@ class MapContainerFragment : AbstractMapViewerFragment() {
 
     // Manually notify that the camera has moved as `mapFragment.cameraMovedEvents` only returns
     // an event when the map is moved by the user (REASON_GESTURE).
-    onCameraMoved(newPosition)
+    onMapCameraMoved(newPosition)
   }
 
   private fun onZoomThresholdCrossed() {
@@ -316,8 +316,8 @@ class MapContainerFragment : AbstractMapViewerFragment() {
     super.onDestroy()
   }
 
-  private fun onCameraMoved(position: CameraPosition) {
-    mapContainerViewModel.onCameraMove(position)
+  private fun onMapCameraMoved(position: CameraPosition) {
+    mapContainerViewModel.onMapCameraMoved(position)
     loiCardSource.onCameraBoundsUpdated(position.bounds?.toGoogleMapsObject())
   }
 }

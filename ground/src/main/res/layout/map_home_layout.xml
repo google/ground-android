@@ -72,7 +72,7 @@
       app:layout_constraintBottom_toTopOf="@+id/recycler_view"
       app:layout_constraintEnd_toEndOf="parent"
       app:srcCompat="@drawable/ic_gps_lock"
-      app:tint="@{viewModel.getIconTint()}"
+      app:tint="@{viewModel.getLocationLockIconTint()}"
       app:useCompatPadding="true" />
 
     <androidx.recyclerview.widget.RecyclerView
