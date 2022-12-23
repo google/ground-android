@@ -21,12 +21,16 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.firestore.base.FluentCollectionReference
 import com.google.android.ground.persistence.remote.firestore.schema.LoiConverter.toLoi
+import com.google.android.ground.persistence.remote.firestore.schema.LoiConverter.toLoiUnchecked
 import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.snapshots
 import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -38,6 +42,11 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
     RxFirestore.observeQueryRef(reference()).flatMapIterable { snapshot: QuerySnapshot ->
       toRemoteDataEvents(survey, snapshot)
     }
+
+  fun snapshots(survey: Survey): Flow<List<LocationOfInterest>> {
+    return reference().snapshots()
+      .map { snapshot -> snapshot.documents.map { doc -> toLoiUnchecked(survey, doc) }.toList() }
+  }
 
   fun loi(id: String) = LoiDocumentReference(reference().document(id))
 

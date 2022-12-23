@@ -38,7 +38,7 @@ object LoiConverter {
     toLoiUnchecked(survey, doc)
   }
 
-  private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+  fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
     val loiId = doc.id
     val loiDoc =
       DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi document")

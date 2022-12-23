@@ -41,9 +41,10 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 class FirestoreDataStore
@@ -127,6 +128,13 @@ internal constructor(
       }
       .subscribeOn(schedulers.io())
   }
+
+  fun locationsOfInterest(survey: Survey): Flow<List<LocationOfInterest>> =
+    db
+      .surveys()
+      .survey(survey.id)
+      .lois()
+      .snapshots(survey)
 
   override fun applyMutations(
     mutations: ImmutableCollection<Mutation>,
