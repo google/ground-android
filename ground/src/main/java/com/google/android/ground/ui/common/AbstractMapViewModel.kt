@@ -30,7 +30,7 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import timber.log.Timber
 
-abstract class BaseMapViewModel(
+abstract class AbstractMapViewModel(
   private val locationController: LocationController,
   mapController: MapController
 ) : AbstractViewModel() {

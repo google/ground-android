@@ -32,7 +32,7 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.AbstractMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.LocationController
@@ -60,7 +60,7 @@ internal constructor(
   private val locationController: LocationController,
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationController, mapController) {
+) : AbstractMapViewModel(locationController, mapController) {
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
 
   private var lastCameraPosition: CameraPosition? = null
