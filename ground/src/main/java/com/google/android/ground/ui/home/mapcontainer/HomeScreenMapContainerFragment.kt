@@ -19,11 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
+import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.geometry.Point
@@ -134,22 +134,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun setupBottomLoiCards() {
-    val layoutManager =
-      GridLayoutManager(
-        requireContext(),
-        /* spanCount */ 1,
-        /* orientation */ LinearLayout.HORIZONTAL,
-        /* reverseLayout */ false
-      )
-
-    val recyclerView = RecyclerView(requireContext())
+    val container = binding.basemap.bottomContainer
+    val recyclerViewBinding = LoiCardsRecyclerViewBinding.inflate(layoutInflater, container, true)
+    val recyclerView = recyclerViewBinding.recyclerView
     recyclerView.adapter = adapter
-    recyclerView.layoutManager = layoutManager
-
     recyclerView.addOnScrollListener(
       object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
           super.onScrollStateChanged(recyclerView, newState)
+          val layoutManager = recyclerView.layoutManager as LinearLayoutManager
           val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
           val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
           val firstCompletelyVisiblePosition =
@@ -165,9 +158,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         }
       }
     )
-
-    // Add to map overlay container
-    binding.basemap.bottomContainer.addView(recyclerView)
   }
 
   private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
