@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapContainerFragBinding
+import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
@@ -121,7 +122,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    setupMenuFab()
     setupBottomLoiCards()
+  }
+
+  private fun setupMenuFab() {
+    val mapOverlay = binding.mapControls.basemap.mapOverlay
+    val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
+    menuBinding.homeScreenViewModel = homeScreenViewModel
+    menuBinding.lifecycleOwner = this
   }
 
   private fun setupBottomLoiCards() {

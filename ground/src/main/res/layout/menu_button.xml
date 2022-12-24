@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2020 Google LLC
+  ~ Copyright 2022 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,24 +17,21 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
-      name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel" />
+      name="homeScreenViewModel"
+      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:background="@color/colorGrey800">
-
-    <include
-      android:id="@+id/basemap"
-      layout="@layout/basemap_layout"
-      app:viewModel="@{viewModel}" />
-
-  </androidx.constraintlayout.widget.ConstraintLayout>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/hamburger_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
+    android:src="@drawable/ic_menu_black_24dp"
+    app:backgroundTint="@color/colorBackground"
+    app:fabSize="mini"
+    app:useCompatPadding="true" />
 </layout>
