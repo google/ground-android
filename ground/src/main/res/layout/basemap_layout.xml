@@ -39,7 +39,7 @@
       android:layout_height="match_parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-      android:id="@+id/map_overlay"
+      android:id="@+id/overlay"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:fitsSystemWindows="true"

@@ -35,7 +35,7 @@ class HomeScreenMapContainerLayoutBehavior(context: Context, attrs: AttributeSet
       return
     }
     val map = mapContainerLayout.findViewById<View>(R.id.map)
-    val mapControls = mapContainerLayout.findViewById<View>(R.id.map_controls)
+    val mapControls = mapContainerLayout.findViewById<View>(R.id.overlay)
     if (map == null || mapControls == null) {
       // View already destroyed.
       return

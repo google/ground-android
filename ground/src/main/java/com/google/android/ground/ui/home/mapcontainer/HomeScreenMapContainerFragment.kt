@@ -127,7 +127,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun setupMenuFab() {
-    val mapOverlay = binding.mapControls.basemap.mapOverlay
+    val mapOverlay = binding.basemap.overlay
     val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
     menuBinding.homeScreenViewModel = homeScreenViewModel
     menuBinding.lifecycleOwner = this
@@ -167,7 +167,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     )
 
     // Add to map overlay container
-    binding.mapControls.basemap.bottomContainer.addView(recyclerView)
+    binding.basemap.bottomContainer.addView(recyclerView)
   }
 
   private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {

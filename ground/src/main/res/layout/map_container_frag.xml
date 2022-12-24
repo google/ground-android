@@ -42,8 +42,8 @@
       android:layout_height="match_parent">
 
       <include
-        android:id="@+id/map_controls"
-        layout="@layout/map_home_layout"
+        android:id="@+id/basemap"
+        layout="@layout/basemap_layout"
         android:visibility="@{viewModel.mapControlsVisibility}"
         app:viewModel="@{viewModel}" />
 
