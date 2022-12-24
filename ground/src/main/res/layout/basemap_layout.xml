@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2020 Google LLC
+  ~ Copyright 2022 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -25,10 +25,7 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel" />
-    <variable
-      name="homeScreenViewModel"
-      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
+      type="com.google.android.ground.ui.common.AbstractMapViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,34 +34,42 @@
     tools:background="@color/colorGrey800">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/hamburger_btn"
+      android:id="@+id/map_type_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
-      android:src="@drawable/ic_menu_black_24dp"
+      android:layout_gravity="top|end"
+      android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
+      android:tint="@color/colorGrey500"
       app:backgroundTint="@color/colorBackground"
       app:fabSize="mini"
-      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      app:srcCompat="@drawable/map_layers"
       app:useCompatPadding="true" />
 
-    <include
-      android:id="@+id/basemap"
-      layout="@layout/basemap_layout"
-      app:viewModel="@{viewModel}" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/location_lock_btn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|end"
+      android:enabled="@{viewModel.getLocationLockEnabled()}"
+      android:onClick="@{() -> viewModel.onLocationLockClick()}"
+      app:backgroundTint="@color/colorBackground"
+      app:fabSize="normal"
+      app:layout_constraintBottom_toTopOf="@+id/bottom_container"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:srcCompat="@drawable/ic_gps_lock"
+      app:tint="@{viewModel.getLocationLockIconTint()}"
+      app:useCompatPadding="true" />
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/recycler_view"
+    <!-- Use this container to add overlay views that are anchored to location lock button. -->
+    <FrameLayout
+      android:id="@+id/bottom_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="bottom"
-      android:orientation="horizontal"
-      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      tools:itemCount="3"
-      tools:listitem="@layout/loi_card_item" />
-
+      app:layout_constraintStart_toStartOf="parent" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
