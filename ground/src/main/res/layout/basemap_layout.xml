@@ -28,48 +28,61 @@
       type="com.google.android.ground.ui.common.AbstractMapViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:background="@color/colorGrey800">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/map_type_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top|end"
-      android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
-      android:tint="@color/colorGrey500"
-      app:backgroundTint="@color/colorBackground"
-      app:fabSize="mini"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/map_layers"
-      app:useCompatPadding="true" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/location_lock_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|end"
-      android:enabled="@{viewModel.getLocationLockEnabled()}"
-      android:onClick="@{() -> viewModel.onLocationLockClick()}"
-      app:backgroundTint="@color/colorBackground"
-      app:fabSize="normal"
-      app:layout_constraintBottom_toTopOf="@+id/bottom_container"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:srcCompat="@drawable/ic_gps_lock"
-      app:tint="@{viewModel.getLocationLockIconTint()}"
-      app:useCompatPadding="true" />
-
-    <!-- Use this container to add overlay views that are anchored to location lock button. -->
+    <!-- Placeholder for map implementation -->
     <FrameLayout
-      android:id="@+id/bottom_container"
+      android:id="@+id/map"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
+      android:layout_height="match_parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/map_overlay"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:fitsSystemWindows="true"
+      tools:background="@color/colorGrey800">
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/map_type_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
+        android:tint="@color/colorGrey500"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="mini"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/map_layers"
+        app:useCompatPadding="true" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/location_lock_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:enabled="@{viewModel.getLocationLockEnabled()}"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_gps_lock"
+        app:tint="@{viewModel.getLocationLockIconTint()}"
+        app:useCompatPadding="true" />
+
+      <!-- Use this container to add overlay views that are anchored to location lock button. -->
+      <FrameLayout
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </FrameLayout>
 </layout>
