@@ -153,6 +153,10 @@ abstract class ViewModelModule {
   abstract fun bindLocationOfInterestSelectorViewModel(
     viewModel: LocationOfInterestSelectorViewModel
   ): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(GpsTaskViewModel::class)
+  abstract fun bindGpsTaskViewModel(viewModel: GpsTaskViewModel): ViewModel
 
   @Binds abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }
