@@ -30,7 +30,8 @@ public enum TaskEntityType implements IntEnum {
   PHOTO(3),
   NUMBER(4),
   DATE(5),
-  TIME(6);
+  TIME(6),
+  GPS(7);
 
   private final int intValue;
 
@@ -42,6 +43,7 @@ public enum TaskEntityType implements IntEnum {
           .put(NUMBER, Type.NUMBER)
           .put(DATE, Type.DATE)
           .put(TIME, Type.TIME)
+          .put(GPS, Type.GPS)
           .build();
 
   TaskEntityType(int intValue) {

@@ -19,7 +19,10 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
+import com.google.android.ground.ui.map.LocationController
+import com.google.android.ground.ui.map.MapController
 import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -33,7 +36,9 @@ constructor(
   private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
   @Assisted private val tasks: ImmutableList<Task>,
-  @Assisted private val dataCollectionViewModel: DataCollectionViewModel
+  @Assisted private val dataCollectionViewModel: DataCollectionViewModel,
+  private val locationController: LocationController,
+  private val mapController: MapController
 ) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
@@ -50,6 +55,12 @@ constructor(
           viewModel as PhotoTaskViewModel,
           dataCollectionViewModel,
           userMediaRepository
+        )
+      Task.Type.GPS ->
+        GpsDataCollectionFragment(
+          task,
+          viewModel,
+          BaseMapViewModel(locationController, mapController)
         )
       else -> DataCollectionTaskFragment()
     }
