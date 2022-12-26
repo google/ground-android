@@ -23,7 +23,7 @@ import com.google.android.ground.MainActivity
 import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toModelObject
@@ -64,7 +64,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     mapFragment.disableGestures()
   }
 
-  override fun getMapViewModel(): AbstractMapViewModel {
+  override fun getMapViewModel(): BaseMapViewModel {
     TODO("Not yet implemented")
   }
 

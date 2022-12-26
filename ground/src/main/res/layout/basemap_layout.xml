@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.common.AbstractMapViewModel" />
+      type="com.google.android.ground.ui.common.BaseMapViewModel" />
   </data>
 
   <FrameLayout

@@ -30,7 +30,7 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import timber.log.Timber
 
-abstract class AbstractMapViewModel(
+open class BaseMapViewModel(
   private val locationController: LocationController,
   mapController: MapController
 ) : AbstractViewModel() {
@@ -100,7 +100,7 @@ abstract class AbstractMapViewModel(
   private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.getOrDefault(false)
 
   /** Called when the map camera is moved by the user. */
-  abstract fun onMapCameraMoved(newCameraPosition: CameraPosition)
+  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {}
 
   companion object {
     private const val LOCATION_LOCK_ICON_ENABLED = R.color.colorMapBlue

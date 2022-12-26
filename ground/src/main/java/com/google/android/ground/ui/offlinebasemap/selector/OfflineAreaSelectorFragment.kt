@@ -26,7 +26,7 @@ import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapFragment
@@ -94,7 +94,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
       .subscribe(viewModel::setViewport)
   }
 
-  override fun getMapViewModel(): AbstractMapViewModel {
+  override fun getMapViewModel(): BaseMapViewModel {
     TODO("Not yet implemented")
   }
 }
