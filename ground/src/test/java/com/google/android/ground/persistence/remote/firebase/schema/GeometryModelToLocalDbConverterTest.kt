@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firebase
+package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.geometry.*
 import com.google.firebase.firestore.GeoPoint
