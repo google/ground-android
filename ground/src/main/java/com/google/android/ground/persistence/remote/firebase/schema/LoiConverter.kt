@@ -19,7 +19,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.GeometryConverter
 import com.google.firebase.firestore.DocumentSnapshot
 
 // TODO: Add tests.
