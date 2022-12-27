@@ -17,7 +17,7 @@ package com.google.android.ground.persistence.remote
 
 import com.google.android.ground.Config
 import com.google.android.ground.persistence.remote.firebase.FirestoreDataStore
-import com.google.android.ground.persistence.remote.firebase.FirestoreStorageManager
+import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
 import com.google.android.ground.persistence.remote.firebase.FirestoreUuidGenerator
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.firebase.firestore.FirebaseFirestore
@@ -45,7 +45,7 @@ abstract class RemoteStorageModule {
   /** Provides the Firestore implementation of remote storage manager. */
   @Binds
   @Singleton
-  abstract fun remoteStorageManager(fsm: FirestoreStorageManager): RemoteStorageManager
+  abstract fun remoteStorageManager(fsm: FirebaseStorageManager): RemoteStorageManager
 
   companion object {
     @Provides
