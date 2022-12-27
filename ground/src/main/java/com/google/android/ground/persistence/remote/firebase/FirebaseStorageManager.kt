@@ -36,7 +36,7 @@ import timber.log.Timber
 // TODO: Add column to Submission table for storing uploaded media urls
 // TODO: Synced to remote db as well
 @Singleton
-class FirestoreStorageManager @Inject constructor() : RemoteStorageManager {
+class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
 
   @Inject lateinit var storageReference: StorageReference
 

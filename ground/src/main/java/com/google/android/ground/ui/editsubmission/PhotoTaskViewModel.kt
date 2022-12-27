@@ -22,7 +22,7 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.remote.firebase.FirestoreStorageManager.Companion.getRemoteMediaPath
+import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
 import java.io.File
