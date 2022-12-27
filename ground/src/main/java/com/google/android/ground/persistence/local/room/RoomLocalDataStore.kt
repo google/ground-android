@@ -645,12 +645,11 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         list.map { it.toModelObject(survey) }.toImmutableList()
       }
 
-  private fun <R> logAndSkip(supplier: Supplier<R>): Iterable<R> {
-    return try {
+  private fun <R> logAndSkip(supplier: Supplier<R>): Iterable<R> =
+    try {
       setOf(supplier.get())
     } catch (e: RuntimeException) {
       Timber.d(e.message)
       emptySet()
     }
-  }
 }
