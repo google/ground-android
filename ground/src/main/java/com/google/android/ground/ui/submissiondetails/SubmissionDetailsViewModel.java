@@ -104,7 +104,7 @@ public class SubmissionDetailsViewModel extends AbstractViewModel {
   /**
    * Creates an {@link com.google.android.ground.model.mutation.SubmissionMutation}, marks the
    * locally stored {@link Submission} as DELETED and enqueues a worker to remove the submission
-   * from remote {@link com.google.android.ground.persistence.remote.firestore.FirestoreDataStore}.
+   * from remote {@link com.google.android.ground.persistence.remote.firebase.FirestoreDataStore}.
    */
   @Hot
   public Completable deleteCurrentSubmission(
