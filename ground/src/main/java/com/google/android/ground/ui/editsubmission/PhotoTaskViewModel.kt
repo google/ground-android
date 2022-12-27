@@ -34,10 +34,10 @@ import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
-import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
@@ -48,10 +48,6 @@ constructor(
   resources: Resources
 ) : AbstractTaskViewModel(resources) {
 
-  // TODO(jsunde): This logic is currently duplicated here and in EditSubmissionViewModel.
-  //  If it's here it can easily be used for the DataCollectionFragment, but is slightly more
-  //  complicated to reuse from the EditSubmissionFragment. I should explore some more to see if
-  //  it's possible to remove this logic from the EditSubmissionViewModel
   /**
    * Emits the last photo task id updated and either its photo result, or empty if removed. The last
    * value is emitted on each subscription because {@see #onPhotoResult} is called before
@@ -91,7 +87,6 @@ constructor(
     showDialogClicks.onNext(task)
   }
 
-  // TODO(jsunde): Switch this to a channel or a simple callback
   fun getShowDialogClicks(): @Hot Observable<Task> = showDialogClicks
 
   fun setEditable(enabled: Boolean) {

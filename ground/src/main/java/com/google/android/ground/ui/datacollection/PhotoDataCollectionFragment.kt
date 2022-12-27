@@ -42,11 +42,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
 import timber.log.Timber
 
-/** Fragment allowing the user to capture a photo to complete a task. */
+/** Fragment allowing the user to capture a photo to complete a photoTask. */
 @AndroidEntryPoint
 class PhotoDataCollectionFragment
 constructor(
-  private val task: Task,
+  private val photoTask: Task,
   private val viewModel: PhotoTaskViewModel,
   private val dataCollectionViewModel: DataCollectionViewModel,
   private val userMediaRepository: UserMediaRepository
@@ -122,7 +122,7 @@ constructor(
     recyclerView.layoutManager = LinearLayoutManager(context)
     recyclerView.adapter = AddPhotoDialogAdapter { type: Int ->
       bottomSheetDialog.dismiss()
-      onSelectPhotoClick(type, task.id)
+      onSelectPhotoClick(type, photoTask.id)
     }
   }
 

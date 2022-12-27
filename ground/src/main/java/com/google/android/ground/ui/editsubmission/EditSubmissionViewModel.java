@@ -79,6 +79,9 @@ public class EditSubmissionViewModel extends AbstractViewModel {
   /** Arguments passed in from view on initialize(). */
   @Hot(replays = true)
   private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs = BehaviorProcessor.create();
+  // TODO(#1146): Reduce duplicate photo capture logic between here and PhotoTaskViewModel.
+  //  Note: This may be unnecessary since the EditSubmissionFragment may be removed altogether in
+  //  favor of an "Edit" mode for the Data Collection Flow.
   /**
    * Emits the last photo task id updated and either its photo result, or empty if removed. The last
    * value is emitted on each subscription because {@see #onPhotoResult} is called before
