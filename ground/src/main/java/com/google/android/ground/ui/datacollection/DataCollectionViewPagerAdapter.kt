@@ -42,10 +42,10 @@ constructor(
     val viewModel = dataCollectionViewModel.getTaskViewModel(position, task)
 
     return when (task.type) {
-      Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
-      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
+      Task.Type.TEXT -> QuestionTaskFragment(task, viewModel)
+      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment(task, viewModel)
       Task.Type.PHOTO ->
-        PhotoDataCollectionFragment(
+        PhotoTaskFragment(
           task,
           viewModel as PhotoTaskViewModel,
           dataCollectionViewModel,

@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.databinding.EditSubmissionBottomSheetBinding
-import com.google.android.ground.databinding.PhotoDataCollectionFragBinding
+import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
@@ -42,11 +42,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
 import timber.log.Timber
 
-/** Fragment allowing the user to capture a photo to complete a photoTask. */
+/** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
-class PhotoDataCollectionFragment
+class PhotoTaskFragment
 constructor(
-  private val photoTask: Task,
+  private val task: Task,
   private val viewModel: PhotoTaskViewModel,
   private val dataCollectionViewModel: DataCollectionViewModel,
   private val userMediaRepository: UserMediaRepository
@@ -69,7 +69,7 @@ constructor(
         viewModel.onCapturePhotoResult(result)
       }
 
-    val binding = PhotoDataCollectionFragBinding.inflate(inflater, container, false)
+    val binding = PhotoTaskFragBinding.inflate(inflater, container, false)
 
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
@@ -122,7 +122,7 @@ constructor(
     recyclerView.layoutManager = LinearLayoutManager(context)
     recyclerView.adapter = AddPhotoDialogAdapter { type: Int ->
       bottomSheetDialog.dismiss()
-      onSelectPhotoClick(type, photoTask.id)
+      onSelectPhotoClick(type, task.id)
     }
   }
 
