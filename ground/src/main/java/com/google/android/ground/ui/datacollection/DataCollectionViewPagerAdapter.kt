@@ -18,12 +18,11 @@ package com.google.android.ground.ui.datacollection
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.common.ViewModelFactory
-import com.google.android.ground.ui.editsubmission.TaskViewFactory
+import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import java8.util.Optional
 
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
@@ -31,7 +30,7 @@ import java8.util.Optional
 class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
-  private val viewModelFactory: ViewModelFactory,
+  private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
   @Assisted private val tasks: ImmutableList<Task>,
   @Assisted private val dataCollectionViewModel: DataCollectionViewModel
@@ -40,15 +39,18 @@ constructor(
 
   override fun createFragment(position: Int): Fragment {
     val task = tasks[position]
-    val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(task.type))
+    val viewModel = dataCollectionViewModel.getTaskViewModel(position, task)
 
-    // TODO(#1146): Pass in the existing taskData if there is one
-    viewModel.initialize(task, Optional.empty())
-
-    dataCollectionViewModel.addTaskViewModel(viewModel)
     return when (task.type) {
-      Task.Type.TEXT -> QuestionDataCollectionFragment(task, viewModel)
-      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceDataCollectionFragment(task, viewModel)
+      Task.Type.TEXT -> QuestionTaskFragment(task, viewModel)
+      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment(task, viewModel)
+      Task.Type.PHOTO ->
+        PhotoTaskFragment(
+          task,
+          viewModel as PhotoTaskViewModel,
+          dataCollectionViewModel,
+          userMediaRepository
+        )
       else -> DataCollectionTaskFragment()
     }
   }

@@ -27,7 +27,7 @@ import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.BR
 import com.google.android.ground.R
-import com.google.android.ground.databinding.MultipleChoiceDataCollectionFragBinding
+import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
@@ -39,7 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * task.
  */
 @AndroidEntryPoint
-class MultipleChoiceDataCollectionFragment
+class MultipleChoiceTaskFragment
 constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) :
   AbstractFragment() {
   override fun onCreateView(
@@ -48,7 +48,7 @@ constructor(private val task: Task, private val viewModel: AbstractTaskViewModel
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = MultipleChoiceDataCollectionFragBinding.inflate(inflater, container, false)
+    val binding = MultipleChoiceTaskFragBinding.inflate(inflater, container, false)
 
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
