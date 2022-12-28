@@ -47,13 +47,13 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment : AbstractMapContainerFragment() {
+class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
   @Inject lateinit var navigator: Navigator
 
   lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
-  private lateinit var mapContainerViewModel: MapContainerViewModel
+  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: MapContainerFragBinding
 
@@ -61,7 +61,7 @@ class MapContainerFragment : AbstractMapContainerFragment() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mapContainerViewModel = getViewModel(MapContainerViewModel::class.java)
+    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     val locationOfInterestRepositionViewModel =
       getViewModel(LocationOfInterestRepositionViewModel::class.java)
@@ -95,7 +95,7 @@ class MapContainerFragment : AbstractMapContainerFragment() {
     locationOfInterestRepositionViewModel
       .getCancelButtonClicks()
       .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT) }
+      .subscribe { mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT) }
     mapContainerViewModel
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
@@ -191,7 +191,7 @@ class MapContainerFragment : AbstractMapContainerFragment() {
       .setTitle(R.string.move_point_confirmation)
       .setPositiveButton(android.R.string.ok) { _, _ -> moveToNewPosition(point) }
       .setNegativeButton(android.R.string.cancel) { _, _ ->
-        mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT)
+        mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT)
       }
       .setCancelable(true)
       .create()

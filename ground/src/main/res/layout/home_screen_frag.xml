@@ -33,11 +33,11 @@
 
       <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map_container_fragment"
-        android:name="com.google.android.ground.ui.home.mapcontainer.MapContainerFragment"
+        android:name="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapContainerLayoutBehavior" />
+        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerLayoutBehavior" />
 
       <FrameLayout
         android:id="@+id/map_scrim"

@@ -25,7 +25,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.ground.R
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,7 +39,7 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
     // TODO: Adjust size based on selection state.
     var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-    if (currentZoomLevel >= MapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
+    if (currentZoomLevel >= HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
       scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
     }
     if (isSelected) {

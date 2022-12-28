@@ -45,7 +45,7 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
@@ -84,7 +84,7 @@ class HomeScreenFragment :
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
-  private lateinit var mapContainerViewModel: MapContainerViewModel
+  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var surveySelectorViewModel: SurveySelectorViewModel
 
@@ -97,7 +97,7 @@ class HomeScreenFragment :
       ->
       onApplyWindowInsets(insets)
     }
-    mapContainerViewModel = getViewModel(MapContainerViewModel::class.java)
+    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
     surveySelectorViewModel = getViewModel(SurveySelectorViewModel::class.java)
     locationOfInterestSelectorViewModel =
@@ -131,9 +131,9 @@ class HomeScreenFragment :
   private fun onPolygonDrawingStateUpdated(state: PolygonDrawingState) {
     Timber.v("PolygonDrawing state : %s", state)
     if (state.isInProgress) {
-      mapContainerViewModel.setMode(MapContainerViewModel.Mode.DRAW_POLYGON)
+      mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DRAW_POLYGON)
     } else {
-      mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT)
+      mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT)
       if (state.isCompleted) {
         homeScreenViewModel.addPolygonOfInterest(
           checkNotNull(state.unsavedPolygonLocationOfInterest)
@@ -170,7 +170,7 @@ class HomeScreenFragment :
    */
   private fun onLocationOfInterestUpdated(result: Boolean) {
     if (result) {
-      mapContainerViewModel.setMode(MapContainerViewModel.Mode.DEFAULT)
+      mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT)
     }
   }
 
@@ -283,7 +283,7 @@ class HomeScreenFragment :
     when (item.itemId) {
       R.id.move_loi_menu_item -> {
         hideBottomSheet()
-        mapContainerViewModel.setMode(MapContainerViewModel.Mode.MOVE_POINT)
+        mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.MOVE_POINT)
         mapContainerViewModel.reposLocationOfInterest = loi
         Toast.makeText(context, R.string.move_point_hint, Toast.LENGTH_SHORT).show()
       }

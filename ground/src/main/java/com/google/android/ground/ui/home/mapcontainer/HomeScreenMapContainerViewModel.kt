@@ -51,7 +51,7 @@ import javax.inject.Inject
 import timber.log.Timber
 
 @SharedViewModel
-class MapContainerViewModel
+class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val resources: Resources,

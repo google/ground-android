@@ -22,7 +22,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -54,7 +54,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
     val bitmap =
       markerIconFactory.getMarkerBitmap(
         Color.BLUE,
-        MapContainerViewModel.ZOOM_LEVEL_THRESHOLD - 0.1f
+        HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD - 0.1f
       )
 
     val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
@@ -64,7 +64,10 @@ class MarkerIconFactoryTest : BaseHiltTest() {
   @Test
   fun markerBitmap_zoomedIn_scaleIsSetCorrectly() {
     val bitmap =
-      markerIconFactory.getMarkerBitmap(Color.BLUE, MapContainerViewModel.ZOOM_LEVEL_THRESHOLD)
+      markerIconFactory.getMarkerBitmap(
+        Color.BLUE,
+        HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD
+      )
 
     val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
     verifyBitmapScale(bitmap, scale)
@@ -75,7 +78,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
     val bitmap =
       markerIconFactory.getMarkerBitmap(
         Color.BLUE,
-        MapContainerViewModel.ZOOM_LEVEL_THRESHOLD - 0.1f,
+        HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD - 0.1f,
         true
       )
 
@@ -88,7 +91,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
     val bitmap =
       markerIconFactory.getMarkerBitmap(
         Color.BLUE,
-        MapContainerViewModel.ZOOM_LEVEL_THRESHOLD,
+        HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD,
         true
       )
 
