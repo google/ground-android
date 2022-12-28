@@ -48,7 +48,6 @@ import com.google.android.ground.persistence.local.room.relations.SurveyEntityAn
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.ui.util.FileUtil
-import com.google.android.ground.util.StreamUtil.logErrorsAndSkipKt
 import com.google.android.ground.util.toImmutableList
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.base.Preconditions
@@ -57,6 +56,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.*
+import java8.util.function.Supplier
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -210,9 +210,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     survey: Survey,
     locationOfInterestEntities: List<LocationOfInterestEntity>
   ): ImmutableSet<LocationOfInterest> =
-    locationOfInterestEntities
-      .flatMap { logErrorsAndSkipKt { it.toModelObject(survey) } }
-      .toImmutableSet()
+    locationOfInterestEntities.flatMap { logAndSkip { it.toModelObject(survey) } }.toImmutableSet()
 
   override fun getLocationOfInterest(
     survey: Survey,
@@ -250,7 +248,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     submissionEntities: List<SubmissionEntity>
   ): ImmutableList<Submission> =
     submissionEntities
-      .flatMap { logErrorsAndSkipKt { it.toModelObject(locationOfInterest) } }
+      .flatMap { logAndSkip { it.toModelObject(locationOfInterest) } }
       .toImmutableList()
 
   override val tileSetsOnceAndStream: Flowable<ImmutableSet<TileSet>>
@@ -646,4 +644,12 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .map { list: List<SubmissionMutationEntity> ->
         list.map { it.toModelObject(survey) }.toImmutableList()
       }
+
+  private fun <R> logAndSkip(supplier: Supplier<R>): Iterable<R> =
+    try {
+      setOf(supplier.get())
+    } catch (e: RuntimeException) {
+      Timber.d(e.message)
+      emptySet()
+    }
 }
