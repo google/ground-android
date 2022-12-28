@@ -37,7 +37,7 @@ constructor(private val task: Task, private val viewModel: AbstractTaskViewModel
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = QuestionDataCollectionFragBinding.inflate(inflater, container, false)
+    val binding = QuestionTaskFragBinding.inflate(inflater, container, false)
 
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
