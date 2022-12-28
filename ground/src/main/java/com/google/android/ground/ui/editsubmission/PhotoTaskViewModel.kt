@@ -34,10 +34,10 @@ import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
