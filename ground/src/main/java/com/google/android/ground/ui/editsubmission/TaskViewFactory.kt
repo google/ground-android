@@ -55,8 +55,8 @@ class TaskViewFactory @Inject internal constructor() {
   }
 
   companion object {
-    fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> {
-      return when (taskType) {
+    fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
+      when (taskType) {
         Task.Type.TEXT -> TextTaskViewModel::class.java
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskViewModel::class.java
         Task.Type.PHOTO -> PhotoTaskViewModel::class.java
@@ -65,11 +65,10 @@ class TaskViewFactory @Inject internal constructor() {
         Task.Type.TIME -> TimeTaskViewModel::class.java
         else -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
-    }
 
     @LayoutRes
-    private fun getLayoutId(taskType: Task.Type): Int {
-      return when (taskType) {
+    private fun getLayoutId(taskType: Task.Type): Int =
+      when (taskType) {
         Task.Type.TEXT -> R.layout.text_input_task
         Task.Type.MULTIPLE_CHOICE -> R.layout.multiple_choice_input_task
         Task.Type.PHOTO -> R.layout.photo_input_task
@@ -78,6 +77,5 @@ class TaskViewFactory @Inject internal constructor() {
         Task.Type.TIME -> R.layout.time_input_task
         else -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
-    }
   }
 }
