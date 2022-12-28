@@ -26,11 +26,9 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import com.google.common.collect.ImmutableList
@@ -46,6 +44,7 @@ import javax.inject.Provider
 class DataCollectionViewModel
 @Inject
 internal constructor(
+  private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
@@ -83,9 +82,15 @@ internal constructor(
   val currentTaskDataLiveData =
     Transformations.switchMap(currentTaskViewModelLiveData) { it?.taskData }
 
+  lateinit var surveyId: String
+  lateinit var submissionId: String
+
   init {
     val submissionStream: Flowable<Loadable<Submission>> =
       argsProcessor.switchMapSingle { args ->
+        surveyId = args.surveyId
+        submissionId = args.submissionId
+
         submissionRepository
           .createSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
           .map { Loadable.loaded(it) }
@@ -111,7 +116,19 @@ internal constructor(
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
-  fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
+  fun getTaskViewModel(position: Int, task: Task): AbstractTaskViewModel {
+    val viewModels = taskViewModels.value ?: throw IllegalStateException()
+    if (position < viewModels.size) {
+      return viewModels[position]
+    }
+    val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(task.type))
+    // TODO(#1146): Pass in the existing taskData if there is one
+    viewModel.initialize(task, Optional.empty())
+    addTaskViewModel(viewModel)
+    return viewModel
+  }
+
+  private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
     taskViewModels.value?.add(taskViewModel)
     taskViewModels.value = taskViewModels.value
   }

@@ -172,7 +172,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       viewModel.setTaskWaitingForPhoto(
           savedInstanceState.getString(BundleKeys.TASK_WAITING_FOR_PHOTO));
       viewModel.setCapturedPhotoPath(
-          savedInstanceState.getParcelable(BundleKeys.CAPTURED_PHOTO_PATH));
+          savedInstanceState.getString(BundleKeys.CAPTURED_PHOTO_PATH));
     }
     viewModel.initialize(EditSubmissionFragmentArgs.fromBundle(args));
   }
@@ -329,7 +329,8 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private void observeSelectPhotoClicks(PhotoTaskViewModel fieldViewModel) {
     fieldViewModel
         .getShowDialogClicks()
-        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getTask()));
+        .as(autoDisposable(getViewLifecycleOwner()))
+        .subscribe(__ -> onShowPhotoSelectorDialog(fieldViewModel.getTask(), fieldViewModel));
   }
 
   private void observePhotoResults(PhotoTaskViewModel fieldViewModel) {
@@ -339,7 +340,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         .subscribe(fieldViewModel::onPhotoResult);
   }
 
-  private void onShowPhotoSelectorDialog(Task task) {
+  private void onShowPhotoSelectorDialog(Task task, PhotoTaskViewModel fieldViewModel) {
     EditSubmissionBottomSheetBinding addPhotoBottomSheetBinding =
         EditSubmissionBottomSheetBinding.inflate(getLayoutInflater());
     addPhotoBottomSheetBinding.setViewModel(viewModel);
@@ -357,7 +358,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         new AddPhotoDialogAdapter(
             type -> {
               bottomSheetDialog.dismiss();
-              onSelectPhotoClick(type, task.getId());
+              onSelectPhotoClick(type, task.getId(), fieldViewModel);
             }));
   }
 
@@ -401,11 +402,11 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     timePickerDialog.show();
   }
 
-  private void onSelectPhotoClick(int type, String fieldId) {
+  private void onSelectPhotoClick(int type, String fieldId, PhotoTaskViewModel fieldViewModel) {
     switch (type) {
       case PHOTO_SOURCE_CAMERA:
         // TODO: Launch intent is not invoked if the permission is not granted by default.
-        viewModel
+        fieldViewModel
             .obtainCapturePhotoPermissions()
             .andThen(Completable.fromAction(() -> launchPhotoCapture(fieldId)))
             .as(autoDisposable(getViewLifecycleOwner()))
@@ -413,7 +414,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
         break;
       case PHOTO_SOURCE_STORAGE:
         // TODO: Launch intent is not invoked if the permission is not granted by default.
-        viewModel
+        fieldViewModel
             .obtainSelectPhotoPermissions()
             .andThen(Completable.fromAction(() -> launchPhotoSelector(fieldId)))
             .as(autoDisposable(getViewLifecycleOwner()))
