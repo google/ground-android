@@ -25,8 +25,8 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
+import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.AbstractMapViewModel
-import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapFragment
@@ -37,7 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class OfflineAreaSelectorFragment : AbstractMapViewerFragment() {
+class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var popups: EphemeralPopups

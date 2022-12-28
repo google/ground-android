@@ -28,8 +28,8 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.AbstractMapViewModel
-import com.google.android.ground.ui.common.AbstractMapViewerFragment
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
@@ -47,7 +47,7 @@ import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
-class MapContainerFragment : AbstractMapViewerFragment() {
+class MapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
   @Inject lateinit var navigator: Navigator

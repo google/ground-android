@@ -32,7 +32,7 @@ import kotlin.math.max
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
-abstract class AbstractMapViewerFragment : AbstractFragment() {
+abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var mapFragment: MapFragment
   @Inject lateinit var mapsRepository: MapsRepository
