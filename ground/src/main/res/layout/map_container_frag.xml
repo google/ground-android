@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel" />
+      type="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel" />
     <variable
       name="homeScreenViewModel"
       type="com.google.android.ground.ui.home.HomeScreenViewModel" />

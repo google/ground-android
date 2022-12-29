@@ -24,7 +24,7 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.home.BottomSheetDependentBehavior
 import com.google.android.ground.ui.home.BottomSheetMetrics
 
-class MapContainerLayoutBehavior(context: Context, attrs: AttributeSet) :
+class HomeScreenMapContainerLayoutBehavior(context: Context, attrs: AttributeSet) :
   BottomSheetDependentBehavior<FrameLayout>(context, attrs) {
   override fun onBottomSheetChanged(
     parent: CoordinatorLayout,

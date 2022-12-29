@@ -25,8 +25,8 @@ import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInt
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestRepositionViewModel
-import com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
 import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel
@@ -58,8 +58,8 @@ abstract class ViewModelModule {
   abstract fun bindPolygonDrawingViewModel(viewModel: PolygonDrawingViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(MapContainerViewModel::class)
-  abstract fun bindMapContainerViewModel(viewModel: MapContainerViewModel): ViewModel
+  @ViewModelKey(HomeScreenMapContainerViewModel::class)
+  abstract fun bindMapContainerViewModel(viewModel: HomeScreenMapContainerViewModel): ViewModel
   @Binds
   @IntoMap
   @ViewModelKey(OfflineAreaSelectorViewModel::class)

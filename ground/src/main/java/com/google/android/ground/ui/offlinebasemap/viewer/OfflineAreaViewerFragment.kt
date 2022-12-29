@@ -22,7 +22,8 @@ import android.view.ViewGroup
 import com.google.android.ground.MainActivity
 import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.ui.common.AbstractMapViewerFragment
+import com.google.android.ground.ui.common.AbstractMapContainerFragment
+import com.google.android.ground.ui.common.AbstractMapViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toModelObject
@@ -31,7 +32,7 @@ import javax.inject.Inject
 
 /** The fragment provides a UI for managing a single offline area on the user's device. */
 @AndroidEntryPoint
-class OfflineAreaViewerFragment @Inject constructor() : AbstractMapViewerFragment() {
+class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFragment() {
 
   @Inject lateinit var navigator: Navigator
 
@@ -61,6 +62,10 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapViewerFragmen
 
   override fun onMapReady(mapFragment: MapFragment) {
     mapFragment.disableGestures()
+  }
+
+  override fun getMapViewModel(): AbstractMapViewModel {
+    TODO("Not yet implemented")
   }
 
   private fun panMap(offlineArea: OfflineArea) {
