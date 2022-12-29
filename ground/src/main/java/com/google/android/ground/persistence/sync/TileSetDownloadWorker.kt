@@ -47,8 +47,7 @@ constructor(
   @Assisted params: WorkerParameters,
   private val localDataStore: LocalDataStore,
   notificationManager: NotificationManager
-) :
-  BaseWorker(context, params, notificationManager, TileSetDownloadWorker::class.java.hashCode()) {
+) : BaseWorker(context, params, notificationManager, TileSetDownloadWorker::class.java.hashCode()) {
   /**
    * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
