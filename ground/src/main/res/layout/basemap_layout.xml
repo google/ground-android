@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2022 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.ground.ui.common.AbstractMapViewModel" />
+  </data>
+
+  <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Placeholder for map implementation -->
+    <FrameLayout
+      android:id="@+id/map"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/overlay"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:fitsSystemWindows="true"
+      tools:background="@color/colorGrey800">
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/map_type_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
+        android:tint="@color/colorGrey500"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="mini"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/map_layers"
+        app:useCompatPadding="true" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/location_lock_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:enabled="@{viewModel.getLocationLockEnabled()}"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_gps_lock"
+        app:tint="@{viewModel.getLocationLockIconTint()}"
+        app:useCompatPadding="true" />
+
+      <!-- Use this container to add overlay views that are anchored to location lock button. -->
+      <FrameLayout
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </FrameLayout>
+</layout>

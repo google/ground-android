@@ -23,7 +23,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
+import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MapContainerFragBinding
+import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
@@ -56,8 +58,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: MapContainerFragBinding
-
-  private val adapter: LoiCardAdapter = LoiCardAdapter()
+  private lateinit var adapter: LoiCardAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -100,6 +101,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
+
+    adapter = LoiCardAdapter()
+    adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
+    adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
     loiCardSource.locationsOfInterest.observe(this) { adapter.updateData(it) }
   }
 
@@ -112,16 +117,32 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
-    setupRecyclerView(binding.mapControls.recyclerView)
     return binding.root
   }
 
-  private fun setupRecyclerView(recyclerView: RecyclerView) {
-    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    setupMenuFab()
+    setupBottomLoiCards()
+  }
+
+  private fun setupMenuFab() {
+    val mapOverlay = binding.basemap.overlay
+    val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
+    menuBinding.homeScreenViewModel = homeScreenViewModel
+    menuBinding.lifecycleOwner = this
+  }
+
+  private fun setupBottomLoiCards() {
+    val container = binding.basemap.bottomContainer
+    val recyclerViewBinding = LoiCardsRecyclerViewBinding.inflate(layoutInflater, container, true)
+    val recyclerView = recyclerViewBinding.recyclerView
+    recyclerView.adapter = adapter
     recyclerView.addOnScrollListener(
       object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
           super.onScrollStateChanged(recyclerView, newState)
+          val layoutManager = recyclerView.layoutManager as LinearLayoutManager
           val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
           val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
           val firstCompletelyVisiblePosition =
@@ -137,9 +158,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         }
       }
     )
-    adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
-    adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    recyclerView.adapter = adapter
   }
 
   private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
