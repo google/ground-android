@@ -171,9 +171,7 @@ constructor(
           downloadedTileSetsIntersection(tileSet, tiles)
         }
       } // If no tile sources are found, we report the area takes up 0.0mb on the device.
-      .doOnError { throwable ->
-        Timber.d(throwable, "no tile sources found for area $offlineArea")
-      }
+      .doOnError { throwable -> Timber.d(throwable, "no tile sources found for area $offlineArea") }
       .onErrorReturn { ImmutableSet.of() }
 
   /**
