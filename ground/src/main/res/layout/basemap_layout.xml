@@ -21,8 +21,6 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
-    <import type="androidx.core.content.ContextCompat" />
-    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.common.AbstractMapViewModel" />
