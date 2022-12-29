@@ -60,7 +60,7 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
      * (i.e., omitting intermediate loading and error states).
      */
     @JvmStatic
-    fun <V> values(stream: Flowable<Loadable<V?>>): Publisher<V> =
+    fun <V> values(stream: Flowable<Loadable<V>>): Publisher<V> =
       stream.filter { it.isLoaded }.map { it.value().get() }
 
     /**
