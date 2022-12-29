@@ -61,7 +61,7 @@ constructor(
   @Throws(IOException::class)
   private fun downloadOfflineBaseMapSource(baseMap: BaseMap): File {
     val baseMapUrl = baseMap.url
-    Timber.d("Basemap url: %s, file: %s", baseMapUrl, baseMapUrl.file)
+    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl.file}")
     val localFile = fileUtil.getOrCreateFile(baseMapUrl.file)
 
     FileUtils.copyURLToFile(baseMapUrl, localFile)
@@ -172,7 +172,7 @@ constructor(
         }
       } // If no tile sources are found, we report the area takes up 0.0mb on the device.
       .doOnError { throwable ->
-        Timber.d(throwable, "no tile sources found for area %s", offlineArea)
+        Timber.d(throwable, "no tile sources found for area $offlineArea")
       }
       .onErrorReturn { ImmutableSet.of() }
 
