@@ -24,7 +24,7 @@ constructor(
   val id: String,
   /** Returns the sequential index of the task, used by UIs to sort prompts and results. */
   val index: Int,
-  val type: Type,
+  var type: Type,  // DO NOT MERGE!!!
   val label: String,
   val isRequired: Boolean,
   val multipleChoice: MultipleChoice? = null

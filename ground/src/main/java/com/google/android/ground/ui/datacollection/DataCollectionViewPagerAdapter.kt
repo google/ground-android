@@ -44,6 +44,8 @@ constructor(
 
   override fun createFragment(position: Int): Fragment {
     val task = tasks[position]
+    task.type = Task.Type.GPS // DO NOT MERGE!!!
+
     val viewModel = dataCollectionViewModel.getTaskViewModel(position, task)
 
     return when (task.type) {

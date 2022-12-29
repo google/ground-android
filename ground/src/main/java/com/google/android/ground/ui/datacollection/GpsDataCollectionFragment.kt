@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.GpsDataCollectionFragBinding
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.common.AbstractMapViewerFragment
+import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.MapFragment
@@ -18,7 +18,7 @@ class GpsDataCollectionFragment(
   private val task: Task,
   private val viewModel: AbstractTaskViewModel,
   private val mapViewModel: BaseMapViewModel
-) : AbstractMapViewerFragment() {
+) : AbstractMapContainerFragment() {
 
   override fun onCreateView(
     inflater: LayoutInflater,

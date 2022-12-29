@@ -63,6 +63,7 @@ class TaskViewFactory @Inject internal constructor() {
         Task.Type.NUMBER -> NumberTaskViewModel::class.java
         Task.Type.DATE -> DateTaskViewModel::class.java
         Task.Type.TIME -> TimeTaskViewModel::class.java
+        Task.Type.GPS -> GpsTaskViewModel::class.java
         else -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
 
