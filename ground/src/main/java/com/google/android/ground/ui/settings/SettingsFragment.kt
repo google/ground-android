@@ -27,14 +27,14 @@ import com.google.android.ground.R
 /**
  * Fragment containing app preferences saved as shared preferences.
  *
- *
  * NOTE: It uses [PreferenceFragmentCompat] instead of [ ], so dagger can't inject into it like it
  * does in other fragments.
  *
- *
  * TODO: Create dagger module and support injection into this fragment.
  */
-class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener,
+class SettingsFragment :
+  PreferenceFragmentCompat(),
+  Preference.OnPreferenceChangeListener,
   Preference.OnPreferenceClickListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +47,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
   override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
     setPreferencesFromResource(R.xml.preferences, rootKey)
     for (key in Keys.ALL_KEYS) {
-      val preference = findPreference<Preference>(key)
-        ?: throw IllegalArgumentException("Key not found in preferences.xml: $key")
+      val preference =
+        findPreference<Preference>(key)
+          ?: throw IllegalArgumentException("Key not found in preferences.xml: $key")
 
       preference.onPreferenceChangeListener = this
       preference.onPreferenceClickListener = this
@@ -57,7 +58,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
   override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
     when (preference.key) {
-      Keys.UPLOAD_MEDIA, Keys.OFFLINE_AREAS -> {}
+      Keys.UPLOAD_MEDIA,
+      Keys.OFFLINE_AREAS -> {}
       else -> {}
     }
     return true

@@ -16,22 +16,22 @@
 package com.google.android.ground.ui.map.gms
 
 import com.google.android.gms.maps.model.UrlTileProvider
-import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
+import timber.log.Timber
 
 /**
  * Fetches tile imagery from a server according to a formatted URL.
- *
  *
  * Tile URLs should have the format: host/z/x/y
  */
 class WebTileProvider(private val formatUrl: String) : UrlTileProvider(256, 256) {
   override fun getTileUrl(x: Int, y: Int, z: Int): URL? {
-    val url = formatUrl
-      .replace("\${z}", z.toString())
-      .replace("\${x}", x.toString())
-      .replace("\${y}", y.toString())
+    val url =
+      formatUrl
+        .replace("\${z}", z.toString())
+        .replace("\${x}", x.toString())
+        .replace("\${y}", y.toString())
     return try {
       URL(url)
     } catch (e: MalformedURLException) {

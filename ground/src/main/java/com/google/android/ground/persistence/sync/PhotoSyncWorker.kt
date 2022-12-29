@@ -25,23 +25,24 @@ import com.google.android.ground.system.NotificationManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
+import timber.log.Timber
 
 /**
  * A worker that uploads photos from submissions to the FirestoreStorage in the background. The
- * source file and remote destination path are provided in a [Data] object. This worker should
- * only run when the device has a network connection.
+ * source file and remote destination path are provided in a [Data] object. This worker should only
+ * run when the device has a network connection.
  */
 @HiltWorker
-class PhotoSyncWorker @AssistedInject constructor(
+class PhotoSyncWorker
+@AssistedInject
+constructor(
   @Assisted context: Context,
   @Assisted workerParams: WorkerParameters,
   private val remoteStorageManager: RemoteStorageManager,
   notificationManager: NotificationManager
-) :
-  BaseWorker(context, workerParams, notificationManager, PhotoSyncWorker::class.java.hashCode()) {
+) : BaseWorker(context, workerParams, notificationManager, PhotoSyncWorker::class.java.hashCode()) {
   private val localSourcePath: String =
     workerParams.inputData.getString(SOURCE_FILE_PATH_PARAM_KEY)!!
   private val remoteDestinationPath: String =
@@ -56,11 +57,7 @@ class PhotoSyncWorker @AssistedInject constructor(
         remoteStorageManager
           .uploadMediaFromFile(file, remoteDestinationPath)
           .compose { upstream -> this.notifyTransferState(upstream) }
-          .blockingForEach { progress ->
-            sendNotification(
-              progress
-            )
-          }
+          .blockingForEach { progress -> sendNotification(progress) }
         Result.success()
       } catch (e: Exception) {
         FirebaseCrashlytics.getInstance().log("Photo sync failed")
@@ -84,9 +81,10 @@ class PhotoSyncWorker @AssistedInject constructor(
     private const val DESTINATION_PATH_PARAM_KEY = "destinationPath"
 
     @JvmStatic
-    fun createInputData(sourceFilePath: String, destinationPath: String): Data = Data.Builder()
-      .putString(SOURCE_FILE_PATH_PARAM_KEY, sourceFilePath)
-      .putString(DESTINATION_PATH_PARAM_KEY, destinationPath)
-      .build()
+    fun createInputData(sourceFilePath: String, destinationPath: String): Data =
+      Data.Builder()
+        .putString(SOURCE_FILE_PATH_PARAM_KEY, sourceFilePath)
+        .putString(DESTINATION_PATH_PARAM_KEY, destinationPath)
+        .build()
   }
 }
