@@ -40,12 +40,22 @@ abstract class AbstractMapViewModel(
 
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
   val locationLockIconTint: LiveData<Int>
+  val locationLockIcon: LiveData<Int>
   val locationLockState: LiveData<Result<Boolean>>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     val locationLockStateFlowable = locationController.getLocationLockUpdates()
     locationLockIconTint =
+      LiveDataReactiveStreams.fromPublisher(
+        locationLockStateFlowable
+          .map { lockState ->
+            if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_TINT_ENABLED
+            else LOCATION_LOCK_ICON_TINT_DISABLED
+          }
+          .startWith(LOCATION_LOCK_ICON_TINT_DISABLED)
+      )
+    locationLockIcon =
       LiveDataReactiveStreams.fromPublisher(
         locationLockStateFlowable
           .map { lockState ->
@@ -103,7 +113,11 @@ abstract class AbstractMapViewModel(
   abstract fun onMapCameraMoved(newCameraPosition: CameraPosition)
 
   companion object {
-    private const val LOCATION_LOCK_ICON_ENABLED = R.color.colorMapBlue
-    private const val LOCATION_LOCK_ICON_DISABLED = R.color.colorGrey800
+    private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.colorMapBlue
+    private const val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.colorGrey800
+    
+    // TODO(Shobhit): Consider adding another icon for representing "GPS disabled" state.
+    private const val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
+    private const val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
   }
 }

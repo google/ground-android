@@ -66,9 +66,9 @@
         android:onClick="@{() -> viewModel.onLocationLockClick()}"
         app:backgroundTint="@color/colorBackground"
         app:fabSize="normal"
+        app:imageResource="@{viewModel.getLocationLockIcon()}"
         app:layout_constraintBottom_toTopOf="@+id/bottom_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_gps_lock"
         app:tint="@{viewModel.getLocationLockIconTint()}"
         app:useCompatPadding="true" />
 
