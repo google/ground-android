@@ -28,7 +28,7 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.er
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.loaded
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
-import com.google.android.ground.persistence.sync.DataSyncWorkManager
+import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
@@ -56,7 +56,7 @@ import org.robolectric.RobolectricTestRunner
 class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
   @BindValue @Mock lateinit var mockSurveyRepository: SurveyRepository
-  @BindValue @Mock lateinit var mockWorkManager: DataSyncWorkManager
+  @BindValue @Mock lateinit var mockWorkManager: MutationSyncWorkManager
 
   @Captor lateinit var captorLoiMutation: ArgumentCaptor<LocationOfInterestMutation>
 

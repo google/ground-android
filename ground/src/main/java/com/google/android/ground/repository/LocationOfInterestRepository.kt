@@ -30,7 +30,7 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.persistence.sync.DataSyncWorkManager
+import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -55,7 +55,7 @@ constructor(
   private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
   private val surveyRepository: SurveyRepository,
-  private val dataSyncWorkManager: DataSyncWorkManager,
+  private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val authManager: AuthenticationManager,
   private val uuidGenerator: OfflineUuidGenerator
 ) {
@@ -162,7 +162,7 @@ constructor(
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
     val localTransaction = localDataStore.applyAndEnqueue(mutation)
-    val remoteSync = dataSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
     return localTransaction.andThen(remoteSync)
   }
 

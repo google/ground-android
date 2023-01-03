@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
  * In case the required criteria are not met, the next attempt uses LINEAR backoff policy with a
  * backoff delay of 10 seconds.
  */
-abstract class BaseWorkManager {
+abstract class SyncService {
   /** A set of constraints that must be satisfied in order to start the scheduled job. */
   private val workerConstraints: Constraints
     get() = Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build()

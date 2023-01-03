@@ -30,7 +30,7 @@ constructor(
   private val workManager: WorkManager,
   private val localValueStore: LocalValueStore,
   private val userMediaRepository: UserMediaRepository
-) : BaseWorkManager() {
+) : SyncService() {
   override val workerClass: Class<PhotoSyncWorker>
     get() = PhotoSyncWorker::class.java
 
