@@ -26,12 +26,7 @@ import timber.log.Timber
 
 class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
   ClusterManager<LocationOfInterestClusterItem>(context, map) {
-
-  private val renderer: LocationOfInterestClusterRenderer =
-    LocationOfInterestClusterRenderer(context, map, this)
   var activeLocationOfInterest: String? = null
-
-  override fun getRenderer(): LocationOfInterestClusterRenderer = renderer
 
   fun addOrUpdateLocationOfInterest(locationOfInterest: LocationOfInterest) {
     if (locationOfInterest.geometry !is Point) {
@@ -69,4 +64,8 @@ class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
 
   fun getMapLocationsOfInterest() =
     algorithm.items.map { MapLocationOfInterest(it.locationOfInterest) }.toImmutableSet()
+
+  init {
+    this.renderer = LocationOfInterestClusterRenderer(context, map, this)
+  }
 }
