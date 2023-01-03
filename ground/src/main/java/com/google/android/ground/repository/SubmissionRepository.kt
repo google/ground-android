@@ -26,7 +26,7 @@ import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.persistence.sync.DataSyncWorkManager
+import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -52,7 +52,7 @@ constructor(
   private val localDataStore: LocalDataStore,
   private val remoteDataStore: RemoteDataStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val dataSyncWorkManager: DataSyncWorkManager,
+  private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authManager: AuthenticationManager
 ) {
@@ -174,7 +174,7 @@ constructor(
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
     localDataStore
       .applyAndEnqueue(mutation)
-      .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
+      .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
 
   /**
    * Returns all [SubmissionMutation] instances for a given location of interest which have not yet

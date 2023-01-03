@@ -22,8 +22,8 @@ import io.reactivex.Completable
 import javax.inject.Inject
 
 /** Enqueues data sync work to be done in the background. */
-class DataSyncWorkManager @Inject constructor(private val workManager: WorkManager) :
-  BaseWorkManager() {
+class MutationSyncWorkManager @Inject constructor(private val workManager: WorkManager) :
+  SyncService() {
   override val workerClass: Class<LocalMutationSyncWorker>
     get() = LocalMutationSyncWorker::class.java
 

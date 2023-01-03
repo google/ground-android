@@ -25,7 +25,7 @@ import javax.inject.Inject
 class TileSetDownloadWorkManager
 @Inject
 constructor(private val workManager: WorkManager, private val localValueStore: LocalValueStore) :
-  BaseWorkManager() {
+  SyncService() {
   override val workerClass: Class<TileSetDownloadWorker>
     get() = TileSetDownloadWorker::class.java
 
