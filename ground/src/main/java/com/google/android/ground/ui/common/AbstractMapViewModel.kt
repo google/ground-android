@@ -115,7 +115,7 @@ abstract class AbstractMapViewModel(
   companion object {
     private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.colorMapBlue
     private const val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.colorGrey800
-    
+
     // TODO(Shobhit): Consider adding another icon for representing "GPS disabled" state.
     private const val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
     private const val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
