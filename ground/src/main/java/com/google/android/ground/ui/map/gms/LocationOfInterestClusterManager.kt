@@ -64,8 +64,4 @@ class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
 
   fun getMapLocationsOfInterest() =
     algorithm.items.map { MapLocationOfInterest(it.locationOfInterest) }.toImmutableSet()
-
-  init {
-    this.renderer = LocationOfInterestClusterRenderer(context, map, this)
-  }
 }

@@ -173,6 +173,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     this.map = map
     this.clusterManager = LocationOfInterestClusterManager(context, map)
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
+    clusterManager.renderer = LocationOfInterestClusterRenderer(context, map, clusterManager)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
