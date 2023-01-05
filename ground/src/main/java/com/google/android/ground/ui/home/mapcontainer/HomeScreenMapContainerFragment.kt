@@ -191,12 +191,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun getMapViewModel(): AbstractMapViewModel = mapContainerViewModel
 
   private fun attachCustomViews(map: MapFragment) {
-    val repositionView = LocationOfInterestRepositionView(requireContext(), map)
-    mapContainerViewModel.moveLocationOfInterestVisibility.observe(this) {
-      repositionView.visibility = it
-    }
-    binding.mapOverlay.addView(repositionView)
-
     val polygonDrawingView = PolygonDrawingView(requireContext(), map)
     mapContainerViewModel.getAddPolygonVisibility().observe(this) {
       polygonDrawingView.visibility = it

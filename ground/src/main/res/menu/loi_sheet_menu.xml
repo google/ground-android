@@ -19,10 +19,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
-    android:id="@+id/move_loi_menu_item"
-    android:title="@string/move_loi"/>
-  <item
     android:id="@+id/loi_properties_menu_item"
-    android:title="@string/loi_properties"/>
+    android:title="@string/loi_properties" />
 
 </menu>
