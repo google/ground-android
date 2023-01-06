@@ -54,7 +54,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -274,19 +273,7 @@ class HomeScreenFragment :
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    val state = homeScreenViewModel.bottomSheetState.value
-    if (state == null) {
-      Timber.e("BottomSheetState is null")
-      return false
-    }
-    val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)
     when (item.itemId) {
-      R.id.move_loi_menu_item -> {
-        hideBottomSheet()
-        mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.MOVE_POINT)
-        mapContainerViewModel.reposLocationOfInterest = loi
-        Toast.makeText(context, R.string.move_point_hint, Toast.LENGTH_SHORT).show()
-      }
       R.id.loi_properties_menu_item -> {
         showLocationOfInterestProperties()
       }

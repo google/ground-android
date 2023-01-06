@@ -34,7 +34,6 @@ import com.google.android.ground.ui.home.BottomSheetState;
 import com.google.android.ground.ui.home.HomeScreenViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
 import java8.util.Optional;
-import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 
 /** Fragment containing the contents of the bottom sheet shown when a LOI is selected. */
@@ -80,19 +79,6 @@ public class LocationOfInterestDetailsFragment extends AbstractFragment {
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.loi_sheet_menu, menu);
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    IntStreams.range(0, menu.size() - 1)
-        .boxed()
-        .map(menu::getItem)
-        .forEach(
-            menuItem -> {
-              if (menuItem.getItemId() == R.id.move_loi_menu_item) {
-                viewModel.isMoveMenuOptionVisible().observe(this, menuItem::setVisible);
-              }
-            });
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
