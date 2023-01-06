@@ -98,7 +98,7 @@ constructor(
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private fun processMutations(mutations: ImmutableList<Mutation>, userId: String): Completable {
-    return localDataStore
+    return localDataStore.userStore
       .getUser(userId)
       .flatMapCompletable { user: User -> processMutations(mutations, user) }
       .doOnError { Timber.d("User account removed before mutation processed") }

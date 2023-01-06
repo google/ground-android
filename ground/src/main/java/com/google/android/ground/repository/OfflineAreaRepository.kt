@@ -52,6 +52,9 @@ constructor(
   private val geocodingManager: GeocodingManager,
   private val offlineUuidGenerator: OfflineUuidGenerator
 ) {
+  private val offlineAreaStore = localDataStore.offlineAreaStore
+  private val tileSetStore = localDataStore.tileSetStore
+
   /**
    * Download the offline basemap source for the active survey.
    *
@@ -75,15 +78,15 @@ constructor(
   ): @Cold Completable =
     Flowable.fromIterable(tileSets)
       .flatMapCompletable { tileSet ->
-        localDataStore
+        tileSetStore
           .getTileSet(tileSet.url)
           .map { it.incrementOfflineAreaCount() }
           .toSingle(tileSet)
-          .flatMapCompletable { localDataStore.insertOrUpdateTileSet(it) }
+          .flatMapCompletable { tileSetStore.insertOrUpdateTileSet(it) }
       }
       .doOnError { Timber.e("failed to add/update a tile in the database") }
       .andThen(
-        localDataStore.insertOrUpdateOfflineArea(area.copy(state = OfflineArea.State.IN_PROGRESS))
+        offlineAreaStore.insertOrUpdateOfflineArea(area.copy(state = OfflineArea.State.IN_PROGRESS))
       )
       .andThen(tileSetDownloadWorkManager.enqueueTileSetDownloadWorker())
 
@@ -132,14 +135,14 @@ constructor(
    * store is updated. Triggers `onError` only if there is a problem accessing the local store.
    */
   val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<ImmutableList<OfflineArea>>
-    get() = localDataStore.offlineAreasOnceAndStream
+    get() = offlineAreaStore.offlineAreasOnceAndStream
 
   /**
    * Fetches a single offline area by ID. Triggers `onError` when the area is not found. Triggers
    * `onSuccess` when the area is found.
    */
   fun getOfflineArea(offlineAreaId: String): @Cold Single<OfflineArea> =
-    localDataStore.getOfflineAreaById(offlineAreaId)
+    offlineAreaStore.getOfflineAreaById(offlineAreaId)
 
   /**
    * Returns the intersection of downloaded tiles in two collections of tiles. Tiles are considered
@@ -189,7 +192,7 @@ constructor(
    */
   val downloadedTileSetsOnceAndStream: @Cold(terminates = false) Flowable<ImmutableSet<TileSet>>
     get() =
-      localDataStore.tileSetsOnceAndStream.map { tileSet ->
+      tileSetStore.tileSetsOnceAndStream.map { tileSet ->
         tileSet.filter { it.state === TileSet.State.DOWNLOADED }.toImmutableSet()
       }
 
@@ -198,20 +201,20 @@ constructor(
    * offline base maps .
    */
   fun deleteOfflineArea(offlineAreaId: String): @Cold Completable =
-    localDataStore
+    offlineAreaStore
       .getOfflineAreaById(offlineAreaId)
       .flatMapMaybe { offlineArea -> getIntersectingDownloadedTileSetsOnce(offlineArea) }
       .flatMapObservable { source -> Observable.fromIterable(source) }
       .map { it.decrementOfflineAreaCount() }
       .flatMapCompletable { tileSet ->
-        localDataStore
+        tileSetStore
           .updateTileSetOfflineAreaReferenceCountByUrl(
             tileSet.offlineAreaReferenceCount,
             tileSet.url
           )
-          .andThen(localDataStore.deleteTileSetByUrl(tileSet))
+          .andThen(tileSetStore.deleteTileSetByUrl(tileSet))
       }
-      .andThen(localDataStore.deleteOfflineArea(offlineAreaId))
+      .andThen(offlineAreaStore.deleteOfflineArea(offlineAreaId))
 
   /**
    * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their

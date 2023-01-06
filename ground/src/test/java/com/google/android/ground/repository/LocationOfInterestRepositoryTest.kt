@@ -22,7 +22,9 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
+import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.error
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.loaded
@@ -43,6 +45,7 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.*
@@ -54,7 +57,8 @@ import org.robolectric.RobolectricTestRunner
 @UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class LocationOfInterestRepositoryTest : BaseHiltTest() {
-  @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
+  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
+  @BindValue @Mock lateinit var mockLocationOfInterestStore: LocationOfInterestStore
   @BindValue @Mock lateinit var mockSurveyRepository: SurveyRepository
   @BindValue @Mock lateinit var mockWorkManager: MutationSyncWorkManager
 
@@ -64,6 +68,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
 
+  @Before
   override fun setUp() {
     super.setUp()
     fakeAuthenticationManager.setUser(FakeData.USER)
@@ -71,8 +76,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   private fun mockApplyAndEnqueue() {
     Mockito.doReturn(Completable.complete())
-      .`when`(mockLocalDataStore)
-      .applyAndEnqueue(capture(captorLoiMutation))
+      .`when`(mockLocalDataStore.locationOfInterestStore)
+      .commitThenEnqueue(capture(captorLoiMutation))
   }
 
   private fun mockEnqueueSyncWorker() {
@@ -95,8 +100,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     assertThat(type).isEqualTo(Mutation.Type.CREATE)
     assertThat(syncStatus).isEqualTo(SyncStatus.PENDING)
     assertThat(locationOfInterestId).isEqualTo(FakeData.LOCATION_OF_INTEREST.id)
-    Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+    Mockito.verify(mockLocationOfInterestStore, Mockito.times(1))
+      .commitThenEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -105,8 +110,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   fun testApplyAndEnqueue_returnsError() {
     mockEnqueueSyncWorker()
     Mockito.doReturn(Completable.error(NullPointerException()))
-      .`when`(mockLocalDataStore)
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+      .`when`(mockLocalDataStore.locationOfInterestStore)
+      .commitThenEnqueue(any<LocationOfInterestMutation>())
     locationOfInterestRepository
       .applyAndEnqueue(
         FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
@@ -114,8 +119,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .test()
       .assertError(NullPointerException::class.java)
       .assertNotComplete()
-    Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+    Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
+      .commitThenEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -133,8 +138,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertError(NullPointerException::class.java)
       .assertNotComplete()
 
-    Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+    Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
+      .commitThenEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -142,38 +147,43 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testSyncLocationsOfInterest_loaded() {
     fakeRemoteDataStore.streamLoiOnce(loaded("entityId", FakeData.LOCATION_OF_INTEREST))
-    Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST))
+    Mockito.`when`(mockLocalDataStore.locationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST))
       .thenReturn(Completable.complete())
     locationOfInterestRepository
       .syncLocationsOfInterest(FakeData.SURVEY)
       .test()
       .assertNoErrors()
       .assertComplete()
-    Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
+    Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
+      .merge(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
   fun testSyncLocationsOfInterest_modified() {
     fakeRemoteDataStore.streamLoiOnce(modified("entityId", FakeData.LOCATION_OF_INTEREST))
-    Mockito.`when`(mockLocalDataStore.mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST))
+    Mockito.`when`(mockLocalDataStore.locationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST))
       .thenReturn(Completable.complete())
     locationOfInterestRepository
       .syncLocationsOfInterest(FakeData.SURVEY)
       .test()
       .assertNoErrors()
       .assertComplete()
-    Mockito.verify(mockLocalDataStore, Mockito.times(1))
-      .mergeLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
+    Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
+      .merge(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
   fun testSyncLocationsOfInterest_removed() {
     fakeRemoteDataStore.streamLoiOnce(removed("entityId"))
-    Mockito.`when`(mockLocalDataStore.deleteLocationOfInterest(ArgumentMatchers.anyString()))
+    Mockito.`when`(
+        mockLocalDataStore.locationOfInterestStore.deleteLocationOfInterest(
+          ArgumentMatchers.anyString()
+        )
+      )
       .thenReturn(Completable.complete())
     locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertComplete()
-    Mockito.verify(mockLocalDataStore, Mockito.times(1)).deleteLocationOfInterest("entityId")
+    Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
+      .deleteLocationOfInterest("entityId")
   }
 
   @Test
@@ -188,7 +198,11 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetLocationsOfInterestOnceAndStream() {
-    Mockito.`when`(mockLocalDataStore.getLocationsOfInterestOnceAndStream(FakeData.SURVEY))
+    Mockito.`when`(
+        mockLocalDataStore.locationOfInterestStore.getLocationsOfInterestOnceAndStream(
+          FakeData.SURVEY
+        )
+      )
       .thenReturn(Flowable.just(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST)))
     locationOfInterestRepository
       .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
@@ -211,7 +225,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
     Mockito.`when`(
-        mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.LOCATION_OF_INTEREST.id)
+        mockLocalDataStore.locationOfInterestStore.getLocationOfInterest(
+          FakeData.SURVEY,
+          FakeData.LOCATION_OF_INTEREST.id
+        )
       )
       .thenReturn(Maybe.just(FakeData.LOCATION_OF_INTEREST))
     locationOfInterestRepository
@@ -231,7 +248,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
     Mockito.`when`(
-        mockLocalDataStore.getLocationOfInterest(FakeData.SURVEY, FakeData.LOCATION_OF_INTEREST.id)
+        mockLocalDataStore.locationOfInterestStore.getLocationOfInterest(
+          FakeData.SURVEY,
+          FakeData.LOCATION_OF_INTEREST.id
+        )
       )
       .thenReturn(Maybe.empty())
     locationOfInterestRepository
@@ -284,7 +304,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testGetIncompleteLocationOfInterestMutationsOnceAndStream() {
     locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream("loi_id_1")
-    Mockito.verify(mockLocalDataStore, Mockito.times(1))
+    Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
       .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
         "loi_id_1",
         MutationEntitySyncStatus.PENDING,

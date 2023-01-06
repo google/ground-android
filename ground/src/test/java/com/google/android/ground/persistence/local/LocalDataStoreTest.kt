@@ -61,30 +61,29 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LocalDataStoreTest : BaseHiltTest() {
   @Inject lateinit var localDataStore: LocalDataStore
-
   @Inject lateinit var localValueStore: LocalValueStore
-
   @Inject lateinit var submissionDao: SubmissionDao
-
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
 
   @Test
   fun testInsertAndGetSurveys() {
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
-    localDataStore.surveys.test().assertValue(ImmutableList.of(TEST_SURVEY))
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
+    localDataStore.surveyStore.surveys.test().assertValue(ImmutableList.of(TEST_SURVEY))
   }
 
   @Test
   fun testGetSurveyById() {
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.getSurveyById(TEST_SURVEY.id).test().assertValue(TEST_SURVEY)
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.surveyStore.getSurveyById(TEST_SURVEY.id).test().assertValue(TEST_SURVEY)
   }
 
   @Test
   fun testDeleteSurvey() {
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
-    localDataStore.surveys.test().assertValue { obj: ImmutableList<Survey> -> obj.isEmpty() }
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.surveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
+    localDataStore.surveyStore.surveys.test().assertValue { obj: ImmutableList<Survey> ->
+      obj.isEmpty()
+    }
   }
 
   @Test
@@ -98,7 +97,7 @@ class LocalDataStoreTest : BaseHiltTest() {
         "foo survey description",
         ImmutableMap.builder<String, Job>().put(job1.id, job1).build()
       )
-    localDataStore.insertOrUpdateSurvey(survey).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(survey).blockingAwait()
     survey =
       Survey(
         "foo id",
@@ -106,68 +105,78 @@ class LocalDataStoreTest : BaseHiltTest() {
         "foo survey description",
         ImmutableMap.builder<String, Job>().put(job2.id, job2).build()
       )
-    localDataStore.insertOrUpdateSurvey(survey).blockingAwait()
-    localDataStore.getSurveyById("foo id").test().assertValue { result: Survey ->
+    localDataStore.surveyStore.insertOrUpdateSurvey(survey).blockingAwait()
+    localDataStore.surveyStore.getSurveyById("foo id").test().assertValue { result: Survey ->
       result.jobs == ImmutableList.of(job2)
     }
   }
 
   @Test
   fun testInsertAndGetUser() {
-    localDataStore.insertOrUpdateUser(TEST_USER).test().assertComplete()
-    localDataStore.getUser("user id").test().assertValue(TEST_USER)
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).test().assertComplete()
+    localDataStore.userStore.getUser("user id").test().assertValue(TEST_USER)
   }
 
   @Test
   fun testApplyAndEnqueue_loiMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore
+      .commitThenEnqueue(TEST_LOI_MUTATION)
+      .test()
+      .assertComplete()
 
     // assert that mutation is saved to local database
     localDataStore
       .getPendingMutations("loi id")
       .test()
       .assertValue(ImmutableList.of(TEST_LOI_MUTATION))
-    localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
-      loi: LocationOfInterest ->
-      loi.geometry == TEST_POINT
-    }
+    localDataStore.locationOfInterestStore
+      .getLocationOfInterest(TEST_SURVEY, "loi id")
+      .test()
+      .assertValue { loi: LocationOfInterest -> loi.geometry == TEST_POINT }
   }
 
   @Test
   fun testApplyAndEnqueue_polygonLoiMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).test().assertComplete()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore
+      .commitThenEnqueue(TEST_POLYGON_LOI_MUTATION)
+      .test()
+      .assertComplete()
 
     // assert that mutation is saved to local database
     localDataStore
       .getPendingMutations("loi id")
       .test()
       .assertValue(ImmutableList.of(TEST_POLYGON_LOI_MUTATION))
-    localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
-      loi: LocationOfInterest ->
-      loi.geometry.vertices == TEST_POLYGON_1
-    }
+    localDataStore.locationOfInterestStore
+      .getLocationOfInterest(TEST_SURVEY, "loi id")
+      .test()
+      .assertValue { loi: LocationOfInterest -> loi.geometry.vertices == TEST_POLYGON_1 }
   }
 
   @Test
   fun testGetLoisOnceAndStream() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    val subscriber = localDataStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    val subscriber =
+      localDataStore.locationOfInterestStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
     subscriber.assertValue(ImmutableSet.of())
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
     subscriber.assertValueSet(ImmutableSet.of(ImmutableSet.of(), ImmutableSet.of(loi)))
   }
 
   @Test
   fun testUpdateMutations() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
     val mutation = createTestLocationOfInterestMutation(TEST_POINT_2)
     localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete()
     localDataStore
@@ -178,9 +187,11 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testPolygonUpdateMutations() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore
+      .commitThenEnqueue(TEST_POLYGON_LOI_MUTATION)
+      .blockingAwait()
     val mutation = createTestAreaOfInterestMutation(TEST_POLYGON_2)
     localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete()
     localDataStore
@@ -191,9 +202,9 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testFinalizePendingMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore
       .finalizePendingMutations(ImmutableList.of(TEST_LOI_MUTATION))
       .test()
@@ -203,42 +214,59 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testMergeLoi() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
     val newLoi = loi.copy(geometry = TEST_POINT_2)
-    localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
-    localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
-      it.geometry == TEST_POINT_2
-    }
+    localDataStore.locationOfInterestStore.merge(newLoi).test().assertComplete()
+    localDataStore.locationOfInterestStore
+      .getLocationOfInterest(TEST_SURVEY, "loi id")
+      .test()
+      .assertValue { it.geometry == TEST_POINT_2 }
   }
 
   @Test
   fun testMergePolygonLoi() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore
+      .commitThenEnqueue(TEST_POLYGON_LOI_MUTATION)
+      .blockingAwait()
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
     val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinate })))
-    localDataStore.mergeLocationOfInterest(newLoi).test().assertComplete()
-    localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
-      it.geometry.vertices == TEST_POLYGON_2
-    }
+    localDataStore.locationOfInterestStore.merge(newLoi).test().assertComplete()
+    localDataStore.locationOfInterestStore
+      .getLocationOfInterest(TEST_SURVEY, "loi id")
+      .test()
+      .assertValue { it.geometry.vertices == TEST_POLYGON_2 }
   }
 
   @Test
   fun testApplyAndEnqueue_submissionMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localDataStore.submissionStore
+      .commitThenEnqueue(TEST_SUBMISSION_MUTATION)
+      .test()
+      .assertComplete()
     localDataStore
       .getPendingMutations("loi id")
       .test()
       .assertValue(ImmutableList.of(TEST_LOI_MUTATION, TEST_SUBMISSION_MUTATION))
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    var submission = localDataStore.getSubmission(loi, "submission id").blockingGet()
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
+    var submission =
+      localDataStore.submissionStore.getSubmission(loi, "submission id").blockingGet()
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
 
     // now update the inserted submission with new responses
@@ -252,35 +280,42 @@ class LocalDataStoreTest : BaseHiltTest() {
       )
     val mutation =
       TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete()
+    localDataStore.submissionStore.commitThenEnqueue(mutation).test().assertComplete()
     localDataStore
       .getPendingMutations("loi id")
       .test()
       .assertValue(ImmutableList.of(TEST_LOI_MUTATION, TEST_SUBMISSION_MUTATION, mutation))
 
     // check if the submission was updated in the local database
-    submission = localDataStore.getSubmission(loi, "submission id").blockingGet()
+    submission = localDataStore.submissionStore.getSubmission(loi, "submission id").blockingGet()
     assertEquivalent(mutation, submission)
 
     // also test that getSubmissions returns the same submission as well
-    val submissions = localDataStore.getSubmissions(loi, "job id").blockingGet()
+    val submissions = localDataStore.submissionStore.getSubmissions(loi, "job id").blockingGet()
     assertThat(submissions).hasSize(1)
     assertEquivalent(mutation, submissions[0])
   }
 
   @Test
   fun testMergeSubmission() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localDataStore.submissionStore.commitThenEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
     val taskDataMap =
       TaskDataMap(ImmutableMap.of("task id", TextTaskData.fromString("foo value").get()))
     val submission =
-      localDataStore.getSubmission(loi, "submission id").blockingGet().copy(responses = taskDataMap)
-    localDataStore.mergeSubmission(submission).test().assertComplete()
-    val responses = localDataStore.getSubmission(loi, submission.id).test().values()[0].responses
+      localDataStore.submissionStore
+        .getSubmission(loi, "submission id")
+        .blockingGet()
+        .copy(responses = taskDataMap)
+    localDataStore.submissionStore.merge(submission).test().assertComplete()
+    val responses =
+      localDataStore.submissionStore.getSubmission(loi, submission.id).test().values()[0].responses
     assertThat(responses.getResponse("task id"))
       .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
@@ -288,14 +323,14 @@ class LocalDataStoreTest : BaseHiltTest() {
   @Test
   fun testDeleteSubmission() {
     // Add test submission
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localDataStore.submissionStore.commitThenEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
     val mutation = TEST_SUBMISSION_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local submission as deleted.
-    localDataStore.applyAndEnqueue(mutation).blockingAwait()
+    localDataStore.submissionStore.commitThenEnqueue(mutation).blockingAwait()
 
     // Verify that local entity exists and its state is updated.
     submissionDao.findById("submission id").test().assertValue { submissionEntity: SubmissionEntity
@@ -304,31 +339,41 @@ class LocalDataStoreTest : BaseHiltTest() {
     }
 
     // Verify that the local submission doesn't end up in getSubmissions().
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    localDataStore.getSubmissions(loi, "task id").test().assertValue(ImmutableList.of())
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
+    localDataStore.submissionStore
+      .getSubmissions(loi, "task id")
+      .test()
+      .assertValue(ImmutableList.of())
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
-    localDataStore.deleteSubmission("submission id").blockingAwait()
+    localDataStore.submissionStore.deleteSubmission("submission id").blockingAwait()
 
     // Verify that the submission doesn't exist anymore
-    localDataStore.getSubmission(loi, "submission id").test().assertNoValues()
+    localDataStore.submissionStore.getSubmission(loi, "submission id").test().assertNoValues()
   }
 
   @Test
   fun testDeleteLoi() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-    localDataStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localDataStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
-    val subscriber = localDataStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localDataStore.submissionStore.commitThenEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
+    val subscriber =
+      localDataStore.locationOfInterestStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
 
     // Assert that one LOI is streamed.
-    val loi = localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
+    val loi =
+      localDataStore.locationOfInterestStore
+        .getLocationOfInterest(TEST_SURVEY, "loi id")
+        .blockingGet()
     subscriber.assertValueAt(0, ImmutableSet.of(loi))
     val mutation = TEST_LOI_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local LOI as deleted.
-    localDataStore.applyAndEnqueue(mutation).blockingAwait()
+    localDataStore.locationOfInterestStore.commitThenEnqueue(mutation).blockingAwait()
 
     // Verify that local entity exists but its state is updated to DELETED.
     locationOfInterestDao.findById("loi id").test().assertValue { entity: LocationOfInterestEntity
@@ -340,24 +385,30 @@ class LocalDataStoreTest : BaseHiltTest() {
     subscriber.assertValueAt(1, ImmutableSet.of())
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
-    localDataStore.deleteLocationOfInterest("loi id").blockingAwait()
+    localDataStore.locationOfInterestStore.deleteLocationOfInterest("loi id").blockingAwait()
 
     // Verify that the LOI doesn't exist anymore
-    localDataStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertNoValues()
+    localDataStore.locationOfInterestStore
+      .getLocationOfInterest(TEST_SURVEY, "loi id")
+      .test()
+      .assertNoValues()
 
     // Verify that the linked submission is also deleted.
-    localDataStore.getSubmission(loi, "submission id").test().assertNoValues()
+    localDataStore.submissionStore.getSubmission(loi, "submission id").test().assertNoValues()
   }
 
   @Test
   fun testInsertTile() {
-    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).test().assertComplete()
+    localDataStore.tileSetStore
+      .insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
+      .test()
+      .assertComplete()
   }
 
   @Test
   fun testGetTile() {
-    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-    localDataStore
+    localDataStore.tileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
+    localDataStore.tileSetStore
       .getTileSet("some_url 1")
       .test()
       .assertValueCount(1)
@@ -366,10 +417,10 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testGetTilesOnceAndStream() {
-    val subscriber = localDataStore.tileSetsOnceAndStream.test()
+    val subscriber = localDataStore.tileSetStore.tileSetsOnceAndStream.test()
     subscriber.assertValue(ImmutableSet.of())
-    localDataStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
-    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
+    localDataStore.tileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
+    localDataStore.tileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
     subscriber.assertValueSet(
       ImmutableSet.of(
         ImmutableSet.of(),
@@ -381,21 +432,28 @@ class LocalDataStoreTest : BaseHiltTest() {
 
   @Test
   fun testGetPendingTile() {
-    localDataStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
-    localDataStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
-    localDataStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-    localDataStore.pendingTileSets.test().assertValue(ImmutableList.of(TEST_PENDING_TILE_SOURCE))
+    localDataStore.tileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
+    localDataStore.tileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
+    localDataStore.tileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
+    localDataStore.tileSetStore.pendingTileSets
+      .test()
+      .assertValue(ImmutableList.of(TEST_PENDING_TILE_SOURCE))
   }
 
   @Test
   fun testInsertOfflineArea() {
-    localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).test().assertComplete()
+    localDataStore.offlineAreaStore
+      .insertOrUpdateOfflineArea(TEST_OFFLINE_AREA)
+      .test()
+      .assertComplete()
   }
 
   @Test
   fun testGetOfflineAreas() {
-    localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
-    localDataStore.offlineAreasOnceAndStream.test().assertValue(ImmutableList.of(TEST_OFFLINE_AREA))
+    localDataStore.offlineAreaStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
+    localDataStore.offlineAreaStore.offlineAreasOnceAndStream
+      .test()
+      .assertValue(ImmutableList.of(TEST_OFFLINE_AREA))
   }
 
   @Test

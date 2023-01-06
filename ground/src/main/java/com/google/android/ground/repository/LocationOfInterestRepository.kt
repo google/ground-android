@@ -59,6 +59,8 @@ constructor(
   private val authManager: AuthenticationManager,
   private val uuidGenerator: OfflineUuidGenerator
 ) {
+  private val locationOfInterestStore = this.localDataStore.locationOfInterestStore
+
   /**
    * Mirrors locations of interest in the specified survey from the remote db into the local db when
    * the network is available. When invoked, will first attempt to resync all locations of interest
@@ -79,8 +81,8 @@ constructor(
       { (entityId: String, entity: LocationOfInterest?) ->
         when (event.eventType) {
           ENTITY_LOADED,
-          ENTITY_MODIFIED -> localDataStore.mergeLocationOfInterest(checkNotNull(entity))
-          ENTITY_REMOVED -> localDataStore.deleteLocationOfInterest(entityId)
+          ENTITY_MODIFIED -> locationOfInterestStore.merge(checkNotNull(entity))
+          ENTITY_REMOVED -> locationOfInterestStore.deleteLocationOfInterest(entityId)
           else -> throw IllegalArgumentException()
         }
       },
@@ -95,7 +97,7 @@ constructor(
   fun getLocationsOfInterestOnceAndStream(
     survey: Survey
   ): @Cold(terminates = false) Flowable<ImmutableSet<LocationOfInterest>> =
-    localDataStore.getLocationsOfInterestOnceAndStream(survey)
+    locationOfInterestStore.getLocationsOfInterestOnceAndStream(survey)
 
   fun getLocationOfInterest(
     locationOfInterestMutation: LocationOfInterestMutation
@@ -113,7 +115,7 @@ constructor(
     surveyRepository
       .getSurvey(surveyId)
       .flatMapMaybe { survey: Survey ->
-        localDataStore.getLocationOfInterest(survey, locationOfInterest)
+        locationOfInterestStore.getLocationOfInterest(survey, locationOfInterest)
       }
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
@@ -161,7 +163,7 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as [Loadable]
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = localDataStore.applyAndEnqueue(mutation)
+    val localTransaction = localDataStore.locationOfInterestStore.commitThenEnqueue(mutation)
     val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
     return localTransaction.andThen(remoteSync)
   }
@@ -174,7 +176,7 @@ constructor(
   fun getIncompleteLocationOfInterestMutationsOnceAndStream(
     locationOfInterestId: String
   ): Flowable<ImmutableList<LocationOfInterestMutation>>? =
-    localDataStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+    locationOfInterestStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
       locationOfInterestId,
       MutationEntitySyncStatus.PENDING,
       MutationEntitySyncStatus.IN_PROGRESS,
