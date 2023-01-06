@@ -76,9 +76,6 @@ internal constructor(
 
   private val addPolygonVisibility = MutableLiveData(View.GONE)
 
-  private val moveLocationsOfInterestVisibility: @Hot(replays = true) MutableLiveData<Int> =
-    MutableLiveData(View.GONE)
-
   val mbtilesFilePaths: LiveData<ImmutableSet<String>>
   val isLocationUpdatesEnabled: LiveData<Boolean>
   val locationAccuracy: LiveData<String>
@@ -193,9 +190,6 @@ internal constructor(
 
   fun setMode(viewMode: Mode) {
     mapControlsVisibility.postValue(if (viewMode == Mode.DEFAULT) View.VISIBLE else View.GONE)
-    moveLocationsOfInterestVisibility.postValue(
-      if (viewMode == Mode.MOVE_POINT) View.VISIBLE else View.GONE
-    )
     addPolygonVisibility.postValue(if (viewMode == Mode.DRAW_POLYGON) View.VISIBLE else View.GONE)
 
     if (viewMode == Mode.DEFAULT) {
@@ -211,9 +205,6 @@ internal constructor(
     return mapControlsVisibility
   }
 
-  val moveLocationOfInterestVisibility: LiveData<Int>
-    get() = moveLocationsOfInterestVisibility
-
   fun getAddPolygonVisibility(): LiveData<Int> = addPolygonVisibility
 
   /** Called when a LOI is (de)selected. */
@@ -224,7 +215,6 @@ internal constructor(
   enum class Mode {
     DEFAULT,
     DRAW_POLYGON,
-    MOVE_POINT
   }
 
   companion object {

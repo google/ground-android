@@ -23,15 +23,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.ground.R;
-import com.google.android.ground.model.Role;
-import com.google.android.ground.model.User;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.SubmissionMutation;
 import com.google.android.ground.repository.LocationOfInterestRepository;
 import com.google.android.ground.repository.SubmissionRepository;
-import com.google.android.ground.repository.UserRepository;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.MarkerIconFactory;
 import com.google.android.ground.ui.common.LocationOfInterestHelper;
@@ -53,12 +49,10 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
 
   private final LocationOfInterestRepository locationOfInterestRepository;
   private final SubmissionRepository submissionRepository;
-  private final UserRepository userRepository;
   private final Bitmap markerBitmap;
   private final LiveData<String> title;
   private final LiveData<String> subtitle;
   private final LiveData<Boolean> showUploadPendingIcon;
-  private final LiveData<Boolean> moveMenuOptionVisible;
 
   @Inject
   public LocationOfInterestDetailsViewModel(
@@ -66,11 +60,9 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
       DrawableUtil drawableUtil,
       LocationOfInterestHelper locationOfInterestHelper,
       LocationOfInterestRepository locationOfInterestRepository,
-      SubmissionRepository submissionRepository,
-      UserRepository userRepository) {
+      SubmissionRepository submissionRepository) {
     this.locationOfInterestRepository = locationOfInterestRepository;
     this.submissionRepository = submissionRepository;
-    this.userRepository = userRepository;
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(
             drawableUtil.getColor(R.color.colorGrey600), DEFAULT_LOI_ZOOM_LEVEL, false);
@@ -80,11 +72,6 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(
             selectedLocationOfInterest.map(locationOfInterestHelper::getSubtitle));
-    this.moveMenuOptionVisible =
-        LiveDataReactiveStreams.fromPublisher(
-            selectedLocationOfInterest.map(
-                locationOfInterest ->
-                    locationOfInterest.map(this::isMoveMenuOptionVisible).orElse(true)));
     Flowable<ImmutableList<LocationOfInterestMutation>> locationOfInterestMutations =
         selectedLocationOfInterest.switchMap(
             this::getIncompleteLocationOfInterestMutationsOnceAndStream);
@@ -96,32 +83,6 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
                 locationOfInterestMutations,
                 submissionMutations,
                 (f, o) -> !f.isEmpty() && !o.isEmpty()));
-  }
-
-  /**
-   * Returns true if the user is {@link Role#OWNER} or {@link Role#SURVEY_ORGANIZER} of the project.
-   */
-  private boolean isUserAuthorizedToModifyLocationOfInterest(
-      LocationOfInterest locationOfInterest) {
-    Role role = userRepository.getUserRole(locationOfInterest.getSurveyId());
-    return role == Role.OWNER
-        || role == Role.SURVEY_ORGANIZER
-        || isLocationOfInterestCreatedByUser(locationOfInterest);
-  }
-
-  /** Returns true if the {@link User} created the given {@link LocationOfInterest}. */
-  private boolean isLocationOfInterestCreatedByUser(LocationOfInterest locationOfInterest) {
-    User user = userRepository.getCurrentUser();
-    return locationOfInterest.getCreated().getUser().getEmail().equals(user.getEmail());
-  }
-
-  /**
-   * Returns true if the selected locationOfInterest is of type {@link LocationOfInterestType#POINT}
-   * and the user has permissions to modify the locationOfInterest.
-   */
-  private boolean isMoveMenuOptionVisible(LocationOfInterest locationOfInterest) {
-    return isUserAuthorizedToModifyLocationOfInterest(locationOfInterest)
-        && locationOfInterest.getType() == LocationOfInterestType.POINT;
   }
 
   private Flowable<ImmutableList<LocationOfInterestMutation>>
@@ -171,9 +132,5 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
 
   public LiveData<Boolean> isUploadPendingIconVisible() {
     return showUploadPendingIcon;
-  }
-
-  public LiveData<Boolean> isMoveMenuOptionVisible() {
-    return moveMenuOptionVisible;
   }
 }
