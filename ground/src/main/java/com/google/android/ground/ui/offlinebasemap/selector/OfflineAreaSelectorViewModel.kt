@@ -27,7 +27,7 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
 import com.google.common.collect.ImmutableList
@@ -45,7 +45,7 @@ internal constructor(
   private val resources: Resources,
   locationController: LocationController,
   mapController: MapController,
-) : AbstractMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, mapController) {
   enum class DownloadMessage {
     STARTED,
     FAILURE

@@ -28,7 +28,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
@@ -171,7 +171,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
   }
 
-  override fun getMapViewModel(): AbstractMapViewModel = mapContainerViewModel
+  override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
 
   private fun attachCustomViews(map: MapFragment) {
     val polygonDrawingView = PolygonDrawingView(requireContext(), map)
