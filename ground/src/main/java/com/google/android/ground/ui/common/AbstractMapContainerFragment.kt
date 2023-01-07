@@ -47,6 +47,10 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { onMapCameraMoved(it) }
+    mapFragment.startDragEvents
+      .onBackpressureLatest()
+      .`as`(RxAutoDispose.disposeOnDestroy(this))
+      .subscribe { getMapViewModel().onMapDragged() }
 
     mapsRepository.observableMapType().observe(viewLifecycleOwner) { mapFragment.mapType = it }
 

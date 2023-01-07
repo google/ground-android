@@ -78,10 +78,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         RxAutoDispose.disposeOnDestroy(this)
       )
       .subscribe { homeScreenViewModel.onLocationOfInterestClick(it) }
-    mapFragment.startDragEvents
-      .onBackpressureLatest()
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { mapContainerViewModel.onMapDragged() }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
