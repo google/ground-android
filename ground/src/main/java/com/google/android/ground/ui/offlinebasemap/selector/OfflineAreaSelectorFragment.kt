@@ -94,7 +94,5 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
       .subscribe(viewModel::setViewport)
   }
 
-  override fun getMapViewModel(): AbstractMapViewModel {
-    TODO("Not yet implemented")
-  }
+  override fun getMapViewModel(): AbstractMapViewModel = viewModel
 }
