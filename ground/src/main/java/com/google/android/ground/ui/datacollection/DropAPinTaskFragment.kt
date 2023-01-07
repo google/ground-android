@@ -43,6 +43,7 @@ class DropAPinTaskFragment : AbstractMapContainerFragment() {
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
+    binding.enableCrossHairs = true
     binding.lifecycleOwner = this
     return binding.root
   }
