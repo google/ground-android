@@ -23,13 +23,10 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.RxCompletable
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
@@ -56,8 +53,7 @@ class HomeScreenViewModel
 internal constructor(
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val navigator: Navigator,
-  private val userRepository: UserRepository
+  private val navigator: Navigator
 ) : AbstractViewModel() {
 
   @JvmField
@@ -73,10 +69,7 @@ internal constructor(
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
   private val addLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
     PublishProcessor.create()
-  private val updateLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
-    PublishProcessor.create()
   val addLocationOfInterestResults: @Hot Flowable<LocationOfInterest>
-  val updateLocationOfInterestResults: @Hot Flowable<Boolean>
   val errors: @Hot FlowableProcessor<Throwable> = PublishProcessor.create()
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
@@ -102,18 +95,12 @@ internal constructor(
     }) { throw IllegalStateException("Empty survey") }
   }
 
-  fun updateLocationOfInterest(locationOfInterest: LocationOfInterest) {
-    updateLocationOfInterestRequests.onNext(
-      locationOfInterest.toMutation(Mutation.Type.UPDATE, userRepository.currentUser.id)
-    )
-  }
-
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
   }
 
   fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
-    mapLocationOfInterest.locationOfInterest.let { showBottomSheet(it) }
+    showBottomSheet(mapLocationOfInterest.locationOfInterest)
   }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
@@ -190,12 +177,5 @@ internal constructor(
           .doOnError { t: Throwable -> errors.onNext(t) }
           .onErrorResumeNext(Single.never())
       } // Prevent from breaking upstream.
-    updateLocationOfInterestResults =
-      updateLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
-        RxCompletable.toBooleanSingle(locationOfInterestRepository.applyAndEnqueue(mutation)) {
-          t: Throwable ->
-          errors.onNext(t)
-        }
-      }
   }
 }
