@@ -19,13 +19,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.DropAPinTaskViewModel
 import com.google.android.ground.ui.editsubmission.*
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
-import com.google.android.ground.ui.datacollection.DropAPinTaskViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
 import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel
@@ -45,13 +45,6 @@ import dagger.multibindings.IntoMap
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class ViewModelModule {
-  @Binds
-  @IntoMap
-  @ViewModelKey(DropAPinTaskViewModel::class)
-  abstract fun bindLocationOfInterestRepositionViewModel(
-    viewModel: DropAPinTaskViewModel
-  ): ViewModel
-
   @Binds
   @IntoMap
   @ViewModelKey(PolygonDrawingViewModel::class)
@@ -147,6 +140,14 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(TimeTaskViewModel::class)
   abstract fun bindTimeTaskViewModel(viewModel: TimeTaskViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(DropAPinTaskViewModel::class)
+  abstract fun bindDropAPinTaskViewModel(viewModel: DropAPinTaskViewModel): ViewModel
+  @Binds
+  @IntoMap
+  @ViewModelKey(BaseMapViewModel::class)
+  abstract fun bindBaseMapViewModel(viewModel: BaseMapViewModel): ViewModel
   @Binds
   @IntoMap
   @ViewModelKey(LocationOfInterestSelectorViewModel::class)

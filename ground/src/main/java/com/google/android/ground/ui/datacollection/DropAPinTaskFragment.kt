@@ -20,20 +20,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.BasemapLayoutBinding
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DropAPinTaskFragment : AbstractMapContainerFragment() {
+class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewModel) :
+  AbstractMapContainerFragment() {
 
-  private lateinit var viewModel: DropAPinTaskViewModel
+  private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var binding: BasemapLayoutBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    viewModel = getViewModel(DropAPinTaskViewModel::class.java)
+    mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
   override fun onCreateView(
@@ -42,7 +45,7 @@ class DropAPinTaskFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
+    binding.viewModel = mapViewModel
     binding.enableCrossHairs = true
     binding.lifecycleOwner = this
     return binding.root
@@ -50,5 +53,10 @@ class DropAPinTaskFragment : AbstractMapContainerFragment() {
 
   override fun onMapReady(mapFragment: MapFragment) {}
 
-  override fun getMapViewModel(): AbstractMapViewModel = viewModel
+  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
+
+  override fun onMapCameraMoved(position: CameraPosition) {
+    super.onMapCameraMoved(position)
+    viewModel.updateResponse(position)
+  }
 }

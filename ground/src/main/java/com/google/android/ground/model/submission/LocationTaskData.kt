@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.model.submission
 
-import android.content.res.Resources
-import com.google.android.ground.model.submission.LocationTaskData
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import java8.util.Optional
-import javax.inject.Inject
 
-class DropAPinTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
+data class LocationTaskData(val cameraPosition: CameraPosition) : TaskData {
+  override fun getDetailsText(): String = cameraPosition.serialize()
 
-  fun updateResponse(position: CameraPosition) {
-    setResponse(Optional.of(LocationTaskData(position)))
+  override fun isEmpty(): Boolean = false
+
+  companion object {
+    fun fromString(serializedValue: String): Optional<TaskData> {
+      val cameraPosition = CameraPosition.deserialize(serializedValue)
+      return if (cameraPosition == null) Optional.empty()
+      else Optional.of(LocationTaskData(cameraPosition))
+    }
   }
 }
