@@ -114,9 +114,6 @@ class HomeScreenFragment :
       .observeOn(schedulers.ui())
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onLocationOfInterestAdded(it) }
-    homeScreenViewModel.updateLocationOfInterestResults
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { onLocationOfInterestUpdated(it) }
     homeScreenViewModel.errors.`as`(RxAutoDispose.autoDisposable(this)).subscribe { onError(it) }
     polygonDrawingViewModel.drawingState
       .distinctUntilChanged()
@@ -161,16 +158,6 @@ class HomeScreenFragment :
     navigator.navigate(
       HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, jobId)
     )
-  }
-
-  /**
-   * This is only possible after updating the location of the location of interest. So, reset the
-   * UI.
-   */
-  private fun onLocationOfInterestUpdated(result: Boolean) {
-    if (result) {
-      mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT)
-    }
   }
 
   /** Generic handler to display error messages to the user. */
