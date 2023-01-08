@@ -22,9 +22,8 @@
 
   <data>
     <variable
-      name="loi"
-      type="com.google.android.ground.model.locationofinterest.LocationOfInterest" />
-    <import type="android.text.TextUtils" />
+      name="viewModel"
+      type="com.google.android.ground.ui.home.mapcontainer.LoiCardViewModel" />
   </data>
 
   <com.google.android.material.card.MaterialCardView
@@ -48,7 +47,7 @@
         android:layout_marginStart="@dimen/loi_card_item_margin"
         android:layout_marginTop="@dimen/loi_card_item_margin"
         android:layout_marginEnd="@dimen/loi_card_item_margin"
-        android:text="@{loi.job.name}"
+        android:text="@{viewModel.loiJobName}"
         android:textSize="@dimen/loi_card_item_title_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,25 +55,25 @@
         tools:text="Map the terrain" />
       <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/loiIcon"
-        visible="@{!TextUtils.isEmpty(loi.caption)}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/loi_card_item_margin"
         android:tint="@color/colorGrey800"
         app:layout_constraintStart_toStartOf="@id/jobName"
         app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:srcCompat="@drawable/ic_outline_room_24" />
+        app:srcCompat="@drawable/ic_outline_room_24"
+        app:visible="@{viewModel.isIconVisible()}" />
       <TextView
         android:id="@+id/loiName"
-        visible="@{!TextUtils.isEmpty(loi.caption)}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:text="@{loi.caption}"
+        android:text="@{viewModel.loiName}"
         app:layout_constraintBottom_toBottomOf="@id/loiIcon"
         app:layout_constraintStart_toEndOf="@id/loiIcon"
         app:layout_constraintTop_toBottomOf="@id/jobName"
+        app:visible="@{viewModel.isNameVisible()}"
         tools:text="Quilombolas" />
       <LinearLayout
         android:layout_width="wrap_content"

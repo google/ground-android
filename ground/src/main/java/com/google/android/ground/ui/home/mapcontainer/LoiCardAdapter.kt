@@ -98,7 +98,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(locationOfInterest: LocationOfInterest) {
-      binding.loi = locationOfInterest
+      binding.viewModel = LoiCardViewModel(locationOfInterest)
     }
   }
 }
