@@ -16,8 +16,8 @@
 package com.google.android.ground.persistence.remote
 
 import com.google.android.ground.Config
-import com.google.android.ground.persistence.remote.firebase.FirestoreDataStore
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
+import com.google.android.ground.persistence.remote.firebase.FirestoreDataStore
 import com.google.android.ground.persistence.remote.firebase.FirestoreUuidGenerator
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.firebase.firestore.FirebaseFirestore
