@@ -19,14 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.R
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.rx.RxAutoDispose
@@ -64,8 +61,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    val locationOfInterestRepositionViewModel =
-      getViewModel(LocationOfInterestRepositionViewModel::class.java)
     polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
     mapFragment.locationOfInterestInteractions
       .`as`(RxAutoDispose.disposeOnDestroy(this))
@@ -89,14 +84,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     polygonDrawingViewModel.unsavedMapLocationsOfInterest.observe(this) {
       mapContainerViewModel.setUnsavedMapLocationsOfInterest(it)
     }
-    locationOfInterestRepositionViewModel
-      .getConfirmButtonClicks()
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { showConfirmationDialog(it) }
-    locationOfInterestRepositionViewModel
-      .getCancelButtonClicks()
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT) }
     mapContainerViewModel
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
@@ -196,33 +183,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       polygonDrawingView.visibility = it
     }
     binding.mapOverlay.addView(polygonDrawingView)
-  }
-
-  private fun showConfirmationDialog(point: Point) {
-    AlertDialog.Builder(requireContext())
-      .setTitle(R.string.move_point_confirmation)
-      .setPositiveButton(android.R.string.ok) { _, _ -> moveToNewPosition(point) }
-      .setNegativeButton(android.R.string.cancel) { _, _ ->
-        mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT)
-      }
-      .setCancelable(true)
-      .create()
-      .show()
-  }
-
-  private fun moveToNewPosition(point: Point) {
-    val locationOfInterest = mapContainerViewModel.reposLocationOfInterest
-    if (locationOfInterest.isEmpty) {
-      Timber.e("Move point failed: No locationOfInterest selected")
-      return
-    }
-    if (locationOfInterest.get().type !== LocationOfInterestType.POINT) {
-      Timber.e("Only point locations of interest can be moved")
-      return
-    }
-    val loi = locationOfInterest.get()
-    val newPointOfInterest = loi.copy(geometry = point)
-    homeScreenViewModel.updateLocationOfInterest(newPointOfInterest)
   }
 
   private fun onBottomSheetStateChange(state: BottomSheetState, map: MapFragment) {
