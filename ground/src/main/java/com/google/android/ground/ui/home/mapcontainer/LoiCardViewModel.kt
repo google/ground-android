@@ -28,8 +28,8 @@ class LoiCardViewModel(loi: LocationOfInterest) : AbstractViewModel() {
   val loiJobName: @Hot(replays = true) LiveData<String>
 
   init {
-    isIconVisible = MutableLiveData(loi.caption?.isNotEmpty())
-    isNameVisible = MutableLiveData(loi.caption?.isNotEmpty())
+    isIconVisible = MutableLiveData(loi.caption?.isNotEmpty() ?: false)
+    isNameVisible = MutableLiveData(loi.caption?.isNotEmpty() ?: false)
     loiName = MutableLiveData(loi.caption)
     loiJobName = MutableLiveData(loi.job.name)
   }
