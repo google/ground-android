@@ -19,12 +19,11 @@ import android.content.Context
 import android.graphics.Color
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
-import javax.inject.Inject
 import timber.log.Timber
 
 class LocationOfInterestClusterRenderer(
@@ -33,7 +32,7 @@ class LocationOfInterestClusterRenderer(
   private val clusterManager: LocationOfInterestClusterManager,
 ) : DefaultClusterRenderer<LocationOfInterestClusterItem>(context, map, clusterManager) {
 
-  @Inject lateinit var markerIconFactory: MarkerIconFactory
+  val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
 
   private fun parseColor(colorHexCode: String?): Int =
     try {
@@ -43,16 +42,17 @@ class LocationOfInterestClusterRenderer(
       context?.resources?.getColor(R.color.colorMapAccent) ?: 0
     }
 
-  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(parseColor(Style().color), map.cameraPosition.zoom, isSelected)
+  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor? =
+    markerIconFactory?.getMarkerIcon(parseColor(Style().color), map.cameraPosition.zoom, isSelected)
 
-  override fun onClusterItemRendered(clusterItem: LocationOfInterestClusterItem, marker: Marker) {
-    super.onClusterItemRendered(clusterItem, marker)
-
-    if (clusterItem.locationOfInterest.id == clusterManager.activeLocationOfInterest) {
-      marker.setIcon(getMarkerIcon(true))
+  override fun onBeforeClusterItemRendered(
+    item: LocationOfInterestClusterItem,
+    markerOptions: MarkerOptions
+  ) {
+    if (item.locationOfInterest.id == clusterManager.activeLocationOfInterest) {
+      markerOptions.icon(getMarkerIcon(true))
     } else {
-      marker.setIcon(getMarkerIcon(false))
+      markerOptions.icon(getMarkerIcon(false))
     }
   }
 }
