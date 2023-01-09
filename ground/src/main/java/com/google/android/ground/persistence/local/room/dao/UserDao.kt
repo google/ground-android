@@ -19,11 +19,14 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.google.android.ground.persistence.local.room.entity.UserEntity
-import io.reactivex.Maybe
 
 @Dao
-interface UserDao : BaseDao<UserEntity> {
+interface UserDao : CoroutineDao<UserEntity> {
+  /**
+   * Fetches the user with the given ID from local storage, or returns null if the user does not
+   * exist.
+   */
   @Transaction
   @Query("SELECT * FROM user WHERE id = :id")
-  fun findById(id: String): Maybe<UserEntity>
+  suspend fun findById(id: String): UserEntity?
 }

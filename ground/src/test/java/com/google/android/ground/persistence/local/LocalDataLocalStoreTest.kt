@@ -51,12 +51,15 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocalDataLocalStoreTest : BaseHiltTest() {
@@ -112,14 +115,14 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testInsertAndGetUser() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).test().assertComplete()
+  fun testInsertAndGetUser() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.userStore.getUser("user id").test().assertValue(TEST_USER)
   }
 
   @Test
-  fun testApplyAndEnqueue_loiMutation() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_loiMutation() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore
       .applyAndEnqueue(TEST_LOI_MUTATION)
@@ -138,8 +141,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_polygonLoiMutation() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_polygonLoiMutation() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore
       .applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
@@ -158,8 +161,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetLoisOnceAndStream() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testGetLoisOnceAndStream() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     val subscriber =
       localDataStore.localLocationOfInterestStore
@@ -175,8 +178,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testUpdateMutations() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testUpdateMutations() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     val mutation = createTestLocationOfInterestMutation(TEST_POINT_2)
@@ -188,8 +191,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testPolygonUpdateMutations() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testPolygonUpdateMutations() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore
       .applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
@@ -203,8 +206,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testFinalizePendingMutation() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testFinalizePendingMutation() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore
@@ -215,8 +218,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testMergeLoi() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testMergeLoi() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     val loi =
@@ -232,8 +235,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testMergePolygonLoi() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testMergePolygonLoi() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore
       .applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
@@ -251,8 +254,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_submissionMutation() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_submissionMutation() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.submissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
@@ -296,8 +299,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testMergeSubmission() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testMergeSubmission() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.submissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
@@ -320,9 +323,9 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteSubmission() {
+  fun testDeleteSubmission() = runTest {
     // Add test submission
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.submissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
@@ -355,8 +358,8 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteLoi() {
-    localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testDeleteLoi() = runTest {
+    localDataStore.userStore.insertOrUpdateUser(TEST_USER)
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.submissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()

@@ -42,6 +42,7 @@ project.ext {
     rxBindingVersion = "2.2.0"
     workVersion = "2.5.0"
     geotoolsVersion = "27.0"
+    coroutinesVersion = "1.6.4"
 }
 
 // Load secrets.properties
@@ -152,10 +153,7 @@ android {
 
                 // Ignore generated classes from databinding, as well as Room and Firebase classes.
                 option("NullAway:UnannotatedSubPackages",
-                    "com.google.android.ground.databinding," +
-                        "com.google.android.ground.persistence.local.room," +
-                        "com.google.android.ground.persistence.remote.firestore," +
-                        "com.google.android.ground.persistence.remote.firestore.schema")
+                    "com.google.android.ground.databinding," + "com.google.android.ground.persistence.local.room," + "com.google.android.ground.persistence.remote.firestore," + "com.google.android.ground.persistence.remote.firestore.schema")
 
                 excludedPaths = ".*/build/generated/.*"
             }
@@ -178,8 +176,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     // Android legacy support Libraries.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -260,6 +258,7 @@ dependencies {
 
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
     implementation "androidx.room:room-guava:$roomVersion"
@@ -285,6 +284,7 @@ dependencies {
     testImplementation 'android.arch.core:core-testing:1.1.1'
     testImplementation 'com.jraska.livedata:testing:1.2.0'
     testImplementation "androidx.arch.core:core-testing:1.3.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
 
     // Mockito
     testImplementation 'org.mockito:mockito-inline:2.8.47'

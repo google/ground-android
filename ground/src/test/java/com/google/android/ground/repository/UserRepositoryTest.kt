@@ -25,10 +25,13 @@ import com.sharedtest.persistence.local.LocalDataStoreHelper
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class UserRepositoryTest : BaseHiltTest() {
@@ -63,12 +66,12 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSaveUser() {
+  fun testSaveUser() = runTest {
     localDataStore.userStore
       .getUser(FakeData.USER.id)
       .test()
       .assertFailure(NoSuchElementException::class.java)
-    userRepository.saveUser(FakeData.USER).test().assertComplete()
+    userRepository.saveUser(FakeData.USER)
     localDataStore.userStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
   }
 

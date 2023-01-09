@@ -23,7 +23,6 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
-import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -59,8 +58,8 @@ constructor(
       else -> Role.UNKNOWN
     }
 
-  fun saveUser(user: User): @Cold Completable =
-    userStore.insertOrUpdateUser(user).observeOn(schedulers.io())
+  /** Saves the given user's data to local storage. */
+  suspend fun saveUser(user: User) = userStore.insertOrUpdateUser(user)
 
   fun getUser(userId: String): @Cold Single<User> = userStore.getUser(userId)
 

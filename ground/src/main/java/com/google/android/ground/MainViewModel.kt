@@ -40,6 +40,8 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -131,18 +133,18 @@ constructor(
         .subscribe()
     surveySyncSubscription?.let { disposeOnClear(it) }
 
-    return userRepository
-      .saveUser(user)
-      .andThen(
-        if (termsOfServiceRepository.isTermsOfServiceAccepted) {
-          Observable.just(HomeScreenFragmentDirections.showHomeScreen())
-        } else {
-          termsOfServiceRepository.termsOfService
-            .map { SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(it.text) }
-            .cast(NavDirections::class.java)
-            .switchIfEmpty(Maybe.just(HomeScreenFragmentDirections.showHomeScreen()))
-            .toObservable()
-        }
-      )
+    return runBlocking(Dispatchers.IO) {
+      userRepository.saveUser(user)
+
+      if (termsOfServiceRepository.isTermsOfServiceAccepted) {
+        Observable.just(HomeScreenFragmentDirections.showHomeScreen())
+      } else {
+        termsOfServiceRepository.termsOfService
+          .map { SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(it.text) }
+          .cast(NavDirections::class.java)
+          .switchIfEmpty(Maybe.just(HomeScreenFragmentDirections.showHomeScreen()))
+          .toObservable()
+      }
+    }
   }
 }
