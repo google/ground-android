@@ -58,7 +58,9 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
-  @BindValue @Mock lateinit var mockLocalLocationOfInterestStore: LocalLocationOfInterestMutationStore
+  @BindValue
+  @Mock
+  lateinit var mockLocalLocationOfInterestStore: LocalLocationOfInterestMutationStore
   @BindValue @Mock lateinit var mockSurveyRepository: SurveyRepository
   @BindValue @Mock lateinit var mockWorkManager: MutationSyncWorkManager
 
@@ -147,7 +149,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testSyncLocationsOfInterest_loaded() {
     fakeRemoteDataStore.streamLoiOnce(loaded("entityId", FakeData.LOCATION_OF_INTEREST))
-    Mockito.`when`(mockLocalDataStore.localLocationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST))
+    Mockito.`when`(
+        mockLocalDataStore.localLocationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST)
+      )
       .thenReturn(Completable.complete())
     locationOfInterestRepository
       .syncLocationsOfInterest(FakeData.SURVEY)
@@ -161,7 +165,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testSyncLocationsOfInterest_modified() {
     fakeRemoteDataStore.streamLoiOnce(modified("entityId", FakeData.LOCATION_OF_INTEREST))
-    Mockito.`when`(mockLocalDataStore.localLocationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST))
+    Mockito.`when`(
+        mockLocalDataStore.localLocationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST)
+      )
       .thenReturn(Completable.complete())
     locationOfInterestRepository
       .syncLocationsOfInterest(FakeData.SURVEY)

@@ -162,7 +162,9 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
     localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     val subscriber =
-      localDataStore.localLocationOfInterestStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
+      localDataStore.localLocationOfInterestStore
+        .getLocationsOfInterestOnceAndStream(TEST_SURVEY)
+        .test()
     subscriber.assertValue(ImmutableSet.of())
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     val loi =
@@ -253,10 +255,7 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
     localDataStore.userStore.insertOrUpdateUser(TEST_USER).blockingAwait()
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localDataStore.submissionStore
-      .applyAndEnqueue(TEST_SUBMISSION_MUTATION)
-      .test()
-      .assertComplete()
+    localDataStore.submissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
     localDataStore
       .getPendingMutations("loi id")
       .test()
@@ -362,7 +361,9 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
     localDataStore.localLocationOfInterestStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localDataStore.submissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
     val subscriber =
-      localDataStore.localLocationOfInterestStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
+      localDataStore.localLocationOfInterestStore
+        .getLocationsOfInterestOnceAndStream(TEST_SURVEY)
+        .test()
 
     // Assert that one LOI is streamed.
     val loi =
@@ -450,7 +451,9 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
 
   @Test
   fun testGetOfflineAreas() {
-    localDataStore.localOfflineAreaStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
+    localDataStore.localOfflineAreaStore
+      .insertOrUpdateOfflineArea(TEST_OFFLINE_AREA)
+      .blockingAwait()
     localDataStore.localOfflineAreaStore.offlineAreasOnceAndStream
       .test()
       .assertValue(ImmutableList.of(TEST_OFFLINE_AREA))

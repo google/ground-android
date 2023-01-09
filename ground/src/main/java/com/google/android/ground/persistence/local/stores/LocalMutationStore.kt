@@ -19,7 +19,10 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 
-/** [LocalStore]s that additionally manage data synchronization with remote storage using [Mutation]s. */
+/**
+ * [LocalStore]s that additionally manage data synchronization with remote storage using [Mutation]s
+ * .
+ */
 interface LocalMutationStore<T : Mutation, M> : LocalStore<M> {
   /**
    * Commits enqueued mutations to a model object then saves it to the local database, ensuring the

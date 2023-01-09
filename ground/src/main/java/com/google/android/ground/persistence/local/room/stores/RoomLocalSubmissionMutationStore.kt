@@ -52,7 +52,8 @@ import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
-class RoomLocalSubmissionMutationStore @Inject internal constructor() : LocalSubmissionMutationStore {
+class RoomLocalSubmissionMutationStore @Inject internal constructor() :
+  LocalSubmissionMutationStore {
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomLocalUserStore

@@ -48,7 +48,8 @@ import timber.log.Timber
 
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
 @Singleton
-class RoomLocalLocationOfInterestMutationStore @Inject internal constructor() : LocalLocationOfInterestMutationStore {
+class RoomLocalLocationOfInterestMutationStore @Inject internal constructor() :
+  LocalLocationOfInterestMutationStore {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomLocalUserStore
