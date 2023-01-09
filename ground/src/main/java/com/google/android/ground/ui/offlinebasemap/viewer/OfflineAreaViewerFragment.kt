@@ -64,9 +64,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     mapFragment.disableGestures()
   }
 
-  override fun getMapViewModel(): AbstractMapViewModel {
-    TODO("Not yet implemented")
-  }
+  override fun getMapViewModel(): AbstractMapViewModel = viewModel
 
   private fun panMap(offlineArea: OfflineArea) {
     mapFragment.viewport = offlineArea.bounds.toModelObject()
