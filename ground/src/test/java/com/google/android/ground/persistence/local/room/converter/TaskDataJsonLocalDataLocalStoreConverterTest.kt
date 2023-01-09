@@ -26,7 +26,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.*
 import org.junit.Test
 
-class TaskDataJsonLocalDataStoreConverterTest {
+class TaskDataJsonLocalDataLocalStoreConverterTest {
 
   @Test
   fun testDateToIsoString() {

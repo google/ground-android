@@ -64,12 +64,12 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testSaveUser() {
-    localDataStore
+    localDataStore.userStore
       .getUser(FakeData.USER.id)
       .test()
       .assertFailure(NoSuchElementException::class.java)
     userRepository.saveUser(FakeData.USER).test().assertComplete()
-    localDataStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+    localDataStore.userStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
   }
 
   @Test

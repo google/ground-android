@@ -105,7 +105,7 @@ constructor(
       val existingTileFile = File(context.filesDir, tileSet.path)
       requestProperties["Range"] = "bytes=" + existingTileFile.length() + "-"
     }
-    return localDataStore
+    return localDataStore.tileSetStore
       .insertOrUpdateTileSet(
         tileSet.copy(
           state = TileSet.State.IN_PROGRESS,
@@ -114,14 +114,14 @@ constructor(
       .andThen(Completable.fromRunnable { downloadTileFile(tileSet, requestProperties) })
       .onErrorResumeNext { e ->
         Timber.d(e, "Failed to download tile: $tileSet")
-        localDataStore.insertOrUpdateTileSet(
+        localDataStore.tileSetStore.insertOrUpdateTileSet(
           tileSet.copy(
             state = TileSet.State.FAILED,
           )
         )
       }
       .andThen(
-        localDataStore.insertOrUpdateTileSet(
+        localDataStore.tileSetStore.insertOrUpdateTileSet(
           tileSet.copy(
             state = TileSet.State.DOWNLOADED,
           )
@@ -162,7 +162,8 @@ constructor(
    * and does not re-download the file.
    */
   override fun doWork(): Result {
-    val pendingTileSets = localDataStore.pendingTileSets.blockingGet() ?: return Result.success()
+    val pendingTileSets =
+      localDataStore.tileSetStore.pendingTileSets.blockingGet() ?: return Result.success()
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.

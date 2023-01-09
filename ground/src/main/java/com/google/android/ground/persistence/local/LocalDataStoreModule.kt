@@ -18,6 +18,8 @@ package com.google.android.ground.persistence.local
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.room.dao.*
+import com.google.android.ground.persistence.local.room.stores.*
+import com.google.android.ground.persistence.local.stores.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -30,6 +32,22 @@ import javax.inject.Singleton
 abstract class LocalDataStoreModule {
 
   @Binds @Singleton abstract fun localDataStore(ds: RoomLocalDataStore): LocalDataStore
+  @Binds
+  @Singleton
+  abstract fun locationOfInterestStore(
+    store: RoomLocalLocationOfInterestMutationStore
+  ): LocalLocationOfInterestMutationStore
+  @Binds
+  @Singleton
+  abstract fun offlineAreaStore(store: RoomLocalOfflineAreaStore): LocalOfflineAreaStore
+  @Binds
+  @Singleton
+  abstract fun submissionStore(
+    store: RoomLocalSubmissionMutationStore
+  ): LocalSubmissionMutationStore
+  @Binds @Singleton abstract fun surveyStore(store: RoomLocalSurveyStore): LocalSurveyStore
+  @Binds @Singleton abstract fun tileSetStore(store: RoomLocalTileSetStore): LocalTileSetStore
+  @Binds @Singleton abstract fun userStore(store: RoomLocalUserStore): LocalUserStore
 
   companion object {
     @Provides
