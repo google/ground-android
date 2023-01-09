@@ -32,12 +32,12 @@ interface MutationStore<T : Mutation, M> : Store<M> {
    * Applies a mutation to locally stored data. The local database will be updated according to the
    * changes in the mutation.
    */
-  fun commit(mutation: T): Completable
+  fun apply(mutation: T): Completable
   /** Updates all "re-queues" mutations in the list of provided list of mutations. */
   fun updateAll(mutations: ImmutableList<T>): Completable
   /**
    * Applies mutations to locally stored data, then enqueues the mutation for use when merging
    * runtime model objects.
    */
-  fun commitThenEnqueue(mutation: T): Completable
+  fun applyAndEnqueue(mutation: T): Completable
 }

@@ -38,7 +38,6 @@ import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import dagger.Provides
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -104,7 +103,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInt
       .insert(mutation.toLocalDataStoreObject())
       .subscribeOn(schedulers.io())
 
-  override fun commit(mutation: LocationOfInterestMutation): Completable =
+  override fun apply(mutation: LocationOfInterestMutation): Completable =
     when (mutation.type) {
       Mutation.Type.CREATE,
       Mutation.Type.UPDATE ->
@@ -119,9 +118,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInt
       Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
 
-  override fun commitThenEnqueue(mutation: LocationOfInterestMutation): Completable =
+  override fun applyAndEnqueue(mutation: LocationOfInterestMutation): Completable =
     try {
-      commit(mutation).andThen(enqueue(mutation))
+      apply(mutation).andThen(enqueue(mutation))
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log(

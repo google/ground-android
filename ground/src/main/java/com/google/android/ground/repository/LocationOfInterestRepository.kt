@@ -163,7 +163,7 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as [Loadable]
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = localDataStore.locationOfInterestStore.commitThenEnqueue(mutation)
+    val localTransaction = localDataStore.locationOfInterestStore.applyAndEnqueue(mutation)
     val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
     return localTransaction.andThen(remoteSync)
   }

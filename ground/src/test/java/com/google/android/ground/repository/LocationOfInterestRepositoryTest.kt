@@ -77,7 +77,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   private fun mockApplyAndEnqueue() {
     Mockito.doReturn(Completable.complete())
       .`when`(mockLocalDataStore.locationOfInterestStore)
-      .commitThenEnqueue(capture(captorLoiMutation))
+      .applyAndEnqueue(capture(captorLoiMutation))
   }
 
   private fun mockEnqueueSyncWorker() {
@@ -101,7 +101,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     assertThat(syncStatus).isEqualTo(SyncStatus.PENDING)
     assertThat(locationOfInterestId).isEqualTo(FakeData.LOCATION_OF_INTEREST.id)
     Mockito.verify(mockLocationOfInterestStore, Mockito.times(1))
-      .commitThenEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -111,7 +111,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     mockEnqueueSyncWorker()
     Mockito.doReturn(Completable.error(NullPointerException()))
       .`when`(mockLocalDataStore.locationOfInterestStore)
-      .commitThenEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     locationOfInterestRepository
       .applyAndEnqueue(
         FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
@@ -120,7 +120,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertError(NullPointerException::class.java)
       .assertNotComplete()
     Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
-      .commitThenEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -139,7 +139,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertNotComplete()
 
     Mockito.verify(mockLocalDataStore.locationOfInterestStore, Mockito.times(1))
-      .commitThenEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any<LocationOfInterestMutation>())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }

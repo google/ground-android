@@ -119,7 +119,7 @@ class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    * exist, or if type is "CREATE" and entity already exists.
    */
-  override fun commit(mutation: SubmissionMutation): Completable {
+  override fun apply(mutation: SubmissionMutation): Completable {
     return when (mutation.type) {
       Mutation.Type.CREATE ->
         userStore.getUser(mutation.userId).flatMapCompletable { user ->
@@ -253,9 +253,9 @@ class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
         list.map { it.toModelObject(survey) }.toImmutableList()
       }
 
-  override fun commitThenEnqueue(mutation: SubmissionMutation): Completable =
+  override fun applyAndEnqueue(mutation: SubmissionMutation): Completable =
     try {
-      commit(mutation).andThen(enqueue(mutation))
+      apply(mutation).andThen(enqueue(mutation))
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log("Error enqueueing ${mutation.type} mutation for submission ${mutation.submissionId}")
