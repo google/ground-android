@@ -24,9 +24,9 @@ import timber.log.Timber
  * local database.
  *
  * When data needs to be persisted and synchronized in both the local and remote data storage use
- * [MutationStore], which has additional methods for handling synchronization.
+ * [LocalMutationStore], which has additional methods for handling synchronization.
  */
-sealed interface Store<T> {
+sealed interface LocalStore<T> {
   fun <R> logAndSkip(supplier: Supplier<R>): Iterable<R> =
     try {
       setOf(supplier.get())

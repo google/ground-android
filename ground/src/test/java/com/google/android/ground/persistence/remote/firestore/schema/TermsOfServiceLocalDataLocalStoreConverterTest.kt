@@ -27,7 +27,7 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class TermsOfServiceLocalDataStoreConverterTest {
+class TermsOfServiceLocalDataLocalStoreConverterTest {
   @Mock private lateinit var termsOfServiceDocumentSnapshot: DocumentSnapshot
 
   private lateinit var termsOfService: TermsOfService

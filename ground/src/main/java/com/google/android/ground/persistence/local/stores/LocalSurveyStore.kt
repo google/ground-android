@@ -23,7 +23,7 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 
 /** Provides access to [Survey] data in local storage. */
-interface SurveyStore : Store<Survey> {
+interface LocalSurveyStore : LocalStore<Survey> {
   /** Load surveys stored in local database. */
   val surveys: @Cold Single<ImmutableList<Survey>>
   /** Load last active survey, if any. */

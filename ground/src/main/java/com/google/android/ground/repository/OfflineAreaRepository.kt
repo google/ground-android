@@ -52,7 +52,7 @@ constructor(
   private val geocodingManager: GeocodingManager,
   private val offlineUuidGenerator: OfflineUuidGenerator
 ) {
-  private val offlineAreaStore = localDataStore.offlineAreaStore
+  private val offlineAreaStore = localDataStore.localOfflineAreaStore
   private val tileSetStore = localDataStore.tileSetStore
 
   /**

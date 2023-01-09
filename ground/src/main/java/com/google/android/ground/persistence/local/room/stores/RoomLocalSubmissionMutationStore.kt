@@ -39,7 +39,7 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionMutatio
 import com.google.android.ground.persistence.local.room.models.EntityState
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.models.UserDetails
-import com.google.android.ground.persistence.local.stores.SubmissionStore
+import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.toImmutableList
 import com.google.common.base.Preconditions
@@ -52,10 +52,10 @@ import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
-class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
+class RoomLocalSubmissionMutationStore @Inject internal constructor() : LocalSubmissionMutationStore {
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
-  @Inject lateinit var userStore: RoomUserStore
+  @Inject lateinit var userStore: RoomLocalUserStore
   @Inject lateinit var schedulers: Schedulers
 
   /**

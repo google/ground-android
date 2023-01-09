@@ -20,7 +20,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.UserDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
-import com.google.android.ground.persistence.local.stores.UserStore
+import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -30,7 +30,7 @@ import timber.log.Timber
 
 /** Manages access to [User] objects persisted in local storage. */
 @Singleton
-class RoomUserStore @Inject internal constructor() : UserStore {
+class RoomLocalUserStore @Inject internal constructor() : LocalUserStore {
   @Inject lateinit var userDao: UserDao
   @Inject lateinit var schedulers: Schedulers
 

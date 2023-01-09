@@ -21,7 +21,7 @@ import com.google.android.ground.persistence.local.room.converter.toOfflineAreaE
 import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
-import com.google.android.ground.persistence.local.stores.OfflineAreaStore
+import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
@@ -33,7 +33,7 @@ import javax.inject.Singleton
 import timber.log.Timber
 
 @Singleton
-class RoomOfflineAreaStore @Inject internal constructor() : OfflineAreaStore {
+class RoomLocalOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
   @Inject lateinit var offlineAreaDao: OfflineAreaDao
   @Inject lateinit var schedulers: Schedulers
 

@@ -45,7 +45,7 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class SubmissionLocalDataStoreConverterTest {
+class SubmissionLocalDataLocalStoreConverterTest {
   @Mock private lateinit var submissionDocumentSnapshot: DocumentSnapshot
 
   private lateinit var job: Job

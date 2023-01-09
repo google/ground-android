@@ -24,9 +24,9 @@ import com.google.android.ground.R
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
-import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
-import com.google.android.ground.persistence.local.stores.SurveyStore
-import com.google.android.ground.persistence.local.stores.UserStore
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.safeEq
 import com.google.common.collect.ImmutableList
@@ -60,9 +60,9 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
 
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
 
-  @BindValue @Mock lateinit var mockSurveyStore: SurveyStore
-  @BindValue @Mock lateinit var mockUserStore: UserStore
-  @BindValue @Mock lateinit var locationOfInterestStore: LocationOfInterestStore
+  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
+  @BindValue @Mock lateinit var mockUserStore: LocalUserStore
+  @BindValue @Mock lateinit var localLocationOfInterestStore: LocalLocationOfInterestMutationStore
 
   private lateinit var surveySelectorDialogFragment: SurveySelectorDialogFragment
 

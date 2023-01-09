@@ -44,17 +44,17 @@ import io.reactivex.Single
  */
 interface LocalDataStore {
   /** Provides access to [Survey] data in local storage. */
-  var surveyStore: SurveyStore
+  var surveyStore: LocalSurveyStore
   /** Provides access to [User] data in local storage. */
-  var userStore: UserStore
+  var userStore: LocalUserStore
   /** Provides access to [TileSet] data in local storage. */
-  var tileSetStore: TileSetStore
+  var tileSetStore: LocalTileSetStore
   /** Provides access to [OfflineArea] data in local storage. */
-  var offlineAreaStore: OfflineAreaStore
+  var localOfflineAreaStore: LocalOfflineAreaStore
   /** Provides access to [Submission] data in local storage. */
-  var submissionStore: SubmissionStore
+  var submissionStore: LocalSubmissionMutationStore
   /** Provides access to [LocationOfInterest] data in local storage. */
-  var locationOfInterestStore: LocationOfInterestStore
+  var localLocationOfInterestStore: LocalLocationOfInterestMutationStore
 
   /**
    * Returns a long-lived stream that emits the full list of mutations for specified survey on

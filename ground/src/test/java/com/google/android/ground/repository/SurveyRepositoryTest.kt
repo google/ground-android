@@ -20,7 +20,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
-import com.google.android.ground.persistence.local.stores.SurveyStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -41,7 +41,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
-  @BindValue @Mock lateinit var mockSurveyStore: SurveyStore
+  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
 
   @Inject lateinit var surveyRepository: SurveyRepository
 

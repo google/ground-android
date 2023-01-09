@@ -59,7 +59,7 @@ constructor(
   private val authManager: AuthenticationManager,
   private val uuidGenerator: OfflineUuidGenerator
 ) {
-  private val locationOfInterestStore = this.localDataStore.locationOfInterestStore
+  private val locationOfInterestStore = this.localDataStore.localLocationOfInterestStore
 
   /**
    * Mirrors locations of interest in the specified survey from the remote db into the local db when
@@ -163,7 +163,7 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as [Loadable]
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = localDataStore.locationOfInterestStore.applyAndEnqueue(mutation)
+    val localTransaction = localDataStore.localLocationOfInterestStore.applyAndEnqueue(mutation)
     val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
     return localTransaction.andThen(remoteSync)
   }

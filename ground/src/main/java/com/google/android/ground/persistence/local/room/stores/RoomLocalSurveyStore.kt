@@ -20,12 +20,11 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.local.stores.Store
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
-import com.google.android.ground.persistence.local.stores.SurveyStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableCollection
@@ -39,7 +38,7 @@ import javax.inject.Singleton
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
-class RoomSurveyStore @Inject internal constructor(): SurveyStore {
+class RoomLocalSurveyStore @Inject internal constructor(): LocalSurveyStore {
   @Inject lateinit var optionDao: OptionDao
   @Inject lateinit var multipleChoiceDao: MultipleChoiceDao
   @Inject lateinit var taskDao: TaskDao

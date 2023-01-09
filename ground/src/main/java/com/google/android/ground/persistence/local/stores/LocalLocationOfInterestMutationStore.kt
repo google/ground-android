@@ -28,7 +28,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
-interface LocationOfInterestStore : MutationStore<LocationOfInterestMutation, LocationOfInterest> {
+interface LocalLocationOfInterestMutationStore : LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
   /**
    * Returns a long-lived stream that emits the full set of LOIs for a survey on subscribe, and
    * continues to return the full set each time a LOI is added/changed/removed.

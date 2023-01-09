@@ -28,7 +28,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
-interface SubmissionStore : MutationStore<SubmissionMutation, Submission> {
+interface LocalSubmissionMutationStore : LocalMutationStore<SubmissionMutation, Submission> {
   /**
    * Returns the list of submissions which are not marked for deletion for the specified
    * locationOfInterest and job.

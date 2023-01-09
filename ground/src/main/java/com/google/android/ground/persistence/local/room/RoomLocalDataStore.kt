@@ -26,7 +26,6 @@ import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.room.stores.*
 import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
@@ -36,9 +35,9 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /**
  * Implementation of local data store using Room ORM. Room abstracts persistence between a local db
@@ -49,19 +48,19 @@ import javax.inject.Singleton
 @Singleton
 class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   @Inject lateinit var schedulers: Schedulers
-  @Inject override lateinit var locationOfInterestStore: LocationOfInterestStore
-  @Inject override lateinit var offlineAreaStore: OfflineAreaStore
-  @Inject override lateinit var submissionStore: SubmissionStore
-  @Inject override lateinit var surveyStore: SurveyStore
-  @Inject override lateinit var tileSetStore: TileSetStore
-  @Inject override lateinit var userStore: UserStore
+  @Inject override lateinit var localLocationOfInterestStore: LocalLocationOfInterestMutationStore
+  @Inject override lateinit var localOfflineAreaStore: LocalOfflineAreaStore
+  @Inject override lateinit var submissionStore: LocalSubmissionMutationStore
+  @Inject override lateinit var surveyStore: LocalSurveyStore
+  @Inject override lateinit var tileSetStore: LocalTileSetStore
+  @Inject override lateinit var userStore: LocalUserStore
 
   override fun getMutationsOnceAndStream(
     survey: Survey
   ): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
     // TODO: Show mutations for all surveys, not just current one.
     val locationOfInterestMutations =
-      locationOfInterestStore
+      localLocationOfInterestStore
         .getAllMutationsAndStream()
         .map { it.filter { it.surveyId == survey.id }.map { it.toModelObject() }.toImmutableList() }
         .subscribeOn(schedulers.io())
@@ -83,7 +82,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   }
 
   override fun getPendingMutations(locationOfInterestId: String): Single<ImmutableList<Mutation>> =
-    locationOfInterestStore
+    localLocationOfInterestStore
       .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
       .flattenAsObservable { it }
       .map { it.toModelObject() }
@@ -111,7 +110,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>().toImmutableList()
     val submissionMutations = mutations.filterIsInstance<SubmissionMutation>().toImmutableList()
 
-    return locationOfInterestStore
+    return localLocationOfInterestStore
       .updateAll(loiMutations)
       .andThen(submissionStore.updateAll(submissionMutations))
       .subscribeOn(schedulers.io())
@@ -129,7 +128,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
             submissionStore.deleteSubmission(mutation.submissionId)
           }
           is LocationOfInterestMutation -> {
-            locationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
+            localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
         }
       }
@@ -144,7 +143,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
         .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
         .toImmutableList()
 
-    return locationOfInterestStore
+    return localLocationOfInterestStore
       .updateAll(locationOfInterestMutations)
       .andThen(submissionStore.updateAll(submissionMutations).subscribeOn(schedulers.io()))
       .subscribeOn(schedulers.io())
