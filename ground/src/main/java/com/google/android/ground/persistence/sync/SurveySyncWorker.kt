@@ -53,7 +53,7 @@ constructor(
   }
 
   companion object {
-    /**  The key in worker input data containing the id of the survey to be synced. */
+    /** The key in worker input data containing the id of the survey to be synced. */
     private const val SURVEY_ID_PARAM_KEY = "surveyId"
 
     /** Returns a new work [Data] object containing the specified survey id. */

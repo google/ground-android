@@ -17,9 +17,9 @@ package com.google.android.ground.persistence.sync
 
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
-import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import timber.log.Timber
 
 /** Service responsible for enqueuing survey and LOI updates from remote server. */
 class SurveySyncService @Inject constructor(private val workManager: WorkManager) : SyncService() {
@@ -36,11 +36,14 @@ class SurveySyncService @Inject constructor(private val workManager: WorkManager
   fun enqueueSync(surveyId: String): UUID {
     val inputData = SurveySyncWorker.createInputData(surveyId)
     val request = buildWorkerRequest(inputData)
-    workManager.enqueueUniqueWork(
-      "${SurveySyncWorker.javaClass.name}#${surveyId}",
-      ExistingWorkPolicy.APPEND,
-      request
-    ).result.get()
+    workManager
+      .enqueueUniqueWork(
+        "${SurveySyncWorker.javaClass.name}#${surveyId}",
+        ExistingWorkPolicy.APPEND,
+        request
+      )
+      .result
+      .get()
     Timber.d("Survey sync enqueued for $surveyId")
     return request.id
   }
