@@ -33,7 +33,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-abstract class RemoteStorageModule {
+abstract class RemotePersistenceModule {
   /** Provides the Firestore implementation of remote data store. */
   @Binds @Singleton abstract fun remoteDataStore(ds: FirestoreDataStore): RemoteDataStore
 

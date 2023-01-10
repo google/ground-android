@@ -16,8 +16,8 @@
 package com.google.android.ground
 
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.persistence.remote.RemotePersistenceModule
 import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.persistence.remote.RemoteStorageModule
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.persistence.remote.FakeRemoteStorageManager
@@ -29,7 +29,10 @@ import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 
 @Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [RemoteStorageModule::class])
+@TestInstallIn(
+  components = [SingletonComponent::class],
+  replaces = [RemotePersistenceModule::class]
+)
 abstract class TestRemoteStorageModule {
   @Binds
   @Singleton
