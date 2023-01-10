@@ -28,26 +28,23 @@ import com.sharedtest.FakeData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
+import javax.inject.Inject
 import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncServiceTest : BaseHiltTest() {
-  @Inject
-  @ApplicationContext
-  lateinit var context: Context
+  @Inject @ApplicationContext lateinit var context: Context
 
-  @Mock
-  private lateinit var surveyRepository: SurveyRepository
+  @Mock private lateinit var surveyRepository: SurveyRepository
 
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver
@@ -59,19 +56,20 @@ class SurveySyncServiceTest : BaseHiltTest() {
     `when`(surveyRepository.syncSurveyWithRemote(Mockito.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
 
-    val config = Configuration.Builder()
-      .setMinimumLoggingLevel(Log.VERBOSE)
-      .setExecutor(SynchronousExecutor())
-      .setWorkerFactory(
-        object : WorkerFactory() {
-          override fun createWorker(
-            appContext: Context,
-            workerClassName: String,
-            workerParameters: WorkerParameters
-          ) = SurveySyncWorker(context, workerParameters, surveyRepository)
-        }
-      )
-      .build()
+    val config =
+      Configuration.Builder()
+        .setMinimumLoggingLevel(Log.VERBOSE)
+        .setExecutor(SynchronousExecutor())
+        .setWorkerFactory(
+          object : WorkerFactory() {
+            override fun createWorker(
+              appContext: Context,
+              workerClassName: String,
+              workerParameters: WorkerParameters
+            ) = SurveySyncWorker(context, workerParameters, surveyRepository)
+          }
+        )
+        .build()
 
     WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
     workManager = WorkManager.getInstance(context)
