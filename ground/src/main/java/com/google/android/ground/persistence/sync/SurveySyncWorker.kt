@@ -35,7 +35,7 @@ constructor(
   @Assisted params: WorkerParameters,
   private val surveyRepository: SurveyRepository
 ) : Worker(context, params) {
-  private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)!!
+  private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
 
   override fun doWork(): Result {
     if (surveyId == null) {
