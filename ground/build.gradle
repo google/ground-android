@@ -41,7 +41,6 @@ project.ext {
     roomVersion = "2.3.0"
     rxBindingVersion = "2.2.0"
     workVersion = "2.5.0"
-    geotoolsVersion = "27.0"
     coroutinesVersion = "1.6.4"
 }
 
