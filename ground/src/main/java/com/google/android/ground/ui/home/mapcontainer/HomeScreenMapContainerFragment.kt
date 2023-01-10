@@ -51,7 +51,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   @Inject lateinit var loiCardSource: LoiCardSource
   @Inject lateinit var navigator: Navigator
 
-  lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: MapContainerFragBinding
@@ -61,7 +60,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
     mapFragment.locationOfInterestInteractions
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { mapContainerViewModel.onMarkerClick(it) }
@@ -77,9 +75,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       mapContainerViewModel.queueTileProvider(it)
     }
 
-    polygonDrawingViewModel.unsavedMapLocationsOfInterest.observe(this) {
-      mapContainerViewModel.setUnsavedMapLocationsOfInterest(it)
-    }
     mapContainerViewModel
       .getZoomThresholdCrossed()
       .`as`(RxAutoDispose.autoDisposable(this))
@@ -154,13 +149,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    Timber.d("MapAdapter ready. Updating subscriptions")
-
-    // Custom views rely on the same instance of MapFragment. That couldn't be injected via Dagger.
-    // Hence, initializing them here instead of inflating in layout.
-    attachCustomViews(mapFragment)
-    polygonDrawingViewModel.setLocationLockEnabled(true)
-
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.mapLocationsOfInterest.observe(this) {
       mapFragment.renderLocationsOfInterest(it)
@@ -172,14 +160,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   override fun getMapViewModel(): AbstractMapViewModel = mapContainerViewModel
-
-  private fun attachCustomViews(map: MapFragment) {
-    val polygonDrawingView = PolygonDrawingView(requireContext(), map)
-    mapContainerViewModel.getAddPolygonVisibility().observe(this) {
-      polygonDrawingView.visibility = it
-    }
-    binding.mapOverlay.addView(polygonDrawingView)
-  }
 
   private fun onBottomSheetStateChange(state: BottomSheetState, map: MapFragment) {
     val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)

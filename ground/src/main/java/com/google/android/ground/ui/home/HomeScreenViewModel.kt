@@ -74,6 +74,7 @@ internal constructor(
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
 
+  // TODO: Cleanup this method
   fun addLoi(job: Job, point: Point) {
     activeSurvey.ifPresentOrElse({ survey: Survey ->
       addLocationOfInterestRequests.onNext(
@@ -82,6 +83,7 @@ internal constructor(
     }) { throw IllegalStateException("Empty survey") }
   }
 
+  // TODO: Cleanup this method
   fun addPolygonOfInterest(areaOfInterest: LocationOfInterest) {
     activeSurvey.ifPresentOrElse({ survey: Survey ->
       addLocationOfInterestRequests.onNext(
