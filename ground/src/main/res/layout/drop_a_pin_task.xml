@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2023 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,15 +17,13 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel" />
-    <variable
-      name="homeScreenViewModel"
-      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
+      type="com.google.android.ground.ui.common.BaseMapViewModel" />
   </data>
 
   <FrameLayout
@@ -37,22 +35,12 @@
       layout="@layout/basemap_layout"
       app:viewModel="@{viewModel}" />
 
-    <com.google.android.material.card.MaterialCardView
+    <ImageView
+      android:id="@+id/markerIcon"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="center|bottom"
-      android:layout_margin="10dp">
+      android:layout_gravity="center"
+      tools:src="@drawable/ground_logo" />
 
-      <TextView
-        android:id="@+id/location_accuracy"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:gravity="center"
-        android:padding="5dp"
-        android:text="@{viewModel.getLocationAccuracy()}"
-        android:textColor="@color/colorPrimary"
-        app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
-    </com.google.android.material.card.MaterialCardView>
   </FrameLayout>
 </layout>

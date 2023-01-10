@@ -123,6 +123,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Called when the map is attached to the fragment. */
   protected abstract fun onMapReady(mapFragment: MapFragment)
 
-  /** Provides an implementation of [AbstractMapViewModel]. */
-  protected abstract fun getMapViewModel(): AbstractMapViewModel
+  /** Provides an implementation of [BaseMapViewModel]. */
+  protected abstract fun getMapViewModel(): BaseMapViewModel
 }

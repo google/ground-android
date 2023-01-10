@@ -18,7 +18,7 @@ package com.google.android.ground.ui.home.mapcontainer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
@@ -31,7 +31,7 @@ import io.reactivex.processors.PublishProcessor
 class PolygonDrawingMapViewModel(
   locationController: LocationController,
   mapController: MapController
-) : AbstractMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, mapController) {
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
 
   /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */

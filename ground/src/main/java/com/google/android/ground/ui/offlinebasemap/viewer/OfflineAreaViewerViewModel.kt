@@ -23,7 +23,7 @@ import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
@@ -50,7 +50,7 @@ constructor(
   navigator: Navigator,
   locationController: LocationController,
   mapController: MapController
-) : AbstractMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, mapController) {
 
   private val fragmentArgs: @Hot(replays = true) PublishSubject<OfflineAreaViewerFragmentArgs> =
     PublishSubject.create()

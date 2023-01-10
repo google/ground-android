@@ -40,6 +40,7 @@ constructor(
     PHOTO,
     NUMBER,
     DATE,
-    TIME
+    TIME,
+    DROP_A_PIN
   }
 }
