@@ -24,9 +24,6 @@
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.common.BaseMapViewModel" />
-    <variable
-      name="enableCrossHairs"
-      type="boolean" />
   </data>
 
   <FrameLayout
@@ -45,19 +42,6 @@
       android:layout_height="match_parent"
       android:fitsSystemWindows="true"
       tools:background="@color/colorGrey800">
-
-      <ImageView
-        android:id="@+id/map_crosshairs_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:adjustViewBounds="false"
-        android:src="@drawable/ic_crosshairs"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:visible="@{enableCrossHairs}" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/map_type_btn"

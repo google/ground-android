@@ -46,7 +46,6 @@ class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewMo
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.viewModel = mapViewModel
-    binding.enableCrossHairs = true
     binding.lifecycleOwner = this
     return binding.root
   }
