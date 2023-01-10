@@ -56,6 +56,7 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore
 ) {
+  private val surveyStore = localDataStore.surveyStore
 
   /** Emits a survey id on {@see #activateSurvey} and empty on {@see #clearActiveSurvey}. */
   private val selectSurveyEvent: @Hot FlowableProcessor<String> = PublishProcessor.create()
@@ -74,7 +75,7 @@ constructor(
     get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
 
   val offlineSurveys: @Cold Single<ImmutableList<Survey>>
-    get() = localDataStore.surveys
+    get() = surveyStore.surveys
 
   init {
     // Kicks off the loading process whenever a new survey id is selected.
@@ -108,7 +109,7 @@ constructor(
 
   /** This only works if the survey is already cached to local db. */
   fun getSurvey(surveyId: String): @Cold Single<Survey> =
-    localDataStore
+    surveyStore
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
@@ -116,7 +117,7 @@ constructor(
     remoteDataStore
       .loadSurvey(id)
       .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .flatMap { localDataStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
+      .flatMap { surveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 

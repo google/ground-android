@@ -19,6 +19,8 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
+import com.google.android.ground.persistence.local.room.RoomLocalDataStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -29,6 +31,7 @@ import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
@@ -37,7 +40,8 @@ import org.robolectric.RobolectricTestRunner
 @UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
+  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
+  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
@@ -50,6 +54,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   private fun setTestSurvey(survey: Survey) {
-    Mockito.`when`(mockLocalDataStore.getSurveyById(anyString())).thenReturn(Maybe.just(survey))
+    Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(anyString()))
+      .thenReturn(Maybe.just(survey))
   }
 }

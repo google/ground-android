@@ -23,6 +23,10 @@ import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
+import com.google.android.ground.persistence.local.room.RoomLocalDataStore
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.safeEq
 import com.google.common.collect.ImmutableList
@@ -39,6 +43,7 @@ import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.robolectric.Robolectric
@@ -53,7 +58,11 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
 
-  @BindValue @Mock lateinit var mockLocalDataStore: LocalDataStore
+  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
+
+  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
+  @BindValue @Mock lateinit var mockUserStore: LocalUserStore
+  @BindValue @Mock lateinit var localLocationOfInterestStore: LocalLocationOfInterestMutationStore
 
   private lateinit var surveySelectorDialogFragment: SurveySelectorDialogFragment
 
@@ -91,7 +100,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
     val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
     // TODO: Replace mocks with inserting the survey in local db
-    Mockito.`when`(mockLocalDataStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
+    Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
       .thenReturn(Maybe.just(TEST_SURVEY_2))
     shadowOf(listView).performItemClick(1)
     shadowOf(Looper.getMainLooper()).idle()

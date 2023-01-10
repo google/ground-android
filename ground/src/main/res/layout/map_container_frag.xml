@@ -26,21 +26,15 @@
     <variable
       name="homeScreenViewModel"
       type="com.google.android.ground.ui.home.HomeScreenViewModel" />
-
-    <variable
-      name="polygonDrawingViewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel" />
   </data>
 
   <FrameLayout
-    android:id="@+id/map_overlay"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <include
       android:id="@+id/basemap"
       layout="@layout/basemap_layout"
-      android:visibility="@{viewModel.mapControlsVisibility}"
       app:viewModel="@{viewModel}" />
 
     <com.google.android.material.card.MaterialCardView

@@ -56,6 +56,8 @@ constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val authManager: AuthenticationManager
 ) {
+  private val submissionStore = localDataStore.submissionStore
+  private val surveyStore = localDataStore.surveyStore
 
   /**
    * Retrieves the submissions or the specified survey, location of interest, and task.
@@ -90,7 +92,7 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(localDataStore.getSubmissions(locationOfInterest, taskId))
+    return remoteSync.andThen(submissionStore.getSubmissions(locationOfInterest, taskId))
   }
 
   private fun mergeRemoteSubmissions(
@@ -104,7 +106,7 @@ constructor(
       }
       .filter { it.isSuccess }
       .map { it.getOrThrow() }
-      .flatMapCompletable { localDataStore.mergeSubmission(it) }
+      .flatMapCompletable { submissionStore.merge(it) }
   }
 
   fun getSubmission(
@@ -115,7 +117,7 @@ constructor(
     // TODO: Store and retrieve latest edits from cache and/or db.
     locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
       locationOfInterest ->
-      localDataStore
+      submissionStore
         .getSubmission(locationOfInterest, submissionId)
         .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
     }
@@ -172,7 +174,7 @@ constructor(
     )
 
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-    localDataStore
+    submissionStore
       .applyAndEnqueue(mutation)
       .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
 
@@ -185,8 +187,8 @@ constructor(
     surveyId: String,
     locationOfInterestId: String
   ): Flowable<ImmutableList<SubmissionMutation>> =
-    localDataStore.getSurveyById(surveyId).toFlowable().flatMap {
-      localDataStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+    surveyStore.getSurveyById(surveyId).toFlowable().flatMap {
+      submissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
         it,
         locationOfInterestId,
         MutationEntitySyncStatus.PENDING,

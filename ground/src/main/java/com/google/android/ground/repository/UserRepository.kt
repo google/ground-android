@@ -40,6 +40,7 @@ constructor(
   private val schedulers: Schedulers,
   private val surveyRepository: SurveyRepository
 ) {
+  private val userStore = localDataStore.userStore
 
   val currentUser: User
     get() = authenticationManager.currentUser
@@ -59,9 +60,9 @@ constructor(
     }
 
   fun saveUser(user: User): @Cold Completable =
-    localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io())
+    userStore.insertOrUpdateUser(user).observeOn(schedulers.io())
 
-  fun getUser(userId: String): @Cold Single<User> = localDataStore.getUser(userId)
+  fun getUser(userId: String): @Cold Single<User> = userStore.getUser(userId)
 
   /** Clears all user-specific preferences and settings. */
   fun clearUserPreferences() = localValueStore.clear()
