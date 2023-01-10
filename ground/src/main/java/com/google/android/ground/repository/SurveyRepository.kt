@@ -113,7 +113,7 @@ constructor(
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
-  private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
+  fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
     remoteDataStore
       .loadSurvey(id)
       .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
