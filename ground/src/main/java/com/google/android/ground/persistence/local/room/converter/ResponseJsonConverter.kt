@@ -97,6 +97,7 @@ internal object ResponseJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         TimeTaskData.fromDate(isoStringToDate(obj as String))
       }
+      Task.Type.DRAW_POLYGON,
       Task.Type.DROP_A_PIN -> {
         if (obj === JSONObject.NULL) {
           LocationTaskData.fromString("")

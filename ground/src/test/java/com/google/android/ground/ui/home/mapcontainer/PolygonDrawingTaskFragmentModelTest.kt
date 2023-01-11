@@ -17,10 +17,10 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver
@@ -40,7 +40,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
-  private lateinit var drawnMapLoiTestObserver: TestObserver<ImmutableSet<MapLocationOfInterest>>
+  private lateinit var drawnMapLoiTestObserver: TestObserver<ImmutableSet<Geometry>>
 
   override fun setUp() {
     super.setUp()
@@ -49,13 +49,13 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     drawnMapLoiTestObserver = TestObserver.test(viewModel.unsavedMapLocationsOfInterest)
 
     // Initialize polygon drawing
-    viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB)
+    viewModel.startDrawingFlow()
   }
 
   @Test
   fun testStateOnBegin() {
     val stateTestObserver = viewModel.drawingState.test()
-    viewModel.startDrawingFlow(FakeData.SURVEY, FakeData.JOB)
+    viewModel.startDrawingFlow()
     stateTestObserver.assertValue(PolygonDrawingState::isInProgress)
   }
 
@@ -175,9 +175,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
     viewModel.onCompletePolygonButtonClick()
     stateTestObserver.assertValue { polygonDrawingState: PolygonDrawingState ->
-      (polygonDrawingState.isCompleted &&
-        polygonDrawingState.unsavedPolygonLocationOfInterest != null &&
-        (polygonDrawingState.unsavedPolygonLocationOfInterest!!.geometry.vertices.size == 4))
+      (polygonDrawingState.isCompleted && polygonDrawingState.polygon?.vertices?.size == 4)
     }
   }
 
@@ -186,11 +184,11 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   }
 
   private fun validateMapLoiDrawn(expectedPolygonCount: Int, expectedPointCount: Int) {
-    drawnMapLoiTestObserver.assertValue { mapLois: ImmutableSet<MapLocationOfInterest> ->
+    drawnMapLoiTestObserver.assertValue { geometries: ImmutableSet<Geometry> ->
       var actualPolygonCount = 0
       var actualPointCount = 0
-      for (mapLocationOfInterest in mapLois) {
-        when (mapLocationOfInterest.locationOfInterest.geometry) {
+      for (geometry in geometries) {
+        when (geometry) {
           is Point -> actualPointCount++
           is Polygon -> actualPolygonCount++
           else -> {}

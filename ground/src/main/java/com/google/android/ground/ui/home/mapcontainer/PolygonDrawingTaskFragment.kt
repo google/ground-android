@@ -64,11 +64,12 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
       binding.completePolygonButton.visibility = if (isComplete) VISIBLE else GONE
       binding.addPolygonButton.visibility = if (isComplete) GONE else VISIBLE
     }
+    viewModel.startDrawingFlow()
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
     viewModel.unsavedMapLocationsOfInterest.observe(this) {
-      mapFragment.renderLocationsOfInterest(it)
+      // TODO(https://github.com/google/ground-android/issues/1351): Render polygon
     }
   }
 
