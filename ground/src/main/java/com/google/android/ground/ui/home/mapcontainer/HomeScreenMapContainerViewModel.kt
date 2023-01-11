@@ -16,10 +16,8 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import android.content.res.Resources
-import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.MutableLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
@@ -32,7 +30,7 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractMapViewModel
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.LocationController
@@ -43,7 +41,6 @@ import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
-import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
@@ -60,21 +57,10 @@ internal constructor(
   private val locationController: LocationController,
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
-) : AbstractMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, mapController) {
   val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
 
   private var lastCameraPosition: CameraPosition? = null
-
-  /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
-  private val unsavedMapLocationsOfInterest:
-    @Hot
-    PublishProcessor<ImmutableSet<MapLocationOfInterest>> =
-    PublishProcessor.create()
-
-  private val mapControlsVisibility: @Hot(replays = true) MutableLiveData<Int> =
-    MutableLiveData(View.VISIBLE)
-
-  private val addPolygonVisibility = MutableLiveData(View.GONE)
 
   val mbtilesFilePaths: LiveData<ImmutableSet<String>>
   val isLocationUpdatesEnabled: LiveData<Boolean>
@@ -87,14 +73,6 @@ internal constructor(
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
-
-  // TODO: Move this in LocationOfInterestRepositionView and return the final updated LOI as the
-  // result.
-  /** LocationOfInterest selected for repositioning. */
-  var reposLocationOfInterest: Optional<LocationOfInterest> = Optional.empty()
-
-  fun setUnsavedMapLocationsOfInterest(locationsOfInterest: ImmutableSet<MapLocationOfInterest>) =
-    unsavedMapLocationsOfInterest.onNext(locationsOfInterest)
 
   private fun updateSelectedLocationOfInterest(
     locationsOfInterest: ImmutableSet<MapLocationOfInterest>,
@@ -188,33 +166,13 @@ internal constructor(
     tileProviders.forEach { it.close() }
   }
 
-  fun setMode(viewMode: Mode) {
-    mapControlsVisibility.postValue(if (viewMode == Mode.DEFAULT) View.VISIBLE else View.GONE)
-    addPolygonVisibility.postValue(if (viewMode == Mode.DRAW_POLYGON) View.VISIBLE else View.GONE)
-
-    if (viewMode == Mode.DEFAULT) {
-      reposLocationOfInterest = Optional.empty()
-    }
-  }
-
   fun getZoomThresholdCrossed(): Observable<Nil> {
     return zoomThresholdCrossed
   }
 
-  fun getMapControlsVisibility(): LiveData<Int> {
-    return mapControlsVisibility
-  }
-
-  fun getAddPolygonVisibility(): LiveData<Int> = addPolygonVisibility
-
   /** Called when a LOI is (de)selected. */
   fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
-  enum class Mode {
-    DEFAULT,
-    DRAW_POLYGON,
   }
 
   companion object {
@@ -258,7 +216,6 @@ internal constructor(
         Flowable.combineLatest(
             listOf(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
-              unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
             )
           ) { concatLocationsOfInterestSets(it) }
           .distinctUntilChanged()

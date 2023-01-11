@@ -51,6 +51,7 @@ constructor(
           dataCollectionViewModel,
           userMediaRepository
         )
+      Task.Type.DROP_A_PIN -> DropAPinTaskFragment(task, viewModel as DropAPinTaskViewModel)
       else -> DataCollectionTaskFragment()
     }
   }

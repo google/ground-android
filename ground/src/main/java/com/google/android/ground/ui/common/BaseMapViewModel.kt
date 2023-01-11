@@ -28,12 +28,13 @@ import com.google.android.ground.ui.map.MapController
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import javax.inject.Inject
 import timber.log.Timber
 
-abstract class AbstractMapViewModel(
-  private val locationController: LocationController,
-  mapController: MapController
-) : AbstractViewModel() {
+open class BaseMapViewModel
+@Inject
+constructor(private val locationController: LocationController, mapController: MapController) :
+  AbstractViewModel() {
 
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()

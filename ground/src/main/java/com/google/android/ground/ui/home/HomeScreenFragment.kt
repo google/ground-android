@@ -46,8 +46,6 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -84,12 +82,11 @@ class HomeScreenFragment :
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
-  private lateinit var polygonDrawingViewModel: PolygonDrawingViewModel
   private lateinit var surveySelectorViewModel: SurveySelectorViewModel
 
   private var progressDialog: ProgressDialog? = null
-
   private var surveys = emptyList<Survey>()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat
@@ -97,7 +94,6 @@ class HomeScreenFragment :
       onApplyWindowInsets(insets)
     }
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
-    polygonDrawingViewModel = getViewModel(PolygonDrawingViewModel::class.java)
     surveySelectorViewModel = getViewModel(SurveySelectorViewModel::class.java)
     locationOfInterestSelectorViewModel =
       getViewModel(LocationOfInterestSelectorViewModel::class.java)
@@ -115,27 +111,9 @@ class HomeScreenFragment :
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onLocationOfInterestAdded(it) }
     homeScreenViewModel.errors.`as`(RxAutoDispose.autoDisposable(this)).subscribe { onError(it) }
-    polygonDrawingViewModel.drawingState
-      .distinctUntilChanged()
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { onPolygonDrawingStateUpdated(it) }
     locationOfInterestSelectorViewModel.locationOfInterestClicks
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
-  }
-
-  private fun onPolygonDrawingStateUpdated(state: PolygonDrawingState) {
-    Timber.v("PolygonDrawing state : %s", state)
-    if (state.isInProgress) {
-      mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DRAW_POLYGON)
-    } else {
-      mapContainerViewModel.setMode(HomeScreenMapContainerViewModel.Mode.DEFAULT)
-      if (state.isCompleted) {
-        homeScreenViewModel.addPolygonOfInterest(
-          checkNotNull(state.unsavedPolygonLocationOfInterest)
-        )
-      }
-    }
   }
 
   private fun showLocationOfInterestSelector(
