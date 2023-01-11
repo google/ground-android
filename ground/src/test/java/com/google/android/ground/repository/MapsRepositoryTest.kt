@@ -51,4 +51,16 @@ class MapsRepositoryTest : BaseHiltTest() {
 
     assertThat(mapsRepository.observableMapType().value).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
   }
+
+  @Test
+  fun testIsGpsLocked_default() {
+    assertThat(mapsRepository.isGpsLocked).isFalse()
+  }
+
+  @Test
+  fun testIsGpsLocked_whenLocked_returnsTrue() {
+    mapsRepository.isGpsLocked = true
+
+    assertThat(mapsRepository.isGpsLocked).isTrue()
+  }
 }
