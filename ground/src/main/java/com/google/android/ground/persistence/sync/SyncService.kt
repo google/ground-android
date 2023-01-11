@@ -39,7 +39,7 @@ abstract class SyncService {
   protected open fun preferredNetworkType(): NetworkType = DEFAULT_NETWORK_TYPE
 
   /** A class extending [BaseWorker] which gets scheduled for a request. */
-  protected abstract val workerClass: Class<out BaseWorker?>
+  protected abstract val workerClass: Class<out Worker?>
 
   /**
    * Create a work request for non-repeating work along with input data that would be passed along
