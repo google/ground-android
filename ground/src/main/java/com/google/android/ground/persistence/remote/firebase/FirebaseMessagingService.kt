@@ -24,8 +24,8 @@ import javax.inject.Inject
 import timber.log.Timber
 
 /**
- * Listens to messages from Firebase Cloud Messaging, and enqueuing re-sync of survey metadata
- * when receiving.
+ * Listens to messages from Firebase Cloud Messaging, and enqueuing re-sync of survey metadata when
+ * receiving.
  */
 @AndroidEntryPoint
 class FirebaseMessagingService : FirebaseMessagingService() {
@@ -33,8 +33,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
   @Inject lateinit var surveySyncService: SurveySyncService
 
   /**
-   * Processes new messages, enqueuing a worker to sync the survey with the
-   * id specified in the message topic.
+   * Processes new messages, enqueuing a worker to sync the survey with the id specified in the
+   * message topic.
    */
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
     val surveyId = remoteMessage.from?.removePrefix("/topic/")
