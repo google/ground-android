@@ -37,6 +37,8 @@ import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -139,6 +141,12 @@ internal constructor(
       }
       .subscribeOn(schedulers.io())
   }
+
+  override fun subscribeToSurveyUpdates(surveyId: String): Completable =
+    RxTask.toCompletable {
+      Timber.d("Subscribing to FCM topic $surveyId")
+      Firebase.messaging.subscribeToTopic(surveyId)
+    }
 
   private fun applyMutationsInternal(
     mutations: ImmutableCollection<Mutation>,
