@@ -24,7 +24,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -33,9 +32,9 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
@@ -58,7 +57,7 @@ internal constructor(
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
-  val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
+  val mapLocationOfInterestFeatures: LiveData<ImmutableSet<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
 
@@ -75,16 +74,18 @@ internal constructor(
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
   private fun updateSelectedLocationOfInterest(
-    locationsOfInterest: ImmutableSet<MapLocationOfInterest>,
+    locationsOfInterest: ImmutableSet<Feature>,
     selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): ImmutableSet<MapLocationOfInterest> {
+  ): ImmutableSet<Feature> {
     Timber.v("Updating selected LOI style")
+
     if (selectedLocationOfInterest.isEmpty) {
       return locationsOfInterest
     }
-    val updatedLocationsOfInterest: ImmutableSet.Builder<MapLocationOfInterest> =
-      ImmutableSet.builder()
+
+    val updatedLocationsOfInterest: ImmutableSet.Builder<Feature> = ImmutableSet.builder()
     val selectedLocationOfInterestId = selectedLocationOfInterest.get().id
+
     for (locationOfInterest in locationsOfInterest) {
       // TODO: Update strokewidth of non MapGeoJson locationOfInterest
       updatedLocationsOfInterest.add(locationOfInterest)
@@ -92,23 +93,22 @@ internal constructor(
     return updatedLocationsOfInterest.build()
   }
 
-  private fun toMapLocationsOfInterest(
+  private fun toLocationOfInterestFeatures(
     locationsOfInterest: ImmutableSet<LocationOfInterest>
-  ): ImmutableSet<MapLocationOfInterest> {
-    val points =
-      locationsOfInterest
-        .filter { it.type === LocationOfInterestType.POINT }
-        .map { MapLocationOfInterest(it) }
-        .toImmutableSet()
-
+  ): ImmutableSet<Feature> {
     // TODO: Add support for polylines similar to mapPins.
-    val polygons =
-      locationsOfInterest
-        .filter { it.type === LocationOfInterestType.POLYGON }
-        .map { MapLocationOfInterest(it) }
-        .toImmutableSet()
-
-    return ImmutableSet.builder<MapLocationOfInterest>().addAll(points).addAll(polygons).build()
+    return locationsOfInterest
+      .map {
+        Feature(
+          Feature.LocationOfInterestTag(
+            id = it.id,
+            caption = it.caption ?: "",
+            lastModified = it.lastModified.toString()
+          ),
+          it.geometry
+        )
+      }
+      .toImmutableSet()
   }
 
   private fun createLocationAccuracyFlowable() =
@@ -146,10 +146,9 @@ internal constructor(
     }
   }
 
-  fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
-    val geometry = mapLocationOfInterest.locationOfInterest.geometry
-    if (geometry is Point) {
-      mapController.panAndZoomCamera(geometry)
+  fun onMarkerClick(feature: Feature) {
+    if (feature.geometry is Point) {
+      mapController.panAndZoomCamera(feature.geometry)
     }
   }
 
@@ -180,10 +179,8 @@ internal constructor(
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
 
-    private fun concatLocationsOfInterestSets(
-      objects: Array<Any>
-    ): ImmutableSet<MapLocationOfInterest> =
-      listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
+    private fun concatLocationsOfInterestSets(objects: Array<Any>): ImmutableSet<Feature> =
+      listOf(*objects).flatMap { it as ImmutableSet<Feature> }.toImmutableSet()
   }
 
   init {
@@ -205,19 +202,21 @@ internal constructor(
 
     val savedMapLocationsOfInterest =
       Flowable.combineLatest(
-        loiStream.map { locationsOfInterest -> toMapLocationsOfInterest(locationsOfInterest) },
+        loiStream.map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) },
         selectedLocationOfInterest
       ) { locationsOfInterest, selectedLocationOfInterest ->
         updateSelectedLocationOfInterest(locationsOfInterest, selectedLocationOfInterest)
       }
 
-    mapLocationsOfInterest =
+    mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
         Flowable.combineLatest(
             listOf(
-              savedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>()),
+              savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()),
             )
-          ) { concatLocationsOfInterestSets(it) }
+          ) {
+            concatLocationsOfInterestSets(it)
+          }
           .distinctUntilChanged()
       )
 

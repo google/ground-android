@@ -33,9 +33,10 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
-import com.google.android.ground.ui.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.FlowableProcessor
@@ -73,6 +74,11 @@ internal constructor(
   val errors: @Hot FlowableProcessor<Throwable> = PublishProcessor.create()
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
+  /**
+   * Live cache of locations of interest. Updated every time the underlying local storage data
+   * changes.
+   */
+  private var locationOfInterestCache: ImmutableSet<LocationOfInterest> = ImmutableSet.of()
 
   // TODO: Cleanup this method
   fun addLoi(job: Job, point: Point) {
@@ -80,7 +86,9 @@ internal constructor(
       addLocationOfInterestRequests.onNext(
         locationOfInterestRepository.newMutation(survey.id, job.id, point, Date())
       )
-    }) { throw IllegalStateException("Empty survey") }
+    }) {
+      throw IllegalStateException("Empty survey")
+    }
   }
 
   // TODO: Cleanup this method
@@ -94,16 +102,29 @@ internal constructor(
           Date()
         )
       )
-    }) { throw IllegalStateException("Empty survey") }
+    }) {
+      throw IllegalStateException("Empty survey")
+    }
   }
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
   }
 
-  fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
-    showBottomSheet(mapLocationOfInterest.locationOfInterest)
-  }
+  /** Intended for use as a callback for handling user clicks on rendered map features. */
+  fun onMarkerClick(feature: Feature) =
+    when (val tag = feature.tag) {
+      is Feature.LocationOfInterestTag -> {
+        val loi = locationOfInterestCache.find { it.id == tag.id }
+
+        if (loi != null) {
+          showBottomSheet(loi)
+        } else {
+          Timber.e("user selected LOI feature does not exist in the active survey")
+        }
+      }
+      else -> {} // only LocationOfInterest features are currently handled.
+    }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
     showBottomSheet(locationOfInterest)
@@ -147,19 +168,22 @@ internal constructor(
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
   }
 
-  fun onLocationOfInterestClick(mapLocationsOfInterest: ImmutableList<MapLocationOfInterest>) {
+  fun onLocationOfInterestClick(features: ImmutableList<Feature>) {
+    val loiFeatureIds =
+      features.filter { it.tag is Feature.LocationOfInterestTag }.map { it.tag.id }
     val locationsOfInterest: ImmutableList<LocationOfInterest> =
-      mapLocationsOfInterest
-        .map { obj: MapLocationOfInterest -> checkNotNull(obj.locationOfInterest) }
-        .toImmutableList()
+      locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }.toImmutableList()
+
     if (locationsOfInterest.isEmpty()) {
       Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest")
       return
     }
+
     if (locationsOfInterest.size == 1) {
       onLocationOfInterestSelected(locationsOfInterest[0])
       return
     }
+
     showLocationOfInterestSelectorRequests.onNext(locationsOfInterest)
   }
 
@@ -179,5 +203,14 @@ internal constructor(
           .doOnError { t: Throwable -> errors.onNext(t) }
           .onErrorResumeNext(Single.never())
       } // Prevent from breaking upstream.
+
+    activeSurvey.ifPresent {
+      val locationsOfInterestSubscription =
+        locationOfInterestRepository.getLocationsOfInterestOnceAndStream(it).subscribe {
+          locationOfInterestCache = it
+        }
+
+      disposeOnClear(locationsOfInterestSubscription)
+    }
   }
 }

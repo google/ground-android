@@ -49,7 +49,7 @@ class LocationOfInterestClusterRenderer(
     item: LocationOfInterestClusterItem,
     markerOptions: MarkerOptions
   ) {
-    if (item.locationOfInterest.id == clusterManager.activeLocationOfInterest) {
+    if (item.locationOfInterestId == clusterManager.activeLocationOfInterest) {
       markerOptions.icon(getMarkerIcon(true))
     } else {
       markerOptions.icon(getMarkerIcon(false))

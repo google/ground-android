@@ -48,15 +48,21 @@ class LocationOfInterestClusterManagerTest : BaseHiltTest() {
 
   @Test
   fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
-    locationOfInterestClusterManager.addOrUpdateLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
+    locationOfInterestClusterManager.addOrUpdateLocationOfInterestFeature(
+      FakeData.LOCATION_OF_INTEREST_FEATURE
+    )
     assertThat(locationOfInterestClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
 
   @Test
   fun removeLocationsOfInterest_removesLOIsById() {
-    locationOfInterestClusterManager.addOrUpdateLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
-    locationOfInterestClusterManager.removeLocationsOfInterest(setOf(FakeData.LOCATION_OF_INTEREST))
+    locationOfInterestClusterManager.addOrUpdateLocationOfInterestFeature(
+      FakeData.LOCATION_OF_INTEREST_FEATURE
+    )
+    locationOfInterestClusterManager.removeLocationOfInterestFeatures(
+      setOf(FakeData.LOCATION_OF_INTEREST_FEATURE)
+    )
     assertThat(locationOfInterestClusterManager.algorithm.items).isEmpty()
   }
 }
