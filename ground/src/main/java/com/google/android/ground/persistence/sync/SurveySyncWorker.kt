@@ -35,7 +35,7 @@ constructor(
   @Assisted params: WorkerParameters,
   private val surveyRepository: SurveyRepository
 ) : Worker(context, params) {
-  private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)!!
+  private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
 
   override fun doWork(): Result {
     if (surveyId == null) {
@@ -57,7 +57,6 @@ constructor(
     private const val SURVEY_ID_PARAM_KEY = "surveyId"
 
     /** Returns a new work [Data] object containing the specified survey id. */
-    @JvmStatic
     fun createInputData(surveyId: String): Data =
       Data.Builder().putString(SURVEY_ID_PARAM_KEY, surveyId).build()
   }
