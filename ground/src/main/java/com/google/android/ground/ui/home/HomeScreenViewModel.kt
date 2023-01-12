@@ -86,7 +86,9 @@ internal constructor(
       addLocationOfInterestRequests.onNext(
         locationOfInterestRepository.newMutation(survey.id, job.id, point, Date())
       )
-    }) { throw IllegalStateException("Empty survey") }
+    }) {
+      throw IllegalStateException("Empty survey")
+    }
   }
 
   // TODO: Cleanup this method
@@ -100,7 +102,9 @@ internal constructor(
           Date()
         )
       )
-    }) { throw IllegalStateException("Empty survey") }
+    }) {
+      throw IllegalStateException("Empty survey")
+    }
   }
 
   fun openNavDrawer() {
@@ -109,9 +113,9 @@ internal constructor(
 
   /** Intended for use as a callback for handling user clicks on rendered map features. */
   fun onMarkerClick(feature: Feature) =
-    when (val tag = feature.tag) {
-      is Feature.LocationOfInterestTag -> {
-        val loi = locationOfInterestCache.find { it.id == tag.id }
+    when (feature.tag) {
+      Feature.Type.LOCATION_OF_INTEREST -> {
+        val loi = locationOfInterestCache.find { it.id == feature.id }
 
         if (loi != null) {
           showBottomSheet(loi)
@@ -166,7 +170,7 @@ internal constructor(
 
   fun onLocationOfInterestClick(features: ImmutableList<Feature>) {
     val loiFeatureIds =
-      features.filter { it.tag is Feature.LocationOfInterestTag }.map { it.tag.id }
+      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.map { it.id }
     val locationsOfInterest: ImmutableList<LocationOfInterest> =
       locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }.toImmutableList()
 
@@ -200,13 +204,17 @@ internal constructor(
           .onErrorResumeNext(Single.never())
       } // Prevent from breaking upstream.
 
-    activeSurvey.ifPresent {
-      val locationsOfInterestSubscription =
-        locationOfInterestRepository.getLocationsOfInterestOnceAndStream(it).subscribe {
-          locationOfInterestCache = it
+    val locationsOfInterestSubscription =
+      surveyRepository.activeSurvey
+        .switchMap {
+          if (it.isPresent) {
+            locationOfInterestRepository.getLocationsOfInterestOnceAndStream(it.get())
+          } else {
+            Flowable.empty()
+          }
         }
+        .subscribe { locationOfInterestCache = it }
 
-      disposeOnClear(locationsOfInterestSubscription)
-    }
+    disposeOnClear(locationsOfInterestSubscription)
   }
 }

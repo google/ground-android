@@ -98,16 +98,7 @@ internal constructor(
   ): ImmutableSet<Feature> {
     // TODO: Add support for polylines similar to mapPins.
     return locationsOfInterest
-      .map {
-        Feature(
-          Feature.LocationOfInterestTag(
-            id = it.id,
-            caption = it.caption ?: "",
-            lastModified = it.lastModified.toString()
-          ),
-          it.geometry
-        )
-      }
+      .map { Feature(id = it.id, tag = Feature.Type.LOCATION_OF_INTEREST, geometry = it.geometry) }
       .toImmutableSet()
   }
 

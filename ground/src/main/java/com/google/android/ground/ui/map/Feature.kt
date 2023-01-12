@@ -18,15 +18,10 @@ package com.google.android.ground.ui.map
 import com.google.android.ground.model.geometry.Geometry
 
 /** Represents an individual feature on a map with a given [Geometry]. */
-data class Feature(val tag: Tag, val geometry: Geometry) {
+data class Feature(val id: String, val tag: Type, val geometry: Geometry) {
   /** Denotes the kind of entity this map feature represents. */
-  sealed class Tag(open val id: String)
-  /** A [Feature.Tag] that indicates this map feature represents a location of interest. */
-  data class LocationOfInterestTag(
-    override val id: String,
-    val caption: String,
-    val lastModified: String
-  ) : Tag(id)
-  /** A [Feature.Tag] that indicates this map feature represents a polygon drawn by the user. */
-  data class UserPolygonTag(override val id: String) : Tag(id)
+  enum class Type {
+    UNKNOWN,
+    LOCATION_OF_INTEREST,
+  }
 }

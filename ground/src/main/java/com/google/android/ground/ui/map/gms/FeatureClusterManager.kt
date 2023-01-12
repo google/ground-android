@@ -23,35 +23,28 @@ import com.google.android.ground.util.toImmutableSet
 import com.google.maps.android.clustering.ClusterManager
 import timber.log.Timber
 
-/** Manages clusters of location of interest map [Feature]s. */
-class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
-  ClusterManager<LocationOfInterestClusterItem>(context, map) {
+/** Manages clusters of map [Feature]s. */
+class FeatureClusterManager(context: Context?, map: GoogleMap) :
+  ClusterManager<FeatureClusterItem>(context, map) {
   var activeLocationOfInterest: String? = null
 
-  /** Manage a given location of interest feature and add it to an appropriate cluster. */
+  /** Manage a given map feature and add it to an appropriate cluster. */
   fun addOrUpdateLocationOfInterestFeature(feature: Feature) {
+    // TODO(#1152): Add support for polygons.
     if (feature.geometry !is Point) {
-      // TODO(#1152): Add support for polygons.
       Timber.d("can't manage a non-point")
       return
     }
 
     when (feature.tag) {
-      is Feature.LocationOfInterestTag -> {
-        val clusterItem = algorithm.items.find { it.locationOfInterestId == feature.tag.id }
+      Feature.Type.LOCATION_OF_INTEREST -> {
+        val clusterItem = algorithm.items.find { it.feature.id == feature.id }
 
         if (clusterItem != null) {
           updateItem(clusterItem)
         } else {
           Timber.d("adding loi to cluster manager: ${feature}")
-          addItem(
-            LocationOfInterestClusterItem(
-              feature.geometry,
-              feature.tag.caption,
-              feature.tag.lastModified,
-              feature.tag.id,
-            )
-          )
+          addItem(FeatureClusterItem(feature))
         }
       }
       else -> {}
@@ -60,26 +53,15 @@ class LocationOfInterestClusterManager(context: Context?, map: GoogleMap) :
 
   /** Remove a set of features from this manager's clusters. */
   fun removeLocationOfInterestFeatures(features: Set<Feature>) {
-    val existingIds = algorithm.items.map { it.locationOfInterestId }.toSet()
-    val deletedIds = existingIds.intersect(features.map { it.tag.id }.toSet())
-    val deletedPoints: Set<LocationOfInterestClusterItem> =
-      algorithm.items.filter { deletedIds.contains(it.locationOfInterestId) }.toSet()
+    val existingIds = algorithm.items.map { it.feature.id }.toSet()
+    val deletedIds = existingIds.intersect(features.map { it.id }.toSet())
+    val deletedPoints: Set<FeatureClusterItem> =
+      algorithm.items.filter { deletedIds.contains(it.feature.id) }.toSet()
 
     Timber.d("removing points: ${deletedPoints}")
     removeItems(deletedPoints)
   }
 
-  /**
-   * Returns all of the location of interest map [Feature]s currently managed by this cluster
-   * manager.
-   */
-  fun getManagedLocationOfInterestFeatures() =
-    algorithm.items
-      .map {
-        Feature(
-          Feature.LocationOfInterestTag(it.locationOfInterestId, it.title, it.snippet),
-          it.position.toPoint()
-        )
-      }
-      .toImmutableSet()
+  /** Returns all of the map [Feature]s currently managed by this cluster manager. */
+  fun getManagedFeatures() = algorithm.items.map { it.feature }.toImmutableSet()
 }
