@@ -36,9 +36,9 @@ class MapsRepository @Inject constructor(private val localValueStore: LocalValue
       mutableMapType.postValue(value)
     }
 
-  var isGpsLocked: Boolean
-    get() = localValueStore.isGpsLocked
+  var isLocationLocked: Boolean
+    get() = localValueStore.isLocationLocked
     set(value) {
-      localValueStore.isGpsLocked = value
+      localValueStore.isLocationLocked = value
     }
 }

@@ -40,7 +40,7 @@ constructor(
   /** Emits a stream of location lock requests. */
   fun getLocationLockUpdates(): Flowable<Result<Boolean>> =
     locationLockChangeRequests
-      .startWith(mapsRepository.isGpsLocked)
+      .startWith(mapsRepository.isLocationLocked)
       .switchMapSingle { toggleLocationUpdates(it) }
       .toFlowable(BackpressureStrategy.LATEST)
       .share()
@@ -68,7 +68,7 @@ constructor(
   fun unlock() = onLockStateChanged(false)
 
   private fun onLockStateChanged(isLocked: Boolean) {
-    mapsRepository.isGpsLocked = isLocked
+    mapsRepository.isLocationLocked = isLocked
     locationLockChangeRequests.onNext(isLocked)
   }
 }

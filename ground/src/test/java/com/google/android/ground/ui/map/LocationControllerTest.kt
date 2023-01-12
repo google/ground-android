@@ -51,14 +51,14 @@ class LocationControllerTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLocationUpdates_defaultGpsState() {
+  fun testLocationUpdates_defaultLocationState() {
     locationController.getLocationLockUpdates().test().assertValue(RESULT_DISABLE_LOCK)
     locationController.getLocationUpdates().test().assertNoValues()
   }
 
   @Test
-  fun testLocationUpdates_whenLastGpsStateIsLocked() {
-    mapsRepository.isGpsLocked = true
+  fun testLocationUpdates_whenLastLocationStateIsLocked() {
+    mapsRepository.isLocationLocked = true
 
     locationController.getLocationLockUpdates().test().assertValue(RESULT_ENABLE_LOCK)
     locationController.getLocationUpdates().test().assertValue(TEST_LOCATION)
