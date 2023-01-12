@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.ground.model.geometry.Point
 import com.google.maps.android.clustering.ClusterItem
 
-/**  */
+/** A cluster item for Location of Interest Features. */
 data class LocationOfInterestClusterItem(
   private val position: Point,
   private val title: String,

@@ -86,9 +86,7 @@ internal constructor(
       addLocationOfInterestRequests.onNext(
         locationOfInterestRepository.newMutation(survey.id, job.id, point, Date())
       )
-    }) {
-      throw IllegalStateException("Empty survey")
-    }
+    }) { throw IllegalStateException("Empty survey") }
   }
 
   // TODO: Cleanup this method
@@ -102,9 +100,7 @@ internal constructor(
           Date()
         )
       )
-    }) {
-      throw IllegalStateException("Empty survey")
-    }
+    }) { throw IllegalStateException("Empty survey") }
   }
 
   fun openNavDrawer() {
