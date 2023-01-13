@@ -135,7 +135,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   val firstVertex: Optional<Point>
-    get() = Optional.ofNullable(polygon).map { it!!.vertices[0] }
+    get() = Optional.ofNullable(vertices.firstOrNull())
 
   fun startDrawingFlow() {
     polygonDrawingState.onNext(PolygonDrawingState.inProgress())
