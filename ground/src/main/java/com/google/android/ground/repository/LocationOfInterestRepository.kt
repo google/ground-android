@@ -141,7 +141,7 @@ constructor(
   fun newPolygonOfInterestMutation(
     surveyId: String,
     jobId: String,
-    vertices: ImmutableList<Point>,
+    vertices: List<Point>,
     date: Date
   ): LocationOfInterestMutation =
     LocationOfInterestMutation(

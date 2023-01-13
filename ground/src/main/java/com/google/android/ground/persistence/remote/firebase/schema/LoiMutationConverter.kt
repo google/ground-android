@@ -68,6 +68,6 @@ internal object LoiMutationConverter {
 
   private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.x, point.coordinate.y)
 
-  private fun toGeoPointList(point: ImmutableList<Point>): List<GeoPoint> =
+  private fun toGeoPointList(point: List<Point>): List<GeoPoint> =
     point.map { toGeoPoint(it) }.toImmutableList()
 }
