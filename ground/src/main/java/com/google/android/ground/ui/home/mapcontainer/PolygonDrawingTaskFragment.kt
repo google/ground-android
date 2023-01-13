@@ -68,6 +68,7 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
+    mapFragment.enableClustering(false);
     viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 

@@ -105,4 +105,7 @@ interface MapFragment {
 
   /** Update UI of rendered [LocationOfInterest]. */
   fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?)
+
+  /** Whether rendered geometries should be clustered or not. */
+  fun enableClustering(isEnabled: Boolean)
 }

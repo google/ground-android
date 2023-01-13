@@ -415,6 +415,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     refresh()
   }
 
+  override fun enableClustering(isEnabled: Boolean) {
+    (clusterManager.renderer as FeatureClusterRenderer).setClusteringEnabled(isEnabled)
+  }
+
   companion object {
     // TODO(#936): Remove placeholder with appropriate images
     private val MAP_TYPES =
