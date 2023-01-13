@@ -24,6 +24,9 @@
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel" />
+    <variable
+      name="mapViewModel"
+      type="com.google.android.ground.ui.common.BaseMapViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,17 +34,20 @@
     android:layout_height="match_parent"
     tools:background="@color/colorGrey800">
 
-    <!-- TODO: Add highlighted icon overlay when showing locationOfInterest sheet -->
+    <include
+      android:id="@+id/basemap"
+      layout="@layout/basemap_layout"
+      app:viewModel="@{mapViewModel}" />
 
     <LinearLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_marginBottom="48dp"
+      android:gravity="center_vertical"
       android:orientation="horizontal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      android:layout_marginBottom="48dp"
-      android:gravity="center_vertical">
+      app:layout_constraintStart_toStartOf="parent">
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/undo_button"
@@ -74,19 +80,6 @@
         android:radius="4dp"
         android:text="@string/complete_polygon"
         android:textColor="@color/colorBackground" />
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/current_location_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:enabled="@{viewModel.getLocationLockEnabled()}"
-        android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        app:backgroundTint="@color/colorBackground"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_gps_lock"
-        app:tint="@{viewModel.getIconTint()}" />
     </LinearLayout>
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
