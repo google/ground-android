@@ -149,7 +149,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onMapReady(mapFragment: MapFragment) {
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.mapLocationOfInterestFeatures.observe(this) {
-      mapFragment.renderLocationsOfInterest(it)
+      mapFragment.renderFeatures(it)
     }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, mapFragment)
