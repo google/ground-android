@@ -174,7 +174,6 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
       return ImmutableSet.of()
     }
 
-    // Include the given polygon and each of its vertex.
     return ImmutableSet.builder<Feature>()
       .add(
         Feature(
@@ -182,17 +181,6 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
           tag = Feature.Type.LOCATION_OF_INTEREST,
           geometry = polygon
         )
-      )
-      .addAll(
-        vertices
-          .map {
-            Feature(
-              id = uuidGenerator.generateUuid(),
-              tag = Feature.Type.LOCATION_OF_INTEREST,
-              geometry = it
-            )
-          }
-          .toList()
       )
       .build()
   }
