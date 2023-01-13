@@ -19,10 +19,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.LocationController
-import com.google.android.ground.ui.map.MapController
-import com.google.android.ground.ui.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.*
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
@@ -32,37 +29,33 @@ class PolygonDrawingMapViewModel(
   locationController: LocationController,
   mapController: MapController
 ) : BaseMapViewModel(locationController, mapController) {
-  val mapLocationsOfInterest: LiveData<ImmutableSet<MapLocationOfInterest>>
+  // Set of polygon map [Features] drawn by the user.
+  val userPolygonFeatures: LiveData<ImmutableSet<Feature>>
 
-  /** Temporary set of [MapLocationOfInterest] used for displaying on map during add/edit flows. */
-  private val unsavedMapLocationsOfInterest:
-    @Hot
-    PublishProcessor<ImmutableSet<MapLocationOfInterest>> =
+  /** Temporary set of [Feature]s used for displaying on map during add/edit flows. */
+  private val unsavedUserPolygonFeatures: @Hot PublishProcessor<ImmutableSet<Feature>> =
     PublishProcessor.create()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     TODO("Not yet implemented")
   }
 
-  fun setUnsavedMapLocationsOfInterest(locationsOfInterest: ImmutableSet<MapLocationOfInterest>) =
-    unsavedMapLocationsOfInterest.onNext(locationsOfInterest)
+  /** Set the current unsaved user drawn polygon map [Feature]s. */
+  fun setUnsavedUserPolygonFeatures(locationsOfInterest: ImmutableSet<Feature>) =
+    unsavedUserPolygonFeatures.onNext(locationsOfInterest)
 
   init {
-    mapLocationsOfInterest =
+    userPolygonFeatures =
       LiveDataReactiveStreams.fromPublisher(
         Flowable.combineLatest(
-            listOf(
-              unsavedMapLocationsOfInterest.startWith(ImmutableSet.of<MapLocationOfInterest>())
-            )
+            listOf(unsavedUserPolygonFeatures.startWith(ImmutableSet.of<Feature>()))
           ) { concatLocationsOfInterestSets(it) }
           .distinctUntilChanged()
       )
   }
 
   companion object {
-    private fun concatLocationsOfInterestSets(
-      objects: Array<Any>
-    ): ImmutableSet<MapLocationOfInterest> =
-      listOf(*objects).flatMap { it as ImmutableSet<MapLocationOfInterest> }.toImmutableSet()
+    private fun concatLocationsOfInterestSets(objects: Array<Any>): ImmutableSet<Feature> =
+      listOf(*objects).flatMap { it as ImmutableSet<Feature> }.toImmutableSet()
   }
 }
