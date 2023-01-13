@@ -19,10 +19,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Loadable
@@ -38,13 +35,10 @@ import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java.util.*
-import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -68,10 +62,6 @@ internal constructor(
   // TODO(#719): Move into LocationOfInterestDetailsViewModel.
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
-  private val addLocationOfInterestRequests: @Hot FlowableProcessor<LocationOfInterestMutation> =
-    PublishProcessor.create()
-  val addLocationOfInterestResults: @Hot Flowable<LocationOfInterest>
-  val errors: @Hot FlowableProcessor<Throwable> = PublishProcessor.create()
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
   /**
@@ -79,29 +69,6 @@ internal constructor(
    * changes.
    */
   private var locationOfInterestCache: ImmutableSet<LocationOfInterest> = ImmutableSet.of()
-
-  // TODO: Cleanup this method
-  fun addLoi(job: Job, point: Point) {
-    activeSurvey.ifPresentOrElse({ survey: Survey ->
-      addLocationOfInterestRequests.onNext(
-        locationOfInterestRepository.newMutation(survey.id, job.id, point, Date())
-      )
-    }) { throw IllegalStateException("Empty survey") }
-  }
-
-  // TODO: Cleanup this method
-  fun addPolygonOfInterest(areaOfInterest: LocationOfInterest) {
-    activeSurvey.ifPresentOrElse({ survey: Survey ->
-      addLocationOfInterestRequests.onNext(
-        locationOfInterestRepository.newPolygonOfInterestMutation(
-          survey.id,
-          areaOfInterest.job.id,
-          areaOfInterest.geometry.vertices,
-          Date()
-        )
-      )
-    }) { throw IllegalStateException("Empty survey") }
-  }
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
@@ -137,20 +104,6 @@ internal constructor(
     isSubmissionButtonVisible.value = false
   }
 
-  fun addSubmission() {
-    val state = bottomSheetState.value
-    if (state == null) {
-      Timber.e("Missing bottomSheetState")
-      return
-    }
-    val loi = state.locationOfInterest
-    if (loi == null) {
-      Timber.e("Missing loi")
-      return
-    }
-    navigator.navigate(HomeScreenFragmentDirections.addSubmission(loi.surveyId, loi.id, loi.job.id))
-  }
-
   fun init() {
     // Last active survey will be loaded once view subscribes to activeProject.
     surveyRepository.loadLastActiveSurvey()
@@ -183,23 +136,11 @@ internal constructor(
     showLocationOfInterestSelectorRequests.onNext(locationsOfInterest)
   }
 
-  private val activeSurvey: Optional<Survey>
-    get() = surveyLoadingState.value?.value() ?: Optional.empty()
-
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
   }
 
   init {
-    addLocationOfInterestResults =
-      addLocationOfInterestRequests.switchMapSingle { mutation: LocationOfInterestMutation ->
-        locationOfInterestRepository
-          .applyAndEnqueue(mutation)
-          .andThen(locationOfInterestRepository.getLocationOfInterest(mutation))
-          .doOnError { t: Throwable -> errors.onNext(t) }
-          .onErrorResumeNext(Single.never())
-      } // Prevent from breaking upstream.
-
     val locationsOfInterestSubscription =
       surveyRepository.activeSurvey
         .switchMap {
