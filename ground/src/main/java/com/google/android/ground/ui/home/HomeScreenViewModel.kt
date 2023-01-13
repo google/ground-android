@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
@@ -29,9 +30,11 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
-import com.google.android.ground.ui.map.MapLocationOfInterest
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
+import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
@@ -44,6 +47,7 @@ class HomeScreenViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val navigator: Navigator
 ) : AbstractViewModel() {
 
@@ -60,14 +64,30 @@ internal constructor(
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
+  /**
+   * Live cache of locations of interest. Updated every time the underlying local storage data
+   * changes.
+   */
+  private var locationOfInterestCache: ImmutableSet<LocationOfInterest> = ImmutableSet.of()
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
   }
 
-  fun onMarkerClick(mapLocationOfInterest: MapLocationOfInterest) {
-    showBottomSheet(mapLocationOfInterest.locationOfInterest)
-  }
+  /** Intended for use as a callback for handling user clicks on rendered map features. */
+  fun onMarkerClick(feature: Feature) =
+    when (feature.tag) {
+      Feature.Type.LOCATION_OF_INTEREST -> {
+        val loi = locationOfInterestCache.find { it.id == feature.id }
+
+        if (loi != null) {
+          showBottomSheet(loi)
+        } else {
+          Timber.e("user selected LOI feature does not exist in the active survey")
+        }
+      }
+      else -> {} // only LocationOfInterest features are currently handled.
+    }
 
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
     showBottomSheet(locationOfInterest)
@@ -97,23 +117,41 @@ internal constructor(
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
   }
 
-  fun onLocationOfInterestClick(mapLocationsOfInterest: ImmutableList<MapLocationOfInterest>) {
+  fun onLocationOfInterestClick(features: ImmutableList<Feature>) {
+    val loiFeatureIds =
+      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.map { it.id }
     val locationsOfInterest: ImmutableList<LocationOfInterest> =
-      mapLocationsOfInterest
-        .map { obj: MapLocationOfInterest -> checkNotNull(obj.locationOfInterest) }
-        .toImmutableList()
+      locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }.toImmutableList()
+
     if (locationsOfInterest.isEmpty()) {
       Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest")
       return
     }
+
     if (locationsOfInterest.size == 1) {
       onLocationOfInterestSelected(locationsOfInterest[0])
       return
     }
+
     showLocationOfInterestSelectorRequests.onNext(locationsOfInterest)
   }
 
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
+  }
+
+  init {
+    val locationsOfInterestSubscription =
+      surveyRepository.activeSurvey
+        .switchMap {
+          if (it.isPresent) {
+            locationOfInterestRepository.getLocationsOfInterestOnceAndStream(it.get())
+          } else {
+            Flowable.empty()
+          }
+        }
+        .subscribe { locationOfInterestCache = it }
+
+    disposeOnClear(locationsOfInterestSubscription)
   }
 }

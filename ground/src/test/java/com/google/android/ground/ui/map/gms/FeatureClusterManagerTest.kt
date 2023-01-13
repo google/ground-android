@@ -32,31 +32,36 @@ import org.robolectric.Shadows.shadowOf
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LocationOfInterestClusterManagerTest : BaseHiltTest() {
+class FeatureClusterManagerTest : BaseHiltTest() {
   @Mock private lateinit var context: Context
   @Mock private lateinit var map: GoogleMap
 
-  private lateinit var locationOfInterestClusterManager: LocationOfInterestClusterManager
+  private lateinit var featureClusterManager: FeatureClusterManager
 
   @Before
   override fun setUp() {
     super.setUp()
-    locationOfInterestClusterManager =
-      LocationOfInterestClusterManager(ApplicationProvider.getApplicationContext(), map)
+    featureClusterManager = FeatureClusterManager(ApplicationProvider.getApplicationContext(), map)
     shadowOf(getMainLooper()).idle()
   }
 
   @Test
   fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
-    locationOfInterestClusterManager.addOrUpdateLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
-    assertThat(locationOfInterestClusterManager.algorithm.items)
+    featureClusterManager.addOrUpdateLocationOfInterestFeature(
+      FakeData.LOCATION_OF_INTEREST_FEATURE
+    )
+    assertThat(featureClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
 
   @Test
   fun removeLocationsOfInterest_removesLOIsById() {
-    locationOfInterestClusterManager.addOrUpdateLocationOfInterest(FakeData.LOCATION_OF_INTEREST)
-    locationOfInterestClusterManager.removeLocationsOfInterest(setOf(FakeData.LOCATION_OF_INTEREST))
-    assertThat(locationOfInterestClusterManager.algorithm.items).isEmpty()
+    featureClusterManager.addOrUpdateLocationOfInterestFeature(
+      FakeData.LOCATION_OF_INTEREST_FEATURE
+    )
+    featureClusterManager.removeLocationOfInterestFeatures(
+      setOf(FakeData.LOCATION_OF_INTEREST_FEATURE)
+    )
+    assertThat(featureClusterManager.algorithm.items).isEmpty()
   }
 }

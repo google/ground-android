@@ -50,11 +50,11 @@ interface MapFragment {
     mapAdapter: Consumer<MapFragment>
   )
 
-  /** A stream of interaction events on rendered [MapLocationOfInterest]s. */
-  val locationOfInterestInteractions: @Hot Observable<MapLocationOfInterest>
+  /** A stream of interaction events on rendered location of interest [Feature]s. */
+  val locationOfInterestInteractions: @Hot Observable<Feature>
 
-  /** A stream of ambiguous [MapLocationOfInterest] interactions. */
-  val ambiguousLocationOfInterestInteractions: @Hot Observable<ImmutableList<MapLocationOfInterest>>
+  /** A stream of ambiguous map [Feature] interactions. */
+  val ambiguousLocationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>>
 
   /**
    * Returns map drag events. Emits an empty event when the map starts to move by the user.
@@ -85,8 +85,8 @@ interface MapFragment {
   /** Displays user location indicator on the map. */
   @SuppressLint("MissingPermission") fun enableCurrentLocationIndicator()
 
-  /** Update the set of [MapLocationOfInterest]s rendered on the map. */
-  fun renderLocationsOfInterest(mapLocationsOfInterest: ImmutableSet<MapLocationOfInterest>)
+  /** Update the set of map [Feature]s rendered on the map. */
+  fun renderLocationsOfInterest(features: ImmutableSet<Feature>)
 
   fun refresh()
 
