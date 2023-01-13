@@ -40,13 +40,13 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
-  private lateinit var drawnMapLoiTestObserver: TestObserver<ImmutableSet<Geometry>>
+  private lateinit var drawnGeometryTestObserver: TestObserver<ImmutableSet<Geometry>>
 
   override fun setUp() {
     super.setUp()
     fakeAuthenticationManager.setUser(FakeData.USER)
     polygonCompletedTestObserver = TestObserver.test(viewModel.isPolygonCompleted)
-    drawnMapLoiTestObserver = TestObserver.test(viewModel.unsavedMapLocationsOfInterest)
+    drawnGeometryTestObserver = TestObserver.test(viewModel.geometriesToBeRendered)
 
     // Initialize polygon drawing
     viewModel.startDrawingFlow()
@@ -184,7 +184,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   }
 
   private fun validateMapLoiDrawn(expectedPolygonCount: Int, expectedPointCount: Int) {
-    drawnMapLoiTestObserver.assertValue { geometries: ImmutableSet<Geometry> ->
+    drawnGeometryTestObserver.assertValue { geometries: ImmutableSet<Geometry> ->
       var actualPolygonCount = 0
       var actualPointCount = 0
       for (geometry in geometries) {

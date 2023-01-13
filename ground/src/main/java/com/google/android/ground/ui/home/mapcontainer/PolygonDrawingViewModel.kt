@@ -43,8 +43,8 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
   /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
   val isPolygonCompleted: @Hot LiveData<Boolean>
 
-  /** Locations of interest drawn by the user but not yet saved. */
-  val unsavedMapLocationsOfInterest: @Hot LiveData<ImmutableSet<Geometry>>
+  /** [Geometry]s drawn by the user but not yet saved. */
+  val geometriesToBeRendered: @Hot LiveData<ImmutableSet<Geometry>>
 
   private val vertices: MutableList<Point> = ArrayList()
   private var polygon: Polygon? = null
@@ -163,16 +163,14 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
   }
 
   /** Returns a set of [Geometry] to be drawn on map for the given [Polygon]. */
-  private fun unsavedLocationsOfInterestFromLocationOfInterest(
-    polygon: Polygon
-  ): ImmutableSet<Geometry> {
+  private fun getGeometriesToBeRendered(polygon: Polygon): ImmutableSet<Geometry> {
     val vertices = polygon.vertices
 
     if (vertices.isEmpty()) {
       return ImmutableSet.of()
     }
 
-    // Include the given polygon and add 1 LOI with a Point for each of its vertex.
+    // Include the given polygon and each of its vertex.
     return ImmutableSet.builder<Geometry>().add(polygon).addAll(vertices.toList()).build()
   }
 
@@ -193,12 +191,10 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
           .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
           .startWith(false)
       )
-    unsavedMapLocationsOfInterest =
+    geometriesToBeRendered =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable.map { polygon ->
-          polygon
-            .map { unsavedLocationsOfInterestFromLocationOfInterest(it) }
-            .orElse(ImmutableSet.of())
+          polygon.map { getGeometriesToBeRendered(it) }.orElse(ImmutableSet.of())
         }
       )
   }
