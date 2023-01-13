@@ -53,14 +53,14 @@ class MapsRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testIsLocationLocked_default() {
-    assertThat(mapsRepository.isLocationLocked).isFalse()
+  fun testIsLocationLockEnabled_default() {
+    assertThat(mapsRepository.isLocationLockEnabled).isFalse()
   }
 
   @Test
-  fun testIsLocationLocked_whenLocked_returnsTrue() {
-    mapsRepository.isLocationLocked = true
+  fun testIsLocationLockEnabled_whenLocked_returnsTrue() {
+    mapsRepository.isLocationLockEnabled = true
 
-    assertThat(mapsRepository.isLocationLocked).isTrue()
+    assertThat(mapsRepository.isLocationLockEnabled).isTrue()
   }
 }
