@@ -25,7 +25,6 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
-import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
@@ -138,8 +137,7 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
     polygonDrawingState.onNext(PolygonDrawingState.inProgress())
   }
 
-  @AutoValue
-  abstract class PolygonDrawingState {
+  data class PolygonDrawingState(val state: State, val polygon: Polygon? = null) {
     val isCanceled: Boolean
       get() = state == State.CANCELED
     val isInProgress: Boolean
@@ -154,28 +152,13 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
       CANCELED
     }
 
-    /** Current state of polygon drawing. */
-    abstract val state: State
-
-    /** Final polygon. */
-    abstract val polygon: Polygon?
-
     companion object {
-      fun canceled(): PolygonDrawingState {
-        return createDrawingState(State.CANCELED, null)
-      }
+      fun canceled(): PolygonDrawingState = PolygonDrawingState(State.CANCELED)
 
-      fun inProgress(): PolygonDrawingState {
-        return createDrawingState(State.IN_PROGRESS, null)
-      }
+      fun inProgress(): PolygonDrawingState = PolygonDrawingState(State.IN_PROGRESS)
 
-      fun completed(polygon: Polygon): PolygonDrawingState {
-        return createDrawingState(State.COMPLETED, polygon)
-      }
-
-      private fun createDrawingState(state: State, polygon: Polygon?): PolygonDrawingState {
-        return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, polygon)
-      }
+      fun completed(polygon: Polygon): PolygonDrawingState =
+        PolygonDrawingState(State.COMPLETED, polygon)
     }
   }
 
