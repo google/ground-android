@@ -25,7 +25,6 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
-import com.google.android.ground.ui.map.MapLocationOfInterest
 import com.google.auto.value.AutoValue
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
@@ -180,10 +179,7 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
     }
   }
 
-  /**
-   * Returns a set of [MapLocationOfInterest] to be drawn on map for the given
-   * [MapLocationOfInterest].
-   */
+  /** Returns a set of [Geometry] to be drawn on map for the given [Polygon]. */
   private fun unsavedLocationsOfInterestFromLocationOfInterest(
     polygon: Polygon
   ): ImmutableSet<Geometry> {
