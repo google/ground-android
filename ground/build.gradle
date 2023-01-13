@@ -24,7 +24,6 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'net.ltgt.errorprone'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -132,38 +131,7 @@ android {
         }
         animationsDisabled = true
     }
-
-    // ErrorProne and NullAway configuration.
-    // ErrorProne: https://github.com/google/error-prone.
-    // ErrorProne Gradle plugin: https://github.com/tbroyer/gradle-errorprone-plugin
-    // NullAway: https://github.com/uber/NullAway
-    DomainObjectSet<BaseVariant> variants = getApplicationVariants()
-    variants.addAll(getTestVariants())
-    variants.addAll(getUnitTestVariants())
-    variants.configureEach { variant ->
-        variant.getJavaCompileProvider().configure {
-            options.errorprone {
-
-                // Disable all checks except NullAway.
-                disableAllChecks = true
-                error("NullAway")
-
-                // Specify the packages which NullAway should analyze.
-                option("NullAway:AnnotatedPackages", "com.google.android.ground")
-
-                // Ignore generated classes from databinding, as well as Room and Firebase classes.
-                option("NullAway:UnannotatedSubPackages",
-                    "com.google.android.ground.databinding," +
-                        "com.google.android.ground.persistence.local.room," +
-                        "com.google.android.ground.persistence.remote.firestore," +
-                        "com.google.android.ground.persistence.remote.firestore.schema")
-
-                excludedPaths = ".*/build/generated/.*"
-            }
-        }
-    }
 }
-
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -310,11 +278,6 @@ dependencies {
     testImplementation('androidx.test.espresso:espresso-core:3.3.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-    // NullAway
-    annotationProcessor "com.uber.nullaway:nullaway:0.9.1"
-    errorprone "com.google.errorprone:error_prone_core:2.4.0"
-    errorproneJavac "com.google.errorprone:javac:9+181-r4173-1"
 
     // Fragments
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
