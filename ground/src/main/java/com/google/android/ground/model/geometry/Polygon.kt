@@ -15,21 +15,15 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.common.collect.ImmutableList
+import kotlinx.serialization.Serializable
 
 /**
  * A polygon made up of a linear ring that dictates its bounds and any number of holes within the
  * shell ring.
  */
-data class Polygon(
+@Serializable data class Polygon(
   val shell: LinearRing,
-  val holes: ImmutableList<LinearRing> = ImmutableList.of()
+  val holes: List<LinearRing> = listOf()
 ) : Geometry {
-  /**
-   * Constructs a [Polygon] using the specified shell and an immutable copy of the specified mutable
-   * list of holes.
-   */
-  constructor(shell: LinearRing, holes: List<LinearRing>) : this(shell, ImmutableList.copyOf(holes))
-
-  override val vertices: ImmutableList<Point> = shell.vertices
+  override val vertices: List<Point> = shell.vertices
 }
