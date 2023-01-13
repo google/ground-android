@@ -74,21 +74,6 @@ internal constructor(
     openDrawerRequests.onNext(Nil.NIL)
   }
 
-  /** Intended for use as a callback for handling user clicks on rendered map features. */
-  fun onMarkerClick(feature: Feature) =
-    when (feature.tag) {
-      Feature.Type.LOCATION_OF_INTEREST -> {
-        val loi = locationOfInterestCache.find { it.id == feature.id }
-
-        if (loi != null) {
-          showBottomSheet(loi)
-        } else {
-          Timber.e("user selected LOI feature does not exist in the active survey")
-        }
-      }
-      else -> {} // only LocationOfInterest features are currently handled.
-    }
-
   fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
     showBottomSheet(locationOfInterest)
   }
@@ -117,7 +102,8 @@ internal constructor(
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
   }
 
-  fun onLocationOfInterestClick(features: ImmutableList<Feature>) {
+  /** Intended for use as a callback for handling user clicks on rendered map features. */
+  fun onFeatureClick(features: ImmutableList<Feature>) {
     val loiFeatureIds =
       features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.map { it.id }
     val locationsOfInterest: ImmutableList<LocationOfInterest> =

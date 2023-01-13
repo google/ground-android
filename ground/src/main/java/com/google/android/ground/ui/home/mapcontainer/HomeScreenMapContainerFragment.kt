@@ -34,11 +34,8 @@ import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
-import com.google.common.collect.ImmutableList
-import com.uber.autodispose.ObservableSubscribeProxy
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
@@ -62,13 +59,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     mapFragment.locationOfInterestInteractions
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { mapContainerViewModel.onMarkerClick(it) }
-    mapFragment.locationOfInterestInteractions
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { homeScreenViewModel.onMarkerClick(it) }
-    mapFragment.ambiguousLocationOfInterestInteractions
-      .`as`<ObservableSubscribeProxy<ImmutableList<Feature>>>(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { homeScreenViewModel.onLocationOfInterestClick(it) }
+      .subscribe {
+        mapContainerViewModel.onFeatureClick(it)
+        homeScreenViewModel.onFeatureClick(it)
+      }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
