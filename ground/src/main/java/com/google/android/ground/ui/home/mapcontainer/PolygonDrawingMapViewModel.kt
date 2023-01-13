@@ -49,9 +49,7 @@ class PolygonDrawingMapViewModel(
       LiveDataReactiveStreams.fromPublisher(
         Flowable.combineLatest(
             listOf(unsavedUserPolygonFeatures.startWith(ImmutableSet.of<Feature>()))
-          ) {
-            concatLocationsOfInterestSets(it)
-          }
+          ) { concatLocationsOfInterestSets(it) }
           .distinctUntilChanged()
       )
   }
