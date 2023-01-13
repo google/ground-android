@@ -213,6 +213,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf'
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-messaging-directboot'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
 
     // Hilt
