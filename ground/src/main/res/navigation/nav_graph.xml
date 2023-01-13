@@ -58,13 +58,6 @@
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <action
-      android:id="@+id/addSubmission"
-      app:destination="@id/edit_submission_fragment">
-      <argument
-        android:name="submissionId"
-        android:defaultValue="" />
-    </action>
-    <action
       android:id="@+id/fromHomeScreenToSignInScreen"
       app:destination="@id/sign_in_fragment"
       app:popUpTo="@id/navGraph"

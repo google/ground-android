@@ -102,8 +102,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     assertThat(type).isEqualTo(Mutation.Type.CREATE)
     assertThat(syncStatus).isEqualTo(SyncStatus.PENDING)
     assertThat(locationOfInterestId).isEqualTo(FakeData.LOCATION_OF_INTEREST.id)
-    Mockito.verify(mockLocalLocationOfInterestStore, Mockito.times(1))
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+    Mockito.verify(mockLocalLocationOfInterestStore, Mockito.times(1)).applyAndEnqueue(any())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -113,7 +112,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     mockEnqueueSyncWorker()
     Mockito.doReturn(Completable.error(NullPointerException()))
       .`when`(mockLocalDataStore.localLocationOfInterestStore)
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any())
     locationOfInterestRepository
       .applyAndEnqueue(
         FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, FakeData.USER.id)
@@ -122,7 +121,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertError(NullPointerException::class.java)
       .assertNotComplete()
     Mockito.verify(mockLocalDataStore.localLocationOfInterestStore, Mockito.times(1))
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -141,7 +140,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .assertNotComplete()
 
     Mockito.verify(mockLocalDataStore.localLocationOfInterestStore, Mockito.times(1))
-      .applyAndEnqueue(any<LocationOfInterestMutation>())
+      .applyAndEnqueue(any())
     Mockito.verify(mockWorkManager, Mockito.times(1))
       .enqueueSyncWorker(FakeData.LOCATION_OF_INTEREST.id)
   }
@@ -241,12 +240,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .getLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
       .test()
       .assertResult(FakeData.LOCATION_OF_INTEREST)
-    locationOfInterestRepository
-      .getLocationOfInterest(
-        FakeData.LOCATION_OF_INTEREST.toMutation(Mutation.Type.UPDATE, "user_id")
-      )
-      .test()
-      .assertResult(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
@@ -267,44 +260,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         NotFoundException::class.java,
         "Location of interest not found loi id"
       )
-  }
-
-  @Test
-  fun testNewLocationOfInterest() {
-    val testDate = Date()
-    val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, location) =
-      locationOfInterestRepository.newMutation(
-        "foo_survey_id",
-        "foo_job_id",
-        FakeData.POINT,
-        testDate
-      )
-    assertThat(id).isNull()
-    assertThat(locationOfInterestId).isEqualTo("TEST UUID")
-    assertThat(surveyId).isEqualTo("foo_survey_id")
-    assertThat(jobId).isEqualTo("foo_job_id")
-    assertThat(location).isEqualTo(FakeData.POINT)
-    assertThat(userId).isEqualTo(FakeData.USER.id)
-    assertThat(clientTimestamp).isEqualTo(testDate)
-  }
-
-  @Test
-  fun testNewPolygonOfInterest() {
-    val testDate = Date()
-    val (id, _, _, surveyId, locationOfInterestId, userId, clientTimestamp, _, _, jobId, polygon) =
-      locationOfInterestRepository.newPolygonOfInterestMutation(
-        "foo_survey_id",
-        "foo_job_id",
-        FakeData.VERTICES,
-        testDate
-      )
-    assertThat(id).isNull()
-    assertThat(locationOfInterestId).isEqualTo("TEST UUID")
-    assertThat(surveyId).isEqualTo("foo_survey_id")
-    assertThat(jobId).isEqualTo("foo_job_id")
-    assertThat(polygon?.vertices).isEqualTo(FakeData.VERTICES)
-    assertThat(userId).isEqualTo(FakeData.USER.id)
-    assertThat(clientTimestamp).isEqualTo(testDate)
   }
 
   @Test
