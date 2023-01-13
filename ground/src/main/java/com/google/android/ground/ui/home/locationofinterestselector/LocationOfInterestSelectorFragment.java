@@ -43,8 +43,6 @@ public class LocationOfInterestSelectorFragment extends AbstractDialogFragment {
   @Inject EphemeralPopups popups;
 
   private LocationOfInterestSelectorViewModel viewModel;
-
-  @SuppressWarnings("NullAway")
   private LocationOfInterestSelectorDialogBinding binding;
 
   @Nullable private ArrayAdapter listAdapter;

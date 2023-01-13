@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,13 @@
  */
 package com.google.android.ground.ui.map
 
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.geometry.Geometry
 
-/** A [LocationOfInterest] associated with a map. */
-data class MapLocationOfInterest(val locationOfInterest: LocationOfInterest)
+/** Represents an individual feature on a map with a given [Geometry]. */
+data class Feature(val id: String, val tag: Type, val geometry: Geometry) {
+  /** Denotes the kind of entity this map feature represents. */
+  enum class Type {
+    UNKNOWN,
+    LOCATION_OF_INTEREST,
+  }
+}

@@ -45,6 +45,13 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       preferences.edit().putInt(MAP_TYPE, type).apply()
     }
 
+  /** Whether location lock is enabled or not. */
+  var isLocationLockEnabled: Boolean
+    get() = preferences.getBoolean(LOCATION_LOCK_ENABLED, false)
+    set(value) {
+      preferences.edit().putBoolean(LOCATION_LOCK_ENABLED, value).apply()
+    }
+
   /** Terms of service acceptance state for the currently signed in user. */
   var isTermsOfServiceAccepted: Boolean
     get() = preferences.getBoolean(TOS_ACCEPTED, false)
@@ -96,5 +103,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val LAST_VIEWPORT_PREFIX = "last_viewport_"
     const val TOS_ACCEPTED = "tos_accepted"
     const val POLYGON_INFO_DIALOG = "polygon_info_dialog"
+    const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
   }
 }

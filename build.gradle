@@ -44,9 +44,6 @@ buildscript {
         // Crashlytics plugin
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.0'
 
-        // Errorprone plugin (required for NullAway)
-        classpath "net.ltgt.gradle:gradle-errorprone-plugin:2.0.1"
-
         // Kotlin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
