@@ -44,8 +44,6 @@ public class SurveySelectorDialogFragment extends AbstractDialogFragment {
   @Inject EphemeralPopups popups;
 
   private SurveySelectorViewModel viewModel;
-
-  @SuppressWarnings("NullAway")
   private SurveySelectorDialogBinding binding;
 
   @Nullable private ArrayAdapter listAdapter;

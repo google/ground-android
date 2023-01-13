@@ -97,6 +97,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     TODO("Missing implementation")
   }
 
+  override fun subscribeToSurveyUpdates(surveyId: String): Completable = Completable.complete()
+
   fun streamLoiOnce(loiEvent: RemoteDataEvent<LocationOfInterest>) {
     this.loiEvent = loiEvent
   }

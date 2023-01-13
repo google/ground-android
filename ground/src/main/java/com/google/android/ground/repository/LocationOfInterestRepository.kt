@@ -16,12 +16,8 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -31,13 +27,12 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import io.reactivex.*
-import java.util.*
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -55,9 +50,7 @@ constructor(
   private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
   private val surveyRepository: SurveyRepository,
-  private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val authManager: AuthenticationManager,
-  private val uuidGenerator: OfflineUuidGenerator
+  private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
   private val locationOfInterestStore = this.localDataStore.localLocationOfInterestStore
 
@@ -99,14 +92,6 @@ constructor(
   ): @Cold(terminates = false) Flowable<ImmutableSet<LocationOfInterest>> =
     locationOfInterestStore.getLocationsOfInterestOnceAndStream(survey)
 
-  fun getLocationOfInterest(
-    locationOfInterestMutation: LocationOfInterestMutation
-  ): @Cold Single<LocationOfInterest> =
-    this.getLocationOfInterest(
-      locationOfInterestMutation.surveyId,
-      locationOfInterestMutation.locationOfInterestId
-    )
-
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getLocationOfInterest(
     surveyId: String,
@@ -121,46 +106,12 @@ constructor(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
 
-  fun newMutation(
-    surveyId: String,
-    jobId: String,
-    point: Point,
-    date: Date
-  ): LocationOfInterestMutation =
-    LocationOfInterestMutation(
-      jobId = jobId,
-      geometry = point,
-      type = Mutation.Type.CREATE,
-      syncStatus = SyncStatus.PENDING,
-      locationOfInterestId = uuidGenerator.generateUuid(),
-      surveyId = surveyId,
-      userId = authManager.currentUser.id,
-      clientTimestamp = date
-    )
-
-  fun newPolygonOfInterestMutation(
-    surveyId: String,
-    jobId: String,
-    vertices: List<Point>,
-    date: Date
-  ): LocationOfInterestMutation =
-    LocationOfInterestMutation(
-      jobId = jobId,
-      geometry = Polygon(LinearRing(vertices.map { it.coordinate })),
-      type = Mutation.Type.CREATE,
-      syncStatus = SyncStatus.PENDING,
-      locationOfInterestId = uuidGenerator.generateUuid(),
-      surveyId = surveyId,
-      userId = authManager.currentUser.id,
-      clientTimestamp = date
-    )
-
   /**
    * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
    * task for remote sync if the local transaction is successful.
    *
    * @param mutation Input [LocationOfInterestMutation]
-   * @return If successful, returns the provided locations of interest wrapped as [Loadable]
+   * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
     val localTransaction = localDataStore.localLocationOfInterestStore.applyAndEnqueue(mutation)
@@ -175,7 +126,7 @@ constructor(
    */
   fun getIncompleteLocationOfInterestMutationsOnceAndStream(
     locationOfInterestId: String
-  ): Flowable<ImmutableList<LocationOfInterestMutation>>? =
+  ): Flowable<ImmutableList<LocationOfInterestMutation>> =
     locationOfInterestStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
       locationOfInterestId,
       MutationEntitySyncStatus.PENDING,

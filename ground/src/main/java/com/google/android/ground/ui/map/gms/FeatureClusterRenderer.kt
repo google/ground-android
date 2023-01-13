@@ -26,13 +26,14 @@ import com.google.android.ground.ui.MarkerIconFactory
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
 
-class LocationOfInterestClusterRenderer(
+/** A cluster renderer for [FeatureClusterItem]s. */
+class FeatureClusterRenderer(
   private val context: Context?,
   private val map: GoogleMap,
-  private val clusterManager: LocationOfInterestClusterManager,
-) : DefaultClusterRenderer<LocationOfInterestClusterItem>(context, map, clusterManager) {
+  private val clusterManager: FeatureClusterManager,
+) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
-  val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
+  private val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
 
   private fun parseColor(colorHexCode: String?): Int =
     try {
@@ -45,11 +46,9 @@ class LocationOfInterestClusterRenderer(
   private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor? =
     markerIconFactory?.getMarkerIcon(parseColor(Style().color), map.cameraPosition.zoom, isSelected)
 
-  override fun onBeforeClusterItemRendered(
-    item: LocationOfInterestClusterItem,
-    markerOptions: MarkerOptions
-  ) {
-    if (item.locationOfInterest.id == clusterManager.activeLocationOfInterest) {
+  /** Sets appropriate styling for clustered markers prior to rendering. */
+  override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
+    if (item.feature.id == clusterManager.activeLocationOfInterest) {
       markerOptions.icon(getMarkerIcon(true))
     } else {
       markerOptions.icon(getMarkerIcon(false))
