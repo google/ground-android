@@ -68,9 +68,7 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.geometriesToBeRendered.observe(this) {
-      // TODO(https://github.com/google/ground-android/issues/1351): Render polygon
-    }
+    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel

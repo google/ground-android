@@ -17,10 +17,10 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.map.Feature
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver
@@ -40,13 +40,13 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
-  private lateinit var drawnGeometryTestObserver: TestObserver<ImmutableSet<Geometry>>
+  private lateinit var drawnGeometryTestObserver: TestObserver<ImmutableSet<Feature>>
 
   override fun setUp() {
     super.setUp()
     fakeAuthenticationManager.setUser(FakeData.USER)
     polygonCompletedTestObserver = TestObserver.test(viewModel.isPolygonCompleted)
-    drawnGeometryTestObserver = TestObserver.test(viewModel.geometriesToBeRendered)
+    drawnGeometryTestObserver = TestObserver.test(viewModel.features)
 
     // Initialize polygon drawing
     viewModel.startDrawingFlow()
@@ -184,11 +184,11 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   }
 
   private fun validateMapLoiDrawn(expectedPolygonCount: Int, expectedPointCount: Int) {
-    drawnGeometryTestObserver.assertValue { geometries: ImmutableSet<Geometry> ->
+    drawnGeometryTestObserver.assertValue { features: ImmutableSet<Feature> ->
       var actualPolygonCount = 0
       var actualPointCount = 0
-      for (geometry in geometries) {
-        when (geometry) {
+      for (feature in features) {
+        when (feature.geometry) {
           is Point -> actualPointCount++
           is Polygon -> actualPolygonCount++
           else -> {}

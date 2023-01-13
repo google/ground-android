@@ -22,9 +22,11 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.map.Feature
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
@@ -35,7 +37,9 @@ import java8.util.Optional
 import javax.inject.Inject
 
 @SharedViewModel
-class PolygonDrawingViewModel @Inject internal constructor(resources: Resources) :
+class PolygonDrawingViewModel
+@Inject
+internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
   private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
   private val partialPolygonFlowable: @Hot Subject<Optional<Polygon>> = PublishSubject.create()
@@ -43,8 +47,8 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
   /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
   val isPolygonCompleted: @Hot LiveData<Boolean>
 
-  /** [Geometry]s drawn by the user but not yet saved. */
-  val geometriesToBeRendered: @Hot LiveData<ImmutableSet<Geometry>>
+  /** [Feature]s drawn by the user but not yet saved. */
+  val features: @Hot LiveData<ImmutableSet<Feature>>
 
   private val vertices: MutableList<Point> = ArrayList()
   private var polygon: Polygon? = null
@@ -163,7 +167,7 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
   }
 
   /** Returns a set of [Geometry] to be drawn on map for the given [Polygon]. */
-  private fun getGeometriesToBeRendered(polygon: Polygon): ImmutableSet<Geometry> {
+  private fun getFeaturesFromGeometries(polygon: Polygon): ImmutableSet<Feature> {
     val vertices = polygon.vertices
 
     if (vertices.isEmpty()) {
@@ -171,7 +175,26 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
     }
 
     // Include the given polygon and each of its vertex.
-    return ImmutableSet.builder<Geometry>().add(polygon).addAll(vertices.toList()).build()
+    return ImmutableSet.builder<Feature>()
+      .add(
+        Feature(
+          id = uuidGenerator.generateUuid(),
+          tag = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = polygon
+        )
+      )
+      .addAll(
+        vertices
+          .map {
+            Feature(
+              id = uuidGenerator.generateUuid(),
+              tag = Feature.Type.LOCATION_OF_INTEREST,
+              geometry = it
+            )
+          }
+          .toList()
+      )
+      .build()
   }
 
   companion object {
@@ -191,10 +214,10 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
           .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
           .startWith(false)
       )
-    geometriesToBeRendered =
+    features =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable.map { polygon ->
-          polygon.map { getGeometriesToBeRendered(it) }.orElse(ImmutableSet.of())
+          polygon.map { getFeaturesFromGeometries(it) }.orElse(ImmutableSet.of())
         }
       )
   }
