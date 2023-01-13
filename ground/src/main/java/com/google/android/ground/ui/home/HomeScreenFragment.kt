@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -35,7 +34,6 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.rx.Loadable
@@ -106,11 +104,6 @@ class HomeScreenFragment :
     homeScreenViewModel.openDrawerRequests.`as`(RxAutoDispose.autoDisposable(this)).subscribe {
       openDrawer()
     }
-    homeScreenViewModel.addLocationOfInterestResults
-      .observeOn(schedulers.ui())
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { onLocationOfInterestAdded(it) }
-    homeScreenViewModel.errors.`as`(RxAutoDispose.autoDisposable(this)).subscribe { onError(it) }
     locationOfInterestSelectorViewModel.locationOfInterestClicks
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
@@ -123,26 +116,6 @@ class HomeScreenFragment :
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToLocationOfInterestSelectorFragment()
     )
-  }
-
-  private fun onLocationOfInterestAdded(locationOfInterest: LocationOfInterest) {
-    addNewSubmission(locationOfInterest, locationOfInterest.job)
-  }
-
-  private fun addNewSubmission(locationOfInterest: LocationOfInterest, job: Job) {
-    val surveyId = locationOfInterest.surveyId
-    val locationOfInterestId = locationOfInterest.id
-    val jobId = job.id
-    navigator.navigate(
-      HomeScreenFragmentDirections.addSubmission(surveyId, locationOfInterestId, jobId)
-    )
-  }
-
-  /** Generic handler to display error messages to the user. */
-  private fun onError(throwable: Throwable) {
-    Timber.e(throwable)
-    // Don't display the exact error message as it might not be user-readable.
-    Toast.makeText(context, R.string.error_occurred, Toast.LENGTH_SHORT).show()
   }
 
   override fun onCreateView(

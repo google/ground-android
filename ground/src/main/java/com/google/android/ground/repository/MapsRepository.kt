@@ -35,4 +35,10 @@ class MapsRepository @Inject constructor(private val localValueStore: LocalValue
       localValueStore.lastMapType = value
       mutableMapType.postValue(value)
     }
+
+  var isLocationLockEnabled: Boolean
+    get() = localValueStore.isLocationLockEnabled
+    set(value) {
+      localValueStore.isLocationLockEnabled = value
+    }
 }

@@ -50,6 +50,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     val survey = Survey("", "", "", ImmutableMap.of())
     setTestSurvey(survey)
     surveyRepository.activateSurvey("id")
+    // TODO: Test that subscribeToSurveyUpdates() is  called with the appropriate ID.
     surveyRepository.activeSurvey.test().assertValue(Optional.of(survey))
   }
 

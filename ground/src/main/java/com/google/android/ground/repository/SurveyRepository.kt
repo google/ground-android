@@ -90,12 +90,18 @@ constructor(
     // Empty id indicates intent to deactivate the current survey or first login.
     return if (surveyId.isEmpty()) Flowable.never()
     else
-      syncSurveyWithRemote(surveyId)
-        .onErrorResumeNext { getSurvey(surveyId) }
-        .map { attachJobPermissions(it) }
-        .doOnSuccess { lastActiveSurveyId = surveyId }
-        .toFlowable()
-        .compose { Loadable.loadingOnceAndWrap(it) }
+      remoteDataStore
+        .subscribeToSurveyUpdates(surveyId)
+        .andThen(
+          Flowable.defer {
+            syncSurveyWithRemote(surveyId)
+              .onErrorResumeNext { getSurvey(surveyId) }
+              .map { attachJobPermissions(it) }
+              .doOnSuccess { lastActiveSurveyId = surveyId }
+              .toFlowable()
+              .compose { Loadable.loadingOnceAndWrap(it) }
+          }
+        )
   }
 
   private fun attachJobPermissions(survey: Survey): Survey {
@@ -113,7 +119,7 @@ constructor(
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
-  private fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
+  fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
     remoteDataStore
       .loadSurvey(id)
       .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)

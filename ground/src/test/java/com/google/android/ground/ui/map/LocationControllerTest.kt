@@ -17,20 +17,25 @@ package com.google.android.ground.ui.map
 
 import android.location.Location
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.repository.MapsRepository
 import com.google.android.ground.system.LocationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import io.reactivex.Single
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocationControllerTest : BaseHiltTest() {
+
+  @Inject lateinit var mapsRepository: MapsRepository
+
   @Mock lateinit var locationManager: LocationManager
 
   private lateinit var locationController: LocationController
@@ -38,71 +43,46 @@ class LocationControllerTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    locationController = LocationController(locationManager)
+    `when`(locationManager.getLocationUpdates()).thenReturn(Flowable.just(TEST_LOCATION))
+    `when`(locationManager.enableLocationUpdates()).thenReturn(Single.just(RESULT_ENABLE_LOCK))
+    `when`(locationManager.disableLocationUpdates()).thenReturn(Single.just(RESULT_DISABLE_LOCK))
+
+    locationController = LocationController(locationManager, mapsRepository)
   }
 
   @Test
-  fun testGetLocationLockUpdates_default() {
-    locationController.getLocationLockUpdates().test().assertNoValues()
+  fun testLocationUpdates_defaultLocationState() {
+    locationController.getLocationLockUpdates().test().assertValue(RESULT_DISABLE_LOCK)
+    locationController.getLocationUpdates().test().assertNoValues()
   }
 
   @Test
-  fun testGetLocationLockUpdates_whenLockRequest() {
-    setupEnableLocationUpdates()
+  fun testLocationUpdates_whenLastLocationStateIsLocked() {
+    mapsRepository.isLocationLockEnabled = true
 
-    val locationLockUpdatesSubscriber = locationController.getLocationLockUpdates().test()
+    locationController.getLocationLockUpdates().test().assertValue(RESULT_ENABLE_LOCK)
+    locationController.getLocationUpdates().test().assertValue(TEST_LOCATION)
+  }
+
+  @Test
+  fun testLocationUpdates_whenLockRequest() {
     locationController.lock()
 
-    locationLockUpdatesSubscriber.assertValue { it.getOrNull() == true }
+    locationController.getLocationLockUpdates().test().assertValues(RESULT_ENABLE_LOCK)
+    locationController.getLocationUpdates().test().assertValue(TEST_LOCATION)
   }
 
   @Test
-  fun testGetLocationLockUpdates_whenUnlockRequest() {
-    setupDisableLocationUpdates()
-
-    val locationLockUpdatesSubscriber = locationController.getLocationLockUpdates().test()
+  fun testLocationUpdates_whenUnlockRequest() {
     locationController.unlock()
 
-    locationLockUpdatesSubscriber.assertValue { it.getOrNull() == false }
-  }
-
-  @Test
-  fun testGetLocationUpdates_whenLocked() {
-    setupTestLocation()
-    setupEnableLocationUpdates()
-
-    val locationUpdatesSubscriber = locationController.getLocationUpdates().test()
-    locationController.lock()
-
-    locationUpdatesSubscriber.assertValue { it == TEST_LOCATION }
-  }
-
-  @Test
-  fun testGetLocationUpdates_whenUnlocked() {
-    setupTestLocation()
-    setupDisableLocationUpdates()
-
-    val locationUpdatesSubscriber = locationController.getLocationUpdates().test()
-    locationController.unlock()
-
-    locationUpdatesSubscriber.assertNoValues()
-  }
-
-  private fun setupTestLocation() {
-    Mockito.`when`(locationManager.getLocationUpdates()).thenReturn(Flowable.just(TEST_LOCATION))
-  }
-
-  private fun setupEnableLocationUpdates() {
-    Mockito.`when`(locationManager.enableLocationUpdates())
-      .thenReturn(Single.just(Result.success(true)))
-  }
-
-  private fun setupDisableLocationUpdates() {
-    Mockito.`when`(locationManager.disableLocationUpdates())
-      .thenReturn(Single.just(Result.success(false)))
+    locationController.getLocationLockUpdates().test().assertValues(RESULT_DISABLE_LOCK)
+    locationController.getLocationUpdates().test().assertNoValues()
   }
 
   companion object {
     private val TEST_LOCATION = Location("test provider")
+    private val RESULT_ENABLE_LOCK = Result.success(true)
+    private val RESULT_DISABLE_LOCK = Result.success(false)
   }
 }

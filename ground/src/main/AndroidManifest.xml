@@ -37,6 +37,14 @@
     android:supportsRtl="true"
     android:theme="@style/AppTheme.Launcher">
 
+    <service
+      android:name="com.google.android.ground.persistence.remote.firebase.FirebaseMessagingService"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+      </intent-filter>
+    </service>
+
     <!--
          The API key for Google Maps-based APIs defined in ground/secrets.properties.
 
