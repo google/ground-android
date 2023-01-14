@@ -23,7 +23,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.ui.MarkerIconFactory
-import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
 
@@ -34,7 +33,6 @@ class FeatureClusterRenderer(
   private val clusterManager: FeatureClusterManager,
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
-  private var shouldCluster = true
   private val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
 
   private fun parseColor(colorHexCode: String?): Int =
@@ -55,20 +53,5 @@ class FeatureClusterRenderer(
     } else {
       markerOptions.icon(getMarkerIcon(false))
     }
-  }
-
-  fun setClusteringEnabled(shouldCluster: Boolean) {
-    this.shouldCluster = shouldCluster
-  }
-
-  override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    if (shouldCluster) {
-      cluster.size > MIN_CLUSTER_SIZE
-    } else {
-      false
-    }
-
-  companion object {
-    private const val MIN_CLUSTER_SIZE = 1
   }
 }
