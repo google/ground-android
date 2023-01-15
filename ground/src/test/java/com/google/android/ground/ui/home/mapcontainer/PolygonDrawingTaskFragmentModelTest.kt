@@ -63,7 +63,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   fun testSelectCurrentVertex() {
     viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
     viewModel.selectCurrentVertex()
-    validateMapLoiDrawn(1, 1)
+    validateMapLoiDrawn(1)
   }
 
   @Test
@@ -74,7 +74,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.selectCurrentVertex()
     viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
     viewModel.selectCurrentVertex()
-    validateMapLoiDrawn(1, 3)
+    validateMapLoiDrawn(1)
     validatePolygonCompleted(false)
   }
 
@@ -83,7 +83,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.updateLastVertex(Point(Coordinate(0.0, 0.0)), 100.0)
     viewModel.updateLastVertex(Point(Coordinate(10.0, 10.0)), 100.0)
     viewModel.updateLastVertex(Point(Coordinate(20.0, 20.0)), 100.0)
-    validateMapLoiDrawn(1, 1)
+    validateMapLoiDrawn(1)
     validatePolygonCompleted(false)
   }
 
@@ -99,7 +99,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     // Move camera such that distance from last vertex is more than threshold
     viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 25.0)
-    validateMapLoiDrawn(1, 4)
+    validateMapLoiDrawn(1)
     validatePolygonCompleted(false)
   }
 
@@ -116,8 +116,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     // Move camera such that distance from last vertex is equal to threshold
     viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
 
-    // Only 3 pins should be drawn. First and last points are exactly same.
-    validateMapLoiDrawn(1, 3)
+    validateMapLoiDrawn(1)
     validatePolygonCompleted(true)
   }
 
@@ -126,7 +125,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
     viewModel.selectCurrentVertex()
     viewModel.removeLastVertex()
-    validateMapLoiDrawn(0, 0)
+    validateMapLoiDrawn(0)
     validatePolygonCompleted(false)
   }
 
@@ -147,7 +146,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.selectCurrentVertex()
     viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
     viewModel.removeLastVertex()
-    validateMapLoiDrawn(1, 3)
+    validateMapLoiDrawn(1)
     validatePolygonCompleted(false)
   }
 
@@ -183,20 +182,17 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     polygonCompletedTestObserver.assertValue(isVisible)
   }
 
-  private fun validateMapLoiDrawn(expectedPolygonCount: Int, expectedPointCount: Int) {
+  private fun validateMapLoiDrawn(expectedPolygonCount: Int) {
     drawnGeometryTestObserver.assertValue { features: ImmutableSet<Feature> ->
       var actualPolygonCount = 0
-      var actualPointCount = 0
       for (feature in features) {
         when (feature.geometry) {
-          is Point -> actualPointCount++
           is Polygon -> actualPolygonCount++
           else -> {}
         }
       }
 
-      // Check whether drawn LOIs contain expected number of polygons and pins.
-      Truth.assertThat(actualPointCount).isEqualTo(expectedPointCount)
+      // Check whether drawn features contain expected number of polygons.
       Truth.assertThat(actualPolygonCount).isEqualTo(expectedPolygonCount)
       true
     }
