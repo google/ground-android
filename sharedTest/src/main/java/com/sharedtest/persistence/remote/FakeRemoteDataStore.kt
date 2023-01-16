@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
 import com.sharedtest.FakeData
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import java8.util.Optional
@@ -81,11 +80,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     return if (termsOfService.isEmpty) Maybe.empty() else Maybe.just(termsOfService.get())
   }
 
-  override fun loadLocationsOfInterestOnceAndStreamChanges(
-    survey: Survey
-  ): Flowable<RemoteDataEvent<LocationOfInterest>> {
-    return if (loiEvent == null) Flowable.empty() else Flowable.just(loiEvent)
-  }
+  override fun loadLocationsOfInterest(survey: Survey): Single<List<LocationOfInterest>> =
+    Single.just(emptyList())
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest

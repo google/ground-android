@@ -18,32 +18,30 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.android.ground.persistence.remote.firebase.schema.LoiConverter.toLoi
 import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import durdinapps.rxfirebase2.RxFirestore
-import io.reactivex.Flowable
+import io.reactivex.Single
+import timber.log.Timber
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
 
-  /** Retrieves all lois in the survey, then streams changes to the remote db incrementally. */
-  fun loadOnceAndStreamChanges(
+  /** Retrieves all LOIs in the specified survey. */
+  fun locationsOfInterest(
     survey: Survey
-  ): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> =
-    RxFirestore.observeQueryRef(reference()).flatMapIterable { snapshot: QuerySnapshot ->
-      toRemoteDataEvents(survey, snapshot)
-    }
+  ): @Cold(terminates = false) Single<List<LocationOfInterest>> =
+    RxFirestore.getCollection(reference())
+      .map { snapshot: QuerySnapshot -> toLois(survey, snapshot) }
+      .toSingle(emptyList())
+
+  private fun toLois(survey: Survey, snapshot: QuerySnapshot): List<LocationOfInterest> =
+    snapshot.documents
+      .map { toLoi(survey, it) }
+      .mapNotNull { it.onFailure { t -> Timber.d(t) }.getOrNull() }
 
   fun loi(id: String) = LoiDocumentReference(reference().document(id))
-
-  private fun toRemoteDataEvents(
-    survey: Survey,
-    snapshot: QuerySnapshot
-  ): Iterable<RemoteDataEvent<LocationOfInterest>> =
-    QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot -> toLoi(survey, doc) }
 }

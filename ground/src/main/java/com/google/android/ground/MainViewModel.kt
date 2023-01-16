@@ -39,8 +39,8 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java8.util.Optional
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
 @SharedViewModel
@@ -84,9 +84,7 @@ constructor(
   private fun syncLocationsOfInterest(
     survey: Optional<Survey>
   ): @Cold(terminates = false) Completable {
-    return survey
-      .map { locationOfInterestRepository.syncLocationsOfInterest(it) }
-      .orElse(Completable.never())
+    return survey.map { locationOfInterestRepository.syncAll(it) }.orElse(Completable.never())
   }
 
   private fun onSignInStateChange(signInState: SignInState): Observable<NavDirections> {

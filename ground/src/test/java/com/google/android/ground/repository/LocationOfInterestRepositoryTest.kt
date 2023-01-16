@@ -43,14 +43,13 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import java.util.*
-import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.*
 import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 // TODO: Include a test for Polygon locationOfInterest
 @HiltAndroidTest
@@ -152,11 +151,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         mockLocalDataStore.localLocationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST)
       )
       .thenReturn(Completable.complete())
-    locationOfInterestRepository
-      .syncLocationsOfInterest(FakeData.SURVEY)
-      .test()
-      .assertNoErrors()
-      .assertComplete()
+    locationOfInterestRepository.syncAll(FakeData.SURVEY).test().assertNoErrors().assertComplete()
     Mockito.verify(mockLocalDataStore.localLocationOfInterestStore, Mockito.times(1))
       .merge(FakeData.LOCATION_OF_INTEREST)
   }
@@ -168,11 +163,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         mockLocalDataStore.localLocationOfInterestStore.merge(FakeData.LOCATION_OF_INTEREST)
       )
       .thenReturn(Completable.complete())
-    locationOfInterestRepository
-      .syncLocationsOfInterest(FakeData.SURVEY)
-      .test()
-      .assertNoErrors()
-      .assertComplete()
+    locationOfInterestRepository.syncAll(FakeData.SURVEY).test().assertNoErrors().assertComplete()
     Mockito.verify(mockLocalDataStore.localLocationOfInterestStore, Mockito.times(1))
       .merge(FakeData.LOCATION_OF_INTEREST)
   }
@@ -186,7 +177,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         )
       )
       .thenReturn(Completable.complete())
-    locationOfInterestRepository.syncLocationsOfInterest(FakeData.SURVEY).test().assertComplete()
+    locationOfInterestRepository.syncAll(FakeData.SURVEY).test().assertComplete()
     Mockito.verify(mockLocalDataStore.localLocationOfInterestStore, Mockito.times(1))
       .deleteLocationOfInterest("entityId")
   }
@@ -194,11 +185,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testSyncLocationsOfInterest_error() {
     fakeRemoteDataStore.streamLoiOnce(error(Throwable("Foo error")))
-    locationOfInterestRepository
-      .syncLocationsOfInterest(FakeData.SURVEY)
-      .test()
-      .assertNoErrors()
-      .assertComplete()
+    locationOfInterestRepository.syncAll(FakeData.SURVEY).test().assertNoErrors().assertComplete()
   }
 
   @Test

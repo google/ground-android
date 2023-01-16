@@ -26,7 +26,6 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.NotFoundException
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
 import com.google.android.ground.rx.RxTask
@@ -40,12 +39,11 @@ import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 class FirestoreDataStore
@@ -116,17 +114,14 @@ internal constructor(
       .subscribeOn(schedulers.io())
   }
 
-  override fun loadLocationsOfInterestOnceAndStreamChanges(
+  override fun loadLocationsOfInterest(
     survey: Survey
-  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> {
+  ): @Cold(stateful = true, terminates = false) Single<List<LocationOfInterest>> {
     return db
       .surveys()
       .survey(survey.id)
       .lois()
-      .loadOnceAndStreamChanges(survey)
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Flowable.never() else Flowable.error(e)
-      }
+      .locationsOfInterest(survey)
       .subscribeOn(schedulers.io())
   }
 

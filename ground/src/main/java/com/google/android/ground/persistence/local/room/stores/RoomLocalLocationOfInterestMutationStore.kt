@@ -33,6 +33,7 @@ import com.google.android.ground.persistence.local.room.models.EntityState
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.util.toImmutableList
 import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableList
@@ -190,4 +191,10 @@ class RoomLocalLocationOfInterestMutationStore @Inject internal constructor() :
     vararg states: MutationEntitySyncStatus
   ): Single<List<LocationOfInterestMutationEntity>> =
     locationOfInterestMutationDao.findByLocationOfInterestId(id, *states)
+
+  override fun insertOrUpdate(loi: LocationOfInterest): @Cold Completable =
+    locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+
+  override fun deleteNotIn(surveyId: String, ids: List<String>): @Cold Completable =
+    locationOfInterestDao.deleteNotIn(surveyId, ids).subscribeOn(schedulers.io())
 }

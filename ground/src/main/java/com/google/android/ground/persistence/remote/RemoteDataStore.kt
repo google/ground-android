@@ -25,7 +25,6 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -48,13 +47,10 @@ interface RemoteDataStore {
    */
   fun loadTermsOfService(): @Cold Maybe<TermsOfService>
 
-  /**
-   * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set
-   * of LOIs in the survey until all subscribers have been disposed.
-   */
-  fun loadLocationsOfInterestOnceAndStreamChanges(
+  /** Returns all LOIs in the specified survey. */
+  fun loadLocationsOfInterest(
     survey: Survey
-  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>>
+  ): @Cold(stateful = true, terminates = false) Single<List<LocationOfInterest>>
 
   /**
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none

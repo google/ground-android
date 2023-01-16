@@ -82,6 +82,7 @@ constructor(
     selectSurveyEvent
       .distinctUntilChanged()
       .switchMap { selectSurvey(it) }
+//      .switchMap { loiRepository.syncAll(it.value().get()).andThen(Flowable.just(it)) }
       .onBackpressureLatest()
       .subscribe(surveyLoadingState)
   }
