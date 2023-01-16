@@ -37,7 +37,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
    * message topic.
    */
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    val surveyId = remoteMessage.from?.removePrefix("/topic/")
+    val surveyId = remoteMessage.from?.removePrefix("/topics/")
     if (surveyId.isNullOrEmpty()) {
       Timber.w("Invalid topic: ${remoteMessage.from}")
       return
