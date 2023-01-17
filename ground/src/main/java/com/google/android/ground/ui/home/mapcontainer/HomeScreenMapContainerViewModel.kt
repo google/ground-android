@@ -36,6 +36,7 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
 import com.google.android.ground.util.toImmutableSet
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -137,9 +138,19 @@ internal constructor(
     }
   }
 
-  fun onMarkerClick(feature: Feature) {
-    if (feature.geometry is Point) {
-      mapController.panAndZoomCamera(feature.geometry)
+  /**
+   * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
+   * (list of features > 1), does nothing.
+   */
+  fun onFeatureClick(features: ImmutableList<Feature>) {
+    if (features.size != 1) {
+      return
+    }
+
+    val geometry = features[0].geometry
+
+    if (geometry is Point) {
+      mapController.panAndZoomCamera(geometry)
     }
   }
 

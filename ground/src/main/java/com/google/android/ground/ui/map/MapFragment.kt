@@ -51,10 +51,7 @@ interface MapFragment {
   )
 
   /** A stream of interaction events on rendered location of interest [Feature]s. */
-  val locationOfInterestInteractions: @Hot Observable<Feature>
-
-  /** A stream of ambiguous map [Feature] interactions. */
-  val ambiguousLocationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>>
+  val locationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>>
 
   /**
    * Returns map drag events. Emits an empty event when the map starts to move by the user.
