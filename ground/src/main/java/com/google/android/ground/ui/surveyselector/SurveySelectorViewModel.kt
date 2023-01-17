@@ -13,65 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.surveyselector
 
-package com.google.android.ground.ui.surveyselector;
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
+import com.google.android.ground.model.Survey
+import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.rx.Loadable
+import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.common.collect.ImmutableList
+import io.reactivex.Single
+import timber.log.Timber
+import javax.inject.Inject
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.repository.SurveyRepository;
-import com.google.android.ground.rx.Loadable;
-import com.google.android.ground.system.auth.AuthenticationManager;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import com.google.common.collect.ImmutableList;
-import io.reactivex.Single;
-import java.util.List;
-import java8.util.Optional;
-import javax.inject.Inject;
-import timber.log.Timber;
-
-/** Represents view state and behaviors of the survey selector dialog. */
-public class SurveySelectorViewModel extends AbstractViewModel {
-  private final SurveyRepository surveyRepository;
-  private final LiveData<Loadable<List<Survey>>> surveySummaries;
-
-  @Inject
-  SurveySelectorViewModel(SurveyRepository surveyRepository, AuthenticationManager authManager) {
-    this.surveyRepository = surveyRepository;
-    this.surveySummaries =
-        LiveDataReactiveStreams.fromPublisher(
-            surveyRepository.getSurveySummaries(authManager.getCurrentUser()));
-  }
-
-  public LiveData<Loadable<List<Survey>>> getSurveySummaries() {
-    return surveySummaries;
-  }
-
-  public Single<ImmutableList<Survey>> getOfflineSurveys() {
-    return surveyRepository.getOfflineSurveys();
-  }
+/** Represents view state and behaviors of the survey selector dialog.  */
+class SurveySelectorViewModel @Inject internal constructor(
+  private val surveyRepository: SurveyRepository,
+  authManager: AuthenticationManager
+) : AbstractViewModel() {
+  val surveySummaries: LiveData<Loadable<List<Survey>>?>
+  val offlineSurveys: Single<ImmutableList<Survey>>
+    get() = surveyRepository.offlineSurveys
 
   /**
    * Triggers the specified survey to be loaded and activated.
    *
    * @param idx the index in the survey summary list.
    */
-  public void activateSurvey(int idx) {
-    Optional<List<Survey>> surveys = Loadable.getValue(this.surveySummaries);
+  fun activateSurvey(idx: Int) {
+    val surveys: List<Survey> = surveySummaries.value?.value()?.orElse(listOf()) ?: listOf()
     if (surveys.isEmpty()) {
-      Timber.e("Can't activate survey before list is loaded");
-      return;
+      Timber.e("Can't activate survey before list is loaded")
+      return
     }
-    if (idx >= surveys.get().size()) {
+    if (idx >= surveys.size) {
       Timber.e(
-          "Can't activate survey at index %d, only %d surveys in list", idx, surveys.get().size());
-      return;
+        "Can't activate survey at index %d, only %d surveys in list", idx, surveys.size
+      )
+      return
     }
-    Survey survey = surveys.get().get(idx);
-    surveyRepository.activateSurvey(survey.getId());
+    val (id) = surveys[idx]
+    surveyRepository.activateSurvey(id)
   }
 
-  public void activateOfflineSurvey(String surveyId) {
-    surveyRepository.activateSurvey(surveyId);
+  fun activateOfflineSurvey(surveyId: String?) {
+    surveyRepository.activateSurvey(surveyId!!)
+  }
+
+  init {
+    surveySummaries = LiveDataReactiveStreams.fromPublisher(
+      surveyRepository.getSurveySummaries(authManager.currentUser)
+    )
   }
 }
