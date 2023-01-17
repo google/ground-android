@@ -34,11 +34,14 @@ import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import java.util.concurrent.TimeUnit
 import java8.util.Optional
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.awaitSingleOrNull
+import kotlinx.coroutines.rx2.rxSingle
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
 private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
@@ -79,29 +82,32 @@ constructor(
 
   init {
     // Kicks off the loading process whenever a new survey id is selected.
+    // TODO(#1426): Simplify this flow by moving into function invocation.
     selectSurveyEvent
       .distinctUntilChanged()
-      .switchMap { selectSurvey(it) }
+      .switchMap { surveyId ->
+        if (surveyId.isEmpty()) Flowable.never()
+        else
+          rxSingle { loadSurvey(surveyId) }
+            .toFlowable()
+            .compose { survey -> Loadable.loadingOnceAndWrap(survey) }
+      }
       .onBackpressureLatest()
       .subscribe(surveyLoadingState)
   }
 
-  private fun selectSurvey(surveyId: String): @Cold Flowable<Loadable<Survey>> {
-    // Empty id indicates intent to deactivate the current survey or first login.
-    return if (surveyId.isEmpty()) Flowable.never()
-    else
-      remoteDataStore
-        .subscribeToSurveyUpdates(surveyId)
-        .andThen(
-          Flowable.defer {
-            syncSurveyWithRemote(surveyId)
-              .onErrorResumeNext { getSurvey(surveyId) }
-              .map { attachJobPermissions(it) }
-              .doOnSuccess { lastActiveSurveyId = surveyId }
-              .toFlowable()
-              .compose { Loadable.loadingOnceAndWrap(it) }
-          }
-        )
+  private suspend fun loadSurvey(surveyId: String): Survey {
+    var survey = surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+    if (survey == null) {
+      survey = syncSurveyFromRemote(surveyId)
+    }
+    this.lastActiveSurveyId = surveyId
+    return attachJobPermissions(survey)
+  }
+
+  private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
+    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
+    return syncSurveyWithRemote(surveyId).await()
   }
 
   private fun attachJobPermissions(survey: Survey): Survey {

@@ -21,20 +21,22 @@ import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.common.collect.ImmutableMap
+import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData.SURVEY
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Maybe
 import java8.util.Optional
-import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
 @UninstallModules(LocalDataStoreModule::class)
@@ -42,20 +44,36 @@ import org.robolectric.RobolectricTestRunner
 class SurveyRepositoryTest : BaseHiltTest() {
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
   @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
   @Test
-  fun testActivateSurvey() {
-    val survey = Survey("", "", "", ImmutableMap.of())
-    setTestSurvey(survey)
-    surveyRepository.activateSurvey("id")
-    // TODO: Test that subscribeToSurveyUpdates() is  called with the appropriate ID.
-    surveyRepository.activeSurvey.test().assertValue(Optional.of(survey))
+  fun activateSurvey_firstTime() {
+    clearLocalTestSurvey()
+    fakeRemoteDataStore.setTestSurvey(SURVEY)
+
+    surveyRepository.activateSurvey(SURVEY.id)
+
+    surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
   }
 
-  private fun setTestSurvey(survey: Survey) {
-    Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(anyString()))
-      .thenReturn(Maybe.just(survey))
+  @Test
+  fun activateSurvey_alreadyAvailableOffline() {
+    setLocalTestSurvey(SURVEY)
+
+    surveyRepository.activateSurvey(SURVEY.id)
+
+    surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
+  }
+
+  private fun clearLocalTestSurvey() {
+    `when`(mockLocalDataStore.surveyStore.getSurveyById(anyString())).thenReturn(Maybe.empty())
+  }
+
+  private fun setLocalTestSurvey(survey: Survey) {
+    `when`(mockLocalDataStore.surveyStore.getSurveyById(anyString())).thenReturn(Maybe.just(survey))
   }
 }

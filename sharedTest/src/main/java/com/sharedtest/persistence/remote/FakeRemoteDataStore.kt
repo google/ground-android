@@ -45,6 +45,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   // TODO(#1045): Allow default ToS to be initialized by tests.
   private var termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE)
 
+  private val subscribedSurveyIds = mutableSetOf<String>()
+
   /**
    * Set this before the test scenario is loaded.
    *
@@ -97,9 +99,15 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     TODO("Missing implementation")
   }
 
-  override fun subscribeToSurveyUpdates(surveyId: String): Completable = Completable.complete()
+  override fun subscribeToSurveyUpdates(surveyId: String): Completable {
+    subscribedSurveyIds.add(surveyId)
+    return Completable.complete()
+  }
 
   fun streamLoiOnce(loiEvent: RemoteDataEvent<LocationOfInterest>) {
     this.loiEvent = loiEvent
   }
+
+  fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
+    subscribedSurveyIds.contains(surveyId)
 }

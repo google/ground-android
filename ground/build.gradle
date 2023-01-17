@@ -42,6 +42,7 @@ project.ext {
     workVersion = "2.5.0"
     mockitoVersion = "4.4.0"
     mockitoKotlinVersion = "4.1.0"
+    coroutinesVersion = "1.6.4"
 }
 
 // Load secrets.properties
@@ -148,8 +149,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+
+    // Kotlin Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$coroutinesVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
 
     // Android legacy support Libraries.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
