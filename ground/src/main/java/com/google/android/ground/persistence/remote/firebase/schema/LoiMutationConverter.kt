@@ -23,7 +23,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
 import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.GeoPoint
 

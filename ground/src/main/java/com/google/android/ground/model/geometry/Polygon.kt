@@ -21,9 +21,7 @@ import kotlinx.serialization.Serializable
  * A polygon made up of a linear ring that dictates its bounds and any number of holes within the
  * shell ring.
  */
-@Serializable data class Polygon(
-  val shell: LinearRing,
-  val holes: List<LinearRing> = listOf()
-) : Geometry {
+@Serializable
+data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override val vertices: List<Point> = shell.vertices
 }
