@@ -15,7 +15,10 @@
  */
 package com.google.android.ground.model.geometry
 
+import kotlinx.serialization.Serializable
+
 /** A coordinate on a two-dimensional Cartesian plane. */
+@Serializable
 data class Coordinate(val x: Double, val y: Double) : Comparable<Coordinate> {
   override fun compareTo(other: Coordinate): Int = compareValuesBy(this, other, { it.x }, { it.y })
 }

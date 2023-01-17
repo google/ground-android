@@ -211,14 +211,14 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val result = candidates.build()
 
     if (!result.isEmpty()) {
-      locationOfInterestClicks.onNext(result)
+      locationOfInterestInteractionSubject.onNext(result)
     }
   }
 
   /** Handles both cluster and marker clicks. */
   private fun onClusterItemClick(item: FeatureClusterItem): Boolean {
     return if (getMap().uiSettings.isZoomGesturesEnabled) {
-      markerClicks.onNext(item.feature)
+      locationOfInterestInteractionSubject.onNext(ImmutableList.of(item.feature))
       // Allow map to pan to marker.
       false
     } else {
@@ -227,10 +227,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override val locationOfInterestInteractions: @Hot Observable<Feature> = markerClicks
-
-  override val ambiguousLocationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>> =
-    locationOfInterestClicks
+  private val locationOfInterestInteractionSubject: @Hot PublishSubject<ImmutableList<Feature>> =
+    PublishSubject.create()
+  override val locationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>> =
+    locationOfInterestInteractionSubject
 
   override val startDragEvents: @Hot Flowable<Nil> = this.startDragEventsProcessor
 

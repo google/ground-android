@@ -16,8 +16,10 @@
 package com.google.android.ground.model.geometry
 
 import com.google.common.collect.ImmutableList
+import kotlinx.serialization.Serializable
 
 /** Represents a single point. */
+@Serializable
 data class Point(val coordinate: Coordinate) : Geometry {
-  override val vertices: ImmutableList<Point> = ImmutableList.of(this)
+  override val vertices: List<Point> = ImmutableList.of(this)
 }

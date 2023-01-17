@@ -15,11 +15,9 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.common.collect.ImmutableList
-
 /** A common ancestor for all geometry types. */
 sealed interface Geometry {
   // TODO(#1246): Remove. Stick with concrete semantics; leave it to callers to discriminate
   // subclasses.
-  val vertices: ImmutableList<Point>
+  val vertices: List<Point>
 }
