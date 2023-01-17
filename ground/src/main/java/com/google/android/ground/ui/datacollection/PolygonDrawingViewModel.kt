@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -166,8 +165,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     }
   }
 
-  /** Returns a set of [Geometry] to be drawn on map for the given [Polygon]. */
-  private fun getFeaturesFromGeometries(polygon: Polygon): ImmutableSet<Feature> {
+  /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
+  private fun createFeatures(polygon: Polygon): ImmutableSet<Feature> {
     val vertices = polygon.vertices
 
     if (vertices.isEmpty()) {
@@ -205,7 +204,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     features =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable.map { polygon ->
-          polygon.map { getFeaturesFromGeometries(it) }.orElse(ImmutableSet.of())
+          polygon.map { createFeatures(it) }.orElse(ImmutableSet.of())
         }
       )
   }
