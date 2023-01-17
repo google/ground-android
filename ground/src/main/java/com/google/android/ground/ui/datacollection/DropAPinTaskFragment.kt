@@ -55,7 +55,7 @@ class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewMo
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderLocationsOfInterest(it) }
+    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel

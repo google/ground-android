@@ -83,7 +83,7 @@ interface MapFragment {
   @SuppressLint("MissingPermission") fun enableCurrentLocationIndicator()
 
   /** Update the set of map [Feature]s rendered on the map. */
-  fun renderLocationsOfInterest(features: ImmutableSet<Feature>)
+  fun renderFeatures(features: ImmutableSet<Feature>)
 
   fun refresh()
 

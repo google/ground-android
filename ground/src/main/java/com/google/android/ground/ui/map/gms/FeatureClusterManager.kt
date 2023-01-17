@@ -52,7 +52,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
   }
 
   /** Remove a set of features from this manager's clusters. */
-  fun removeLocationOfInterestFeatures(features: Set<Feature>) {
+  fun removeFeatures(features: Set<Feature>) {
     val deletedIds = algorithm.items.map { it.feature.id } - features.map { it.id }.toSet()
     val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.id) }
 
