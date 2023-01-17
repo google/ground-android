@@ -92,13 +92,6 @@ fun GeometryEntity.toModelObject() =
     else -> null
   }
 
-fun Geometry.toLocalDataStoreObject() =
-  when (this) {
-    is Point -> this.toLocalDataStoreObject()
-    is Polygon -> this.toLocalDataStoreObject()
-    else -> null
-  }
-
 private fun GeometryEntity.toPointModel(): Geometry? = this.location?.toPoint()
 
 private fun GeometryEntity.toPolygonModel(): Geometry {
@@ -106,28 +99,6 @@ private fun GeometryEntity.toPolygonModel(): Geometry {
   val holes = parseHoles(this.holes).map { LinearRing(it.map(Point::coordinate)) }
 
   return Polygon(shell, holes)
-}
-
-private fun Point.toLocalDataStoreObject(): GeometryEntity =
-  GeometryEntity(GeometryType.POINT.name, Coordinates.fromPoint(this))
-
-private fun Polygon.toLocalDataStoreObject(): GeometryEntity {
-  val shell = formatVertices(this.vertices)
-  val holes = formatHoles(this.holes.map { it.vertices })
-
-  return GeometryEntity(GeometryType.POLYGON.name, null, shell, holes)
-}
-
-private fun formatHoles(holes: List<List<Point>>): String? {
-  if (holes.isEmpty()) {
-    return null
-  }
-
-  val gson = Gson()
-  val holeArray =
-    holes.map { hole -> hole.map { ImmutableList.of(it.coordinate.x, it.coordinate.y) } }
-
-  return gson.toJson(holeArray)
 }
 
 fun formatVertices(vertices: List<Point>): String? {
@@ -191,12 +162,10 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     state = EntityState.DEFAULT,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
-    geometry = geometry.toLocalDataStoreObject()
+    geometry = geometry
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
-  val geometry = geometry?.toModelObject()
-
   if (geometry == null) {
     throw LocalDataConsistencyException("No geometry in location of interest $this.id")
   } else {
@@ -228,7 +197,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(
     state = EntityState.DEFAULT,
     created = authInfo,
     lastModified = authInfo,
-    geometry = geometry?.toLocalDataStoreObject()
+    geometry = geometry
   )
 }
 
@@ -238,7 +207,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     surveyId = surveyId,
     jobId = jobId,
     type = MutationEntityType.fromMutationType(type),
-    newGeometry = geometry?.toLocalDataStoreObject(),
+    newGeometry = geometry,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
@@ -253,7 +222,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     surveyId = surveyId,
     jobId = jobId,
     type = type.toMutationType(),
-    geometry = newGeometry?.toModelObject(),
+    geometry = newGeometry,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),

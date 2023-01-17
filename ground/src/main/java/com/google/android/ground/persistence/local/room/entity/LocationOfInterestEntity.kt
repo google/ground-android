@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.persistence.local.room.models.EntityState
 
 /**
@@ -30,5 +31,5 @@ data class LocationOfInterestEntity(
   @ColumnInfo(name = "state") var state: EntityState, // TODO: Rename to DeletionState.
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
-  @Embedded val geometry: GeometryEntity?
+  @Embedded val geometry: Geometry?
 )
