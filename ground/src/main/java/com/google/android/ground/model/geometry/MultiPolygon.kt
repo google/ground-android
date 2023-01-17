@@ -15,11 +15,10 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.android.ground.util.toImmutableList
 import kotlinx.serialization.Serializable
 
 /** A collection of [Polygon]s. */
 @Serializable
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
-  override val vertices: List<Point> = polygons.flatMap { it.vertices }.toImmutableList()
+  override val vertices: List<Point> = polygons.flatMap { it.vertices }
 }

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.android.ground.util.toImmutableList
 import kotlinx.serialization.Serializable
 
 /**
@@ -24,7 +23,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
-  override val vertices: List<Point> = coordinates.map { Point(it) }.toImmutableList()
+  override val vertices: List<Point> = coordinates.map { Point(it) }
 
   /**
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.
