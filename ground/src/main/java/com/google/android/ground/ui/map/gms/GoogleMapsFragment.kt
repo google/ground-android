@@ -305,7 +305,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun removeStaleFeatures(features: ImmutableSet<Feature>) {
-    clusterManager.removeFeatures(
+    clusterManager.removeStaleFeatures(
       features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.toSet()
     )
 
