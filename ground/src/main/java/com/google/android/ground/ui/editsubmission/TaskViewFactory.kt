@@ -25,7 +25,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DropAPinTaskViewModel
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel
 import com.google.android.ground.ui.util.ViewUtil.assignGeneratedId
 import javax.inject.Inject
 

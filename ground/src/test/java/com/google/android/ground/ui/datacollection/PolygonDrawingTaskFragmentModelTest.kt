@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.map.Feature
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
