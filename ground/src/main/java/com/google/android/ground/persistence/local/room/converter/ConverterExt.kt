@@ -85,21 +85,7 @@ fun BaseMap.toLocalDataStoreObject(surveyId: String) =
 
 fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
 
-fun GeometryEntity.toModelObject() =
-  when (geometryType) {
-    GeometryType.POINT.name -> this.toPointModel()
-    GeometryType.POLYGON.name -> this.toPolygonModel()
-    else -> null
-  }
-
-private fun GeometryEntity.toPointModel(): Geometry? = this.location?.toPoint()
-
-private fun GeometryEntity.toPolygonModel(): Geometry {
-  val shell = LinearRing(parseVertices(this.vertices).map { it.coordinate })
-  val holes = parseHoles(this.holes).map { LinearRing(it.map(Point::coordinate)) }
-
-  return Polygon(shell, holes)
-}
+fun Geometry.toModelObject() = GeometryWrapper(this)
 
 fun formatVertices(vertices: List<Point>): String? {
   if (vertices.isEmpty()) {
@@ -109,23 +95,6 @@ fun formatVertices(vertices: List<Point>): String? {
   val verticesArray =
     vertices.map { (coordinate): Point -> ImmutableList.of(coordinate.x, coordinate.y) }.toList()
   return gson.toJson(verticesArray)
-}
-
-private fun parseHoles(holes: String?): List<ImmutableList<Point>> {
-  if (holes.isNullOrEmpty()) {
-    return ImmutableList.of()
-  }
-
-  val gson = Gson()
-  val holesArray =
-    gson.fromJson<List<List<List<Double>>>>(
-      holes,
-      object : TypeToken<List<List<List<Double?>?>?>?>() {}.type
-    )
-
-  return holesArray.map {
-    it.map { vertex -> Point(Coordinate(vertex[0], vertex[1])) }.toImmutableList()
-  }
 }
 
 fun parseVertices(vertices: String?): ImmutableList<Point> {
@@ -162,7 +131,7 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     state = EntityState.DEFAULT,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
-    geometry = geometry
+    geometry = GeometryWrapper(geometry)
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
@@ -174,7 +143,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
       surveyId = surveyId,
       created = created.toModelObject(),
       lastModified = lastModified.toModelObject(),
-      geometry = geometry,
+      geometry = geometry.getGeometry(),
       job =
         survey.getJob(jobId = jobId).orElseThrow {
           LocalDataConsistencyException(
