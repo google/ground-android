@@ -17,6 +17,7 @@ package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Loadable
@@ -24,6 +25,7 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.common.collect.ImmutableList
 import io.reactivex.Single
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -48,17 +50,19 @@ class SurveySelectorViewModel @Inject internal constructor(
       return
     }
     if (idx >= surveys.size) {
-      Timber.e(
-        "Can't activate survey at index %d, only %d surveys in list", idx, surveys.size
-      )
+      Timber.e("Can't activate survey at index $idx, only ${surveys.size} surveys in list")
       return
     }
     val (id) = surveys[idx]
-    surveyRepository.activateSurvey(id)
+    viewModelScope.launch {
+      surveyRepository.activateSurvey(id)
+    }
   }
 
   fun activateOfflineSurvey(surveyId: String?) {
-    surveyRepository.activateSurvey(surveyId!!)
+    viewModelScope.launch {
+      surveyRepository.activateSurvey(surveyId!!)
+    }
   }
 
   init {

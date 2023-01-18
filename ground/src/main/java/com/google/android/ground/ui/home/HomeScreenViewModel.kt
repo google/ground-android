@@ -18,6 +18,7 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -39,8 +40,9 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @SharedViewModel
 class HomeScreenViewModel
@@ -64,6 +66,7 @@ internal constructor(
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
+
   /**
    * Live cache of locations of interest. Updated every time the underlying local storage data
    * changes.
@@ -90,8 +93,9 @@ internal constructor(
   }
 
   fun init() {
-    // Last active survey will be loaded once view subscribes to activeProject.
-    surveyRepository.loadLastActiveSurvey()
+    viewModelScope.launch {
+      surveyRepository.loadLastActiveSurvey()
+    }
   }
 
   fun showOfflineAreas() {
