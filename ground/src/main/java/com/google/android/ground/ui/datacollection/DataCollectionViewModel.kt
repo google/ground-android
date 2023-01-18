@@ -151,7 +151,9 @@ internal constructor(
           responses.forEach { (task, taskData) ->
             taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
           }
-          submissionRepository.createOrUpdateSubmission(it, taskDataDeltas.build(), isNew = true)
+          submissionRepository
+            .createOrUpdateSubmission(it, taskDataDeltas.build(), isNew = true)
+            .subscribe()
         }
 
         navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
