@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,28 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.Embedded
-import androidx.room.TypeConverter
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.persistence.local.room.IntEnum
-import com.google.android.ground.persistence.local.room.models.TaskEntityType
 
 data class GeometryWrapper(
   /** Non-null iff this geometry is a point. */
-  @Embedded val point: Point? = null,
+  val point: Point? = null,
   /** Non-null iff this geometry is a polygon */
-  @Embedded val polygon: Polygon? = null,
+  val polygon: Polygon? = null,
   /** Non-null iff this geometry is a multi-polygon */
-  @Embedded val multipolygon: MultiPolygon? = null,
+  val multiPolygon: MultiPolygon? = null,
 ) {
 
   constructor(geometry: Geometry?) : this() {
     when (geometry) {
       is Point -> GeometryWrapper(point = geometry)
       is Polygon -> GeometryWrapper(polygon = geometry)
-      is MultiPolygon -> GeometryWrapper(multipolygon = geometry)
+      is MultiPolygon -> GeometryWrapper(multiPolygon = geometry)
       else -> throw IllegalStateException("No matching geometry found")
     }
   }
 
-  fun getGeometry(): Geometry = point ?: polygon ?: multipolygon!!
+  fun getGeometry(): Geometry = point ?: polygon ?: multiPolygon!!
 }

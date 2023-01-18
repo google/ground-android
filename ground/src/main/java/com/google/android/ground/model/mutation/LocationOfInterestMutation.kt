@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.mutation
 
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
