@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.datacollection
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
+import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.PolygonDrawingTaskFragBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.task.Task
@@ -39,7 +38,7 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
   private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var binding: PolygonDrawingTaskFragBinding
+  private lateinit var binding: BasemapLayoutBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -51,26 +50,23 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = PolygonDrawingTaskFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.mapViewModel = mapViewModel
+    binding = BasemapLayoutBinding.inflate(inflater, container, false)
+    binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewModel.isPolygonCompleted.observe(requireActivity()) { isComplete ->
-      binding.completePolygonButton.visibility = if (isComplete) VISIBLE else GONE
-      binding.addPolygonButton.visibility = if (isComplete) GONE else VISIBLE
-    }
+    val container = binding.bottomContainer
+    val taskControlsBinding = PolygonDrawingTaskFragBinding.inflate(layoutInflater, container, true)
+    taskControlsBinding.viewModel = viewModel
+    taskControlsBinding.lifecycleOwner = this
     viewModel.startDrawingFlow()
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.unsavedMapLocationsOfInterest.observe(this) {
-      // TODO(https://github.com/google/ground-android/issues/1351): Render polygon
-    }
+    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel

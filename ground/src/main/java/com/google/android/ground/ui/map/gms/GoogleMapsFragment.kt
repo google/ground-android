@@ -324,7 +324,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun renderLocationsOfInterest(features: ImmutableSet<Feature>) {
+  override fun renderFeatures(features: ImmutableSet<Feature>) {
     // Re-cluster and re-render
     if (!features.isEmpty()) {
       Timber.v("renderLocationsOfInterest() called with ${features.size} locations of interest")
@@ -335,7 +335,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun refresh() = renderLocationsOfInterest(clusterManager.getManagedFeatures())
+  override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
 
   override var mapType: Int
     get() = getMap().mapType

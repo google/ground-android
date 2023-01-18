@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.DropAPinTaskViewModel
+import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel
 import com.google.android.ground.ui.editsubmission.*
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel
@@ -27,7 +28,6 @@ import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionLis
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
 import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel
 import com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel
