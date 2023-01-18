@@ -32,7 +32,7 @@ object GeometryWrapperTypeConverter {
   @TypeConverter
   fun fromString(jsonString: String?): GeometryWrapper? =
     try {
-      jsonString?.let { GeometryWrapper(Json.decodeFromString(it)) }
+      jsonString?.let { GeometryWrapper(geometry= Json.decodeFromString(it)) }
     } catch (e: JSONException) {
       Timber.d(e, "Invalid Geometry in db")
       null
