@@ -17,69 +17,53 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel" />
-    <variable
-      name="mapViewModel"
-      type="com.google.android.ground.ui.common.BaseMapViewModel" />
+      type="com.google.android.ground.ui.datacollection.PolygonDrawingViewModel" />
+    <import type="android.view.View" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:background="@color/colorGrey800">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="48dp"
+    android:gravity="center"
+    android:orientation="horizontal">
 
-    <include
-      android:id="@+id/basemap"
-      layout="@layout/basemap_layout"
-      app:viewModel="@{mapViewModel}" />
-
-    <LinearLayout
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/undo_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="48dp"
-      android:gravity="center_vertical"
-      android:orientation="horizontal"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent">
+      android:layout_marginEnd="16dp"
+      android:onClick="@{() -> viewModel.removeLastVertex()}"
+      app:backgroundTint="@android:color/white"
+      app:fabSize="normal"
+      app:srcCompat="@drawable/ic_undo_black"
+      app:tint="@color/colorForeground" />
 
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/undo_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:onClick="@{() -> viewModel.removeLastVertex()}"
-        app:backgroundTint="@android:color/white"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_undo_black"
-        app:tint="@color/colorForeground" />
+    <Button
+      android:id="@+id/add_polygon_button"
+      android:layout_width="150dp"
+      android:layout_height="64dp"
+      android:backgroundTint="@color/colorBackground"
+      android:onClick="@{() -> viewModel.selectCurrentVertex()}"
+      android:radius="4dp"
+      android:text="@string/add_point"
+      android:textColor="@color/colorAccent"
+      android:visibility="@{viewModel.isPolygonCompleted() ? View.GONE : View.VISIBLE}" />
 
-      <Button
-        android:id="@+id/add_polygon_button"
-        android:layout_width="150dp"
-        android:layout_height="64dp"
-        android:backgroundTint="@color/colorBackground"
-        android:onClick="@{() -> viewModel.selectCurrentVertex()}"
-        android:radius="4dp"
-        android:text="@string/add_point"
-        android:textColor="@color/colorAccent" />
-
-      <Button
-        android:id="@+id/complete_polygon_button"
-        android:layout_width="150dp"
-        android:layout_height="64dp"
-        android:backgroundTint="@color/colorAccent"
-        android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
-        android:radius="4dp"
-        android:text="@string/complete_polygon"
-        android:textColor="@color/colorBackground" />
-    </LinearLayout>
-  </androidx.constraintlayout.widget.ConstraintLayout>
+    <Button
+      android:id="@+id/complete_polygon_button"
+      android:layout_width="150dp"
+      android:layout_height="64dp"
+      android:backgroundTint="@color/colorAccent"
+      android:onClick="@{() -> viewModel.onCompletePolygonButtonClick()}"
+      android:radius="4dp"
+      android:text="@string/complete_polygon"
+      android:textColor="@color/colorBackground"
+      android:visibility="@{viewModel.isPolygonCompleted() ? View.VISIBLE : View.GONE}" />
+  </LinearLayout>
 </layout>

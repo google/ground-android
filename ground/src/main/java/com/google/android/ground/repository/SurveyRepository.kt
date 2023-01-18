@@ -17,7 +17,6 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -28,7 +27,6 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
@@ -96,21 +94,11 @@ constructor(
           Flowable.defer {
             syncSurveyWithRemote(surveyId)
               .onErrorResumeNext { getSurvey(surveyId) }
-              .map { attachJobPermissions(it) }
               .doOnSuccess { lastActiveSurveyId = surveyId }
               .toFlowable()
               .compose { Loadable.loadingOnceAndWrap(it) }
           }
         )
-  }
-
-  private fun attachJobPermissions(survey: Survey): Survey {
-    // TODO: Use Map once migration of dependencies to Kotlin is complete.
-    val jobs: ImmutableMap.Builder<String, Job> = ImmutableMap.builder()
-    for (job in survey.jobs) {
-      jobs.put(job.id, job)
-    }
-    return survey.copy(jobMap = jobs.build())
   }
 
   /** This only works if the survey is already cached to local db. */

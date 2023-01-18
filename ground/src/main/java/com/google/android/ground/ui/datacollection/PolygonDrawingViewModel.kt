@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.datacollection
 
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
-import com.google.auto.value.AutoValue
+import com.google.android.ground.ui.map.Feature
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
@@ -36,7 +36,9 @@ import java8.util.Optional
 import javax.inject.Inject
 
 @SharedViewModel
-class PolygonDrawingViewModel @Inject internal constructor(resources: Resources) :
+class PolygonDrawingViewModel
+@Inject
+internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
   private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
   private val partialPolygonFlowable: @Hot Subject<Optional<Polygon>> = PublishSubject.create()
@@ -44,8 +46,8 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
   /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
   val isPolygonCompleted: @Hot LiveData<Boolean>
 
-  /** Locations of interest drawn by the user but not yet saved. */
-  val unsavedMapLocationsOfInterest: @Hot LiveData<ImmutableSet<Geometry>>
+  /** [Feature]s drawn by the user but not yet saved. */
+  val features: @Hot LiveData<ImmutableSet<Feature>>
 
   private val vertices: MutableList<Point> = ArrayList()
   private var polygon: Polygon? = null
@@ -132,14 +134,13 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
   }
 
   val firstVertex: Optional<Point>
-    get() = Optional.ofNullable(polygon).map { it!!.vertices[0] }
+    get() = Optional.ofNullable(vertices.firstOrNull())
 
   fun startDrawingFlow() {
     polygonDrawingState.onNext(PolygonDrawingState.inProgress())
   }
 
-  @AutoValue
-  abstract class PolygonDrawingState {
+  data class PolygonDrawingState(val state: State, val polygon: Polygon? = null) {
     val isCanceled: Boolean
       get() = state == State.CANCELED
     val isInProgress: Boolean
@@ -154,43 +155,33 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
       CANCELED
     }
 
-    /** Current state of polygon drawing. */
-    abstract val state: State
-
-    /** Final polygon. */
-    abstract val polygon: Polygon?
-
     companion object {
-      fun canceled(): PolygonDrawingState {
-        return createDrawingState(State.CANCELED, null)
-      }
+      fun canceled(): PolygonDrawingState = PolygonDrawingState(State.CANCELED)
 
-      fun inProgress(): PolygonDrawingState {
-        return createDrawingState(State.IN_PROGRESS, null)
-      }
+      fun inProgress(): PolygonDrawingState = PolygonDrawingState(State.IN_PROGRESS)
 
-      fun completed(polygon: Polygon): PolygonDrawingState {
-        return createDrawingState(State.COMPLETED, polygon)
-      }
-
-      private fun createDrawingState(state: State, polygon: Polygon?): PolygonDrawingState {
-        return AutoValue_PolygonDrawingViewModel_PolygonDrawingState(state, polygon)
-      }
+      fun completed(polygon: Polygon): PolygonDrawingState =
+        PolygonDrawingState(State.COMPLETED, polygon)
     }
   }
 
-  /** Returns a set of [Geometry] to be drawn on map for the given [Polygon]. */
-  private fun unsavedLocationsOfInterestFromLocationOfInterest(
-    polygon: Polygon
-  ): ImmutableSet<Geometry> {
+  /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
+  private fun createFeatures(polygon: Polygon): ImmutableSet<Feature> {
     val vertices = polygon.vertices
 
     if (vertices.isEmpty()) {
       return ImmutableSet.of()
     }
 
-    // Include the given polygon and add 1 LOI with a Point for each of its vertex.
-    return ImmutableSet.builder<Geometry>().add(polygon).addAll(vertices.toList()).build()
+    return ImmutableSet.builder<Feature>()
+      .add(
+        Feature(
+          id = uuidGenerator.generateUuid(),
+          tag = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = polygon
+        )
+      )
+      .build()
   }
 
   companion object {
@@ -210,12 +201,10 @@ class PolygonDrawingViewModel @Inject internal constructor(resources: Resources)
           .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
           .startWith(false)
       )
-    unsavedMapLocationsOfInterest =
+    features =
       LiveDataReactiveStreams.fromPublisher(
         polygonFlowable.map { polygon ->
-          polygon
-            .map { unsavedLocationsOfInterestFromLocationOfInterest(it) }
-            .orElse(ImmutableSet.of())
+          polygon.map { createFeatures(it) }.orElse(ImmutableSet.of())
         }
       )
   }
