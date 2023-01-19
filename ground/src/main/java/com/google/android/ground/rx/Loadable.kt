@@ -29,6 +29,7 @@ import org.reactivestreams.Publisher
 class Loadable<T> private constructor(val state: LoadState, val result: Result<T?>) {
 
   enum class LoadState {
+    NOT_LOADED,
     LOADING,
     LOADED,
     ERROR
@@ -43,7 +44,9 @@ class Loadable<T> private constructor(val state: LoadState, val result: Result<T
   val isLoaded = state == LoadState.LOADED
 
   companion object {
-    private fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, Result.success(null))
+    fun <T> notLoaded(): Loadable<T> = Loadable(LoadState.NOT_LOADED, Result.success(null))
+
+    fun <T> loading(): Loadable<T> = Loadable(LoadState.LOADING, Result.success(null))
 
     @JvmStatic
     fun <T> loaded(data: T): Loadable<T> = Loadable(LoadState.LOADED, Result.success(data))

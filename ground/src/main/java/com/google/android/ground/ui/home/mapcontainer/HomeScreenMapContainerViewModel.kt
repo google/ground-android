@@ -123,7 +123,7 @@ internal constructor(
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    surveyRepository.setCameraPosition(surveyRepository.lastActiveSurveyId, newCameraPosition)
+    surveyRepository.setCameraPosition(surveyRepository.activeSurveyId, newCameraPosition)
     lastCameraPosition = newCameraPosition
   }
 
