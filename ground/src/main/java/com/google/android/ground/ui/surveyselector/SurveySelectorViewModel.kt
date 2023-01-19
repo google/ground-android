@@ -24,11 +24,13 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.common.collect.ImmutableList
 import io.reactivex.Single
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
-/** Represents view state and behaviors of the survey selector dialog.  */
-class SurveySelectorViewModel @Inject internal constructor(
+/** Represents view state and behaviors of the survey selector dialog. */
+class SurveySelectorViewModel
+@Inject
+internal constructor(
   private val surveyRepository: SurveyRepository,
   authManager: AuthenticationManager
 ) : AbstractViewModel() {
@@ -48,9 +50,7 @@ class SurveySelectorViewModel @Inject internal constructor(
       return
     }
     if (idx >= surveys.size) {
-      Timber.e(
-        "Can't activate survey at index %d, only %d surveys in list", idx, surveys.size
-      )
+      Timber.e("Can't activate survey at index $idx, only ${surveys.size} surveys in list")
       return
     }
     val (id) = surveys[idx]
@@ -62,8 +62,9 @@ class SurveySelectorViewModel @Inject internal constructor(
   }
 
   init {
-    surveySummaries = LiveDataReactiveStreams.fromPublisher(
-      surveyRepository.getSurveySummaries(authManager.currentUser)
-    )
+    surveySummaries =
+      LiveDataReactiveStreams.fromPublisher(
+        surveyRepository.getSurveySummaries(authManager.currentUser)
+      )
   }
 }
