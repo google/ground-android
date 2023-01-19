@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote
 import android.net.Uri
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Single
 import java.io.File
 
@@ -30,6 +29,6 @@ interface RemoteStorageManager {
   /** Returns a URL that can be used to download a file at the specified path in remote storage. */
   fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri>
 
-  /** Uploads file to a remote path, streaming progress in the returned [Flowable]. */
+  /** Uploads file to a remote path. */
   fun uploadMediaFromFile(file: File, remoteDestinationPath: String): @Cold Completable
 }
