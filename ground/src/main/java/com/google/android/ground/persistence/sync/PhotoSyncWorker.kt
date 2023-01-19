@@ -53,7 +53,7 @@ constructor(
     return if (file.exists()) {
       Timber.d("Starting photo upload: $localSourcePath, $remoteDestinationPath")
       try {
-        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath).blockingForEach {}
+        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath).blockingAwait()
         Result.success()
       } catch (e: Exception) {
         FirebaseCrashlytics.getInstance().log("Photo sync failed")
