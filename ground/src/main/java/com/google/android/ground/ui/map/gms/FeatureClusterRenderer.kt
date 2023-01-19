@@ -19,10 +19,12 @@ import android.content.Context
 import android.graphics.Color
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.ui.MarkerIconFactory
+import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
 
@@ -48,10 +50,42 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    if (item.feature.id == clusterManager.activeLocationOfInterest) {
+    if (item.feature.tag.id == clusterManager.activeLocationOfInterest) {
       markerOptions.icon(getMarkerIcon(true))
     } else {
       markerOptions.icon(getMarkerIcon(false))
     }
+  }
+
+  private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor? {
+    var totalWithData = 0
+
+    cluster.items.forEach {
+      if (it.feature.tag.flag) {
+        totalWithData++
+      }
+    }
+
+    val icon =
+      markerIconFactory?.getClusterIcon(
+        parseColor(Style().color),
+        map.cameraPosition.zoom,
+        "$totalWithData/" + cluster.items.size
+      )
+    return icon
+  }
+
+  override fun onBeforeClusterRendered(
+    cluster: Cluster<FeatureClusterItem>,
+    markerOptions: MarkerOptions
+  ) {
+    super.onBeforeClusterRendered(cluster, markerOptions)
+
+    markerOptions.icon(createMarker(cluster))
+  }
+
+  override fun onClusterUpdated(cluster: Cluster<FeatureClusterItem>, marker: Marker) {
+    super.onClusterUpdated(cluster, marker)
+    marker.setIcon(createMarker(cluster))
   }
 }

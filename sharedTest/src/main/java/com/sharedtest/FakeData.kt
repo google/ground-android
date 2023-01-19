@@ -74,14 +74,13 @@ object FakeData {
     )
 
   @JvmField
-  val LOCATION_OF_INTEREST_FEATURE =
+  val LOCATION_FEATURE_FEATURE =
     Feature(
-      LOCATION_OF_INTEREST.id,
-      Feature.Type.LOCATION_OF_INTEREST,
+      Feature.Tag(LOCATION_OF_INTEREST.id, Feature.Type.LOCATION_FEATURE),
       LOCATION_OF_INTEREST.geometry
     )
 
-  @JvmField val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_OF_INTEREST_FEATURE)
+  @JvmField val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_FEATURE_FEATURE)
 
   @JvmField
   val VERTICES: ImmutableList<Point> =

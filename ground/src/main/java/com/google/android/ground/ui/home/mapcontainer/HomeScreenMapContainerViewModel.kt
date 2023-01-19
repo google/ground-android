@@ -99,7 +99,12 @@ internal constructor(
   ): ImmutableSet<Feature> {
     // TODO: Add support for polylines similar to mapPins.
     return locationsOfInterest
-      .map { Feature(id = it.id, tag = Feature.Type.LOCATION_OF_INTEREST, geometry = it.geometry) }
+      .map {
+        Feature(
+          Feature.Tag(id = it.id, type = Feature.Type.LOCATION_FEATURE, flag = it.job.hasData()),
+          geometry = it.geometry
+        )
+      }
       .toImmutableSet()
   }
 
@@ -216,7 +221,9 @@ internal constructor(
             listOf(
               savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()),
             )
-          ) { concatLocationsOfInterestSets(it) }
+          ) {
+            concatLocationsOfInterestSets(it)
+          }
           .distinctUntilChanged()
       )
 

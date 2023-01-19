@@ -48,7 +48,7 @@ class FeatureClusterManagerTest : BaseHiltTest() {
   @Test
   fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
     featureClusterManager.addOrUpdateLocationOfInterestFeature(
-      FakeData.LOCATION_OF_INTEREST_FEATURE
+      FakeData.LOCATION_FEATURE_FEATURE
     )
     assertThat(featureClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
@@ -57,10 +57,10 @@ class FeatureClusterManagerTest : BaseHiltTest() {
   @Test
   fun removeLocationsOfInterest_removesLOIsById() {
     featureClusterManager.addOrUpdateLocationOfInterestFeature(
-      FakeData.LOCATION_OF_INTEREST_FEATURE
+      FakeData.LOCATION_FEATURE_FEATURE
     )
     featureClusterManager.removeLocationOfInterestFeatures(
-      setOf(FakeData.LOCATION_OF_INTEREST_FEATURE)
+      setOf(FakeData.LOCATION_FEATURE_FEATURE)
     )
     assertThat(featureClusterManager.algorithm.items).isEmpty()
   }

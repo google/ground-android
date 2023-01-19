@@ -16,9 +16,7 @@
 package com.google.android.ground.ui
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.PorterDuff
+import android.graphics.*
 import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
@@ -67,6 +65,40 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
   ): BitmapDescriptor {
     val bitmap = getMarkerBitmap(color, currentZoomLevel, isSelected)
     // TODO: Cache rendered bitmaps.
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
+  }
+
+  fun getClusterIcon(
+    @ColorInt color: Int,
+    currentZoomLevel: Float,
+    text: String,
+  ): BitmapDescriptor {
+    val fill = AppCompatResources.getDrawable(context, R.drawable.cluster_marker)
+    var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
+
+    if (currentZoomLevel >= HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
+      scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
+    }
+
+    val width = (fill!!.intrinsicWidth * scale).toInt()
+    val height = (fill.intrinsicHeight * scale).toInt()
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val style = Paint()
+    style.color = Color.WHITE
+    style.textSize = 40.0.toFloat()
+
+    val bounds = Rect()
+    style.getTextBounds(text, 0, text.length, bounds)
+    val x = (bitmap.width - bounds.width()) / 2
+    val y = (bitmap.height + bounds.height()) / 2
+
+    fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    fill.setBounds(0, 0, width, height)
+    fill.draw(canvas)
+
+    canvas.drawText(text, x.toFloat(), y.toFloat(), style)
+
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
 }

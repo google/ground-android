@@ -194,8 +194,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val candidates = ImmutableList.builder<Feature>()
     val processed = ArrayList<String>()
 
-    for ((feature, value) in polygons.filter { it.key.tag == Feature.Type.LOCATION_OF_INTEREST }) {
-      val loiId = feature.id
+    for ((feature, value) in polygons.filter { it.key.tag.type == Feature.Type.LOCATION_FEATURE }) {
+      val loiId = feature.tag.id
 
       if (processed.contains(loiId)) {
         continue
@@ -278,7 +278,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
-    mapsPolygon.tag = Pair(feature.id, LocationOfInterest::javaClass)
+    mapsPolygon.tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
     //  parseColor(Style().color)
@@ -306,11 +306,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun removeStaleLocationsOfInterest(features: ImmutableSet<Feature>) {
     clusterManager.removeLocationOfInterestFeatures(
-      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.toSet()
+      features.filter { it.tag.type == Feature.Type.LOCATION_FEATURE }.toSet()
     )
 
-    val deletedIds = polygons.keys.map { it.id } - features.map { it.id }.toSet()
-    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.id) }
+    val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
+    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
     deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
     polygons.minusAssign(deletedPolygons.keys)
   }

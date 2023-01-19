@@ -32,4 +32,6 @@ constructor(
     get() = tasks.values.sortedBy { it.id }.toImmutableList()
 
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
+
+  fun hasData(): Boolean = !this.tasks.isEmpty()
 }

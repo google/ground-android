@@ -105,7 +105,7 @@ internal constructor(
   /** Intended for use as a callback for handling user clicks on rendered map features. */
   fun onFeatureClick(features: ImmutableList<Feature>) {
     val loiFeatureIds =
-      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.map { it.id }
+      features.filter { it.tag.type == Feature.Type.LOCATION_FEATURE }.map { it.tag.id }
     val locationsOfInterest: ImmutableList<LocationOfInterest> =
       locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }.toImmutableList()
 

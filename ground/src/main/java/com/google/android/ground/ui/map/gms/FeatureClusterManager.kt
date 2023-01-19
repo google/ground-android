@@ -36,9 +36,9 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
       return
     }
 
-    when (feature.tag) {
-      Feature.Type.LOCATION_OF_INTEREST -> {
-        val clusterItem = algorithm.items.find { it.feature.id == feature.id }
+    when (feature.tag.type) {
+      Feature.Type.LOCATION_FEATURE -> {
+        val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
 
         if (clusterItem != null) {
           updateItem(clusterItem)
@@ -53,10 +53,10 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Remove a set of features from this manager's clusters. */
   fun removeLocationOfInterestFeatures(features: Set<Feature>) {
-    val existingIds = algorithm.items.map { it.feature.id }.toSet()
-    val deletedIds = existingIds.intersect(features.map { it.id }.toSet())
+    val existingIds = algorithm.items.map { it.feature.tag.id }.toSet()
+    val deletedIds = existingIds.intersect(features.map { it.tag.id }.toSet())
     val deletedPoints: Set<FeatureClusterItem> =
-      algorithm.items.filter { deletedIds.contains(it.feature.id) }.toSet()
+      algorithm.items.filter { deletedIds.contains(it.feature.tag.id) }.toSet()
 
     Timber.d("removing points: ${deletedPoints}")
     removeItems(deletedPoints)

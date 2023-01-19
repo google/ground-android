@@ -17,11 +17,28 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Geometry
 
-/** Represents an individual feature on a map with a given [Geometry]. */
-data class Feature(val id: String, val tag: Type, val geometry: Geometry) {
-  /** Denotes the kind of entity this map feature represents. */
+/** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
+data class Feature(val tag: Tag, val geometry: Geometry) {
+  /**
+   * Denotes the kind of entity this map feature represents and contains any additional data it
+   * carries.
+   */
+  data class Tag(
+    /** A unique identifier for the model object that this feature represents. */
+    val id: String = "",
+    /** A type that indicates how to interpret this feature as a model object. */
+    val type: Type,
+    /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
+    val flag: Boolean = false
+  )
+  /**
+   * Indicates what kind of object a given [Feature] represents. Used to determine how to interpret
+   * features as model objects.
+   */
   enum class Type {
+    /** This feature represents an unknown kind of object. */
     UNKNOWN,
-    LOCATION_OF_INTEREST,
+    /** This feature represents a single, discreet location on the map. */
+    LOCATION_FEATURE,
   }
 }
