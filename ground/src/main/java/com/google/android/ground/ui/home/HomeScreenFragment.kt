@@ -26,7 +26,6 @@ import android.widget.FrameLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.fragment.NavHostFragment
 import com.akaita.java.rxjava2debug.RxJava2Debug
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
@@ -43,7 +42,6 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -79,7 +77,6 @@ class HomeScreenFragment :
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
-  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var surveySelectorViewModel: SurveySelectorViewModel
 
   private var progressDialog: ProgressDialog? = null
@@ -91,7 +88,6 @@ class HomeScreenFragment :
       ->
       onApplyWindowInsets(insets)
     }
-    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     surveySelectorViewModel = getViewModel(SurveySelectorViewModel::class.java)
     locationOfInterestSelectorViewModel =
       getViewModel(LocationOfInterestSelectorViewModel::class.java)
@@ -225,18 +221,8 @@ class HomeScreenFragment :
     homeScreenViewModel.init()
   }
 
-  private val currentDestinationId: Int
-    get() {
-      val currentDestination = NavHostFragment.findNavController(this).currentDestination
-      return currentDestination?.id ?: -1
-    }
-
   private fun showSurveySelector() {
-    if (currentDestinationId != R.id.surveySelectorDialogFragment) {
-      navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment()
-      )
-    }
+    navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
   }
 
   private fun showDataCollection() {
