@@ -53,8 +53,7 @@ class SurveySelectorDialogFragment : AbstractDialogFragment() {
     super.onCreateDialog(savedInstanceState)
     val dialog = AlertDialog.Builder(requireContext())
     dialog.setTitle(R.string.join_survey)
-    val inflater = activity!!.layoutInflater
-    binding = SurveySelectorDialogBinding.inflate(inflater)
+    binding = SurveySelectorDialogBinding.inflate(layoutInflater)
     listAdapter =
       ArrayAdapter<Any>(requireContext(), R.layout.survey_selector_list_item, R.id.survey_name)
     binding.surveySelectorListView.adapter = listAdapter

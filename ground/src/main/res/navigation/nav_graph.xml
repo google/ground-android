@@ -213,6 +213,10 @@
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/navGraph" />
   <action
+    android:id="@+id/showSurveySelectorScreen"
+    app:destination="@id/surveySelectorDialogFragment"
+    app:popUpTo="@id/navGraph" />
+  <action
     android:id="@+id/showMapTypeDialogFragment"
     app:destination="@id/mapTypeDialogFragment" />
 
