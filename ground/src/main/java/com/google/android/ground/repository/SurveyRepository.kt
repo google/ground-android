@@ -105,7 +105,7 @@ constructor(
     if (surveyId == activeSurveyId) {
       return
     }
-    // Clear survey is id is empty.
+    // Clear survey if id is empty.
     if (surveyId.isEmpty()) {
       clearActiveSurvey()
       return
