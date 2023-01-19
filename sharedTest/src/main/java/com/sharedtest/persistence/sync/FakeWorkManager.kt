@@ -13,162 +13,111 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sharedtest.persistence.sync
 
-package com.sharedtest.persistence.sync;
+import android.annotation.SuppressLint
+import android.app.PendingIntent
+import androidx.lifecycle.LiveData
+import androidx.work.*
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.*
 
-import android.app.PendingIntent;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.Operation;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkContinuation;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-import androidx.work.WorkQuery;
-import androidx.work.WorkRequest;
-import com.google.common.util.concurrent.ListenableFuture;
-import java.util.List;
-import java.util.UUID;
+@SuppressLint("RestrictedApi")
+class FakeWorkManager : WorkManager() {
 
-public class FakeWorkManager extends WorkManager {
-
-  @NonNull
-  @Override
-  public Operation enqueue(@NonNull List<? extends WorkRequest> requests) {
-    return null;
+  override fun enqueue(requests: List<WorkRequest?>): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
-    return null;
+  override fun beginWith(work: List<OneTimeWorkRequest>): WorkContinuation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public WorkContinuation beginUniqueWork(
-      @NonNull String uniqueWorkName,
-      @NonNull ExistingWorkPolicy existingWorkPolicy,
-      @NonNull List<OneTimeWorkRequest> work) {
-    return null;
+  override fun beginUniqueWork(
+    uniqueWorkName: String,
+    existingWorkPolicy: ExistingWorkPolicy,
+    work: List<OneTimeWorkRequest>
+  ): WorkContinuation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation enqueueUniqueWork(
-      @NonNull String uniqueWorkName,
-      @NonNull ExistingWorkPolicy existingWorkPolicy,
-      @NonNull List<OneTimeWorkRequest> work) {
-    return null;
+  override fun enqueueUniqueWork(
+    uniqueWorkName: String,
+    existingWorkPolicy: ExistingWorkPolicy,
+    work: List<OneTimeWorkRequest>
+  ): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation enqueueUniquePeriodicWork(
-      @NonNull String uniqueWorkName,
-      @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
-      @NonNull PeriodicWorkRequest periodicWork) {
-    return null;
+  override fun enqueueUniquePeriodicWork(
+    uniqueWorkName: String,
+    existingPeriodicWorkPolicy: ExistingPeriodicWorkPolicy,
+    periodicWork: PeriodicWorkRequest
+  ): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation cancelWorkById(@NonNull UUID id) {
-    return null;
+  override fun cancelWorkById(id: UUID): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation cancelAllWorkByTag(@NonNull String tag) {
-    return null;
+  override fun cancelAllWorkByTag(tag: String): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation cancelUniqueWork(@NonNull String uniqueWorkName) {
-    return null;
+  override fun cancelUniqueWork(uniqueWorkName: String): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation cancelAllWork() {
-    return null;
+  override fun cancelAllWork(): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public PendingIntent createCancelPendingIntent(@NonNull UUID id) {
-    return null;
+  override fun createCancelPendingIntent(id: UUID): PendingIntent {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public Operation pruneWork() {
-    return null;
+  override fun pruneWork(): Operation {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public LiveData<Long> getLastCancelAllTimeMillisLiveData() {
-    return null;
+  override fun getLastCancelAllTimeMillisLiveData(): LiveData<Long> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public ListenableFuture<Long> getLastCancelAllTimeMillis() {
-    return null;
+  override fun getLastCancelAllTimeMillis(): ListenableFuture<Long> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public LiveData<WorkInfo> getWorkInfoByIdLiveData(@NonNull UUID id) {
-    return null;
+  override fun getWorkInfoByIdLiveData(id: UUID): LiveData<WorkInfo> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
-    return null;
+  override fun getWorkInfoById(id: UUID): ListenableFuture<WorkInfo> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public LiveData<List<WorkInfo>> getWorkInfosByTagLiveData(@NonNull String tag) {
-    return null;
+  override fun getWorkInfosByTagLiveData(tag: String): LiveData<List<WorkInfo>> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public ListenableFuture<List<WorkInfo>> getWorkInfosByTag(@NonNull String tag) {
-    return null;
+  override fun getWorkInfosByTag(tag: String): ListenableFuture<List<WorkInfo>> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public LiveData<List<WorkInfo>> getWorkInfosForUniqueWorkLiveData(
-      @NonNull String uniqueWorkName) {
-    return null;
+  override fun getWorkInfosForUniqueWorkLiveData(uniqueWorkName: String): LiveData<List<WorkInfo>> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
-      @NonNull String uniqueWorkName) {
-    return null;
+  override fun getWorkInfosForUniqueWork(uniqueWorkName: String): ListenableFuture<List<WorkInfo>> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public LiveData<List<WorkInfo>> getWorkInfosLiveData(@NonNull WorkQuery workQuery) {
-    return null;
+  override fun getWorkInfosLiveData(workQuery: WorkQuery): LiveData<List<WorkInfo>> {
+    throw NotImplementedError()
   }
 
-  @NonNull
-  @Override
-  public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull WorkQuery workQuery) {
-    return null;
+  override fun getWorkInfos(workQuery: WorkQuery): ListenableFuture<List<WorkInfo>> {
+    throw NotImplementedError()
   }
 }
