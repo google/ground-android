@@ -31,14 +31,11 @@ import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import java8.util.Optional
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,21 +51,15 @@ import org.robolectric.RobolectricTestRunner
 @UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @BindValue
-  @InjectMocks
-  var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
-  @BindValue
-  @Mock
-  lateinit var mockSurveyStore: LocalSurveyStore
-  @Inject
-  lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
 
-  @Inject
-  lateinit var surveyRepository: SurveyRepository
+  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
 
-  @DefaultDispatcher
-  @Inject
-  lateinit var testDispatcher: CoroutineDispatcher
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+
+  @Inject lateinit var surveyRepository: SurveyRepository
+
+  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
 
   @Before
   override fun setUp() {
@@ -77,29 +68,31 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun activateSurvey_firstTime() = runTest(testDispatcher) {
-    clearLocalTestSurvey()
-    fakeRemoteDataStore.setTestSurvey(SURVEY)
+  fun activateSurvey_firstTime() =
+    runTest(testDispatcher) {
+      clearLocalTestSurvey()
+      fakeRemoteDataStore.setTestSurvey(SURVEY)
 
-    surveyRepository.activateSurvey(SURVEY.id)
-    advanceUntilIdle()
+      surveyRepository.activateSurvey(SURVEY.id)
+      advanceUntilIdle()
 
-    surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-    verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
-    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
-  }
+      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
+      assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
+    }
 
   @Test
-  fun activateSurvey_alreadyAvailableOffline() = runTest(testDispatcher) {
-    setLocalTestSurvey(SURVEY)
+  fun activateSurvey_alreadyAvailableOffline() =
+    runTest(testDispatcher) {
+      setLocalTestSurvey(SURVEY)
 
-    surveyRepository.activateSurvey(SURVEY.id)
-    advanceUntilIdle()
+      surveyRepository.activateSurvey(SURVEY.id)
+      advanceUntilIdle()
 
-    surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-    verify(mockSurveyStore, never()).insertOrUpdateSurvey(any())
-    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
-  }
+      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      verify(mockSurveyStore, never()).insertOrUpdateSurvey(any())
+      assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
+    }
 
   private fun clearLocalTestSurvey() {
     `when`(mockLocalDataStore.surveyStore.getSurveyById(anyString())).thenReturn(Maybe.empty())
