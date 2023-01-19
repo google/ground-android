@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.models.MutationEntityType
 
