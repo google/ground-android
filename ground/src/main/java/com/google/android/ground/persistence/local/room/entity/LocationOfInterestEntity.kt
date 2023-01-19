@@ -30,5 +30,5 @@ data class LocationOfInterestEntity(
   @ColumnInfo(name = "state") var state: EntityState, // TODO: Rename to DeletionState.
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
-  @ColumnInfo(name = "geometry") val geometry: GeometryWrapper?
+  val geometry: GeometryWrapper?
 )

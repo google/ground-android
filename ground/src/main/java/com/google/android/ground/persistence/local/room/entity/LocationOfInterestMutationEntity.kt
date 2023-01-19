@@ -49,5 +49,5 @@ data class LocationOfInterestMutationEntity(
   @ColumnInfo(name = "location_of_interest_id") val locationOfInterestId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
   /** Non-null if the LOI's geometry was updated, null if unchanged. */
-  @ColumnInfo(name = "new_geometry") val newGeometry: GeometryWrapper?,
+  val newGeometry: GeometryWrapper?,
 )
