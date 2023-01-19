@@ -13,28 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground.coroutines
-
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.CoroutinesScopesModule
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Qualifier
+import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 
-@InstallIn(SingletonComponent::class)
 @Module
-object CoroutinesScopesModule {
+@TestInstallIn(components = [SingletonComponent::class], replaces = [CoroutinesScopesModule::class])
+object TestCoroutineScopesModule {
   @ApplicationScope
   @Singleton
   @Provides
-  fun provideCoroutineScope(): CoroutineScope {
-    return CoroutineScope(SupervisorJob() + Dispatchers.Default)
-  }
+  fun provideCoroutineScope(): CoroutineScope = TestScope()
 }
-
-@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class ApplicationScope

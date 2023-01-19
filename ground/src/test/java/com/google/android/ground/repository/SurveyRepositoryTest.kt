@@ -27,16 +27,24 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import java8.util.Optional
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
+import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @UninstallModules(LocalDataStoreModule::class)
@@ -48,24 +56,34 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
+  @Before
+  override fun setUp() {
+    super.setUp()
+    `when`(mockSurveyStore.insertOrUpdateSurvey(any())).thenReturn(Completable.complete())
+  }
+
   @Test
-  fun activateSurvey_firstTime() {
+  fun activateSurvey_firstTime() = runTest {
     clearLocalTestSurvey()
     fakeRemoteDataStore.setTestSurvey(SURVEY)
 
     surveyRepository.activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
     surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+    verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
     assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
   }
 
   @Test
-  fun activateSurvey_alreadyAvailableOffline() {
+  fun activateSurvey_alreadyAvailableOffline() = runTest {
     setLocalTestSurvey(SURVEY)
 
     surveyRepository.activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
     surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+    verify(mockSurveyStore, never()).insertOrUpdateSurvey(any())
     assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
   }
 
