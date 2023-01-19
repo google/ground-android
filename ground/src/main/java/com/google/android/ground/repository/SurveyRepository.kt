@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
@@ -31,13 +33,17 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
-import java8.util.Optional
-import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.rx2.awaitSingleOrNull
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.awaitSingleOrNull
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
 private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
@@ -53,7 +59,9 @@ class SurveyRepository
 constructor(
   private val localDataStore: LocalDataStore,
   private val remoteDataStore: RemoteDataStore,
-  private val localValueStore: LocalValueStore
+  private val localValueStore: LocalValueStore,
+  @ApplicationScope private val externalScope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
   private val surveyStore = localDataStore.surveyStore
 
@@ -70,18 +78,6 @@ constructor(
 
   val offlineSurveys: @Cold Single<ImmutableList<Survey>>
     get() = surveyStore.surveys
-
-  private suspend fun loadSurvey(surveyId: String): Survey {
-    surveyLoadingState.onNext(Loadable.loading())
-    var survey = surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
-    if (survey == null) {
-      survey = syncSurveyFromRemote(surveyId)
-    }
-    activeSurveyId = surveyId
-    localValueStore.lastActiveSurveyId = surveyId
-    surveyLoadingState.onNext(Loadable.loaded(survey))
-    return survey
-  }
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
     remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
@@ -102,18 +98,29 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  suspend fun loadLastActiveSurvey() = activateSurvey(localValueStore.lastActiveSurveyId)
+  fun loadLastActiveSurvey() = activateSurvey(localValueStore.lastActiveSurveyId)
 
-  suspend fun activateSurvey(surveyId: String) {
+  fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
     if (surveyId == activeSurveyId) {
       return
     }
+    // Clear survey is id is empty.
     if (surveyId.isEmpty()) {
       clearActiveSurvey()
       return
     }
-    loadSurvey(surveyId)
+
+    externalScope.launch {
+      withContext(ioDispatcher) {
+        surveyLoadingState.onNext(Loadable.loading())
+        val survey =
+          surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+        activeSurveyId = surveyId
+        localValueStore.lastActiveSurveyId = surveyId
+        surveyLoadingState.onNext(Loadable.loaded(survey))
+      }
+    }
   }
 
   fun clearActiveSurvey() {

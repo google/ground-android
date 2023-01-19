@@ -30,8 +30,12 @@ import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import java8.util.Optional
-import kotlinx.coroutines.test.runTest
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,8 +68,9 @@ class SurveyRepositoryTest : BaseHiltTest() {
     fakeRemoteDataStore.setTestSurvey(SURVEY)
 
     surveyRepository.activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
-    surveyRepository.activeSurvey.test().assertValues(Optional.of(SURVEY))
+    surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
     verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
     assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
   }
@@ -75,8 +80,9 @@ class SurveyRepositoryTest : BaseHiltTest() {
     setLocalTestSurvey(SURVEY)
 
     surveyRepository.activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
-    surveyRepository.activeSurvey.test().assertValues(Optional.of(SURVEY))
+    surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
     verify(mockSurveyStore, never()).insertOrUpdateSurvey(any())
     assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
   }

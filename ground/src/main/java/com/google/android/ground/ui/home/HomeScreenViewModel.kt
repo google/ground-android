@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -40,9 +39,8 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 @SharedViewModel
 class HomeScreenViewModel
@@ -93,9 +91,7 @@ internal constructor(
   }
 
   fun init() {
-    viewModelScope.launch {
-      surveyRepository.loadLastActiveSurvey()
-    }
+    surveyRepository.loadLastActiveSurvey()
   }
 
   fun showOfflineAreas() {

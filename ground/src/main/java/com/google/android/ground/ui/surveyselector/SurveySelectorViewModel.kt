@@ -17,7 +17,6 @@ package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Loadable
@@ -25,12 +24,13 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.common.collect.ImmutableList
 import io.reactivex.Single
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
-/** Represents view state and behaviors of the survey selector dialog.  */
-class SurveySelectorViewModel @Inject internal constructor(
+/** Represents view state and behaviors of the survey selector dialog. */
+class SurveySelectorViewModel
+@Inject
+internal constructor(
   private val surveyRepository: SurveyRepository,
   authManager: AuthenticationManager
 ) : AbstractViewModel() {
@@ -54,20 +54,17 @@ class SurveySelectorViewModel @Inject internal constructor(
       return
     }
     val (id) = surveys[idx]
-    viewModelScope.launch {
-      surveyRepository.activateSurvey(id)
-    }
+    surveyRepository.activateSurvey(id)
   }
 
   fun activateOfflineSurvey(surveyId: String?) {
-    viewModelScope.launch {
-      surveyRepository.activateSurvey(surveyId!!)
-    }
+    surveyRepository.activateSurvey(surveyId!!)
   }
 
   init {
-    surveySummaries = LiveDataReactiveStreams.fromPublisher(
-      surveyRepository.getSurveySummaries(authManager.currentUser)
-    )
+    surveySummaries =
+      LiveDataReactiveStreams.fromPublisher(
+        surveyRepository.getSurveySummaries(authManager.currentUser)
+      )
   }
 }
