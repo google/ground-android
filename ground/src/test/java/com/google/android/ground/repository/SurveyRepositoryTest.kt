@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
@@ -30,8 +31,10 @@ import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import java8.util.Optional
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -46,15 +49,26 @@ import org.mockito.Mockito.*
 import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
-  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
-  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @BindValue
+  @InjectMocks
+  var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
+  @BindValue
+  @Mock
+  lateinit var mockSurveyStore: LocalSurveyStore
+  @Inject
+  lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject
+  lateinit var surveyRepository: SurveyRepository
+
+  @DefaultDispatcher
+  @Inject
+  lateinit var testDispatcher: CoroutineDispatcher
 
   @Before
   override fun setUp() {
@@ -63,7 +77,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun activateSurvey_firstTime() = runTest {
+  fun activateSurvey_firstTime() = runTest(testDispatcher) {
     clearLocalTestSurvey()
     fakeRemoteDataStore.setTestSurvey(SURVEY)
 
@@ -76,7 +90,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun activateSurvey_alreadyAvailableOffline() = runTest {
+  fun activateSurvey_alreadyAvailableOffline() = runTest(testDispatcher) {
     setLocalTestSurvey(SURVEY)
 
     surveyRepository.activateSurvey(SURVEY.id)
