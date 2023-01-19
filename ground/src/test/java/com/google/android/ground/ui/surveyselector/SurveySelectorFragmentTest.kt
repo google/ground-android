@@ -53,7 +53,7 @@ import org.robolectric.Shadows.shadowOf
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @UninstallModules(LocalDataStoreModule::class)
-class SurveySelectorDialogFragmentTest : BaseHiltTest() {
+class SurveySelectorFragmentTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
@@ -64,7 +64,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mockUserStore: LocalUserStore
   @BindValue @Mock lateinit var localLocationOfInterestStore: LocalLocationOfInterestMutationStore
 
-  private lateinit var surveySelectorDialogFragment: SurveySelectorDialogFragment
+  private lateinit var surveySelectorFragment: SurveySelectorFragment
 
   @Before
   override fun setUp() {
@@ -78,18 +78,18 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
     val activityController = Robolectric.buildActivity(MainActivity::class.java)
     val activity = activityController.setup().get()
 
-    surveySelectorDialogFragment = SurveySelectorDialogFragment()
+    surveySelectorFragment = SurveySelectorFragment()
 
-    surveySelectorDialogFragment.showNow(
+    surveySelectorFragment.showNow(
       activity.supportFragmentManager,
-      SurveySelectorDialogFragment::class.java.simpleName
+      SurveySelectorFragment::class.java.simpleName
     )
     shadowOf(Looper.getMainLooper()).idle()
   }
 
   @Test
   fun show_surveyDialogIsShown() {
-    val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
+    val listView = surveySelectorFragment.dialog!!.currentFocus as ListView
 
     assertThat(listView.visibility).isEqualTo(View.VISIBLE)
     assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
@@ -97,7 +97,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
 
   @Test
   fun show_surveySelected_surveyIsActivated() {
-    val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
+    val listView = surveySelectorFragment.dialog!!.currentFocus as ListView
 
     // TODO: Replace mocks with inserting the survey in local db
     Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
@@ -106,7 +106,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
     shadowOf(Looper.getMainLooper()).idle()
 
     // Verify Dialog is dismissed
-    assertThat(surveySelectorDialogFragment.dialog).isNull()
+    assertThat(surveySelectorFragment.dialog).isNull()
     surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
   }
 
