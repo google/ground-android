@@ -13,101 +13,89 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.surveyselector
 
-package com.google.android.ground.ui.surveyselector;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java8.util.stream.StreamSupport.stream;
-
-import android.app.Dialog;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import com.google.android.ground.R;
-import com.google.android.ground.databinding.SurveySelectorDialogBinding;
-import com.google.android.ground.model.Survey;
-import com.google.android.ground.rx.Loadable;
-import com.google.android.ground.ui.common.AbstractDialogFragment;
-import com.google.android.ground.ui.common.EphemeralPopups;
-import dagger.hilt.android.AndroidEntryPoint;
-import java.util.List;
-import javax.inject.Inject;
-import timber.log.Timber;
+import android.app.Dialog
+import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
+import com.google.android.ground.R
+import com.google.android.ground.databinding.SurveySelectorDialogBinding
+import com.google.android.ground.model.Survey
+import com.google.android.ground.rx.Loadable
+import com.google.android.ground.rx.Loadable.LoadState
+import com.google.android.ground.ui.common.AbstractDialogFragment
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.common.base.Preconditions
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import timber.log.Timber
 
 /** User interface implementation of survey selector dialog. */
 @AndroidEntryPoint
-public class SurveySelectorDialogFragment extends AbstractDialogFragment {
-  @Inject EphemeralPopups popups;
+class SurveySelectorDialogFragment : AbstractDialogFragment() {
 
-  private SurveySelectorViewModel viewModel;
-  private SurveySelectorDialogBinding binding;
+  @Inject lateinit var popups: EphemeralPopups
 
-  @Nullable private ArrayAdapter listAdapter;
+  private lateinit var viewModel: SurveySelectorViewModel
+  private lateinit var binding: SurveySelectorDialogBinding
+  private lateinit var listAdapter: ArrayAdapter<Any>
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    this.viewModel = getViewModel(SurveySelectorViewModel.class);
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(SurveySelectorViewModel::class.java)
   }
 
-  @NonNull
-  @Override
-  public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-    super.onCreateDialog(savedInstanceState);
-    AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-    dialog.setTitle(R.string.join_survey);
-    LayoutInflater inflater = getActivity().getLayoutInflater();
-    binding = SurveySelectorDialogBinding.inflate(inflater);
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    super.onCreateDialog(savedInstanceState)
+    val dialog = AlertDialog.Builder(requireContext())
+    dialog.setTitle(R.string.join_survey)
+    val inflater = activity!!.layoutInflater
+    binding = SurveySelectorDialogBinding.inflate(inflater)
     listAdapter =
-        new ArrayAdapter(getContext(), R.layout.survey_selector_list_item, R.id.survey_name);
-    binding.surveySelectorListView.setAdapter(listAdapter);
-    viewModel.getSurveySummaries().observe(this, this::updateSurveyList);
-    binding.surveySelectorListView.setOnItemClickListener(
-        (parent, view, index, id) -> onItemSelected(index));
-    dialog.setView(binding.getRoot());
-    dialog.setCancelable(false);
-    return dialog.create();
+      ArrayAdapter<Any>(requireContext(), R.layout.survey_selector_list_item, R.id.survey_name)
+    binding.surveySelectorListView.adapter = listAdapter
+    viewModel.surveySummaries.observe(this) { updateSurveyList(it) }
+    binding.surveySelectorListView.onItemClickListener =
+      OnItemClickListener { _: AdapterView<*>?, _: View?, index: Int, _: Long ->
+        onItemSelected(index)
+      }
+    dialog.setView(binding.root)
+    dialog.setCancelable(false)
+    return dialog.create()
   }
 
-  private void updateSurveyList(Loadable<List<Survey>> surveySummaries) {
-    switch (surveySummaries.getState()) {
-      case LOADING:
-        Timber.i("Loading surveys");
-        break;
-      case LOADED:
-        surveySummaries.value().ifPresent(this::showSurveyList);
-        break;
-      case ERROR:
-        onSurveyListLoadError(surveySummaries.error().orElse(new UnknownError()));
-        break;
-      default:
-        Timber.e("Unhandled state: %s", surveySummaries.getState());
-        break;
+  private fun updateSurveyList(surveySummaries: Loadable<List<Survey>>) {
+    when (surveySummaries.state) {
+      LoadState.LOADING -> Timber.i("Loading surveys")
+      LoadState.LOADED ->
+        surveySummaries.value().ifPresent { list: List<Survey> -> showSurveyList(list) }
+      LoadState.ERROR -> onSurveyListLoadError(surveySummaries.error().orElse(UnknownError()))
     }
   }
 
-  private void onSurveyListLoadError(Throwable t) {
-    Timber.e(t, "Survey list not available");
-    popups.showError(R.string.survey_list_load_error);
-    dismiss();
+  private fun onSurveyListLoadError(t: Throwable) {
+    Timber.e(t, "Survey list not available")
+    popups.showError(R.string.survey_list_load_error)
+    dismiss()
   }
 
-  private void showSurveyList(List<Survey> list) {
-    binding.listLoadingProgressBar.setVisibility(View.GONE);
-
-    checkNotNull(listAdapter, "listAdapter was null when attempting to show survey list");
-
-    listAdapter.clear();
-    stream(list).map(Survey::getTitle).forEach(listAdapter::add);
-    binding.surveySelectorListView.setVisibility(View.VISIBLE);
+  private fun showSurveyList(list: List<Survey>) {
+    binding.listLoadingProgressBar.visibility = View.GONE
+    Preconditions.checkNotNull(
+      listAdapter,
+      "listAdapter was null when attempting to show survey list"
+    )
+    listAdapter.clear()
+    list.map(Survey::title).forEach { listAdapter.add(it) }
+    binding.surveySelectorListView.visibility = View.VISIBLE
   }
 
-  private void onItemSelected(int index) {
-    dismiss();
-    viewModel.activateSurvey(index);
+  private fun onItemSelected(index: Int) {
+    dismiss()
+    viewModel.activateSurvey(index)
   }
 }
