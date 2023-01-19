@@ -31,15 +31,11 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 object TestCoroutineDispatchersModule {
   private val testDispatcher: CoroutineDispatcher = StandardTestDispatcher()
 
-  @DefaultDispatcher
-  @Provides
-  fun provideDefaultDispatcher(): CoroutineDispatcher = testDispatcher
+  @DefaultDispatcher @Provides fun provideDefaultDispatcher(): CoroutineDispatcher = testDispatcher
 
   @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = testDispatcher
 
-  @MainDispatcher
-  @Provides
-  fun provideMainDispatcher(): CoroutineDispatcher = testDispatcher
+  @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = testDispatcher
 
   @MainImmediateDispatcher
   @Provides

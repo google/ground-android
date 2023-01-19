@@ -213,10 +213,10 @@ internal constructor(
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
         Flowable.combineLatest(
-          listOf(
-            savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()),
-          )
-        ) { concatLocationsOfInterestSets(it) }
+            listOf(
+              savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()),
+            )
+          ) { concatLocationsOfInterestSets(it) }
           .distinctUntilChanged()
       )
 
