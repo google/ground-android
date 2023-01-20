@@ -48,13 +48,11 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override val vertices: List<Point> = polygons.flatMap { it.vertices }.toImmutableList()
 }
 
-
 /** A sequence of two or more vertices modelling an OCG style line string. */
 @Serializable
 data class LineString(val coordinates: List<Coordinate>) : Geometry {
   override val vertices: List<Point> = coordinates.map { Point(it) }.toImmutableList()
 }
-
 
 /**
  * A closed linear ring is a sequence of [Coordinate]s where the first and last coordinates are
