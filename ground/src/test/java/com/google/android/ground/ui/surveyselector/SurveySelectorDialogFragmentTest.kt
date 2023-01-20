@@ -40,11 +40,11 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Maybe
 import java8.util.Optional
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +63,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
-  @Inject @DefaultDispatcher lateinit var testDispatcher: TestDispatcher
+  @Inject @DefaultDispatcher lateinit var testDispatcher: CoroutineDispatcher
 
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
 
@@ -103,19 +103,20 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun show_surveySelected_surveyIsActivated() = runTest(testDispatcher) {
-    val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
+  fun show_surveySelected_surveyIsActivated() =
+    runTest(testDispatcher) {
+      val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
-    // TODO: Replace mocks with inserting the survey in local db
-    Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
-      .thenReturn(Maybe.just(TEST_SURVEY_2))
-    shadowOf(listView).performItemClick(1)
-    advanceUntilIdle()
+      // TODO: Replace mocks with inserting the survey in local db
+      Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
+        .thenReturn(Maybe.just(TEST_SURVEY_2))
+      shadowOf(listView).performItemClick(1)
+      advanceUntilIdle()
 
-    // Verify dialog is dismissed.
-    assertThat(surveySelectorDialogFragment.dialog).isNull()
-    surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
-  }
+      // Verify dialog is dismissed.
+      assertThat(surveySelectorDialogFragment.dialog).isNull()
+      surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
+    }
 
   companion object {
     private val TEST_SURVEY_1 = FakeData.SURVEY.copy(id = "some id 1")
