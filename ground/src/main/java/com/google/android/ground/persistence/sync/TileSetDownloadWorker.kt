@@ -17,12 +17,10 @@ package com.google.android.ground.persistence.sync
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.persistence.local.LocalDataStore
-import com.google.android.ground.persistence.remote.TransferProgress.Companion.inProgress
-import com.google.android.ground.system.NotificationManager
 import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -45,9 +43,9 @@ class TileSetDownloadWorker
 constructor(
   @param:Assisted private val context: Context,
   @Assisted params: WorkerParameters,
-  private val localDataStore: LocalDataStore,
-  notificationManager: NotificationManager
-) : BaseWorker(context, params, notificationManager, TileSetDownloadWorker::class.java.hashCode()) {
+  private val localDataStore: LocalDataStore
+) : Worker(context, params) {
+
   /**
    * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
@@ -142,19 +140,14 @@ constructor(
   }
 
   private fun processTileSets(pendingTileSets: ImmutableList<TileSet>): Completable =
-    Observable.fromIterable(pendingTileSets)
-      .doOnNext { tile ->
-        sendNotification(inProgress(pendingTileSets.size, pendingTileSets.indexOf(tile) + 1))
+    Observable.fromIterable(pendingTileSets).flatMapCompletable { tileSet ->
+      when (tileSet.state) {
+        TileSet.State.DOWNLOADED -> downloadIfNotFound(tileSet)
+        TileSet.State.PENDING,
+        TileSet.State.IN_PROGRESS,
+        TileSet.State.FAILED -> downloadTileSet(tileSet)
       }
-      .flatMapCompletable { t ->
-        when (t.state) {
-          TileSet.State.DOWNLOADED -> downloadIfNotFound(t)
-          TileSet.State.PENDING,
-          TileSet.State.IN_PROGRESS,
-          TileSet.State.FAILED -> downloadTileSet(t)
-        }
-      }
-      .compose { completable -> this.notifyTransferState(completable) }
+    }
 
   /**
    * Given a tile identifier, downloads a tile source file and saves it to the app's file storage.
@@ -177,9 +170,6 @@ constructor(
       Result.failure()
     }
   }
-
-  override val notificationTitle: String
-    get() = applicationContext.getString(R.string.downloading_tiles)
 
   internal class TileSetDownloadException(msg: String?, e: Throwable?) : RuntimeException(msg, e)
   companion object {

@@ -17,15 +17,11 @@ package com.google.android.ground.persistence.remote.firebase
 
 import android.net.Uri
 import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.persistence.remote.TransferProgress
-import com.google.android.ground.persistence.remote.TransferProgress.Companion.inProgress
-import com.google.android.ground.persistence.remote.TransferProgress.Companion.paused
 import com.google.android.ground.rx.RxTask
 import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.storage.StorageReference
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.FlowableEmitter
+import io.reactivex.Completable
+import io.reactivex.CompletableEmitter
 import io.reactivex.Single
 import java.io.File
 import java8.util.StringJoiner
@@ -49,27 +45,15 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
     RxTask.toSingle { createReference(remoteDestinationPath).downloadUrl }
       .doOnError { Timber.e(it, "StorageException handled and can be ignored") }
 
-  override fun uploadMediaFromFile(
-    file: File,
-    remoteDestinationPath: String
-  ): @Cold Flowable<TransferProgress> =
-    Flowable.create(
-      { emitter: FlowableEmitter<TransferProgress> ->
-        createReference(remoteDestinationPath)
-          .putFile(Uri.fromFile(file))
-          .addOnCompleteListener {
-            // Do not delete the file after successful upload. It is used as a cache
-            // while viewing submissions when network is unavailable.
-            emitter.onComplete()
-          }
-          .addOnPausedListener { emitter.onNext(paused()) }
-          .addOnFailureListener { emitter.onError(it) }
-          .addOnProgressListener {
-            emitter.onNext(inProgress(it.totalByteCount.toInt(), it.bytesTransferred.toInt()))
-          }
-      },
-      BackpressureStrategy.LATEST
-    )
+  // Do not delete the file after successful upload. It is used as a cache
+  // while viewing submissions when network is unavailable.
+  override fun uploadMediaFromFile(file: File, remoteDestinationPath: String): @Cold Completable =
+    Completable.create { emitter: CompletableEmitter ->
+      createReference(remoteDestinationPath)
+        .putFile(Uri.fromFile(file))
+        .addOnCompleteListener { emitter.onComplete() }
+        .addOnFailureListener { emitter.onError(it) }
+    }
 
   companion object {
     /** Top-level directory in Cloud Storage where user media is stored. */

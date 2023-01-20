@@ -18,10 +18,9 @@ package com.google.android.ground.persistence.sync
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.Data
+import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.google.android.ground.R
 import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.system.NotificationManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -40,9 +39,9 @@ class PhotoSyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted workerParams: WorkerParameters,
-  private val remoteStorageManager: RemoteStorageManager,
-  notificationManager: NotificationManager
-) : BaseWorker(context, workerParams, notificationManager, PhotoSyncWorker::class.java.hashCode()) {
+  private val remoteStorageManager: RemoteStorageManager
+) : Worker(context, workerParams) {
+
   private val localSourcePath: String =
     workerParams.inputData.getString(SOURCE_FILE_PATH_PARAM_KEY)!!
   private val remoteDestinationPath: String =
@@ -54,10 +53,7 @@ constructor(
     return if (file.exists()) {
       Timber.d("Starting photo upload: $localSourcePath, $remoteDestinationPath")
       try {
-        remoteStorageManager
-          .uploadMediaFromFile(file, remoteDestinationPath)
-          .compose { upstream -> this.notifyTransferState(upstream) }
-          .blockingForEach { progress -> sendNotification(progress) }
+        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath).blockingAwait()
         Result.success()
       } catch (e: Exception) {
         FirebaseCrashlytics.getInstance().log("Photo sync failed")
@@ -72,9 +68,6 @@ constructor(
       Result.failure()
     }
   }
-
-  override val notificationTitle: String
-    get() = applicationContext.getString(R.string.uploading_photos)
 
   companion object {
     private const val SOURCE_FILE_PATH_PARAM_KEY = "sourceFilePath"

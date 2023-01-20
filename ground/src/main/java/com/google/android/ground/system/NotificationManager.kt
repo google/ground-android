@@ -24,7 +24,6 @@ import android.os.Build.VERSION_CODES
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.google.android.ground.R
-import com.google.android.ground.persistence.remote.TransferProgress.UploadState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,6 +46,14 @@ internal constructor(@param:ApplicationContext private val context: Context) {
   private fun createNotificationChannels(context: Context) {
     val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
     context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+  }
+
+  enum class UploadState {
+    STARTING,
+    IN_PROGRESS,
+    PAUSED,
+    FAILED,
+    COMPLETED
   }
 
   fun createSyncNotification(
