@@ -38,7 +38,7 @@ object CoroutinesScopesModule {
 }
 
 /**
- * Scope for jobs which need to outlive the lifecycle of specific view components. Use this scope
- * to bind jobs to the application's lifecycle instead.
+ * Scope for jobs which need to outlive the lifecycle of specific view components. Use this scope to
+ * bind jobs to the application's lifecycle instead.
  */
 @Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class ApplicationScope
