@@ -16,16 +16,30 @@
 package com.google.android.ground.ui.datacollection
 
 import android.content.res.Resources
+import androidx.lifecycle.MutableLiveData
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
+import com.google.common.collect.ImmutableSet
 import java8.util.Optional
 import javax.inject.Inject
 
-class DropAPinTaskViewModel @Inject constructor(resources: Resources) :
+class DropAPinTaskViewModel
+@Inject
+constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
+
+  val features: @Hot MutableLiveData<ImmutableSet<Feature>> = MutableLiveData()
 
   fun updateResponse(position: CameraPosition) {
     setResponse(Optional.of(LocationTaskData(position)))
+    features.postValue(ImmutableSet.of(createFeature(position.target)))
   }
+
+  private fun createFeature(point: Point): Feature =
+    Feature(uuidGenerator.generateUuid(), Feature.Type.LOCATION_OF_INTEREST, point)
 }

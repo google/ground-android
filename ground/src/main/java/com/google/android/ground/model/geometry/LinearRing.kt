@@ -16,17 +16,15 @@
 package com.google.android.ground.model.geometry
 
 import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
+import kotlinx.serialization.Serializable
 
 /**
  * A closed linear ring is a sequence of [Coordinate]s where the first and last coordinates are
  * equal.
  */
-data class LinearRing(val coordinates: ImmutableList<Coordinate>) : Geometry {
-  /** Constructs a [LinearRing] using an immutable copy of the provided mutable list. */
-  constructor(coordinates: List<Coordinate>) : this(ImmutableList.copyOf(coordinates))
-
-  override val vertices: ImmutableList<Point> = coordinates.map { Point(it) }.toImmutableList()
+@Serializable
+data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
+  override val vertices: List<Point> = coordinates.map { Point(it) }.toImmutableList()
 
   /**
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.

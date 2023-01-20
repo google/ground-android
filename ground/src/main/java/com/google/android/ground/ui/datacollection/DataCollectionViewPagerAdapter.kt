@@ -20,8 +20,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingTaskFragment
-import com.google.android.ground.ui.home.mapcontainer.PolygonDrawingViewModel
 import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject

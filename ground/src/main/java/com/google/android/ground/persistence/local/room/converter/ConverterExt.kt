@@ -118,7 +118,7 @@ private fun Polygon.toLocalDataStoreObject(): GeometryEntity {
   return GeometryEntity(GeometryType.POLYGON.name, null, shell, holes)
 }
 
-private fun formatHoles(holes: List<ImmutableList<Point>>): String? {
+private fun formatHoles(holes: List<List<Point>>): String? {
   if (holes.isEmpty()) {
     return null
   }
@@ -130,7 +130,7 @@ private fun formatHoles(holes: List<ImmutableList<Point>>): String? {
   return gson.toJson(holeArray)
 }
 
-fun formatVertices(vertices: ImmutableList<Point>): String? {
+fun formatVertices(vertices: List<Point>): String? {
   if (vertices.isEmpty()) {
     return null
   }
