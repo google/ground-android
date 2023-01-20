@@ -44,8 +44,7 @@ internal object LoiMutationConverter {
       is Point -> map.put(LoiConverter.LOCATION, toGeoPoint(geometry))
       is Polygon -> {
         val geometryMap: MutableMap<String, Any> = HashMap()
-        geometryMap[LoiConverter.GEOMETRY_COORDINATES] =
-          toGeoPointList(geometry.shell.vertices)
+        geometryMap[LoiConverter.GEOMETRY_COORDINATES] = toGeoPointList(geometry.shell.vertices)
         geometryMap[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
         map.put(LoiConverter.GEOMETRY, geometryMap)
       }
