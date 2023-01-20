@@ -21,6 +21,7 @@ import android.widget.ListView
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.MainActivity
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
@@ -39,6 +40,10 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Maybe
 import java8.util.Optional
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
@@ -50,6 +55,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @UninstallModules(LocalDataStoreModule::class)
@@ -57,6 +63,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject @DefaultDispatcher lateinit var testDispatcher: TestDispatcher
 
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
 
@@ -96,16 +103,16 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun show_surveySelected_surveyIsActivated() {
+  fun show_surveySelected_surveyIsActivated() = runTest(testDispatcher) {
     val listView = surveySelectorDialogFragment.dialog!!.currentFocus as ListView
 
     // TODO: Replace mocks with inserting the survey in local db
     Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
       .thenReturn(Maybe.just(TEST_SURVEY_2))
     shadowOf(listView).performItemClick(1)
-    shadowOf(Looper.getMainLooper()).idle()
+    advanceUntilIdle()
 
-    // Verify Dialog is dismissed
+    // Verify dialog is dismissed.
     assertThat(surveySelectorDialogFragment.dialog).isNull()
     surveyRepository.activeSurvey.test().assertValue(Optional.of(TEST_SURVEY_2))
   }
