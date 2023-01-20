@@ -15,13 +15,16 @@
  */
 package com.google.android.ground.repository
 
+import android.content.SharedPreferences
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.rx.Loadable
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -59,6 +62,8 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
+  @Inject lateinit var localValueStore: LocalValueStore
+
   @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
 
   @Before
@@ -77,6 +82,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
       verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
     }
@@ -90,8 +96,35 @@ class SurveyRepositoryTest : BaseHiltTest() {
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
       verify(mockSurveyStore, never()).insertOrUpdateSurvey(any())
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
+    }
+
+  @Test
+  fun loadLastActiveSurvey() =
+    runTest(testDispatcher) {
+      localValueStore.lastActiveSurveyId = SURVEY.id
+      setLocalTestSurvey(SURVEY)
+
+      surveyRepository.loadLastActiveSurvey()
+      advanceUntilIdle()
+
+      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
+    }
+
+  @Test
+  fun loadLastActiveSurvey_noneSet() =
+    runTest(testDispatcher) {
+      localValueStore.lastActiveSurveyId = ""
+      setLocalTestSurvey(SURVEY)
+
+      surveyRepository.loadLastActiveSurvey()
+      advanceUntilIdle()
+
+      surveyRepository.activeSurvey.test().assertEmpty()
+      surveyRepository.surveyLoadingState.test().assertEmpty()
     }
 
   private fun clearLocalTestSurvey() {
