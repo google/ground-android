@@ -85,7 +85,7 @@ fun BaseMap.toLocalDataStoreObject(surveyId: String) =
 
 fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
 
-fun Geometry.toLocalDataStoreObject() = GeometryWrapper(this)
+fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
 fun formatVertices(vertices: List<Point>): String? {
   if (vertices.isEmpty()) {

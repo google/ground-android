@@ -26,13 +26,13 @@ import timber.log.Timber
 object GeometryWrapperTypeConverter {
 
   @TypeConverter
-  fun toString(geometryWrapper: GeometryWrapper?): ByteArray? =
-    geometryWrapper?.getGeometry()?.let { Cbor.encodeToByteArray(it) }
+  fun toByteArray(geometryWrapper: GeometryWrapper?): ByteArray? =
+    geometryWrapper?.getGeometry().let { Cbor.encodeToByteArray(it) }
 
   @TypeConverter
-  fun fromString(jsonString: ByteArray?): GeometryWrapper? =
+  fun fromByteArray(jsonString: ByteArray?): GeometryWrapper? =
     try {
-      jsonString?.let { GeometryWrapper(geometry = Cbor.decodeFromByteArray(it)) }
+      jsonString?.let { GeometryWrapper.fromGeometry(Cbor.decodeFromByteArray(it)) }
     } catch (e: JSONException) {
       Timber.d(e, "Invalid Geometry in db")
       null

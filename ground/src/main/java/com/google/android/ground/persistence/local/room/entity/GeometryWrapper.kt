@@ -29,14 +29,15 @@ data class GeometryWrapper(
   val multiPolygon: MultiPolygon? = null,
 ) {
 
-  constructor(geometry: Geometry?) : this() {
-    when (geometry) {
-      is Point -> GeometryWrapper(point = geometry)
-      is Polygon -> GeometryWrapper(polygon = geometry)
-      is MultiPolygon -> GeometryWrapper(multiPolygon = geometry)
-      else -> throw IllegalStateException("No matching geometry found")
-    }
-  }
-
   fun getGeometry(): Geometry = point ?: polygon ?: multiPolygon!!
+
+  companion object {
+    fun fromGeometry(geometry: Geometry?): GeometryWrapper =
+      when (geometry) {
+        is Point -> GeometryWrapper(point = geometry)
+        is Polygon -> GeometryWrapper(polygon = geometry)
+        is MultiPolygon -> GeometryWrapper(multiPolygon = geometry)
+        else -> throw IllegalStateException("No matching geometry found")
+      }
+  }
 }

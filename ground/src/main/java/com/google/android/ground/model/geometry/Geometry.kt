@@ -15,7 +15,10 @@
  */
 package com.google.android.ground.model.geometry
 
+import kotlinx.serialization.Serializable
+
 /** A common ancestor for all geometry types. */
+@Serializable
 sealed interface Geometry {
   // TODO(#1246): Remove. Stick with concrete semantics; leave it to callers to discriminate
   // subclasses.
