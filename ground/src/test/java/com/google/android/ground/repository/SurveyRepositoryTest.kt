@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import android.content.SharedPreferences
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
