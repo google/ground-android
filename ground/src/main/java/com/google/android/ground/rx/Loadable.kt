@@ -26,7 +26,7 @@ import org.reactivestreams.Publisher
  *
  * @param <T> the type of data payload the resource contains. </T>
  */
-class Loadable<T> private constructor(val state: LoadState, val result: Result<T?>) {
+data class Loadable<T> private constructor(val state: LoadState, val result: Result<T?>) {
 
   enum class LoadState {
     NOT_LOADED,
