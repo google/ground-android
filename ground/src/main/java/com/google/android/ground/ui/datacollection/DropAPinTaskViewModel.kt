@@ -41,5 +41,5 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   }
 
   private fun createFeature(point: Point): Feature =
-    Feature(uuidGenerator.generateUuid(), Feature.Type.LOCATION_OF_INTEREST, point)
+    Feature(Feature.Tag(uuidGenerator.generateUuid(), Feature.Type.LOCATION_FEATURE), point)
 }
