@@ -30,7 +30,7 @@ class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
-  authManager: AuthenticationManager
+  private val authManager: AuthenticationManager
 ) : AbstractViewModel() {
 
   val surveySummaries: LiveData<List<SurveyItem>>
@@ -39,25 +39,28 @@ internal constructor(
     surveySummaries =
       LiveDataReactiveStreams.fromPublisher(
         offlineSurveys
-          .flatMap { localSurveys: List<Survey> ->
-            surveyRepository.getSurveySummaries(authManager.currentUser).map {
-              allSurveys: List<Survey> ->
-              allSurveys.map {
-                SurveyItem(
-                  surveyId = it.id,
-                  surveyTitle = it.title,
-                  surveyDescription = it.description.ifEmpty { "Description Missing" },
-                  isAvailableOffline = localSurveys.contains(it)
-                )
-              }
+          .flatMap { offlineSurveys: List<Survey> ->
+            allSurveys.map { allSurveys: List<Survey> ->
+              allSurveys.map { createSurveyItem(it, offlineSurveys) }
             }
           }
           .toFlowable()
       )
   }
 
+  private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
+    SurveyItem(
+      surveyId = survey.id,
+      surveyTitle = survey.title,
+      surveyDescription = survey.description.ifEmpty { "Description Missing" },
+      isAvailableOffline = localSurveys.contains(survey)
+    )
+
   val offlineSurveys: Single<ImmutableList<Survey>>
     get() = surveyRepository.offlineSurveys
+
+  private val allSurveys: Single<List<Survey>>
+    get() = surveyRepository.getSurveySummaries(authManager.currentUser)
 
   fun activateSurvey(surveyId: String) {
     surveyRepository.activateSurvey(surveyId)
