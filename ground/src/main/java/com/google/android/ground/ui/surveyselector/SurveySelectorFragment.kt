@@ -39,11 +39,14 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
-  //  private lateinit var listAdapter: ArrayAdapter<Any>
+  private lateinit var adapter: SurveyListAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
+    adapter = SurveyListAdapter(viewModel)
+
+    viewModel.surveySummaries.observe(this) { updateSurveyList(it) }
   }
 
   override fun onCreateView(
@@ -56,23 +59,11 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     binding.viewModel = viewModel
     return binding.root
   }
-  //  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-  //    super.onCreateDialog(savedInstanceState)
-  //    val dialog = AlertDialog.Builder(requireContext())
-  //    dialog.setTitle(R.string.join_survey)
-  //    binding = SurveySelectorDialogBinding.inflate(layoutInflater)
-  //    listAdapter =
-  //      ArrayAdapter<Any>(requireContext(), R.layout.survey_selector_list_item, R.id.survey_name)
-  //    binding.surveySelectorListView.adapter = listAdapter
-  //    viewModel.surveySummaries.observe(this) { updateSurveyList(it) }
-  //    binding.surveySelectorListView.onItemClickListener =
-  //      OnItemClickListener { _: AdapterView<*>?, _: View?, index: Int, _: Long ->
-  //        onItemSelected(index)
-  //      }
-  //    dialog.setView(binding.root)
-  //    dialog.setCancelable(false)
-  //    return dialog.create()
-  //  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    binding.recyclerView.adapter = adapter
+  }
 
   private fun updateSurveyList(surveySummaries: Loadable<List<Survey>>) {
     when (surveySummaries.state) {
@@ -89,18 +80,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun showSurveyList(list: List<Survey>) {
-    //    binding.listLoadingProgressBar.visibility = View.GONE
-    //    Preconditions.checkNotNull(
-    //      listAdapter,
-    //      "listAdapter was null when attempting to show survey list"
-    //    )
-    //    listAdapter.clear()
-    //    list.map(Survey::title).forEach { listAdapter.add(it) }
-    //    binding.surveySelectorListView.visibility = View.VISIBLE
-  }
-
-  private fun onItemSelected(index: Int) {
-    viewModel.activateSurvey(index)
+    adapter.updateData(list)
   }
 
   override fun onBack(): Boolean {
