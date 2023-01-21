@@ -352,7 +352,7 @@ class HomeScreenFragment :
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     if (item.groupId == R.id.group_join_survey) {
       val (id) = surveys[item.order]
-      surveySelectorViewModel.activateOfflineSurvey(id)
+      surveySelectorViewModel.activateSurvey(id)
     } else if (item.itemId == R.id.nav_join_survey) {
       showSurveySelector()
     } else if (item.itemId == R.id.tmp_collect_data) {

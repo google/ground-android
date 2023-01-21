@@ -36,7 +36,7 @@
     android:layout_margin="@dimen/loi_card_item_margin"
     android:clickable="true"
     android:focusable="true"
-    android:onClick="@{() -> viewModel.activateOfflineSurvey(item.surveyId)}"
+    android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
     android:orientation="vertical"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
@@ -64,7 +64,8 @@
         android:layout_marginStart="5dp"
         android:src="@drawable/baseline_offline_pin_24"
         app:layout_constraintStart_toEndOf="@+id/title"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:visible="@{item.isAvailableOffline}" />
       <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"

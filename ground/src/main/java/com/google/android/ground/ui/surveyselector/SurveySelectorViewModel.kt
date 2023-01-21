@@ -19,10 +19,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.common.collect.ImmutableList
 import io.reactivex.Single
 import javax.inject.Inject
@@ -32,29 +30,36 @@ class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
-  private val popups: EphemeralPopups,
   authManager: AuthenticationManager
 ) : AbstractViewModel() {
 
-  val surveySummaries: LiveData<Loadable<List<Survey>>>
+  val surveySummaries: LiveData<List<SurveyItem>>
 
   init {
     surveySummaries =
       LiveDataReactiveStreams.fromPublisher(
-        surveyRepository.getSurveySummaries(authManager.currentUser)
+        offlineSurveys
+          .flatMap { localSurveys: List<Survey> ->
+            surveyRepository.getSurveySummaries(authManager.currentUser).map {
+              allSurveys: List<Survey> ->
+              allSurveys.map {
+                SurveyItem(
+                  surveyId = it.id,
+                  surveyTitle = it.title,
+                  surveyDescription = it.description.ifEmpty { "Description Missing" },
+                  isAvailableOffline = localSurveys.contains(it)
+                )
+              }
+            }
+          }
+          .toFlowable()
       )
   }
 
   val offlineSurveys: Single<ImmutableList<Survey>>
     get() = surveyRepository.offlineSurveys
 
-  /** Triggers the specified survey to be loaded and activated. */
-  fun activateSurvey(survey: Survey) {
-    popups.showError("Activating survey: ${survey.title}")
-    surveyRepository.activateSurvey(survey.id)
-  }
-
-  fun activateOfflineSurvey(surveyId: String) {
+  fun activateSurvey(surveyId: String) {
     surveyRepository.activateSurvey(surveyId)
   }
 }

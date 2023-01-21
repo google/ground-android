@@ -19,23 +19,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
-import com.google.android.ground.model.Survey
-import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.LoadState
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import timber.log.Timber
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
-class SurveySelectorFragment : AbstractFragment(), BackPressListener {
-
-  @Inject lateinit var popups: EphemeralPopups
+class SurveySelectorFragment : AbstractFragment() {
 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
@@ -46,7 +36,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel)
 
-    viewModel.surveySummaries.observe(this) { updateSurveyList(it) }
+    viewModel.surveySummaries.observe(this) { adapter.updateData(it) }
   }
 
   override fun onCreateView(
@@ -63,33 +53,5 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.recyclerView.adapter = adapter
-  }
-
-  private fun updateSurveyList(surveySummaries: Loadable<List<Survey>>) {
-    when (surveySummaries.state) {
-      LoadState.LOADING -> Timber.i("Loading surveys")
-      LoadState.LOADED ->
-        surveySummaries.value().ifPresent { list: List<Survey> -> showSurveyList(list) }
-      LoadState.ERROR -> onSurveyListLoadError(surveySummaries.error().orElse(UnknownError()))
-    }
-  }
-
-  private fun onSurveyListLoadError(t: Throwable) {
-    Timber.e(t, "Survey list not available")
-    popups.showError(R.string.survey_list_load_error)
-  }
-
-  private fun showSurveyList(surveys: List<Survey>) {
-    surveys
-      .map {
-        SurveyItem(surveyId = it.id, surveyTitle = it.title, surveyDescription = it.description)
-      }
-      .toList()
-      .apply { adapter.updateData(this) }
-  }
-
-  override fun onBack(): Boolean {
-    requireActivity().finish()
-    return false
   }
 }

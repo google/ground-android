@@ -121,13 +121,11 @@ constructor(
 
   fun clearActiveSurvey() = selectSurveyEvent.onNext("")
 
-  fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
+  fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
     loadSurveySummariesFromRemote(user)
       .doOnSubscribe { Timber.d("Loading survey list from remote") }
       .doOnError { Timber.d(it, "Failed to load survey list from remote") }
       .onErrorResumeNext { offlineSurveys }
-      .toFlowable()
-      .compose { Loadable.loadingOnceAndWrap(it) }
 
   private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
     remoteDataStore

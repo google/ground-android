@@ -17,8 +17,8 @@
 package com.google.android.ground.ui.surveyselector
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.SurveyCardItemBinding
 import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
@@ -40,8 +40,11 @@ class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
 
   /** Binds [SurveyItem] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val survey: SurveyItem = surveys[position]
-    holder.bind(survey, viewModel)
+    val item: SurveyItem = surveys[position]
+    holder.binding.item = item
+    holder.binding.viewModel = viewModel
+    holder.binding.surveyCard.background =
+      ResourcesCompat.getDrawable(holder.itemView.context.resources, item.backgroundDrawable, null)
   }
 
   /** Returns the size of the list. */
@@ -56,13 +59,5 @@ class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
 
   /** View item representing the [SurveyItem] data in the list. */
   class ViewHolder(internal val binding: SurveyCardItemBinding) :
-    RecyclerView.ViewHolder(binding.root) {
-
-    fun bind(item: SurveyItem, viewModel: SurveySelectorViewModel) {
-      binding.item = item
-      binding.viewModel = viewModel
-      binding.description.visibility =
-        if (item.surveyDescription.isEmpty()) View.GONE else View.VISIBLE
-    }
-  }
+    RecyclerView.ViewHolder(binding.root)
 }
