@@ -21,18 +21,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.SurveyCardItemBinding
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [Survey] data with the [ViewHolder]
- * views.
+ * An implementation of [RecyclerView.Adapter] that associates [SurveyItem] data with the
+ * [ViewHolder] views.
  */
 class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
   RecyclerView.Adapter<ViewHolder>() {
 
-  private val surveys: MutableList<Survey> = mutableListOf()
+  private val surveys: MutableList<SurveyItem> = mutableListOf()
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,9 +38,9 @@ class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
     return ViewHolder(binding)
   }
 
-  /** Binds [LocationOfInterest] data to [ViewHolder]. */
+  /** Binds [SurveyItem] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val survey: Survey = surveys[position]
+    val survey: SurveyItem = surveys[position]
     holder.bind(survey, viewModel)
   }
 
@@ -50,20 +48,21 @@ class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
   override fun getItemCount() = surveys.size
 
   /** Overwrites existing cards. */
-  fun updateData(newItemsList: List<Survey>) {
+  fun updateData(newItemsList: List<SurveyItem>) {
     surveys.clear()
     surveys.addAll(newItemsList)
     notifyDataSetChanged()
   }
 
-  /** View item representing the [Survey] data in the list. */
+  /** View item representing the [SurveyItem] data in the list. */
   class ViewHolder(internal val binding: SurveyCardItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(survey: Survey, viewModel: SurveySelectorViewModel) {
-      binding.survey = survey
+    fun bind(item: SurveyItem, viewModel: SurveySelectorViewModel) {
+      binding.item = item
       binding.viewModel = viewModel
-      binding.description.visibility = if (survey.description.isEmpty()) View.GONE else View.VISIBLE
+      binding.description.visibility =
+        if (item.surveyDescription.isEmpty()) View.GONE else View.VISIBLE
     }
   }
 }

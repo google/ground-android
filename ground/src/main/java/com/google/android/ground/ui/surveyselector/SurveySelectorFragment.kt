@@ -79,8 +79,13 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     popups.showError(R.string.survey_list_load_error)
   }
 
-  private fun showSurveyList(list: List<Survey>) {
-    adapter.updateData(list)
+  private fun showSurveyList(surveys: List<Survey>) {
+    surveys
+      .map {
+        SurveyItem(surveyId = it.id, surveyTitle = it.title, surveyDescription = it.description)
+      }
+      .toList()
+      .apply { adapter.updateData(this) }
   }
 
   override fun onBack(): Boolean {

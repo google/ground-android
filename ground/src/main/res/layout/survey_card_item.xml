@@ -22,8 +22,8 @@
 
   <data>
     <variable
-      name="survey"
-      type="com.google.android.ground.model.Survey" />
+      name="item"
+      type="com.google.android.ground.ui.surveyselector.SurveyItem" />
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel" />
@@ -36,7 +36,7 @@
     android:layout_margin="@dimen/loi_card_item_margin"
     android:clickable="true"
     android:focusable="true"
-    android:onClick="@{() -> viewModel.activateSurvey(survey)}"
+    android:onClick="@{() -> viewModel.activateOfflineSurvey(item.surveyId)}"
     android:orientation="vertical"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
@@ -52,19 +52,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@{survey.title}"
+        android:text="@{item.surveyTitle}"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Map the terrain" />
+      <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/baseline_offline_pin_24"
+        app:layout_constraintStart_toEndOf="@+id/title"
+        app:layout_constraintTop_toTopOf="parent" />
       <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:text="@{survey.description}"
+        android:text="@{item.surveyDescription}"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
