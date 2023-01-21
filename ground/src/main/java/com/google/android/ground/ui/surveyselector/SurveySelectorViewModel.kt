@@ -33,6 +33,9 @@ internal constructor(
   private val authManager: AuthenticationManager
 ) : AbstractViewModel() {
 
+  private var attemptingToActivate: String = ""
+
+  val surveyActivated: LiveData<Boolean>
   val surveySummaries: LiveData<List<SurveyItem>>
 
   init {
@@ -45,6 +48,12 @@ internal constructor(
             }
           }
           .toFlowable()
+      )
+    surveyActivated =
+      LiveDataReactiveStreams.fromPublisher(
+        surveyRepository.activeSurvey
+          .filter { it.isPresent }
+          .map { it.get().id == attemptingToActivate }
       )
   }
 
@@ -63,6 +72,7 @@ internal constructor(
     get() = surveyRepository.getSurveySummaries(authManager.currentUser)
 
   fun activateSurvey(surveyId: String) {
+    attemptingToActivate = surveyId
     surveyRepository.activateSurvey(surveyId)
   }
 }

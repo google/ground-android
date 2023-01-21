@@ -21,11 +21,17 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
-class SurveySelectorFragment : AbstractFragment() {
+class SurveySelectorFragment : AbstractFragment(), BackPressListener {
+
+  @Inject lateinit var navigator: Navigator
 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
@@ -36,6 +42,11 @@ class SurveySelectorFragment : AbstractFragment() {
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel)
 
+    viewModel.surveyActivated.observe(this) { result: Boolean ->
+      if (result) {
+        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+      }
+    }
     viewModel.surveySummaries.observe(this) { adapter.updateData(it) }
   }
 
@@ -53,5 +64,11 @@ class SurveySelectorFragment : AbstractFragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.recyclerView.adapter = adapter
+  }
+
+  override fun onBack(): Boolean {
+    // TODO(Shobhit): Fix back press action
+    requireActivity().finish()
+    return true
   }
 }
