@@ -22,17 +22,17 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.common.collect.ImmutableList
 import io.reactivex.Single
-import java8.util.Optional
 import javax.inject.Inject
-import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
+  private val popups: EphemeralPopups,
   authManager: AuthenticationManager
 ) : AbstractViewModel() {
 
@@ -48,27 +48,10 @@ internal constructor(
   val offlineSurveys: Single<ImmutableList<Survey>>
     get() = surveyRepository.offlineSurveys
 
-  /**
-   * Triggers the specified survey to be loaded and activated.
-   *
-   * @param idx the index in the survey summary list.
-   */
-  fun activateSurvey(idx: Int) {
-    val surveys: Optional<List<Survey>> = surveySummaries.value!!.value()
-    if (surveys.isEmpty) {
-      Timber.e("Can't activate survey before list is loaded")
-      return
-    }
-    if (idx >= surveys.get().size) {
-      Timber.e(
-        "Can't activate survey at index %d, only %d surveys in list",
-        idx,
-        surveys.get().size
-      )
-      return
-    }
-    val (id) = surveys.get()[idx]
-    surveyRepository.activateSurvey(id)
+  /** Triggers the specified survey to be loaded and activated. */
+  fun activateSurvey(survey: Survey) {
+    popups.showError("Activating survey: ${survey.title}")
+    surveyRepository.activateSurvey(survey.id)
   }
 
   fun activateOfflineSurvey(surveyId: String) {
