@@ -16,8 +16,6 @@
 package com.google.android.ground.ui.tos
 
 import androidx.lifecycle.MutableLiveData
-import androidx.navigation.NavDirections
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -29,23 +27,14 @@ class TermsOfServiceViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
-  private val surveyRepository: SurveyRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository
 ) : AbstractViewModel() {
+  // TODO(Shobhit): Convert to MutableLiveData.
   var termsOfServiceText = ""
-
-  @JvmField
   val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
   fun onButtonClicked() {
     termsOfServiceRepository.isTermsOfServiceAccepted = true
-    navigator.navigate(getNavDirections())
+    navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
   }
-
-  private fun getNavDirections(): NavDirections =
-    if (surveyRepository.lastActiveSurveyId.isEmpty()) {
-      HomeScreenFragmentDirections.showSurveySelectorScreen()
-    } else {
-      HomeScreenFragmentDirections.showHomeScreen()
-    }
 }

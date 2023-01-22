@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState.Companion.error
@@ -25,6 +26,7 @@ import com.google.android.ground.system.auth.SignInState.Companion.signingIn
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.TestObservers.observeUntilFirstChange
@@ -46,17 +48,12 @@ import org.robolectric.shadows.ShadowToast
 class MainViewModelTest : BaseHiltTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-
   @Inject lateinit var viewModel: MainViewModel
-
   @Inject lateinit var navigator: Navigator
-
   @Inject lateinit var sharedPreferences: SharedPreferences
-
+  @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var tosRepository: TermsOfServiceRepository
-
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
@@ -122,8 +119,9 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosAccepted() {
+  fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
     tosRepository.isTermsOfServiceAccepted = true
+    surveyRepository.lastActiveSurveyId = "foo survey id"
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -157,7 +155,7 @@ class MainViewModelTest : BaseHiltTest() {
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
+    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen())
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
