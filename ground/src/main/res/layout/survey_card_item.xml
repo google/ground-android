@@ -63,9 +63,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:src="@drawable/baseline_offline_pin_24"
         app:layout_constraintStart_toEndOf="@+id/title"
         app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/baseline_offline_pin_24"
         app:visible="@{item.isAvailableOffline}" />
       <TextView
         android:id="@+id/description"

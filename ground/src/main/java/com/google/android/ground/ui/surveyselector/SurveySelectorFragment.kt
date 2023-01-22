@@ -57,7 +57,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   ): View {
     binding = SurveySelectorFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
-    binding.viewModel = viewModel
     return binding.root
   }
 
