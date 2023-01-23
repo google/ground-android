@@ -24,6 +24,7 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Loadable
+import com.google.android.ground.rx.Loadable.LoadState.ERROR
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -84,6 +85,20 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
       verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
+    }
+
+  @Test
+  fun activateSurvey_firstTime_handleRemoteFailure() =
+    runTest(testDispatcher) {
+      clearLocalTestSurvey()
+      fakeRemoteDataStore.failOnLoadSurvey = true
+
+      surveyRepository.activateSurvey(SURVEY.id)
+      advanceUntilIdle()
+
+      surveyRepository.surveyLoadingState.test().assertValue { it.state == ERROR }
+      verify(mockSurveyStore, never()).insertOrUpdateSurvey(SURVEY)
+      assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
 
   @Test

@@ -80,8 +80,9 @@ constructor(
     get() = surveyStore.surveys
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
+    val survey = syncSurveyWithRemote(surveyId).await()
     remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
-    return syncSurveyWithRemote(surveyId).await()
+    return survey
   }
 
   /** This only works if the survey is already cached to local db. */
@@ -113,12 +114,18 @@ constructor(
 
     externalScope.launch {
       withContext(ioDispatcher) {
-        surveyLoadingState.onNext(Loadable.loading())
-        val survey =
-          surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-        activeSurveyId = surveyId
-        localValueStore.lastActiveSurveyId = surveyId
-        surveyLoadingState.onNext(Loadable.loaded(survey))
+        try {
+          surveyLoadingState.onNext(Loadable.loading())
+          val survey =
+            surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+              ?: syncSurveyFromRemote(surveyId)
+          activeSurveyId = surveyId
+          localValueStore.lastActiveSurveyId = surveyId
+          surveyLoadingState.onNext(Loadable.loaded(survey))
+        } catch (e: Error) {
+          Timber.e("Error activating survey", e)
+          surveyLoadingState.onNext(Loadable.error(e))
+        }
       }
     }
   }

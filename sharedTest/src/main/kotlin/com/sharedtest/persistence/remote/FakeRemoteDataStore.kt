@@ -42,6 +42,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   // TODO(#1045): Allow default survey to be initialized by tests.
   private var testSurveys = listOf(FakeData.SURVEY)
 
+  var failOnLoadSurvey = false
+
   // TODO(#1045): Allow default ToS to be initialized by tests.
   private var termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE)
 
@@ -72,6 +74,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   }
 
   override fun loadSurvey(surveyId: String): Single<Survey> {
+    if (failOnLoadSurvey) return Single.error(Error())
     return Single.just(testSurveys[0])
   }
 
