@@ -18,7 +18,6 @@ package com.google.android.ground.repository
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
-import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Loadable
@@ -28,7 +27,6 @@ import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import java8.util.Optional
@@ -48,7 +46,6 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-@UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mockLocalSurveyStore: LocalSurveyStore
