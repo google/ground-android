@@ -56,7 +56,7 @@ import org.robolectric.RobolectricTestRunner
 class SurveyRepositoryTest : BaseHiltTest() {
   @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
 
-  @BindValue @Mock lateinit var mockSurveyStore: LocalSurveyStore
+  @BindValue @Mock lateinit var mockLocalSurveyStore: LocalSurveyStore
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
@@ -69,7 +69,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    `when`(mockSurveyStore.insertOrUpdateSurvey(any())).thenReturn(Completable.complete())
+    `when`(mockLocalSurveyStore.insertOrUpdateSurvey(any())).thenReturn(Completable.complete())
   }
 
   @Test
@@ -83,7 +83,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
       surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
-      verify(mockSurveyStore).insertOrUpdateSurvey(SURVEY)
+      verify(mockLocalSurveyStore).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
     }
 
@@ -97,7 +97,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       advanceUntilIdle()
 
       surveyRepository.surveyLoadingState.test().assertValue { it.state == ERROR }
-      verify(mockSurveyStore, never()).insertOrUpdateSurvey(SURVEY)
+      verify(mockLocalSurveyStore, never()).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
 
@@ -111,7 +111,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
       surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
-      verify(mockSurveyStore, never()).insertOrUpdateSurvey(any())
+      verify(mockLocalSurveyStore, never()).insertOrUpdateSurvey(any())
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
 
