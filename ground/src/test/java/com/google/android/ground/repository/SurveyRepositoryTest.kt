@@ -18,10 +18,8 @@ package com.google.android.ground.repository
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
-import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Loadable.LoadState.ERROR
@@ -43,7 +41,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.kotlin.any
@@ -54,8 +51,6 @@ import org.robolectric.RobolectricTestRunner
 @UninstallModules(LocalDataStoreModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
-
   @BindValue @Mock lateinit var mockLocalSurveyStore: LocalSurveyStore
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
@@ -142,10 +137,10 @@ class SurveyRepositoryTest : BaseHiltTest() {
     }
 
   private fun clearLocalTestSurvey() {
-    `when`(mockLocalDataStore.surveyStore.getSurveyById(anyString())).thenReturn(Maybe.empty())
+    `when`(mockLocalSurveyStore.getSurveyById(anyString())).thenReturn(Maybe.empty())
   }
 
   private fun setLocalTestSurvey(survey: Survey) {
-    `when`(mockLocalDataStore.surveyStore.getSurveyById(anyString())).thenReturn(Maybe.just(survey))
+    `when`(mockLocalSurveyStore.getSurveyById(anyString())).thenReturn(Maybe.just(survey))
   }
 }
