@@ -111,6 +111,7 @@ class SurveySelectorDialogFragmentTest : BaseHiltTest() {
       Mockito.`when`(mockLocalDataStore.surveyStore.getSurveyById(safeEq(TEST_SURVEY_2.id)))
         .thenReturn(Maybe.just(TEST_SURVEY_2))
       shadowOf(listView).performItemClick(1)
+      shadowOf(Looper.getMainLooper()).idle()
       advanceUntilIdle()
 
       // Verify dialog is dismissed.
