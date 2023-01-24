@@ -146,24 +146,31 @@ internal constructor(
    */
   fun onContinueClicked() {
     val currentTask = currentTaskViewModel ?: return
+
     val validationError = currentTask.validate()
-    if (validationError == null) {
-      responses[currentTask.task] = currentTaskData
-      val finalTaskPosition = submission.value!!.value().map { it.job.tasks.size }.orElse(0) - 1
-      if (currentPosition.value!! == finalTaskPosition) {
-        submission.value!!.value().ifPresent {
-          val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
-          responses.forEach { (task, taskData) ->
-            taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
-          }
-          saveChanges(it, taskDataDeltas.build())
-        }
-        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-      } else {
-        currentPosition.postValue(currentPosition.value!! + 1)
-      }
-    } else {
+    if (validationError != null) {
       popups.get().showError(validationError)
+      return
+    }
+
+    responses[currentTask.task] = currentTaskData
+
+    val submission = submission.value!!.value().get()
+    val currentTaskPosition = currentPosition.value!!
+    val finalTaskPosition = submission.job.tasks.size - 1
+
+    assert(finalTaskPosition >= 0)
+    assert(currentTaskPosition in 0..finalTaskPosition)
+
+    if (currentTaskPosition != finalTaskPosition) {
+      currentPosition.postValue(currentTaskPosition + 1)
+    } else {
+      val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
+      responses.forEach { (task, taskData) ->
+        taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
+      }
+      saveChanges(submission, taskDataDeltas.build())
+      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
     }
   }
 
