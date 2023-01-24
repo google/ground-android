@@ -71,7 +71,7 @@ interface RemoteDataStore {
   fun applyMutations(mutations: ImmutableCollection<Mutation>, user: User): @Cold Completable
 
   /**
-   * Listening for changes to the survey with the specified id. Implementations should handle
+   * Listens for remote changes to the survey with the specified id. Implementations should handle
    * synchronization of new, changed, and deleted surveys and LOIs to the local db in the
    * background.
    */
