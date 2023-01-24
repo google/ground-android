@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -51,6 +52,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var sharedPreferences: SharedPreferences
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var tosRepository: TermsOfServiceRepository
@@ -121,7 +123,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
     tosRepository.isTermsOfServiceAccepted = true
-    surveyRepository.lastActiveSurveyId = "foo survey id"
+    localValueStore.lastActiveSurveyId = "foo survey id"
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()

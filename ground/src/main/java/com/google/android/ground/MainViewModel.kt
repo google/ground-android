@@ -34,6 +34,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -147,9 +148,9 @@ constructor(
   }
 
   private fun getNavDirectionForSignedInUser(): NavDirections =
-    if (surveyRepository.lastActiveSurveyId.isEmpty()) {
-      HomeScreenFragmentDirections.showSurveySelectorScreen()
-    } else {
+    if (surveyRepository.hasLastActiveSurvey()) {
       HomeScreenFragmentDirections.showHomeScreen()
+    } else {
+      SurveySelectorFragmentDirections.showSurveySelectorScreen()
     }
 }

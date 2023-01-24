@@ -20,7 +20,7 @@ import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import javax.inject.Inject
 
 class TermsOfServiceViewModel
@@ -35,6 +35,6 @@ constructor(
 
   fun onButtonClicked() {
     termsOfServiceRepository.isTermsOfServiceAccepted = true
-    navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
+    navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen())
   }
 }

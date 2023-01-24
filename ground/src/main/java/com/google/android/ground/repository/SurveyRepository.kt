@@ -99,6 +99,8 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
+  fun hasLastActiveSurvey() = localValueStore.lastActiveSurveyId.isNotEmpty()
+
   fun loadLastActiveSurvey() = activateSurvey(localValueStore.lastActiveSurveyId)
 
   fun activateSurvey(surveyId: String) {
