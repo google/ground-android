@@ -71,6 +71,7 @@ internal constructor(
   private val allSurveys: Single<List<Survey>>
     get() = surveyRepository.getSurveySummaries(authManager.currentUser)
 
+  /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
     attemptingToActivate = surveyId
     surveyRepository.activateSurvey(surveyId)
