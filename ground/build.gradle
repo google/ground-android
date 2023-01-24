@@ -34,7 +34,7 @@ project.ext {
     fragmentVersion = "1.5.5"
     hiltJetpackVersion = "1.0.0"
     lifecycleVersion = "2.2.0"
-    roomVersion = "2.3.0"
+    roomVersion = "2.5.0"
     rxBindingVersion = "2.2.0"
     workVersion = "2.5.0"
     mockitoVersion = "4.4.0"
