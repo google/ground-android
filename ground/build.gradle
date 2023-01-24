@@ -18,7 +18,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 
@@ -39,6 +39,7 @@ project.ext {
     workVersion = "2.5.0"
     mockitoVersion = "4.4.0"
     mockitoKotlinVersion = "4.1.0"
+    coroutinesVersion = "1.6.4"
 }
 
 // Load secrets.properties
@@ -149,8 +150,12 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+
+    // Kotlin Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$coroutinesVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
 
     // Android legacy support Libraries.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -189,14 +194,21 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
-    androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    kaptAndroidTest "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+    kapt "com.google.dagger:hilt-compiler:$project.hiltVersion"
+    // For Robolectric tests.
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    // ...with Kotlin.
     kaptTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    // ...with Java.
+    testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    // For instrumented tests.
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    // ...with Kotlin.
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    // ...with Java.
+    androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    // Hilt Android Worker API support.
+    implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
 
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
@@ -284,6 +296,11 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+}
+
+// Allow references to generated code.
+kapt {
+    correctErrorTypes true
 }
 
 apply plugin: 'androidx.navigation.safeargs'

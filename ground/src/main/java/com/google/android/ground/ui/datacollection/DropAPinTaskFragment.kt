@@ -15,13 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.graphics.Color.parseColor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.databinding.DropAPinTaskBinding
-import com.google.android.ground.model.job.Style
+import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -38,7 +36,7 @@ class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewMo
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
   private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var binding: DropAPinTaskBinding
+  private lateinit var binding: BasemapLayoutBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -50,29 +48,20 @@ class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewMo
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = DropAPinTaskBinding.inflate(inflater, container, false)
+    binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
     return binding.root
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {}
+  override fun onMapReady(mapFragment: MapFragment) {
+    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+  }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     viewModel.updateResponse(position)
-    refreshMarker()
-  }
-
-  private fun refreshMarker() {
-    val markerBitmap =
-      markerIconFactory.getMarkerBitmap(
-        parseColor(Style().color),
-        mapFragment.currentZoomLevel,
-        false
-      )
-    binding.markerIcon.setImageBitmap(markerBitmap)
   }
 }

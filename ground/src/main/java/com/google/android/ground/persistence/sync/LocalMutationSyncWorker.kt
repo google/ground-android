@@ -18,8 +18,8 @@ package com.google.android.ground.persistence.sync
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.Data
+import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.google.android.ground.R
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -29,7 +29,6 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
-import com.google.android.ground.system.NotificationManager
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -52,13 +51,8 @@ constructor(
   @Assisted params: WorkerParameters,
   private val localDataStore: LocalDataStore,
   private val remoteDataStore: RemoteDataStore,
-  notificationManager: NotificationManager,
   private val photoSyncWorkManager: PhotoSyncWorkManager
-) :
-  BaseWorker(context, params, notificationManager, LocalMutationSyncWorker::class.java.hashCode()) {
-
-  override val notificationTitle: String
-    get() = applicationContext.getString(R.string.uploading_data)
+) : Worker(context, params) {
 
   private val locationOfInterestId: String =
     params.inputData.getString(LOCATION_OF_INTEREST_ID_PARAM_KEY)!!
@@ -69,9 +63,7 @@ constructor(
       localDataStore.getPendingMutations(locationOfInterestId).blockingGet()
     return try {
       Timber.v("Mutations: $mutations")
-      processMutations(mutations)
-        .compose { completable: Completable -> this.notifyTransferState(completable) }
-        .blockingAwait()
+      processMutations(mutations).blockingAwait()
       Result.success()
     } catch (t: Throwable) {
       FirebaseCrashlytics.getInstance()

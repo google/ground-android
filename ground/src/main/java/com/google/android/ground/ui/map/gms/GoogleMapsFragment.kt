@@ -304,8 +304,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  private fun removeStaleLocationsOfInterest(features: ImmutableSet<Feature>) {
-    clusterManager.removeLocationOfInterestFeatures(
+  private fun removeStaleFeatures(features: ImmutableSet<Feature>) {
+    clusterManager.removeStaleFeatures(
       features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.toSet()
     )
 
@@ -324,18 +324,18 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun renderLocationsOfInterest(features: ImmutableSet<Feature>) {
+  override fun renderFeatures(features: ImmutableSet<Feature>) {
     // Re-cluster and re-render
     if (!features.isEmpty()) {
       Timber.v("renderLocationsOfInterest() called with ${features.size} locations of interest")
-      removeStaleLocationsOfInterest(features)
+      removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
       clusterManager.cluster()
     }
   }
 
-  override fun refresh() = renderLocationsOfInterest(clusterManager.getManagedFeatures())
+  override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
 
   override var mapType: Int
     get() = getMap().mapType
