@@ -35,7 +35,6 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
@@ -142,39 +141,30 @@ internal constructor(
   }
 
   /**
-   * Validates the user's input and returns an error string if the user input was invalid.
-   * Progresses to the next Data Collection screen if the user input was valid.
+   * Validates the user's input and displays an error if the user input was invalid. Progresses to
+   * the next Data Collection screen if the user input was valid.
    */
-  fun onContinueClicked(): Single<String> {
-    val currentTask = currentTaskViewModel ?: return Single.never()
+  fun onContinueClicked() {
+    val currentTask = currentTaskViewModel ?: return
     val validationError = currentTask.validate()
     if (validationError == null) {
       responses[currentTask.task] = currentTaskData
       val finalTaskPosition = submission.value!!.value().map { it.job.tasks.size }.orElse(0) - 1
-
       if (currentPosition.value!! == finalTaskPosition) {
         submission.value!!.value().ifPresent {
           val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
-
           responses.forEach { (task, taskData) ->
             taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
           }
-
           saveChanges(it, taskDataDeltas.build())
         }
-
         navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-        return Single.never()
+      } else {
+        currentPosition.postValue(currentPosition.value!! + 1)
       }
-
-      currentPosition.postValue(currentPosition.value!! + 1)
-
-      return Single.never()
     } else {
       popups.get().showError(validationError)
     }
-
-    return Single.just(validationError)
   }
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
