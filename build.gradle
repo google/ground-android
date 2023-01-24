@@ -121,7 +121,7 @@ tasks.dependencyUpdates {
 }
 
 ext {
-    androidCompileSdk = 31
+    androidCompileSdk = 33
     androidMinSdk = 19
     androidTargetSdk = 30
 
