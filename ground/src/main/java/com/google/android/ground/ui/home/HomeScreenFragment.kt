@@ -297,7 +297,7 @@ class HomeScreenFragment :
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.nav_join_survey -> showSurveySelector()
+      R.id.nav_change_survey -> showSurveySelector()
       R.id.tmp_collect_data -> showDataCollection()
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> showOfflineAreas()
