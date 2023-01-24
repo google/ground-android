@@ -19,6 +19,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -39,6 +41,10 @@ import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** View model for the Data Collection fragment. */
 class DataCollectionViewModel
@@ -48,7 +54,9 @@ internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
-  private val navigator: Navigator
+  private val navigator: Navigator,
+  @ApplicationScope private val externalScope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
@@ -151,9 +159,8 @@ internal constructor(
           responses.forEach { (task, taskData) ->
             taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
           }
-          submissionRepository
-            .createOrUpdateSubmission(it, taskDataDeltas.build(), isNew = true)
-            .subscribe()
+
+          saveChanges(it, taskDataDeltas.build())
         }
 
         navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
@@ -168,5 +175,16 @@ internal constructor(
     }
 
     return Single.just(validationError)
+  }
+
+  /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
+  private fun saveChanges(submission: Submission, taskDataDeltas: ImmutableList<TaskDataDelta>) {
+    externalScope.launch {
+      withContext(ioDispatcher) {
+        submissionRepository
+          .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
+          .blockingAwait()
+      }
+    }
   }
 }
