@@ -22,17 +22,6 @@
     android:icon="@drawable/ic_add"
     android:title="@string/join_survey" />
   <group
-    android:id="@+id/group_projects"
-    android:checkableBehavior="single">
-    <item android:title="@string/select_project_menu_item">
-      <menu>
-        <group
-          android:id="@+id/group_join_survey"
-          android:checkableBehavior="single" />
-      </menu>
-    </item>
-  </group>
-  <group
     android:id="@+id/group_other"
     android:checkableBehavior="none">
     <!-- TODO(#1146): Remove temporary button for launching data collection flow once complete  -->

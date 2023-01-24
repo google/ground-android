@@ -65,7 +65,7 @@ internal constructor(
       isAvailableOffline = localSurveys.contains(survey)
     )
 
-  val offlineSurveys: Single<ImmutableList<Survey>>
+  private val offlineSurveys: Single<ImmutableList<Survey>>
     get() = surveyRepository.offlineSurveys
 
   private val allSurveys: Single<List<Survey>>
