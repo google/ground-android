@@ -24,7 +24,6 @@ import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.mbtiles.MbtilesFootprintParser
 import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
@@ -109,13 +108,11 @@ constructor(
   private fun getOfflineAreaTileSets(
     offlineArea: OfflineArea
   ): @Cold Single<ImmutableList<TileSet>> =
-    surveyRepository.surveyLoadingState
-      .compose { Loadable.values(it) }
-      .map(Survey::baseMaps)
+    surveyRepository.activeSurvey
+      .map { it.map(Survey::baseMaps).orElse(ImmutableList.of()) }
       .doOnError { throwable ->
         Timber.e(throwable, "no basemap sources specified for the active survey")
       }
-      .map { it.asList() }
       .flatMap { source -> Flowable.fromIterable(source) }
       .firstOrError()
       .map { baseMap -> downloadOfflineBaseMapSource(baseMap) }
@@ -222,11 +219,9 @@ constructor(
    */
   val tileSets: Single<ImmutableList<TileSet>>
     get() =
-      surveyRepository.surveyLoadingState
-        .compose { Loadable.values(it) }
-        .map(Survey::baseMaps)
+      surveyRepository.activeSurvey
+        .map { it.map(Survey::baseMaps).orElse(ImmutableList.of()) }
         .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
-        .map { it.asList() }
         .flatMap { source -> Flowable.fromIterable(source) }
         .firstOrError()
         .flatMap { baseMap -> getTileSets(baseMap) }

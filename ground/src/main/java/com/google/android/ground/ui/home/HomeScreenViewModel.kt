@@ -64,6 +64,7 @@ internal constructor(
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
   val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
     PublishSubject.create()
+
   /**
    * Live cache of locations of interest. Updated every time the underlying local storage data
    * changes.
@@ -90,7 +91,6 @@ internal constructor(
   }
 
   fun init() {
-    // Last active survey will be loaded once view subscribes to activeProject.
     surveyRepository.loadLastActiveSurvey()
   }
 
