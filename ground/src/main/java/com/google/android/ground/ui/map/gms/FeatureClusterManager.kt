@@ -51,15 +51,13 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
     }
   }
 
-  /** Remove a set of features from this manager's clusters. */
-  fun removeLocationOfInterestFeatures(features: Set<Feature>) {
-    val existingIds = algorithm.items.map { it.feature.id }.toSet()
-    val deletedIds = existingIds.intersect(features.map { it.id }.toSet())
-    val deletedPoints: Set<FeatureClusterItem> =
-      algorithm.items.filter { deletedIds.contains(it.feature.id) }.toSet()
+  /** Removes stale features from this manager's clusters. */
+  fun removeStaleFeatures(features: Set<Feature>) {
+    val deletedIds = algorithm.items.map { it.feature.id } - features.map { it.id }.toSet()
+    val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.id) }
 
-    Timber.d("removing points: ${deletedPoints}")
-    removeItems(deletedPoints)
+    Timber.d("removing points: $deletedFeatures")
+    removeItems(deletedFeatures)
   }
 
   /** Returns all of the map [Feature]s currently managed by this cluster manager. */
