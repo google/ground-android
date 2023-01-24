@@ -25,7 +25,7 @@ data class Feature(val tag: Tag, val geometry: Geometry) {
    */
   data class Tag(
     /** A unique identifier for the model object that this feature represents. */
-    val id: String = "",
+    val id: String,
     /** A type that indicates how to interpret this feature as a model object. */
     val type: Type,
     /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
@@ -38,7 +38,14 @@ data class Feature(val tag: Tag, val geometry: Geometry) {
   enum class Type {
     /** This feature represents an unknown kind of object. */
     UNKNOWN,
-    /** This feature represents a single, discreet location on the map. */
+    /**
+     * This feature represents a single, discreet location on the map, typically pulled from a
+     * Survey.
+     */
     LOCATION_FEATURE,
+    /** This feature represents a user-drawn polygon. */
+    USER_POLYGON_FEATURE,
+    /** This feature represents a point placed by the user. */
+    USER_POINT_FEATURE,
   }
 }

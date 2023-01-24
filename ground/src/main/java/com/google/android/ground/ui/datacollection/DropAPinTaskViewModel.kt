@@ -40,6 +40,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
     features.postValue(ImmutableSet.of(createFeature(position.target)))
   }
 
+  /** Creates a new map [Feature] representing the point placed by the user. */
   private fun createFeature(point: Point): Feature =
-    Feature(Feature.Tag(uuidGenerator.generateUuid(), Feature.Type.LOCATION_FEATURE), point)
+    Feature(Feature.Tag(uuidGenerator.generateUuid(), Feature.Type.USER_POINT_FEATURE), point)
 }

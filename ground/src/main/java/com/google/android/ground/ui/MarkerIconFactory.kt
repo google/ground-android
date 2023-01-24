@@ -17,6 +17,7 @@ package com.google.android.ground.ui
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
@@ -30,30 +31,43 @@ import javax.inject.Singleton
 
 @Singleton
 class MarkerIconFactory @Inject constructor(@ApplicationContext private val context: Context) {
+  /** Create a scaled bitmap based on the dimensions of a given [Drawable]. */
+  private fun createBitmap(
+    drawable: Drawable,
+    zoomLevel: Float,
+    isSelected: Boolean = false
+  ): Bitmap {
+    // TODO: Adjust size based on selection state.
+    var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
+
+    if (zoomLevel >= HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
+      scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
+    }
+
+    if (isSelected) {
+      // TODO: Revisit scale for selected markers
+      scale += 1
+    }
+
+    val width = (drawable.intrinsicWidth * scale).toInt()
+    val height = (drawable.intrinsicHeight * scale).toInt()
+
+    return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+  }
 
   fun getMarkerBitmap(color: Int, currentZoomLevel: Float, isSelected: Boolean = false): Bitmap {
     val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
     val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
     val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
-    // TODO: Adjust size based on selection state.
-    var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-    if (currentZoomLevel >= HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
-      scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
-    }
-    if (isSelected) {
-      // TODO: Revisit scale for selected markers
-      scale += 1
-    }
-    val width = (outline!!.intrinsicWidth * scale).toInt()
-    val height = (outline.intrinsicHeight * scale).toInt()
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(outline!!, currentZoomLevel, isSelected)
     val canvas = Canvas(bitmap)
-    outline.setBounds(0, 0, width, height)
+
+    outline.setBounds(0, 0, bitmap.width, bitmap.height)
     outline.draw(canvas)
     fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-    fill.setBounds(0, 0, width, height)
+    fill.setBounds(0, 0, bitmap.width, bitmap.height)
     fill.draw(canvas)
-    overlay!!.setBounds(0, 0, width, height)
+    overlay!!.setBounds(0, 0, bitmap.width, bitmap.height)
     overlay.draw(canvas)
     return bitmap
   }
@@ -74,17 +88,10 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     text: String,
   ): BitmapDescriptor {
     val fill = AppCompatResources.getDrawable(context, R.drawable.cluster_marker)
-    var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-
-    if (currentZoomLevel >= HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
-      scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
-    }
-
-    val width = (fill!!.intrinsicWidth * scale).toInt()
-    val height = (fill.intrinsicHeight * scale).toInt()
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(fill!!, currentZoomLevel, false)
     val canvas = Canvas(bitmap)
     val style = Paint()
+
     style.color = Color.WHITE
     style.textSize = 40.0.toFloat()
 
@@ -93,8 +100,8 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     val x = (bitmap.width - bounds.width()) / 2
     val y = (bitmap.height + bounds.height()) / 2
 
-    fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-    fill.setBounds(0, 0, width, height)
+    fill.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    fill.setBounds(0, 0, bitmap.width, bitmap.height)
     fill.draw(canvas)
 
     canvas.drawText(text, x.toFloat(), y.toFloat(), style)

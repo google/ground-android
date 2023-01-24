@@ -176,7 +176,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     return ImmutableSet.builder<Feature>()
       .add(
         Feature(
-          Feature.Tag(id = uuidGenerator.generateUuid(), type = Feature.Type.LOCATION_FEATURE),
+          Feature.Tag(id = uuidGenerator.generateUuid(), type = Feature.Type.USER_POLYGON_FEATURE),
           geometry = polygon
         )
       )

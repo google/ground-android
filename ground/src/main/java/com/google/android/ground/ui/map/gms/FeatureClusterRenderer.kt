@@ -80,7 +80,6 @@ class FeatureClusterRenderer(
     markerOptions: MarkerOptions
   ) {
     super.onBeforeClusterRendered(cluster, markerOptions)
-
     markerOptions.icon(createMarker(cluster))
   }
 

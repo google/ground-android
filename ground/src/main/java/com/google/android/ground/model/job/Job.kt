@@ -33,5 +33,5 @@ constructor(
 
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
 
-  fun hasData(): Boolean = !this.tasks.isEmpty()
+  fun hasData(): Boolean = !tasks.isEmpty()
 }
