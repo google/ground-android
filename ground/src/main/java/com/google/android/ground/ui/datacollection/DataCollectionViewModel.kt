@@ -43,7 +43,6 @@ import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** View model for the Data Collection fragment. */
 class DataCollectionViewModel
@@ -176,12 +175,10 @@ internal constructor(
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(submission: Submission, taskDataDeltas: ImmutableList<TaskDataDelta>) {
-    externalScope.launch {
-      withContext(ioDispatcher) {
-        submissionRepository
-          .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
-          .blockingAwait()
-      }
+    externalScope.launch(ioDispatcher) {
+      submissionRepository
+        .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
+        .blockingAwait()
     }
   }
 }
