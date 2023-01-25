@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.model.mutation
 
-import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.util.toImmutableList
 import com.google.common.collect.ImmutableList
 import java.util.*
@@ -31,7 +31,7 @@ data class LocationOfInterestMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   val jobId: String = "",
-  val geometry: Geometry? = null,
+  val geometry: GeometryWrapper? = null,
 ) : Mutation() {
 
   companion object {

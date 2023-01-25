@@ -30,6 +30,7 @@
   </issue>
   <issue id="DuplicateIds" severity="error" />
   <issue id="FragmentTagUsage" severity="error" />
+  <issue id="FragmentGradleConfiguration" severity="error" />
   <issue id="HardcodedText" severity="error" />
   <issue id="IconXmlAndPng" severity="error" />
   <issue id="LogNotTimber" severity="error" />
