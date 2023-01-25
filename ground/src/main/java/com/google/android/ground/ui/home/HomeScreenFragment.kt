@@ -165,11 +165,11 @@ class HomeScreenFragment :
     this.surveys = surveys
 
     // clear last saved surveys list
-    surveysNavItem.subMenu.removeGroup(R.id.group_join_survey)
+    surveysNavItem.subMenu?.removeGroup(R.id.group_join_survey)
     for (index in surveys.indices) {
       surveysNavItem.subMenu
-        .add(R.id.group_join_survey, Menu.NONE, index, surveys[index].title)
-        .setIcon(R.drawable.ic_menu_survey)
+        ?.add(R.id.group_join_survey, Menu.NONE, index, surveys[index].title)
+        ?.setIcon(R.drawable.ic_menu_survey)
     }
 
     // Highlight active survey
@@ -310,8 +310,8 @@ class HomeScreenFragment :
   private fun updateSelectedSurveyUI(selectedIndex: Int) {
     val subMenu = surveysNavItem.subMenu
     for (i in surveys.indices) {
-      val menuItem = subMenu.getItem(i)
-      menuItem.isChecked = i == selectedIndex
+      val menuItem = subMenu?.getItem(i)
+      menuItem?.isChecked = i == selectedIndex
     }
   }
 
