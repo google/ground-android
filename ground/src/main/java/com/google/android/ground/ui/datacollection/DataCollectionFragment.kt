@@ -48,7 +48,11 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    viewModel = assistedViewModel { savedStateHandle ->  dataCollectionViewModelFactory.create(savedStateHandle) }.value
+    viewModel =
+      assistedViewModel { savedStateHandle ->
+          dataCollectionViewModelFactory.create(savedStateHandle)
+        }
+        .value
   }
 
   override fun onCreateView(
@@ -69,9 +73,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     }
 
-    viewModel.currentPosition.observe(viewLifecycleOwner) {
-      viewPager.currentItem = it
-    }
+    viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
     viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) {
       viewModel.currentTaskData = it.orElse(null)
     }

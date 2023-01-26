@@ -8,13 +8,13 @@ import androidx.lifecycle.ViewModel
 
 inline fun <reified T : ViewModel> Fragment.assistedViewModel(
   crossinline viewModelProducer: (SavedStateHandle) -> T
-) = viewModels<T> {
-  object : AbstractSavedStateViewModelFactory(this, arguments) {
-    override fun <T : ViewModel> create(
-      key: String,
-      modelClass: Class<T>,
-      handle: SavedStateHandle
-    ) =
-      viewModelProducer(handle) as T
+) =
+  viewModels<T> {
+    object : AbstractSavedStateViewModelFactory(this, arguments) {
+      override fun <T : ViewModel> create(
+        key: String,
+        modelClass: Class<T>,
+        handle: SavedStateHandle
+      ) = viewModelProducer(handle) as T
+    }
   }
-}

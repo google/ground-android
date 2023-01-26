@@ -37,7 +37,6 @@ import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
-import javax.inject.Inject
 import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
@@ -53,9 +52,7 @@ internal constructor(
 ) : AbstractViewModel() {
   @AssistedFactory
   interface Factory {
-    fun create(
-      savedStateHandle: SavedStateHandle
-    ): DataCollectionViewModel
+    fun create(savedStateHandle: SavedStateHandle): DataCollectionViewModel
   }
 
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
@@ -73,7 +70,8 @@ internal constructor(
 
   private val currentPositionKey = "currentPosition"
   // Tracks the user's current position in the list of tasks for the current Job
-  var currentPosition: @Hot(replays = true) MutableLiveData<Int> = savedStateHandle.getLiveData(currentPositionKey,0)
+  var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
+    savedStateHandle.getLiveData(currentPositionKey, 0)
 
   var currentTaskData: TaskData? = null
 
