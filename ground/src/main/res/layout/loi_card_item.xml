@@ -28,7 +28,7 @@
 
   <com.google.android.material.card.MaterialCardView
     android:id="@+id/loi_card"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/loi_card_item_margin"
     android:orientation="vertical"
@@ -36,7 +36,7 @@
     app:cardElevation="2dp">
     <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/wrapper_view"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical">
       <TextView
