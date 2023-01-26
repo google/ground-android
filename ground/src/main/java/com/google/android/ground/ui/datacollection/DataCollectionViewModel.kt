@@ -15,10 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -32,6 +29,9 @@ import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import com.google.common.collect.ImmutableList
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
@@ -42,14 +42,22 @@ import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
 class DataCollectionViewModel
-@Inject
+@AssistedInject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
-  private val navigator: Navigator
+  private val navigator: Navigator,
+  @Assisted private val savedStateHandle: SavedStateHandle
 ) : AbstractViewModel() {
+  @AssistedFactory
+  interface Factory {
+    fun create(
+      savedStateHandle: SavedStateHandle
+    ): DataCollectionViewModel
+  }
+
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
@@ -63,8 +71,9 @@ internal constructor(
 
   private val responses: MutableMap<Task, TaskData?> = HashMap()
 
+  private val currentPositionKey = "currentPosition"
   // Tracks the user's current position in the list of tasks for the current Job
-  var currentPosition: @Hot(replays = true) MutableLiveData<Int> = MutableLiveData(0)
+  var currentPosition: @Hot(replays = true) MutableLiveData<Int> = savedStateHandle.getLiveData(currentPositionKey,0)
 
   var currentTaskData: TaskData? = null
 
@@ -158,7 +167,7 @@ internal constructor(
         return Single.never()
       }
 
-      currentPosition.postValue(currentPosition.value!! + 1)
+      setCurrentPosition(currentPosition.value!! + 1)
 
       return Single.never()
     } else {
@@ -166,5 +175,9 @@ internal constructor(
     }
 
     return Single.just(validationError)
+  }
+
+  fun setCurrentPosition(position: Int) {
+    savedStateHandle[currentPositionKey] = position
   }
 }

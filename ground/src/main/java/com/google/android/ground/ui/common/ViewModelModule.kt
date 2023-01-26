@@ -63,10 +63,6 @@ abstract class ViewModelModule {
   abstract fun bindSyncStatusViewModel(viewModel: SyncStatusViewModel): ViewModel
   @Binds
   @IntoMap
-  @ViewModelKey(DataCollectionViewModel::class)
-  abstract fun bindDataCollectionViewModel(viewModel: DataCollectionViewModel): ViewModel
-  @Binds
-  @IntoMap
   @ViewModelKey(OfflineAreasViewModel::class)
   abstract fun bindOfflineAreasViewModel(viewModel: OfflineAreasViewModel): ViewModel
   @Binds

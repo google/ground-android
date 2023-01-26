@@ -30,6 +30,7 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.util.assistedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -39,6 +40,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
+  @Inject lateinit var dataCollectionViewModelFactory: DataCollectionViewModel.Factory
 
   private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
@@ -46,7 +48,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    viewModel = getViewModel(DataCollectionViewModel::class.java)
+    viewModel = assistedViewModel { savedStateHandle ->  dataCollectionViewModelFactory.create(savedStateHandle) }.value
   }
 
   override fun onCreateView(
@@ -67,7 +69,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     }
 
-    viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
+    viewModel.currentPosition.observe(viewLifecycleOwner) {
+      viewPager.currentItem = it
+    }
     viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) {
       viewModel.currentTaskData = it.orElse(null)
     }
@@ -87,7 +91,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.currentPosition.value = viewModel.currentPosition.value!! - 1
+      viewModel.setCurrentPosition(viewModel.currentPosition.value!! - 1)
       true
     }
 }
