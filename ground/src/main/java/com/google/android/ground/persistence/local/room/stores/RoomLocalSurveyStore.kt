@@ -27,7 +27,6 @@ import com.google.android.ground.persistence.local.room.relations.SurveyEntityAn
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -110,7 +109,7 @@ class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
       )
       .subscribeOn(schedulers.io())
 
-  private fun insertOrUpdateTasks(jobId: String, tasks: ImmutableCollection<Task>): Completable =
+  private fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>): Completable =
     Observable.fromIterable(tasks).flatMapCompletable { insertOrUpdateTask(jobId, it) }
 
   private fun insertOrUpdateJob(surveyId: String, job: Job): Completable =
