@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.submission
 
-import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 
 /**
@@ -24,8 +23,7 @@ import java8.util.Optional
  * @property taskDatas A map from task id to taskData. This map is mutable and therefore should
  *   never be exposed outside this class.
  */
-data class TaskDataMap
-constructor(private val taskDatas: Map<String, TaskData?> = ImmutableMap.of()) {
+data class TaskDataMap(private val taskDatas: Map<String, TaskData?> = mapOf()) {
 
   /**
    * Returns the user taskData for the given task id, or empty if the user did not specify a
