@@ -24,7 +24,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.rx.annotations.Cold
-import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -60,22 +59,20 @@ interface LocalDataStore {
    * Returns a long-lived stream that emits the full list of mutations for specified survey on
    * subscribe and a new list on each subsequent change.
    */
-  fun getMutationsOnceAndStream(
-    survey: Survey
-  ): @Cold(terminates = false) Flowable<ImmutableList<Mutation>>
+  fun getMutationsOnceAndStream(survey: Survey): @Cold(terminates = false) Flowable<List<Mutation>>
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
-  fun getPendingMutations(locationOfInterestId: String): @Cold Single<ImmutableList<Mutation>>
+  fun getPendingMutations(locationOfInterestId: String): @Cold Single<List<Mutation>>
 
   /** Updates the provided list of mutations. */
-  fun updateMutations(mutations: ImmutableList<Mutation>): @Cold Completable
+  fun updateMutations(mutations: List<Mutation>): @Cold Completable
 
   /**
    * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
    * corresponding submission or LOI.
    */
-  fun finalizePendingMutations(mutations: ImmutableList<Mutation>): @Cold Completable
+  fun finalizePendingMutations(mutations: List<Mutation>): @Cold Completable
 }

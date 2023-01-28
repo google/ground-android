@@ -29,8 +29,6 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -59,7 +57,7 @@ constructor(
 
   override fun doWork(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
-    val mutations: ImmutableList<Mutation> =
+    val mutations: List<Mutation> =
       localDataStore.getPendingMutations(locationOfInterestId).blockingGet()
     return try {
       Timber.v("Mutations: $mutations")
@@ -79,17 +77,17 @@ constructor(
    * Groups mutations by user id, loads each user, applies mutations, and removes processed
    * mutations.
    */
-  private fun processMutations(pendingMutations: ImmutableList<Mutation>): Completable {
+  private fun processMutations(pendingMutations: List<Mutation>): Completable {
     val mutationsByUserId: Map<String, List<Mutation>> = groupByUserId(pendingMutations)
     val userIds = mutationsByUserId.keys
     return Observable.fromIterable(userIds).flatMapCompletable { userId: String ->
-      val mutations = mutationsByUserId[userId]?.toImmutableList() ?: ImmutableList.of()
+      val mutations = mutationsByUserId[userId] ?: listOf()
       processMutations(mutations, userId)
     }
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
-  private fun processMutations(mutations: ImmutableList<Mutation>, userId: String): Completable {
+  private fun processMutations(mutations: List<Mutation>, userId: String): Completable {
     return localDataStore.userStore
       .getUser(userId)
       .flatMapCompletable { user: User -> processMutations(mutations, user) }
@@ -98,7 +96,7 @@ constructor(
   }
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
-  private fun processMutations(mutations: ImmutableList<Mutation>, user: User): Completable {
+  private fun processMutations(mutations: List<Mutation>, user: User): Completable {
     return remoteDataStore
       .applyMutations(mutations, user)
       .andThen(
@@ -111,7 +109,7 @@ constructor(
    * Filters all mutations containing submission mutations with changes to photo fields and uploads
    * to remote storage.
    */
-  private fun processPhotoFieldMutations(mutations: ImmutableList<Mutation>): Completable {
+  private fun processPhotoFieldMutations(mutations: List<Mutation>): Completable {
     return Observable.fromIterable(mutations)
       .filter { mutation: Mutation -> mutation is SubmissionMutation }
       .flatMapIterable { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
@@ -124,15 +122,11 @@ constructor(
       }
   }
 
-  private fun groupByUserId(
-    pendingMutations: ImmutableList<Mutation>
-  ): Map<String, List<Mutation>> = pendingMutations.groupBy { it.userId }
+  private fun groupByUserId(pendingMutations: List<Mutation>): Map<String, List<Mutation>> =
+    pendingMutations.groupBy { it.userId }
 
-  private fun incrementRetryCounts(
-    mutations: ImmutableList<Mutation>,
-    error: Throwable
-  ): ImmutableList<Mutation> =
-    mutations.map { m: Mutation -> incrementRetryCount(m, error) }.toImmutableList()
+  private fun incrementRetryCounts(mutations: List<Mutation>, error: Throwable): List<Mutation> =
+    mutations.map { m: Mutation -> incrementRetryCount(m, error) }
 
   private fun incrementRetryCount(mutation: Mutation, error: Throwable): Mutation =
     when (mutation) {

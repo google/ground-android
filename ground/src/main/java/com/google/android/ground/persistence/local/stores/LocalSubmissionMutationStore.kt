@@ -22,7 +22,6 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
-import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -36,7 +35,7 @@ interface LocalSubmissionMutationStore : LocalMutationStore<SubmissionMutation, 
   fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): @Cold Single<ImmutableList<Submission>>
+  ): @Cold Single<List<Submission>>
 
   /** Returns the submission with the specified UUID from the local data store, if found. */
   fun getSubmission(
@@ -55,7 +54,7 @@ interface LocalSubmissionMutationStore : LocalMutationStore<SubmissionMutation, 
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<ImmutableList<SubmissionMutation>>
+  ): Flowable<List<SubmissionMutation>>
 
   fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>>
 

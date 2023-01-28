@@ -21,7 +21,7 @@ import java8.util.Optional
  * An immutable map of task ids to related user taskDatas.
  *
  * @property taskDatas A map from task id to taskData. This map is mutable and therefore should
- *   never be exposed outside this class.
+ * never be exposed outside this class.
  */
 data class TaskDataMap(private val taskDatas: Map<String, TaskData?> = mapOf()) {
 

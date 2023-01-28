@@ -30,7 +30,6 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.toImmutableList
 import com.google.android.ground.util.toImmutableSet
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.*
 import java.io.File
@@ -71,10 +70,7 @@ constructor(
   }
 
   /** Enqueue a single area and its tile sources for download. */
-  private fun enqueueDownload(
-    area: OfflineArea,
-    tileSets: ImmutableList<TileSet>
-  ): @Cold Completable =
+  private fun enqueueDownload(area: OfflineArea, tileSets: List<TileSet>): @Cold Completable =
     Flowable.fromIterable(tileSets)
       .flatMapCompletable { tileSet ->
         tileSetStore
@@ -105,11 +101,9 @@ constructor(
    * intersect a given area.
    */
   // TODO: Simplify this stream.
-  private fun getOfflineAreaTileSets(
-    offlineArea: OfflineArea
-  ): @Cold Single<ImmutableList<TileSet>> =
+  private fun getOfflineAreaTileSets(offlineArea: OfflineArea): @Cold Single<List<TileSet>> =
     surveyRepository.activeSurvey
-      .map { it.map(Survey::baseMaps).orElse(ImmutableList.of()) }
+      .map { it.map(Survey::baseMaps).orElse(listOf()) }
       .doOnError { throwable ->
         Timber.e(throwable, "no basemap sources specified for the active survey")
       }
@@ -131,7 +125,7 @@ constructor(
    * Retrieves all offline areas from the local store and continually streams the list as the local
    * store is updated. Triggers `onError` only if there is a problem accessing the local store.
    */
-  val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<ImmutableList<OfflineArea>>
+  val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<List<OfflineArea>>
     get() = offlineAreaStore.offlineAreasOnceAndStream
 
   /**
@@ -217,10 +211,10 @@ constructor(
    * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their
    * coordinates.
    */
-  val tileSets: Single<ImmutableList<TileSet>>
+  val tileSets: Single<List<TileSet>>
     get() =
       surveyRepository.activeSurvey
-        .map { it.map(Survey::baseMaps).orElse(ImmutableList.of()) }
+        .map { it.map(Survey::baseMaps).orElse(listOf()) }
         .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
         .flatMap { source -> Flowable.fromIterable(source) }
         .firstOrError()
@@ -234,7 +228,7 @@ constructor(
    * locally.
    */
   @Throws(IOException::class)
-  private fun getTileSets(baseMap: BaseMap): Single<ImmutableList<TileSet>> =
+  private fun getTileSets(baseMap: BaseMap): Single<List<TileSet>> =
     when (baseMap.type) {
       BaseMapType.MBTILES_FOOTPRINTS -> {
         val tileFile = downloadOfflineBaseMapSource(baseMap)
@@ -242,7 +236,7 @@ constructor(
       }
       BaseMapType.TILED_WEB_MAP ->
         Single.just(
-          ImmutableList.of(
+          listOf(
             TileSet(
               baseMap.url.toString(),
               offlineUuidGenerator.generateUuid(),
@@ -256,7 +250,7 @@ constructor(
         Timber.d("Unknown basemap source type")
         // Try to read a tile from the URL anyway.
         Single.just(
-          ImmutableList.of(
+          listOf(
             TileSet(
               baseMap.url.toString(),
               offlineUuidGenerator.generateUuid(),

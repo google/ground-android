@@ -82,9 +82,7 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   fun testDeleteSurvey() {
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.surveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
-    localDataStore.surveyStore.surveys.test().assertValue { obj: ImmutableList<Survey> ->
-      obj.isEmpty()
-    }
+    localDataStore.surveyStore.surveys.test().assertValue { obj: List<Survey> -> obj.isEmpty() }
   }
 
   @Test
