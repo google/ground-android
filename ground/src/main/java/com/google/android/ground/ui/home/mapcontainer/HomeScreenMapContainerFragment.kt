@@ -20,7 +20,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
@@ -130,6 +132,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         }
       }
     )
+
+    val helper: SnapHelper = PagerSnapHelper()
+    helper.attachToRecyclerView(recyclerView)
   }
 
   private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
