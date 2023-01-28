@@ -17,23 +17,19 @@ package com.google.android.ground.model
 
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.job.Job
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 
 /** Configuration, schema, and ACLs for a single survey. */
-data class Survey
-@JvmOverloads
-constructor(
+data class Survey(
   val id: String,
   val title: String,
   val description: String,
-  val jobMap: ImmutableMap<String, Job>,
-  val baseMaps: ImmutableList<BaseMap> = ImmutableList.of(),
-  val acl: ImmutableMap<String, String> = ImmutableMap.of()
+  val jobMap: Map<String, Job>,
+  val baseMaps: List<BaseMap> = listOf(),
+  val acl: Map<String, String> = mapOf()
 ) {
-  val jobs: ImmutableList<Job>
-    get() = jobMap.values.asList()
+  val jobs: List<Job>
+    get() = jobMap.values.toList()
 
   fun getJob(jobId: String): Optional<Job> {
     return Optional.of(jobMap[jobId])
