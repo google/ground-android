@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import kotlinx.serialization.Serializable
 
 /** A common ancestor for all geometry types. */
@@ -39,19 +37,19 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 /** Represents a single point. */
 @Serializable
 data class Point(val coordinate: Coordinate) : Geometry {
-  override val vertices: List<Point> = ImmutableList.of(this)
+  override val vertices: List<Point> = listOf(this)
 }
 
 /** A collection of [Polygon]s. */
 @Serializable
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
-  override val vertices: List<Point> = polygons.flatMap { it.vertices }.toImmutableList()
+  override val vertices: List<Point> = polygons.flatMap { it.vertices }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
 @Serializable
 data class LineString(val coordinates: List<Coordinate>) : Geometry {
-  override val vertices: List<Point> = coordinates.map { Point(it) }.toImmutableList()
+  override val vertices: List<Point> = coordinates.map { Point(it) }
 }
 
 /**
@@ -60,7 +58,7 @@ data class LineString(val coordinates: List<Coordinate>) : Geometry {
  */
 @Serializable
 data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
-  override val vertices: List<Point> = coordinates.map { Point(it) }.toImmutableList()
+  override val vertices: List<Point> = coordinates.map { Point(it) }
 
   /**
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.

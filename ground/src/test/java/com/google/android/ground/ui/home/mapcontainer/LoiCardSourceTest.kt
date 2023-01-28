@@ -24,7 +24,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.jraska.livedata.TestObserver
@@ -120,10 +119,8 @@ class LoiCardSourceTest : BaseHiltTest() {
     private val TEST_POINT_OF_INTEREST_1 = createPoint("1", COORDINATE_1)
     private val TEST_POINT_OF_INTEREST_2 = createPoint("2", COORDINATE_2)
     private val TEST_POINT_OF_INTEREST_3 = createPoint("3", COORDINATE_3)
-    private val TEST_AREA_OF_INTEREST_1 =
-      createPolygon("4", ImmutableList.of(COORDINATE_1, COORDINATE_2))
-    private val TEST_AREA_OF_INTEREST_2 =
-      createPolygon("5", ImmutableList.of(COORDINATE_2, COORDINATE_3))
+    private val TEST_AREA_OF_INTEREST_1 = createPolygon("4", listOf(COORDINATE_1, COORDINATE_2))
+    private val TEST_AREA_OF_INTEREST_2 = createPolygon("5", listOf(COORDINATE_2, COORDINATE_3))
 
     private val TEST_LOCATIONS_OF_INTEREST =
       ImmutableSet.of(
@@ -141,7 +138,7 @@ class LoiCardSourceTest : BaseHiltTest() {
         surveyId = TEST_SURVEY.id
       )
 
-    private fun createPolygon(id: String, coordinates: ImmutableList<Coordinate>) =
+    private fun createPolygon(id: String, coordinates: List<Coordinate>) =
       FakeData.AREA_OF_INTEREST.copy(
         id = id,
         geometry = LineString(coordinates),
