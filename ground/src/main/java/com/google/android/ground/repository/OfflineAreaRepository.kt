@@ -28,13 +28,11 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.util.FileUtil
-import com.google.android.ground.util.toImmutableList
-import com.google.android.ground.util.toImmutableSet
-import com.google.common.collect.ImmutableSet
 import io.reactivex.*
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import kotlinx.collections.immutable.toPersistentSet
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
@@ -142,13 +140,12 @@ constructor(
   private fun downloadedTileSetsIntersection(
     tileSets: Collection<TileSet>,
     other: Collection<TileSet>
-  ): ImmutableSet<TileSet> {
-    val otherUrls = other.map { it.url }.toImmutableList()
-
+  ): Set<TileSet> {
+    val otherUrls = other.map { it.url }
     return tileSets
       .filter { otherUrls.contains(it.url) }
       .filter { it.state === TileSet.State.DOWNLOADED }
-      .toImmutableSet()
+      .toPersistentSet()
   }
 
   /**
@@ -158,7 +155,7 @@ constructor(
    */
   fun getIntersectingDownloadedTileSetsOnceAndStream(
     offlineArea: OfflineArea
-  ): @Cold(terminates = false) Flowable<ImmutableSet<TileSet>> =
+  ): @Cold(terminates = false) Flowable<Set<TileSet>> =
     getOfflineAreaTileSets(offlineArea)
       .flatMapPublisher { tiles ->
         downloadedTileSetsOnceAndStream.map { tileSet ->
@@ -166,25 +163,23 @@ constructor(
         }
       } // If no tile sources are found, we report the area takes up 0.0mb on the device.
       .doOnError { throwable -> Timber.d(throwable, "no tile sources found for area $offlineArea") }
-      .onErrorReturn { ImmutableSet.of() }
+      .onErrorReturn { setOf() }
 
   /**
    * Retrieves a set of downloaded tiles that intersect with {@param offlineArea}. Triggers
    * `onError` only if there is a problem accessing the local store.
    */
-  fun getIntersectingDownloadedTileSetsOnce(
-    offlineArea: OfflineArea
-  ): @Cold Maybe<ImmutableSet<TileSet>> =
+  fun getIntersectingDownloadedTileSetsOnce(offlineArea: OfflineArea): @Cold Maybe<Set<TileSet>> =
     getIntersectingDownloadedTileSetsOnceAndStream(offlineArea).firstElement()
 
   /**
    * Retrieves all downloaded tile sources from the local store. Triggers `onError` only if there is
    * a problem accessing the local store; does not trigger an error on empty rows.
    */
-  val downloadedTileSetsOnceAndStream: @Cold(terminates = false) Flowable<ImmutableSet<TileSet>>
+  val downloadedTileSetsOnceAndStream: @Cold(terminates = false) Flowable<Set<TileSet>>
     get() =
       tileSetStore.tileSetsOnceAndStream.map { tileSet ->
-        tileSet.filter { it.state === TileSet.State.DOWNLOADED }.toImmutableSet()
+        tileSet.filter { it.state === TileSet.State.DOWNLOADED }.toPersistentSet()
       }
 
   /**

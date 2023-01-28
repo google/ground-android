@@ -35,7 +35,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.android.ground.util.toImmutableSet
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -58,7 +57,7 @@ internal constructor(
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
-  val mapLocationOfInterestFeatures: LiveData<ImmutableSet<Feature>>
+  val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
 
@@ -181,8 +180,8 @@ internal constructor(
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
 
-    private fun concatLocationsOfInterestSets(objects: Array<Any>): ImmutableSet<Feature> =
-      listOf(*objects).flatMap { it as ImmutableSet<Feature> }.toImmutableSet()
+    private fun concatLocationsOfInterestSets(objects: Array<Any>): Set<Feature> =
+      listOf(*objects).flatMap { it as ImmutableSet<Feature> }.toPersistentSet()
   }
 
   init {
