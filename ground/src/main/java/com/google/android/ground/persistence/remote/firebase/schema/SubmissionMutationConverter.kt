@@ -22,7 +22,6 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.FieldValue
 import timber.log.Timber
@@ -56,7 +55,7 @@ internal object SubmissionMutationConverter {
     return map.build()
   }
 
-  private fun toMap(taskDataDeltas: ImmutableList<TaskDataDelta>): Map<String, Any> {
+  private fun toMap(taskDataDeltas: List<TaskDataDelta>): Map<String, Any> {
     val map = ImmutableMap.builder<String, Any>()
     for (delta in taskDataDeltas) {
       delta.newTaskData

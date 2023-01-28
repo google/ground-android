@@ -34,7 +34,7 @@ object ResponseDeltasConverter {
   private const val KEY_NEW_RESPONSE = "newTaskData"
 
   @JvmStatic
-  fun toString(taskDataDeltas: ImmutableList<TaskDataDelta>): String =
+  fun toString(taskDataDeltas: List<TaskDataDelta>): String =
     JSONObject()
       .apply {
         for (delta in taskDataDeltas) {

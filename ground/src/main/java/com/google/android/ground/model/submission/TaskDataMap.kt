@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.submission
 
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 
@@ -23,7 +22,7 @@ import java8.util.Optional
  * An immutable map of task ids to related user taskDatas.
  *
  * @property taskDatas A map from task id to taskData. This map is mutable and therefore should
- * never be exposed outside this class.
+ *   never be exposed outside this class.
  */
 data class TaskDataMap
 constructor(private val taskDatas: Map<String, TaskData?> = ImmutableMap.of()) {
@@ -38,7 +37,7 @@ constructor(private val taskDatas: Map<String, TaskData?> = ImmutableMap.of()) {
   fun taskIds(): Iterable<String> = taskDatas.keys
 
   /** Adds, replaces, and/or removes taskDatas based on the provided list of deltas. */
-  fun copyWithDeltas(taskDataDeltas: ImmutableList<TaskDataDelta>): TaskDataMap {
+  fun copyWithDeltas(taskDataDeltas: List<TaskDataDelta>): TaskDataMap {
     val newResponses = taskDatas.toMutableMap()
     taskDataDeltas.forEach {
       if (it.newTaskData.isPresent) {
