@@ -22,7 +22,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.util.Enums.toEnum
-import com.google.common.collect.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
@@ -58,10 +58,10 @@ object ResponseDeltasConverter {
       .toString()
 
   @JvmStatic
-  fun fromString(job: Job, jsonString: String?): ImmutableList<TaskDataDelta> {
-    val deltas = ImmutableList.builder<TaskDataDelta>()
+  fun fromString(job: Job, jsonString: String?): List<TaskDataDelta> {
+    val deltas = mutableListOf<TaskDataDelta>()
     if (jsonString == null) {
-      return deltas.build()
+      return deltas.toPersistentList()
     }
     try {
       val jsonObject = JSONObject(jsonString)
@@ -90,6 +90,6 @@ object ResponseDeltasConverter {
     } catch (e: JSONException) {
       Timber.e(e, "Error parsing JSON string")
     }
-    return deltas.build()
+    return deltas.toPersistentList()
   }
 }

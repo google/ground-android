@@ -21,11 +21,11 @@ import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.DocumentSnapshot
 import java.net.MalformedURLException
 import java.net.URL
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
 
 /** Converts between Firestore documents and [Survey] instances. */
@@ -36,12 +36,12 @@ internal object SurveyConverter {
     val pd =
       DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")
 
-    val jobMap = ImmutableMap.builder<String, Job>()
+    val jobMap = mutableMapOf<String, Job>()
     if (pd.jobs != null) {
       pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap.put(id, toJob(id, obj)) }
     }
 
-    val baseMaps = ImmutableList.builder<BaseMap>()
+    val baseMaps = mutableListOf<BaseMap>()
     if (pd.baseMaps != null) {
       convertOfflineBaseMapSources(pd, baseMaps)
     }
@@ -50,16 +50,13 @@ internal object SurveyConverter {
       doc.id,
       pd.title.orEmpty(),
       pd.description.orEmpty(),
-      jobMap.build(),
-      baseMaps.build(),
-      ImmutableMap.copyOf(pd.acl)
+      jobMap.toPersistentMap(),
+      baseMaps.toPersistentList(),
+      pd.acl ?: mapOf()
     )
   }
 
-  private fun convertOfflineBaseMapSources(
-    pd: SurveyDocument,
-    builder: ImmutableList.Builder<BaseMap>
-  ) {
+  private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: MutableList<BaseMap>) {
     for ((url) in pd.baseMaps!!) {
       if (url == null) {
         Timber.d("Skipping base map source in survey with missing URL")

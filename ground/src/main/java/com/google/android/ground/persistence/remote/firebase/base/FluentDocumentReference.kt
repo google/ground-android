@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firebase.base
 
-import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.WriteBatch
@@ -27,7 +26,7 @@ open class FluentDocumentReference protected constructor(private val reference: 
    * Adds a request to the specified batch to merge the provided key-value pairs into the remote
    * database. If the document does not yet exist, one is created on commit.
    */
-  protected fun merge(values: ImmutableMap<String, Any>, batch: WriteBatch) {
+  protected fun merge(values: Map<String, Any>, batch: WriteBatch) {
     batch[reference, values] = SetOptions.merge()
   }
 
