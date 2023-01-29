@@ -28,8 +28,8 @@ data class Survey(
   val baseMaps: List<BaseMap> = listOf(),
   val acl: Map<String, String> = mapOf()
 ) {
-  val jobs: List<Job>
-    get() = jobMap.values.toList()
+  val jobs: Collection<Job>
+    get() = jobMap.values
 
   fun getJob(jobId: String): Optional<Job> {
     return Optional.of(jobMap[jobId])

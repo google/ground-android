@@ -18,9 +18,7 @@ package com.google.android.ground.model.job
 import com.google.android.ground.model.task.Task
 import java8.util.Optional
 
-data class Job
-@JvmOverloads
-constructor(val id: String, val name: String? = null, val tasks: Map<String, Task> = mapOf()) {
+data class Job(val id: String, val name: String? = null, val tasks: Map<String, Task> = mapOf()) {
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.id }
 

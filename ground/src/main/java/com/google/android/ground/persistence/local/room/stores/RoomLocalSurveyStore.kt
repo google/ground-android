@@ -111,7 +111,7 @@ class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
       .andThen(insertOrUpdateTasks(job.id, job.tasks.values))
       .subscribeOn(schedulers.io())
 
-  private fun insertOrUpdateJobs(surveyId: String, jobs: List<Job>): Completable =
+  private fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>): Completable =
     Observable.fromIterable(jobs).flatMapCompletable { insertOrUpdateJob(surveyId, it) }
 
   private fun insertOfflineBaseMapSources(survey: Survey): Completable =

@@ -41,7 +41,6 @@ import com.google.android.ground.persistence.local.room.relations.SurveyEntityAn
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
 import java8.util.Optional
@@ -108,13 +107,7 @@ fun Job.toLocalDataStoreObject(surveyId: String) =
   JobEntity(id = id, surveyId = surveyId, name = name)
 
 fun JobEntityAndRelations.toModelObject(): Job {
-  val taskMap = mutableMapOf<String, Task>()
-
-  for (taskEntityAndRelations in taskEntityAndRelations) {
-    val task = taskEntityAndRelations.toModelObject()
-    taskMap[task.id] = task
-  }
-
+  val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
   return Job(jobEntity.id, jobEntity.name, taskMap.toPersistentMap())
 }
 
@@ -196,13 +189,8 @@ fun LocationOfInterestMutationEntity.toModelObject() =
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
-  val listBuilder = mutableListOf<Option>()
-
-  for (optionEntity in optionEntities) {
-    listBuilder.add(optionEntity.toModelObject())
-  }
-
-  return MultipleChoice(listBuilder.toPersistentList(), this.type.toCardinality())
+  val options = optionEntities.map { it.toModelObject() }
+  return MultipleChoice(options.toPersistentList(), this.type.toCardinality())
 }
 
 fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
@@ -335,21 +323,8 @@ fun SubmissionMutation.toLocalDataStoreObject() =
   )
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
-  val jobMap = mutableMapOf<String, Job>()
-  val baseMaps = mutableListOf<BaseMap>()
-
-  for (jobEntityAndRelations in jobEntityAndRelations) {
-    val job = jobEntityAndRelations.toModelObject()
-    jobMap[job.id] = job
-  }
-  for (source in baseMapEntityAndRelations) {
-    try {
-      baseMaps.add(source.toModelObject())
-    } catch (e: MalformedURLException) {
-      Timber.d("Skipping basemap source with malformed URL %s", source.url)
-    }
-  }
-  val surveyEntity = surveyEntity
+  val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
+  val baseMaps = baseMapEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
@@ -357,20 +332,13 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     baseMaps.toPersistentList(),
-    surveyEntity.acl.toStringMap()
+    surveyEntity.acl?.toStringMap()!!
   )
 }
 
-private fun JSONObject?.toStringMap(): Map<String, String> {
+private fun JSONObject.toStringMap(): Map<String, String> {
   val builder = mutableMapOf<String, String>()
-  val keys = this!!.keys()
-
-  while (keys.hasNext()) {
-    val key = keys.next()
-    val value = this.optString(key, null.toString())
-    builder[key] = value
-  }
-
+  keys().forEach { key: String -> builder[key] = optString(key, toString()) }
   return builder.toPersistentMap()
 }
 

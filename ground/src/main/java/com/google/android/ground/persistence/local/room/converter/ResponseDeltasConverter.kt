@@ -69,22 +69,22 @@ object ResponseDeltasConverter {
       while (keys.hasNext()) {
         try {
           val taskId = keys.next()
-          val task =
-            job.getTask(taskId).orElseThrow {
-              LocalDataConsistencyException("Unknown task id $taskId")
-            }
+        val task =
+          job.getTask(taskId).orElseThrow {
+            LocalDataConsistencyException("Unknown task id $taskId")
+          }
           val jsonDelta = jsonObject.getJSONObject(taskId)
           deltas.add(
-            TaskDataDelta(
-              taskId,
-              toEnum(Task.Type::class.java, jsonDelta.getString(KEY_TASK_TYPE)),
-              ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_RESPONSE])
-            )
+        TaskDataDelta(
+          taskId,
+          toEnum(Task.Type::class.java, jsonDelta.getString(KEY_TASK_TYPE)),
+          ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_RESPONSE])
+        )
           )
-        } catch (e: LocalDataConsistencyException) {
-          Timber.d("Bad taskData in local db: " + e.message)
-        } catch (e: DataStoreException) {
-          Timber.d("Bad taskData in local db: " + e.message)
+    } catch (e: LocalDataConsistencyException) {
+      Timber.d("Bad taskData in local db: " + e.message)
+    } catch (e: DataStoreException) {
+      Timber.d("Bad taskData in local db: " + e.message)
         }
       }
     } catch (e: JSONException) {
