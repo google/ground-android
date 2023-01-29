@@ -124,6 +124,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
+          else -> Completable.complete()
         }
       }
 

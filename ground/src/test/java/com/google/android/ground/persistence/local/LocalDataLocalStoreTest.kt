@@ -106,7 +106,7 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
       )
     localDataStore.surveyStore.insertOrUpdateSurvey(survey).blockingAwait()
     localDataStore.surveyStore.getSurveyById("foo id").test().assertValue { result: Survey ->
-      result.jobs == ImmutableList.of(job2)
+      result.jobs.size == 1 && result.jobs.first() == job2
     }
   }
 

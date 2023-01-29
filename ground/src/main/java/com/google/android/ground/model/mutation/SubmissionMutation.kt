@@ -44,6 +44,7 @@ data class SubmissionMutation(
           when (it) {
             is LocationOfInterestMutation -> false
             is SubmissionMutation -> true
+            else -> false
           }
         }
         .map { it as SubmissionMutation }

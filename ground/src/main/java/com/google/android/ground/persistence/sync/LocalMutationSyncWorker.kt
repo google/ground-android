@@ -134,6 +134,7 @@ constructor(
         mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
       is SubmissionMutation ->
         mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
+      else -> throw Exception("Unknown mutation type $mutation")
     }
 
   companion object {
