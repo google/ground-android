@@ -19,8 +19,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.basemap.tile.TileSet.Companion.pathFromId
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import io.reactivex.Single
 import java.io.File
 import java.nio.charset.Charset
@@ -33,37 +31,34 @@ import timber.log.Timber
 
 class MbtilesFootprintParser @Inject constructor(private val uuidGenerator: OfflineUuidGenerator) {
 
-  private fun getJsonTileSets(jsonSource: File): Single<ImmutableList<TileSetJson>> =
+  private fun getJsonTileSets(jsonSource: File): Single<List<TileSetJson>> =
     try {
       val fileContents =
         FileUtils.readFileToString(jsonSource, Charset.forName(JSON_SOURCE_CHARSET))
       val geoJson = JSONObject(fileContents)
       val locationsOfInterest = geoJson.getJSONArray(LOCATIONS_OF_INTEREST_KEY)
       Single.just(
-        toArrayList(locationsOfInterest)
-          .map { jsonObject: JSONObject -> TileSetJson(jsonObject) }
-          .toImmutableList()
+        toArrayList(locationsOfInterest).map { jsonObject: JSONObject -> TileSetJson(jsonObject) }
       )
     } catch (e: Exception) {
       Single.error(e)
     }
 
-  fun allTiles(file: File): Single<ImmutableList<TileSet>> =
+  fun allTiles(file: File): Single<List<TileSet>> =
     getJsonTileSets(file)
-      .map { tilesetJsonList -> tilesetJsonList.map { jsonToTileSet(it) }.toImmutableList() }
+      .map { tilesetJsonList -> tilesetJsonList.map { jsonToTileSet(it) } }
       .doOnError { Timber.e(it) }
 
   /**
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  fun intersectingTiles(bounds: LatLngBounds, file: File): Single<ImmutableList<TileSet>> {
+  fun intersectingTiles(bounds: LatLngBounds, file: File): Single<List<TileSet>> {
     return getJsonTileSets(file)
       .map { tilesetJsonList ->
         tilesetJsonList
           .filter { it.boundsIntersect(bounds) }
           .map { jsonToTileSet(it).incrementOfflineAreaCount() }
-          .toImmutableList()
       }
       .doOnError { Timber.e(it) }
   }

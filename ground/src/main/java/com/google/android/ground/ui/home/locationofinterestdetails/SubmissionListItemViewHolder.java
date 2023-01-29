@@ -29,7 +29,7 @@ import com.google.android.ground.model.job.Job;
 import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.submission.TaskData;
 import com.google.android.ground.model.task.Task;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java8.util.Optional;
 
 class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
@@ -57,7 +57,7 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
 
     Job job = submission.getJob();
     // TODO: Clean this up.
-    ImmutableList<Task> tasks = job.getTasksSorted();
+    List<Task> tasks = job.getTasksSorted();
     for (int i = 0; i < MAX_COLUMNS && i < tasks.size(); i++) {
       Task task = tasks.get(i);
       Optional<TaskData> response = submission.getResponses().getResponse(task.getId());

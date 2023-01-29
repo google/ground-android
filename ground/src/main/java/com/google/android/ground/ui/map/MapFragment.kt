@@ -23,8 +23,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import java8.util.function.Consumer
@@ -32,7 +30,7 @@ import java8.util.function.Consumer
 /** Interface for a Fragment that renders a map view. */
 interface MapFragment {
   /** Returns a list of supported basemap types. */
-  val availableMapTypes: ImmutableList<MapType>
+  val availableMapTypes: List<MapType>
 
   /** Returns the current map zoom level. */
   val currentZoomLevel: Float
@@ -51,7 +49,7 @@ interface MapFragment {
   )
 
   /** A stream of interaction events on rendered location of interest [Feature]s. */
-  val locationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>>
+  val locationOfInterestInteractions: @Hot Observable<List<Feature>>
 
   /**
    * Returns map drag events. Emits an empty event when the map starts to move by the user.
@@ -83,7 +81,7 @@ interface MapFragment {
   @SuppressLint("MissingPermission") fun enableCurrentLocationIndicator()
 
   /** Update the set of map [Feature]s rendered on the map. */
-  fun renderFeatures(features: ImmutableSet<Feature>)
+  fun renderFeatures(features: Set<Feature>)
 
   fun refresh()
 
@@ -92,10 +90,10 @@ interface MapFragment {
   val tileProviders: @Hot Observable<MapBoxOfflineTileProvider>
 
   /** Render locally stored tile overlays on the map. */
-  fun addLocalTileOverlays(mbtilesFiles: ImmutableSet<String>)
+  fun addLocalTileOverlays(mbtilesFiles: Set<String>)
 
   /** Render remote tile overlays on the map. */
-  fun addRemoteTileOverlays(urls: ImmutableList<String>)
+  fun addRemoteTileOverlays(urls: List<String>)
 
   /** Returns the actual distance in pixels between provided points. */
   fun getDistanceInPixels(point1: Point, point2: Point): Double

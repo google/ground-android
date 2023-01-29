@@ -26,9 +26,6 @@ import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableCollection
-import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -47,13 +44,11 @@ class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var baseMapDao: BaseMapDao
   @Inject lateinit var schedulers: Schedulers
 
-  override val surveys: Single<ImmutableList<Survey>>
+  override val surveys: Single<List<Survey>>
     get() =
       surveyDao
         .getAllSurveys()
-        .map { list: List<SurveyEntityAndRelations> ->
-          list.map { it.toModelObject() }.toImmutableList()
-        }
+        .map { list: List<SurveyEntityAndRelations> -> list.map { it.toModelObject() } }
         .subscribeOn(schedulers.io())
 
   /**
@@ -83,10 +78,7 @@ class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
   private fun insertOrUpdateOption(taskId: String, option: Option): Completable =
     optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId)).subscribeOn(schedulers.io())
 
-  private fun insertOrUpdateOptions(
-    taskId: String,
-    options: kotlinx.collections.immutable.ImmutableList<Option>
-  ): Completable =
+  private fun insertOrUpdateOptions(taskId: String, options: List<Option>): Completable =
     Observable.fromIterable(options)
       .flatMapCompletable { insertOrUpdateOption(taskId, it) }
       .subscribeOn(schedulers.io())
@@ -110,7 +102,7 @@ class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
       )
       .subscribeOn(schedulers.io())
 
-  private fun insertOrUpdateTasks(jobId: String, tasks: ImmutableCollection<Task>): Completable =
+  private fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>): Completable =
     Observable.fromIterable(tasks).flatMapCompletable { insertOrUpdateTask(jobId, it) }
 
   private fun insertOrUpdateJob(surveyId: String, job: Job): Completable =
@@ -119,7 +111,7 @@ class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
       .andThen(insertOrUpdateTasks(job.id, job.tasks.values))
       .subscribeOn(schedulers.io())
 
-  private fun insertOrUpdateJobs(surveyId: String, jobs: List<Job>): Completable =
+  private fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>): Completable =
     Observable.fromIterable(jobs).flatMapCompletable { insertOrUpdateJob(surveyId, it) }
 
   private fun insertOfflineBaseMapSources(survey: Survey): Completable =

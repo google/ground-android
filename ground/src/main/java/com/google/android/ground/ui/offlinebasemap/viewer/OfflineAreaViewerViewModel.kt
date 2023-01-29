@@ -27,7 +27,6 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.common.collect.ImmutableSet
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -83,7 +82,7 @@ constructor(
       LiveDataReactiveStreams.fromPublisher(
         offlineAreaItemAsFlowable
           .flatMap { offlineAreaRepository.getIntersectingDownloadedTileSetsOnceAndStream(it) }
-          .map { tileSets: ImmutableSet<TileSet> -> tileSetsToTotalStorageSize(tileSets) }
+          .map { tileSets: Set<TileSet> -> tileSetsToTotalStorageSize(tileSets) }
       )
     offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable)
     disposeOnClear(
@@ -95,7 +94,7 @@ constructor(
     )
   }
 
-  private fun tileSetsToTotalStorageSize(tileSets: ImmutableSet<TileSet>): Double {
+  private fun tileSetsToTotalStorageSize(tileSets: Set<TileSet>): Double {
     return StreamSupport.stream(tileSets)
       .map { tileSet: TileSet -> tileSetStorageSize(tileSet) }
       .reduce { x: Double, y: Double -> x + y }

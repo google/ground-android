@@ -25,10 +25,10 @@ import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.repository.SubmissionRepository;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractViewModel;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -44,7 +44,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
   private final FlowableProcessor<SubmissionListRequest> submissionListRequests =
       PublishProcessor.create();
 
-  private final LiveData<ImmutableList<Submission>> submissionList;
+  private final LiveData<List<Submission>> submissionList;
 
   @Inject
   public SubmissionListViewModel(SubmissionRepository submissionRepository) {
@@ -57,7 +57,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
                 .doOnNext(__ -> isLoading.postValue(false)));
   }
 
-  public LiveData<ImmutableList<Submission>> getSubmissions() {
+  public LiveData<List<Submission>> getSubmissions() {
     return submissionList;
   }
 
@@ -69,21 +69,21 @@ public class SubmissionListViewModel extends AbstractViewModel {
         Optional.of(locationOfInterest.getJob()).map(Job::getId));
   }
 
-  private Single<ImmutableList<Submission>> getSubmissions(SubmissionListRequest req) {
+  private Single<List<Submission>> getSubmissions(SubmissionListRequest req) {
     if (req.taskId.isEmpty()) {
       // Do nothing. No task defined for this layer.
       // TODO(#354): Show message or special treatment for layer with no task.
-      return Single.just(ImmutableList.of());
+      return Single.just(List.of());
     }
     return submissionRepository
         .getSubmissions(req.surveyId, req.locationOfInterestId, req.taskId.get())
         .onErrorResumeNext(this::onGetSubmissionsError);
   }
 
-  private Single<ImmutableList<Submission>> onGetSubmissionsError(Throwable t) {
+  private Single<List<Submission>> onGetSubmissionsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Timber.e(t, "Failed to fetch submission list.");
-    return Single.just(ImmutableList.of());
+    return Single.just(List.of());
   }
 
   private void loadSubmissions(

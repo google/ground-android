@@ -33,10 +33,6 @@ import com.google.android.ground.persistence.local.room.models.EntityState
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.util.toImmutableList
-import com.google.android.ground.util.toImmutableSet
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -62,7 +58,7 @@ class RoomLocalLocationOfInterestMutationStore @Inject internal constructor() :
    */
   override fun getLocationsOfInterestOnceAndStream(
     survey: Survey
-  ): Flowable<ImmutableSet<LocationOfInterest>> =
+  ): Flowable<Set<LocationOfInterest>> =
     locationOfInterestDao
       .findOnceAndStream(survey.id, EntityState.DEFAULT)
       .map { toLocationsOfInterest(survey, it) }
@@ -131,21 +127,19 @@ class RoomLocalLocationOfInterestMutationStore @Inject internal constructor() :
       Completable.error(e)
     }
 
-  override fun updateAll(mutations: ImmutableList<LocationOfInterestMutation>): Completable =
+  override fun updateAll(mutations: List<LocationOfInterestMutation>): Completable =
     locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))
 
   private fun toLocationsOfInterest(
     survey: Survey,
     locationOfInterestEntities: List<LocationOfInterestEntity>
-  ): ImmutableSet<LocationOfInterest> =
-    locationOfInterestEntities.flatMap { logAndSkip { it.toModelObject(survey) } }.toImmutableSet()
+  ): Set<LocationOfInterest> =
+    locationOfInterestEntities.flatMap { logAndSkip { it.toModelObject(survey) } }.toSet()
 
   private fun toLocationOfInterestMutationEntities(
-    mutations: ImmutableList<LocationOfInterestMutation>
-  ): ImmutableList<LocationOfInterestMutationEntity> =
-    LocationOfInterestMutation.filter(mutations)
-      .map { it.toLocalDataStoreObject() }
-      .toImmutableList()
+    mutations: List<LocationOfInterestMutation>
+  ): List<LocationOfInterestMutationEntity> =
+    LocationOfInterestMutation.filter(mutations).map { it.toLocalDataStoreObject() }
 
   private fun insertOrUpdateLocationOfInterestFromMutation(
     mutation: LocationOfInterestMutation,
@@ -175,12 +169,10 @@ class RoomLocalLocationOfInterestMutationStore @Inject internal constructor() :
   override fun getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<ImmutableList<LocationOfInterestMutation>> =
+  ): Flowable<List<LocationOfInterestMutation>> =
     locationOfInterestMutationDao
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
-      .map { list: List<LocationOfInterestMutationEntity> ->
-        list.map { it.toModelObject() }.toImmutableList()
-      }
+      .map { list: List<LocationOfInterestMutationEntity> -> list.map { it.toModelObject() } }
 
   override fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>> =
     locationOfInterestMutationDao.loadAllOnceAndStream()

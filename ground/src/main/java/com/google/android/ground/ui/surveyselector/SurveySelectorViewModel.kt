@@ -22,7 +22,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.common.collect.ImmutableList
 import io.reactivex.Single
 import javax.inject.Inject
 import timber.log.Timber
@@ -35,7 +34,7 @@ internal constructor(
   authManager: AuthenticationManager
 ) : AbstractViewModel() {
   val surveySummaries: LiveData<Loadable<List<Survey>>?>
-  val offlineSurveys: Single<ImmutableList<Survey>>
+  val offlineSurveys: Single<List<Survey>>
     get() = surveyRepository.offlineSurveys
 
   /**

@@ -17,8 +17,6 @@ package com.google.android.ground.persistence.mbtiles
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import java8.util.Optional
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,7 +25,6 @@ import org.json.JSONObject
  * Describes a tile set source, including its id, extents, and source URL.
  *
  * A valid tile has the following information:
- *
  * - a geometry describing a polygon.
  * - an id specifying cartesian coordinates.
  * - a URL specifying a source for the tile imagery.
@@ -40,7 +37,7 @@ import org.json.JSONObject
  */
 internal class TileSetJson(private val json: JSONObject) {
 
-  private val vertices: ImmutableList<LatLng>
+  private val vertices: List<LatLng>
     get() {
       val exteriorRing =
         Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY))
@@ -60,9 +57,9 @@ internal class TileSetJson(private val json: JSONObject) {
 
   fun boundsIntersect(bounds: LatLngBounds): Boolean = vertices.any { bounds.contains(it) }
 
-  private fun ringCoordinatesToLatLngs(exteriorRing: JSONArray?): ImmutableList<LatLng> {
+  private fun ringCoordinatesToLatLngs(exteriorRing: JSONArray?): List<LatLng> {
     if (exteriorRing == null) {
-      return ImmutableList.of()
+      return listOf()
     }
     val coordinates: MutableList<LatLng> = ArrayList()
     for (i in 0 until exteriorRing.length()) {
@@ -71,7 +68,7 @@ internal class TileSetJson(private val json: JSONObject) {
       val lng = point.optDouble(0, 0.0)
       coordinates.add(LatLng(lat, lng))
     }
-    return coordinates.toImmutableList()
+    return coordinates
   }
 
   companion object {

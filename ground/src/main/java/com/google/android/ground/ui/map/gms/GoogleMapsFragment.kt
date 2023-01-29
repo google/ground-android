@@ -46,8 +46,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.util.BitmapUtil
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Flowable
@@ -61,6 +59,7 @@ import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
+import kotlinx.collections.immutable.toPersistentList
 import timber.log.Timber
 
 /**
@@ -73,8 +72,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private val markerClicks: @Hot Subject<Feature> = PublishSubject.create()
 
   /** Ambiguous click events. */
-  private val locationOfInterestClicks: @Hot Subject<ImmutableList<Feature>> =
-    PublishSubject.create()
+  private val locationOfInterestClicks: @Hot Subject<List<Feature>> = PublishSubject.create()
 
   /** Map drag events. Emits items when the map drag has started. */
   private val startDragEventsProcessor: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
@@ -134,7 +132,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     watermark.layoutParams = params
   }
 
-  override val availableMapTypes: ImmutableList<MapType> = MAP_TYPES
+  override val availableMapTypes: List<MapType> = MAP_TYPES
 
   private fun getMap(): GoogleMap {
     checkNotNull(map) { "Map is not ready" }
@@ -191,7 +189,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   // Handle taps on ambiguous features.
   private fun handleAmbiguity(latLng: LatLng) {
-    val candidates = ImmutableList.builder<Feature>()
+    val candidates = mutableListOf<Feature>()
     val processed = ArrayList<String>()
 
     for ((feature, value) in polygons.filter { it.key.tag == Feature.Type.LOCATION_OF_INTEREST }) {
@@ -208,7 +206,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       processed.add(loiId)
     }
 
-    val result = candidates.build()
+    val result = candidates.toPersistentList()
 
     if (!result.isEmpty()) {
       locationOfInterestInteractionSubject.onNext(result)
@@ -218,7 +216,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Handles both cluster and marker clicks. */
   private fun onClusterItemClick(item: FeatureClusterItem): Boolean {
     return if (getMap().uiSettings.isZoomGesturesEnabled) {
-      locationOfInterestInteractionSubject.onNext(ImmutableList.of(item.feature))
+      locationOfInterestInteractionSubject.onNext(listOf(item.feature))
       // Allow map to pan to marker.
       false
     } else {
@@ -227,9 +225,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  private val locationOfInterestInteractionSubject: @Hot PublishSubject<ImmutableList<Feature>> =
+  private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
-  override val locationOfInterestInteractions: @Hot Observable<ImmutableList<Feature>> =
+  override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
     locationOfInterestInteractionSubject
 
   override val startDragEvents: @Hot Flowable<Nil> = this.startDragEventsProcessor
@@ -304,7 +302,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  private fun removeStaleFeatures(features: ImmutableSet<Feature>) {
+  private fun removeStaleFeatures(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(
       features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.toSet()
     )
@@ -324,7 +322,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun renderFeatures(features: ImmutableSet<Feature>) {
+  override fun renderFeatures(features: Set<Feature>) {
     // Re-cluster and re-render
     if (!features.isEmpty()) {
       Timber.v("renderLocationsOfInterest() called with ${features.size} locations of interest")
@@ -396,7 +394,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun addLocalTileOverlays(mbtilesFiles: ImmutableSet<String>) =
+  override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
   private fun addRemoteTileOverlay(url: String) {
@@ -404,8 +402,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     getMap().addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
-  override fun addRemoteTileOverlays(urls: ImmutableList<String>) =
-    urls.forEach { addRemoteTileOverlay(it) }
+  override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?) {
     val newId = locationOfInterest?.id
@@ -418,10 +415,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   companion object {
     // TODO(#936): Remove placeholder with appropriate images
     private val MAP_TYPES =
-      ImmutableList.builder<MapType>()
-        .add(MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ground_logo))
-        .add(MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ground_logo))
-        .add(MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo))
-        .build()
+      listOf(
+        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ground_logo),
+        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ground_logo),
+        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo)
+      )
   }
 }
