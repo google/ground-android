@@ -17,24 +17,32 @@ package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import io.reactivex.Single
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
-  private val authManager: AuthenticationManager
+  private val authManager: AuthenticationManager,
+  private val navigator: Navigator,
+  @ApplicationScope private val externalScope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
 
-  private var attemptingToActivate: String = ""
-
-  val surveyActivated: LiveData<Boolean>
   val surveySummaries: LiveData<List<SurveyItem>>
 
   init {
@@ -47,12 +55,6 @@ internal constructor(
             }
           }
           .toFlowable()
-      )
-    surveyActivated =
-      LiveDataReactiveStreams.fromPublisher(
-        surveyRepository.activeSurvey
-          .filter { it.isPresent }
-          .map { it.get().id == attemptingToActivate }
       )
   }
 
@@ -72,7 +74,21 @@ internal constructor(
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    attemptingToActivate = surveyId
-    surveyRepository.activateSurvey(surveyId)
+    if (surveyRepository.activeSurveyId == surveyId) {
+      navigateToHomeScreen()
+    } else {
+      externalScope.launch {
+        withContext(ioDispatcher) {
+          val survey = surveyRepository.activateSurveyInternal(surveyId)
+          if (survey.id == surveyId) {
+            navigateToHomeScreen()
+          }
+        }
+      }
+    }
+  }
+
+  private fun navigateToHomeScreen() {
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
   }
 }

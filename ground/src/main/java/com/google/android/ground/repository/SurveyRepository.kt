@@ -117,11 +117,7 @@ constructor(
       withContext(ioDispatcher) {
         try {
           surveyLoadingState.onNext(Loadable.loading())
-          val survey =
-            surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
-              ?: syncSurveyFromRemote(surveyId)
-          activeSurveyId = surveyId
-          localValueStore.lastActiveSurveyId = surveyId
+          val survey = activateSurveyInternal(surveyId)
           surveyLoadingState.onNext(Loadable.loaded(survey))
         } catch (e: Error) {
           Timber.e("Error activating survey", e)
@@ -129,6 +125,15 @@ constructor(
         }
       }
     }
+  }
+
+  suspend fun activateSurveyInternal(surveyId: String): Survey {
+    return (surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+        ?: syncSurveyFromRemote(surveyId))
+      .apply {
+        activeSurveyId = this.id
+        localValueStore.lastActiveSurveyId = this.id
+      }
   }
 
   fun clearActiveSurvey() {
