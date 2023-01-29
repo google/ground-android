@@ -179,9 +179,6 @@ internal constructor(
     // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
-
-    private fun concatLocationsOfInterestSets(objects: Array<Any>): Set<Feature> =
-      listOf(*objects).flatMap { it as ImmutableSet<Feature> }.toPersistentSet()
   }
 
   init {
@@ -211,12 +208,7 @@ internal constructor(
 
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        Flowable.combineLatest(
-            listOf(
-              savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()),
-            )
-          ) { concatLocationsOfInterestSets(it) }
-          .distinctUntilChanged()
+        savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()).distinctUntilChanged()
       )
 
     mbtilesFilePaths =
