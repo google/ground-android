@@ -21,7 +21,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.common.collect.ImmutableList
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -65,7 +64,7 @@ internal constructor(
       isAvailableOffline = localSurveys.contains(survey)
     )
 
-  private val offlineSurveys: Single<ImmutableList<Survey>>
+  private val offlineSurveys: Single<List<Survey>>
     get() = surveyRepository.offlineSurveys
 
   private val allSurveys: Single<List<Survey>>

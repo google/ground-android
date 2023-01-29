@@ -32,7 +32,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel.DownloadMessage
-import com.google.android.ground.util.toImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -80,7 +79,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   override fun onMapReady(mapFragment: MapFragment) {
     viewModel.remoteTileSets
-      .map { tileSets -> tileSets.map { it.url }.toImmutableList() }
+      .map { tileSets -> tileSets.map { it.url } }
       .`as`(autoDisposable(this))
       .subscribe(mapFragment::addRemoteTileOverlays)
 

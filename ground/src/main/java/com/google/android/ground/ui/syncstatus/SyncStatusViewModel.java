@@ -30,9 +30,9 @@ import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.ui.common.AbstractViewModel;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.offlinebasemap.OfflineAreasFragmentDirections;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -40,7 +40,7 @@ import javax.inject.Inject;
  */
 public class SyncStatusViewModel extends AbstractViewModel {
 
-  private final LiveData<ImmutableList<Pair<LocationOfInterest, Mutation>>> mutations;
+  private final LiveData<List<Pair<LocationOfInterest, Mutation>>> mutations;
   private final Navigator navigator;
   private final SurveyRepository surveyRepository;
   private final LocationOfInterestRepository locationOfInterestRepository;
@@ -59,12 +59,11 @@ public class SyncStatusViewModel extends AbstractViewModel {
             getMutationsOnceAndStream().switchMap(this::loadLocationsOfInterestAndPair));
   }
 
-  private Flowable<ImmutableList<Pair<LocationOfInterest, Mutation>>>
-      loadLocationsOfInterestAndPair(ImmutableList<Mutation> mutations) {
+  private Flowable<List<Pair<LocationOfInterest, Mutation>>> loadLocationsOfInterestAndPair(
+      List<Mutation> mutations) {
     return Single.merge(
             stream(mutations).map(this::loadLocationOfInterestAndPair).collect(toList()))
         .toList()
-        .map(ImmutableList::copyOf)
         .toFlowable();
   }
 
@@ -75,14 +74,14 @@ public class SyncStatusViewModel extends AbstractViewModel {
         .map(locationOfInterest -> Pair.create(locationOfInterest, mutation));
   }
 
-  private Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream() {
+  private Flowable<List<Mutation>> getMutationsOnceAndStream() {
     return surveyRepository
         .getActiveSurvey()
         .switchMap(
             survey ->
                 survey
                     .map(surveyRepository::getMutationsOnceAndStream)
-                    .orElse(Flowable.just(ImmutableList.of())));
+                    .orElse(Flowable.just(List.of())));
   }
 
   public void showOfflineAreaSelector() {
@@ -90,7 +89,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
   }
 
   @Cold(replays = true, terminates = false)
-  LiveData<ImmutableList<Pair<LocationOfInterest, Mutation>>> getMutations() {
+  LiveData<List<Pair<LocationOfInterest, Mutation>>> getMutations() {
     return mutations;
   }
 }

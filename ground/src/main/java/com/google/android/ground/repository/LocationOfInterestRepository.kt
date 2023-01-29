@@ -28,8 +28,6 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -89,7 +87,7 @@ constructor(
   // TODO: Only return location of interest fields needed to render locations of interest on map.
   fun getLocationsOfInterestOnceAndStream(
     survey: Survey
-  ): @Cold(terminates = false) Flowable<ImmutableSet<LocationOfInterest>> =
+  ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>> =
     locationOfInterestStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** This only works if the survey and location of interests are already cached to local db. */
@@ -126,7 +124,7 @@ constructor(
    */
   fun getIncompleteLocationOfInterestMutationsOnceAndStream(
     locationOfInterestId: String
-  ): Flowable<ImmutableList<LocationOfInterestMutation>> =
+  ): Flowable<List<LocationOfInterestMutation>> =
     locationOfInterestStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
       locationOfInterestId,
       MutationEntitySyncStatus.PENDING,

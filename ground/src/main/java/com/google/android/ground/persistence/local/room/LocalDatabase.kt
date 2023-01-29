@@ -19,6 +19,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.google.android.ground.Config
+import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
 import com.google.android.ground.persistence.local.room.converter.JsonArrayTypeConverter
 import com.google.android.ground.persistence.local.room.converter.JsonObjectTypeConverter
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
@@ -58,6 +59,7 @@ import com.google.android.ground.persistence.local.room.models.*
   MultipleChoiceEntityType::class,
   MutationEntityType::class,
   EntityState::class,
+  GeometryWrapperTypeConverter::class,
   JsonArrayTypeConverter::class,
   JsonObjectTypeConverter::class,
   MutationEntitySyncStatus::class,

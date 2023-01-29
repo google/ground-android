@@ -25,10 +25,6 @@ import com.google.android.ground.persistence.local.room.models.TileSetEntityStat
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.util.FileUtil
-import com.google.android.ground.util.toImmutableList
-import com.google.android.ground.util.toImmutableSet
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -42,11 +38,11 @@ class RoomLocalTileSetStore @Inject internal constructor() : LocalTileSetStore {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var fileUtil: FileUtil
 
-  override val tileSetsOnceAndStream: Flowable<ImmutableSet<TileSet>>
+  override val tileSetsOnceAndStream: Flowable<Set<TileSet>>
     get() =
       tileSetDao
         .findAllOnceAndStream()
-        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toImmutableSet() }
+        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toSet() }
         .subscribeOn(schedulers.io())
 
   override fun insertOrUpdateTileSet(tileSet: TileSet): Completable =
@@ -55,11 +51,11 @@ class RoomLocalTileSetStore @Inject internal constructor() : LocalTileSetStore {
   override fun getTileSet(tileUrl: String): Maybe<TileSet> =
     tileSetDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
-  override val pendingTileSets: Single<ImmutableList<TileSet>>
+  override val pendingTileSets: Single<List<TileSet>>
     get() =
       tileSetDao
         .findByState(TileSetEntityState.PENDING.intValue())
-        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toImmutableList() }
+        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() } }
         .subscribeOn(schedulers.io())
 
   override fun updateTileSetOfflineAreaReferenceCountByUrl(

@@ -35,8 +35,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.android.ground.util.toImmutableSet
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -45,6 +43,7 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.collections.immutable.toPersistentSet
 import timber.log.Timber
 
 @SharedViewModel
@@ -58,11 +57,11 @@ internal constructor(
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
-  val mapLocationOfInterestFeatures: LiveData<ImmutableSet<Feature>>
+  val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
 
-  val mbtilesFilePaths: LiveData<ImmutableSet<String>>
+  val mbtilesFilePaths: LiveData<Set<String>>
   val isLocationUpdatesEnabled: LiveData<Boolean>
   val locationAccuracy: LiveData<String>
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
@@ -75,32 +74,32 @@ internal constructor(
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
   private fun updateSelectedLocationOfInterest(
-    locationsOfInterest: ImmutableSet<Feature>,
+    locationsOfInterest: Set<Feature>,
     selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): ImmutableSet<Feature> {
+  ): Set<Feature> {
     Timber.v("Updating selected LOI style")
 
     if (selectedLocationOfInterest.isEmpty) {
       return locationsOfInterest
     }
 
-    val updatedLocationsOfInterest: ImmutableSet.Builder<Feature> = ImmutableSet.builder()
+    val updatedLocationsOfInterest = mutableSetOf<Feature>()
     val selectedLocationOfInterestId = selectedLocationOfInterest.get().id
 
     for (locationOfInterest in locationsOfInterest) {
       // TODO: Update strokewidth of non MapGeoJson locationOfInterest
       updatedLocationsOfInterest.add(locationOfInterest)
     }
-    return updatedLocationsOfInterest.build()
+    return updatedLocationsOfInterest.toPersistentSet()
   }
 
   private fun toLocationOfInterestFeatures(
-    locationsOfInterest: ImmutableSet<LocationOfInterest>
-  ): ImmutableSet<Feature> {
+    locationsOfInterest: Set<LocationOfInterest>
+  ): Set<Feature> {
     // TODO: Add support for polylines similar to mapPins.
     return locationsOfInterest
       .map { Feature(id = it.id, tag = Feature.Type.LOCATION_OF_INTEREST, geometry = it.geometry) }
-      .toImmutableSet()
+      .toPersistentSet()
   }
 
   private fun createLocationAccuracyFlowable() =
@@ -110,7 +109,7 @@ internal constructor(
 
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
-  ): Flowable<ImmutableSet<LocationOfInterest>> =
+  ): Flowable<Set<LocationOfInterest>> =
     // Emit empty set in separate stream to force unsubscribe from LocationOfInterest updates and
     // update
     // subscribers.
@@ -118,7 +117,7 @@ internal constructor(
       .map { survey: Survey ->
         locationOfInterestRepository.getLocationsOfInterestOnceAndStream(survey)
       }
-      .orElse(Flowable.just(ImmutableSet.of()))
+      .orElse(Flowable.just(setOf()))
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
@@ -142,7 +141,7 @@ internal constructor(
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
    * (list of features > 1), does nothing.
    */
-  fun onFeatureClick(features: ImmutableList<Feature>) {
+  fun onFeatureClick(features: List<Feature>) {
     if (features.size != 1) {
       return
     }
@@ -180,9 +179,6 @@ internal constructor(
     // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
     const val ZOOM_LEVEL_THRESHOLD = 16f
     const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
-
-    private fun concatLocationsOfInterestSets(objects: Array<Any>): ImmutableSet<Feature> =
-      listOf(*objects).flatMap { it as ImmutableSet<Feature> }.toImmutableSet()
   }
 
   init {
@@ -212,18 +208,13 @@ internal constructor(
 
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        Flowable.combineLatest(
-            listOf(
-              savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()),
-            )
-          ) { concatLocationsOfInterestSets(it) }
-          .distinctUntilChanged()
+        savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()).distinctUntilChanged()
       )
 
     mbtilesFilePaths =
       LiveDataReactiveStreams.fromPublisher(
-        offlineAreaRepository.downloadedTileSetsOnceAndStream.map { set: ImmutableSet<TileSet> ->
-          set.map(TileSet::path).toImmutableSet()
+        offlineAreaRepository.downloadedTileSetsOnceAndStream.map { set: Set<TileSet> ->
+          set.map(TileSet::path).toPersistentSet()
         }
       )
   }

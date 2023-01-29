@@ -45,7 +45,6 @@ import com.google.android.ground.ui.home.locationofinterestselector.LocationOfIn
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
-import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import timber.log.Timber
@@ -101,9 +100,7 @@ class HomeScreenFragment :
       .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
   }
 
-  private fun showLocationOfInterestSelector(
-    locationsOfInterest: ImmutableList<LocationOfInterest>
-  ) {
+  private fun showLocationOfInterestSelector(locationsOfInterest: List<LocationOfInterest>) {
     locationOfInterestSelectorViewModel.locationsOfInterest = locationsOfInterest
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToLocationOfInterestSelectorFragment()

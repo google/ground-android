@@ -19,11 +19,11 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.common.collect.ImmutableList
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java8.util.Optional
+import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -109,7 +109,7 @@ internal object ResponseJsonConverter {
       Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
     }
 
-  private fun toList(jsonArray: JSONArray): ImmutableList<String> {
+  private fun toList(jsonArray: JSONArray): List<String> {
     val list: MutableList<String> = ArrayList(jsonArray.length())
     for (i in 0 until jsonArray.length()) {
       try {
@@ -118,6 +118,6 @@ internal object ResponseJsonConverter {
         Timber.e("Error parsing JSONArray in db: %s", jsonArray)
       }
     }
-    return ImmutableList.builder<String>().addAll(list).build()
+    return list.toPersistentList()
   }
 }

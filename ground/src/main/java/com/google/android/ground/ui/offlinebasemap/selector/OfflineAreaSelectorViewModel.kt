@@ -30,7 +30,6 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
@@ -54,7 +53,7 @@ internal constructor(
   private val downloadClicks: @Hot FlowableProcessor<OfflineArea> = PublishProcessor.create()
   private val remoteTileRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val downloadMessages: LiveData<Event<DownloadMessage>>
-  val remoteTileSets: Flowable<ImmutableList<TileSet>>
+  val remoteTileSets: Flowable<List<TileSet>>
   private var viewport: LatLngBounds? = null
 
   init {
