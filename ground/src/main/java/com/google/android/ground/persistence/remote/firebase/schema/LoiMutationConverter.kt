@@ -22,9 +22,8 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.GeoPoint
+import kotlinx.collections.immutable.toPersistentMap
 
 /**
  * Converts between Firestore maps used to merge updates and [LocationOfInterestMutation] instances.
@@ -35,18 +34,18 @@ internal object LoiMutationConverter {
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
    * mutation.
    */
-  fun toMap(mutation: LocationOfInterestMutation, user: User): ImmutableMap<String, Any> {
-    val map = ImmutableMap.builder<String, Any>()
+  fun toMap(mutation: LocationOfInterestMutation, user: User): Map<String, Any> {
+    val map = mutableMapOf<String, Any>()
 
-    map.put(LoiConverter.JOB_ID, mutation.jobId)
+    map[LoiConverter.JOB_ID] = mutation.jobId
 
     when (val geometry = mutation.geometry?.getGeometry()) {
-      is Point -> map.put(LoiConverter.LOCATION, toGeoPoint(geometry))
+      is Point -> map[LoiConverter.LOCATION] = toGeoPoint(geometry)
       is Polygon -> {
         val geometryMap: MutableMap<String, Any> = HashMap()
         geometryMap[LoiConverter.GEOMETRY_COORDINATES] = toGeoPointList(geometry.shell.vertices)
         geometryMap[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
-        map.put(LoiConverter.GEOMETRY, geometryMap)
+        map[LoiConverter.GEOMETRY] = geometryMap
       }
       else -> {}
     }
@@ -54,18 +53,17 @@ internal object LoiMutationConverter {
     val auditInfo = fromMutationAndUser(mutation, user)
     when (mutation.type) {
       Mutation.Type.CREATE -> {
-        map.put(LoiConverter.CREATED, auditInfo)
-        map.put(LoiConverter.LAST_MODIFIED, auditInfo)
+        map[LoiConverter.CREATED] = auditInfo
+        map[LoiConverter.LAST_MODIFIED] = auditInfo
       }
       Mutation.Type.UPDATE -> map.put(LoiConverter.LAST_MODIFIED, auditInfo)
       Mutation.Type.DELETE,
       Mutation.Type.UNKNOWN -> throw UnsupportedOperationException()
     }
-    return map.build()
+    return map.toPersistentMap()
   }
 
   private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.x, point.coordinate.y)
 
-  private fun toGeoPointList(point: List<Point>): List<GeoPoint> =
-    point.map { toGeoPoint(it) }.toImmutableList()
+  private fun toGeoPointList(point: List<Point>): List<GeoPoint> = point.map { toGeoPoint(it) }
 }

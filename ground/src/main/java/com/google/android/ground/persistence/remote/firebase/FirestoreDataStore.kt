@@ -33,8 +33,6 @@ import com.google.android.ground.rx.RxTask
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.ApplicationErrorManager
-import com.google.common.collect.ImmutableCollection
-import com.google.common.collect.ImmutableList
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.ktx.Firebase
@@ -83,7 +81,7 @@ internal constructor(
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest
-  ): @Cold Single<ImmutableList<Result<Submission>>> {
+  ): @Cold Single<List<Result<Submission>>> {
     return db
       .surveys()
       .survey(locationOfInterest.surveyId)
@@ -130,10 +128,7 @@ internal constructor(
       .subscribeOn(schedulers.io())
   }
 
-  override fun applyMutations(
-    mutations: ImmutableCollection<Mutation>,
-    user: User
-  ): @Cold Completable {
+  override fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable {
     return RxTask.toCompletable { applyMutationsInternal(mutations, user) }
       .doOnError { e: Throwable -> recordException(e, "Error applying mutation") }
       .onErrorResumeNext { e: Throwable ->
@@ -148,10 +143,7 @@ internal constructor(
       Firebase.messaging.subscribeToTopic(surveyId)
     }
 
-  private fun applyMutationsInternal(
-    mutations: ImmutableCollection<Mutation>,
-    user: User
-  ): Task<*> {
+  private fun applyMutationsInternal(mutations: List<Mutation>, user: User): Task<*> {
     val batch = db.batch()
     for (mutation in mutations) {
       try {

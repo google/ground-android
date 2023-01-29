@@ -20,7 +20,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
-import com.google.common.collect.ImmutableMap
+import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
@@ -53,7 +53,7 @@ object ResponseMapConverter {
     if (jsonString == null) {
       return TaskDataMap()
     }
-    val map = ImmutableMap.builder<String, TaskData>()
+    val map = mutableMapOf<String, TaskData>()
     try {
       val jsonObject = JSONObject(jsonString)
       val keys = jsonObject.keys()
@@ -64,9 +64,7 @@ object ResponseMapConverter {
             job.getTask(taskId).orElseThrow {
               LocalDataConsistencyException("Unknown task id $taskId")
             }
-          ResponseJsonConverter.toResponse(task, jsonObject[taskId]).ifPresent {
-            map.put(taskId, it)
-          }
+          ResponseJsonConverter.toResponse(task, jsonObject[taskId]).ifPresent { map[taskId] = it }
         } catch (e: LocalDataConsistencyException) {
           Timber.d("Bad taskData in local db: ${e.message}")
         }
@@ -74,6 +72,6 @@ object ResponseMapConverter {
     } catch (e: JSONException) {
       Timber.e(e, "Error parsing JSON string")
     }
-    return TaskDataMap(map.build())
+    return TaskDataMap(map.toPersistentMap())
   }
 }

@@ -48,7 +48,6 @@ import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
-import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import timber.log.Timber
@@ -109,9 +108,7 @@ class HomeScreenFragment :
       .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
   }
 
-  private fun showLocationOfInterestSelector(
-    locationsOfInterest: ImmutableList<LocationOfInterest>
-  ) {
+  private fun showLocationOfInterestSelector(locationsOfInterest: List<LocationOfInterest>) {
     locationOfInterestSelectorViewModel.locationsOfInterest = locationsOfInterest
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToLocationOfInterestSelectorFragment()
@@ -153,7 +150,7 @@ class HomeScreenFragment :
       .subscribeOn(schedulers.io())
       .observeOn(schedulers.ui())
       .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { surveys: ImmutableList<Survey> -> addSurveyToNavDrawer(surveys, activeSurvey) }
+      .subscribe { surveys: List<Survey> -> addSurveyToNavDrawer(surveys, activeSurvey) }
   }
 
   // Below index is the order of the surveys item in nav_drawer_menu.xml

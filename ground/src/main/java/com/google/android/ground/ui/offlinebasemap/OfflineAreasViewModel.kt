@@ -22,7 +22,6 @@ import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
-import com.google.common.collect.ImmutableList
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -40,7 +39,7 @@ internal constructor(
    * Returns the current list of downloaded offline basemaps available for viewing. If an unexpected
    * error accessing the local store is encountered, emits an empty list, circumventing the error.
    */
-  val offlineAreas: LiveData<ImmutableList<OfflineArea>>
+  val offlineAreas: LiveData<List<OfflineArea>>
 
   /**
    * Returns the visibility of a "no area" message based on the current number of available offline
@@ -54,7 +53,7 @@ internal constructor(
         .doOnError {
           Timber.e(it, "Unexpected error accessing offline basemaps in the local store.")
         }
-        .onErrorReturnItem(ImmutableList.of())
+        .onErrorReturnItem(listOf())
     this.offlineAreas = LiveDataReactiveStreams.fromPublisher(offlineAreas)
     noAreasMessageVisibility =
       LiveDataReactiveStreams.fromPublisher(

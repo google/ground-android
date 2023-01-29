@@ -82,9 +82,7 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
   fun testDeleteSurvey() {
     localDataStore.surveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localDataStore.surveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
-    localDataStore.surveyStore.surveys.test().assertValue { obj: ImmutableList<Survey> ->
-      obj.isEmpty()
-    }
+    localDataStore.surveyStore.surveys.test().assertValue { obj: List<Survey> -> obj.isEmpty() }
   }
 
   @Test
@@ -108,7 +106,7 @@ class LocalDataLocalStoreTest : BaseHiltTest() {
       )
     localDataStore.surveyStore.insertOrUpdateSurvey(survey).blockingAwait()
     localDataStore.surveyStore.getSurveyById("foo id").test().assertValue { result: Survey ->
-      result.jobs == ImmutableList.of(job2)
+      result.jobs.size == 1 && result.jobs.first() == job2
     }
   }
 
