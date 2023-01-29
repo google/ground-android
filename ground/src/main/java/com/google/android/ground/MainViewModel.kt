@@ -136,18 +136,18 @@ constructor(
       .saveUser(user)
       .andThen(
         if (termsOfServiceRepository.isTermsOfServiceAccepted) {
-          Observable.just(getNavDirectionForSignedInUser())
+          Observable.just(getDirectionAfterSignIn())
         } else {
           termsOfServiceRepository.termsOfService
             .map { SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(it.text) }
             .cast(NavDirections::class.java)
-            .switchIfEmpty(Maybe.just(getNavDirectionForSignedInUser()))
+            .switchIfEmpty(Maybe.just(getDirectionAfterSignIn()))
             .toObservable()
         }
       )
   }
 
-  private fun getNavDirectionForSignedInUser(): NavDirections =
+  private fun getDirectionAfterSignIn(): NavDirections =
     if (surveyRepository.hasLastActiveSurvey()) {
       HomeScreenFragmentDirections.showHomeScreen()
     } else {

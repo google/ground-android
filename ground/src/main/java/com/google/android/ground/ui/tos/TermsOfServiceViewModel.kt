@@ -29,7 +29,7 @@ constructor(
   private val navigator: Navigator,
   private val termsOfServiceRepository: TermsOfServiceRepository
 ) : AbstractViewModel() {
-  // TODO(Shobhit): Convert to MutableLiveData.
+  // TODO(https://github.com/google/ground-android/issues/1478): Convert to MutableLiveData.
   var termsOfServiceText = ""
   val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
