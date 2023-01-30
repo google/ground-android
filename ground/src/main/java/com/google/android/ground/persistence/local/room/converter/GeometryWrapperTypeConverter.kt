@@ -17,9 +17,9 @@ package com.google.android.ground.persistence.local.room.converter
 
 import androidx.room.TypeConverter
 import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
-import kotlinx.serialization.protobuf.ProtoBuf
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import org.json.JSONException
 import timber.log.Timber
 
