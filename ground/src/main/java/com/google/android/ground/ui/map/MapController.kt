@@ -15,11 +15,11 @@
  */
 package com.google.android.ground.ui.map
 
-import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
-import com.google.android.ground.ui.map.gms.toPoint
+import com.google.android.ground.ui.map.gms.toCoordinate
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -46,7 +46,7 @@ constructor(
 
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraPosition> {
-    val locationUpdates = locationController.getLocationUpdates().map { it.toPoint() }
+    val locationUpdates = locationController.getLocationUpdates().map { it.toCoordinate() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates
@@ -70,7 +70,7 @@ constructor(
       }
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
-  fun panAndZoomCamera(position: Point) {
+  fun panAndZoomCamera(position: Coordinate) {
     cameraUpdatesSubject.onNext(CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL))
   }
 }

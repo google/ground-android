@@ -32,8 +32,8 @@ fun LatLngBounds.toModelObject(): Bounds =
 fun Bounds.toGoogleMapsObject(): LatLngBounds =
   LatLngBounds(this.southwest.toGoogleMapsObject(), this.northeast.toGoogleMapsObject())
 
-fun LatLng.toPoint(): Point = Point(Coordinate(latitude, longitude))
+fun LatLng.toCoordinate(): Coordinate = Coordinate(latitude, longitude)
 
 fun Point.toLatLng(): LatLng = LatLng(coordinate.x, coordinate.y)
 
-fun Location.toPoint(): Point = Point(Coordinate(latitude, longitude))
+fun Location.toCoordinate(): Coordinate = Coordinate(latitude, longitude)
