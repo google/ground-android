@@ -25,6 +25,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.capture
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
@@ -48,6 +49,10 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -61,10 +66,12 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
 
+  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
   @Inject lateinit var navigator: Navigator
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
   @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<ImmutableList<TaskDataDelta>>
@@ -212,37 +219,40 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_onFinalTask_resultIsSaved() {
-    setupFragment()
-    val task1Response = "response 1"
-    val task2Response = "response 2"
-    val expectedTaskDataDeltas =
-      ImmutableList.of(
-        TaskDataDelta(
-          SUBMISSION.job.tasksSorted[0].id,
-          Task.Type.TEXT,
-          TextTaskData.fromString(task1Response)
-        ),
-        TaskDataDelta(
-          SUBMISSION.job.tasksSorted[1].id,
-          Task.Type.TEXT,
-          TextTaskData.fromString(task2Response)
-        ),
-      )
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
-    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
-    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
+  fun onContinueClicked_onFinalTask_resultIsSaved() =
+    runTest(testDispatcher) {
+      setupFragment()
+      val task1Response = "response 1"
+      val task2Response = "response 2"
+      val expectedTaskDataDeltas =
+        ImmutableList.of(
+          TaskDataDelta(
+            SUBMISSION.job.tasksSorted[0].id,
+            Task.Type.TEXT,
+            TextTaskData.fromString(task1Response)
+          ),
+          TaskDataDelta(
+            SUBMISSION.job.tasksSorted[1].id,
+            Task.Type.TEXT,
+            TextTaskData.fromString(task2Response)
+          ),
+        )
+      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
+      onView(withId(R.id.data_collection_continue_button)).perform(click())
+      onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
+      onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
-    // Click continue on final task
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+      // Click continue on final task
+      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
+      onView(withId(R.id.data_collection_continue_button)).perform(click())
+      advanceUntilIdle()
 
-    verify(submissionRepository)
-      .createOrUpdateSubmission(eq(SUBMISSION), capture(taskDataDeltaCaptor), eq(true))
-    val taskDataDeltas = taskDataDeltaCaptor.value
-    expectedTaskDataDeltas.forEach { taskData -> assertThat(taskDataDeltas).contains(taskData) }
-  }
+      verify(submissionRepository)
+        .createOrUpdateSubmission(eq(SUBMISSION), capture(taskDataDeltaCaptor), eq(true))
+      expectedTaskDataDeltas.forEach { taskData ->
+        assertThat(taskDataDeltaCaptor.value).contains(taskData)
+      }
+    }
 
   @Test
   fun onBack_firstViewPagerItem_returnsFalse() {

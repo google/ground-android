@@ -19,8 +19,8 @@ import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.util.toImmutableSet
 import com.google.maps.android.clustering.ClusterManager
+import kotlinx.collections.immutable.toPersistentSet
 import timber.log.Timber
 
 /** Manages clusters of map [Feature]s. */
@@ -61,5 +61,5 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
   }
 
   /** Returns all of the map [Feature]s currently managed by this cluster manager. */
-  fun getManagedFeatures() = algorithm.items.map { it.feature }.toImmutableSet()
+  fun getManagedFeatures() = algorithm.items.map { it.feature }.toPersistentSet()
 }

@@ -22,10 +22,10 @@ import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.common.collect.ImmutableMap
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java8.util.Objects
+import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
 
 /** Converts between Firestore documents and [Submission] instances. */
@@ -60,7 +60,7 @@ internal object SubmissionConverter {
     if (docResponses == null) {
       return TaskDataMap()
     }
-    val responses = ImmutableMap.builder<String, TaskData>()
+    val responses = mutableMapOf<String, TaskData>()
     for ((taskId, value) in docResponses) {
       try {
         putResponse(taskId, job, value, responses)
@@ -68,14 +68,14 @@ internal object SubmissionConverter {
         Timber.e(e, "Task $taskId in remote db in submission $submissionId")
       }
     }
-    return TaskDataMap(responses.build())
+    return TaskDataMap(responses.toPersistentMap())
   }
 
   private fun putResponse(
     taskId: String,
     job: Job,
     obj: Any,
-    responses: ImmutableMap.Builder<String, TaskData>
+    responses: MutableMap<String, TaskData>
   ) {
     val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
     when (task.type) {
@@ -90,56 +90,38 @@ internal object SubmissionConverter {
     }
   }
 
-  private fun putNumberResponse(
-    taskId: String,
-    obj: Any,
-    responses: ImmutableMap.Builder<String, TaskData>
-  ) {
+  private fun putNumberResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Double::class.java, obj) as Double
-    NumberTaskData.fromNumber(value.toString()).ifPresent { r: TaskData ->
-      responses.put(taskId, r)
-    }
+    NumberTaskData.fromNumber(value.toString()).ifPresent { r: TaskData -> responses[taskId] = r }
   }
 
-  private fun putTextResponse(
-    taskId: String,
-    obj: Any,
-    responses: ImmutableMap.Builder<String, TaskData>
-  ) {
+  private fun putTextResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(String::class.java, obj) as String
     TextTaskData.fromString(value.trim { it <= ' ' }).ifPresent { r: TaskData ->
-      responses.put(taskId, r)
+      responses[taskId] = r
     }
   }
 
-  private fun putDateResponse(
-    taskId: String,
-    obj: Any,
-    responses: ImmutableMap.Builder<String, TaskData>
-  ) {
+  private fun putDateResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    DateTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses.put(taskId, r) }
+    DateTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
   }
 
-  private fun putTimeResponse(
-    taskId: String,
-    obj: Any,
-    responses: ImmutableMap.Builder<String, TaskData>
-  ) {
+  private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    TimeTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses.put(taskId, r) }
+    TimeTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putMultipleChoiceResponse(
     taskId: String,
     multipleChoice: MultipleChoice?,
     obj: Any,
-    responses: ImmutableMap.Builder<String, TaskData>
+    responses: MutableMap<String, TaskData>
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
     MultipleChoiceTaskData.fromList(multipleChoice, values as List<String>).ifPresent {
-      responses.put(taskId, it)
+      responses[taskId] = it
     }
   }
 }

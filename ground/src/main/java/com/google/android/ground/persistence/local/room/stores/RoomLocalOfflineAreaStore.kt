@@ -23,8 +23,6 @@ import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -40,13 +38,11 @@ class RoomLocalOfflineAreaStore @Inject internal constructor() : LocalOfflineAre
   override fun insertOrUpdateOfflineArea(area: OfflineArea): Completable =
     offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity()).subscribeOn(schedulers.io())
 
-  override val offlineAreasOnceAndStream: Flowable<ImmutableList<OfflineArea>>
+  override val offlineAreasOnceAndStream: Flowable<List<OfflineArea>>
     get() =
       offlineAreaDao
         .findAllOnceAndStream()
-        .map { areas: List<OfflineAreaEntity> ->
-          areas.map { it.toModelObject() }.toImmutableList()
-        }
+        .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
         .subscribeOn(schedulers.io())
 
   override fun getOfflineAreaById(id: String): Single<OfflineArea> =

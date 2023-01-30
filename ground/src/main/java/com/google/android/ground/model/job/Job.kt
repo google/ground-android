@@ -16,20 +16,11 @@
 package com.google.android.ground.model.job
 
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import java8.util.Optional
 
-data class Job
-@JvmOverloads
-constructor(
-  val id: String,
-  val name: String? = null,
-  val tasks: ImmutableMap<String, Task> = ImmutableMap.of()
-) {
-  val tasksSorted: ImmutableList<Task>
-    get() = tasks.values.sortedBy { it.id }.toImmutableList()
+data class Job(val id: String, val name: String? = null, val tasks: Map<String, Task> = mapOf()) {
+  val tasksSorted: List<Task>
+    get() = tasks.values.sortedBy { it.id }
 
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
 

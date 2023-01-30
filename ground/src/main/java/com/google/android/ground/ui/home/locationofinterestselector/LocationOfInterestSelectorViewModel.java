@@ -23,10 +23,11 @@ import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractViewModel;
 import com.google.android.ground.ui.common.LocationOfInterestHelper;
 import com.google.android.ground.ui.common.SharedViewModel;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.util.ArrayList;
+import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -37,8 +38,7 @@ public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
   @Hot private final Observable<LocationOfInterest> locationOfInterestClicks;
   private final LocationOfInterestHelper locationOfInterestHelper;
   private final Resources resources;
-  private ImmutableList<LocationOfInterest> locationsOfInterest =
-      ImmutableList.<LocationOfInterest>builder().build();
+  private List<LocationOfInterest> locationsOfInterest = new ArrayList<>();
 
   @Inject
   LocationOfInterestSelectorViewModel(
@@ -53,11 +53,11 @@ public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
     itemClicks.onNext(index);
   }
 
-  public ImmutableList<LocationOfInterest> getLocationsOfInterest() {
+  public List<LocationOfInterest> getLocationsOfInterest() {
     return locationsOfInterest;
   }
 
-  public void setLocationsOfInterest(ImmutableList<LocationOfInterest> locationsOfInterest) {
+  public void setLocationsOfInterest(List<LocationOfInterest> locationsOfInterest) {
     this.locationsOfInterest = locationsOfInterest;
   }
 

@@ -33,10 +33,10 @@ import com.google.android.ground.ui.MarkerIconFactory;
 import com.google.android.ground.ui.common.LocationOfInterestHelper;
 import com.google.android.ground.ui.common.SharedViewModel;
 import com.google.android.ground.ui.util.DrawableUtil;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
+import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -72,10 +72,10 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(
             selectedLocationOfInterest.map(locationOfInterestHelper::getSubtitle));
-    Flowable<ImmutableList<LocationOfInterestMutation>> locationOfInterestMutations =
+    Flowable<List<LocationOfInterestMutation>> locationOfInterestMutations =
         selectedLocationOfInterest.switchMap(
             this::getIncompleteLocationOfInterestMutationsOnceAndStream);
-    Flowable<ImmutableList<SubmissionMutation>> submissionMutations =
+    Flowable<List<SubmissionMutation>> submissionMutations =
         selectedLocationOfInterest.switchMap(this::getIncompleteSubmissionMutationsOnceAndStream);
     this.showUploadPendingIcon =
         LiveDataReactiveStreams.fromPublisher(
@@ -85,7 +85,7 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
                 (f, o) -> !f.isEmpty() && !o.isEmpty()));
   }
 
-  private Flowable<ImmutableList<LocationOfInterestMutation>>
+  private Flowable<List<LocationOfInterestMutation>>
       getIncompleteLocationOfInterestMutationsOnceAndStream(
           Optional<LocationOfInterest> selectedLocationOfInterest) {
     return selectedLocationOfInterest
@@ -93,17 +93,17 @@ public class LocationOfInterestDetailsViewModel extends ViewModel {
             locationOfInterest ->
                 locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(
                     locationOfInterest.getId()))
-        .orElse(Flowable.just(ImmutableList.of()));
+        .orElse(Flowable.just(List.of()));
   }
 
-  private Flowable<ImmutableList<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
+  private Flowable<List<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
       Optional<LocationOfInterest> selectedLocationOfInterest) {
     return selectedLocationOfInterest
         .map(
             locationOfInterest ->
                 submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(
                     locationOfInterest.getSurveyId(), locationOfInterest.getId()))
-        .orElse(Flowable.just(ImmutableList.of()));
+        .orElse(Flowable.just(List.of()));
   }
 
   /**

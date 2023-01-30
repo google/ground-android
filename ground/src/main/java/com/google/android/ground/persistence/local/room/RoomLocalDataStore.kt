@@ -29,8 +29,6 @@ import com.google.android.ground.persistence.local.room.models.MutationEntitySyn
 import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -57,21 +55,18 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
 
   override fun getMutationsOnceAndStream(
     survey: Survey
-  ): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
+  ): @Cold(terminates = false) Flowable<List<Mutation>> {
     // TODO: Show mutations for all surveys, not just current one.
     val locationOfInterestMutations =
       localLocationOfInterestStore
         .getAllMutationsAndStream()
-        .map { it.filter { it.surveyId == survey.id }.map { it.toModelObject() }.toImmutableList() }
+        .map { it.filter { it.surveyId == survey.id }.map { it.toModelObject() } }
         .subscribeOn(schedulers.io())
     val submissionMutations =
       submissionStore
         .getAllMutationsAndStream()
         .map { list: List<SubmissionMutationEntity> ->
-          list
-            .filter { it.surveyId == survey.id }
-            .map { it.toModelObject(survey) }
-            .toImmutableList()
+          list.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
         }
         .subscribeOn(schedulers.io())
     return Flowable.combineLatest(
@@ -81,7 +76,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     )
   }
 
-  override fun getPendingMutations(locationOfInterestId: String): Single<ImmutableList<Mutation>> =
+  override fun getPendingMutations(locationOfInterestId: String): Single<List<Mutation>> =
     localLocationOfInterestStore
       .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
       .flattenAsObservable { it }
@@ -103,12 +98,11 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           .cast(Mutation::class.java)
       )
       .toList()
-      .map { it.toImmutableList() }
       .subscribeOn(schedulers.io())
 
-  override fun updateMutations(mutations: ImmutableList<Mutation>): Completable {
-    val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>().toImmutableList()
-    val submissionMutations = mutations.filterIsInstance<SubmissionMutation>().toImmutableList()
+  override fun updateMutations(mutations: List<Mutation>): Completable {
+    val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
+    val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
 
     return localLocationOfInterestStore
       .updateAll(loiMutations)
@@ -116,10 +110,10 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .subscribeOn(schedulers.io())
   }
 
-  override fun finalizePendingMutations(mutations: ImmutableList<Mutation>): Completable =
+  override fun finalizePendingMutations(mutations: List<Mutation>): Completable =
     finalizeDeletions(mutations).andThen(markComplete(mutations))
 
-  private fun finalizeDeletions(mutations: ImmutableList<Mutation>): Completable =
+  private fun finalizeDeletions(mutations: List<Mutation>): Completable =
     Observable.fromIterable(mutations)
       .filter { it.type === DELETE }
       .flatMapCompletable { mutation ->
@@ -130,18 +124,17 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
+          else -> Completable.complete()
         }
       }
 
-  private fun markComplete(mutations: ImmutableList<Mutation>): Completable {
+  private fun markComplete(mutations: List<Mutation>): Completable {
     val locationOfInterestMutations =
-      LocationOfInterestMutation.filter(mutations)
-        .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
-        .toImmutableList()
+      LocationOfInterestMutation.filter(mutations).map {
+        it.copy(syncStatus = SyncStatus.COMPLETED)
+      }
     val submissionMutations =
-      SubmissionMutation.filter(mutations)
-        .map { it.copy(syncStatus = SyncStatus.COMPLETED) }
-        .toImmutableList()
+      SubmissionMutation.filter(mutations).map { it.copy(syncStatus = SyncStatus.COMPLETED) }
 
     return localLocationOfInterestStore
       .updateAll(locationOfInterestMutations)
@@ -150,14 +143,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
   }
 
   private fun combineAndSortMutations(
-    locationOfInterestMutations: ImmutableList<LocationOfInterestMutation>,
-    submissionMutations: ImmutableList<SubmissionMutation>
-  ): ImmutableList<Mutation> =
-    ImmutableList.sortedCopyOf(
-      byDescendingClientTimestamp(),
-      ImmutableList.builder<Mutation>()
-        .addAll(locationOfInterestMutations)
-        .addAll(submissionMutations)
-        .build()
-    )
+    locationOfInterestMutations: List<LocationOfInterestMutation>,
+    submissionMutations: List<SubmissionMutation>
+  ): List<Mutation> =
+    (locationOfInterestMutations + submissionMutations).sortedWith(byDescendingClientTimestamp())
 }

@@ -31,9 +31,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
@@ -62,14 +59,14 @@ internal constructor(
   // TODO(#719): Move into LocationOfInterestDetailsViewModel.
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
-  val showLocationOfInterestSelectorRequests: @Hot Subject<ImmutableList<LocationOfInterest>> =
+  val showLocationOfInterestSelectorRequests: @Hot Subject<List<LocationOfInterest>> =
     PublishSubject.create()
 
   /**
    * Live cache of locations of interest. Updated every time the underlying local storage data
    * changes.
    */
-  private var locationOfInterestCache: ImmutableSet<LocationOfInterest> = ImmutableSet.of()
+  private var locationOfInterestCache: Set<LocationOfInterest> = setOf()
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
@@ -103,11 +100,10 @@ internal constructor(
   }
 
   /** Intended for use as a callback for handling user clicks on rendered map features. */
-  fun onFeatureClick(features: ImmutableList<Feature>) {
+  fun onFeatureClick(features: List<Feature>) {
     val loiFeatureIds =
       features.filter { it.tag.type == Feature.Type.LOCATION_FEATURE }.map { it.tag.id }
-    val locationsOfInterest: ImmutableList<LocationOfInterest> =
-      locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }.toImmutableList()
+    val locationsOfInterest = locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }
 
     if (locationsOfInterest.isEmpty()) {
       Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest")

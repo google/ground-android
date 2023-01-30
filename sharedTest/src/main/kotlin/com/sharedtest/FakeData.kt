@@ -76,8 +76,9 @@ object FakeData {
   @JvmField
   val LOCATION_FEATURE_FEATURE =
     Feature(
-      Feature.Tag(LOCATION_OF_INTEREST.id, Feature.Type.LOCATION_FEATURE),
-      LOCATION_OF_INTEREST.geometry
+      id = LOCATION_OF_INTEREST.id,
+      type = Feature.Type.LOCATION_FEATURE,
+      geometry = LOCATION_OF_INTEREST.geometry
     )
 
   @JvmField val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_FEATURE_FEATURE)

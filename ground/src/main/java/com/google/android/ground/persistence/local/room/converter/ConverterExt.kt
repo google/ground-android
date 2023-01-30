@@ -39,16 +39,13 @@ import com.google.android.ground.persistence.local.room.models.*
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
 import java8.util.Optional
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
 import timber.log.Timber
 
@@ -85,102 +82,33 @@ fun BaseMap.toLocalDataStoreObject(surveyId: String) =
 
 fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
 
-fun GeometryEntity.toModelObject() =
-  when (geometryType) {
-    GeometryType.POINT.name -> this.toPointModel()
-    GeometryType.POLYGON.name -> this.toPolygonModel()
-    else -> null
-  }
-
-fun Geometry.toLocalDataStoreObject() =
-  when (this) {
-    is Point -> this.toLocalDataStoreObject()
-    is Polygon -> this.toLocalDataStoreObject()
-    else -> null
-  }
-
-private fun GeometryEntity.toPointModel(): Geometry? = this.location?.toPoint()
-
-private fun GeometryEntity.toPolygonModel(): Geometry {
-  val shell = LinearRing(parseVertices(this.vertices).map { it.coordinate })
-  val holes = parseHoles(this.holes).map { LinearRing(it.map(Point::coordinate)) }
-
-  return Polygon(shell, holes)
-}
-
-private fun Point.toLocalDataStoreObject(): GeometryEntity =
-  GeometryEntity(GeometryType.POINT.name, Coordinates.fromPoint(this))
-
-private fun Polygon.toLocalDataStoreObject(): GeometryEntity {
-  val shell = formatVertices(this.vertices)
-  val holes = formatHoles(this.holes.map { it.vertices })
-
-  return GeometryEntity(GeometryType.POLYGON.name, null, shell, holes)
-}
-
-private fun formatHoles(holes: List<List<Point>>): String? {
-  if (holes.isEmpty()) {
-    return null
-  }
-
-  val gson = Gson()
-  val holeArray =
-    holes.map { hole -> hole.map { ImmutableList.of(it.coordinate.x, it.coordinate.y) } }
-
-  return gson.toJson(holeArray)
-}
+fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
 fun formatVertices(vertices: List<Point>): String? {
   if (vertices.isEmpty()) {
     return null
   }
   val gson = Gson()
-  val verticesArray =
-    vertices.map { (coordinate): Point -> ImmutableList.of(coordinate.x, coordinate.y) }.toList()
+  val verticesArray = vertices.map { (coordinate): Point -> listOf(coordinate.x, coordinate.y) }
   return gson.toJson(verticesArray)
 }
 
-private fun parseHoles(holes: String?): List<ImmutableList<Point>> {
-  if (holes.isNullOrEmpty()) {
-    return ImmutableList.of()
-  }
-
-  val gson = Gson()
-  val holesArray =
-    gson.fromJson<List<List<List<Double>>>>(
-      holes,
-      object : TypeToken<List<List<List<Double?>?>?>?>() {}.type
-    )
-
-  return holesArray.map {
-    it.map { vertex -> Point(Coordinate(vertex[0], vertex[1])) }.toImmutableList()
-  }
-}
-
-fun parseVertices(vertices: String?): ImmutableList<Point> {
+fun parseVertices(vertices: String?): List<Point> {
   if (vertices.isNullOrEmpty()) {
-    return ImmutableList.of()
+    return listOf()
   }
   val gson = Gson()
   val verticesArray =
     gson.fromJson<List<List<Double>>>(vertices, object : TypeToken<List<List<Double?>?>?>() {}.type)
-  return verticesArray
-    .map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
-    .toImmutableList()
+  return verticesArray.map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
 }
 
 fun Job.toLocalDataStoreObject(surveyId: String) =
   JobEntity(id = id, surveyId = surveyId, name = name)
 
 fun JobEntityAndRelations.toModelObject(): Job {
-  val taskMap = ImmutableMap.builder<String, Task>()
-
-  for (taskEntityAndRelations in taskEntityAndRelations) {
-    val task = taskEntityAndRelations.toModelObject()
-    taskMap.put(task.id, task)
-  }
-
-  return Job(jobEntity.id, jobEntity.name, taskMap.build())
+  val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
+  return Job(jobEntity.id, jobEntity.name, taskMap.toPersistentMap())
 }
 
 fun LocationOfInterest.toLocalDataStoreObject() =
@@ -195,8 +123,6 @@ fun LocationOfInterest.toLocalDataStoreObject() =
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
-  val geometry = geometry?.toModelObject()
-
   if (geometry == null) {
     throw LocalDataConsistencyException("No geometry in location of interest $this.id")
   } else {
@@ -205,7 +131,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
       surveyId = surveyId,
       created = created.toModelObject(),
       lastModified = lastModified.toModelObject(),
-      geometry = geometry,
+      geometry = geometry.getGeometry(),
       job =
         survey.getJob(jobId = jobId).orElseThrow {
           LocalDataConsistencyException(
@@ -228,7 +154,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(
     state = EntityState.DEFAULT,
     created = authInfo,
     lastModified = authInfo,
-    geometry = geometry?.toLocalDataStoreObject()
+    geometry = geometry
   )
 }
 
@@ -238,7 +164,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     surveyId = surveyId,
     jobId = jobId,
     type = MutationEntityType.fromMutationType(type),
-    newGeometry = geometry?.toLocalDataStoreObject(),
+    newGeometry = geometry,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
@@ -253,7 +179,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     surveyId = surveyId,
     jobId = jobId,
     type = type.toMutationType(),
-    geometry = newGeometry?.toModelObject(),
+    geometry = newGeometry,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),
@@ -263,13 +189,8 @@ fun LocationOfInterestMutationEntity.toModelObject() =
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
-  val listBuilder = ImmutableList.builder<Option>()
-
-  for (optionEntity in optionEntities) {
-    listBuilder.add(optionEntity.toModelObject())
-  }
-
-  return MultipleChoice(listBuilder.build().toPersistentList(), this.type.toCardinality())
+  val options = optionEntities.map { it.toModelObject() }
+  return MultipleChoice(options.toPersistentList(), this.type.toCardinality())
 }
 
 fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
@@ -402,43 +323,23 @@ fun SubmissionMutation.toLocalDataStoreObject() =
   )
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
-  val jobMap = ImmutableMap.builder<String, Job>()
-  val baseMaps = ImmutableList.builder<BaseMap>()
-
-  for (jobEntityAndRelations in jobEntityAndRelations) {
-    val job = jobEntityAndRelations.toModelObject()
-    jobMap.put(job.id, job)
-  }
-  for (source in baseMapEntityAndRelations) {
-    try {
-      baseMaps.add(source.toModelObject())
-    } catch (e: MalformedURLException) {
-      Timber.d("Skipping basemap source with malformed URL %s", source.url)
-    }
-  }
-  val surveyEntity = surveyEntity
+  val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
+  val baseMaps = baseMapEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
-    jobMap.build(),
-    baseMaps.build(),
-    surveyEntity.acl.toStringMap()
+    jobMap.toPersistentMap(),
+    baseMaps.toPersistentList(),
+    surveyEntity.acl?.toStringMap()!!
   )
 }
 
-private fun JSONObject?.toStringMap(): ImmutableMap<String, String> {
-  val builder: ImmutableMap.Builder<String, String> = ImmutableMap.builder()
-  val keys = this!!.keys()
-
-  while (keys.hasNext()) {
-    val key = keys.next()
-    val value = this.optString(key, null.toString())
-    builder.put(key, value)
-  }
-
-  return builder.build()
+private fun JSONObject.toStringMap(): Map<String, String> {
+  val builder = mutableMapOf<String, String>()
+  keys().forEach { key: String -> builder[key] = optString(key, toString()) }
+  return builder.toPersistentMap()
 }
 
 fun Survey.toLocalDataStoreObject() =

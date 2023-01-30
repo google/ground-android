@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import com.android.build.gradle.api.BaseVariant
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -34,10 +31,10 @@ apply from: '../config/jacoco/jacoco.gradle'
 project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.7.4"
-    fragmentVersion = "1.5.3"
+    fragmentVersion = "1.5.5"
     hiltJetpackVersion = "1.0.0"
     lifecycleVersion = "2.2.0"
-    roomVersion = "2.3.0"
+    roomVersion = "2.5.0"
     rxBindingVersion = "2.2.0"
     workVersion = "2.5.0"
     mockitoVersion = "4.4.0"
@@ -76,6 +73,9 @@ android {
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
+    }
+    lintOptions {
+        disable 'FragmentGradleConfiguration'
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -148,6 +148,7 @@ dependencies {
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
 
     // Kotlin Coroutines
@@ -293,6 +294,7 @@ dependencies {
     // Fragments
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 }
 

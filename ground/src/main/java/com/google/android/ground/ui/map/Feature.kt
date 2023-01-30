@@ -19,6 +19,13 @@ import com.google.android.ground.model.geometry.Geometry
 
 /** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
 data class Feature(val tag: Tag, val geometry: Geometry) {
+  constructor(
+    id: String,
+    type: Type,
+    flag: Boolean = false,
+    geometry: Geometry
+  ) : this(Feature.Tag(id, type, flag), geometry)
+
   /**
    * Denotes the kind of entity this map feature represents and contains any additional data it
    * carries.
