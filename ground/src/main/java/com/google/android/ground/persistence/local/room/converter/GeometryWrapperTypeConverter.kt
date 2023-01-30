@@ -17,9 +17,9 @@ package com.google.android.ground.persistence.local.room.converter
 
 import androidx.room.TypeConverter
 import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
-import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import org.json.JSONException
 import timber.log.Timber
 
@@ -27,12 +27,12 @@ object GeometryWrapperTypeConverter {
 
   @TypeConverter
   fun toByteArray(geometryWrapper: GeometryWrapper?): ByteArray? =
-    geometryWrapper?.getGeometry().let { Cbor.encodeToByteArray(it) }
+    geometryWrapper?.getGeometry().let { ProtoBuf.encodeToByteArray(it) }
 
   @TypeConverter
   fun fromByteArray(jsonString: ByteArray?): GeometryWrapper? =
     try {
-      jsonString?.let { GeometryWrapper.fromGeometry(Cbor.decodeFromByteArray(it)) }
+      jsonString?.let { GeometryWrapper.fromGeometry(ProtoBuf.decodeFromByteArray(it)) }
     } catch (e: JSONException) {
       Timber.d(e, "Invalid Geometry in db")
       null
