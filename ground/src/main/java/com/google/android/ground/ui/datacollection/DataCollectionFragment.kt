@@ -30,6 +30,7 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.util.assistedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -39,15 +40,14 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
+  @Inject lateinit var dataCollectionViewModelFactory: DataCollectionViewModel.Factory
 
-  private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
-  private lateinit var viewPager: ViewPager2
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel = getViewModel(DataCollectionViewModel::class.java)
+  private val viewModel: DataCollectionViewModel by assistedViewModel { savedStateHandle ->
+    dataCollectionViewModelFactory.create(savedStateHandle)
   }
+
+  private lateinit var viewPager: ViewPager2
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -63,7 +63,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewModel.loadSubmissionDetails(args)
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+        val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
+        if (currentAdapter == null || currentAdapter.tasks != it.job.tasksSorted) {
+          viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+        }
       }
     }
 
@@ -87,7 +90,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.currentPosition.value = viewModel.currentPosition.value!! - 1
+      viewModel.setCurrentPosition(viewModel.currentPosition.value!! - 1)
       true
     }
 }

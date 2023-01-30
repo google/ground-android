@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.Transformations
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
@@ -34,11 +35,13 @@ import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import com.google.common.collect.ImmutableList
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
-import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +49,7 @@ import kotlinx.coroutines.launch
 
 /** View model for the Data Collection fragment. */
 class DataCollectionViewModel
-@Inject
+@AssistedInject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
@@ -54,8 +57,14 @@ internal constructor(
   private val popups: Provider<EphemeralPopups>,
   private val navigator: Navigator,
   @ApplicationScope private val externalScope: CoroutineScope,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  @Assisted private val savedStateHandle: SavedStateHandle
 ) : AbstractViewModel() {
+  @AssistedFactory
+  interface Factory {
+    fun create(savedStateHandle: SavedStateHandle): DataCollectionViewModel
+  }
+
   val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
@@ -69,8 +78,10 @@ internal constructor(
 
   private val responses: MutableMap<Task, TaskData?> = HashMap()
 
+  private val currentPositionKey = "currentPosition"
   // Tracks the user's current position in the list of tasks for the current Job
-  var currentPosition: @Hot(replays = true) MutableLiveData<Int> = MutableLiveData(0)
+  var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
+    savedStateHandle.getLiveData(currentPositionKey, 0)
 
   var currentTaskData: TaskData? = null
 
@@ -162,7 +173,7 @@ internal constructor(
     assert(currentTaskPosition in 0..finalTaskPosition)
 
     if (currentTaskPosition != finalTaskPosition) {
-      currentPosition.postValue(currentTaskPosition + 1)
+      setCurrentPosition(currentPosition.value!! + 1)
     } else {
       val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
       responses.forEach { (task, taskData) ->
@@ -180,5 +191,9 @@ internal constructor(
         .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
         .blockingAwait()
     }
+  }
+
+  fun setCurrentPosition(position: Int) {
+    savedStateHandle[currentPositionKey] = position
   }
 }
