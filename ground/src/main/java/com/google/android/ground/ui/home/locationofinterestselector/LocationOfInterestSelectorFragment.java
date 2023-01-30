@@ -33,8 +33,8 @@ import com.google.android.ground.databinding.LocationOfInterestSelectorDialogBin
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.ui.common.AbstractDialogFragment;
 import com.google.android.ground.ui.common.EphemeralPopups;
-import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.List;
 import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,7 +82,7 @@ public class LocationOfInterestSelectorFragment extends AbstractDialogFragment {
     return super.onCreateView(inflater, container, savedInstanceState);
   }
 
-  private void showLocationOfInterestList(ImmutableList<LocationOfInterest> locationsOfInterest) {
+  private void showLocationOfInterestList(List<LocationOfInterest> locationsOfInterest) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
     checkNotNull(listAdapter, "listAdapter was null when attempting to show survey list");
 

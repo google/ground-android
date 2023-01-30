@@ -24,8 +24,6 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
-import com.google.common.collect.ImmutableCollection
-import com.google.common.collect.ImmutableList
 import com.sharedtest.FakeData
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -94,11 +92,11 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest
-  ): Single<ImmutableList<Result<Submission>>> {
+  ): Single<List<Result<Submission>>> {
     TODO("Missing implementation")
   }
 
-  override fun applyMutations(mutations: ImmutableCollection<Mutation>, user: User): Completable {
+  override fun applyMutations(mutations: List<Mutation>, user: User): Completable {
     TODO("Missing implementation")
   }
 

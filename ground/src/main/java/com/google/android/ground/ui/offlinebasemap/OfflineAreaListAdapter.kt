@@ -22,17 +22,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.OfflineBaseMapListItemBinding
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.ui.common.Navigator
-import com.google.common.collect.ImmutableList
 
 internal class OfflineAreaListAdapter(private val navigator: Navigator) :
   RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder>() {
 
-  private var offlineAreas: ImmutableList<OfflineArea> = ImmutableList.of()
+  private var offlineAreas: List<OfflineArea> = listOf()
 
   class ViewHolder
   internal constructor(
     var binding: OfflineBaseMapListItemBinding,
-    var areas: ImmutableList<OfflineArea>,
+    var areas: List<OfflineArea>,
     private val navigator: Navigator
   ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
     init {
@@ -62,7 +61,7 @@ internal class OfflineAreaListAdapter(private val navigator: Navigator) :
     return offlineAreas.size
   }
 
-  fun update(offlineAreas: ImmutableList<OfflineArea>) {
+  fun update(offlineAreas: List<OfflineArea>) {
     this.offlineAreas = offlineAreas
     notifyDataSetChanged()
   }

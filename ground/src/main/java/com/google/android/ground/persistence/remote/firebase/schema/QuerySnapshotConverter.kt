@@ -22,7 +22,6 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.er
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.loaded
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
-import com.google.android.ground.util.toImmutableList
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
@@ -39,7 +38,7 @@ internal object QuerySnapshotConverter {
     snapshot: QuerySnapshot,
     converter: Function<DocumentSnapshot, Result<T>>
   ): Iterable<RemoteDataEvent<T>> =
-    snapshot.documentChanges.map { dc: DocumentChange -> toEvent(dc, converter) }.toImmutableList()
+    snapshot.documentChanges.map { dc: DocumentChange -> toEvent(dc, converter) }
 
   private fun <T> toEvent(
     dc: DocumentChange,
