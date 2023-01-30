@@ -42,18 +42,18 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
   @Inject lateinit var dataCollectionViewModelFactory: DataCollectionViewModel.Factory
 
-  private lateinit var viewModel: DataCollectionViewModel
   private val args: DataCollectionFragmentArgs by navArgs()
+  private val viewModel: DataCollectionViewModel by assistedViewModel { savedStateHandle ->
+    dataCollectionViewModelFactory.create(savedStateHandle)
+  }
+
   private lateinit var viewPager: ViewPager2
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel =
-      assistedViewModel { savedStateHandle ->
-          dataCollectionViewModelFactory.create(savedStateHandle)
-        }
-        .value
-  }
+  //  override fun onResume() {
+  //    super.onResume()
+  //
+  //    viewPager.currentItem = viewModel.currentPosition.value!!
+  //  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -69,7 +69,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewModel.loadSubmissionDetails(args)
     viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
       submission.value().ifPresent {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+        val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
+        if (currentAdapter == null || currentAdapter.tasks != it.job.tasksSorted) {
+          viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
+        }
       }
     }
 

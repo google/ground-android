@@ -32,7 +32,7 @@ class DataCollectionViewPagerAdapter
 constructor(
   private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
-  @Assisted private val tasks: ImmutableList<Task>,
+  @Assisted val tasks: ImmutableList<Task>,
   @Assisted private val dataCollectionViewModel: DataCollectionViewModel
 ) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
