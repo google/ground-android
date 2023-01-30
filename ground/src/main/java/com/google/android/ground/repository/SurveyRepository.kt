@@ -28,7 +28,6 @@ import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.common.collect.ImmutableList
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
@@ -76,7 +75,7 @@ constructor(
   var activeSurveyId: String = ""
     private set
 
-  val offlineSurveys: @Cold Single<ImmutableList<Survey>>
+  val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
@@ -149,7 +148,7 @@ constructor(
 
   fun getMutationsOnceAndStream(
     survey: Survey
-  ): @Cold(terminates = false) Flowable<ImmutableList<Mutation>> {
+  ): @Cold(terminates = false) Flowable<List<Mutation>> {
     return localDataStore.getMutationsOnceAndStream(survey)
   }
 

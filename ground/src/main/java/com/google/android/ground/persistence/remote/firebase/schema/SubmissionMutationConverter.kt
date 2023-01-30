@@ -22,9 +22,8 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.firebase.firestore.FieldValue
+import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
 
 /** Converts between Firestore maps used to merge updates and [SubmissionMutation] instances. */
@@ -37,34 +36,34 @@ internal object SubmissionMutationConverter {
   private const val LAST_MODIFIED = "lastModified"
 
   @Throws(DataStoreException::class)
-  fun toMap(mutation: SubmissionMutation, user: User): ImmutableMap<String, Any> {
-    val map = ImmutableMap.builder<String, Any>()
+  fun toMap(mutation: SubmissionMutation, user: User): Map<String, Any> {
+    val map = mutableMapOf<String, Any>()
     val auditInfo = fromMutationAndUser(mutation, user)
     when (mutation.type) {
       Mutation.Type.CREATE -> {
-        map.put(CREATED, auditInfo)
-        map.put(LAST_MODIFIED, auditInfo)
+        map[CREATED] = auditInfo
+        map[LAST_MODIFIED] = auditInfo
       }
-      Mutation.Type.UPDATE -> map.put(LAST_MODIFIED, auditInfo)
+      Mutation.Type.UPDATE -> map[LAST_MODIFIED] = auditInfo
       Mutation.Type.DELETE,
       Mutation.Type.UNKNOWN ->
         throw DataStoreException("Unsupported mutation type: ${mutation.type}")
     }
-    map.put(LOI_ID, mutation.locationOfInterestId)
-    map.put(JOB_ID, mutation.job!!.id)
-    map.put(RESPONSES, toMap(mutation.taskDataDeltas))
-    return map.build()
+    map[LOI_ID] = mutation.locationOfInterestId
+    map[JOB_ID] = mutation.job!!.id
+    map[RESPONSES] = toMap(mutation.taskDataDeltas)
+    return map.toPersistentMap()
   }
 
-  private fun toMap(taskDataDeltas: ImmutableList<TaskDataDelta>): Map<String, Any> {
-    val map = ImmutableMap.builder<String, Any>()
+  private fun toMap(taskDataDeltas: List<TaskDataDelta>): Map<String, Any> {
+    val map = mutableMapOf<String, Any>()
     for (delta in taskDataDeltas) {
       delta.newTaskData
         .map { obj: TaskData -> toObject(obj) }
         .orElse(FieldValue.delete())
         ?.let { map.put(delta.taskId, it) }
     }
-    return map.build()
+    return map.toPersistentMap()
   }
 
   private fun toObject(taskData: TaskData): Any? =

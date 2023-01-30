@@ -19,6 +19,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.Transformations
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -36,11 +39,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
 import javax.inject.Provider
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /** View model for the Data Collection fragment. */
 class DataCollectionViewModel
@@ -51,6 +56,8 @@ internal constructor(
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
   private val navigator: Navigator,
+  @ApplicationScope private val externalScope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   @Assisted private val savedStateHandle: SavedStateHandle
 ) : AbstractViewModel() {
   @AssistedFactory
@@ -144,38 +151,46 @@ internal constructor(
   }
 
   /**
-   * Validates the user's input and returns an error string if the user input was invalid.
-   * Progresses to the next Data Collection screen if the user input was valid.
+   * Validates the user's input and displays an error if the user input was invalid. Progresses to
+   * the next Data Collection screen if the user input was valid.
    */
-  fun onContinueClicked(): Single<String> {
-    val currentTask = currentTaskViewModel ?: return Single.never()
+  fun onContinueClicked() {
+    val currentTask = currentTaskViewModel ?: return
+
     val validationError = currentTask.validate()
-    if (validationError == null) {
-      responses[currentTask.task] = currentTaskData
-      val finalTaskPosition = submission.value!!.value().map { it.job.tasks.size }.orElse(0) - 1
-
-      if (currentPosition.value!! == finalTaskPosition) {
-        submission.value!!.value().ifPresent {
-          val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
-
-          responses.forEach { (task, taskData) ->
-            taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
-          }
-          submissionRepository.createOrUpdateSubmission(it, taskDataDeltas.build(), isNew = true)
-        }
-
-        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-        return Single.never()
-      }
-
-      setCurrentPosition(currentPosition.value!! + 1)
-
-      return Single.never()
-    } else {
+    if (validationError != null) {
       popups.get().showError(validationError)
+      return
     }
 
-    return Single.just(validationError)
+    responses[currentTask.task] = currentTaskData
+
+    val submission = submission.value!!.value().get()
+    val currentTaskPosition = currentPosition.value!!
+    val finalTaskPosition = submission.job.tasks.size - 1
+
+    assert(finalTaskPosition >= 0)
+    assert(currentTaskPosition in 0..finalTaskPosition)
+
+    if (currentTaskPosition != finalTaskPosition) {
+      setCurrentPosition(currentPosition.value!! + 1)
+    } else {
+      val taskDataDeltas = ImmutableList.builder<TaskDataDelta>()
+      responses.forEach { (task, taskData) ->
+        taskDataDeltas.add(TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData)))
+      }
+      saveChanges(submission, taskDataDeltas.build())
+      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+    }
+  }
+
+  /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
+  private fun saveChanges(submission: Submission, taskDataDeltas: ImmutableList<TaskDataDelta>) {
+    externalScope.launch(ioDispatcher) {
+      submissionRepository
+        .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
+        .blockingAwait()
+    }
   }
 
   fun setCurrentPosition(position: Int) {

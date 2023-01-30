@@ -28,20 +28,20 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.LocationOfInterestMutation;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.ui.common.LocationOfInterestHelper;
-import com.google.common.collect.ImmutableList;
 import java.text.DateFormat;
+import java.util.List;
 import java8.util.Optional;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
 
   private final LocationOfInterestHelper locationOfInterestHelper;
-  private ImmutableList<Pair<LocationOfInterest, Mutation>> mutations;
+  private List<Pair<LocationOfInterest, Mutation>> mutations;
   private final DateFormat dateFormat;
   private final DateFormat timeFormat;
 
   SyncStatusListAdapter(
       @Nullable Context context, LocationOfInterestHelper locationOfInterestHelper) {
-    this.mutations = ImmutableList.of();
+    this.mutations = List.of();
     this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     this.locationOfInterestHelper = locationOfInterestHelper;
@@ -91,7 +91,7 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
     return mutations.size();
   }
 
-  void update(ImmutableList<Pair<LocationOfInterest, Mutation>> mutations) {
+  void update(List<Pair<LocationOfInterest, Mutation>> mutations) {
     this.mutations = mutations;
     notifyDataSetChanged();
   }

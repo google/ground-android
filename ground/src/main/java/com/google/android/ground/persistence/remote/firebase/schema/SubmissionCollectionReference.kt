@@ -20,8 +20,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.util.toImmutableList
-import com.google.common.collect.ImmutableList
 import com.google.firebase.firestore.*
 import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Single
@@ -33,21 +31,19 @@ class SubmissionCollectionReference internal constructor(ref: CollectionReferenc
 
   fun submissionsByLocationOfInterestId(
     locationOfInterest: LocationOfInterest
-  ): @Cold Single<ImmutableList<Result<Submission>>> {
+  ): @Cold Single<List<Result<Submission>>> {
     return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
       .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
-      .toSingle(ImmutableList.of())
+      .toSingle(listOf())
   }
 
   private fun convert(
     querySnapshot: QuerySnapshot,
     locationOfInterest: LocationOfInterest
-  ): ImmutableList<Result<Submission>> {
-    return querySnapshot.documents
-      .map { doc: DocumentSnapshot ->
-        runCatching { SubmissionConverter.toSubmission(locationOfInterest, doc) }
-      }
-      .toImmutableList()
+  ): List<Result<Submission>> {
+    return querySnapshot.documents.map { doc: DocumentSnapshot ->
+      runCatching { SubmissionConverter.toSubmission(locationOfInterest, doc) }
+    }
   }
 
   private fun byLoiId(loiId: String): Query =

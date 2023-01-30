@@ -20,7 +20,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
-import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -32,7 +31,7 @@ class DataCollectionViewPagerAdapter
 constructor(
   private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
-  @Assisted val tasks: ImmutableList<Task>,
+  @Assisted val tasks: List<Task>,
   @Assisted private val dataCollectionViewModel: DataCollectionViewModel
 ) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size

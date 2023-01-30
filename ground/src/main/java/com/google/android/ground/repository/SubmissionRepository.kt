@@ -30,7 +30,6 @@ import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
-import com.google.common.collect.ImmutableList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -63,6 +62,7 @@ constructor(
    * Retrieves the submissions or the specified survey, location of interest, and task.
    *
    * <ol> <li>Attempt to sync remote submission changes to the local data store. If network is not
+   *
    * ```
    *       available or operation times out, this step is skipped.
    * ```
@@ -72,7 +72,7 @@ constructor(
     surveyId: String,
     locationOfInterestId: String,
     taskId: String
-  ): @Cold Single<ImmutableList<Submission>> =
+  ): @Cold Single<List<Submission>> =
     // TODO: Only fetch first n fields.
     locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
       locationOfInterest: LocationOfInterest ->
@@ -82,22 +82,20 @@ constructor(
   private fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     taskId: String
-  ): @Cold Single<ImmutableList<Submission>> {
+  ): @Cold Single<List<Submission>> {
     val remoteSync =
       remoteDataStore
         .loadSubmissions(locationOfInterest)
         .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
         .doOnError { Timber.e(it, "Submission sync timed out") }
-        .flatMapCompletable { submissions: ImmutableList<Result<Submission>> ->
+        .flatMapCompletable { submissions: List<Result<Submission>> ->
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
     return remoteSync.andThen(submissionStore.getSubmissions(locationOfInterest, taskId))
   }
 
-  private fun mergeRemoteSubmissions(
-    submissions: ImmutableList<Result<Submission>>
-  ): @Cold Completable {
+  private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable {
     return Observable.fromIterable(submissions)
       .doOnNext { result: Result<Submission> ->
         if (result.isFailure) {
@@ -157,7 +155,7 @@ constructor(
 
   fun createOrUpdateSubmission(
     submission: Submission,
-    taskDataDeltas: ImmutableList<TaskDataDelta>,
+    taskDataDeltas: List<TaskDataDelta>,
     isNew: Boolean
   ): @Cold Completable =
     applyAndEnqueue(
@@ -186,7 +184,7 @@ constructor(
   fun getIncompleteSubmissionMutationsOnceAndStream(
     surveyId: String,
     locationOfInterestId: String
-  ): Flowable<ImmutableList<SubmissionMutation>> =
+  ): Flowable<List<SubmissionMutation>> =
     surveyStore.getSurveyById(surveyId).toFlowable().flatMap {
       submissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
         it,

@@ -41,13 +41,12 @@ import com.google.android.ground.persistence.local.room.models.MutationEntitySyn
 import com.google.android.ground.persistence.local.room.models.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.util.toImmutableList
 import com.google.common.base.Preconditions
-import com.google.common.collect.ImmutableList
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.collections.immutable.toPersistentList
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
@@ -84,7 +83,7 @@ class RoomLocalSubmissionMutationStore @Inject internal constructor() :
   override fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): Single<ImmutableList<Submission>> =
+  ): Single<List<Submission>> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
       .map { toSubmissions(locationOfInterest, it) }
@@ -138,7 +137,7 @@ class RoomLocalSubmissionMutationStore @Inject internal constructor() :
     }
   }
 
-  override fun updateAll(mutations: ImmutableList<SubmissionMutation>): Completable =
+  override fun updateAll(mutations: List<SubmissionMutation>): Completable =
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
 
   private fun markSubmissionForDeletion(
@@ -158,7 +157,7 @@ class RoomLocalSubmissionMutationStore @Inject internal constructor() :
       .findById(mutation.submissionId)
       .doOnSubscribe { Timber.v("Applying mutation: $mutation") }
       .switchIfEmpty(fallbackSubmission(mutation))
-      .map { commitMutations(mutation.job, it, ImmutableList.of(mutationEntity), user) }
+      .map { commitMutations(mutation.job, it, listOf(mutationEntity), user) }
       .flatMapCompletable { submissionDao.insertOrUpdate(it).subscribeOn(schedulers.io()) }
       .subscribeOn(schedulers.io())
   }
@@ -219,21 +218,19 @@ class RoomLocalSubmissionMutationStore @Inject internal constructor() :
     mutations: List<SubmissionMutationEntity>
   ): TaskDataMap {
     val responseMap = ResponseMapConverter.fromString(job!!, submission.responses)
-    val deltas = ImmutableList.builder<TaskDataDelta>()
+    val deltas = mutableListOf<TaskDataDelta>()
     for (mutation in mutations) {
       // Merge changes to responses.
       deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.responseDeltas))
     }
-    return responseMap.copyWithDeltas(deltas.build())
+    return responseMap.copyWithDeltas(deltas.toPersistentList())
   }
 
   private fun toSubmissions(
     locationOfInterest: LocationOfInterest,
     submissionEntities: List<SubmissionEntity>
-  ): ImmutableList<Submission> =
-    submissionEntities
-      .flatMap { logAndSkip { it.toModelObject(locationOfInterest) } }
-      .toImmutableList()
+  ): List<Submission> =
+    submissionEntities.flatMap { logAndSkip { it.toModelObject(locationOfInterest) } }
 
   override fun deleteSubmission(submissionId: String): Completable =
     submissionDao
@@ -247,12 +244,10 @@ class RoomLocalSubmissionMutationStore @Inject internal constructor() :
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<ImmutableList<SubmissionMutation>> =
+  ): Flowable<List<SubmissionMutation>> =
     submissionMutationDao
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
-      .map { list: List<SubmissionMutationEntity> ->
-        list.map { it.toModelObject(survey) }.toImmutableList()
-      }
+      .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
 
   override fun applyAndEnqueue(mutation: SubmissionMutation): Completable =
     try {

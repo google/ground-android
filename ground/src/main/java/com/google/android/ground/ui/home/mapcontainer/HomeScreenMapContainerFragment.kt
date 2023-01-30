@@ -20,12 +20,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -47,6 +50,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var loiCardSource: LoiCardSource
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var offlineUuidGenerator: OfflineUuidGenerator
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -128,6 +132,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         }
       }
     )
+
+    val helper: SnapHelper = PagerSnapHelper()
+    helper.attachToRecyclerView(recyclerView)
   }
 
   private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
@@ -135,7 +142,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
         /* surveyId = */ loi.surveyId,
         /* locationOfInterestId = */ loi.id,
-        /* submissionId = */ "dummy submission id"
+        /* submissionId = */ offlineUuidGenerator.generateUuid()
       )
     )
   }

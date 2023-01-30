@@ -21,7 +21,6 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.persistence.local.LocalDataStore
-import com.google.common.collect.ImmutableList
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.reactivex.Completable
@@ -139,7 +138,7 @@ constructor(
     } else downloadTileSet(tileSet)
   }
 
-  private fun processTileSets(pendingTileSets: ImmutableList<TileSet>): Completable =
+  private fun processTileSets(pendingTileSets: List<TileSet>): Completable =
     Observable.fromIterable(pendingTileSets).flatMapCompletable { tileSet ->
       when (tileSet.state) {
         TileSet.State.DOWNLOADED -> downloadIfNotFound(tileSet)

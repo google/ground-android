@@ -21,8 +21,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -36,7 +34,7 @@ interface LocalLocationOfInterestMutationStore :
    */
   fun getLocationsOfInterestOnceAndStream(
     survey: Survey
-  ): @Cold(terminates = false) Flowable<ImmutableSet<LocationOfInterest>>
+  ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>>
 
   /** Returns the LOI with the specified UUID from the local data store, if found. */
   fun getLocationOfInterest(
@@ -54,7 +52,7 @@ interface LocalLocationOfInterestMutationStore :
   fun getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<ImmutableList<LocationOfInterestMutation>>
+  ): Flowable<List<LocationOfInterestMutation>>
 
   fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>>
 
