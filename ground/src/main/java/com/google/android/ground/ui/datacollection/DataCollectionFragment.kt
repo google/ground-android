@@ -49,12 +49,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private lateinit var viewPager: ViewPager2
 
-  //  override fun onResume() {
-  //    super.onResume()
-  //
-  //    viewPager.currentItem = viewModel.currentPosition.value!!
-  //  }
-
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
