@@ -69,7 +69,7 @@ constructor(
     get() =
       localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapSingle {
         if (it.isEmpty()) Single.just(Optional.empty())
-        else getSurvey(it).map { s -> Optional.of(s) }
+        else getOfflineSurvey(it).map { s -> Optional.of(s) }
       }
 
   val offlineSurveys: @Cold Single<List<Survey>>
@@ -82,7 +82,7 @@ constructor(
   }
 
   /** This only works if the survey is already cached to local db. */
-  fun getSurvey(surveyId: String): @Cold Single<Survey> =
+  fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
     surveyStore
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })

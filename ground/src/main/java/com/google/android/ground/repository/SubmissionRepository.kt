@@ -74,10 +74,11 @@ constructor(
     taskId: String
   ): @Cold Single<List<Submission>> =
     // TODO: Only fetch first n fields.
-    locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
-      locationOfInterest: LocationOfInterest ->
-      getSubmissions(locationOfInterest, taskId)
-    }
+    locationOfInterestRepository
+      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
+      .flatMap { locationOfInterest: LocationOfInterest ->
+        getSubmissions(locationOfInterest, taskId)
+      }
 
   private fun getSubmissions(
     locationOfInterest: LocationOfInterest,
@@ -113,12 +114,13 @@ constructor(
     submissionId: String
   ): @Cold Single<Submission> =
     // TODO: Store and retrieve latest edits from cache and/or db.
-    locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
-      locationOfInterest ->
-      submissionStore
-        .getSubmission(locationOfInterest, submissionId)
-        .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
-    }
+    locationOfInterestRepository
+      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
+      .flatMap { locationOfInterest ->
+        submissionStore
+          .getSubmission(locationOfInterest, submissionId)
+          .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
+      }
 
   fun createSubmission(
     surveyId: String,
@@ -127,17 +129,18 @@ constructor(
   ): @Cold Single<Submission> {
     // TODO: Very jobId == loi job id.
     val auditInfo = AuditInfo(authManager.currentUser)
-    return locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).map {
-      locationOfInterest: LocationOfInterest ->
-      Submission(
-        uuidGenerator.generateUuid(),
-        locationOfInterest.surveyId,
-        locationOfInterest,
-        locationOfInterest.job,
-        auditInfo,
-        auditInfo
-      )
-    }
+    return locationOfInterestRepository
+      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
+      .map { locationOfInterest: LocationOfInterest ->
+        Submission(
+          uuidGenerator.generateUuid(),
+          locationOfInterest.surveyId,
+          locationOfInterest,
+          locationOfInterest.job,
+          auditInfo,
+          auditInfo
+        )
+      }
   }
 
   fun deleteSubmission(submission: Submission): @Cold Completable =
