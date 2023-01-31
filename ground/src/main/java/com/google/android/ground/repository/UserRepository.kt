@@ -35,10 +35,9 @@ class UserRepository
 @Inject
 constructor(
   private val authenticationManager: AuthenticationManager,
-  private val localDataStore: LocalDataStore,
   private val localValueStore: LocalValueStore,
   private val schedulers: Schedulers,
-  private val surveyRepository: SurveyRepository
+  val localDataStore: LocalDataStore
 ) {
   private val userStore = localDataStore.userStore
 
