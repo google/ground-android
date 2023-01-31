@@ -75,14 +75,16 @@ constructor(
   var activeSurveyId: String = ""
     private set
 
-  var lastActiveSurveyId: String
+  var lastActiveSurveyId: String = ""
     get() = localValueStore.lastActiveSurveyId
-    set(value) {
-      localValueStore.lastActiveSurveyId = value
-    }
+    private set
 
   val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
+
+  fun setLastActiveSurveyId(surveyId: String) {
+    localValueStore.lastActiveSurveyId = surveyId
+  }
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
     val survey = syncSurveyWithRemote(surveyId).await()

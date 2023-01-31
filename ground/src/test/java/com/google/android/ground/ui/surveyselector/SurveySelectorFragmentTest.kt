@@ -34,16 +34,13 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.*
-import java8.util.Optional
 import javax.inject.Inject
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
@@ -56,17 +53,11 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
   private lateinit var fragment: SurveySelectorFragment
-  private lateinit var activeSurveyFlowableEmitter: FlowableEmitter<Optional<Survey>>
 
   @Before
   override fun setUp() {
     super.setUp()
     fakeAuthenticationManager.setUser(TEST_USER)
-
-    whenever(surveyRepository.activeSurvey)
-      .thenReturn(
-        Flowable.create({ activeSurveyFlowableEmitter = it }, BackpressureStrategy.LATEST)
-      )
   }
 
   @Test
@@ -119,36 +110,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     onView(withId(R.id.recycler_view))
       .perform(RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
 
-    // Assert that survey was activated
-    verify(surveyRepository).activateSurvey(eq(TEST_SURVEY_2.id))
-  }
-
-  @Test
-  fun surveyActivated_whenNothingClicked() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of(TEST_SURVEY_2))
-    setUpFragment()
-
-    // Activate survey
-    activeSurveyFlowableEmitter.onNext(Optional.of(TEST_SURVEY_2))
-
-    // Assert that no navigation was requested
-    verifyNoInteractions(navigator)
-  }
-
-  @Test
-  fun surveyActivated_whenSurveyClicked() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of(TEST_SURVEY_2))
-    setUpFragment()
-
-    // Click second item
-    onView(withId(R.id.recycler_view))
-      .perform(RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
-
-    // Activate survey
-    activeSurveyFlowableEmitter.onNext(Optional.of(TEST_SURVEY_2))
-
+    // Assert that survey id was persisted
+    verify(surveyRepository).setLastActiveSurveyId(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
     verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
   }

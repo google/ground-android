@@ -72,7 +72,7 @@ internal constructor(
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    surveyRepository.lastActiveSurveyId = surveyId
+    surveyRepository.setLastActiveSurveyId(surveyId)
     navigateToHomeScreen()
   }
 
