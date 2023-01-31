@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.home
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.res.Configuration
 import android.os.Bundle
@@ -71,8 +70,6 @@ class HomeScreenFragment :
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
-
-  private var progressDialog: ProgressDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
