@@ -47,8 +47,8 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       activeSurveyIdProcessor.onNext(id)
     }
 
-  /** Id of the last basemap type. */
-  var lastMapType: Int
+  /** Id of the current map type. */
+  var mapType: Int
     get() = preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID)
     set(type) {
       preferences.edit().putInt(MAP_TYPE, type).apply()
