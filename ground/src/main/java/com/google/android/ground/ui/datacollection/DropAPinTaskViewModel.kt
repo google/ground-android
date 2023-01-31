@@ -37,7 +37,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
 
   fun updateResponse(position: CameraPosition) {
     setResponse(Optional.of(LocationTaskData(position)))
-    features.postValue(ImmutableSet.of(createFeature(position.target)))
+    features.postValue(ImmutableSet.of(createFeature(Point(position.target))))
   }
 
   private fun createFeature(point: Point): Feature =
