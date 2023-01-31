@@ -19,6 +19,8 @@ import android.content.SharedPreferences
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
+import io.reactivex.Flowable
+import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -31,11 +33,18 @@ import timber.log.Timber
 @Singleton
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
 
+  private val activeSurveyIdProcessor: BehaviorProcessor<String> =
+    BehaviorProcessor.createDefault(lastActiveSurveyId)
+
+  val activeSurveyIdFlowable: Flowable<String>
+    get() = activeSurveyIdProcessor
+
   /** Id of the last survey successfully activated by the user. */
   var lastActiveSurveyId: String
     get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
     set(id) {
       preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
+      activeSurveyIdProcessor.onNext(id)
     }
 
   /** Id of the last basemap type. */

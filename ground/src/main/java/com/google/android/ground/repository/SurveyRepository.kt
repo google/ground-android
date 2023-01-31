@@ -26,12 +26,9 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.CameraPosition
 import io.reactivex.Flowable
 import io.reactivex.Single
-import io.reactivex.processors.BehaviorProcessor
-import io.reactivex.processors.FlowableProcessor
 import java.util.concurrent.TimeUnit
 import java8.util.Optional
 import javax.inject.Inject
@@ -64,13 +61,16 @@ constructor(
 ) {
   private val surveyStore = localDataStore.surveyStore
 
-  /** Emits the latest loading state of the current survey on subscribe and on change. */
-  private val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
-    BehaviorProcessor.create()
-
-  /** Emits the last active survey or `empty()` if none available on subscribe and on change. */
-  val activeSurvey: @Hot(replays = true) Flowable<Optional<Survey>>
-    get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
+  /**
+   * Emits the currently active survey on subscribe and on change. Emits `empty()]`when no survey is
+   * active.
+   */
+  val activeSurvey: @Cold Flowable<Optional<Survey>>
+    get() =
+      localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapSingle {
+        if (it.isEmpty()) Single.just(Optional.empty())
+        else getSurvey(it).map { s -> Optional.of(s) }
+      }
 
   val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
@@ -115,10 +115,8 @@ constructor(
             surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
               ?: syncSurveyFromRemote(surveyId)
           localValueStore.lastActiveSurveyId = surveyId
-          surveyLoadingState.onNext(Loadable.loaded(survey))
         } catch (e: Error) {
           Timber.e("Error activating survey", e)
-          surveyLoadingState.onNext(Loadable.error(e))
         }
       }
     }
