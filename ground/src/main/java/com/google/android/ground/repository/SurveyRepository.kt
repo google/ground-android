@@ -75,8 +75,16 @@ constructor(
   var activeSurveyId: String = ""
     private set
 
+  var lastActiveSurveyId: String = ""
+    get() = localValueStore.lastActiveSurveyId
+    private set
+
   val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
+
+  fun setLastActiveSurveyId(surveyId: String) {
+    localValueStore.lastActiveSurveyId = surveyId
+  }
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
     val survey = syncSurveyWithRemote(surveyId).await()
@@ -98,7 +106,7 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  fun loadLastActiveSurvey() = activateSurvey(localValueStore.lastActiveSurveyId)
+  fun loadLastActiveSurvey() = activateSurvey(lastActiveSurveyId)
 
   fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
@@ -133,13 +141,11 @@ constructor(
     surveyLoadingState.onNext(Loadable.notLoaded())
   }
 
-  fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
+  fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
     loadSurveySummariesFromRemote(user)
       .doOnSubscribe { Timber.d("Loading survey list from remote") }
       .doOnError { Timber.d(it, "Failed to load survey list from remote") }
       .onErrorResumeNext { offlineSurveys }
-      .toFlowable()
-      .compose { Loadable.loadingOnceAndWrap(it) }
 
   private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
     remoteDataStore

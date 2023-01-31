@@ -18,7 +18,6 @@ package com.google.android.ground.ui.map
 import android.location.Location
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SurveyRepository
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -61,9 +60,9 @@ class MapControllerTest : BaseHiltTest() {
 
     val cameraUpdatesSubscriber = mapController.getCameraUpdates().test()
 
-    mapController.panAndZoomCamera(TEST_POINT)
+    mapController.panAndZoomCamera(TEST_COORDINATE)
 
-    cameraUpdatesSubscriber.assertValues(CameraPosition(TEST_POINT, 18.0f))
+    cameraUpdatesSubscriber.assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
   }
 
   @Test
@@ -73,13 +72,13 @@ class MapControllerTest : BaseHiltTest() {
       .thenReturn(
         Flowable.just(
           Location("test provider").apply {
-            latitude = TEST_POINT.coordinate.x
-            longitude = TEST_POINT.coordinate.y
+            latitude = TEST_COORDINATE.x
+            longitude = TEST_COORDINATE.y
           }
         )
       )
 
-    mapController.getCameraUpdates().test().assertValues(CameraPosition(TEST_POINT, 18.0f))
+    mapController.getCameraUpdates().test().assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
   }
 
   @Test
@@ -101,8 +100,8 @@ class MapControllerTest : BaseHiltTest() {
   }
 
   companion object {
-    private val TEST_POINT = Point(Coordinate(20.0, 30.0))
-    private val TEST_POSITION = CameraPosition(TEST_POINT)
+    private val TEST_COORDINATE = Coordinate(20.0, 30.0)
+    private val TEST_POSITION = CameraPosition(TEST_COORDINATE)
     private val TEST_SURVEY = Optional.of(FakeData.SURVEY)
   }
 }

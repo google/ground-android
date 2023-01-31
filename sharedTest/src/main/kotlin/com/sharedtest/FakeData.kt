@@ -107,7 +107,7 @@ object FakeData {
       Polygon(LinearRing(VERTICES.map { it.coordinate })),
     )
 
-  @JvmField val POINT = Point(Coordinate(42.0, 18.0))
+  @JvmField val COORDINATE = Coordinate(42.0, 18.0)
 
   @JvmStatic
   @JvmOverloads
