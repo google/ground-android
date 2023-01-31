@@ -111,9 +111,7 @@ constructor(
     externalScope.launch {
       withContext(ioDispatcher) {
         try {
-          val survey =
-            surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
-              ?: syncSurveyFromRemote(surveyId)
+          surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
           localValueStore.activeSurveyId = surveyId
         } catch (e: Error) {
           Timber.e("Error activating survey", e)
