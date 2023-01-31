@@ -32,6 +32,7 @@ import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import java8.util.Optional
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -45,7 +46,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @UninstallModules(LocalDataStoreModule::class)
