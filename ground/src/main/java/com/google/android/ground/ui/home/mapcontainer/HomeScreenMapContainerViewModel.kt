@@ -112,6 +112,8 @@ internal constructor(
       resources.getString(R.string.location_accuracy, it.accuracy)
     }
 
+  // TODO(#1373): Delete once LOIs are synced on survey activation and on update in background
+  //   worker.
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
   ): Flowable<Set<LocationOfInterest>> =
