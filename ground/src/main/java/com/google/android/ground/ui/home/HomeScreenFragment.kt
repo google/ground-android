@@ -27,7 +27,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.fragment.NavHostFragment
-import com.akaita.java.rxjava2debug.RxJava2Debug
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
@@ -36,8 +35,6 @@ import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.LoadState
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -49,8 +46,8 @@ import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -95,7 +92,6 @@ class HomeScreenFragment :
     locationOfInterestSelectorViewModel =
       getViewModel(LocationOfInterestSelectorViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    homeScreenViewModel.surveyLoadingState.observe(this) { onActiveSurveyChange(it) }
     homeScreenViewModel.bottomSheetState.observe(this) { onBottomSheetStateChange(it) }
     homeScreenViewModel.showLocationOfInterestSelectorRequests
       .`as`(RxAutoDispose.autoDisposable(this))
@@ -144,34 +140,10 @@ class HomeScreenFragment :
     headerBinding.user = authenticationManager.currentUser
   }
 
-  /** Fetches offline saved surveys and adds them to navigation drawer. */
-  private fun updateNavDrawer(activeSurvey: Survey) {
-    surveySelectorViewModel.offlineSurveys
-      .subscribeOn(schedulers.io())
-      .observeOn(schedulers.ui())
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { surveys: List<Survey> -> addSurveyToNavDrawer(surveys, activeSurvey) }
-  }
-
   // Below index is the order of the surveys item in nav_drawer_menu.xml
   private val surveysNavItem: MenuItem
     get() = // Below index is the order of the surveys item in nav_drawer_menu.xml
     binding.navView.menu.getItem(1)
-
-  private fun addSurveyToNavDrawer(surveys: List<Survey>, activeSurvey: Survey) {
-    this.surveys = surveys
-
-    // clear last saved surveys list
-    surveysNavItem.subMenu?.removeGroup(R.id.group_join_survey)
-    for (index in surveys.indices) {
-      surveysNavItem.subMenu
-        ?.add(R.id.group_join_survey, Menu.NONE, index, surveys[index].title)
-        ?.setIcon(R.drawable.ic_menu_survey)
-    }
-
-    // Highlight active survey
-    updateSelectedSurveyUI(getSelectedSurveyIndex(activeSurvey))
-  }
 
   override fun onGlobalLayout() {
     if (binding.root.findViewById<FrameLayout>(R.id.bottom_sheet_header) == null) return
@@ -293,17 +265,6 @@ class HomeScreenFragment :
     bottomSheetBehavior.peekHeight = peekHeight.toInt()
   }
 
-  private fun onActiveSurveyChange(loadable: Loadable<Survey>) {
-    when (loadable.state) {
-      LoadState.LOADED -> {
-        dismissSurveyLoadingDialog()
-        updateNavDrawer(loadable.value().get())
-      }
-      LoadState.LOADING -> showSurveyLoadingDialog()
-      LoadState.ERROR -> loadable.error().ifPresent { onActivateSurveyFailure(it!!) }
-    }
-  }
-
   private fun updateSelectedSurveyUI(selectedIndex: Int) {
     val subMenu = surveysNavItem.subMenu
     for (i in surveys.indices) {
@@ -337,20 +298,6 @@ class HomeScreenFragment :
     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
   }
 
-  private fun showSurveyLoadingDialog() {
-    if (progressDialog == null) {
-      progressDialog = ProgressDialogs.modalSpinner(context, R.string.survey_loading_please_wait)
-      progressDialog?.show()
-    }
-  }
-
-  private fun dismissSurveyLoadingDialog() {
-    if (progressDialog != null) {
-      progressDialog!!.dismiss()
-      progressDialog = null
-    }
-  }
-
   override fun onBack(): Boolean {
     return if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
       false
@@ -379,13 +326,6 @@ class HomeScreenFragment :
     }
     closeDrawer()
     return true
-  }
-
-  private fun onActivateSurveyFailure(throwable: Throwable) {
-    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating survey")
-    dismissSurveyLoadingDialog()
-    popups.showError(R.string.survey_load_error)
-    showSurveySelector()
   }
 
   private fun showLocationOfInterestProperties() {

@@ -32,10 +32,7 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
-import java.util.concurrent.TimeUnit
 import java8.util.Optional
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -43,6 +40,9 @@ import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
 private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
@@ -65,7 +65,7 @@ constructor(
   private val surveyStore = localDataStore.surveyStore
 
   /** Emits the latest loading state of the current survey on subscribe and on change. */
-  val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
+  private val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
     BehaviorProcessor.create()
 
   /** Emits the last active survey or `empty()` if none available on subscribe and on change. */
@@ -102,7 +102,7 @@ constructor(
 
   fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
-    if (surveyId == activeSurveyId) {
+    if (surveyId == localValueStore.lastActiveSurveyId) {
       return
     }
     // Clear survey if id is empty.
@@ -114,7 +114,6 @@ constructor(
     externalScope.launch {
       withContext(ioDispatcher) {
         try {
-          surveyLoadingState.onNext(Loadable.loading())
           val survey =
             surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
               ?: syncSurveyFromRemote(surveyId)
@@ -130,7 +129,7 @@ constructor(
   }
 
   fun clearActiveSurvey() {
-    surveyLoadingState.onNext(Loadable.notLoaded())
+    localValueStore.lastActiveSurveyId = ""
   }
 
   fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =

@@ -15,14 +15,10 @@
  */
 package com.google.android.ground.ui.home
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -36,8 +32,8 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 @SharedViewModel
 class HomeScreenViewModel
@@ -51,10 +47,6 @@ internal constructor(
   @JvmField
   val isSubmissionButtonVisible: @Hot(replays = true) MutableLiveData<Boolean> =
     MutableLiveData(false)
-
-  /** The state and value of the currently active survey (loading, loaded, etc.). */
-  val surveyLoadingState: LiveData<Loadable<Survey>> =
-    LiveDataReactiveStreams.fromPublisher(surveyRepository.surveyLoadingState)
 
   // TODO(#719): Move into LocationOfInterestDetailsViewModel.
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
