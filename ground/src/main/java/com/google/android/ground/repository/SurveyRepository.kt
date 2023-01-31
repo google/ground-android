@@ -72,9 +72,6 @@ constructor(
   val activeSurvey: @Hot(replays = true) Flowable<Optional<Survey>>
     get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
 
-  var activeSurveyId: String = ""
-    private set
-
   val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
 
@@ -117,7 +114,6 @@ constructor(
           val survey =
             surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
               ?: syncSurveyFromRemote(surveyId)
-          activeSurveyId = surveyId
           localValueStore.lastActiveSurveyId = surveyId
           surveyLoadingState.onNext(Loadable.loaded(survey))
         } catch (e: Error) {

@@ -57,6 +57,9 @@ internal constructor(
   private val mapController: MapController,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
+
+  private var activeSurveyId: String = ""
+
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
@@ -122,7 +125,7 @@ internal constructor(
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    surveyRepository.setCameraPosition(surveyRepository.activeSurveyId, newCameraPosition)
+    surveyRepository.setCameraPosition(activeSurveyId, newCameraPosition)
     lastCameraPosition = newCameraPosition
   }
 
@@ -194,8 +197,9 @@ internal constructor(
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
     val loiStream =
-      surveyRepository.activeSurvey.switchMap { activeProject ->
-        getLocationsOfInterestStream(activeProject)
+      surveyRepository.activeSurvey.switchMap { survey ->
+        activeSurveyId = survey.map { it.id }.orElse("")
+        getLocationsOfInterestStream(survey)
       }
 
     val savedMapLocationsOfInterest =
