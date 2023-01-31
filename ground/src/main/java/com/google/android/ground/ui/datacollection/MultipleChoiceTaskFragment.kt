@@ -19,20 +19,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.*
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver
-import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.BR
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
@@ -40,7 +40,7 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment
-constructor(private val task: Task, private val viewModel: AbstractTaskViewModel) :
+constructor(private val task: Task, private val viewModel: MultipleChoiceTaskViewModel) :
   AbstractFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -57,12 +57,12 @@ constructor(private val task: Task, private val viewModel: AbstractTaskViewModel
     val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
     optionListView.setHasFixedSize(true)
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      val adapter = SelectMultipleOptionAdapter(multipleChoice.options)
+      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
       adapter.setHasStableIds(true)
       optionListView.adapter = adapter
       setupMultipleSelectionTracker(optionListView, adapter)
     } else {
-      optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options)
+      optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
     }
 
     return binding.root
