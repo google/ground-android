@@ -25,7 +25,7 @@ import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -79,7 +79,9 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     onView(withId(R.id.agreeButton)).perform(click())
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
-    navDirectionsTestObserver.assertValue(HomeScreenFragmentDirections.showHomeScreen())
+    navDirectionsTestObserver.assertValue(
+      SurveySelectorFragmentDirections.showSurveySelectorScreen()
+    )
   }
 
   @Test
