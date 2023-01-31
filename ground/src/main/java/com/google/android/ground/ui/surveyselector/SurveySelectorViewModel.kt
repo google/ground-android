@@ -29,8 +29,6 @@ import io.reactivex.Single
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
@@ -74,18 +72,8 @@ internal constructor(
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    if (surveyRepository.activeSurveyId == surveyId) {
-      navigateToHomeScreen()
-    } else {
-      externalScope.launch {
-        withContext(ioDispatcher) {
-          val survey = surveyRepository.activateSurveyInternal(surveyId)
-          if (survey.id == surveyId) {
-            navigateToHomeScreen()
-          }
-        }
-      }
-    }
+    surveyRepository.lastActiveSurveyId = surveyId
+    navigateToHomeScreen()
   }
 
   private fun navigateToHomeScreen() {
