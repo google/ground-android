@@ -39,8 +39,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   val activeSurveyIdFlowable: Flowable<String>
     get() = activeSurveyIdProcessor
 
-  private val mapTypeProcessor: BehaviorProcessor<Int> =
-    BehaviorProcessor.createDefault(mapType)
+  private val mapTypeProcessor: BehaviorProcessor<Int> = BehaviorProcessor.createDefault(mapType)
 
   val mapTypeFlowable: Flowable<Int>
     get() = mapTypeProcessor
