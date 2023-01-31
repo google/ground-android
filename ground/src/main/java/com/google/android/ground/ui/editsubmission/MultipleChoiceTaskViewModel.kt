@@ -19,7 +19,6 @@ import android.content.res.Resources
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
 import com.google.android.ground.model.task.Option
-import com.google.common.collect.ImmutableList
 import java8.util.Optional
 import javax.inject.Inject
 
@@ -29,7 +28,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   fun getCurrentResponse(): Optional<MultipleChoiceTaskData> =
     taskData.value?.map { it as MultipleChoiceTaskData } ?: Optional.empty()
 
-  fun updateResponse(options: ImmutableList<Option>) {
+  fun updateResponse(options: List<Option>) {
     setResponse(fromList(task.multipleChoice, options.map(Option::id)))
   }
 }
