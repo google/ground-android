@@ -45,12 +45,6 @@ constructor(
   val currentUser: User
     get() = authenticationManager.currentUser
 
-  fun getUserRole(surveyId: String): Role {
-    val survey = surveyRepository.getSurvey(surveyId).blockingGet()
-    val value = survey.acl[currentUser.email]
-    return toRole(value)
-  }
-
   private fun toRole(roleString: String?): Role =
     when (roleString) {
       Constants.OWNER -> Role.OWNER

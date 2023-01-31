@@ -49,20 +49,6 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetUserRole() {
-    val surveyId = FakeData.SURVEY.id
-    localDataStoreHelper.insertSurvey(FakeData.SURVEY)
-
-    // Current user is authorized as contributor.
-    fakeAuthenticationManager.setUser(FakeData.USER)
-    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.DATA_COLLECTOR)
-
-    // Current user is unauthorized.
-    fakeAuthenticationManager.setUser(FakeData.USER_2)
-    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.UNKNOWN)
-  }
-
-  @Test
   fun testSaveUser() {
     localDataStore.userStore
       .getUser(FakeData.USER.id)
