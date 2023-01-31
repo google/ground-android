@@ -45,14 +45,6 @@ constructor(
   val currentUser: User
     get() = authenticationManager.currentUser
 
-  private fun toRole(roleString: String?): Role =
-    when (roleString) {
-      Constants.OWNER -> Role.OWNER
-      Constants.SURVEY_ORGANIZER -> Role.SURVEY_ORGANIZER
-      Constants.DATA_COLLECTOR -> Role.DATA_COLLECTOR
-      else -> Role.UNKNOWN
-    }
-
   fun saveUser(user: User): @Cold Completable =
     userStore.insertOrUpdateUser(user).observeOn(schedulers.io())
 
