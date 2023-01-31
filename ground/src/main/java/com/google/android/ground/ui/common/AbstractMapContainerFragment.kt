@@ -22,6 +22,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
@@ -52,7 +53,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { getMapViewModel().onMapDragged() }
 
-    mapStateRepository.observableMapType().observe(viewLifecycleOwner) { mapFragment.mapType = it }
+    mapStateRepository.mapTypeFlowable.`as`(autoDisposable(this)).subscribe {
+      mapFragment.mapType = it
+    }
 
     getMapViewModel().locationLockState.observe(viewLifecycleOwner) {
       onLocationLockStateChange(it, mapFragment)
@@ -60,7 +63,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
-    getMapViewModel().getSelectMapTypeClicks().`as`(RxAutoDispose.autoDisposable(this)).subscribe {
+    getMapViewModel().getSelectMapTypeClicks().`as`(autoDisposable(this)).subscribe {
       showMapTypeSelectorDialog()
     }
 

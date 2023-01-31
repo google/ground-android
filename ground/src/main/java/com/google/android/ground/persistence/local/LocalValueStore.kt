@@ -39,6 +39,12 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   val activeSurveyIdFlowable: Flowable<String>
     get() = activeSurveyIdProcessor
 
+  private val mapTypeProcessor: BehaviorProcessor<Int> =
+    BehaviorProcessor.createDefault(mapType)
+
+  val mapTypeFlowable: Flowable<Int>
+    get() = mapTypeProcessor
+
   /** Id of the last survey successfully activated by the user. */
   var activeSurveyId: String
     get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
@@ -47,11 +53,12 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       activeSurveyIdProcessor.onNext(id)
     }
 
-  /** Id of the current map type. */
+  /** Id of the basemap type. */
   var mapType: Int
     get() = preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID)
     set(type) {
       preferences.edit().putInt(MAP_TYPE, type).apply()
+      mapTypeProcessor.onNext(type)
     }
 
   /** Whether location lock is enabled or not. */

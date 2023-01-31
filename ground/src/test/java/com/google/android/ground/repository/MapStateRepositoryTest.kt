@@ -18,7 +18,6 @@ package com.google.android.ground.repository
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.TestObservers.observeUntilFirstChange
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.junit.Test
@@ -44,12 +43,11 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testObservableMapType_whenTerrain_returnsTerrain() {
+  fun testMapTypeFlowable_whenTerrain_returnsTerrain() {
     mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
 
-    observeUntilFirstChange(mapStateRepository.observableMapType())
-
-    assertThat(mapStateRepository.observableMapType().value).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapTypeFlowable.blockingFirst())
+      .isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
   }
 
   @Test
