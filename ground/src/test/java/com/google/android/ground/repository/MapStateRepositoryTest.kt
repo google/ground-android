@@ -27,40 +27,40 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class MapsRepositoryTest : BaseHiltTest() {
+class MapStateRepositoryTest : BaseHiltTest() {
 
-  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapStateRepository: MapStateRepository
 
   @Test
   fun testGetMapType_returnsSatellite() {
-    assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
   }
 
   @Test
   fun testGetMapType_whenTerrain_returnsTerrain() {
-    mapsRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+    mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
 
-    assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
   }
 
   @Test
   fun testObservableMapType_whenTerrain_returnsTerrain() {
-    mapsRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+    mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
 
-    observeUntilFirstChange(mapsRepository.observableMapType())
+    observeUntilFirstChange(mapStateRepository.observableMapType())
 
-    assertThat(mapsRepository.observableMapType().value).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.observableMapType().value).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
   }
 
   @Test
   fun testIsLocationLockEnabled_default() {
-    assertThat(mapsRepository.isLocationLockEnabled).isFalse()
+    assertThat(mapStateRepository.isLocationLockEnabled).isFalse()
   }
 
   @Test
   fun testIsLocationLockEnabled_whenLocked_returnsTrue() {
-    mapsRepository.isLocationLockEnabled = true
+    mapStateRepository.isLocationLockEnabled = true
 
-    assertThat(mapsRepository.isLocationLockEnabled).isTrue()
+    assertThat(mapStateRepository.isLocationLockEnabled).isTrue()
   }
 }

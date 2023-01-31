@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.map
 
 import android.location.Location
-import com.google.android.ground.repository.MapsRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import io.reactivex.BackpressureStrategy
@@ -32,7 +32,7 @@ class LocationController
 @Inject
 constructor(
   private val locationManager: LocationManager,
-  private val mapsRepository: MapsRepository
+  private val mapStateRepository: MapStateRepository
 ) {
 
   private val locationLockChangeRequests: @Hot Subject<Boolean> = PublishSubject.create()
@@ -40,7 +40,7 @@ constructor(
   /** Emits a stream of location lock requests. */
   fun getLocationLockUpdates(): Flowable<Result<Boolean>> =
     locationLockChangeRequests
-      .startWith(mapsRepository.isLocationLockEnabled)
+      .startWith(mapStateRepository.isLocationLockEnabled)
       .switchMapSingle { toggleLocationUpdates(it) }
       .toFlowable(BackpressureStrategy.LATEST)
       .share()
@@ -68,7 +68,7 @@ constructor(
   fun unlock() = onLockStateChanged(false)
 
   private fun onLockStateChanged(isLocked: Boolean) {
-    mapsRepository.isLocationLockEnabled = isLocked
+    mapStateRepository.isLocationLockEnabled = isLocked
     locationLockChangeRequests.onNext(isLocked)
   }
 }

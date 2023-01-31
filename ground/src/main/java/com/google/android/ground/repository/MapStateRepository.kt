@@ -21,9 +21,9 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Coordinates persistence and retrieval of map type from local value store. */
+/** Provides access and storage of persistent map states. */
 @Singleton
-class MapsRepository @Inject constructor(private val localValueStore: LocalValueStore) {
+class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) {
 
   private val mutableMapType: MutableLiveData<Int> = MutableLiveData(mapType)
 
