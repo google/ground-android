@@ -26,13 +26,10 @@ import com.google.android.ground.BR
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.collections.immutable.toImmutableList
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a

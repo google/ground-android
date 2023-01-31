@@ -61,8 +61,8 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -262,13 +262,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       val label = "multiple_choice_task"
       val option2Label = "Option 2"
       val option2Id = "2"
-      val multipleChoice = MultipleChoice(
-        persistentListOf(
-          Option("1", "code1", "Option 1"),
-          Option(option2Id, "code2", option2Label),
-        ),
-        MultipleChoice.Cardinality.SELECT_ONE
-      )
+      val multipleChoice =
+        MultipleChoice(
+          persistentListOf(
+            Option("1", "code1", "Option 1"),
+            Option(option2Id, "code2", option2Label),
+          ),
+          MultipleChoice.Cardinality.SELECT_ONE
+        )
       val taskId = "task id"
       setupSubmission(
         ImmutableMap.of(

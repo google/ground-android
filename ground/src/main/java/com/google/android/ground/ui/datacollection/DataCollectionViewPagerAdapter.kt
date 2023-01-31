@@ -43,7 +43,8 @@ constructor(
 
     return when (task.type) {
       Task.Type.TEXT -> QuestionTaskFragment(task, viewModel)
-      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment(task, viewModel as MultipleChoiceTaskViewModel)
+      Task.Type.MULTIPLE_CHOICE ->
+        MultipleChoiceTaskFragment(task, viewModel as MultipleChoiceTaskViewModel)
       Task.Type.PHOTO ->
         PhotoTaskFragment(
           task,

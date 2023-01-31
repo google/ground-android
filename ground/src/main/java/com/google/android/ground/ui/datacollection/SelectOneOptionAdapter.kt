@@ -23,14 +23,15 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.SelectOneOptionAdapter.ViewHolder
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
-import com.google.common.collect.ImmutableList
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [Option] data with the [ViewHolder]
  * RadioButton views.
  */
-class SelectOneOptionAdapter(private val options: List<Option>, private val viewModel: MultipleChoiceTaskViewModel) :
-  RecyclerView.Adapter<ViewHolder>() {
+class SelectOneOptionAdapter(
+  private val options: List<Option>,
+  private val viewModel: MultipleChoiceTaskViewModel
+) : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex = -1
 
