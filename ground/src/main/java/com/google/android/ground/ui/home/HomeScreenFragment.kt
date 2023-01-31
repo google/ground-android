@@ -26,13 +26,11 @@ import android.widget.FrameLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.rx.RxAutoDispose
@@ -40,8 +38,6 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
-import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -75,11 +71,8 @@ class HomeScreenFragment :
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
-  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
-  private lateinit var surveySelectorViewModel: SurveySelectorViewModel
 
   private var progressDialog: ProgressDialog? = null
-  private var surveys = emptyList<Survey>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -87,8 +80,6 @@ class HomeScreenFragment :
       ->
       onApplyWindowInsets(insets)
     }
-    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
-    surveySelectorViewModel = getViewModel(SurveySelectorViewModel::class.java)
     locationOfInterestSelectorViewModel =
       getViewModel(LocationOfInterestSelectorViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
@@ -140,11 +131,6 @@ class HomeScreenFragment :
     headerBinding.user = authenticationManager.currentUser
   }
 
-  // Below index is the order of the surveys item in nav_drawer_menu.xml
-  private val surveysNavItem: MenuItem
-    get() = // Below index is the order of the surveys item in nav_drawer_menu.xml
-    binding.navView.menu.getItem(1)
-
   override fun onGlobalLayout() {
     if (binding.root.findViewById<FrameLayout>(R.id.bottom_sheet_header) == null) return
 
@@ -194,18 +180,8 @@ class HomeScreenFragment :
     homeScreenViewModel.init()
   }
 
-  private val currentDestinationId: Int
-    get() {
-      val currentDestination = NavHostFragment.findNavController(this).currentDestination
-      return currentDestination?.id ?: -1
-    }
-
   private fun showSurveySelector() {
-    if (currentDestinationId != R.id.surveySelectorDialogFragment) {
-      navigator.navigate(
-        HomeScreenFragmentDirections.actionHomeScreenFragmentToProjectSelectorDialogFragment()
-      )
-    }
+    navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
   }
 
   private fun showDataCollection() {
@@ -265,24 +241,6 @@ class HomeScreenFragment :
     bottomSheetBehavior.peekHeight = peekHeight.toInt()
   }
 
-  private fun updateSelectedSurveyUI(selectedIndex: Int) {
-    val subMenu = surveysNavItem.subMenu
-    for (i in surveys.indices) {
-      val menuItem = subMenu?.getItem(i)
-      menuItem?.isChecked = i == selectedIndex
-    }
-  }
-
-  private fun getSelectedSurveyIndex(activeSurvey: Survey): Int {
-    for (survey in surveys) {
-      if (survey.id == activeSurvey.id) {
-        return surveys.indexOf(survey)
-      }
-    }
-    Timber.e("Selected survey not found.")
-    return -1
-  }
-
   private fun onBottomSheetStateChange(state: BottomSheetState) {
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> showBottomSheet()
@@ -308,21 +266,13 @@ class HomeScreenFragment :
   }
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
-    if (item.groupId == R.id.group_join_survey) {
-      val (id) = surveys[item.order]
-      surveySelectorViewModel.activateOfflineSurvey(id)
-    } else if (item.itemId == R.id.nav_join_survey) {
-      showSurveySelector()
-    } else if (item.itemId == R.id.tmp_collect_data) {
-      showDataCollection()
-    } else if (item.itemId == R.id.sync_status) {
-      homeScreenViewModel.showSyncStatus()
-    } else if (item.itemId == R.id.nav_offline_areas) {
-      showOfflineAreas()
-    } else if (item.itemId == R.id.nav_settings) {
-      homeScreenViewModel.showSettings()
-    } else if (item.itemId == R.id.nav_sign_out) {
-      authenticationManager.signOut()
+    when (item.itemId) {
+      R.id.nav_change_survey -> showSurveySelector()
+      R.id.tmp_collect_data -> showDataCollection()
+      R.id.sync_status -> homeScreenViewModel.showSyncStatus()
+      R.id.nav_offline_areas -> showOfflineAreas()
+      R.id.nav_settings -> homeScreenViewModel.showSettings()
+      R.id.nav_sign_out -> authenticationManager.signOut()
     }
     closeDrawer()
     return true

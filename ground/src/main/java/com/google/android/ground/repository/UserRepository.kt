@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.model.Constants
-import com.google.android.ground.model.Role
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore

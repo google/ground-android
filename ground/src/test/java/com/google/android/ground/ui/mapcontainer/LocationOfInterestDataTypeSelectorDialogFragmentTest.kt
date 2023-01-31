@@ -22,7 +22,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestDataTypeSelectorDialogFragment
-import com.google.android.ground.ui.surveyselector.SurveySelectorDialogFragment
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragment
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java8.util.function.Consumer
@@ -56,7 +56,7 @@ class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
 
     dialogFragment.showNow(
       activity.supportFragmentManager,
-      SurveySelectorDialogFragment::class.java.simpleName
+      SurveySelectorFragment::class.java.simpleName
     )
     shadowOf(Looper.getMainLooper()).idle()
   }

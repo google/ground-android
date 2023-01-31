@@ -24,9 +24,7 @@ import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.ui.map.CameraPosition
 import io.reactivex.Flowable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
@@ -71,6 +69,10 @@ constructor(
         if (it.isEmpty()) Single.just(Optional.empty())
         else getOfflineSurvey(it).map { s -> Optional.of(s) }
       }
+
+  var lastActiveSurveyId: String = ""
+    get() = localValueStore.activeSurveyId
+    private set
 
   val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
@@ -124,13 +126,11 @@ constructor(
     localValueStore.activeSurveyId = ""
   }
 
-  fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
+  fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
     loadSurveySummariesFromRemote(user)
       .doOnSubscribe { Timber.d("Loading survey list from remote") }
       .doOnError { Timber.d(it, "Failed to load survey list from remote") }
       .onErrorResumeNext { offlineSurveys }
-      .toFlowable()
-      .compose { Loadable.loadingOnceAndWrap(it) }
 
   private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
     remoteDataStore
@@ -142,10 +142,4 @@ constructor(
   ): @Cold(terminates = false) Flowable<List<Mutation>> {
     return localDataStore.getMutationsOnceAndStream(survey)
   }
-
-  fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
-    localValueStore.setLastCameraPosition(surveyId, cameraPosition)
-
-  fun getCameraPosition(surveyId: String): CameraPosition? =
-    localValueStore.getLastCameraPosition(surveyId)
 }
