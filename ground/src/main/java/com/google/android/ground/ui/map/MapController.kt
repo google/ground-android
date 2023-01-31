@@ -61,7 +61,7 @@ constructor(
       .filter { it.isPresent }
       .map { it.get().id }
       .flatMap { surveyId ->
-        val position = surveyRepository.getLastCameraPosition(surveyId)
+        val position = surveyRepository.getCameraPosition(surveyId)
         if (position != null) {
           Flowable.just(position.copy(isAllowZoomOut = true))
         } else {

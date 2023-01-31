@@ -150,6 +150,6 @@ constructor(
   fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
     localValueStore.setLastCameraPosition(surveyId, cameraPosition)
 
-  fun getLastCameraPosition(surveyId: String): CameraPosition? =
+  fun getCameraPosition(surveyId: String): CameraPosition? =
     localValueStore.getLastCameraPosition(surveyId)
 }

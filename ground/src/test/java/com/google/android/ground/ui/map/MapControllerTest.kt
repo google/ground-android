@@ -86,7 +86,7 @@ class MapControllerTest : BaseHiltTest() {
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsEmpty() {
     Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
-    Mockito.`when`(surveyRepository.getLastCameraPosition(any())).thenReturn(null)
+    Mockito.`when`(surveyRepository.getCameraPosition(any())).thenReturn(null)
 
     mapController.getCameraUpdates().test().assertEmpty()
   }
@@ -95,7 +95,7 @@ class MapControllerTest : BaseHiltTest() {
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationAvailable() {
     Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
-    Mockito.`when`(surveyRepository.getLastCameraPosition(any())).thenReturn(TEST_POSITION)
+    Mockito.`when`(surveyRepository.getCameraPosition(any())).thenReturn(TEST_POSITION)
 
     mapController.getCameraUpdates().test().assertValues(TEST_POSITION.copy(isAllowZoomOut = true))
   }
