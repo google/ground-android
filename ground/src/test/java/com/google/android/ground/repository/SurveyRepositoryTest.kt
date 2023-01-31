@@ -113,7 +113,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun loadLastActiveSurvey() =
     runTest(testDispatcher) {
-      localValueStore.lastActiveSurveyId = SURVEY.id
+      localValueStore.activeSurveyId = SURVEY.id
       setLocalTestSurvey(SURVEY)
 
       surveyRepository.loadLastActiveSurvey()
@@ -125,7 +125,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun loadLastActiveSurvey_noneSet() =
     runTest(testDispatcher) {
-      localValueStore.lastActiveSurveyId = ""
+      localValueStore.activeSurveyId = ""
       setLocalTestSurvey(SURVEY)
 
       surveyRepository.loadLastActiveSurvey()

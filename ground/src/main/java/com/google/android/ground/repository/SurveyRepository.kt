@@ -95,11 +95,11 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  fun loadLastActiveSurvey() = activateSurvey(localValueStore.lastActiveSurveyId)
+  fun loadLastActiveSurvey() = activateSurvey(localValueStore.activeSurveyId)
 
   fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
-    if (surveyId == localValueStore.lastActiveSurveyId) {
+    if (surveyId == localValueStore.activeSurveyId) {
       return
     }
     // Clear survey if id is empty.
@@ -114,7 +114,7 @@ constructor(
           val survey =
             surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
               ?: syncSurveyFromRemote(surveyId)
-          localValueStore.lastActiveSurveyId = surveyId
+          localValueStore.activeSurveyId = surveyId
         } catch (e: Error) {
           Timber.e("Error activating survey", e)
         }
@@ -123,7 +123,7 @@ constructor(
   }
 
   fun clearActiveSurvey() {
-    localValueStore.lastActiveSurveyId = ""
+    localValueStore.activeSurveyId = ""
   }
 
   fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =

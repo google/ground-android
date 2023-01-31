@@ -34,13 +34,13 @@ import timber.log.Timber
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
 
   private val activeSurveyIdProcessor: BehaviorProcessor<String> =
-    BehaviorProcessor.createDefault(lastActiveSurveyId)
+    BehaviorProcessor.createDefault(activeSurveyId)
 
   val activeSurveyIdFlowable: Flowable<String>
     get() = activeSurveyIdProcessor
 
   /** Id of the last survey successfully activated by the user. */
-  var lastActiveSurveyId: String
+  var activeSurveyId: String
     get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
     set(id) {
       preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
