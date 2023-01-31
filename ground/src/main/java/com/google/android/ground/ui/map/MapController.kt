@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
@@ -32,7 +33,8 @@ class MapController
 @Inject
 constructor(
   private val locationController: LocationController,
-  private val surveyRepository: SurveyRepository
+  private val surveyRepository: SurveyRepository,
+  private val mapStateRepository: MapStateRepository
 ) {
 
   private val cameraUpdatesSubject: @Hot Subject<CameraPosition> = PublishSubject.create()
@@ -61,7 +63,7 @@ constructor(
       .filter { it.isPresent }
       .map { it.get().id }
       .flatMap { surveyId ->
-        val position = surveyRepository.getCameraPosition(surveyId)
+        val position = mapStateRepository.getCameraPosition(surveyId)
         if (position != null) {
           Flowable.just(position.copy(isAllowZoomOut = true))
         } else {

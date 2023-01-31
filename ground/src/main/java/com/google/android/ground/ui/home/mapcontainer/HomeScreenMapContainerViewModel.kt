@@ -25,6 +25,7 @@ import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
@@ -51,10 +52,11 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val resources: Resources,
-  private val surveyRepository: SurveyRepository,
+  private val mapStateRepository: MapStateRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
+  surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
 
@@ -125,7 +127,7 @@ internal constructor(
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    surveyRepository.setCameraPosition(activeSurveyId, newCameraPosition)
+    mapStateRepository.setCameraPosition(activeSurveyId, newCameraPosition)
     lastCameraPosition = newCameraPosition
   }
 

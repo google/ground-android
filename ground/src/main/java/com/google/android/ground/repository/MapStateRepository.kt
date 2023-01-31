@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.ui.map.CameraPosition
 import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,4 +35,10 @@ class MapStateRepository @Inject constructor(private val localValueStore: LocalV
     set(value) {
       localValueStore.isLocationLockEnabled = value
     }
+
+  fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
+    localValueStore.setLastCameraPosition(surveyId, cameraPosition)
+
+  fun getCameraPosition(surveyId: String): CameraPosition? =
+    localValueStore.getLastCameraPosition(surveyId)
 }
