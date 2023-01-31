@@ -74,9 +74,12 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     val mapCenter = position.target
-    viewModel.onCameraMoved(mapCenter)
+    val mapCenterPoint = Point(mapCenter)
+    viewModel.onCameraMoved(mapCenterPoint)
     viewModel.firstVertex
-      .map { firstVertex: Point -> mapFragment.getDistanceInPixels(firstVertex, mapCenter) }
-      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenter, dist) }
+      .map { firstVertex: Point ->
+        mapFragment.getDistanceInPixels(firstVertex.coordinate, mapCenter)
+      }
+      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenterPoint, dist) }
   }
 }

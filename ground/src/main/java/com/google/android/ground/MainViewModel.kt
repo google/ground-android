@@ -34,6 +34,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -135,14 +136,21 @@ constructor(
       .saveUser(user)
       .andThen(
         if (termsOfServiceRepository.isTermsOfServiceAccepted) {
-          Observable.just(HomeScreenFragmentDirections.showHomeScreen())
+          Observable.just(getDirectionAfterSignIn())
         } else {
           termsOfServiceRepository.termsOfService
             .map { SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(it.text) }
             .cast(NavDirections::class.java)
-            .switchIfEmpty(Maybe.just(HomeScreenFragmentDirections.showHomeScreen()))
+            .switchIfEmpty(Maybe.just(getDirectionAfterSignIn()))
             .toObservable()
         }
       )
   }
+
+  private fun getDirectionAfterSignIn(): NavDirections =
+    if (surveyRepository.lastActiveSurveyId.isNotEmpty()) {
+      HomeScreenFragmentDirections.showHomeScreen()
+    } else {
+      SurveySelectorFragmentDirections.showSurveySelectorScreen()
+    }
 }

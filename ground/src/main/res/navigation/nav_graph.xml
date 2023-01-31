@@ -213,6 +213,10 @@
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/navGraph" />
   <action
+    android:id="@+id/showSurveySelectorScreen"
+    app:destination="@id/surveySelectorDialogFragment"
+    app:popUpTo="@id/navGraph" />
+  <action
     android:id="@+id/showMapTypeDialogFragment"
     app:destination="@id/mapTypeDialogFragment" />
 
@@ -232,10 +236,10 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
-  <dialog
+  <fragment
     android:id="@+id/surveySelectorDialogFragment"
-    android:name="com.google.android.ground.ui.surveyselector.SurveySelectorDialogFragment"
-    android:label="ProjectSelectorDialogFragment" />
+    android:name="com.google.android.ground.ui.surveyselector.SurveySelectorFragment"
+    android:label="SurveySelectorFragment" />
   <dialog
     android:id="@+id/locationOfInterestSelectorFragment"
     android:name="com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorFragment"

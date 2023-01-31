@@ -17,53 +17,66 @@ package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import io.reactivex.Single
 import javax.inject.Inject
-import timber.log.Timber
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
-  authManager: AuthenticationManager
+  private val authManager: AuthenticationManager,
+  private val navigator: Navigator,
+  @ApplicationScope private val externalScope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
-  val surveySummaries: LiveData<Loadable<List<Survey>>?>
-  val offlineSurveys: Single<List<Survey>>
-    get() = surveyRepository.offlineSurveys
 
-  /**
-   * Triggers the specified survey to be loaded and activated.
-   *
-   * @param idx the index in the survey summary list.
-   */
-  fun activateSurvey(idx: Int) {
-    val surveys: List<Survey> = surveySummaries.value?.value()?.orElse(listOf()) ?: listOf()
-    if (surveys.isEmpty()) {
-      Timber.e("Can't activate survey before list is loaded")
-      return
-    }
-    if (idx >= surveys.size) {
-      Timber.e("Can't activate survey at index $idx, only ${surveys.size} surveys in list")
-      return
-    }
-    val (id) = surveys[idx]
-    surveyRepository.activateSurvey(id)
-  }
-
-  fun activateOfflineSurvey(surveyId: String?) {
-    surveyRepository.activateSurvey(surveyId!!)
-  }
+  val surveySummaries: LiveData<List<SurveyItem>>
 
   init {
     surveySummaries =
       LiveDataReactiveStreams.fromPublisher(
-        surveyRepository.getSurveySummaries(authManager.currentUser)
+        offlineSurveys
+          .flatMap { offlineSurveys: List<Survey> ->
+            allSurveys.map { allSurveys: List<Survey> ->
+              allSurveys.map { createSurveyItem(it, offlineSurveys) }
+            }
+          }
+          .toFlowable()
       )
+  }
+
+  private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
+    SurveyItem(
+      surveyId = survey.id,
+      surveyTitle = survey.title,
+      surveyDescription = survey.description.ifEmpty { "Description Missing" },
+      isAvailableOffline = localSurveys.contains(survey)
+    )
+
+  private val offlineSurveys: Single<List<Survey>>
+    get() = surveyRepository.offlineSurveys
+
+  private val allSurveys: Single<List<Survey>>
+    get() = surveyRepository.getSurveySummaries(authManager.currentUser)
+
+  /** Triggers the specified survey to be loaded and activated. */
+  fun activateSurvey(surveyId: String) {
+    surveyRepository.setLastActiveSurveyId(surveyId)
+    navigateToHomeScreen()
+  }
+
+  private fun navigateToHomeScreen() {
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
   }
 }
