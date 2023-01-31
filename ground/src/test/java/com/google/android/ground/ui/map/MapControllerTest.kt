@@ -18,6 +18,7 @@ package com.google.android.ground.ui.map
 import android.location.Location
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -27,7 +28,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
 
@@ -36,27 +37,28 @@ import org.robolectric.RobolectricTestRunner
 class MapControllerTest : BaseHiltTest() {
   @Mock lateinit var locationController: LocationController
   @Mock lateinit var surveyRepository: SurveyRepository
+  @Mock lateinit var mapStateRepository: MapStateRepository
 
   private lateinit var mapController: MapController
 
   @Before
   override fun setUp() {
     super.setUp()
-    mapController = MapController(locationController, surveyRepository)
+    mapController = MapController(locationController, surveyRepository, mapStateRepository)
   }
 
   @Test
   fun testGetCameraUpdates_returnsNothing() {
-    Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
-    Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
+    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
 
     mapController.getCameraUpdates().test().assertValueCount(0)
   }
 
   @Test
   fun testGetCameraUpdates_whenPanAndZoomCamera() {
-    Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
-    Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
+    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
 
     val cameraUpdatesSubscriber = mapController.getCameraUpdates().test()
 
@@ -67,8 +69,8 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_whenLocationUpdates() {
-    Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
-    Mockito.`when`(locationController.getLocationUpdates())
+    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+    `when`(locationController.getLocationUpdates())
       .thenReturn(
         Flowable.just(
           Location("test provider").apply {
@@ -83,18 +85,18 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsEmpty() {
-    Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
-    Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
-    Mockito.`when`(surveyRepository.getCameraPosition(any())).thenReturn(null)
+    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
+    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
+    `when`(mapStateRepository.getCameraPosition(any())).thenReturn(null)
 
     mapController.getCameraUpdates().test().assertEmpty()
   }
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationAvailable() {
-    Mockito.`when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
-    Mockito.`when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
-    Mockito.`when`(surveyRepository.getCameraPosition(any())).thenReturn(TEST_POSITION)
+    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
+    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
+    `when`(mapStateRepository.getCameraPosition(any())).thenReturn(TEST_POSITION)
 
     mapController.getCameraUpdates().test().assertValues(TEST_POSITION.copy(isAllowZoomOut = true))
   }
