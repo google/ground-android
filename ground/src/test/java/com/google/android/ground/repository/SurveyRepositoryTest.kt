@@ -73,13 +73,14 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_firstTime() =
     runTest(testDispatcher) {
-      clearLocalTestSurvey()
+      // TODO(#1470): Remove this once we no longer rely on mocking `getSurvey`.
+      `when`(mockLocalSurveyStore.getSurveyById(anyString())).thenReturn(Maybe.empty(), Maybe.just(SURVEY))
       fakeRemoteDataStore.setTestSurvey(SURVEY)
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      surveyRepository.activeSurvey.test().assertValues(Optional.of(SURVEY))
       verify(mockLocalSurveyStore).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
     }
@@ -131,7 +132,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.loadLastActiveSurvey()
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertEmpty()
+      surveyRepository.activeSurvey.test().assertValue(Optional.empty())
     }
 
   private fun clearLocalTestSurvey() {
