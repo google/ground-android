@@ -63,12 +63,11 @@ constructor(
    * Emits the currently active survey on subscribe and on change. Emits `empty()]`when no survey is
    * active.
    */
-  val activeSurvey: @Cold Flowable<Optional<Survey>>
-    get() =
-      localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapSingle {
-        if (it.isEmpty()) Single.just(Optional.empty())
-        else getOfflineSurvey(it).map { s -> Optional.of(s) }
-      }
+  val activeSurvey: @Cold Flowable<Optional<Survey>> =
+    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapSingle {
+      if (it.isEmpty()) Single.just(Optional.empty())
+      else getOfflineSurvey(it).map { s -> Optional.of(s) }
+    }
 
   var lastActiveSurveyId: String = ""
     get() = localValueStore.activeSurveyId
@@ -114,6 +113,7 @@ constructor(
       withContext(ioDispatcher) {
         try {
           surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+          System.out.println("!!! After syncSurveyFromRemote")
           localValueStore.activeSurveyId = surveyId
         } catch (e: Error) {
           Timber.e("Error activating survey", e)
