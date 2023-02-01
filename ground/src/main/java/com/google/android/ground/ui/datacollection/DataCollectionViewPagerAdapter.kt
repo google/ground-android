@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -42,7 +43,8 @@ constructor(
 
     return when (task.type) {
       Task.Type.TEXT -> QuestionTaskFragment(task, viewModel)
-      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment(task, viewModel)
+      Task.Type.MULTIPLE_CHOICE ->
+        MultipleChoiceTaskFragment(task, viewModel as MultipleChoiceTaskViewModel)
       Task.Type.PHOTO ->
         PhotoTaskFragment(
           task,
