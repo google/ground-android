@@ -291,7 +291,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private AlertDialog createMultipleChoiceDialog(
       Task task,
       Optional<MultipleChoiceTaskData> response,
-      Consumer<ImmutableList<Option>> consumer) {
+      Consumer<List<Option>> consumer) {
     MultipleChoice multipleChoice = requireNonNull(task.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
