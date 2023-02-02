@@ -70,7 +70,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
   private Single<Pair<LocationOfInterest, Mutation>> loadLocationOfInterestAndPair(
       Mutation mutation) {
     return locationOfInterestRepository
-        .getLocationOfInterest(mutation.getSurveyId(), mutation.getLocationOfInterestId())
+        .getOfflineLocationOfInterest(mutation.getSurveyId(), mutation.getLocationOfInterestId())
         .map(locationOfInterest -> Pair.create(locationOfInterest, mutation));
   }
 
