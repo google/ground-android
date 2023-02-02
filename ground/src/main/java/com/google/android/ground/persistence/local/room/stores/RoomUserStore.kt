@@ -30,7 +30,7 @@ import timber.log.Timber
 
 /** Manages access to [User] objects persisted in local storage. */
 @Singleton
-class RoomLocalUserStore @Inject internal constructor() : LocalUserStore {
+class RoomUserStore @Inject internal constructor() : LocalUserStore {
   @Inject lateinit var userDao: UserDao
   @Inject lateinit var schedulers: Schedulers
 

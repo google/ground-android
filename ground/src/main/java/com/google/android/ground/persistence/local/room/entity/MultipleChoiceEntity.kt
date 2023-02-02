@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.persistence.local.room.models.MultipleChoiceEntityType
+import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEntityType
 
 @Entity(
   tableName = "multiple_choice",

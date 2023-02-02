@@ -14,43 +14,61 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.models;
+package com.google.android.ground.persistence.local.room.fields;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.ground.model.basemap.OfflineArea;
+import com.google.android.ground.model.task.Task.Type;
 import com.google.android.ground.persistence.local.room.IntEnum;
+import com.google.common.collect.ImmutableBiMap;
 
-/**
- * A database representation of OfflineArea download states. Mirrors the states specified by the
- * model {@link OfflineArea}
- */
-public enum OfflineAreaEntityState implements IntEnum {
+public enum TaskEntityType implements IntEnum {
   UNKNOWN(0),
-  PENDING(1),
-  IN_PROGRESS(2),
-  DOWNLOADED(3),
-  FAILED(4);
+  TEXT(1),
+  MULTIPLE_CHOICE(2),
+  PHOTO(3),
+  NUMBER(4),
+  DATE(5),
+  TIME(6);
 
   private final int intValue;
 
-  OfflineAreaEntityState(int intValue) {
+  private static final ImmutableBiMap<TaskEntityType, Type> TASK_TYPES =
+      ImmutableBiMap.<TaskEntityType, Type>builder()
+          .put(TEXT, Type.TEXT)
+          .put(MULTIPLE_CHOICE, Type.MULTIPLE_CHOICE)
+          .put(PHOTO, Type.PHOTO)
+          .put(NUMBER, Type.NUMBER)
+          .put(DATE, Type.DATE)
+          .put(TIME, Type.TIME)
+          .build();
+
+  TaskEntityType(int intValue) {
     this.intValue = intValue;
   }
 
+  @Override
   public int intValue() {
     return intValue;
   }
 
+  public static TaskEntityType fromTaskType(Type type) {
+    return TASK_TYPES.inverse().getOrDefault(type, TaskEntityType.UNKNOWN);
+  }
+
+  public Type toTaskType() {
+    return TASK_TYPES.getOrDefault(this, Type.UNKNOWN);
+  }
+
   @TypeConverter
-  public static int toInt(@Nullable OfflineAreaEntityState value) {
+  public static int toInt(@Nullable TaskEntityType value) {
     return IntEnum.toInt(value, UNKNOWN);
   }
 
   @NonNull
   @TypeConverter
-  public static OfflineAreaEntityState fromInt(int intValue) {
+  public static TaskEntityType fromInt(int intValue) {
     return IntEnum.fromInt(values(), intValue, UNKNOWN);
   }
 }
