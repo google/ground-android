@@ -113,7 +113,6 @@ constructor(
       withContext(ioDispatcher) {
         try {
           surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-          System.out.println("!!! After syncSurveyFromRemote")
           localValueStore.activeSurveyId = surveyId
         } catch (e: Error) {
           Timber.e("Error activating survey", e)
