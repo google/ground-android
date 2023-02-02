@@ -35,7 +35,7 @@ import javax.inject.Singleton
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
-class RoomLocalSurveyStore @Inject internal constructor() : LocalSurveyStore {
+class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var optionDao: OptionDao
   @Inject lateinit var multipleChoiceDao: MultipleChoiceDao
   @Inject lateinit var taskDao: TaskDao

@@ -51,11 +51,10 @@ import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
-class RoomLocalSubmissionMutationStore @Inject internal constructor() :
-  LocalSubmissionMutationStore {
+class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissionMutationStore {
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
-  @Inject lateinit var userStore: RoomLocalUserStore
+  @Inject lateinit var userStore: RoomUserStore
   @Inject lateinit var schedulers: Schedulers
 
   /**
@@ -117,7 +116,7 @@ class RoomLocalSubmissionMutationStore @Inject internal constructor() :
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override fun apply(mutation: SubmissionMutation): Completable {
     return when (mutation.type) {

@@ -33,7 +33,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RoomLocalTileSetStore @Inject internal constructor() : LocalTileSetStore {
+class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
   @Inject lateinit var tileSetDao: TileSetDao
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var fileUtil: FileUtil
