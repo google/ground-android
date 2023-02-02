@@ -19,7 +19,6 @@ import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState.Companion.error
@@ -54,7 +53,6 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var sharedPreferences: SharedPreferences
-  @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var tosRepository: TermsOfServiceRepository
   @Inject lateinit var userRepository: UserRepository
 
@@ -123,7 +121,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
     tosRepository.isTermsOfServiceAccepted = true
-    localValueStore.lastActiveSurveyId = "foo survey id"
+    localValueStore.activeSurveyId = "foo survey id"
     fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()

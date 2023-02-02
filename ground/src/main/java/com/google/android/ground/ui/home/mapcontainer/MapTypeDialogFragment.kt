@@ -22,7 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.MapTypeDialogFragmentBinding
-import com.google.android.ground.repository.MapsRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.ui.map.MapType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,7 +32,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
-  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapStateRepository: MapStateRepository
 
   private lateinit var binding: MapTypeDialogFragmentBinding
   private lateinit var mapTypes: Array<MapType>
@@ -54,7 +54,7 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
     binding.dialogCloseBtn.setOnClickListener { dismiss() }
 
-    val currentMapType = mapsRepository.mapType
+    val currentMapType = mapStateRepository.mapType
     val index = mapTypes.indexOfFirst { it.type == currentMapType }
     val recyclerview = binding.recyclerView
     recyclerview.adapter =
@@ -62,6 +62,6 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
   }
 
   private fun handleMapTypeSelected(position: Int) {
-    mapsRepository.mapType = mapTypes[position].type
+    mapStateRepository.mapType = mapTypes[position].type
   }
 }

@@ -91,12 +91,12 @@ constructor(
     locationOfInterestStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** This only works if the survey and location of interests are already cached to local db. */
-  fun getLocationOfInterest(
+  fun getOfflineLocationOfInterest(
     surveyId: String,
     locationOfInterest: String
   ): @Cold Single<LocationOfInterest> =
     surveyRepository
-      .getSurvey(surveyId)
+      .getOfflineSurvey(surveyId)
       .flatMapMaybe { survey: Survey ->
         locationOfInterestStore.getLocationOfInterest(survey, locationOfInterest)
       }
