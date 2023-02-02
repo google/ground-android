@@ -23,18 +23,24 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.common.collect.ImmutableList
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.*
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -44,6 +50,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveySelectorFragmentTest : BaseHiltTest() {
@@ -51,6 +58,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var navigator: Navigator
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var localValueStore: LocalValueStore
+  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
 
   private lateinit var fragment: SurveySelectorFragment
 
@@ -70,14 +79,14 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
 
     var viewHolder = getViewHolder(0)
-    Truth.assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
-    Truth.assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
-    Truth.assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
+    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
 
     viewHolder = getViewHolder(1)
-    Truth.assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
-    Truth.assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
-    Truth.assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
+    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
   }
 
   @Test
@@ -90,31 +99,35 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
 
     var viewHolder = getViewHolder(0)
-    Truth.assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
-    Truth.assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
-    Truth.assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
+    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
 
     viewHolder = getViewHolder(1)
-    Truth.assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
-    Truth.assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
-    Truth.assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.VISIBLE)
+    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
+    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.VISIBLE)
   }
 
   @Test
-  fun click_activatesSurvey() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of())
-    setUpFragment()
+  fun click_activatesSurvey() =
+    runTest(testDispatcher) {
+      setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+      setOfflineSurveys(ImmutableList.of())
+      setUpFragment()
 
-    // Click second item
-    onView(withId(R.id.recycler_view))
-      .perform(RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+      // Click second item
+      onView(withId(R.id.recycler_view))
+        .perform(
+          RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click())
+        )
+      advanceUntilIdle()
 
-    // Assert that survey id was persisted
-    verify(surveyRepository).setLastActiveSurveyId(TEST_SURVEY_2.id)
-    // Assert that navigation to home screen was requested
-    verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
-  }
+      // Assert survey is activated.
+      verify(surveyRepository).activateSurvey(TEST_SURVEY_2.id)
+      // Assert that navigation to home screen was requested
+      verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    }
 
   private fun setUpFragment() {
     launchFragmentInHiltContainer<SurveySelectorFragment> {

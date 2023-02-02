@@ -23,8 +23,6 @@ import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.LoadState.ERROR
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -75,14 +73,15 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_firstTime() =
     runTest(testDispatcher) {
-      clearLocalTestSurvey()
+      // TODO(#1470): Remove this once we no longer rely on mocking `getSurvey`.
+      `when`(mockLocalSurveyStore.getSurveyById(anyString()))
+        .thenReturn(Maybe.empty(), Maybe.just(SURVEY))
       fakeRemoteDataStore.setTestSurvey(SURVEY)
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-      surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
+      surveyRepository.activeSurvey.test().assertValues(Optional.of(SURVEY))
       verify(mockLocalSurveyStore).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
     }
@@ -96,7 +95,6 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
-      surveyRepository.surveyLoadingState.test().assertValue { it.state == ERROR }
       verify(mockLocalSurveyStore, never()).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
@@ -110,7 +108,6 @@ class SurveyRepositoryTest : BaseHiltTest() {
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-      surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
       verify(mockLocalSurveyStore, never()).insertOrUpdateSurvey(any())
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
@@ -118,27 +115,25 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun loadLastActiveSurvey() =
     runTest(testDispatcher) {
-      localValueStore.lastActiveSurveyId = SURVEY.id
+      localValueStore.activeSurveyId = SURVEY.id
       setLocalTestSurvey(SURVEY)
 
       surveyRepository.loadLastActiveSurvey()
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-      surveyRepository.surveyLoadingState.test().assertValue(Loadable.loaded(SURVEY))
     }
 
   @Test
   fun loadLastActiveSurvey_noneSet() =
     runTest(testDispatcher) {
-      localValueStore.lastActiveSurveyId = ""
+      localValueStore.activeSurveyId = ""
       setLocalTestSurvey(SURVEY)
 
       surveyRepository.loadLastActiveSurvey()
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertEmpty()
-      surveyRepository.surveyLoadingState.test().assertEmpty()
+      surveyRepository.activeSurvey.test().assertValue(Optional.empty())
     }
 
   private fun clearLocalTestSurvey() {

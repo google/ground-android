@@ -20,8 +20,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
-import com.google.android.ground.repository.MapsRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
@@ -35,7 +36,7 @@ import timber.log.Timber
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var mapFragment: MapFragment
-  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapStateRepository: MapStateRepository
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -52,7 +53,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { getMapViewModel().onMapDragged() }
 
-    mapsRepository.observableMapType().observe(viewLifecycleOwner) { mapFragment.mapType = it }
+    mapStateRepository.mapTypeFlowable.`as`(autoDisposable(this)).subscribe {
+      mapFragment.mapType = it
+    }
 
     getMapViewModel().locationLockState.observe(viewLifecycleOwner) {
       onLocationLockStateChange(it, mapFragment)
@@ -60,7 +63,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
-    getMapViewModel().getSelectMapTypeClicks().`as`(RxAutoDispose.autoDisposable(this)).subscribe {
+    getMapViewModel().getSelectMapTypeClicks().`as`(autoDisposable(this)).subscribe {
       showMapTypeSelectorDialog()
     }
 

@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.Role
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.common.truth.Truth.assertThat
@@ -49,20 +48,6 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetUserRole() {
-    val surveyId = FakeData.SURVEY.id
-    localDataStoreHelper.insertSurvey(FakeData.SURVEY)
-
-    // Current user is authorized as contributor.
-    fakeAuthenticationManager.setUser(FakeData.USER)
-    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.DATA_COLLECTOR)
-
-    // Current user is unauthorized.
-    fakeAuthenticationManager.setUser(FakeData.USER_2)
-    assertThat(userRepository.getUserRole(surveyId)).isEqualTo(Role.UNKNOWN)
-  }
-
-  @Test
   fun testSaveUser() {
     localDataStore.userStore
       .getUser(FakeData.USER.id)
@@ -74,8 +59,8 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testClearUserPreferences_returnsEmptyLastActiveSurvey() {
-    localValueStore.lastActiveSurveyId = "foo"
+    localValueStore.activeSurveyId = "foo"
     userRepository.clearUserPreferences()
-    assertThat(localValueStore.lastActiveSurveyId).isEmpty()
+    assertThat(localValueStore.activeSurveyId).isEmpty()
   }
 }

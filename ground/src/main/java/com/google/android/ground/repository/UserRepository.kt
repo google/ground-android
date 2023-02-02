@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.model.Constants
-import com.google.android.ground.model.Role
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -35,29 +33,14 @@ class UserRepository
 @Inject
 constructor(
   private val authenticationManager: AuthenticationManager,
-  private val localDataStore: LocalDataStore,
   private val localValueStore: LocalValueStore,
   private val schedulers: Schedulers,
-  private val surveyRepository: SurveyRepository
+  val localDataStore: LocalDataStore
 ) {
   private val userStore = localDataStore.userStore
 
   val currentUser: User
     get() = authenticationManager.currentUser
-
-  fun getUserRole(surveyId: String): Role {
-    val survey = surveyRepository.getSurvey(surveyId).blockingGet()
-    val value = survey.acl[currentUser.email]
-    return toRole(value)
-  }
-
-  private fun toRole(roleString: String?): Role =
-    when (roleString) {
-      Constants.OWNER -> Role.OWNER
-      Constants.SURVEY_ORGANIZER -> Role.SURVEY_ORGANIZER
-      Constants.DATA_COLLECTOR -> Role.DATA_COLLECTOR
-      else -> Role.UNKNOWN
-    }
 
   fun saveUser(user: User): @Cold Completable =
     userStore.insertOrUpdateUser(user).observeOn(schedulers.io())
