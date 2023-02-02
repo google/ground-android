@@ -44,7 +44,7 @@ import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDa
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
-import com.google.android.ground.persistence.local.room.models.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet

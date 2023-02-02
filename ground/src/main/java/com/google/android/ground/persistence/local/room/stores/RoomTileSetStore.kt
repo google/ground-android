@@ -21,7 +21,7 @@ import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.TileSetDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.TileSetEntity
-import com.google.android.ground.persistence.local.room.models.TileSetEntityState
+import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.util.FileUtil
@@ -33,7 +33,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RoomLocalTileSetStore @Inject internal constructor() : LocalTileSetStore {
+class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
   @Inject lateinit var tileSetDao: TileSetDao
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var fileUtil: FileUtil

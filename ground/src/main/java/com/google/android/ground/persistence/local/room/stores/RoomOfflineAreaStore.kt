@@ -31,7 +31,7 @@ import javax.inject.Singleton
 import timber.log.Timber
 
 @Singleton
-class RoomLocalOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
+class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
   @Inject lateinit var offlineAreaDao: OfflineAreaDao
   @Inject lateinit var schedulers: Schedulers
 

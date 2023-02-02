@@ -25,7 +25,7 @@ import com.google.android.ground.persistence.local.room.converter.JsonObjectType
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.entity.*
-import com.google.android.ground.persistence.local.room.models.*
+import com.google.android.ground.persistence.local.room.fields.*
 
 /**
  * Main entry point to local database API, exposing data access objects (DAOs) for interacting with

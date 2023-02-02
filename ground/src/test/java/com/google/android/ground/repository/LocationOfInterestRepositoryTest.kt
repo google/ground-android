@@ -23,7 +23,7 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.error
