@@ -24,7 +24,7 @@ import com.google.android.ground.model.task.Option
 import java8.util.Optional
 import java8.util.function.Consumer
 
-interface SelectDialogFactory{
+interface SelectDialogFactory {
   val selectedOptions: List<Option>
   val context: Context
   val title: String
