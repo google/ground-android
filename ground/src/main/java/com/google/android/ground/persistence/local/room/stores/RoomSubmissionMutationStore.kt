@@ -36,9 +36,9 @@ import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
-import com.google.android.ground.persistence.local.room.models.EntityState
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.room.models.UserDetails
+import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
 import com.google.android.ground.rx.Schedulers
 import com.google.common.base.Preconditions
@@ -116,7 +116,7 @@ class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissi
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   *   exist, or if type is "CREATE" and entity already exists.
+   * exist, or if type is "CREATE" and entity already exists.
    */
   override fun apply(mutation: SubmissionMutation): Completable {
     return when (mutation.type) {

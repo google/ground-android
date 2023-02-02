@@ -29,8 +29,8 @@ import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMu
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
-import com.google.android.ground.persistence.local.room.models.EntityState
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.rx.Schedulers
 import com.google.firebase.crashlytics.FirebaseCrashlytics

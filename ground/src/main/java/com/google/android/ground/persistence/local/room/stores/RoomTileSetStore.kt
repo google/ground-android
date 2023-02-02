@@ -21,7 +21,7 @@ import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.TileSetDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.TileSetEntity
-import com.google.android.ground.persistence.local.room.models.TileSetEntityState
+import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.util.FileUtil

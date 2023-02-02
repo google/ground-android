@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room.models;
+package com.google.android.ground.persistence.local.room.fields;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
