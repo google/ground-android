@@ -17,7 +17,7 @@ package com.google.android.ground.ui.map
 
 import android.location.Location
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.repository.MapsRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.system.LocationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
@@ -34,7 +34,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LocationControllerTest : BaseHiltTest() {
 
-  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapStateRepository: MapStateRepository
 
   @Mock lateinit var locationManager: LocationManager
 
@@ -47,7 +47,7 @@ class LocationControllerTest : BaseHiltTest() {
     `when`(locationManager.enableLocationUpdates()).thenReturn(Single.just(RESULT_ENABLE_LOCK))
     `when`(locationManager.disableLocationUpdates()).thenReturn(Single.just(RESULT_DISABLE_LOCK))
 
-    locationController = LocationController(locationManager, mapsRepository)
+    locationController = LocationController(locationManager, mapStateRepository)
   }
 
   @Test
@@ -58,7 +58,7 @@ class LocationControllerTest : BaseHiltTest() {
 
   @Test
   fun testLocationUpdates_whenLastLocationStateIsLocked() {
-    mapsRepository.isLocationLockEnabled = true
+    mapStateRepository.isLocationLockEnabled = true
 
     locationController.getLocationLockUpdates().test().assertValue(RESULT_ENABLE_LOCK)
     locationController.getLocationUpdates().test().assertValue(TEST_LOCATION)

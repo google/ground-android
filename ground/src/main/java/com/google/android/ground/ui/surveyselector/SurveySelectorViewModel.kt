@@ -17,8 +17,6 @@ package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -27,8 +25,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import io.reactivex.Single
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
@@ -37,8 +33,6 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
   private val authManager: AuthenticationManager,
   private val navigator: Navigator,
-  @ApplicationScope private val externalScope: CoroutineScope,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
 
   val surveySummaries: LiveData<List<SurveyItem>>
@@ -72,7 +66,7 @@ internal constructor(
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    surveyRepository.setLastActiveSurveyId(surveyId)
+    surveyRepository.activateSurvey(surveyId)
     navigateToHomeScreen()
   }
 

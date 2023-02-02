@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.home
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.res.Configuration
 import android.os.Bundle
@@ -26,17 +25,13 @@ import android.widget.FrameLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.akaita.java.rxjava2debug.RxJava2Debug
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.LoadState
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -76,8 +71,6 @@ class HomeScreenFragment :
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
 
-  private var progressDialog: ProgressDialog? = null
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat
@@ -87,7 +80,6 @@ class HomeScreenFragment :
     locationOfInterestSelectorViewModel =
       getViewModel(LocationOfInterestSelectorViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    homeScreenViewModel.surveyLoadingState.observe(this) { onActiveSurveyChange(it) }
     homeScreenViewModel.bottomSheetState.observe(this) { onBottomSheetStateChange(it) }
     homeScreenViewModel.showLocationOfInterestSelectorRequests
       .`as`(RxAutoDispose.autoDisposable(this))
@@ -246,14 +238,6 @@ class HomeScreenFragment :
     bottomSheetBehavior.peekHeight = peekHeight.toInt()
   }
 
-  private fun onActiveSurveyChange(loadable: Loadable<Survey>) {
-    when (loadable.state) {
-      LoadState.LOADED -> dismissSurveyLoadingDialog()
-      LoadState.LOADING -> showSurveyLoadingDialog()
-      LoadState.ERROR -> loadable.error().ifPresent { onActivateSurveyFailure(it!!) }
-    }
-  }
-
   private fun onBottomSheetStateChange(state: BottomSheetState) {
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> showBottomSheet()
@@ -267,20 +251,6 @@ class HomeScreenFragment :
 
   private fun hideBottomSheet() {
     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-  }
-
-  private fun showSurveyLoadingDialog() {
-    if (progressDialog == null) {
-      progressDialog = ProgressDialogs.modalSpinner(context, R.string.survey_loading_please_wait)
-      progressDialog?.show()
-    }
-  }
-
-  private fun dismissSurveyLoadingDialog() {
-    if (progressDialog != null) {
-      progressDialog!!.dismiss()
-      progressDialog = null
-    }
   }
 
   override fun onBack(): Boolean {
@@ -303,13 +273,6 @@ class HomeScreenFragment :
     }
     closeDrawer()
     return true
-  }
-
-  private fun onActivateSurveyFailure(throwable: Throwable) {
-    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating survey")
-    dismissSurveyLoadingDialog()
-    popups.showError(R.string.survey_load_error)
-    showSurveySelector()
   }
 
   private fun showLocationOfInterestProperties() {

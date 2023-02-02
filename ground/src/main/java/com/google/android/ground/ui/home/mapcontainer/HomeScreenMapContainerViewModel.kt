@@ -25,6 +25,7 @@ import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
@@ -51,12 +52,16 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val resources: Resources,
-  private val surveyRepository: SurveyRepository,
+  private val mapStateRepository: MapStateRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
+  surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
+
+  private var activeSurveyId: String = ""
+
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
@@ -107,6 +112,8 @@ internal constructor(
       resources.getString(R.string.location_accuracy, it.accuracy)
     }
 
+  // TODO(#1373): Delete once LOIs are synced on survey activation and on update in background
+  //   worker.
   private fun getLocationsOfInterestStream(
     activeProject: Optional<Survey>
   ): Flowable<Set<LocationOfInterest>> =
@@ -122,7 +129,7 @@ internal constructor(
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    surveyRepository.setCameraPosition(surveyRepository.activeSurveyId, newCameraPosition)
+    mapStateRepository.setCameraPosition(activeSurveyId, newCameraPosition)
     lastCameraPosition = newCameraPosition
   }
 
@@ -194,8 +201,9 @@ internal constructor(
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
     val loiStream =
-      surveyRepository.activeSurvey.switchMap { activeProject ->
-        getLocationsOfInterestStream(activeProject)
+      surveyRepository.activeSurvey.switchMap { survey ->
+        activeSurveyId = survey.map { it.id }.orElse("")
+        getLocationsOfInterestStream(survey)
       }
 
     val savedMapLocationsOfInterest =

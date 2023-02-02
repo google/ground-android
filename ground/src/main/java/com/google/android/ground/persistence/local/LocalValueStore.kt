@@ -19,6 +19,8 @@ import android.content.SharedPreferences
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
+import io.reactivex.Flowable
+import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -31,18 +33,31 @@ import timber.log.Timber
 @Singleton
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
 
+  private val activeSurveyIdProcessor: BehaviorProcessor<String> =
+    BehaviorProcessor.createDefault(activeSurveyId)
+
+  val activeSurveyIdFlowable: Flowable<String>
+    get() = activeSurveyIdProcessor
+
+  private val mapTypeProcessor: BehaviorProcessor<Int> = BehaviorProcessor.createDefault(mapType)
+
+  val mapTypeFlowable: Flowable<Int>
+    get() = mapTypeProcessor
+
   /** Id of the last survey successfully activated by the user. */
-  var lastActiveSurveyId: String
+  var activeSurveyId: String
     get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
     set(id) {
       preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
+      activeSurveyIdProcessor.onNext(id)
     }
 
-  /** Id of the last basemap type. */
-  var lastMapType: Int
+  /** Id of the basemap type. */
+  var mapType: Int
     get() = preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID)
     set(type) {
       preferences.edit().putInt(MAP_TYPE, type).apply()
+      mapTypeProcessor.onNext(type)
     }
 
   /** Whether location lock is enabled or not. */
