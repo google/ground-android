@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -32,8 +31,6 @@ import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
 import kotlinx.coroutines.withContext
@@ -54,7 +51,6 @@ constructor(
   private val localDataStore: LocalDataStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
   private val surveyStore = localDataStore.surveyStore
@@ -96,9 +92,9 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  fun loadLastActiveSurvey() = activateSurvey(localValueStore.activeSurveyId)
+  suspend fun loadLastActiveSurvey() = activateSurvey(localValueStore.activeSurveyId)
 
-  fun activateSurvey(surveyId: String) {
+  suspend fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
     if (surveyId == localValueStore.activeSurveyId) {
       return
@@ -109,15 +105,9 @@ constructor(
       return
     }
 
-    externalScope.launch {
-      withContext(ioDispatcher) {
-        try {
-          surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-          localValueStore.activeSurveyId = surveyId
-        } catch (e: Error) {
-          Timber.e("Error activating survey", e)
-        }
-      }
+    withContext(ioDispatcher) {
+      surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+      localValueStore.activeSurveyId = surveyId
     }
   }
 

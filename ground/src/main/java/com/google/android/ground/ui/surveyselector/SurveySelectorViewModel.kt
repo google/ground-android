@@ -17,6 +17,7 @@ package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -25,6 +26,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import io.reactivex.Single
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
@@ -65,10 +67,12 @@ internal constructor(
     get() = surveyRepository.getSurveySummaries(authManager.currentUser)
 
   /** Triggers the specified survey to be loaded and activated. */
-  fun activateSurvey(surveyId: String) {
-    surveyRepository.activateSurvey(surveyId)
-    navigateToHomeScreen()
-  }
+  fun activateSurvey(surveyId: String) =
+    viewModelScope.launch {
+      // TODO(#1497): Handle exceptions thrown by activateSurvey().
+      surveyRepository.activateSurvey(surveyId)
+      navigateToHomeScreen()
+    }
 
   private fun navigateToHomeScreen() {
     navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
