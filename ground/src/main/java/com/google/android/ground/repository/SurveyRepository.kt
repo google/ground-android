@@ -33,9 +33,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -95,9 +95,9 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  fun loadLastActiveSurvey() = activateSurvey(localValueStore.activeSurveyId)
+  suspend fun loadLastActiveSurvey() = activateSurvey(localValueStore.activeSurveyId)
 
-  fun activateSurvey(surveyId: String) {
+  suspend fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
     if (surveyId == localValueStore.activeSurveyId) {
       return
@@ -108,13 +108,9 @@ constructor(
       return
     }
 
-    externalScope.launch(ioDispatcher) {
-      try {
-        surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-        localValueStore.activeSurveyId = surveyId
-      } catch (e: Error) {
-        Timber.e("Error activating survey", e)
-      }
+    withContext(ioDispatcher) {
+      surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+      localValueStore.activeSurveyId = surveyId
     }
   }
 
