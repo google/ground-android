@@ -275,6 +275,7 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:1.3.0"
     androidTestImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
     testImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$project.kotlinVersion"
 
     // Mockito
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"

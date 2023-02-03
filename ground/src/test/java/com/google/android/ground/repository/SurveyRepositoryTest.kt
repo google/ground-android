@@ -17,106 +17,78 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
-import com.google.android.ground.model.Survey
-import com.google.android.ground.persistence.local.LocalDataStore
-import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import io.reactivex.Completable
-import io.reactivex.Maybe
 import java8.util.Optional
 import javax.inject.Inject
+import kotlin.test.assertFails
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.InjectMocks
-import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@UninstallModules(LocalDataStoreModule::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @BindValue @InjectMocks var mockLocalDataStore: LocalDataStore = RoomLocalDataStore()
-
-  @BindValue @Mock lateinit var mockLocalSurveyStore: LocalSurveyStore
-
+  @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-
   @Inject lateinit var surveyRepository: SurveyRepository
-
   @Inject lateinit var localValueStore: LocalValueStore
-
   @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
-
-  @Before
-  override fun setUp() {
-    super.setUp()
-    `when`(mockLocalSurveyStore.insertOrUpdateSurvey(any())).thenReturn(Completable.complete())
-  }
 
   @Test
   fun activateSurvey_firstTime() =
     runTest(testDispatcher) {
-      // TODO(#1470): Remove this once we no longer rely on mocking `getSurvey`.
-      `when`(mockLocalSurveyStore.getSurveyById(anyString()))
-        .thenReturn(Maybe.empty(), Maybe.just(SURVEY))
       fakeRemoteDataStore.setTestSurvey(SURVEY)
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
+      // Verify survey is available offline.
+      surveyRepository.getOfflineSurvey(SURVEY.id).test().assertValue(SURVEY)
+      // Verify survey is active.
       surveyRepository.activeSurvey.test().assertValues(Optional.of(SURVEY))
-      verify(mockLocalSurveyStore).insertOrUpdateSurvey(SURVEY)
+      // Verify app is subscribed to push updates.
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
     }
 
   @Test
   fun activateSurvey_firstTime_handleRemoteFailure() =
     runTest(testDispatcher) {
-      clearLocalTestSurvey()
       fakeRemoteDataStore.failOnLoadSurvey = true
 
-      surveyRepository.activateSurvey(SURVEY.id)
+      assertFails { surveyRepository.activateSurvey(SURVEY.id) }
       advanceUntilIdle()
-
-      verify(mockLocalSurveyStore, never()).insertOrUpdateSurvey(SURVEY)
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
 
   @Test
   fun activateSurvey_alreadyAvailableOffline() =
     runTest(testDispatcher) {
-      setLocalTestSurvey(SURVEY)
+      surveyStore.insertOrUpdateSurvey(SURVEY).await()
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-      verify(mockLocalSurveyStore, never()).insertOrUpdateSurvey(any())
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
 
   @Test
   fun loadLastActiveSurvey() =
     runTest(testDispatcher) {
+      surveyStore.insertOrUpdateSurvey(SURVEY).await()
       localValueStore.activeSurveyId = SURVEY.id
-      setLocalTestSurvey(SURVEY)
 
       surveyRepository.loadLastActiveSurvey()
       advanceUntilIdle()
@@ -127,20 +99,12 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun loadLastActiveSurvey_noneSet() =
     runTest(testDispatcher) {
+      surveyStore.insertOrUpdateSurvey(SURVEY).await()
       localValueStore.activeSurveyId = ""
-      setLocalTestSurvey(SURVEY)
 
       surveyRepository.loadLastActiveSurvey()
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.empty())
     }
-
-  private fun clearLocalTestSurvey() {
-    `when`(mockLocalSurveyStore.getSurveyById(anyString())).thenReturn(Maybe.empty())
-  }
-
-  private fun setLocalTestSurvey(survey: Survey) {
-    `when`(mockLocalSurveyStore.getSurveyById(anyString())).thenReturn(Maybe.just(survey))
-  }
 }
