@@ -65,7 +65,7 @@ constructor(
       else getOfflineSurvey(it).map { s -> Optional.of(s) }
     }
 
-  var lastActiveSurveyId: String
+  var activeSurveyId: String
     get() = localValueStore.activeSurveyId
     private set(value) {
       localValueStore.activeSurveyId = value
@@ -96,7 +96,7 @@ constructor(
 
   suspend fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
-    if (surveyId == lastActiveSurveyId) {
+    if (surveyId == activeSurveyId) {
       return
     }
     // Clear survey if id is empty.
@@ -107,12 +107,12 @@ constructor(
 
     withContext(ioDispatcher) {
       surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-      lastActiveSurveyId = surveyId
+      activeSurveyId = surveyId
     }
   }
 
   fun clearActiveSurvey() {
-    lastActiveSurveyId = ""
+    activeSurveyId = ""
   }
 
   fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
