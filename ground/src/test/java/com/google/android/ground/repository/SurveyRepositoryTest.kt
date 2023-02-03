@@ -18,7 +18,6 @@ package com.google.android.ground.repository
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
@@ -32,7 +31,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.*
@@ -42,19 +40,11 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @Inject lateinit var localDatabase: LocalDatabase
   @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var localValueStore: LocalValueStore
   @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
-
-  @Before
-  override fun setUp() {
-    super.setUp()
-    // Reset local test db between tests.
-    localDatabase.clearAllTables()
-  }
 
   @Test
   fun activateSurvey_firstTime() =
