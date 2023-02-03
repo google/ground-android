@@ -24,19 +24,26 @@ import com.google.android.ground.model.task.Option
 import java8.util.Optional
 import java8.util.function.Consumer
 
-abstract class SelectDialogFactory {
+interface SelectDialogFactory {
+  val selectedOptions: List<Option>
+  val context: Context
+  val title: String
+  val multipleChoice: MultipleChoice
+  val currentResponse: Optional<MultipleChoiceTaskData>
+  val valueConsumer: Consumer<List<Option>>
+
   private val options: List<Option>
     get() = multipleChoice.options
 
-  protected fun getOption(index: Int): Option = options[index]
-
-  protected fun size(): Int = options.size
-
-  protected val labels: Array<String>
+  val labels: Array<String>
     get() = multipleChoice.options.map { it.label }.toTypedArray()
 
+  fun getOption(index: Int): Option = options[index]
+
+  fun size(): Int = options.size
+
   // TODO: Replace with modal bottom sheet.
-  protected open fun createDialogBuilder(): AlertDialog.Builder =
+  fun createDialogBuilder(): AlertDialog.Builder =
     AlertDialog.Builder(context)
       .setCancelable(false)
       .setTitle(title)
@@ -51,26 +58,8 @@ abstract class SelectDialogFactory {
   }
 
   /** Creates and displays the dialog. */
-  protected fun show() {
-    createDialog().show()
-  }
+  fun show() = createDialog().show()
 
   /** Initialize current state. */
-  protected abstract fun initSelectedState()
-
-  /** List of selected options. */
-  protected abstract val selectedOptions: List<Option>
-  abstract val context: Context
-  abstract val title: String
-  abstract val multipleChoice: MultipleChoice
-  abstract val currentResponse: Optional<MultipleChoiceTaskData>
-  abstract val valueConsumer: Consumer<List<Option>>
-
-  abstract class Builder<B> {
-    abstract fun setContext(context: Context): B
-    abstract fun setTitle(title: String): B
-    abstract fun setMultipleChoice(multipleChoice: MultipleChoice): B
-    abstract fun setCurrentResponse(response: Optional<MultipleChoiceTaskData>): B
-    abstract fun setValueConsumer(consumer: Consumer<List<Option>>): B
-  }
+  fun initSelectedState()
 }

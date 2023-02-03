@@ -291,22 +291,12 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     MultipleChoice multipleChoice = requireNonNull(task.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
-        return MultiSelectDialogFactory.builder()
-            .setContext(requireContext())
-            .setTitle(task.getLabel())
-            .setMultipleChoice(multipleChoice)
-            .setCurrentResponse(response)
-            .setValueConsumer(consumer)
-            .build()
+        return new MultiSelectDialogFactory(
+                requireContext(), task.getLabel(), multipleChoice, response, consumer)
             .createDialog();
       case SELECT_ONE:
-        return SingleSelectDialogFactory.builder()
-            .setContext(requireContext())
-            .setTitle(task.getLabel())
-            .setMultipleChoice(multipleChoice)
-            .setCurrentResponse(response)
-            .setValueConsumer(consumer)
-            .build()
+        return new SingleSelectDialogFactory(
+                requireContext(), task.getLabel(), multipleChoice, response, consumer)
             .createDialog();
       default:
         throw new IllegalArgumentException(
