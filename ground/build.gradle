@@ -60,6 +60,9 @@ def getCommitSha1 = { ->
 }
 
 android {
+    lint {
+        disable 'FragmentGradleConfiguration'
+    }
     compileSdkVersion rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
@@ -73,9 +76,6 @@ android {
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
-    }
-    lintOptions {
-        disable 'FragmentGradleConfiguration'
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -132,6 +132,7 @@ android {
         }
         animationsDisabled = true
     }
+    namespace 'com.google.android.ground'
 }
 
 dependencies {
