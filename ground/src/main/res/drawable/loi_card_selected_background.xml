@@ -20,5 +20,6 @@
   <corners android:radius="8dp" />
   <stroke
     android:width="3dp"
-    android:color="@color/colorAccent" />
+    android:color="@android:color/holo_orange_dark" />
+  <solid android:color="@color/colorBackground" />
 </shape>

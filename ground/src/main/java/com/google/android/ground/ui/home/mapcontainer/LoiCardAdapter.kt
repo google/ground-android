@@ -49,11 +49,11 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     holder.bind(loi)
 
     // Add highlight border if selected.
-    holder.binding.wrapperView.background =
+    holder.binding.loiCard.background =
       ResourcesCompat.getDrawable(
         holder.itemView.context.resources,
         if (focusedIndex == position) {
-          R.drawable.border
+          R.drawable.loi_card_selected_background
         } else {
           R.color.colorBackground
         },
