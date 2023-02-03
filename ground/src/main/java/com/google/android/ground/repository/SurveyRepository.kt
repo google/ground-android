@@ -53,7 +53,6 @@ constructor(
   private val localDataStore: LocalDataStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
   private val surveyStore = localDataStore.surveyStore
