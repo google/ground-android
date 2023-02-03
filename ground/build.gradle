@@ -279,8 +279,12 @@ dependencies {
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
 
-    testImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
+    // Espresso
+    testImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    testImplementation('androidx.test.espresso:espresso-core:3.5.1', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     androidTestImplementation 'junit:junit:4.13.2'
