@@ -50,16 +50,14 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
     // TODO(#1483): Selected card color should match job color
     // Add highlight border if selected.
+    val borderDrawable =
+      if (focusedIndex == position) {
+        R.drawable.loi_card_selected_background
+      } else {
+        R.drawable.loi_card_default_background
+      }
     holder.binding.loiCard.background =
-      ResourcesCompat.getDrawable(
-        holder.itemView.context.resources,
-        if (focusedIndex == position) {
-          R.drawable.loi_card_selected_background
-        } else {
-          R.color.colorBackground
-        },
-        null
-      )
+      ResourcesCompat.getDrawable(holder.itemView.context.resources, borderDrawable, null)
 
     holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(loi) }
   }
