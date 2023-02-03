@@ -20,6 +20,6 @@
   <corners android:radius="8dp" />
   <stroke
     android:width="5dp"
-    android:color="#FA7B17" />
+    android:color="@color/colorJobCardBorderSelected" />
   <solid android:color="#FFFFFF" />
 </shape>

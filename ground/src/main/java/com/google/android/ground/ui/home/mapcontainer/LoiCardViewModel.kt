@@ -24,7 +24,7 @@ import com.google.android.ground.ui.common.AbstractViewModel
 class LoiCardViewModel(loi: LocationOfInterest) : AbstractViewModel() {
   val loiName: @Hot(replays = true) LiveData<String>
   val loiJobName: @Hot(replays = true) LiveData<String>
-  // TODO: Add submission count
+  // TODO(#1483): Add submission count
   val loiSubmissions: @Hot(replays = true) LiveData<String> = MutableLiveData("No submissions")
 
   init {

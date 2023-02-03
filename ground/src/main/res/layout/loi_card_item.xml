@@ -96,7 +96,7 @@
         android:background="@android:color/transparent"
         android:clickable="false"
         android:text="@string/collect_data"
-        android:textColor="#216C2E"
+        android:textColor="@color/colorJobCardCollectButton"
         android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/collectIcon"
