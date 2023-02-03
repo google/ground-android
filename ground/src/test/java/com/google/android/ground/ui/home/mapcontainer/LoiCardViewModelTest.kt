@@ -29,10 +29,17 @@ import org.robolectric.RobolectricTestRunner
 class LoiCardViewModelTest : BaseHiltTest() {
 
   @Test
-  fun testLoiName_whenCaptionIsNull() {
+  fun testLoiNameWithPoint_whenCaptionIsNull() {
     val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = null))
 
-    TestObserver.test(viewModel.loiName).assertValue(null)
+    TestObserver.test(viewModel.loiName).assertValue("POINT")
+  }
+
+  @Test
+  fun testLoiNameWithPolygon_whenCaptionIsNull() {
+    val viewModel = LoiCardViewModel(TEST_AREA.copy(caption = null))
+
+    TestObserver.test(viewModel.loiName).assertValue("POLYGON")
   }
 
   @Test
@@ -60,5 +67,6 @@ class LoiCardViewModelTest : BaseHiltTest() {
 
   companion object {
     private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy(caption = null)
+    private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy(caption = null)
   }
 }
