@@ -25,6 +25,7 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import java8.util.Optional
@@ -56,13 +57,13 @@ constructor(
   private val surveyStore = localDataStore.surveyStore
 
   /**
-   * Emits the currently active survey on subscribe and on change. Emits `empty()]`when no survey is
-   * active.
+   * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
+   * active or local db isn't up-to-date.
    */
   val activeSurvey: @Cold Flowable<Optional<Survey>> =
-    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapSingle {
-      if (it.isEmpty()) Single.just(Optional.empty())
-      else getOfflineSurvey(it).map { s -> Optional.of(s) }
+    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapMaybe {
+      if (it.isEmpty()) Maybe.just(Optional.empty())
+      else maybeGetOfflineSurvey(it).map { s -> Optional.of(s) }
     }
 
   var lastActiveSurveyId: String = ""
@@ -77,6 +78,9 @@ constructor(
     remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
     return survey
   }
+
+  private fun maybeGetOfflineSurvey(surveyId: String): @Cold Maybe<Survey> =
+    surveyStore.getSurveyById(surveyId)
 
   /** This only works if the survey is already cached to local db. */
   fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
