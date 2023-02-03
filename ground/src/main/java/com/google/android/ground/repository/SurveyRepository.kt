@@ -36,7 +36,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -109,14 +108,12 @@ constructor(
       return
     }
 
-    externalScope.launch {
-      withContext(ioDispatcher) {
-        try {
-          surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-          localValueStore.activeSurveyId = surveyId
-        } catch (e: Error) {
-          Timber.e("Error activating survey", e)
-        }
+    externalScope.launch(ioDispatcher) {
+      try {
+        surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+        localValueStore.activeSurveyId = surveyId
+      } catch (e: Error) {
+        Timber.e("Error activating survey", e)
       }
     }
   }
