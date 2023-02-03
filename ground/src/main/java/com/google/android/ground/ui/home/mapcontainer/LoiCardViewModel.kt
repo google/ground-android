@@ -22,15 +22,15 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 
 class LoiCardViewModel(loi: LocationOfInterest) : AbstractViewModel() {
-  val isIconVisible: @Hot(replays = true) LiveData<Boolean>
-  val isNameVisible: @Hot(replays = true) LiveData<Boolean>
   val loiName: @Hot(replays = true) LiveData<String>
   val loiJobName: @Hot(replays = true) LiveData<String>
+  // TODO: Add submission count
+  val loiSubmissions: @Hot(replays = true) LiveData<String> = MutableLiveData("No submissions")
 
   init {
-    isIconVisible = MutableLiveData(loi.caption?.isNotEmpty() ?: false)
-    isNameVisible = MutableLiveData(loi.caption?.isNotEmpty() ?: false)
-    loiName = MutableLiveData(loi.caption)
+    val caption = loi.caption
+    val isCaptionAvailable = caption?.isNotEmpty() ?: false
+    loiName = MutableLiveData(if (isCaptionAvailable) loi.caption else "Empty caption")
     loiJobName = MutableLiveData(loi.job.name)
   }
 }

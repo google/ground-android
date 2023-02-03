@@ -61,8 +61,7 @@
         android:tint="@color/colorGrey800"
         app:layout_constraintStart_toStartOf="@id/jobName"
         app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:srcCompat="@drawable/ic_outline_room_24"
-        app:visible="@{viewModel.isIconVisible()}" />
+        app:srcCompat="@drawable/ic_outline_room_24" />
       <TextView
         android:id="@+id/loiName"
         android:layout_width="wrap_content"
@@ -73,25 +72,29 @@
         app:layout_constraintBottom_toBottomOf="@id/loiIcon"
         app:layout_constraintStart_toEndOf="@id/loiIcon"
         app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:visible="@{viewModel.isNameVisible()}"
         tools:text="Quilombolas" />
-      <LinearLayout
+      <TextView
+        android:id="@+id/submissions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/loi_card_item_margin"
+        android:text="@{viewModel.loiSubmissions}"
+        app:layout_constraintStart_toStartOf="@id/loiIcon"
+        app:layout_constraintTop_toBottomOf="@id/loiIcon"
+        tools:text="No submissions" />
+      <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:clickable="false"
+        android:drawableLeft="@drawable/ic_add"
+        android:text="@string/start"
+        android:textColor="@color/colorMapBlue"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/jobName"
-        app:layout_constraintTop_toBottomOf="@id/loiName">
-        <Button
-          android:id="@+id/start"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:clickable="false"
-          android:text="@string/start"
-          android:textColor="@color/colorMapBlue" />
-      </LinearLayout>
+        app:layout_constraintStart_toStartOf="@id/loiIcon"
+        app:layout_constraintTop_toBottomOf="@id/submissions" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>
 </layout>
