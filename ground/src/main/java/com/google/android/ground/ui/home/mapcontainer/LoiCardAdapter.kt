@@ -31,7 +31,7 @@ import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
  */
 class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
-  private var focusedIndex: Int = -1
+  private var focusedIndex: Int = 0
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
   private lateinit var cardFocusedListener: (LocationOfInterest?) -> Unit
   private lateinit var collectDataListener: (LocationOfInterest) -> Unit
@@ -48,17 +48,16 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
     holder.bind(loi)
 
+    // TODO(#1483): Selected card color should match job color
     // Add highlight border if selected.
-    holder.binding.wrapperView.background =
-      ResourcesCompat.getDrawable(
-        holder.itemView.context.resources,
-        if (focusedIndex == position) {
-          R.drawable.border
-        } else {
-          R.color.colorBackground
-        },
-        null
-      )
+    val borderDrawable =
+      if (focusedIndex == position) {
+        R.drawable.loi_card_selected_background
+      } else {
+        R.drawable.loi_card_default_background
+      }
+    holder.binding.loiCard.background =
+      ResourcesCompat.getDrawable(holder.itemView.context.resources, borderDrawable, null)
 
     holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(loi) }
   }
@@ -80,7 +79,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   fun updateData(newItemsList: List<LocationOfInterest>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)
-    focusedIndex = -1
+    focusedIndex = 0
     notifyDataSetChanged()
     cardFocusedListener.invoke(null)
   }
