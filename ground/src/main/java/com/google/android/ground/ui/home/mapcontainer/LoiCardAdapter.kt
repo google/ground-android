@@ -31,7 +31,7 @@ import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
  */
 class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
-  private var focusedIndex: Int = -1
+  private var focusedIndex: Int = 0
   private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
   private lateinit var cardFocusedListener: (LocationOfInterest?) -> Unit
   private lateinit var collectDataListener: (LocationOfInterest) -> Unit
@@ -80,7 +80,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   fun updateData(newItemsList: List<LocationOfInterest>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)
-    focusedIndex = -1
+    focusedIndex = 0
     notifyDataSetChanged()
     cardFocusedListener.invoke(null)
   }
