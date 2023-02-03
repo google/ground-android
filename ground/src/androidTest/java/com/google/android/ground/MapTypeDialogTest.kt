@@ -33,7 +33,6 @@ import org.junit.Test
 class MapTypeDialogTest : BaseMainActivityTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-
   @Inject lateinit var mapStateRepository: MapStateRepository
 
   override fun setUp() {
@@ -45,6 +44,7 @@ class MapTypeDialogTest : BaseMainActivityTest() {
   fun tappingMapTypeButton_shouldOpenDialog() {
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
     skipTermsOfServiceFragment()
+    skipSurveySelectorFragment()
 
     onView(withId(R.id.map_type_btn)).perform(click())
 
@@ -58,6 +58,7 @@ class MapTypeDialogTest : BaseMainActivityTest() {
   fun selectingMapTypeItem_shouldUpdateBasemapType() {
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
     skipTermsOfServiceFragment()
+    skipSurveySelectorFragment()
 
     Truth.assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
 

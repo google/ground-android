@@ -87,4 +87,9 @@ public abstract class BaseMainActivityTest {
     // Tap on Submit on Terms Fragment
     onView(withId(R.id.agreeButton)).perform(click());
   }
+
+  protected void skipSurveySelectorFragment() {
+    // Tap on the survey list
+    onView(withId(R.id.recycler_view)).perform(click());
+  }
 }
