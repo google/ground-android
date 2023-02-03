@@ -48,6 +48,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
     holder.bind(loi)
 
+    // TODO(#1483): Selected card color should match job color
     // Add highlight border if selected.
     holder.binding.loiCard.background =
       ResourcesCompat.getDrawable(

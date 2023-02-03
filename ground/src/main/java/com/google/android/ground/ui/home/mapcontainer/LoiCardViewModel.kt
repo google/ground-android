@@ -28,9 +28,7 @@ class LoiCardViewModel(loi: LocationOfInterest) : AbstractViewModel() {
   val loiSubmissions: @Hot(replays = true) LiveData<String> = MutableLiveData("No submissions")
 
   init {
-    val caption = loi.caption
-    val isCaptionAvailable = caption?.isNotEmpty() ?: false
-    loiName = MutableLiveData(if (isCaptionAvailable) loi.caption else "Empty caption")
+    loiName = MutableLiveData(loi.caption ?: loi.type.name)
     loiJobName = MutableLiveData(loi.job.name)
   }
 }
