@@ -162,6 +162,7 @@ class HomeScreenFragment :
     binding.drawerLayout.closeDrawer(GravityCompat.START)
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
       R.id.loi_properties_menu_item -> {
