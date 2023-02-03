@@ -32,7 +32,6 @@ buildscript {
     }
     dependencies {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
-//        classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
         classpath 'com.android.tools.build:gradle:7.4.0'
         classpath 'com.google.gms:google-services:4.3.10'
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.5.0"
