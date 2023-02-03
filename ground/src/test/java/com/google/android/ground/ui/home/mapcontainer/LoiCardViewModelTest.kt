@@ -29,34 +29,17 @@ import org.robolectric.RobolectricTestRunner
 class LoiCardViewModelTest : BaseHiltTest() {
 
   @Test
-  fun testVisibility_whenLoiCaptionMissing_isFalse() {
+  fun testLoiNameWithPoint_whenCaptionIsNull() {
     val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = null))
 
-    TestObserver.test(viewModel.isIconVisible).assertValue(false)
-    TestObserver.test(viewModel.isNameVisible).assertValue(false)
+    TestObserver.test(viewModel.loiName).assertValue("POINT")
   }
 
   @Test
-  fun testVisibility_whenLoiCaptionEmpty_isFalse() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = ""))
+  fun testLoiNameWithPolygon_whenCaptionIsNull() {
+    val viewModel = LoiCardViewModel(TEST_AREA.copy(caption = null))
 
-    TestObserver.test(viewModel.isIconVisible).assertValue(false)
-    TestObserver.test(viewModel.isNameVisible).assertValue(false)
-  }
-
-  @Test
-  fun testVisibility_whenLoiCaptionAvailable_isTrue() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = "some value"))
-
-    TestObserver.test(viewModel.isIconVisible).assertValue(true)
-    TestObserver.test(viewModel.isNameVisible).assertValue(true)
-  }
-
-  @Test
-  fun testLoiName_whenCaptionIsNull() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = null))
-
-    TestObserver.test(viewModel.loiName).assertValue(null)
+    TestObserver.test(viewModel.loiName).assertValue("POLYGON")
   }
 
   @Test
@@ -84,5 +67,6 @@ class LoiCardViewModelTest : BaseHiltTest() {
 
   companion object {
     private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy(caption = null)
+    private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy(caption = null)
   }
 }

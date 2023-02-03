@@ -16,20 +16,10 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
-
-  <androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recycler_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clipToPadding="false"
-    android:orientation="horizontal"
-    android:paddingStart="32dp"
-    android:paddingEnd="32dp"
-    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-    tools:itemCount="3"
-    tools:listitem="@layout/loi_card_item" />
-
-</layout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+  <corners android:radius="8dp" />
+  <stroke
+    android:width="5dp"
+    android:color="@color/colorJobCardBorderSelected" />
+  <solid android:color="#FFFFFF" />
+</shape>
