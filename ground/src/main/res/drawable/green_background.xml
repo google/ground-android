@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2022 Google LLC
+  ~ Copyright 2023 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <corners android:radius="8dp" />
-  <stroke
-    android:width="5dp"
-    android:color="#FA7B17" />
-  <solid android:color="#FFFFFF" />
+  <corners android:radius="3dp" />
+  <solid android:color="#A7F5A7" />
 </shape>
