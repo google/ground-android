@@ -141,6 +141,7 @@ class MainActivity : AbstractActivity() {
     if (!dispatchBackPressed()) navigateUp()
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onBackPressed() {
     if (!dispatchBackPressed()) super.onBackPressed()
   }
