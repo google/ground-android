@@ -63,7 +63,7 @@ constructor(
   val activeSurvey: @Cold Flowable<Optional<Survey>> =
     localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapMaybe {
       if (it.isEmpty()) Maybe.just(Optional.empty())
-      else maybeGetOfflineSurvey(it).map { s -> Optional.of(s) }
+      else surveyStore.getSurveyById(it).map { s -> Optional.of(s) }
     }
 
   var activeSurveyId: String
@@ -80,9 +80,6 @@ constructor(
     remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
     return survey
   }
-
-  private fun maybeGetOfflineSurvey(surveyId: String): @Cold Maybe<Survey> =
-    surveyStore.getSurveyById(surveyId)
 
   /** This only works if the survey is already cached to local db. */
   fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
