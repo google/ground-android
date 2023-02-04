@@ -147,7 +147,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     assertThat(fragment.requireActivity().isFinishing).isTrue()
   }
 
-  private fun setUpFragment(optBundle: Bundle = bundleOf()) {
+  private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) {
     launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
       fragment = this as SurveySelectorFragment
     }

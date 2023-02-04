@@ -215,11 +215,7 @@
   <action
     android:id="@+id/showSurveySelectorScreen"
     app:destination="@id/surveySelectorFragment"
-    app:popUpTo="@id/navGraph">
-    <argument
-      android:name="shouldExitApp"
-      android:defaultValue="true" />
-  </action>
+    app:popUpTo="@id/navGraph" />
   <action
     android:id="@+id/showMapTypeDialogFragment"
     app:destination="@id/mapTypeDialogFragment" />
@@ -246,7 +242,6 @@
     android:label="SurveySelectorFragment">
     <argument
       android:name="shouldExitApp"
-      android:defaultValue="false"
       app:argType="boolean" />
   </fragment>
   <dialog
