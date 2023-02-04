@@ -15,7 +15,9 @@
  */
 package com.google.android.ground.ui.surveyselector
 
+import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -27,7 +29,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
@@ -69,7 +70,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun created_surveysAvailable_whenNoSurveySynced() {
     setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of())
+    setOfflineSurveys(listOf())
     setUpFragment()
 
     // Assert that 2 surveys are displayed
@@ -89,7 +90,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun created_surveysAvailable_whenOneSurveySynced() {
     setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of(TEST_SURVEY_2))
+    setOfflineSurveys(listOf(TEST_SURVEY_2))
     setUpFragment()
 
     // Assert that 2 surveys are displayed
@@ -110,7 +111,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   fun click_activatesSurvey() =
     runTest(testDispatcher) {
       setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setOfflineSurveys(ImmutableList.of())
+      setOfflineSurveys(listOf())
       setUpFragment()
 
       // Click second item
@@ -126,8 +127,28 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
     }
 
-  private fun setUpFragment() {
-    launchFragmentInHiltContainer<SurveySelectorFragment> {
+  @Test
+  fun shouldExitAppOnBackPress_defaultFalse() {
+    setAllSurveys(listOf())
+    setOfflineSurveys(listOf())
+    setUpFragment()
+
+    assertThat(fragment.onBack()).isFalse()
+    assertThat(fragment.requireActivity().isFinishing).isFalse()
+  }
+
+  @Test
+  fun shouldExitAppOnBackPress_whenArgIsPresent() {
+    setAllSurveys(listOf())
+    setOfflineSurveys(listOf())
+    setUpFragment(bundleOf(Pair("shouldExitApp", true)))
+
+    assertThat(fragment.onBack()).isTrue()
+    assertThat(fragment.requireActivity().isFinishing).isTrue()
+  }
+
+  private fun setUpFragment(optBundle: Bundle = bundleOf()) {
+    launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
       fragment = this as SurveySelectorFragment
     }
   }
@@ -136,7 +157,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(surveyRepository.getSurveySummaries(FakeData.USER)).thenReturn(Single.just(surveys))
   }
 
-  private fun setOfflineSurveys(surveys: ImmutableList<Survey>) {
+  private fun setOfflineSurveys(surveys: List<Survey>) {
     whenever(surveyRepository.offlineSurveys).thenReturn(Single.just(surveys))
   }
 
