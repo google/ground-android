@@ -55,9 +55,14 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     binding.recyclerView.adapter = adapter
   }
 
+  private fun shouldExitApp(): Boolean =
+    arguments?.let { SurveySelectorFragmentArgs.fromBundle(it).shouldExitApp } ?: false
+
   override fun onBack(): Boolean {
-    // TODO(#504): Fix back press action
-    requireActivity().finish()
-    return true
+    if (shouldExitApp()) {
+      requireActivity().finish()
+      return true
+    }
+    return false
   }
 }
