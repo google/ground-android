@@ -158,7 +158,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   private fun setOfflineSurveys(surveys: List<Survey>) {
-    whenever(surveyRepository.offlineSurveys).thenReturn(Single.just(surveys))
+    whenever(surveyRepository.offlineSurveys).thenReturn(Flowable.just(surveys))
   }
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {

@@ -26,7 +26,7 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import io.reactivex.Single
+import io.reactivex.Flowable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -48,13 +48,11 @@ internal constructor(
   init {
     surveySummaries =
       LiveDataReactiveStreams.fromPublisher(
-        offlineSurveys
-          .flatMap { offlineSurveys: List<Survey> ->
-            allSurveys.map { allSurveys: List<Survey> ->
-              allSurveys.map { createSurveyItem(it, offlineSurveys) }
-            }
+        offlineSurveys.flatMap { offlineSurveys: List<Survey> ->
+          allSurveys.map { allSurveys: List<Survey> ->
+            allSurveys.map { createSurveyItem(it, offlineSurveys) }
           }
-          .toFlowable()
+        }
       )
   }
 
@@ -66,11 +64,11 @@ internal constructor(
       isAvailableOffline = localSurveys.contains(survey)
     )
 
-  private val offlineSurveys: Single<List<Survey>>
+  private val offlineSurveys: Flowable<List<Survey>>
     get() = surveyRepository.offlineSurveys
 
-  private val allSurveys: Single<List<Survey>>
-    get() = surveyRepository.getSurveySummaries(authManager.currentUser)
+  private val allSurveys: Flowable<List<Survey>>
+    get() = surveyRepository.getSurveySummaries(authManager.currentUser).toFlowable()
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =
