@@ -33,7 +33,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
