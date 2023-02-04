@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
@@ -25,9 +24,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java8.util.Optional
 import javax.inject.Inject
 import kotlin.test.assertFails
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -42,7 +41,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
-  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
+  @Inject lateinit var testDispatcher: TestDispatcher
 
   @Test
   fun activateSurvey_firstTime() =

@@ -25,7 +25,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.capture
-import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -50,8 +49,8 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
@@ -73,8 +72,7 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
 
-  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
-  @Inject lateinit var navigator: Navigator
+  @Inject lateinit var testDispatcher: TestDispatcher
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
   @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<ImmutableList<TaskDataDelta>>
   lateinit var fragment: DataCollectionFragment

@@ -21,15 +21,20 @@ import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Module
 @TestInstallIn(
   components = [SingletonComponent::class],
   replaces = [CoroutineDispatchersModule::class]
 )
 object TestCoroutineDispatchersModule {
-  private val testDispatcher: CoroutineDispatcher = StandardTestDispatcher()
+  private val testDispatcher = StandardTestDispatcher()
+
+  @Provides fun provideTestDispatcher(): TestDispatcher = testDispatcher
 
   @DefaultDispatcher @Provides fun provideDefaultDispatcher(): CoroutineDispatcher = testDispatcher
 

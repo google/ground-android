@@ -23,9 +23,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
-import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.Survey
-import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
@@ -37,8 +35,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.*
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
@@ -58,8 +56,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var navigator: Navigator
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-  @Inject lateinit var localValueStore: LocalValueStore
-  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
+  @Inject lateinit var testDispatcher: TestDispatcher
 
   private lateinit var fragment: SurveySelectorFragment
 
