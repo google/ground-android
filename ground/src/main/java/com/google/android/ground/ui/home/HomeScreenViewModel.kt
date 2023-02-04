@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.home
 
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -34,8 +33,6 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @SharedViewModel
@@ -44,8 +41,7 @@ class HomeScreenViewModel
 internal constructor(
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val navigator: Navigator,
-  @ApplicationScope private val externalScope: CoroutineScope
+  private val navigator: Navigator
 ) : AbstractViewModel() {
 
   @JvmField
@@ -82,8 +78,6 @@ internal constructor(
     bottomSheetState.value = hidden()
     isSubmissionButtonVisible.value = false
   }
-
-  fun init() = externalScope.launch { surveyRepository.loadLastActiveSurvey() }
 
   fun showOfflineAreas() {
     navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
