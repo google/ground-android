@@ -15,6 +15,7 @@
  */
 package com.google.android.ground
 
+import javax.inject.Singleton
 import android.content.Context
 import androidx.room.Room
 import com.google.android.ground.persistence.local.LocalDatabaseModule
@@ -24,7 +25,6 @@ import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])
