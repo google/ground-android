@@ -17,7 +17,6 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.coroutines.DefaultDispatcher
-import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
@@ -43,7 +42,6 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
-  @Inject lateinit var localValueStore: LocalValueStore
   @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
 
   @Test
