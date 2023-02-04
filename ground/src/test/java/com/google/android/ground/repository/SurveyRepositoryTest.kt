@@ -83,28 +83,4 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
-
-  @Test
-  fun loadLastActiveSurvey() =
-    runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
-      localValueStore.activeSurveyId = SURVEY.id
-
-      surveyRepository.loadLastActiveSurvey()
-      advanceUntilIdle()
-
-      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
-    }
-
-  @Test
-  fun loadLastActiveSurvey_noneSet() =
-    runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
-      localValueStore.activeSurveyId = ""
-
-      surveyRepository.loadLastActiveSurvey()
-      advanceUntilIdle()
-
-      surveyRepository.activeSurvey.test().assertValue(Optional.empty())
-    }
 }

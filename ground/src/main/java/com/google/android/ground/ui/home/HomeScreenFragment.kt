@@ -173,11 +173,6 @@ class HomeScreenFragment :
     return true
   }
 
-  override fun onStart() {
-    super.onStart()
-    homeScreenViewModel.init()
-  }
-
   private fun showSurveySelector() {
     navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
   }
