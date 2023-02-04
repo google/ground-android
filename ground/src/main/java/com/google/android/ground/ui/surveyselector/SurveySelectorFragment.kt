@@ -46,6 +46,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   ): View {
     binding = SurveySelectorFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
+    getMainActivity().setActionBar(binding.toolbar, true)
     return binding.root
   }
 
