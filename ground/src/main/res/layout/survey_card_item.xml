@@ -25,6 +25,9 @@
       name="item"
       type="com.google.android.ground.ui.surveyselector.SurveyItem" />
     <variable
+      name="fragment"
+      type="com.google.android.ground.ui.surveyselector.SurveySelectorFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel" />
   </data>
@@ -87,6 +90,9 @@
         android:id="@+id/overflowMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="@{(view) -> fragment.showPopupMenu(view, item.surveyId)}"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         android:text="@string/overflow_menu"
         android:textAppearance="?android:textAppearanceLarge"
         android:textStyle="bold"

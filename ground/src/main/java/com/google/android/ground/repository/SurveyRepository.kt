@@ -132,4 +132,12 @@ constructor(
   ): @Cold(terminates = false) Flowable<List<Mutation>> {
     return localDataStore.getMutationsOnceAndStream(survey)
   }
+
+  suspend fun deleteSurvey(surveyId: String) {
+    val survey = surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+    survey?.let { surveyStore.deleteSurvey(survey).await() }
+    if (activeSurveyId == surveyId) {
+      clearActiveSurvey()
+    }
+  }
 }
