@@ -80,4 +80,39 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
+
+  @Test
+  fun deleteSurvey_whenSurveyIsActive() =
+    runTest(testDispatcher) {
+      surveyStore.insertOrUpdateSurvey(SURVEY).await()
+      surveyRepository.activateSurvey(SURVEY.id)
+      advanceUntilIdle()
+
+      surveyRepository.deleteSurvey(SURVEY.id)
+      advanceUntilIdle()
+
+      // Verify survey is deleted
+      surveyStore.surveys.test().assertValues(listOf())
+      // Verify survey deactivated
+      assertThat(surveyRepository.activeSurveyId).isEmpty()
+    }
+
+  @Test
+  fun deleteSurvey_whenSurveyIsInActive() =
+    runTest(testDispatcher) {
+      val survey1 = SURVEY.copy(id = "active survey id")
+      val survey2 = SURVEY.copy(id = "inactive survey id")
+      surveyStore.insertOrUpdateSurvey(survey1).await()
+      surveyStore.insertOrUpdateSurvey(survey2).await()
+      surveyRepository.activateSurvey(survey1.id)
+      advanceUntilIdle()
+
+      surveyRepository.deleteSurvey(survey2.id)
+      advanceUntilIdle()
+
+      // Verify active survey isn't cleared
+      assertThat(surveyRepository.activeSurveyId).isEqualTo(survey1.id)
+      // Verify survey is deleted
+      surveyStore.surveys.test().assertValues(listOf(survey1))
+    }
 }
