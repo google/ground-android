@@ -13,102 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ground.R
+import com.google.android.ground.databinding.AddPhotoListItemBinding
+import com.google.common.collect.ImmutableList
+import java8.util.function.Consumer
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.R;
-import com.google.android.ground.databinding.AddPhotoListItemBinding;
-import com.google.common.collect.ImmutableList;
-import java8.util.function.Consumer;
+class AddPhotoDialogAdapter(private val onSelectPhotoStorageClick: Consumer<Int>) :
+  RecyclerView.Adapter<AddPhotoDialogAdapter.ViewHolder>() {
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    val inflater = LayoutInflater.from(parent.context)
+    val binding = AddPhotoListItemBinding.inflate(inflater, parent, false)
+    return ViewHolder(binding, onSelectPhotoStorageClick)
+  }
 
-public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAdapter.ViewHolder> {
+  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    val storageResource = photoStorageResources[position]
+    holder.binding.textView.setText(storageResource.titleResId)
+    holder.binding.imageView.setImageResource(storageResource.iconResId)
+    holder.type = storageResource.sourceType
+  }
 
-  private static final ImmutableList<PhotoStorageResource> PHOTO_STORAGE_RESOURCES =
+  override fun getItemCount(): Int {
+    return photoStorageResources.size
+  }
+
+  class ViewHolder(val binding: AddPhotoListItemBinding, consumer: Consumer<Int>) :
+    RecyclerView.ViewHolder(binding.root) {
+    var type = 0
+
+    init {
+      itemView.setOnClickListener { consumer.accept(type) }
+    }
+  }
+
+  class PhotoStorageResource(
+    @param:StringRes val titleResId: Int,
+    @param:DrawableRes val iconResId: Int,
+    val sourceType: Int
+  ) {
+
+    companion object {
+      const val PHOTO_SOURCE_CAMERA = 1
+      const val PHOTO_SOURCE_STORAGE = 2
+    }
+  }
+
+  companion object {
+    val photoStorageResources: ImmutableList<PhotoStorageResource> =
       ImmutableList.of(
-          new PhotoStorageResource(
-              R.string.action_camera,
-              R.drawable.ic_photo_camera,
-              PhotoStorageResource.PHOTO_SOURCE_CAMERA),
-          new PhotoStorageResource(
-              R.string.action_storage,
-              R.drawable.ic_sd_storage,
-              PhotoStorageResource.PHOTO_SOURCE_STORAGE));
-
-  private final Consumer<Integer> onSelectPhotoStorageClick;
-
-  public AddPhotoDialogAdapter(Consumer<Integer> onSelectPhotoStorageClick) {
-    this.onSelectPhotoStorageClick = onSelectPhotoStorageClick;
-  }
-
-  public static ImmutableList<PhotoStorageResource> getPhotoStorageResources() {
-    return PHOTO_STORAGE_RESOURCES;
-  }
-
-  @NonNull
-  @Override
-  public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    AddPhotoListItemBinding binding = AddPhotoListItemBinding.inflate(inflater, parent, false);
-    return new ViewHolder(binding, onSelectPhotoStorageClick);
-  }
-
-  @Override
-  public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-    PhotoStorageResource storageResource = getPhotoStorageResources().get(position);
-    holder.binding.textView.setText(storageResource.getTitleResId());
-    holder.binding.imageView.setImageResource(storageResource.getIconResId());
-    holder.type = storageResource.getSourceType();
-  }
-
-  @Override
-  public int getItemCount() {
-    return getPhotoStorageResources().size();
-  }
-
-  public static class ViewHolder extends RecyclerView.ViewHolder {
-
-    private final AddPhotoListItemBinding binding;
-    private int type;
-
-    public ViewHolder(@NonNull AddPhotoListItemBinding binding, Consumer<Integer> consumer) {
-      super(binding.getRoot());
-      this.binding = binding;
-      this.itemView.setOnClickListener(__ -> consumer.accept(type));
-    }
-  }
-
-  public static class PhotoStorageResource {
-
-    public static final int PHOTO_SOURCE_CAMERA = 1;
-    public static final int PHOTO_SOURCE_STORAGE = 2;
-
-    private final int titleResId;
-    private final int iconResId;
-    private final int sourceType;
-
-    public PhotoStorageResource(
-        @StringRes int titleResId, @DrawableRes int iconResId, int sourceType) {
-      this.titleResId = titleResId;
-      this.iconResId = iconResId;
-      this.sourceType = sourceType;
-    }
-
-    public int getIconResId() {
-      return iconResId;
-    }
-
-    public int getSourceType() {
-      return sourceType;
-    }
-
-    public int getTitleResId() {
-      return titleResId;
-    }
+        PhotoStorageResource(
+          R.string.action_camera,
+          R.drawable.ic_photo_camera,
+          PhotoStorageResource.PHOTO_SOURCE_CAMERA
+        ),
+        PhotoStorageResource(
+          R.string.action_storage,
+          R.drawable.ic_sd_storage,
+          PhotoStorageResource.PHOTO_SOURCE_STORAGE
+        )
+      )
   }
 }
