@@ -35,7 +35,9 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
+import javax.inject.Singleton
 
+@Singleton
 class OfflineAreaRepository
 @Inject
 constructor(
