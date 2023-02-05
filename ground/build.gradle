@@ -235,9 +235,6 @@ dependencies {
     compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
     kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
 
-    // Guava
-    implementation 'com.google.guava:guava:30.1-jre'
-
     // Picasso: Image downloading and caching library
     implementation 'com.squareup.picasso:picasso:2.71828'
 
@@ -248,7 +245,6 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
-    implementation "androidx.room:room-guava:$roomVersion"
     testImplementation "androidx.room:room-testing:$roomVersion"
 
     // WorkManager
