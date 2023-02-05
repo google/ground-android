@@ -62,7 +62,7 @@ class MapTypeAdapter(
       } else {
         R.drawable.map_type_item_default_background
       }
-    holder.binding.imageview.background =
+    holder.binding.container.background =
       ResourcesCompat.getDrawable(context.resources, borderDrawable, null)
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
