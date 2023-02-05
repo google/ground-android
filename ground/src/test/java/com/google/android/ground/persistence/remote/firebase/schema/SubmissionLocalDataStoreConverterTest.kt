@@ -27,8 +27,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.SubmissionConverter.toSubmission
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -72,15 +70,11 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        ImmutableMap.of(
-          "task1",
-          "Text taskData",
-          "task2",
-          ImmutableList.of("option2"),
-          "task3",
-          ImmutableList.of("optionA", "optionB"),
-          "task4",
-          "Photo URL"
+        mapOf(
+          Pair("task1", "Text taskData"),
+          Pair("task2", listOf("option2")),
+          Pair("task3", listOf("optionA", "optionB")),
+          Pair("task4", "Photo URL")
         )
       )
     )
@@ -94,21 +88,23 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           TaskDataMap(
-            ImmutableMap.of(
-              "task1",
-              TextTaskData("Text taskData"),
-              "task2",
-              MultipleChoiceTaskData(
-                MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
-                ImmutableList.of("option2")
+            mapOf(
+              Pair("task1", TextTaskData("Text taskData")),
+              Pair(
+                "task2",
+                MultipleChoiceTaskData(
+                  MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+                  listOf("option2")
+                )
               ),
-              "task3",
-              MultipleChoiceTaskData(
-                MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
-                ImmutableList.of("optionA", "optionB")
+              Pair(
+                "task3",
+                MultipleChoiceTaskData(
+                  MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+                  listOf("optionA", "optionB")
+                )
               ),
-              "task4",
-              TextTaskData("Photo URL")
+              Pair("task4", TextTaskData("Photo URL"))
             )
           )
         )
@@ -125,7 +121,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        ImmutableMap.of("task1", "")
+        mapOf(Pair("task1", ""))
       )
     )
     Assert.assertThrows(DataStoreException::class.java) { this.toSubmission() }
@@ -167,7 +163,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        ImmutableMap.of("task1", "")
+        mapOf(Pair("task1", ""))
       )
     )
     assertThat(toSubmission())
@@ -193,7 +189,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        ImmutableMap.of("task1", ImmutableList.of<Any>())
+        mapOf(Pair("task1", listOf<Any>()))
       )
     )
     assertThat(toSubmission())
@@ -219,7 +215,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        ImmutableMap.of("task1", "Unknown", "task2", "Text taskData")
+        mapOf(Pair("task1", "Unknown"), Pair("task2", "Text taskData"))
       )
     )
     assertThat(toSubmission())
@@ -232,15 +228,14 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          TaskDataMap(ImmutableMap.of("task2", TextTaskData("Text taskData")))
+          TaskDataMap(mapOf(Pair("task2", TextTaskData("Text taskData"))))
         )
       )
   }
 
   private fun setUpTestSurvey(jobId: String, loiId: String, vararg tasks: Task) {
-    val taskMap = ImmutableMap.builder<String, Task>()
-    tasks.forEach { task: Task -> taskMap.put(task.id, task) }
-    job = Job(jobId, "JOB_NAME", taskMap.build())
+    val taskMap = tasks.associateBy { it.id }
+    job = Job(jobId, "JOB_NAME", taskMap)
     locationOfInterest =
       FakeData.LOCATION_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
   }

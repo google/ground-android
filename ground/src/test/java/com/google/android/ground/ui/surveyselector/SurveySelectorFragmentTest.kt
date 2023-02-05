@@ -27,7 +27,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
@@ -69,7 +68,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun created_surveysAvailable_whenNoSurveySynced() {
     setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of())
+    setOfflineSurveys(listOf())
     setUpFragment()
 
     // Assert that 2 surveys are displayed
@@ -89,7 +88,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun created_surveysAvailable_whenOneSurveySynced() {
     setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(ImmutableList.of(TEST_SURVEY_2))
+    setOfflineSurveys(listOf(TEST_SURVEY_2))
     setUpFragment()
 
     // Assert that 2 surveys are displayed
@@ -110,7 +109,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   fun click_activatesSurvey() =
     runTest(testDispatcher) {
       setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setOfflineSurveys(ImmutableList.of())
+      setOfflineSurveys(listOf())
       setUpFragment()
 
       // Click second item
@@ -136,7 +135,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(surveyRepository.getSurveySummaries(FakeData.USER)).thenReturn(Single.just(surveys))
   }
 
-  private fun setOfflineSurveys(surveys: ImmutableList<Survey>) {
+  private fun setOfflineSurveys(surveys: List<Survey>) {
     whenever(surveyRepository.offlineSurveys).thenReturn(Single.just(surveys))
   }
 

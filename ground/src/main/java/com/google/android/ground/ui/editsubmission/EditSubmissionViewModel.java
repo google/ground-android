@@ -34,7 +34,6 @@ import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractViewModel;
 import com.google.android.ground.ui.util.BitmapUtil;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -44,7 +43,9 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -116,9 +117,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   @Inject
   EditSubmissionViewModel(
-      Resources resources,
-      SubmissionRepository submissionRepository,
-      BitmapUtil bitmapUtil) {
+      Resources resources, SubmissionRepository submissionRepository, BitmapUtil bitmapUtil) {
     this.resources = resources;
     this.submissionRepository = submissionRepository;
     this.bitmapUtil = bitmapUtil;
@@ -251,12 +250,12 @@ public class EditSubmissionViewModel extends AbstractViewModel {
         .toSingleDefault(SaveResult.SAVED);
   }
 
-  private ImmutableList<TaskDataDelta> getResponseDeltas() {
+  private List<TaskDataDelta> getResponseDeltas() {
     if (originalSubmission == null) {
       Timber.e("TaskData diff attempted before submission loaded");
-      return ImmutableList.of();
+      return List.of();
     }
-    ImmutableList.Builder<TaskDataDelta> deltas = ImmutableList.builder();
+    List<TaskDataDelta> result = new ArrayList<>();
     TaskDataMap originalResponses = originalSubmission.getResponses();
     Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Task task : originalSubmission.getJob().getTasksSorted()) {
@@ -266,9 +265,8 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       if (currentResponse.equals(originalResponse)) {
         continue;
       }
-      deltas.add(new TaskDataDelta(taskId, task.getType(), currentResponse));
+      result.add(new TaskDataDelta(taskId, task.getType(), currentResponse));
     }
-    ImmutableList<TaskDataDelta> result = deltas.build();
     Timber.v("Deltas: %s", result);
     return result;
   }
