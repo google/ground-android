@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.fields
 
-package com.google.android.ground.persistence.local.room.fields;
+import androidx.room.TypeConverter
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.IntEnum
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import com.google.android.ground.model.task.Task.Type;
-import com.google.android.ground.persistence.local.room.IntEnum;
-import com.google.common.collect.ImmutableBiMap;
-
-public enum TaskEntityType implements IntEnum {
+enum class TaskEntityType(private val intValue: Int) : IntEnum {
   UNKNOWN(0),
   TEXT(1),
   MULTIPLE_CHOICE(2),
@@ -32,43 +28,41 @@ public enum TaskEntityType implements IntEnum {
   DATE(5),
   TIME(6);
 
-  private final int intValue;
-
-  private static final ImmutableBiMap<TaskEntityType, Type> TASK_TYPES =
-      ImmutableBiMap.<TaskEntityType, Type>builder()
-          .put(TEXT, Type.TEXT)
-          .put(MULTIPLE_CHOICE, Type.MULTIPLE_CHOICE)
-          .put(PHOTO, Type.PHOTO)
-          .put(NUMBER, Type.NUMBER)
-          .put(DATE, Type.DATE)
-          .put(TIME, Type.TIME)
-          .build();
-
-  TaskEntityType(int intValue) {
-    this.intValue = intValue;
+  override fun intValue(): Int {
+    return intValue
   }
 
-  @Override
-  public int intValue() {
-    return intValue;
+  fun toTaskType(): Task.Type {
+    return TASK_TYPES.getOrDefault(this, Task.Type.UNKNOWN)
   }
 
-  public static TaskEntityType fromTaskType(Type type) {
-    return TASK_TYPES.inverse().getOrDefault(type, TaskEntityType.UNKNOWN);
-  }
+  companion object {
+    private val TASK_TYPES: Map<TaskEntityType, Task.Type> =
+      mapOf(
+        Pair(TEXT, Task.Type.TEXT),
+        Pair(MULTIPLE_CHOICE, Task.Type.MULTIPLE_CHOICE),
+        Pair(PHOTO, Task.Type.PHOTO),
+        Pair(NUMBER, Task.Type.NUMBER),
+        Pair(DATE, Task.Type.DATE),
+        Pair(TIME, Task.Type.TIME)
+      )
+    private val REVERSE_TASK_TYPES: Map<Task.Type, TaskEntityType> =
+      TASK_TYPES.entries.associateBy({ it.value }) { it.key }
 
-  public Type toTaskType() {
-    return TASK_TYPES.getOrDefault(this, Type.UNKNOWN);
-  }
+    fun fromTaskType(type: Task.Type): TaskEntityType {
+      return REVERSE_TASK_TYPES.getOrDefault(type, UNKNOWN)
+    }
 
-  @TypeConverter
-  public static int toInt(@Nullable TaskEntityType value) {
-    return IntEnum.toInt(value, UNKNOWN);
-  }
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: TaskEntityType?): Int {
+      return IntEnum.toInt(value, UNKNOWN)
+    }
 
-  @NonNull
-  @TypeConverter
-  public static TaskEntityType fromInt(int intValue) {
-    return IntEnum.fromInt(values(), intValue, UNKNOWN);
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int): TaskEntityType {
+      return IntEnum.fromInt(values(), intValue, UNKNOWN)
+    }
   }
 }
