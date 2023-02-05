@@ -35,7 +35,7 @@ class AcceptTermsOfServiceTest : BaseMainActivityTest() {
   override fun setUp() {
     super.setUp()
     fakeAuthenticationManager.setUser(FakeData.USER)
-    fakeRemoteDataStore.setSurveys(FakeData.SURVEY)
+    fakeRemoteDataStore.surveys = listOf(FakeData.SURVEY)
   }
 
   // Given: a logged in user - with terms not accepted.

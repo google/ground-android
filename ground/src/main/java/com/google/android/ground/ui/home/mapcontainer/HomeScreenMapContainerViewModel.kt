@@ -36,7 +36,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
@@ -216,7 +215,7 @@ internal constructor(
 
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()).distinctUntilChanged()
+        savedMapLocationsOfInterest.startWith(setOf<Feature>()).distinctUntilChanged()
       )
 
     mbtilesFilePaths =
