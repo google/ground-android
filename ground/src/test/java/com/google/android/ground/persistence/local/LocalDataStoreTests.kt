@@ -57,7 +57,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LocalDataLocalStoreTest : BaseHiltTest() {
+class LocalDataLocalStoreTests : BaseHiltTest() {
   @Inject lateinit var localDataStore: LocalDataStore
   @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var submissionDao: SubmissionDao
