@@ -16,13 +16,17 @@
 package com.google.android.ground.ui.surveyselector
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
+import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.model.Survey
@@ -48,6 +52,7 @@ import org.mockito.Mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowPopupMenu
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -80,11 +85,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
     assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
 
     viewHolder = getViewHolder(1)
     assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
     assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
   }
 
   @Test
@@ -100,11 +107,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
     assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
 
     viewHolder = getViewHolder(1)
     assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
     assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.VISIBLE)
+    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.VISIBLE)
   }
 
   @Test
@@ -146,6 +155,36 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     assertThat(fragment.onBack()).isTrue()
     assertThat(fragment.requireActivity().isFinishing).isTrue()
   }
+
+  @Test
+  fun deleteSurveyOnOverflowMenuClick() =
+    runTest(testDispatcher) {
+      setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+      setOfflineSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+      setUpFragment()
+
+      // Click second item's overflow menu
+      onView(withId(R.id.recycler_view))
+        .perform(
+          RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
+            1,
+            recyclerChildAction<TextView>(R.id.overflowMenu) { performClick() }
+          )
+        )
+      advanceUntilIdle()
+
+      // Verify that popup menu is visible and it contains items
+      val latestPopupMenu: PopupMenu = ShadowPopupMenu.getLatestPopupMenu()
+      val menu: Menu = latestPopupMenu.menu
+      assertThat(menu.hasVisibleItems()).isTrue()
+
+      // Click delete item
+      onView(withText("Delete")).inRoot(isPlatformPopup()).perform(click())
+      advanceUntilIdle()
+
+      // Assert survey is deleted
+      verify(surveyRepository).deleteSurvey(TEST_SURVEY_2.id)
+    }
 
   private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) {
     launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
