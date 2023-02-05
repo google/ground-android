@@ -36,8 +36,8 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import timber.log.Timber
 import javax.inject.Singleton
+import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
 
@@ -62,13 +62,9 @@ constructor(
 
   /**
    * Retrieves the submissions or the specified survey, location of interest, and task.
-   *
-   * <ol> <li>Attempt to sync remote submission changes to the local data store. If network is not
-   *
-   * ```
-   *       available or operation times out, this step is skipped.
-   * ```
-   * <li>Relevant submissions are returned directly from the local data store. </ol>
+   * 1. Attempt to sync remote submission changes to the local data store. If network is not
+   *    available or operation times out, this step is skipped.
+   * 2. Relevant submissions are returned directly from the local data store.
    */
   fun getSubmissions(
     surveyId: String,
