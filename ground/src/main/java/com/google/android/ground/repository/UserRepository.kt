@@ -24,11 +24,10 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
- * and overall architecture, see * https://developer.android.com/jetpack/docs/guide.
+ * and overall architecture, see https://developer.android.com/jetpack/docs/guide.
  */
 @Singleton
 class UserRepository
