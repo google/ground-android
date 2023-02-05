@@ -45,12 +45,10 @@ import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.*
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
-@Singleton
 class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissionMutationStore {
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao

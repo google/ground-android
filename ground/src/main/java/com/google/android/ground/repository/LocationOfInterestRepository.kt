@@ -19,9 +19,9 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
@@ -44,14 +44,12 @@ import timber.log.Timber
 class LocationOfInterestRepository
 @Inject
 constructor(
-  private val localDataStore: LocalDataStore,
+  private val localLoiStore: LocalLocationOfInterestMutationStore,
   private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
   private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
-  private val locationOfInterestStore = this.localDataStore.localLocationOfInterestStore
-
   /**
    * Mirrors locations of interest in the specified survey from the remote db into the local db when
    * the network is available. When invoked, will first attempt to resync all locations of interest
@@ -72,8 +70,8 @@ constructor(
       { (entityId: String, entity: LocationOfInterest?) ->
         when (event.eventType) {
           ENTITY_LOADED,
-          ENTITY_MODIFIED -> locationOfInterestStore.merge(checkNotNull(entity))
-          ENTITY_REMOVED -> locationOfInterestStore.deleteLocationOfInterest(entityId)
+          ENTITY_MODIFIED -> localLoiStore.merge(checkNotNull(entity))
+          ENTITY_REMOVED -> localLoiStore.deleteLocationOfInterest(entityId)
           else -> throw IllegalArgumentException()
         }
       },
@@ -88,7 +86,7 @@ constructor(
   fun getLocationsOfInterestOnceAndStream(
     survey: Survey
   ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>> =
-    locationOfInterestStore.getLocationsOfInterestOnceAndStream(survey)
+    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getOfflineLocationOfInterest(
@@ -98,7 +96,7 @@ constructor(
     surveyRepository
       .getOfflineSurvey(surveyId)
       .flatMapMaybe { survey: Survey ->
-        locationOfInterestStore.getLocationOfInterest(survey, locationOfInterest)
+        localLoiStore.getLocationOfInterest(survey, locationOfInterest)
       }
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
@@ -112,7 +110,7 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = localDataStore.localLocationOfInterestStore.applyAndEnqueue(mutation)
+    val localTransaction = localLoiStore.applyAndEnqueue(mutation)
     val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
     return localTransaction.andThen(remoteSync)
   }
@@ -125,7 +123,7 @@ constructor(
   fun getIncompleteLocationOfInterestMutationsOnceAndStream(
     locationOfInterestId: String
   ): Flowable<List<LocationOfInterestMutation>> =
-    locationOfInterestStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+    localLoiStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
       locationOfInterestId,
       MutationEntitySyncStatus.PENDING,
       MutationEntitySyncStatus.IN_PROGRESS,

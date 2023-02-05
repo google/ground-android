@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright (c) 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local.room
+
+package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.Companion.byDescendingClientTimestamp
-import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.model.mutation.Mutation.Type.DELETE
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.*
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
+import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
@@ -38,22 +37,23 @@ import javax.inject.Singleton
 import timber.log.Timber
 
 /**
- * Implementation of local data store using Room ORM. Room abstracts persistence between a local db
- * and Java objects using a mix of inferred mappings based on Java field names and types, and custom
- * annotations. Mappings are defined through the various Entity objects in the package and related
- * embedded classes.
+ * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
+ * local data stores.
  */
 @Singleton
-class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
-  @Inject lateinit var schedulers: Schedulers
-  @Inject override lateinit var localLocationOfInterestStore: LocalLocationOfInterestMutationStore
-  @Inject override lateinit var localOfflineAreaStore: LocalOfflineAreaStore
-  @Inject override lateinit var submissionStore: LocalSubmissionMutationStore
-  @Inject override lateinit var surveyStore: LocalSurveyStore
-  @Inject override lateinit var tileSetStore: LocalTileSetStore
-  @Inject override lateinit var userStore: LocalUserStore
-
-  override fun getMutationsOnceAndStream(
+class MutationRepository
+@Inject
+constructor(
+  private val localSurveyStore: LocalSurveyStore,
+  private val localLocationOfInterestStore: LocalLocationOfInterestMutationStore,
+  private val submissionStore: LocalSubmissionMutationStore,
+  private val schedulers: Schedulers
+) {
+  /**
+   * Returns a long-lived stream that emits the full list of mutations for specified survey on
+   * subscribe and a new list on each subsequent change.
+   */
+  fun getMutationsOnceAndStream(
     survey: Survey
   ): @Cold(terminates = false) Flowable<List<Mutation>> {
     // TODO: Show mutations for all surveys, not just current one.
@@ -76,7 +76,11 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     )
   }
 
-  override fun getPendingMutations(locationOfInterestId: String): Single<List<Mutation>> =
+  /**
+   * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
+   * specified id.
+   */
+  fun getPendingMutations(locationOfInterestId: String): Single<List<Mutation>> =
     localLocationOfInterestStore
       .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
       .flattenAsObservable { it }
@@ -87,7 +91,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
           .flattenAsObservable { it }
           .flatMap { ome ->
-            surveyStore
+            localSurveyStore
               .getSurveyById(ome.surveyId)
               .toSingle()
               .map { ome.toModelObject(it) }
@@ -100,7 +104,8 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .toList()
       .subscribeOn(schedulers.io())
 
-  override fun updateMutations(mutations: List<Mutation>): Completable {
+  /** Updates the provided list of mutations. */
+  fun updateMutations(mutations: List<Mutation>): Completable {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
 
@@ -110,12 +115,16 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
       .subscribeOn(schedulers.io())
   }
 
-  override fun finalizePendingMutations(mutations: List<Mutation>): Completable =
+  /**
+   * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
+   * corresponding submission or LOI.
+   */
+  fun finalizePendingMutations(mutations: List<Mutation>): Completable =
     finalizeDeletions(mutations).andThen(markComplete(mutations))
 
   private fun finalizeDeletions(mutations: List<Mutation>): Completable =
     Observable.fromIterable(mutations)
-      .filter { it.type === DELETE }
+      .filter { it.type === Mutation.Type.DELETE }
       .flatMapCompletable { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
@@ -124,17 +133,18 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
-          else -> Completable.complete()
         }
       }
 
   private fun markComplete(mutations: List<Mutation>): Completable {
     val locationOfInterestMutations =
       LocationOfInterestMutation.filter(mutations).map {
-        it.copy(syncStatus = SyncStatus.COMPLETED)
+        it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
       }
     val submissionMutations =
-      SubmissionMutation.filter(mutations).map { it.copy(syncStatus = SyncStatus.COMPLETED) }
+      SubmissionMutation.filter(mutations).map {
+        it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
+      }
 
     return localLocationOfInterestStore
       .updateAll(locationOfInterestMutations)
@@ -146,5 +156,7 @@ class RoomLocalDataStore @Inject internal constructor() : LocalDataStore {
     locationOfInterestMutations: List<LocationOfInterestMutation>,
     submissionMutations: List<SubmissionMutation>
   ): List<Mutation> =
-    (locationOfInterestMutations + submissionMutations).sortedWith(byDescendingClientTimestamp())
+    (locationOfInterestMutations + submissionMutations).sortedWith(
+      Mutation.byDescendingClientTimestamp()
+    )
 }
