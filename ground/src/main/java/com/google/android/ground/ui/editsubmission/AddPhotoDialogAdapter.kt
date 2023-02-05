@@ -22,7 +22,6 @@ import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.AddPhotoListItemBinding
-import com.google.common.collect.ImmutableList
 import java8.util.function.Consumer
 
 class AddPhotoDialogAdapter(private val onSelectPhotoStorageClick: Consumer<Int>) :
@@ -66,8 +65,8 @@ class AddPhotoDialogAdapter(private val onSelectPhotoStorageClick: Consumer<Int>
   }
 
   companion object {
-    val photoStorageResources: ImmutableList<PhotoStorageResource> =
-      ImmutableList.of(
+    val photoStorageResources: List<PhotoStorageResource> =
+      listOf(
         PhotoStorageResource(
           R.string.action_camera,
           R.drawable.ic_photo_camera,
