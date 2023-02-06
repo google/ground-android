@@ -19,6 +19,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
+import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -180,12 +181,6 @@ internal constructor(
   /** Called when a LOI is (de)selected. */
   fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
-  companion object {
-    // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
-    const val ZOOM_LEVEL_THRESHOLD = 16f
-    const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
   }
 
   init {

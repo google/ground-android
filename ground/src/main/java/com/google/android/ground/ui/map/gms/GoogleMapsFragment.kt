@@ -259,9 +259,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun moveCamera(point: Point, zoomLevel: Float) =
     getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel))
 
-  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(parseColor(Style().color), currentZoomLevel, isSelected)
-
   private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
     multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
 

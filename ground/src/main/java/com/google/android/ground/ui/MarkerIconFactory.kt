@@ -23,8 +23,8 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.ground.Config
 import com.google.android.ground.R
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,12 +35,13 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
   private fun createBitmap(
     drawable: Drawable,
     zoomLevel: Float,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
   ): Bitmap {
     // TODO: Adjust size based on selection state.
     var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
 
-    if (zoomLevel >= HomeScreenMapContainerViewModel.ZOOM_LEVEL_THRESHOLD) {
+    if (zoomLevel >= Config.ZOOM_LEVEL_THRESHOLD) {
+      // Scale the drawable when we cross the app's zoom level threshold.
       scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
     }
 
@@ -55,6 +56,7 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
   }
 
+  /** Returns a [Bitmap] representing an individual marker on the map. */
   fun getMarkerBitmap(color: Int, currentZoomLevel: Float, isSelected: Boolean = false): Bitmap {
     val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
     val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
@@ -72,6 +74,7 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     return bitmap
   }
 
+  /** Returns a [BitmapDescriptor] for representing an individual marker on the map. */
   fun getMarkerIcon(
     @ColorInt color: Int,
     currentZoomLevel: Float,
@@ -82,6 +85,7 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
 
+  /** Returns a [BitmapDescriptor] for representing a marker cluster on the map. */
   fun getClusterIcon(
     @ColorInt color: Int,
     currentZoomLevel: Float,
