@@ -25,6 +25,9 @@
       name="item"
       type="com.google.android.ground.ui.surveyselector.SurveyItem" />
     <variable
+      name="fragment"
+      type="com.google.android.ground.ui.surveyselector.SurveySelectorFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel" />
   </data>
@@ -33,7 +36,10 @@
     android:id="@+id/survey_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/loi_card_item_margin"
+    android:layout_marginStart="20dp"
+    android:layout_marginTop="@dimen/loi_card_item_margin"
+    android:layout_marginEnd="20dp"
+    android:layout_marginBottom="@dimen/loi_card_item_margin"
     android:clickable="true"
     android:focusable="true"
     android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
@@ -43,7 +49,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/wrapper_view"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:padding="20dp">
@@ -78,6 +84,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="Some description text" />
+
+      <!--Text view for showing the options menu-->
+      <TextView
+        android:id="@+id/overflowMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="@{(view) -> fragment.showPopupMenu(view, item.surveyId)}"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="@string/overflow_menu"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@id/title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:visible="@{item.isAvailableOffline}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>
 </layout>
