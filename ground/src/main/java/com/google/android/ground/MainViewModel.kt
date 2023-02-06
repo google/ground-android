@@ -151,6 +151,6 @@ constructor(
     if (surveyRepository.activeSurveyId.isNotEmpty()) {
       HomeScreenFragmentDirections.showHomeScreen()
     } else {
-      SurveySelectorFragmentDirections.showSurveySelectorScreen()
+      SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
     }
 }
