@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -38,7 +37,6 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var testDispatcher: TestDispatcher
@@ -72,12 +70,54 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_alreadyAvailableOffline() =
     runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
+      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      advanceUntilIdle()
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
       surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
+    }
+
+  @Test
+  fun deleteSurvey_whenSurveyIsActive() =
+    runTest(testDispatcher) {
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
+      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      advanceUntilIdle()
+      surveyRepository.activateSurvey(SURVEY.id)
+      advanceUntilIdle()
+
+      surveyRepository.removeOfflineSurvey(SURVEY.id)
+      advanceUntilIdle()
+
+      // Verify survey is deleted
+      surveyRepository.offlineSurveys.test().assertValues(listOf())
+      // Verify survey deactivated
+      assertThat(surveyRepository.activeSurveyId).isEmpty()
+    }
+
+  @Test
+  fun deleteSurvey_whenSurveyIsInActive() =
+    runTest(testDispatcher) {
+      val survey1 = SURVEY.copy(id = "active survey id")
+      val survey2 = SURVEY.copy(id = "inactive survey id")
+      fakeRemoteDataStore.surveys = listOf(survey1, survey2)
+      surveyRepository.syncSurveyWithRemote(survey1.id).await()
+      advanceUntilIdle()
+      surveyRepository.syncSurveyWithRemote(survey2.id).await()
+      advanceUntilIdle()
+      surveyRepository.activateSurvey(survey1.id)
+      advanceUntilIdle()
+
+      surveyRepository.removeOfflineSurvey(survey2.id)
+      advanceUntilIdle()
+
+      // Verify active survey isn't cleared
+      assertThat(surveyRepository.activeSurveyId).isEqualTo(survey1.id)
+      // Verify survey is deleted
+      surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
     }
 }
