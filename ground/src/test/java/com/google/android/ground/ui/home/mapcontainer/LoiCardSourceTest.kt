@@ -24,7 +24,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.jraska.livedata.TestObserver
 import com.sharedtest.FakeData
@@ -123,7 +122,7 @@ class LoiCardSourceTest : BaseHiltTest() {
     private val TEST_AREA_OF_INTEREST_2 = createPolygon("5", listOf(COORDINATE_2, COORDINATE_3))
 
     private val TEST_LOCATIONS_OF_INTEREST =
-      ImmutableSet.of(
+      setOf(
         TEST_POINT_OF_INTEREST_1,
         TEST_POINT_OF_INTEREST_2,
         TEST_POINT_OF_INTEREST_3,

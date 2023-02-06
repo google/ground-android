@@ -31,7 +31,6 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.lo
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
-import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -208,11 +207,11 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
           FakeData.SURVEY
         )
       )
-      .thenReturn(Flowable.just(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST)))
+      .thenReturn(Flowable.just(setOf(FakeData.LOCATION_OF_INTEREST)))
     locationOfInterestRepository
       .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
       .test()
-      .assertValue(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST))
+      .assertValue(setOf(FakeData.LOCATION_OF_INTEREST))
   }
 
   @Test

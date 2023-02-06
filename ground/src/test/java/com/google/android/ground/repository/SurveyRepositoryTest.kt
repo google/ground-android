@@ -46,7 +46,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_firstTime() =
     runTest(testDispatcher) {
-      fakeRemoteDataStore.setTestSurvey(SURVEY)
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
@@ -62,7 +62,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_firstTime_handleRemoteFailure() =
     runTest(testDispatcher) {
-      fakeRemoteDataStore.failOnLoadSurvey = true
+      fakeRemoteDataStore.surveys = listOf()
 
       assertFails { surveyRepository.activateSurvey(SURVEY.id) }
       advanceUntilIdle()

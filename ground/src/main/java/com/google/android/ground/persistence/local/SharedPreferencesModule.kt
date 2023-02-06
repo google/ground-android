@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
+package com.google.android.ground.persistence.local
 
 import android.content.Context
-import android.content.res.Resources
-import android.location.Geocoder
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.ground.ui.common.ViewModelModule
+import android.content.SharedPreferences
+import com.google.android.ground.Config
+import com.google.android.ground.persistence.local.room.dao.*
+import com.google.android.ground.persistence.local.room.stores.*
+import com.google.android.ground.persistence.local.stores.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,23 +29,10 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
-@Module(includes = [ViewModelModule::class])
-object GroundApplicationModule {
-
+@Module
+object SharedPreferencesModule {
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability {
-    return GoogleApiAvailability.getInstance()
-  }
-
-  @Provides
-  @Singleton
-  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
-    return Geocoder(context)
-  }
-
-  @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources {
-    return context.resources
-  }
+  fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences =
+    context.getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE)
 }
