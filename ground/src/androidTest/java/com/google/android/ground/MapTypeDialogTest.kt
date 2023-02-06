@@ -21,7 +21,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.repository.MapsRepository
+import com.google.android.ground.repository.MapStateRepository
 import com.google.common.truth.Truth
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
@@ -33,8 +33,7 @@ import org.junit.Test
 class MapTypeDialogTest : BaseMainActivityTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-
-  @Inject lateinit var mapsRepository: MapsRepository
+  @Inject lateinit var mapStateRepository: MapStateRepository
 
   override fun setUp() {
     super.setUp()
@@ -45,6 +44,7 @@ class MapTypeDialogTest : BaseMainActivityTest() {
   fun tappingMapTypeButton_shouldOpenDialog() {
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
     skipTermsOfServiceFragment()
+    skipSurveySelectorFragment()
 
     onView(withId(R.id.map_type_btn)).perform(click())
 
@@ -58,12 +58,13 @@ class MapTypeDialogTest : BaseMainActivityTest() {
   fun selectingMapTypeItem_shouldUpdateBasemapType() {
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
     skipTermsOfServiceFragment()
+    skipSurveySelectorFragment()
 
-    Truth.assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+    Truth.assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
 
     onView(withId(R.id.map_type_btn)).perform(click())
     onView(withText("Terrain")).perform(click())
 
-    Truth.assertThat(mapsRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    Truth.assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
   }
 }

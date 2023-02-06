@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -24,21 +23,15 @@ import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.map.CameraPosition
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
-import io.reactivex.processors.BehaviorProcessor
-import io.reactivex.processors.FlowableProcessor
 import java.util.concurrent.TimeUnit
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
 import kotlinx.coroutines.withContext
@@ -59,21 +52,25 @@ constructor(
   private val localDataStore: LocalDataStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
   private val surveyStore = localDataStore.surveyStore
 
-  /** Emits the latest loading state of the current survey on subscribe and on change. */
-  val surveyLoadingState: @Hot(replays = true) FlowableProcessor<Loadable<Survey>> =
-    BehaviorProcessor.create()
+  /**
+   * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
+   * active or local db isn't up-to-date.
+   */
+  val activeSurvey: @Cold Flowable<Optional<Survey>> =
+    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapMaybe {
+      if (it.isEmpty()) Maybe.just(Optional.empty())
+      else surveyStore.getSurveyById(it).map { s -> Optional.of(s) }
+    }
 
-  /** Emits the last active survey or `empty()` if none available on subscribe and on change. */
-  val activeSurvey: @Hot(replays = true) Flowable<Optional<Survey>>
-    get() = surveyLoadingState.map { obj: Loadable<Survey> -> obj.value() }
-
-  var activeSurveyId: String = ""
-    private set
+  var activeSurveyId: String
+    get() = localValueStore.activeSurveyId
+    private set(value) {
+      localValueStore.activeSurveyId = value
+    }
 
   val offlineSurveys: @Cold Single<List<Survey>>
     get() = surveyStore.surveys
@@ -85,7 +82,7 @@ constructor(
   }
 
   /** This only works if the survey is already cached to local db. */
-  fun getSurvey(surveyId: String): @Cold Single<Survey> =
+  fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
     surveyStore
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
@@ -98,9 +95,7 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  fun loadLastActiveSurvey() = activateSurvey(localValueStore.lastActiveSurveyId)
-
-  fun activateSurvey(surveyId: String) {
+  suspend fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
     if (surveyId == activeSurveyId) {
       return
@@ -111,35 +106,21 @@ constructor(
       return
     }
 
-    externalScope.launch {
-      withContext(ioDispatcher) {
-        try {
-          surveyLoadingState.onNext(Loadable.loading())
-          val survey =
-            surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
-              ?: syncSurveyFromRemote(surveyId)
-          activeSurveyId = surveyId
-          localValueStore.lastActiveSurveyId = surveyId
-          surveyLoadingState.onNext(Loadable.loaded(survey))
-        } catch (e: Error) {
-          Timber.e("Error activating survey", e)
-          surveyLoadingState.onNext(Loadable.error(e))
-        }
-      }
+    withContext(ioDispatcher) {
+      surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+      activeSurveyId = surveyId
     }
   }
 
   fun clearActiveSurvey() {
-    surveyLoadingState.onNext(Loadable.notLoaded())
+    activeSurveyId = ""
   }
 
-  fun getSurveySummaries(user: User): @Cold Flowable<Loadable<List<Survey>>> =
+  fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
     loadSurveySummariesFromRemote(user)
       .doOnSubscribe { Timber.d("Loading survey list from remote") }
       .doOnError { Timber.d(it, "Failed to load survey list from remote") }
       .onErrorResumeNext { offlineSurveys }
-      .toFlowable()
-      .compose { Loadable.loadingOnceAndWrap(it) }
 
   private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
     remoteDataStore
@@ -151,10 +132,4 @@ constructor(
   ): @Cold(terminates = false) Flowable<List<Mutation>> {
     return localDataStore.getMutationsOnceAndStream(survey)
   }
-
-  fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
-    localValueStore.setLastCameraPosition(surveyId, cameraPosition)
-
-  fun getLastCameraPosition(surveyId: String): CameraPosition? =
-    localValueStore.getLastCameraPosition(surveyId)
 }

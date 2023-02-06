@@ -18,7 +18,6 @@ package com.google.android.ground.ui.common
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.DropAPinTaskViewModel
 import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel
 import com.google.android.ground.ui.editsubmission.*
@@ -61,10 +60,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SyncStatusViewModel::class)
   abstract fun bindSyncStatusViewModel(viewModel: SyncStatusViewModel): ViewModel
-  @Binds
-  @IntoMap
-  @ViewModelKey(DataCollectionViewModel::class)
-  abstract fun bindDataCollectionViewModel(viewModel: DataCollectionViewModel): ViewModel
   @Binds
   @IntoMap
   @ViewModelKey(OfflineAreasViewModel::class)

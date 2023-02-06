@@ -21,13 +21,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceCheckboxItemBinding
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.SelectMultipleOptionAdapter.ViewHolder
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [Option]s with the [ViewHolder]
  * checkbox views.
  */
-class SelectMultipleOptionAdapter(private val options: List<Option>) :
-  SelectionAdapter<ViewHolder>() {
+class SelectMultipleOptionAdapter(
+  private val options: List<Option>,
+  private val viewModel: MultipleChoiceTaskViewModel
+) : SelectionAdapter<ViewHolder>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
       MultipleChoiceCheckboxItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -53,6 +56,10 @@ class SelectMultipleOptionAdapter(private val options: List<Option>) :
     } else {
       selectedPositions.add(position)
     }
+
+    viewModel.updateResponse(
+      options.filterIndexed { index, _ -> selectedPositions.contains(index) }
+    )
   }
 
   class ViewHolder(internal val binding: MultipleChoiceCheckboxItemBinding) :

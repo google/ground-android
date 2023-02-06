@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.persistence.local.room.models.TaskEntityType
+import com.google.android.ground.persistence.local.room.fields.TaskEntityType
 
 @Entity(
   tableName = "task",

@@ -23,7 +23,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.LocalDataStore
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -36,6 +36,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -45,6 +46,7 @@ private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
  * data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
+@Singleton
 class SubmissionRepository
 @Inject
 constructor(
@@ -74,10 +76,11 @@ constructor(
     taskId: String
   ): @Cold Single<List<Submission>> =
     // TODO: Only fetch first n fields.
-    locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
-      locationOfInterest: LocationOfInterest ->
-      getSubmissions(locationOfInterest, taskId)
-    }
+    locationOfInterestRepository
+      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
+      .flatMap { locationOfInterest: LocationOfInterest ->
+        getSubmissions(locationOfInterest, taskId)
+      }
 
   private fun getSubmissions(
     locationOfInterest: LocationOfInterest,
@@ -113,12 +116,13 @@ constructor(
     submissionId: String
   ): @Cold Single<Submission> =
     // TODO: Store and retrieve latest edits from cache and/or db.
-    locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).flatMap {
-      locationOfInterest ->
-      submissionStore
-        .getSubmission(locationOfInterest, submissionId)
-        .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
-    }
+    locationOfInterestRepository
+      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
+      .flatMap { locationOfInterest ->
+        submissionStore
+          .getSubmission(locationOfInterest, submissionId)
+          .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
+      }
 
   fun createSubmission(
     surveyId: String,
@@ -127,17 +131,18 @@ constructor(
   ): @Cold Single<Submission> {
     // TODO: Very jobId == loi job id.
     val auditInfo = AuditInfo(authManager.currentUser)
-    return locationOfInterestRepository.getLocationOfInterest(surveyId, locationOfInterestId).map {
-      locationOfInterest: LocationOfInterest ->
-      Submission(
-        uuidGenerator.generateUuid(),
-        locationOfInterest.surveyId,
-        locationOfInterest,
-        locationOfInterest.job,
-        auditInfo,
-        auditInfo
-      )
-    }
+    return locationOfInterestRepository
+      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
+      .map { locationOfInterest: LocationOfInterest ->
+        Submission(
+          uuidGenerator.generateUuid(),
+          locationOfInterest.surveyId,
+          locationOfInterest,
+          locationOfInterest.job,
+          auditInfo,
+          auditInfo
+        )
+      }
   }
 
   fun deleteSubmission(submission: Submission): @Cold Completable =

@@ -34,6 +34,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
+import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -236,14 +237,14 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
-  override fun getDistanceInPixels(point1: Point, point2: Point): Double {
+  override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
     if (map == null) {
       Timber.e("Null Map reference")
       return 0.toDouble()
     }
     val projection = map!!.projection
-    val loc1 = projection.toScreenLocation(point1.toLatLng())
-    val loc2 = projection.toScreenLocation(point2.toLatLng())
+    val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
+    val loc2 = projection.toScreenLocation(coordinate2.toGoogleMapsObject())
     val dx = (loc1.x - loc2.x).toDouble()
     val dy = (loc1.y - loc2.y).toDouble()
     return sqrt(dx * dx + dy * dy)
@@ -253,11 +254,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun disableGestures() = getMap().uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(point: Point) =
-    getMap().moveCamera(CameraUpdateFactory.newLatLng(point.toLatLng()))
+  override fun moveCamera(coordinate: Coordinate) =
+    getMap().moveCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
 
-  override fun moveCamera(point: Point, zoomLevel: Float) =
-    getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel))
+  override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
+    getMap()
+      .moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
   private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
     multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
@@ -321,7 +323,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun renderFeatures(features: Set<Feature>) {
     // Re-cluster and re-render
-    if (!features.isEmpty()) {
+    if (features.isNotEmpty()) {
       Timber.v("renderLocationsOfInterest() called with ${features.size} locations of interest")
       removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
@@ -352,7 +354,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
       cameraMovedEventsProcessor.onNext(
         CameraPosition(
-          getMap().cameraPosition.target.toPoint(),
+          getMap().cameraPosition.target.toCoordinate(),
           getMap().cameraPosition.zoom,
           false,
           getMap().projection.visibleRegion.latLngBounds.toModelObject()

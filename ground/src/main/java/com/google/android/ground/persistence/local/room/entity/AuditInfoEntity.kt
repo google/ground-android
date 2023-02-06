@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.Embedded
-import com.google.android.ground.persistence.local.room.models.UserDetails
+import com.google.android.ground.persistence.local.room.fields.UserDetails
 
 /** User details and timestamp for creation or modification of a model object. */
 data class AuditInfoEntity(

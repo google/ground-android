@@ -22,13 +22,16 @@ import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBindin
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.SelectOneOptionAdapter.ViewHolder
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [Option] data with the [ViewHolder]
  * RadioButton views.
  */
-class SelectOneOptionAdapter(private val options: List<Option>) :
-  RecyclerView.Adapter<ViewHolder>() {
+class SelectOneOptionAdapter(
+  private val options: List<Option>,
+  private val viewModel: MultipleChoiceTaskViewModel
+) : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex = -1
 
@@ -49,6 +52,7 @@ class SelectOneOptionAdapter(private val options: List<Option>) :
     holder.binding.radioButton.setOnClickListener {
       val oldPosition = selectedIndex
       selectedIndex = holder.adapterPosition
+      viewModel.updateResponse(listOf(options[selectedIndex]))
 
       holder.binding.radioButton.post {
         if (oldPosition >= 0) {

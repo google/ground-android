@@ -16,10 +16,9 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.Point
 
 data class CameraPosition(
-  val target: Point,
+  val target: Coordinate,
   val zoomLevel: Float? = null,
   val isAllowZoomOut: Boolean = false,
   var bounds: Bounds? = null
@@ -27,8 +26,8 @@ data class CameraPosition(
 
   fun serialize(): String =
     arrayOf<Any>(
-        target.coordinate.x,
-        target.coordinate.y,
+        target.x,
+        target.y,
         zoomLevel.toString(),
         isAllowZoomOut,
         bounds?.southwest?.x.toString(),
@@ -57,7 +56,7 @@ data class CameraPosition(
         bounds = Bounds(Coordinate(swLat, swLong), Coordinate(neLat, neLong))
       }
 
-      return CameraPosition(Point(Coordinate(lat, long)), zoomLevel, isAllowZoomOut, bounds)
+      return CameraPosition(Coordinate(lat, long), zoomLevel, isAllowZoomOut, bounds)
     }
   }
 }

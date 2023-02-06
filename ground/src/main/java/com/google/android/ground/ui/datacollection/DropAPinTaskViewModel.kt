@@ -24,7 +24,6 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.common.collect.ImmutableSet
 import java8.util.Optional
 import javax.inject.Inject
 
@@ -33,11 +32,11 @@ class DropAPinTaskViewModel
 constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
 
-  val features: @Hot MutableLiveData<ImmutableSet<Feature>> = MutableLiveData()
+  val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
 
   fun updateResponse(position: CameraPosition) {
     setResponse(Optional.of(LocationTaskData(position)))
-    features.postValue(ImmutableSet.of(createFeature(position.target)))
+    features.postValue(setOf(createFeature(Point(position.target))))
   }
 
   /** Creates a new map [Feature] representing the point placed by the user. */

@@ -15,9 +15,7 @@
  */
 package com.google.android.ground
 
-import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.res.Resources
 import android.location.Geocoder
 import com.google.android.gms.common.GoogleApiAvailability
@@ -37,15 +35,6 @@ object GroundApplicationModule {
   @Singleton
   fun googleApiAvailability(): GoogleApiAvailability {
     return GoogleApiAvailability.getInstance()
-  }
-
-  @Provides
-  @Singleton
-  fun provideSharedPreferences(application: Application): SharedPreferences {
-    return application.applicationContext.getSharedPreferences(
-      Config.SHARED_PREFS_NAME,
-      Config.SHARED_PREFS_MODE
-    )
   }
 
   @Provides

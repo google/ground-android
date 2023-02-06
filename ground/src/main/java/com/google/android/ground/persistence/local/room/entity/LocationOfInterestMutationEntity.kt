@@ -16,8 +16,8 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.room.models.MutationEntityType
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntityType
 
 /**
  * Defines how Room persists LOI mutations for remote sync in the local db. By default, Room uses

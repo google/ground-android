@@ -25,7 +25,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold

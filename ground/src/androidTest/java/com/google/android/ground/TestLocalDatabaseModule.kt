@@ -32,7 +32,7 @@ object TestLocalDatabaseModule {
   @Provides
   @Singleton
   fun localDatabaseProvider(@ApplicationContext context: Context): LocalDatabase {
-    return Room.inMemoryDatabaseBuilder(context!!, LocalDatabase::class.java)
+    return Room.inMemoryDatabaseBuilder(context, LocalDatabase::class.java)
       .allowMainThreadQueries()
       .build()
   }

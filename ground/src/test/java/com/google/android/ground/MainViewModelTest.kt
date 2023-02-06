@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState.Companion.error
@@ -25,6 +26,7 @@ import com.google.android.ground.system.auth.SignInState.Companion.signingIn
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.TestObservers.observeUntilFirstChange
@@ -32,7 +34,6 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.observers.TestObserver
-import java8.util.Optional
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
@@ -46,17 +47,12 @@ import org.robolectric.shadows.ShadowToast
 class MainViewModelTest : BaseHiltTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-
   @Inject lateinit var viewModel: MainViewModel
-
   @Inject lateinit var navigator: Navigator
-
+  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var sharedPreferences: SharedPreferences
-
   @Inject lateinit var tosRepository: TermsOfServiceRepository
-
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
@@ -122,9 +118,10 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosAccepted() {
+  fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
     tosRepository.isTermsOfServiceAccepted = true
-    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    localValueStore.activeSurveyId = "foo survey id"
+    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -137,7 +134,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
     verifyProgressDialogVisible(false)
@@ -152,12 +149,12 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosMissing() {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.setTermsOfService(Optional.empty())
+    fakeRemoteDataStore.termsOfService = null
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
+    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen())
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }

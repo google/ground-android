@@ -21,7 +21,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
@@ -91,12 +91,12 @@ constructor(
     locationOfInterestStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** This only works if the survey and location of interests are already cached to local db. */
-  fun getLocationOfInterest(
+  fun getOfflineLocationOfInterest(
     surveyId: String,
     locationOfInterest: String
   ): @Cold Single<LocationOfInterest> =
     surveyRepository
-      .getSurvey(surveyId)
+      .getOfflineSurvey(surveyId)
       .flatMapMaybe { survey: Survey ->
         locationOfInterestStore.getLocationOfInterest(survey, locationOfInterest)
       }

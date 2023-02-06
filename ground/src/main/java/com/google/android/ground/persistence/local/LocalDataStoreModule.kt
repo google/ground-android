@@ -35,19 +35,17 @@ abstract class LocalDataStoreModule {
   @Binds
   @Singleton
   abstract fun locationOfInterestStore(
-    store: RoomLocalLocationOfInterestMutationStore
+    store: RoomLocationOfInterestMutationStore
   ): LocalLocationOfInterestMutationStore
   @Binds
   @Singleton
-  abstract fun offlineAreaStore(store: RoomLocalOfflineAreaStore): LocalOfflineAreaStore
+  abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
   @Binds
   @Singleton
-  abstract fun submissionStore(
-    store: RoomLocalSubmissionMutationStore
-  ): LocalSubmissionMutationStore
-  @Binds @Singleton abstract fun surveyStore(store: RoomLocalSurveyStore): LocalSurveyStore
-  @Binds @Singleton abstract fun tileSetStore(store: RoomLocalTileSetStore): LocalTileSetStore
-  @Binds @Singleton abstract fun userStore(store: RoomLocalUserStore): LocalUserStore
+  abstract fun submissionStore(store: RoomSubmissionMutationStore): LocalSubmissionMutationStore
+  @Binds @Singleton abstract fun surveyStore(store: RoomSurveyStore): LocalSurveyStore
+  @Binds @Singleton abstract fun tileSetStore(store: RoomTileSetStore): LocalTileSetStore
+  @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
 
   companion object {
     @Provides

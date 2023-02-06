@@ -23,7 +23,7 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalDataStoreModule
 import com.google.android.ground.persistence.local.room.RoomLocalDataStore
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.error
@@ -31,7 +31,6 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.lo
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
 import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
-import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -208,26 +207,26 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
           FakeData.SURVEY
         )
       )
-      .thenReturn(Flowable.just(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST)))
+      .thenReturn(Flowable.just(setOf(FakeData.LOCATION_OF_INTEREST)))
     locationOfInterestRepository
       .getLocationsOfInterestOnceAndStream(FakeData.SURVEY)
       .test()
-      .assertValue(ImmutableSet.of(FakeData.LOCATION_OF_INTEREST))
+      .assertValue(setOf(FakeData.LOCATION_OF_INTEREST))
   }
 
   @Test
   fun testGetLocationsOfInterest_surveyNotPresent() {
-    Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
+    Mockito.`when`(mockSurveyRepository.getOfflineSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.error(NoSuchElementException()))
     locationOfInterestRepository
-      .getLocationOfInterest("non_existent_survey_id", "loi_id")
+      .getOfflineLocationOfInterest("non_existent_survey_id", "loi_id")
       .test()
       .assertFailure(NoSuchElementException::class.java)
   }
 
   @Test
   fun testGetLocationsOfInterest_surveyPresent() {
-    Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
+    Mockito.`when`(mockSurveyRepository.getOfflineSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
     Mockito.`when`(
         mockLocalDataStore.localLocationOfInterestStore.getLocationOfInterest(
@@ -237,14 +236,14 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
       .thenReturn(Maybe.just(FakeData.LOCATION_OF_INTEREST))
     locationOfInterestRepository
-      .getLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
+      .getOfflineLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
       .test()
       .assertResult(FakeData.LOCATION_OF_INTEREST)
   }
 
   @Test
   fun testGetLocationOfInterest_whenLocationOfInterestIsNotPresent() {
-    Mockito.`when`(mockSurveyRepository.getSurvey(ArgumentMatchers.anyString()))
+    Mockito.`when`(mockSurveyRepository.getOfflineSurvey(ArgumentMatchers.anyString()))
       .thenReturn(Single.just(FakeData.SURVEY))
     Mockito.`when`(
         mockLocalDataStore.localLocationOfInterestStore.getLocationOfInterest(
@@ -254,7 +253,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
       .thenReturn(Maybe.empty())
     locationOfInterestRepository
-      .getLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
+      .getOfflineLocationOfInterest(FakeData.SURVEY.id, FakeData.LOCATION_OF_INTEREST.id)
       .test()
       .assertFailureAndMessage(
         NotFoundException::class.java,

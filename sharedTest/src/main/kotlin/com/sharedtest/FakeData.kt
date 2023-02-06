@@ -30,8 +30,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.FeatureClusterItem
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -39,28 +37,23 @@ import com.google.common.collect.ImmutableMap
  */
 object FakeData {
   // TODO: Replace constants with calls to newFoo() methods.
-  @JvmField
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
-  @JvmField val JOB = Job(name = "Job", id = "JOB")
+  val JOB = Job(name = "Job", id = "JOB")
 
-  @JvmField val USER = User("user_id", "user@gmail.com", "User")
+  val USER = User("user_id", "user@gmail.com", "User")
 
-  @JvmField val USER_2 = User("user_id_2", "user2@gmail.com", "User2")
-
-  @JvmField
   val SURVEY: Survey =
     Survey(
       "SURVEY",
       "Survey title",
       "Test survey description",
-      ImmutableMap.of(),
-      ImmutableList.of(),
-      ImmutableMap.of(USER.email, "data-collector")
+      mapOf(),
+      listOf(),
+      mapOf(Pair(USER.email, "data-collector"))
     )
 
-  @JvmField
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
       "loi id",
@@ -73,19 +66,17 @@ object FakeData {
       Point(Coordinate(0.0, 0.0))
     )
 
-  @JvmField
-  val LOCATION_FEATURE_FEATURE =
+  val LOCATION_OF_INTEREST_FEATURE =
     Feature(
       id = LOCATION_OF_INTEREST.id,
       type = Feature.Type.LOCATION_FEATURE,
       geometry = LOCATION_OF_INTEREST.geometry
     )
 
-  @JvmField val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_FEATURE_FEATURE)
+  val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_OF_INTEREST_FEATURE)
 
-  @JvmField
-  val VERTICES: ImmutableList<Point> =
-    ImmutableList.of(
+  val VERTICES: List<Point> =
+    listOf(
       Point(Coordinate(0.0, 0.0)),
       Point(Coordinate(10.0, 10.0)),
       Point(Coordinate(20.0, 20.0)),
@@ -94,7 +85,6 @@ object FakeData {
 
   private val AUDIT_INFO = AuditInfo(USER)
 
-  @JvmField
   val AREA_OF_INTEREST: LocationOfInterest =
     LocationOfInterest(
       "loi id",
@@ -107,10 +97,8 @@ object FakeData {
       Polygon(LinearRing(VERTICES.map { it.coordinate })),
     )
 
-  @JvmField val POINT = Point(Coordinate(42.0, 18.0))
+  val COORDINATE = Coordinate(42.0, 18.0)
 
-  @JvmStatic
-  @JvmOverloads
   fun newTask(
     id: String = "",
     type: Task.Type = Task.Type.TEXT,
@@ -129,11 +117,9 @@ object FakeData {
       JOB.copy(
         id = "taskId",
         tasks =
-          ImmutableMap.of(
-            "field id",
-            Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true),
-            "field id 2",
-            Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true)
+          mapOf(
+            Pair("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true)),
+            Pair("field id 2", Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true))
           )
       ),
       AUDIT_INFO,

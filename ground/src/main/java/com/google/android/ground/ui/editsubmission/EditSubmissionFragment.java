@@ -66,7 +66,6 @@ import com.google.android.ground.ui.common.EphemeralPopups;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Completable;
 import java.io.File;
@@ -171,8 +170,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
           savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES));
       viewModel.setTaskWaitingForPhoto(
           savedInstanceState.getString(BundleKeys.TASK_WAITING_FOR_PHOTO));
-      viewModel.setCapturedPhotoPath(
-          savedInstanceState.getString(BundleKeys.CAPTURED_PHOTO_PATH));
+      viewModel.setCapturedPhotoPath(savedInstanceState.getString(BundleKeys.CAPTURED_PHOTO_PATH));
     }
     viewModel.initialize(EditSubmissionFragmentArgs.fromBundle(args));
   }
@@ -289,28 +287,16 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   }
 
   private AlertDialog createMultipleChoiceDialog(
-      Task task,
-      Optional<MultipleChoiceTaskData> response,
-      Consumer<ImmutableList<Option>> consumer) {
+      Task task, Optional<MultipleChoiceTaskData> response, Consumer<List<Option>> consumer) {
     MultipleChoice multipleChoice = requireNonNull(task.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
-        return MultiSelectDialogFactory.builder()
-            .setContext(requireContext())
-            .setTitle(task.getLabel())
-            .setMultipleChoice(multipleChoice)
-            .setCurrentResponse(response)
-            .setValueConsumer(consumer)
-            .build()
+        return new MultiSelectDialogFactory(
+                requireContext(), task.getLabel(), multipleChoice, response, consumer)
             .createDialog();
       case SELECT_ONE:
-        return SingleSelectDialogFactory.builder()
-            .setContext(requireContext())
-            .setTitle(task.getLabel())
-            .setMultipleChoice(multipleChoice)
-            .setCurrentResponse(response)
-            .setValueConsumer(consumer)
-            .build()
+        return new SingleSelectDialogFactory(
+                requireContext(), task.getLabel(), multipleChoice, response, consumer)
             .createDialog();
       default:
         throw new IllegalArgumentException(

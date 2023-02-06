@@ -26,8 +26,6 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -47,7 +45,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   val isPolygonCompleted: @Hot LiveData<Boolean>
 
   /** [Feature]s drawn by the user but not yet saved. */
-  val features: @Hot LiveData<ImmutableSet<Feature>>
+  val features: @Hot LiveData<Set<Feature>>
 
   private val vertices: MutableList<Point> = ArrayList()
   private var polygon: Polygon? = null
@@ -86,7 +84,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
       reset()
     } else {
       vertices.removeAt(vertices.size - 1)
-      updateVertices(ImmutableList.copyOf(vertices))
+      updateVertices(vertices.toList())
     }
   }
 
@@ -111,10 +109,10 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     vertices.add(vertex)
 
     // Render changes to UI
-    updateVertices(ImmutableList.copyOf(vertices))
+    updateVertices(vertices.toList())
   }
 
-  private fun updateVertices(newVertices: ImmutableList<Point>) {
+  private fun updateVertices(newVertices: List<Point>) {
     val polygon = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
     partialPolygonFlowable.onNext(Optional.of(polygon))
     this.polygon = polygon
@@ -166,22 +164,18 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun createFeatures(polygon: Polygon): ImmutableSet<Feature> {
-    val vertices = polygon.vertices
-
-    if (vertices.isEmpty()) {
-      return ImmutableSet.of()
+  private fun createFeatures(polygon: Polygon): Set<Feature> {
+    if (polygon.vertices.isEmpty()) {
+      return setOf()
     }
 
-    return ImmutableSet.builder<Feature>()
-      .add(
-        Feature(
-          id = uuidGenerator.generateUuid(),
-          type = Feature.Type.USER_POLYGON_FEATURE,
-          geometry = polygon
-        )
+    return setOf(
+      Feature(
+        id = uuidGenerator.generateUuid(),
+        type = Feature.Type.USER_POLYGON_FEATURE,
+        geometry = polygon
       )
-      .build()
+    )
   }
 
   companion object {
@@ -203,9 +197,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
       )
     features =
       LiveDataReactiveStreams.fromPublisher(
-        polygonFlowable.map { polygon ->
-          polygon.map { createFeatures(it) }.orElse(ImmutableSet.of())
-        }
+        polygonFlowable.map { polygon -> polygon.map { createFeatures(it) }.orElse(setOf()) }
       )
   }
 

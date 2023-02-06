@@ -60,6 +60,9 @@ def getCommitSha1 = { ->
 }
 
 android {
+    lint {
+        disable 'FragmentGradleConfiguration'
+    }
     compileSdkVersion rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
@@ -73,9 +76,6 @@ android {
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
-    }
-    lintOptions {
-        disable 'FragmentGradleConfiguration'
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -132,6 +132,7 @@ android {
         }
         animationsDisabled = true
     }
+    namespace 'com.google.android.ground'
 }
 
 dependencies {
@@ -148,7 +149,7 @@ dependencies {
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.4.0-RC"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.4.0-RC"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
 
     // Kotlin Coroutines
@@ -234,9 +235,6 @@ dependencies {
     compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
     kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
 
-    // Guava
-    implementation 'com.google.guava:guava:30.1-jre'
-
     // Picasso: Image downloading and caching library
     implementation 'com.squareup.picasso:picasso:2.71828'
 
@@ -247,7 +245,6 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
-    implementation "androidx.room:room-guava:$roomVersion"
     testImplementation "androidx.room:room-testing:$roomVersion"
 
     // WorkManager
@@ -263,13 +260,19 @@ dependencies {
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     testImplementation 'com.google.truth:truth:1.1.3'
     androidTestImplementation 'com.google.truth:truth:1.1.3'
     testImplementation 'androidx.test:core:1.3.0'
-    testImplementation 'org.robolectric:robolectric:4.5.1'
+    testImplementation 'org.robolectric:robolectric:4.9.2'
     testImplementation 'android.arch.core:core-testing:1.1.1'
+    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
     testImplementation 'com.jraska.livedata:testing:1.2.0'
     testImplementation "androidx.arch.core:core-testing:1.3.0"
+    androidTestImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+    testImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$project.kotlinVersion"
 
     // Mockito
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
@@ -279,15 +282,12 @@ dependencies {
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
 
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
+    // Espresso
+    testImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    testImplementation('androidx.test.espresso:espresso-core:3.5.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    androidTestImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
-    androidTestImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
-    testImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
-    testImplementation('androidx.test.espresso:espresso-core:3.3.0', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
