@@ -183,7 +183,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       advanceUntilIdle()
 
       // Assert survey is deleted
-      verify(surveyRepository).deleteSurvey(TEST_SURVEY_2.id)
+      verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
     }
 
   private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) {

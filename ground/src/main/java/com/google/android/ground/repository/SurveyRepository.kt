@@ -133,7 +133,8 @@ constructor(
     return localDataStore.getMutationsOnceAndStream(survey)
   }
 
-  suspend fun deleteSurvey(surveyId: String) {
+  /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
+  suspend fun removeOfflineSurvey(surveyId: String) {
     val survey = surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
     survey?.let { surveyStore.deleteSurvey(survey).await() }
     if (activeSurveyId == surveyId) {

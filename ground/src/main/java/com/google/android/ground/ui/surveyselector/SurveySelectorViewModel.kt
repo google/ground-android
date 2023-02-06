@@ -83,6 +83,6 @@ internal constructor(
   }
 
   fun deleteSurvey(surveyId: String) {
-    externalScope.launch(ioDispatcher) { surveyRepository.deleteSurvey(surveyId) }
+    externalScope.launch(ioDispatcher) { surveyRepository.removeOfflineSurvey(surveyId) }
   }
 }

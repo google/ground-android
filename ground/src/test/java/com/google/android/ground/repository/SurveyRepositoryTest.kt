@@ -88,11 +88,11 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
-      surveyRepository.deleteSurvey(SURVEY.id)
+      surveyRepository.removeOfflineSurvey(SURVEY.id)
       advanceUntilIdle()
 
       // Verify survey is deleted
-      surveyStore.surveys.test().assertValues(listOf())
+      surveyRepository.offlineSurveys.test().assertValues(listOf())
       // Verify survey deactivated
       assertThat(surveyRepository.activeSurveyId).isEmpty()
     }
@@ -107,12 +107,12 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.activateSurvey(survey1.id)
       advanceUntilIdle()
 
-      surveyRepository.deleteSurvey(survey2.id)
+      surveyRepository.removeOfflineSurvey(survey2.id)
       advanceUntilIdle()
 
       // Verify active survey isn't cleared
       assertThat(surveyRepository.activeSurveyId).isEqualTo(survey1.id)
       // Verify survey is deleted
-      surveyStore.surveys.test().assertValues(listOf(survey1))
+      surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
     }
 }
