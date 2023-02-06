@@ -174,7 +174,9 @@ class HomeScreenFragment :
   }
 
   private fun showSurveySelector() {
-    navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
+    navigator.navigate(
+      HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+    )
   }
 
   private fun showDataCollection() {

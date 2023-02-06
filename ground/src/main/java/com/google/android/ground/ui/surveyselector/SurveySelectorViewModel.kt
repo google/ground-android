@@ -18,14 +18,18 @@ package com.google.android.ground.ui.surveyselector
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import io.reactivex.Single
+import io.reactivex.Flowable
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -35,6 +39,8 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
   private val authManager: AuthenticationManager,
   private val navigator: Navigator,
+  @ApplicationScope private val externalScope: CoroutineScope,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
 
   val surveySummaries: LiveData<List<SurveyItem>>
@@ -42,13 +48,11 @@ internal constructor(
   init {
     surveySummaries =
       LiveDataReactiveStreams.fromPublisher(
-        offlineSurveys
-          .flatMap { offlineSurveys: List<Survey> ->
-            allSurveys.map { allSurveys: List<Survey> ->
-              allSurveys.map { createSurveyItem(it, offlineSurveys) }
-            }
+        offlineSurveys.flatMap { offlineSurveys: List<Survey> ->
+          allSurveys.map { allSurveys: List<Survey> ->
+            allSurveys.map { createSurveyItem(it, offlineSurveys) }
           }
-          .toFlowable()
+        }
       )
   }
 
@@ -60,11 +64,11 @@ internal constructor(
       isAvailableOffline = localSurveys.contains(survey)
     )
 
-  private val offlineSurveys: Single<List<Survey>>
+  private val offlineSurveys: Flowable<List<Survey>>
     get() = surveyRepository.offlineSurveys
 
-  private val allSurveys: Single<List<Survey>>
-    get() = surveyRepository.getSurveySummaries(authManager.currentUser)
+  private val allSurveys: Flowable<List<Survey>>
+    get() = surveyRepository.getSurveySummaries(authManager.currentUser).toFlowable()
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =
@@ -76,5 +80,9 @@ internal constructor(
 
   private fun navigateToHomeScreen() {
     navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+  }
+
+  fun deleteSurvey(surveyId: String) {
+    externalScope.launch(ioDispatcher) { surveyRepository.removeOfflineSurvey(surveyId) }
   }
 }
