@@ -211,52 +211,58 @@ class LocalDataStoreTests : BaseHiltTest() {
     }
   }
 
-  // TODO
-  //  @Test
-  //  fun testApplyAndEnqueue_insertSubmission() {
-  //    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-  //    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-  //    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-  //
-  //    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
-  //
-  //    mutationRepository
-  //      .getPendingMutations("loi id")
-  //      .test()
-  //      .assertValue(listOf(TEST_LOI_MUTATION, TEST_SUBMISSION_MUTATION))
-  //    val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-  //    var submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
-  //    assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
-  //
-  //    // now update the inserted submission with new responses
-  //    val deltas =
-  //      listOf(
-  //        TaskDataDelta(
-  //          "task id",
-  //          Task.Type.TEXT,
-  //          TextTaskData.fromString("value for the really new task")
-  //        )
-  //      )
-  //    val mutation =
-  //      TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type =
-  // Mutation.Type.UPDATE)
-  //
-  //    localSubmissionStore.applyAndEnqueue(mutation).test().assertComplete()
-  //
-  //    mutationRepository
-  //      .getPendingMutations("loi id")
-  //      .test()
-  //      .assertValue(listOf(TEST_LOI_MUTATION, TEST_SUBMISSION_MUTATION, mutation))
-  //
-  //    // check if the submission was updated in the local database
-  //    submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
-  //    assertEquivalent(mutation, submission)
-  //
-  //    // also test that getSubmissions returns the same submission as well
-  //    val submissions = localSubmissionStore.getSubmissions(loi, "job id").blockingGet()
-  //    assertThat(submissions).hasSize(1)
-  //    assertEquivalent(mutation, submissions[0])
-  //  }
+  @Test
+  fun testApplyAndEnqueue_insertAndUpdateSubmission() {
+    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
+
+    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
+
+    localSubmissionStore
+      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+        TEST_SURVEY,
+        TEST_LOI_MUTATION.locationOfInterestId,
+        MutationEntitySyncStatus.PENDING
+      )
+      .test()
+      .assertValue(listOf(TEST_SUBMISSION_MUTATION))
+    val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
+    var submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
+    assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
+
+    // now update the inserted submission with new responses
+    val deltas =
+      listOf(
+        TaskDataDelta(
+          "task id",
+          Task.Type.TEXT,
+          TextTaskData.fromString("value for the really new task")
+        )
+      )
+    val mutation =
+      TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
+
+    localSubmissionStore.applyAndEnqueue(mutation).test().assertComplete()
+
+    localSubmissionStore
+      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+        TEST_SURVEY,
+        TEST_LOI_MUTATION.locationOfInterestId,
+        MutationEntitySyncStatus.PENDING
+      )
+      .test()
+      .assertValue(listOf(TEST_SUBMISSION_MUTATION, mutation))
+
+    // check if the submission was updated in the local database
+    submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
+    assertEquivalent(mutation, submission)
+
+    // also test that getSubmissions returns the same submission as well
+    val submissions = localSubmissionStore.getSubmissions(loi, "job id").blockingGet()
+    assertThat(submissions).hasSize(1)
+    assertEquivalent(mutation, submissions[0])
+  }
 
   @Test
   fun testMergeSubmission() {
