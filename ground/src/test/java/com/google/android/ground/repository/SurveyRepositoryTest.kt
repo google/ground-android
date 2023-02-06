@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -38,7 +37,6 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var testDispatcher: TestDispatcher
@@ -72,7 +70,9 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_alreadyAvailableOffline() =
     runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
+      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      advanceUntilIdle()
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
@@ -84,7 +84,9 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun deleteSurvey_whenSurveyIsActive() =
     runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
+      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      advanceUntilIdle()
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
@@ -102,8 +104,11 @@ class SurveyRepositoryTest : BaseHiltTest() {
     runTest(testDispatcher) {
       val survey1 = SURVEY.copy(id = "active survey id")
       val survey2 = SURVEY.copy(id = "inactive survey id")
-      surveyStore.insertOrUpdateSurvey(survey1).await()
-      surveyStore.insertOrUpdateSurvey(survey2).await()
+      fakeRemoteDataStore.surveys = listOf(survey1, survey2)
+      surveyRepository.syncSurveyWithRemote(survey1.id).await()
+      advanceUntilIdle()
+      surveyRepository.syncSurveyWithRemote(survey2.id).await()
+      advanceUntilIdle()
       surveyRepository.activateSurvey(survey1.id)
       advanceUntilIdle()
 
