@@ -32,10 +32,12 @@ import io.reactivex.*
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
+@Singleton
 class OfflineAreaRepository
 @Inject
 constructor(
