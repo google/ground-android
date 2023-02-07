@@ -19,6 +19,7 @@ import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.collections.immutable.toPersistentSet
 import timber.log.Timber
@@ -36,9 +37,9 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
       return
     }
 
-    when (feature.tag) {
-      Feature.Type.LOCATION_OF_INTEREST -> {
-        val clusterItem = algorithm.items.find { it.feature.id == feature.id }
+    when (feature.tag.type) {
+      FeatureType.LOCATION_OF_INTEREST.ordinal -> {
+        val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
 
         if (clusterItem != null) {
           updateItem(clusterItem)
@@ -53,8 +54,8 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Removes stale features from this manager's clusters. */
   fun removeStaleFeatures(features: Set<Feature>) {
-    val deletedIds = algorithm.items.map { it.feature.id } - features.map { it.id }.toSet()
-    val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.id) }
+    val deletedIds = algorithm.items.map { it.feature.tag.id } - features.map { it.tag.id }.toSet()
+    val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.tag.id) }
 
     Timber.d("removing points: $deletedFeatures")
     removeItems(deletedFeatures)

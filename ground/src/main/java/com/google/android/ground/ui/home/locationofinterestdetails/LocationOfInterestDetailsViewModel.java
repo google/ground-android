@@ -16,7 +16,7 @@
 
 package com.google.android.ground.ui.home.locationofinterestdetails;
 
-import static com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.DEFAULT_LOI_ZOOM_LEVEL;
+import static com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL;
 
 import android.graphics.Bitmap;
 import androidx.lifecycle.LiveData;
