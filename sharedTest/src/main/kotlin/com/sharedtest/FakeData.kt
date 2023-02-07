@@ -15,14 +15,8 @@
  */
 package com.sharedtest
 
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TermsOfService
-import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.*
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
@@ -69,7 +63,7 @@ object FakeData {
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(
       id = LOCATION_OF_INTEREST.id,
-      type = Feature.Type.LOCATION_FEATURE,
+      type = ModelTypeTag.LOCATION_OF_INTEREST.ordinal,
       geometry = LOCATION_OF_INTEREST.geometry
     )
 

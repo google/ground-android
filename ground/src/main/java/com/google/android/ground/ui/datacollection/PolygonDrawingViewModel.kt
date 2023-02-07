@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import com.google.android.ground.model.geometry.ModelTypeTag
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -172,7 +173,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     return setOf(
       Feature(
         id = uuidGenerator.generateUuid(),
-        type = Feature.Type.USER_POLYGON_FEATURE,
+        type = ModelTypeTag.USER_POLYGON.ordinal,
         geometry = polygon
       )
     )

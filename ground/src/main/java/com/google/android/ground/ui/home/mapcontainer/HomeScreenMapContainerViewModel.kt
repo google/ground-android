@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
+import com.google.android.ground.model.geometry.ModelTypeTag
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
@@ -106,7 +107,7 @@ internal constructor(
       .map {
         Feature(
           id = it.id,
-          type = Feature.Type.LOCATION_FEATURE,
+          type = ModelTypeTag.LOCATION_OF_INTEREST.ordinal,
           flag = it.job.hasData(),
           geometry = it.geometry
         )

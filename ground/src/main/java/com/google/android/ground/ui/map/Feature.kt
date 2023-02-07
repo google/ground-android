@@ -21,7 +21,7 @@ import com.google.android.ground.model.geometry.Geometry
 data class Feature(val tag: Tag, val geometry: Geometry) {
   constructor(
     id: String,
-    type: Type,
+    type: Int,
     flag: Boolean = false,
     geometry: Geometry
   ) : this(Feature.Tag(id, type, flag), geometry)
@@ -33,26 +33,12 @@ data class Feature(val tag: Tag, val geometry: Geometry) {
   data class Tag(
     /** A unique identifier for the model object that this feature represents. */
     val id: String,
-    /** A type that indicates how to interpret this feature as a model object. */
-    val type: Type,
+    /**
+     * A integer that indicates how to interpret this feature as a model object. Interpretations of
+     * the value are decided by callers.
+     */
+    val type: Int,
     /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
     val flag: Boolean = false
   )
-  /**
-   * Indicates what kind of object a given [Feature] represents. Used to determine how to interpret
-   * features as model objects.
-   */
-  enum class Type {
-    /** This feature represents an unknown kind of object. */
-    UNKNOWN,
-    /**
-     * This feature represents a single, discreet location on the map, typically pulled from a
-     * Survey.
-     */
-    LOCATION_FEATURE,
-    /** This feature represents a user-drawn polygon. */
-    USER_POLYGON_FEATURE,
-    /** This feature represents a point placed by the user. */
-    USER_POINT_FEATURE,
-  }
 }

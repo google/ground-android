@@ -34,10 +34,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
@@ -193,7 +190,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val candidates = mutableListOf<Feature>()
     val processed = ArrayList<String>()
 
-    for ((feature, value) in polygons.filter { it.key.tag.type == Feature.Type.LOCATION_FEATURE }) {
+    for ((feature, value) in
+      polygons.filter { it.key.tag.type == ModelTypeTag.LOCATION_OF_INTEREST.ordinal }) {
       val loiId = feature.tag.id
 
       if (processed.contains(loiId)) {
@@ -303,7 +301,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(
-      features.filter { it.tag.type == Feature.Type.LOCATION_FEATURE }.toSet()
+      features.filter { it.tag.type == ModelTypeTag.LOCATION_OF_INTEREST.ordinal }.toSet()
     )
 
     val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
