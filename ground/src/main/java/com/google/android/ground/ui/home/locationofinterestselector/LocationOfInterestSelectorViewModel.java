@@ -38,13 +38,13 @@ public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
   @Hot private final Observable<LocationOfInterest> locationOfInterestClicks;
   private final LocationOfInterestHelper locationOfInterestHelper;
   private final Resources resources;
-  private List<LocationOfInterest> locationsOfInterest = new ArrayList<>();
+  private final List<LocationOfInterest> locationsOfInterest = new ArrayList<>();
 
   @Inject
   LocationOfInterestSelectorViewModel(
       LocationOfInterestHelper locationOfInterestHelper, Resources resources) {
     this.locationOfInterestClicks =
-        itemClicks.filter(i -> i < locationsOfInterest.size()).map(i -> locationsOfInterest.get(i));
+        itemClicks.filter(i -> i < locationsOfInterest.size()).map(locationsOfInterest::get);
     this.locationOfInterestHelper = locationOfInterestHelper;
     this.resources = resources;
   }
@@ -55,10 +55,6 @@ public class LocationOfInterestSelectorViewModel extends AbstractViewModel {
 
   public List<LocationOfInterest> getLocationsOfInterest() {
     return locationsOfInterest;
-  }
-
-  public void setLocationsOfInterest(List<LocationOfInterest> locationsOfInterest) {
-    this.locationsOfInterest = locationsOfInterest;
   }
 
   public Observable<LocationOfInterest> getLocationOfInterestClicks() {
