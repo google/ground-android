@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.geometry
+package com.google.android.ground.ui.map
 
 /**
  * Indicates the type of a geometric model object. Used to interpret other objects (e.g. map
  * features) back into model objects.
  */
-enum class ModelTypeTag {
+enum class FeatureType {
   UNKNOWN,
   LOCATION_OF_INTEREST,
   USER_POINT,

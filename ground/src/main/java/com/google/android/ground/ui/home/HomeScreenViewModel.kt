@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.home
 
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.model.geometry.ModelTypeTag
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -91,7 +91,7 @@ internal constructor(
   /** Intended for use as a callback for handling user clicks on rendered map features. */
   fun onFeatureClick(features: List<Feature>) {
     val loiFeatureIds =
-      features.filter { it.tag.type == ModelTypeTag.LOCATION_OF_INTEREST.ordinal }.map { it.tag.id }
+      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.map { it.tag.id }
     val locationsOfInterest = locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }
 
     if (locationsOfInterest.isEmpty()) {

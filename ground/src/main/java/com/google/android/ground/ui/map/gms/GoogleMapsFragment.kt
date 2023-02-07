@@ -191,7 +191,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val processed = ArrayList<String>()
 
     for ((feature, value) in
-      polygons.filter { it.key.tag.type == ModelTypeTag.LOCATION_OF_INTEREST.ordinal }) {
+      polygons.filter { it.key.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }) {
       val loiId = feature.tag.id
 
       if (processed.contains(loiId)) {
@@ -301,7 +301,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(
-      features.filter { it.tag.type == ModelTypeTag.LOCATION_OF_INTEREST.ordinal }.toSet()
+      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.toSet()
     )
 
     val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()

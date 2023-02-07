@@ -23,6 +23,7 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.FeatureClusterItem
 
 /**
@@ -63,7 +64,7 @@ object FakeData {
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(
       id = LOCATION_OF_INTEREST.id,
-      type = ModelTypeTag.LOCATION_OF_INTEREST.ordinal,
+      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
       geometry = LOCATION_OF_INTEREST.geometry
     )
 

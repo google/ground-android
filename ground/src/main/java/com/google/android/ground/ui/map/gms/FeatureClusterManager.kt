@@ -17,7 +17,7 @@ package com.google.android.ground.ui.map.gms
 
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.model.geometry.ModelTypeTag
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.Feature
 import com.google.maps.android.clustering.ClusterManager
@@ -38,7 +38,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
     }
 
     when (feature.tag.type) {
-      ModelTypeTag.LOCATION_OF_INTEREST.ordinal -> {
+      FeatureType.LOCATION_OF_INTEREST.ordinal -> {
         val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
 
         if (clusterItem != null) {

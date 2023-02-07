@@ -23,7 +23,7 @@ import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
-import com.google.android.ground.model.geometry.ModelTypeTag
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -107,7 +107,7 @@ internal constructor(
       .map {
         Feature(
           id = it.id,
-          type = ModelTypeTag.LOCATION_OF_INTEREST.ordinal,
+          type = FeatureType.LOCATION_OF_INTEREST.ordinal,
           flag = it.job.hasData(),
           geometry = it.geometry
         )

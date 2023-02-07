@@ -17,7 +17,7 @@ package com.google.android.ground.ui.datacollection
 
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.model.geometry.ModelTypeTag
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -44,7 +44,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   private fun createFeature(point: Point): Feature =
     Feature(
       id = uuidGenerator.generateUuid(),
-      type = ModelTypeTag.USER_POINT.ordinal,
+      type = FeatureType.USER_POINT.ordinal,
       geometry = point
     )
 }
