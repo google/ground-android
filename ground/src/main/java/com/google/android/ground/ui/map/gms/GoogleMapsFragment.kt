@@ -34,10 +34,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
@@ -193,8 +190,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val candidates = mutableListOf<Feature>()
     val processed = ArrayList<String>()
 
-    for ((feature, value) in polygons.filter { it.key.tag == Feature.Type.LOCATION_OF_INTEREST }) {
-      val loiId = feature.id
+    for ((feature, value) in
+      polygons.filter { it.key.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }) {
+      val loiId = feature.tag.id
 
       if (processed.contains(loiId)) {
         continue
@@ -275,7 +273,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = getMap().addPolygon(options)
-    mapsPolygon.tag = Pair(feature.id, LocationOfInterest::javaClass)
+    mapsPolygon.tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
     //  parseColor(Style().color)
@@ -303,11 +301,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(
-      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.toSet()
+      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.toSet()
     )
 
-    val deletedIds = polygons.keys.map { it.id } - features.map { it.id }.toSet()
-    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.id) }
+    val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
+    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
     deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
     polygons.minusAssign(deletedPolygons.keys)
   }

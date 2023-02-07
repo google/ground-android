@@ -80,7 +80,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
     navDirectionsTestObserver.assertValue(
-      SurveySelectorFragmentDirections.showSurveySelectorScreen()
+      SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
     )
   }
 

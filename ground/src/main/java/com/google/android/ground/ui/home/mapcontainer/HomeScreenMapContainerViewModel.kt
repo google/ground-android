@@ -19,6 +19,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
+import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -34,9 +35,9 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import com.google.common.collect.ImmutableSet
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
@@ -103,7 +104,14 @@ internal constructor(
   ): Set<Feature> {
     // TODO: Add support for polylines similar to mapPins.
     return locationsOfInterest
-      .map { Feature(id = it.id, tag = Feature.Type.LOCATION_OF_INTEREST, geometry = it.geometry) }
+      .map {
+        Feature(
+          id = it.id,
+          type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+          flag = it.job.hasData(),
+          geometry = it.geometry
+        )
+      }
       .toPersistentSet()
   }
 
@@ -182,12 +190,6 @@ internal constructor(
     this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
   }
 
-  companion object {
-    // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
-    const val ZOOM_LEVEL_THRESHOLD = 16f
-    const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
-  }
-
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     val locationLockStateFlowable = locationController.getLocationLockUpdates()
@@ -216,7 +218,7 @@ internal constructor(
 
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        savedMapLocationsOfInterest.startWith(ImmutableSet.of<Feature>()).distinctUntilChanged()
+        savedMapLocationsOfInterest.startWith(setOf<Feature>()).distinctUntilChanged()
       )
 
     mbtilesFilePaths =

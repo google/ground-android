@@ -57,10 +57,16 @@ class FeatureClusterManagerTest : BaseHiltTest() {
   @Test
   fun removeStaleFeatures_removesStaleLOIs() {
     featureClusterManager.addOrUpdateLocationOfInterestFeature(
-      FakeData.LOCATION_OF_INTEREST_FEATURE.copy(id = "id_1")
+      FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
+        tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_1")
+      )
     )
     featureClusterManager.removeStaleFeatures(
-      setOf(FakeData.LOCATION_OF_INTEREST_FEATURE.copy(id = "id_2"))
+      setOf(
+        FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
+          tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_2")
+        )
+      )
     )
     assertThat(featureClusterManager.algorithm.items).isEmpty()
   }

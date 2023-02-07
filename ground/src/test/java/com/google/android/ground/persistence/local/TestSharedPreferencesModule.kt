@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
+package com.google.android.ground.persistence.local
 
 import android.content.Context
-import androidx.room.Room
-import com.google.android.ground.persistence.local.LocalDatabaseModule
-import com.google.android.ground.persistence.local.room.LocalDatabase
+import android.content.SharedPreferences
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])
-object TestLocalDatabaseModule {
-  @Provides
-  @Singleton
-  fun localDatabaseProvider(@ApplicationContext context: Context): LocalDatabase {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase::class.java)
-      .allowMainThreadQueries()
-      .build()
-  }
+object TestSharedPreferencesModule {
+  fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences =
+    context.getSharedPreferences("test_shared_prefs", Context.MODE_PRIVATE)
 }

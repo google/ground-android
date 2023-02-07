@@ -16,9 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.coroutines.DefaultDispatcher
-import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -26,9 +23,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java8.util.Optional
 import javax.inject.Inject
 import kotlin.test.assertFails
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -40,16 +37,14 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @Inject lateinit var surveyStore: LocalSurveyStore
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
-  @Inject lateinit var localValueStore: LocalValueStore
-  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
+  @Inject lateinit var testDispatcher: TestDispatcher
 
   @Test
   fun activateSurvey_firstTime() =
     runTest(testDispatcher) {
-      fakeRemoteDataStore.setTestSurvey(SURVEY)
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
@@ -65,7 +60,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_firstTime_handleRemoteFailure() =
     runTest(testDispatcher) {
-      fakeRemoteDataStore.failOnLoadSurvey = true
+      fakeRemoteDataStore.surveys = listOf()
 
       assertFails { surveyRepository.activateSurvey(SURVEY.id) }
       advanceUntilIdle()
@@ -75,7 +70,9 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun activateSurvey_alreadyAvailableOffline() =
     runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
+      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      advanceUntilIdle()
 
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
@@ -85,26 +82,42 @@ class SurveyRepositoryTest : BaseHiltTest() {
     }
 
   @Test
-  fun loadLastActiveSurvey() =
+  fun deleteSurvey_whenSurveyIsActive() =
     runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
-      localValueStore.activeSurveyId = SURVEY.id
-
-      surveyRepository.loadLastActiveSurvey()
+      fakeRemoteDataStore.surveys = listOf(SURVEY)
+      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      advanceUntilIdle()
+      surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      surveyRepository.removeOfflineSurvey(SURVEY.id)
+      advanceUntilIdle()
+
+      // Verify survey is deleted
+      surveyRepository.offlineSurveys.test().assertValues(listOf())
+      // Verify survey deactivated
+      assertThat(surveyRepository.activeSurveyId).isEmpty()
     }
 
   @Test
-  fun loadLastActiveSurvey_noneSet() =
+  fun deleteSurvey_whenSurveyIsInActive() =
     runTest(testDispatcher) {
-      surveyStore.insertOrUpdateSurvey(SURVEY).await()
-      localValueStore.activeSurveyId = ""
-
-      surveyRepository.loadLastActiveSurvey()
+      val survey1 = SURVEY.copy(id = "active survey id")
+      val survey2 = SURVEY.copy(id = "inactive survey id")
+      fakeRemoteDataStore.surveys = listOf(survey1, survey2)
+      surveyRepository.syncSurveyWithRemote(survey1.id).await()
+      advanceUntilIdle()
+      surveyRepository.syncSurveyWithRemote(survey2.id).await()
+      advanceUntilIdle()
+      surveyRepository.activateSurvey(survey1.id)
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertValue(Optional.empty())
+      surveyRepository.removeOfflineSurvey(survey2.id)
+      advanceUntilIdle()
+
+      // Verify active survey isn't cleared
+      assertThat(surveyRepository.activeSurveyId).isEqualTo(survey1.id)
+      // Verify survey is deleted
+      surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
     }
 }

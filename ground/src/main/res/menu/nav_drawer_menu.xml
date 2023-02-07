@@ -24,11 +24,6 @@
   <group
     android:id="@+id/group_other"
     android:checkableBehavior="none">
-    <!-- TODO(#1146): Remove temporary button for launching data collection flow once complete  -->
-    <item
-      android:id="@+id/tmp_collect_data"
-      android:icon="@drawable/ic_add"
-      android:title="@string/launch_collect_data" />
     <item
       android:id="@+id/sync_status"
       android:icon="@drawable/ic_sync"

@@ -27,9 +27,9 @@ import com.google.android.ground.persistence.local.room.relations.SurveyEntityAn
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,10 +44,10 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var baseMapDao: BaseMapDao
   @Inject lateinit var schedulers: Schedulers
 
-  override val surveys: Single<List<Survey>>
+  override val surveys: Flowable<List<Survey>>
     get() =
       surveyDao
-        .getAllSurveys()
+        .findAllOnceAndStream()
         .map { list: List<SurveyEntityAndRelations> -> list.map { it.toModelObject() } }
         .subscribeOn(schedulers.io())
 

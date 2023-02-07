@@ -16,15 +16,15 @@
   ~ limitations under the License.
   -->
 
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
   <data>
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel" />
   </data>
 
-  <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"

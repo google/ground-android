@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2020 Google LLC
+  ~ Copyright 2023 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
   ~ limitations under the License.
   -->
 
-<resources>
-
-  <string name="app_name" translatable="false">Ground</string>
-  <string name="text_separator" translatable="false">·</string>
-  <string name="ground_website" translatable="false">https://groundplatform.org/</string>
-  <string name="overflow_menu" translatable="false">⋮</string>
-
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+  <corners android:radius="8dp" />
+  <stroke
+    android:width="5dp"
+    android:color="#FFFFFF" />
+  <solid android:color="#FFFFFF" />
+</shape>

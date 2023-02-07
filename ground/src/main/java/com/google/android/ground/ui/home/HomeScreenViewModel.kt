@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.home
 
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -28,14 +27,13 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @SharedViewModel
@@ -44,8 +42,7 @@ class HomeScreenViewModel
 internal constructor(
   private val surveyRepository: SurveyRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val navigator: Navigator,
-  @ApplicationScope private val externalScope: CoroutineScope
+  private val navigator: Navigator
 ) : AbstractViewModel() {
 
   @JvmField
@@ -83,8 +80,6 @@ internal constructor(
     isSubmissionButtonVisible.value = false
   }
 
-  fun init() = externalScope.launch { surveyRepository.loadLastActiveSurvey() }
-
   fun showOfflineAreas() {
     navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
   }
@@ -96,7 +91,7 @@ internal constructor(
   /** Intended for use as a callback for handling user clicks on rendered map features. */
   fun onFeatureClick(features: List<Feature>) {
     val loiFeatureIds =
-      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.map { it.id }
+      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.map { it.tag.id }
     val locationsOfInterest = locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }
 
     if (locationsOfInterest.isEmpty()) {

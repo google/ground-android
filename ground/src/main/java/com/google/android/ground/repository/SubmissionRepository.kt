@@ -36,6 +36,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -45,6 +46,7 @@ private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
  * data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
+@Singleton
 class SubmissionRepository
 @Inject
 constructor(

@@ -21,15 +21,14 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
-import com.sharedtest.FakeData
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,53 +36,27 @@ import javax.inject.Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   private var loiEvent: RemoteDataEvent<LocationOfInterest>? = null
 
-  // TODO(#1045): Allow default survey to be initialized by tests.
-  private var testSurveys = listOf(FakeData.SURVEY)
+  var surveys = emptyList<Survey>()
 
-  var failOnLoadSurvey = false
-
-  // TODO(#1045): Allow default ToS to be initialized by tests.
-  private var termsOfService = Optional.of(FakeData.TERMS_OF_SERVICE)
+  // TODO(#1373): Delete once new LOI sync is implemented.
+  var termsOfService: TermsOfService? = null
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  /**
-   * Set this before the test scenario is loaded.
-   *
-   * In that case, launch scenario manually using ActivityScenario.launch instead of using
-   * ActivityScenarioRule.
-   */
-  fun setTestSurvey(survey: Survey) {
-    testSurveys = listOf(survey)
-  }
-
-  /**
-   * Set this before the test scenario is loaded.
-   *
-   * In that case, launch scenario manually using ActivityScenario.launch instead of using
-   * ActivityScenarioRule.
-   */
-  fun setTestSurveys(surveys: List<Survey>) {
-    testSurveys = surveys
-  }
-
   override fun loadSurveySummaries(user: User): Single<List<Survey>> {
-    return Single.just(testSurveys)
+    return Single.just(surveys)
   }
 
   override fun loadSurvey(surveyId: String): Single<Survey> {
-    if (failOnLoadSurvey) return Single.error(Error())
-    return Single.just(testSurveys[0])
+    return Single.just(
+      surveys.firstOrNull { it.id == surveyId } ?: throw NotFoundException("Invalid survey id")
+    )
   }
 
-  fun setTermsOfService(termsOfService: Optional<TermsOfService>) {
-    this.termsOfService = termsOfService
-  }
+  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
+    if (termsOfService == null) Maybe.empty() else Maybe.just(termsOfService)
 
-  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> {
-    return if (termsOfService.isEmpty) Maybe.empty() else Maybe.just(termsOfService.get())
-  }
-
+  // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(
     survey: Survey
   ): Flowable<RemoteDataEvent<LocationOfInterest>> {
@@ -100,15 +73,15 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     TODO("Missing implementation")
   }
 
-  override fun subscribeToSurveyUpdates(surveyId: String): Completable {
-    subscribedSurveyIds.add(surveyId)
-    return Completable.complete()
-  }
+  override fun subscribeToSurveyUpdates(surveyId: String): Completable =
+    Completable.fromRunnable { subscribedSurveyIds.add(surveyId) }
 
+  // TODO(#1373): Delete once new LOI sync is implemented.
   fun streamLoiOnce(loiEvent: RemoteDataEvent<LocationOfInterest>) {
     this.loiEvent = loiEvent
   }
 
+  /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
     subscribedSurveyIds.contains(surveyId)
 }

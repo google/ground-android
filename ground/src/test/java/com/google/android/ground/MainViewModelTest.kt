@@ -34,7 +34,6 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.observers.TestObserver
-import java8.util.Optional
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
@@ -122,7 +121,7 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
     tosRepository.isTermsOfServiceAccepted = true
     localValueStore.activeSurveyId = "foo survey id"
-    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -135,7 +134,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.setTermsOfService(Optional.of(FakeData.TERMS_OF_SERVICE))
+    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
     verifyProgressDialogVisible(false)
@@ -150,12 +149,12 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosMissing() {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.setTermsOfService(Optional.empty())
+    fakeRemoteDataStore.termsOfService = null
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen())
+    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }

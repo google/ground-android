@@ -30,7 +30,8 @@
     android:id="@+id/loi_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/loi_card_item_margin"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
     android:orientation="vertical"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
@@ -38,15 +39,13 @@
       android:id="@+id/wrapper_view"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="vertical">
+      android:orientation="vertical"
+      android:padding="20dp">
       <TextView
         android:id="@+id/jobName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="@dimen/loi_card_item_margin"
-        android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:layout_marginEnd="@dimen/loi_card_item_margin"
         android:text="@{viewModel.loiJobName}"
         android:textSize="@dimen/loi_card_item_title_text_size"
         android:textStyle="bold"
@@ -59,39 +58,49 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/loi_card_item_margin"
         android:tint="@color/colorGrey800"
-        app:layout_constraintStart_toStartOf="@id/jobName"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:srcCompat="@drawable/ic_outline_room_24"
-        app:visible="@{viewModel.isIconVisible()}" />
+        app:srcCompat="@drawable/ic_outline_room_24" />
       <TextView
         android:id="@+id/loiName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginTop="@dimen/loi_card_item_margin"
         android:text="@{viewModel.loiName}"
         app:layout_constraintBottom_toBottomOf="@id/loiIcon"
         app:layout_constraintStart_toEndOf="@id/loiIcon"
         app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:visible="@{viewModel.isNameVisible()}"
         tools:text="Quilombolas" />
-      <LinearLayout
+      <TextView
+        android:id="@+id/submissions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/loi_card_item_margin"
+        android:text="@{viewModel.loiSubmissions}"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loiIcon"
+        tools:text="No submissions" />
+      <ImageView
+        android:id="@+id/collectIcon"
+        android:layout_width="29dp"
+        android:layout_height="29dp"
+        android:src="@drawable/ic_add_with_green_background"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/jobName"
-        app:layout_constraintTop_toBottomOf="@id/loiName">
-        <Button
-          android:id="@+id/start"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:clickable="false"
-          android:text="@string/start"
-          android:textColor="@color/colorMapBlue" />
-      </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/submissions" />
+      <Button
+        android:id="@+id/collectData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:clickable="false"
+        android:text="@string/collect_data"
+        android:textColor="@color/colorJobCardCollectButton"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/collectIcon"
+        app:layout_constraintTop_toBottomOf="@id/submissions" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>
 </layout>
