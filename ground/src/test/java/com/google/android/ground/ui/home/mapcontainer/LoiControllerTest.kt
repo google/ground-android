@@ -24,6 +24,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.ui.map.LoiController
 import com.google.common.truth.Truth.assertThat
 import com.jraska.livedata.TestObserver
 import com.sharedtest.FakeData
@@ -42,12 +43,12 @@ import org.robolectric.RobolectricTestRunner
 //  2. Panning should emit values without having to resubscribe
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LoiCardSourceTest : BaseHiltTest() {
+class LoiControllerTest : BaseHiltTest() {
 
   @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Mock lateinit var surveyRepository: SurveyRepository
 
-  private lateinit var loiCardSource: LoiCardSource
+  private lateinit var loiController: LoiController
   private lateinit var loisTestObserver: TestObserver<List<LocationOfInterest>>
 
   @Before
@@ -60,8 +61,8 @@ class LoiCardSourceTest : BaseHiltTest() {
     Mockito.`when`(locationOfInterestRepository.getLocationsOfInterestOnceAndStream(TEST_SURVEY))
       .thenReturn(Flowable.just(TEST_LOCATIONS_OF_INTEREST))
 
-    loiCardSource = LoiCardSource(surveyRepository, locationOfInterestRepository)
-    loisTestObserver = TestObserver.test(loiCardSource.locationsOfInterest)
+    loiController = LoiController(surveyRepository, locationOfInterestRepository)
+    loisTestObserver = TestObserver.test(loiController.locationsOfInterest)
   }
 
   @Test
@@ -73,7 +74,7 @@ class LoiCardSourceTest : BaseHiltTest() {
   fun testLoiCards_whenOutOfBounds_returnsEmptyList() {
     val southwest = LatLng(-60.0, -60.0)
     val northeast = LatLng(-50.0, -50.0)
-    loiCardSource.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
+    loiController.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
     assertThat(loisTestObserver.awaitValue().value()).isEmpty()
   }
@@ -83,7 +84,7 @@ class LoiCardSourceTest : BaseHiltTest() {
     val southwest = LatLng(-20.0, -20.0)
     val northeast = LatLng(-10.0, -10.0)
 
-    loiCardSource.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
+    loiController.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
     assertThat(loisTestObserver.value())
       .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
@@ -94,7 +95,7 @@ class LoiCardSourceTest : BaseHiltTest() {
     val southwest = LatLng(-20.0, -20.0)
     val northeast = LatLng(20.0, 20.0)
 
-    loiCardSource.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
+    loiController.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
     assertThat(loisTestObserver.value())
       .isEqualTo(

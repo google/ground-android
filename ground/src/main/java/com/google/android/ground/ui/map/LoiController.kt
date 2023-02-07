@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.map
 
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
@@ -28,9 +28,10 @@ import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import javax.inject.Singleton
 
-/** Provides data for displaying cards for visible LOIs at the bottom of the screen. */
-class LoiCardSource
+@Singleton
+class LoiController
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,

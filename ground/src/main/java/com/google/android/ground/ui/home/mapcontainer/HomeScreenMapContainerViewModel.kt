@@ -47,7 +47,7 @@ internal constructor(
   private val mapStateRepository: MapStateRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
-  private val loiCardSource: LoiCardSource,
+  private val loiController: LoiController,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
 
@@ -88,7 +88,7 @@ internal constructor(
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
-    loiCardSource.onCameraBoundsUpdated(newCameraPosition.bounds?.toGoogleMapsObject())
+    loiController.onCameraBoundsUpdated(newCameraPosition.bounds?.toGoogleMapsObject())
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     mapStateRepository.setCameraPosition(newCameraPosition)
     lastCameraPosition = newCameraPosition
@@ -150,7 +150,7 @@ internal constructor(
     // TODO: Should we only render the LOIs that are present within the map bounds?
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        loiCardSource
+        loiController
           .allLois()
           .map { toLocationOfInterestFeatures(it) }
           .startWith(setOf<Feature>())
@@ -164,6 +164,6 @@ internal constructor(
         }
       )
 
-    loisWithinMapBounds = LiveDataReactiveStreams.fromPublisher(loiCardSource.loisWithinMapBounds())
+    loisWithinMapBounds = LiveDataReactiveStreams.fromPublisher(loiController.loisWithinMapBounds())
   }
 }
