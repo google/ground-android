@@ -33,11 +33,7 @@ import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.FeatureType
-import com.google.android.ground.ui.map.LocationController
-import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.*
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
@@ -154,13 +150,9 @@ internal constructor(
 
   /**
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
-   * (list of features > 1), does nothing.
+   * (list of features > 1), it chooses the first [Feature].
    */
   fun onFeatureClick(features: List<Feature>) {
-    if (features.size != 1) {
-      return
-    }
-
     val geometry = features[0].geometry
 
     if (geometry is Point) {
