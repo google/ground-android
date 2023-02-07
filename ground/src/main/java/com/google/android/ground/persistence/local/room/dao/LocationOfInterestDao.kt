@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
-import com.google.android.ground.persistence.local.room.models.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityState
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 

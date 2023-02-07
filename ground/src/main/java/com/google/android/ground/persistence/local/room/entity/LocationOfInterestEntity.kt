@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.persistence.local.room.models.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityState
 
 /**
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields

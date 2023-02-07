@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
-import com.google.android.ground.persistence.local.room.models.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
 import io.reactivex.Single

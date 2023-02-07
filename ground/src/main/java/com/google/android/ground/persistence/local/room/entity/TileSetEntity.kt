@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.android.ground.persistence.local.room.models.TileSetEntityState
+import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 
 @Entity(tableName = "tile_sources")
 data class TileSetEntity(
