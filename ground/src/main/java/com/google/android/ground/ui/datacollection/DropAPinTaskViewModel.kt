@@ -24,6 +24,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import java8.util.Optional
 import javax.inject.Inject
 
@@ -39,6 +40,11 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
     features.postValue(setOf(createFeature(Point(position.target))))
   }
 
+  /** Creates a new map [Feature] representing the point placed by the user. */
   private fun createFeature(point: Point): Feature =
-    Feature(uuidGenerator.generateUuid(), Feature.Type.LOCATION_OF_INTEREST, point)
+    Feature(
+      id = uuidGenerator.generateUuid(),
+      type = FeatureType.USER_POINT.ordinal,
+      geometry = point
+    )
 }

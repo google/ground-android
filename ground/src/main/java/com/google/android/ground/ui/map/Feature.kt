@@ -17,11 +17,28 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Geometry
 
-/** Represents an individual feature on a map with a given [Geometry]. */
-data class Feature(val id: String, val tag: Type, val geometry: Geometry) {
-  /** Denotes the kind of entity this map feature represents. */
-  enum class Type {
-    UNKNOWN,
-    LOCATION_OF_INTEREST,
-  }
+/** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
+data class Feature(val tag: Tag, val geometry: Geometry) {
+  constructor(
+    id: String,
+    type: Int,
+    flag: Boolean = false,
+    geometry: Geometry
+  ) : this(Feature.Tag(id, type, flag), geometry)
+
+  /**
+   * Denotes the kind of entity this map feature represents and contains any additional data it
+   * carries.
+   */
+  data class Tag(
+    /** A unique identifier for the model object that this feature represents. */
+    val id: String,
+    /**
+     * A integer that indicates how to interpret this feature as a model object. Interpretations of
+     * the value are decided by callers.
+     */
+    val type: Int,
+    /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
+    val flag: Boolean = false
+  )
 }

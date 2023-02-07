@@ -27,8 +27,10 @@ import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
  * An implementation of [RecyclerView.Adapter] that associates [SurveyItem] data with the
  * [ViewHolder] views.
  */
-class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
-  RecyclerView.Adapter<ViewHolder>() {
+class SurveyListAdapter(
+  private val viewModel: SurveySelectorViewModel,
+  private val fragment: SurveySelectorFragment
+) : RecyclerView.Adapter<ViewHolder>() {
 
   private val surveys: MutableList<SurveyItem> = mutableListOf()
 
@@ -43,6 +45,7 @@ class SurveyListAdapter(private val viewModel: SurveySelectorViewModel) :
     val item: SurveyItem = surveys[position]
     holder.binding.item = item
     holder.binding.viewModel = viewModel
+    holder.binding.fragment = fragment
     holder.binding.surveyCard.background =
       ResourcesCompat.getDrawable(holder.itemView.context.resources, item.backgroundDrawable, null)
   }

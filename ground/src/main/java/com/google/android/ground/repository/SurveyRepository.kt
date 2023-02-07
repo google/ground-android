@@ -70,7 +70,7 @@ constructor(
       localValueStore.activeSurveyId = value
     }
 
-  val offlineSurveys: @Cold Single<List<Survey>>
+  val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = localSurveyStore.surveys
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
@@ -118,10 +118,19 @@ constructor(
     loadSurveySummariesFromRemote(user)
       .doOnSubscribe { Timber.d("Loading survey list from remote") }
       .doOnError { Timber.d(it, "Failed to load survey list from remote") }
-      .onErrorResumeNext { offlineSurveys }
+      .onErrorResumeNext { offlineSurveys.single(listOf()) }
 
   private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
     remoteDataStore
       .loadSurveySummaries(user)
       .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+
+  /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
+  suspend fun removeOfflineSurvey(surveyId: String) {
+    val survey = localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+    survey?.let { localSurveyStore.deleteSurvey(survey).await() }
+    if (activeSurveyId == surveyId) {
+      clearActiveSurvey()
+    }
+  }
 }

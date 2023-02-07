@@ -154,7 +154,7 @@ class MainViewModelTest : BaseHiltTest() {
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen())
+    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }

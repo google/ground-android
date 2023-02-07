@@ -15,20 +15,15 @@
  */
 package com.sharedtest
 
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TermsOfService
-import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.*
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.FeatureClusterItem
 
 /**
@@ -68,9 +63,9 @@ object FakeData {
 
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(
-      LOCATION_OF_INTEREST.id,
-      Feature.Type.LOCATION_OF_INTEREST,
-      LOCATION_OF_INTEREST.geometry
+      id = LOCATION_OF_INTEREST.id,
+      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      geometry = LOCATION_OF_INTEREST.geometry
     )
 
   val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_OF_INTEREST_FEATURE)

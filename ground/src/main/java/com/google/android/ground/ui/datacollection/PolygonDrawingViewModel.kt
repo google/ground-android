@@ -26,6 +26,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -172,7 +173,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     return setOf(
       Feature(
         id = uuidGenerator.generateUuid(),
-        tag = Feature.Type.LOCATION_OF_INTEREST,
+        type = FeatureType.USER_POLYGON.ordinal,
         geometry = polygon
       )
     )

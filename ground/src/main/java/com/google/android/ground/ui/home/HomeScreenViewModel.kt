@@ -27,6 +27,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
@@ -90,7 +91,7 @@ internal constructor(
   /** Intended for use as a callback for handling user clicks on rendered map features. */
   fun onFeatureClick(features: List<Feature>) {
     val loiFeatureIds =
-      features.filter { it.tag == Feature.Type.LOCATION_OF_INTEREST }.map { it.id }
+      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.map { it.tag.id }
     val locationsOfInterest = locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }
 
     if (locationsOfInterest.isEmpty()) {
