@@ -37,11 +37,14 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
 ) {
 
+  private val loiStream = getAllLocationsOfInterest().share()
   private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
 
-  fun loisWithinMapBounds(): Flowable<List<LocationOfInterest>> {
-    val loiStream = getAllLocationsOfInterest()
+  fun allLois(): Flowable<Set<LocationOfInterest>> {
+    return loiStream
+  }
 
+  fun loisWithinMapBounds(): Flowable<List<LocationOfInterest>> {
     return getCameraBoundUpdates()
       .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
       .distinctUntilChanged()
