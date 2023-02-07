@@ -25,7 +25,7 @@ object Config {
 
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  const val DB_VERSION = 95
+  const val DB_VERSION = 96
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
@@ -34,4 +34,14 @@ object Config {
 
   // Photos
   const val PHOTO_EXT = ".jpg"
+
+  // Map Settings
+  /**
+   * Map zoom level threshold at which to trigger scaling of markers and re-rendering. When a user
+   * zooms in far enough, we scale LOIs to make them easier to interact with.
+   */
+  const val ZOOM_LEVEL_THRESHOLD = 16f
+
+  /** Default zoom level used when panning and zooming the map to a specific position. */
+  const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
 }

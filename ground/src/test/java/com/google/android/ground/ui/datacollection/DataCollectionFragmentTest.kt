@@ -25,7 +25,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.capture
-import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -34,10 +33,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
@@ -50,8 +46,8 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
@@ -73,10 +69,9 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
 
-  @DefaultDispatcher @Inject lateinit var testDispatcher: CoroutineDispatcher
-  @Inject lateinit var navigator: Navigator
+  @Inject lateinit var testDispatcher: TestDispatcher
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
-  @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<ImmutableList<TaskDataDelta>>
+  @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<List<TaskDataDelta>>
   lateinit var fragment: DataCollectionFragment
 
   @Before
@@ -109,9 +104,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_submissionIsLoaded_firstTaskIsShown() {
-    setupSubmission(
-      ImmutableMap.of("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true))
-    )
+    setupSubmission(mapOf(Pair("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true))))
     setupFragment()
 
     onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
@@ -123,22 +116,24 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val label = "multiple_choice_task"
     val option1Label = "Option 1"
     setupSubmission(
-      ImmutableMap.of(
-        "field id",
-        Task(
-          "1",
-          0,
-          Task.Type.MULTIPLE_CHOICE,
-          label,
-          isRequired = false,
-          multipleChoice =
-            MultipleChoice(
-              persistentListOf(
-                Option("1", "code1", option1Label),
-                Option("2", "code2", "Option 2"),
-              ),
-              MultipleChoice.Cardinality.SELECT_MULTIPLE
-            )
+      mapOf(
+        Pair(
+          "field id",
+          Task(
+            "1",
+            0,
+            Task.Type.MULTIPLE_CHOICE,
+            label,
+            isRequired = false,
+            multipleChoice =
+              MultipleChoice(
+                persistentListOf(
+                  Option("1", "code1", option1Label),
+                  Option("2", "code2", "Option 2"),
+                ),
+                MultipleChoice.Cardinality.SELECT_MULTIPLE
+              )
+          )
         )
       )
     )
@@ -155,22 +150,24 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val label = "multiple_choice_task"
     val option1Label = "Option 1"
     setupSubmission(
-      ImmutableMap.of(
-        "field id",
-        Task(
-          "1",
-          0,
-          Task.Type.MULTIPLE_CHOICE,
-          label,
-          isRequired = false,
-          multipleChoice =
-            MultipleChoice(
-              persistentListOf(
-                Option("1", "code1", option1Label),
-                Option("2", "code2", "Option 2"),
-              ),
-              MultipleChoice.Cardinality.SELECT_ONE
-            )
+      mapOf(
+        Pair(
+          "field id",
+          Task(
+            "1",
+            0,
+            Task.Type.MULTIPLE_CHOICE,
+            label,
+            isRequired = false,
+            multipleChoice =
+              MultipleChoice(
+                persistentListOf(
+                  Option("1", "code1", option1Label),
+                  Option("2", "code2", "Option 2"),
+                ),
+                MultipleChoice.Cardinality.SELECT_ONE
+              )
+          )
         )
       )
     )
@@ -227,7 +224,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       val task1Response = "response 1"
       val task2Response = "response 2"
       val expectedTaskDataDeltas =
-        ImmutableList.of(
+        listOf(
           TaskDataDelta(
             SUBMISSION.job.tasksSorted[0].id,
             Task.Type.TEXT,
@@ -272,15 +269,17 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         )
       val taskId = "task id"
       setupSubmission(
-        ImmutableMap.of(
-          "field id",
-          Task(
-            taskId,
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice = multipleChoice
+        mapOf(
+          Pair(
+            "field id",
+            Task(
+              taskId,
+              0,
+              Task.Type.MULTIPLE_CHOICE,
+              label,
+              isRequired = false,
+              multipleChoice = multipleChoice
+            )
           )
         )
       )
@@ -308,7 +307,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     assertThat(fragment.onBack()).isFalse()
   }
 
-  private fun setupSubmission(tasks: ImmutableMap<String, Task>? = null) {
+  private fun setupSubmission(tasks: Map<String, Task>? = null) {
     var submission = SUBMISSION
     if (tasks != null) {
       submission = submission.copy(job = SUBMISSION.job.copy(tasks = tasks))

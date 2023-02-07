@@ -23,9 +23,11 @@ import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Maybe
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS: Long = 30
 
+@Singleton
 class TermsOfServiceRepository
 @Inject
 constructor(

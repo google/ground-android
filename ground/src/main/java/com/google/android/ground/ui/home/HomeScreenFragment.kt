@@ -162,6 +162,7 @@ class HomeScreenFragment :
     binding.drawerLayout.closeDrawer(GravityCompat.START)
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
       R.id.loi_properties_menu_item -> {
@@ -172,26 +173,9 @@ class HomeScreenFragment :
     return true
   }
 
-  override fun onStart() {
-    super.onStart()
-    homeScreenViewModel.init()
-  }
-
   private fun showSurveySelector() {
-    navigator.navigate(HomeScreenFragmentDirections.showSurveySelectorScreen())
-  }
-
-  private fun showDataCollection() {
-    // TODO(#1146): Replace with actual values based on the clicked Task card
-    val dummySurveyId = "123"
-    val dummyLocationOfInterestId = "456"
-    val dummySubmissionId = "789"
     navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-        dummySurveyId,
-        dummyLocationOfInterestId,
-        dummySubmissionId
-      )
+      HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
     )
   }
 
@@ -265,7 +249,6 @@ class HomeScreenFragment :
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
       R.id.nav_change_survey -> showSurveySelector()
-      R.id.tmp_collect_data -> showDataCollection()
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()

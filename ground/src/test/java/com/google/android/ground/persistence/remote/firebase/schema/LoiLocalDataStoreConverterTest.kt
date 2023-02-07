@@ -21,7 +21,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.schema.LoiConverter.toLoi
-import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -103,10 +102,9 @@ class LoiLocalDataStoreConverterTest {
   }
 
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
-    val taskMap = ImmutableMap.builder<String, Task>()
-    tasks.forEach { task: Task -> taskMap.put(task.id, task) }
-    val job = Job(jobId, "JOB_NAME", taskMap.build())
-    survey = Survey("", "", "", ImmutableMap.builder<String, Job>().put(job.id, job).build())
+    val taskMap = tasks.associateBy { it.id }
+    val job = Job(jobId, "JOB_NAME", taskMap)
+    survey = Survey("", "", "", mapOf(Pair(job.id, job)))
   }
 
   private fun setUpTestGeometry() {

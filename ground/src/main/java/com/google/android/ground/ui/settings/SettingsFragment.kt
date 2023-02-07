@@ -44,7 +44,7 @@ class SettingsFragment :
     preferenceManager.sharedPreferencesMode = Config.SHARED_PREFS_MODE
   }
 
-  override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
+  override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     setPreferencesFromResource(R.xml.preferences, rootKey)
     for (key in Keys.ALL_KEYS) {
       val preference =

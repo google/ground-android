@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.job
+package com.google.android.ground.ui.map
 
-import com.google.android.ground.model.task.Task
-import java8.util.Optional
-
-data class Job(val id: String, val name: String? = null, val tasks: Map<String, Task> = mapOf()) {
-  val tasksSorted: List<Task>
-    get() = tasks.values.sortedBy { it.id }
-
-  fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
-
-  fun hasData(): Boolean = !tasks.isEmpty()
+/**
+ * Indicates the type of a geometric model object. Used to interpret other objects (e.g. map
+ * features) back into model objects.
+ */
+enum class FeatureType {
+  UNKNOWN,
+  LOCATION_OF_INTEREST,
+  USER_POINT,
+  USER_POLYGON,
 }

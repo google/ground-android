@@ -15,11 +15,11 @@
  */
 package com.google.android.ground.ui.map
 
+import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.Companion.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.ui.map.gms.toCoordinate
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

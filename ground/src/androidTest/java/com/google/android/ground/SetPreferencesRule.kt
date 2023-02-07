@@ -30,7 +30,7 @@ import org.junit.runner.Description
  * Rule to be used in tests that sets the SharedPreferences needed to avoid login and survey
  * selection.
  */
-internal class SetPreferencesRule : TestWatcher() {
+class SetPreferencesRule : TestWatcher() {
   @InstallIn(SingletonComponent::class)
   @EntryPoint
   internal interface SetPreferencesRuleEntryPoint {

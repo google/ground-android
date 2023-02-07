@@ -21,7 +21,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.map.Feature
-import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver
 import com.sharedtest.FakeData
@@ -40,7 +39,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
-  private lateinit var drawnGeometryTestObserver: TestObserver<ImmutableSet<Feature>>
+  private lateinit var drawnGeometryTestObserver: TestObserver<Set<Feature>>
 
   override fun setUp() {
     super.setUp()
@@ -183,7 +182,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   }
 
   private fun validateMapLoiDrawn(expectedPolygonCount: Int) {
-    drawnGeometryTestObserver.assertValue { features: ImmutableSet<Feature> ->
+    drawnGeometryTestObserver.assertValue { features: Set<Feature> ->
       var actualPolygonCount = 0
       for (feature in features) {
         when (feature.geometry) {

@@ -137,8 +137,6 @@
   <string name="cancel">Cancel</string>
   <string name="join_survey">Join survey</string>
   <string name="change_survey">Change survey</string>
-  <!-- TODO(#1146): Remove temporary button for launching data collection flow once complete  -->
-  <string name="launch_collect_data">Test collect data UI</string>
   <!-- TODO(#1146): Remove temporary task name text and populate from the label of the Task  -->
   <string name="collect_data_task_name">Test Task Name</string>
   <string name="collect_data">Collect data</string>

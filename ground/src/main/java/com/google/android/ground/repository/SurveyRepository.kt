@@ -25,6 +25,7 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import java8.util.Optional
@@ -56,20 +57,22 @@ constructor(
   private val surveyStore = localDataStore.surveyStore
 
   /**
-   * Emits the currently active survey on subscribe and on change. Emits `empty()]`when no survey is
-   * active.
+   * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
+   * active or local db isn't up-to-date.
    */
   val activeSurvey: @Cold Flowable<Optional<Survey>> =
-    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapSingle {
-      if (it.isEmpty()) Single.just(Optional.empty())
-      else getOfflineSurvey(it).map { s -> Optional.of(s) }
+    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapMaybe {
+      if (it.isEmpty()) Maybe.just(Optional.empty())
+      else surveyStore.getSurveyById(it).map { s -> Optional.of(s) }
     }
 
-  var lastActiveSurveyId: String = ""
+  var activeSurveyId: String
     get() = localValueStore.activeSurveyId
-    private set
+    private set(value) {
+      localValueStore.activeSurveyId = value
+    }
 
-  val offlineSurveys: @Cold Single<List<Survey>>
+  val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = surveyStore.surveys
 
   private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
@@ -92,11 +95,9 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  suspend fun loadLastActiveSurvey() = activateSurvey(localValueStore.activeSurveyId)
-
   suspend fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
-    if (surveyId == localValueStore.activeSurveyId) {
+    if (surveyId == activeSurveyId) {
       return
     }
     // Clear survey if id is empty.
@@ -107,19 +108,19 @@ constructor(
 
     withContext(ioDispatcher) {
       surveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-      localValueStore.activeSurveyId = surveyId
+      activeSurveyId = surveyId
     }
   }
 
   fun clearActiveSurvey() {
-    localValueStore.activeSurveyId = ""
+    activeSurveyId = ""
   }
 
   fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
     loadSurveySummariesFromRemote(user)
       .doOnSubscribe { Timber.d("Loading survey list from remote") }
       .doOnError { Timber.d(it, "Failed to load survey list from remote") }
-      .onErrorResumeNext { offlineSurveys }
+      .onErrorResumeNext { offlineSurveys.single(listOf()) }
 
   private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
     remoteDataStore
@@ -130,5 +131,14 @@ constructor(
     survey: Survey
   ): @Cold(terminates = false) Flowable<List<Mutation>> {
     return localDataStore.getMutationsOnceAndStream(survey)
+  }
+
+  /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
+  suspend fun removeOfflineSurvey(surveyId: String) {
+    val survey = surveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+    survey?.let { surveyStore.deleteSurvey(survey).await() }
+    if (activeSurveyId == surveyId) {
+      clearActiveSurvey()
+    }
   }
 }
