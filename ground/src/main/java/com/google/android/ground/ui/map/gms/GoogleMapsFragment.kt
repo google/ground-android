@@ -51,7 +51,6 @@ import io.reactivex.Observable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import java.io.File
 import java8.util.function.Consumer
 import javax.inject.Inject
@@ -66,11 +65,6 @@ import timber.log.Timber
  */
 @AndroidEntryPoint
 class GoogleMapsFragment : SupportMapFragment(), MapFragment {
-  /** Marker click events. */
-  private val markerClicks: @Hot Subject<Feature> = PublishSubject.create()
-
-  /** Ambiguous click events. */
-  private val locationOfInterestClicks: @Hot Subject<List<Feature>> = PublishSubject.create()
 
   /** Map drag events. Emits items when the map drag has started. */
   private val startDragEventsProcessor: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
@@ -86,11 +80,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private val tileProvidersSubject: @Hot PublishSubject<MapBoxOfflineTileProvider> =
     PublishSubject.create()
 
-  /**
-   * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
-   * with current view and data state.
-   */
-  private val clusters: MutableMap<FeatureClusterItem, Feature> = HashMap()
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
