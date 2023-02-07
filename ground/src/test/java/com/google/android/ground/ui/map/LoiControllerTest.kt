@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.map
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -24,12 +24,10 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.ui.map.LoiController
-import com.google.common.truth.Truth.assertThat
-import com.jraska.livedata.TestObserver
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
+import io.reactivex.subscribers.TestSubscriber
 import java8.util.Optional
 import org.junit.Before
 import org.junit.Test
@@ -49,7 +47,7 @@ class LoiControllerTest : BaseHiltTest() {
   @Mock lateinit var surveyRepository: SurveyRepository
 
   private lateinit var loiController: LoiController
-  private lateinit var loisTestObserver: TestObserver<List<LocationOfInterest>>
+  private lateinit var loisWithinBoundsTestSubscriber: TestSubscriber<List<LocationOfInterest>>
 
   @Before
   override fun setUp() {
@@ -62,21 +60,22 @@ class LoiControllerTest : BaseHiltTest() {
       .thenReturn(Flowable.just(TEST_LOCATIONS_OF_INTEREST))
 
     loiController = LoiController(surveyRepository, locationOfInterestRepository)
-    loisTestObserver = TestObserver.test(loiController.locationsOfInterest)
+    loisWithinBoundsTestSubscriber = loiController.loisWithinMapBounds().test()
   }
 
   @Test
   fun testLoiCards_whenBoundsNotAvailable_returnsNothing() {
-    loisTestObserver.assertNoValue()
+    loisWithinBoundsTestSubscriber.assertNoValues()
   }
 
   @Test
   fun testLoiCards_whenOutOfBounds_returnsEmptyList() {
     val southwest = LatLng(-60.0, -60.0)
     val northeast = LatLng(-50.0, -50.0)
+
     loiController.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
-    assertThat(loisTestObserver.awaitValue().value()).isEmpty()
+    loisWithinBoundsTestSubscriber.assertValues(listOf())
   }
 
   @Test
@@ -86,8 +85,9 @@ class LoiControllerTest : BaseHiltTest() {
 
     loiController.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
-    assertThat(loisTestObserver.value())
-      .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+    loisWithinBoundsTestSubscriber.assertValues(
+      listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1)
+    )
   }
 
   @Test
@@ -97,16 +97,15 @@ class LoiControllerTest : BaseHiltTest() {
 
     loiController.onCameraBoundsUpdated(LatLngBounds(southwest, northeast))
 
-    assertThat(loisTestObserver.value())
-      .isEqualTo(
-        listOf(
-          TEST_POINT_OF_INTEREST_1,
-          TEST_POINT_OF_INTEREST_2,
-          TEST_POINT_OF_INTEREST_3,
-          TEST_AREA_OF_INTEREST_1,
-          TEST_AREA_OF_INTEREST_2
-        )
+    loisWithinBoundsTestSubscriber.assertValues(
+      listOf(
+        TEST_POINT_OF_INTEREST_1,
+        TEST_POINT_OF_INTEREST_2,
+        TEST_POINT_OF_INTEREST_3,
+        TEST_AREA_OF_INTEREST_1,
+        TEST_AREA_OF_INTEREST_2
       )
+    )
   }
 
   companion object {
