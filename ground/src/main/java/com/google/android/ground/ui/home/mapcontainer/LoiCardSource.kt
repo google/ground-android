@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
@@ -40,17 +38,13 @@ internal constructor(
 ) {
 
   private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
-  val locationsOfInterest: LiveData<List<LocationOfInterest>>
 
-  init {
+  fun loisWithinMapBounds(): Flowable<List<LocationOfInterest>> {
     val loiStream = getAllLocationsOfInterest()
 
-    locationsOfInterest =
-      LiveDataReactiveStreams.fromPublisher(
-        getCameraBoundUpdates()
-          .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
-          .distinctUntilChanged()
-      )
+    return getCameraBoundUpdates()
+      .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
+      .distinctUntilChanged()
   }
 
   fun onCameraBoundsUpdated(newBounds: LatLngBounds?) {

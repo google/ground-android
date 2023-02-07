@@ -34,6 +34,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.BehaviorProcessor
@@ -53,6 +54,7 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
+  private val loiCardSource: LoiCardSource,
   surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
@@ -74,6 +76,8 @@ internal constructor(
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
+
+  val loisWithinMapBounds: LiveData<List<LocationOfInterest>>
 
   private fun updateSelectedLocationOfInterest(
     locationsOfInterest: Set<Feature>,
@@ -132,6 +136,7 @@ internal constructor(
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Setting position to $newCameraPosition")
+    loiCardSource.onCameraBoundsUpdated(newCameraPosition.bounds?.toGoogleMapsObject())
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     mapStateRepository.setCameraPosition(activeSurveyId, newCameraPosition)
     lastCameraPosition = newCameraPosition
@@ -219,5 +224,7 @@ internal constructor(
           set.map(TileSet::path).toPersistentSet()
         }
       )
+
+    loisWithinMapBounds = LiveDataReactiveStreams.fromPublisher(loiCardSource.loisWithinMapBounds())
   }
 }
