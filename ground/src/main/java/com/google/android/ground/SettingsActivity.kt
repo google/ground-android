@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.ground.databinding.SettingsActivityBinding;
-import dagger.hilt.android.AndroidEntryPoint;
+import android.os.Bundle
+import com.google.android.ground.databinding.SettingsActivityBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-public class SettingsActivity extends AbstractActivity {
+class SettingsActivity : AbstractActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-  @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    val binding = SettingsActivityBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
-    SettingsActivityBinding binding = SettingsActivityBinding.inflate(getLayoutInflater());
-    binding.setLifecycleOwner(this);
-    setContentView(binding.getRoot());
-
-    setActionBar(binding.settingsToolbar, true);
+    setActionBar(binding.settingsToolbar, true)
   }
 }
