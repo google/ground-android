@@ -22,18 +22,21 @@ import android.view.ViewGroup
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.PolygonDrawingTaskFragBinding
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawingViewModel) :
-  AbstractMapContainerFragment() {
+class PolygonDrawingTaskFragment : AbstractMapContainerFragment(), TaskFragment {
+
+  override lateinit var viewModel: AbstractTaskViewModel
+  private val polygonDrawingViewModel: PolygonDrawingViewModel
+    get() = viewModel as PolygonDrawingViewModel
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
@@ -60,13 +63,13 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
     super.onViewCreated(view, savedInstanceState)
     val container = binding.bottomContainer
     val taskControlsBinding = PolygonDrawingTaskFragBinding.inflate(layoutInflater, container, true)
-    taskControlsBinding.viewModel = viewModel
+    taskControlsBinding.viewModel = polygonDrawingViewModel
     taskControlsBinding.lifecycleOwner = this
-    viewModel.startDrawingFlow()
+    polygonDrawingViewModel.startDrawingFlow()
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+    polygonDrawingViewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -75,11 +78,12 @@ class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawi
     super.onMapCameraMoved(position)
     val mapCenter = position.target
     val mapCenterPoint = Point(mapCenter)
-    viewModel.onCameraMoved(mapCenterPoint)
-    viewModel.firstVertex
+    val polygonDrawingViewModel = polygonDrawingViewModel
+    polygonDrawingViewModel.onCameraMoved(mapCenterPoint)
+    polygonDrawingViewModel.firstVertex
       .map { firstVertex: Point ->
         mapFragment.getDistanceInPixels(firstVertex.coordinate, mapCenter)
       }
-      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenterPoint, dist) }
+      .ifPresent { dist: Double -> polygonDrawingViewModel.updateLastVertex(mapCenterPoint, dist) }
   }
 }

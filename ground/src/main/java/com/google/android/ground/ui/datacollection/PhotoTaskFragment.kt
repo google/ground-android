@@ -29,10 +29,10 @@ import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.databinding.EditSubmissionBottomSheetBinding
 import com.google.android.ground.databinding.PhotoTaskFragBinding
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter.PhotoStorageResource
 import com.google.android.ground.ui.editsubmission.PhotoResult
@@ -40,19 +40,21 @@ import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
+import javax.inject.Inject
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
-class PhotoTaskFragment
-constructor(
-  private val task: Task,
-  private val viewModel: PhotoTaskViewModel,
-  private val dataCollectionViewModel: DataCollectionViewModel,
-  private val userMediaRepository: UserMediaRepository
-) : AbstractFragment() {
+class PhotoTaskFragment : AbstractFragment(), TaskFragment {
+  @Inject lateinit var userMediaRepository: UserMediaRepository
+
+  override lateinit var viewModel: AbstractTaskViewModel
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
+  private val photoTaskViewModel
+    get() = viewModel as PhotoTaskViewModel
+
+  lateinit var dataCollectionViewModel: DataCollectionViewModel
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -62,11 +64,11 @@ constructor(
     super.onCreateView(inflater, container, savedInstanceState)
     selectPhotoLauncher =
       registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        viewModel.onSelectPhotoResult(uri)
+        photoTaskViewModel.onSelectPhotoResult(uri)
       }
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        viewModel.onCapturePhotoResult(result)
+        photoTaskViewModel.onCapturePhotoResult(result)
       }
 
     val binding = PhotoTaskFragBinding.inflate(inflater, container, false)
@@ -75,9 +77,9 @@ constructor(
     binding.setVariable(BR.viewModel, viewModel)
     binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
 
-    viewModel.setEditable(true)
-    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
+    photoTaskViewModel.setEditable(true)
+    photoTaskViewModel.setSurveyId(dataCollectionViewModel.surveyId)
+    photoTaskViewModel.setSubmissionId(dataCollectionViewModel.submissionId)
     observeSelectPhotoClicks()
     observePhotoResults()
 
@@ -86,27 +88,27 @@ constructor(
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
-    viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+    photoTaskViewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
+    photoTaskViewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto())
-    outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
+    outState.putString(TASK_WAITING_FOR_PHOTO, photoTaskViewModel.getTaskWaitingForPhoto())
+    outState.putString(CAPTURED_PHOTO_PATH, photoTaskViewModel.getCapturedPhotoPath())
   }
 
   private fun observeSelectPhotoClicks() {
-    viewModel.getShowDialogClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
+    photoTaskViewModel.getShowDialogClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
       onShowPhotoSelectorDialog()
     }
   }
 
   private fun observePhotoResults() {
-    viewModel
+    photoTaskViewModel
       .getLastPhotoResult()
       .`as`(autoDisposable<PhotoResult>(viewLifecycleOwner))
-      .subscribe { photoResult -> viewModel.onPhotoResult(photoResult) }
+      .subscribe { photoResult -> photoTaskViewModel.onPhotoResult(photoResult) }
   }
 
   private fun onShowPhotoSelectorDialog() {
@@ -122,7 +124,7 @@ constructor(
     recyclerView.layoutManager = LinearLayoutManager(context)
     recyclerView.adapter = AddPhotoDialogAdapter { type: Int ->
       bottomSheetDialog.dismiss()
-      onSelectPhotoClick(type, task.id)
+      onSelectPhotoClick(type, viewModel.task.id)
     }
   }
 
@@ -130,14 +132,14 @@ constructor(
     when (type) {
       PhotoStorageResource.PHOTO_SOURCE_CAMERA ->
         // TODO: Launch intent is not invoked if the permission is not granted by default.
-        viewModel
+        photoTaskViewModel
           .obtainCapturePhotoPermissions()
           .andThen(Completable.fromAction { launchPhotoCapture(fieldId) })
           .`as`(autoDisposable<Any>(viewLifecycleOwner))
           .subscribe()
       PhotoStorageResource.PHOTO_SOURCE_STORAGE ->
         // TODO: Launch intent is not invoked if the permission is not granted by default.
-        viewModel
+        photoTaskViewModel
           .obtainSelectPhotoPermissions()
           .andThen(Completable.fromAction { launchPhotoSelector(fieldId) })
           .`as`(autoDisposable<Any>(viewLifecycleOwner))
@@ -149,14 +151,14 @@ constructor(
   private fun launchPhotoCapture(taskId: String) {
     val photoFile = userMediaRepository.createImageFile(taskId)
     val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
-    viewModel.setTaskWaitingForPhoto(taskId)
-    viewModel.setCapturedPhotoPath(photoFile.absolutePath)
+    photoTaskViewModel.setTaskWaitingForPhoto(taskId)
+    photoTaskViewModel.setCapturedPhotoPath(photoFile.absolutePath)
     capturePhotoLauncher.launch(uri)
     Timber.d("Capture photo intent sent")
   }
 
   private fun launchPhotoSelector(taskId: String) {
-    viewModel.setTaskWaitingForPhoto(taskId)
+    photoTaskViewModel.setTaskWaitingForPhoto(taskId)
     selectPhotoLauncher.launch("image/*")
     Timber.d("Select photo intent sent")
   }

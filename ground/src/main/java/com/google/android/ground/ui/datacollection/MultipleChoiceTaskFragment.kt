@@ -26,8 +26,8 @@ import com.google.android.ground.BR
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,9 +36,9 @@ import dagger.hilt.android.AndroidEntryPoint
  * task.
  */
 @AndroidEntryPoint
-class MultipleChoiceTaskFragment
-constructor(private val task: Task, private val viewModel: MultipleChoiceTaskViewModel) :
-  AbstractFragment() {
+class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment {
+  override lateinit var viewModel: AbstractTaskViewModel
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -50,16 +50,19 @@ constructor(private val task: Task, private val viewModel: MultipleChoiceTaskVie
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
 
-    val multipleChoice = task.multipleChoice!!
+    val multipleChoiceTaskViewModel = viewModel as MultipleChoiceTaskViewModel
+
+    val multipleChoice = viewModel.task.multipleChoice!!
     val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
     optionListView.setHasFixedSize(true)
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
+      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, multipleChoiceTaskViewModel)
       adapter.setHasStableIds(true)
       optionListView.adapter = adapter
       setupMultipleSelectionTracker(optionListView, adapter)
     } else {
-      optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
+      optionListView.adapter =
+        SelectOneOptionAdapter(multipleChoice.options, multipleChoiceTaskViewModel)
     }
 
     return binding.root

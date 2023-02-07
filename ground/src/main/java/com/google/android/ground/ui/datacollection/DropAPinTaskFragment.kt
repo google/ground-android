@@ -20,18 +20,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.BasemapLayoutBinding
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewModel) :
-  AbstractMapContainerFragment() {
+class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment {
+
+  override lateinit var viewModel: AbstractTaskViewModel
+
+  private val dropAPinTaskViewModel: DropAPinTaskViewModel
+    get() = viewModel as DropAPinTaskViewModel
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
@@ -55,13 +59,13 @@ class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewMo
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+    dropAPinTaskViewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    viewModel.updateResponse(position)
+    dropAPinTaskViewModel.updateResponse(position)
   }
 }
