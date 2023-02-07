@@ -72,8 +72,8 @@
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
     <action
-      android:id="@+id/action_home_screen_fragment_to_projectSelectorDialogFragment"
-      app:destination="@id/surveySelectorDialogFragment" />
+      android:id="@+id/action_home_screen_fragment_to_surveySelectorFragment"
+      app:destination="@id/surveySelectorFragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
       app:destination="@id/data_collection_fragment" />
@@ -214,7 +214,7 @@
     app:popUpTo="@id/navGraph" />
   <action
     android:id="@+id/showSurveySelectorScreen"
-    app:destination="@id/surveySelectorDialogFragment"
+    app:destination="@id/surveySelectorFragment"
     app:popUpTo="@id/navGraph" />
   <action
     android:id="@+id/showMapTypeDialogFragment"
@@ -237,9 +237,13 @@
       app:popUpToInclusive="true" />
   </fragment>
   <fragment
-    android:id="@+id/surveySelectorDialogFragment"
+    android:id="@+id/surveySelectorFragment"
     android:name="com.google.android.ground.ui.surveyselector.SurveySelectorFragment"
-    android:label="SurveySelectorFragment" />
+    android:label="SurveySelectorFragment">
+    <argument
+      android:name="shouldExitApp"
+      app:argType="boolean" />
+  </fragment>
   <dialog
     android:id="@+id/locationOfInterestSelectorFragment"
     android:name="com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorFragment"

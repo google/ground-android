@@ -15,7 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
 
@@ -24,7 +25,7 @@
       type="com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel" />
   </data>
 
-  <FrameLayout xmlns:tools="http://schemas.android.com/tools"
+  <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"

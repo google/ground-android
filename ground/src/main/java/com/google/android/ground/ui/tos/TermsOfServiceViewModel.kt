@@ -35,6 +35,6 @@ constructor(
 
   fun onButtonClicked() {
     termsOfServiceRepository.isTermsOfServiceAccepted = true
-    navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen())
+    navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
   }
 }

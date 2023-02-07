@@ -17,8 +17,12 @@ package com.google.android.ground.ui.surveyselector
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
+import com.google.android.ground.MainActivity
+import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
@@ -35,7 +39,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
-    adapter = SurveyListAdapter(viewModel)
+    adapter = SurveyListAdapter(viewModel, this)
     viewModel.surveySummaries.observe(this) { adapter.updateData(it) }
   }
 
@@ -46,6 +50,12 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   ): View {
     binding = SurveySelectorFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
+
+    // Required for unit tests since they are run inside a sandbox activity
+    if (requireActivity() is MainActivity) {
+      getMainActivity().setActionBar(binding.toolbar, true)
+    }
+
     return binding.root
   }
 
@@ -54,9 +64,32 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     binding.recyclerView.adapter = adapter
   }
 
+  fun showPopupMenu(view: View, surveyId: String) {
+    with(PopupMenu(requireContext(), view)) {
+      inflate(R.menu.survey_options_menu)
+      setOnMenuItemClickListener(
+        object : PopupMenu.OnMenuItemClickListener {
+          override fun onMenuItemClick(item: MenuItem): Boolean {
+            if (item.itemId == R.id.delete) {
+              viewModel.deleteSurvey(surveyId)
+              return true
+            }
+            return false
+          }
+        }
+      )
+      show()
+    }
+  }
+
+  private fun shouldExitApp(): Boolean =
+    arguments?.let { SurveySelectorFragmentArgs.fromBundle(it).shouldExitApp } ?: false
+
   override fun onBack(): Boolean {
-    // TODO(#504): Fix back press action
-    requireActivity().finish()
-    return true
+    if (shouldExitApp()) {
+      requireActivity().finish()
+      return true
+    }
+    return false
   }
 }
