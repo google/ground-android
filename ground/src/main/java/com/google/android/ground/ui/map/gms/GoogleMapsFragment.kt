@@ -242,11 +242,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun disableGestures() = getMap().uiSettings.setAllGesturesEnabled(false)
 
   override fun moveCamera(coordinate: Coordinate) =
-    getMap().moveCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
+    getMap().animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
 
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     getMap()
-      .moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+      .animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
   private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
     multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
