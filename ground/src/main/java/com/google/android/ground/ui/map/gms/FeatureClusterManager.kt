@@ -17,9 +17,9 @@ package com.google.android.ground.ui.map.gms
 
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.collections.immutable.toPersistentSet
 import timber.log.Timber
