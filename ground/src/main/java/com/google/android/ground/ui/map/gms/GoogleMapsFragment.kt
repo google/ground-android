@@ -339,16 +339,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     clusterManager.onCameraIdle()
 
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      cameraMovedEventsProcessor.onNext(
-        CameraPosition(
-          getMap().cameraPosition.target.toCoordinate(),
-          getMap().cameraPosition.zoom,
-          false,
-          getMap().projection.visibleRegion.latLngBounds.toModelObject()
-        )
-      )
       cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
     }
+
+    cameraMovedEventsProcessor.onNext(
+      CameraPosition(
+        getMap().cameraPosition.target.toCoordinate(),
+        getMap().cameraPosition.zoom,
+        false,
+        getMap().projection.visibleRegion.latLngBounds.toModelObject()
+      )
+    )
   }
 
   private fun onCameraMoveStarted(reason: Int) {
