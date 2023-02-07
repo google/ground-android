@@ -179,20 +179,6 @@ class HomeScreenFragment :
     )
   }
 
-  private fun showDataCollection() {
-    // TODO(#1146): Replace with actual values based on the clicked Task card
-    val dummySurveyId = "123"
-    val dummyLocationOfInterestId = "456"
-    val dummySubmissionId = "789"
-    navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-        dummySurveyId,
-        dummyLocationOfInterestId,
-        dummySubmissionId
-      )
-    )
-  }
-
   private fun showOfflineAreas() {
     homeScreenViewModel.showOfflineAreas()
   }
@@ -263,7 +249,6 @@ class HomeScreenFragment :
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
       R.id.nav_change_survey -> showSurveySelector()
-      R.id.tmp_collect_data -> showDataCollection()
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
