@@ -32,12 +32,9 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
-import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import timber.log.Timber
@@ -63,34 +60,10 @@ internal constructor(
   val locationAccuracy: LiveData<String>
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
-  /** The currently selected LOI on the map. */
-  private val selectedLocationOfInterest =
-    BehaviorProcessor.createDefault(Optional.empty<LocationOfInterest>())
-
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
   val loisWithinMapBounds: LiveData<List<LocationOfInterest>>
-
-  private fun updateSelectedLocationOfInterest(
-    locationsOfInterest: Set<Feature>,
-    selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): Set<Feature> {
-    Timber.v("Updating selected LOI style")
-
-    if (selectedLocationOfInterest.isEmpty) {
-      return locationsOfInterest
-    }
-
-    val updatedLocationsOfInterest = mutableSetOf<Feature>()
-    val selectedLocationOfInterestId = selectedLocationOfInterest.get().id
-
-    for (locationOfInterest in locationsOfInterest) {
-      // TODO: Update strokewidth of non MapGeoJson locationOfInterest
-      updatedLocationsOfInterest.add(locationOfInterest)
-    }
-    return updatedLocationsOfInterest.toPersistentSet()
-  }
 
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
@@ -161,11 +134,6 @@ internal constructor(
     return zoomThresholdCrossed
   }
 
-  /** Called when a LOI is (de)selected. */
-  fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
-    this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     val locationLockStateFlowable = locationController.getLocationLockUpdates()
@@ -178,19 +146,15 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
-    val loiStream = loiCardSource.allLois()
 
-    val savedMapLocationsOfInterest =
-      Flowable.combineLatest(
-        loiStream.map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) },
-        selectedLocationOfInterest
-      ) { locationsOfInterest, selectedLocationOfInterest ->
-        updateSelectedLocationOfInterest(locationsOfInterest, selectedLocationOfInterest)
-      }
-
+    // TODO: Should we only render the LOIs that are present within the map bounds?
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        savedMapLocationsOfInterest.startWith(setOf<Feature>()).distinctUntilChanged()
+        loiCardSource
+          .allLois()
+          .map { toLocationOfInterestFeatures(it) }
+          .startWith(setOf<Feature>())
+          .distinctUntilChanged()
       )
 
     mbtilesFilePaths =
