@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.PolygonDrawingTaskFragBinding
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -32,8 +31,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PolygonDrawingTaskFragment(task: Task, private val viewModel: PolygonDrawingViewModel) :
-  AbstractMapContainerFragment() {
+class PolygonDrawingTaskFragment :
+  AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
+
+  override lateinit var viewModel: PolygonDrawingViewModel
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
