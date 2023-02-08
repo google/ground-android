@@ -68,6 +68,6 @@ data class LocationOfInterest(
       locationOfInterestId = id,
       userId = userId,
       clientTimestamp = Date(),
-      geometry = GeometryWrapper.fromGeometry(geometry)
+      geometry = geometry
     )
 }
