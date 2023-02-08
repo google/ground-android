@@ -99,7 +99,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
    * start and end of polygon.
    */
   private lateinit var customCap: CustomCap
-  private var cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
 
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
     val insetBottom = insets.systemWindowInsetBottom
@@ -337,11 +336,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onCameraIdle() {
     clusterManager.onCameraIdle()
-
-    if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
-    }
-
     cameraMovedEventsProcessor.onNext(
       CameraPosition(
         getMap().cameraPosition.target.toCoordinate(),
@@ -353,7 +347,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun onCameraMoveStarted(reason: Int) {
-    cameraChangeReason = reason
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
       this.startDragEventsProcessor.onNext(Nil.NIL)
     }
