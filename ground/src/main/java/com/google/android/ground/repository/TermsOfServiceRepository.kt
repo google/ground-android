@@ -41,9 +41,5 @@ constructor(
         .loadTermsOfService()
         .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
 
-  var isTermsOfServiceAccepted: Boolean
-    get() = localValueStore.isTermsOfServiceAccepted
-    set(value) {
-      localValueStore.isTermsOfServiceAccepted = value
-    }
+  var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 }

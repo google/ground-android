@@ -74,13 +74,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       preferences.edit().putBoolean(TOS_ACCEPTED, value).apply()
     }
 
-  /** Returns whether the polygon info dialog was previously shown to the user or not. */
-  var isPolygonInfoDialogShown: Boolean
-    get() = preferences.getBoolean(POLYGON_INFO_DIALOG, false)
-    set(value) {
-      preferences.edit().putBoolean(POLYGON_INFO_DIALOG, value).apply()
-    }
-
   /** Removes all values stored in the local store. */
   fun clear() {
     preferences.edit().clear().apply()
@@ -117,7 +110,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val MAP_TYPE = "map_type"
     const val LAST_VIEWPORT_PREFIX = "last_viewport_"
     const val TOS_ACCEPTED = "tos_accepted"
-    const val POLYGON_INFO_DIALOG = "polygon_info_dialog"
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
   }
 }
