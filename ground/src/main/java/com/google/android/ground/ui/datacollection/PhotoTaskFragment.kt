@@ -32,7 +32,6 @@ import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter
 import com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter.PhotoStorageResource
 import com.google.android.ground.ui.editsubmission.PhotoResult

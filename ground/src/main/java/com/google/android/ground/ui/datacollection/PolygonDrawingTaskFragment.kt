@@ -25,14 +25,14 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PolygonDrawingTaskFragment : AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
+class PolygonDrawingTaskFragment :
+  AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
 
   override lateinit var viewModel: PolygonDrawingViewModel
 

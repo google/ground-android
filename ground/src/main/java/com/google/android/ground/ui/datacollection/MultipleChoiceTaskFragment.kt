@@ -27,7 +27,6 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,8 +58,7 @@ class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoi
       optionListView.adapter = adapter
       setupMultipleSelectionTracker(optionListView, adapter)
     } else {
-      optionListView.adapter =
-        SelectOneOptionAdapter(multipleChoice.options, viewModel)
+      optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
     }
 
     return binding.root

@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.QuestionTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.TextTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
