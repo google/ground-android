@@ -36,8 +36,8 @@ import dagger.hilt.android.AndroidEntryPoint
  * task.
  */
 @AndroidEntryPoint
-class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment {
-  override lateinit var viewModel: AbstractTaskViewModel
+class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoiceTaskViewModel> {
+  override lateinit var viewModel: MultipleChoiceTaskViewModel
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -50,19 +50,17 @@ class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment {
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
 
-    val multipleChoiceTaskViewModel = viewModel as MultipleChoiceTaskViewModel
-
     val multipleChoice = viewModel.task.multipleChoice!!
     val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
     optionListView.setHasFixedSize(true)
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, multipleChoiceTaskViewModel)
+      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
       adapter.setHasStableIds(true)
       optionListView.adapter = adapter
       setupMultipleSelectionTracker(optionListView, adapter)
     } else {
       optionListView.adapter =
-        SelectOneOptionAdapter(multipleChoice.options, multipleChoiceTaskViewModel)
+        SelectOneOptionAdapter(multipleChoice.options, viewModel)
     }
 
     return binding.root

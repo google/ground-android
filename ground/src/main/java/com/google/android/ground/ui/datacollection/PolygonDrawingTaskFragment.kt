@@ -32,11 +32,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PolygonDrawingTaskFragment : AbstractMapContainerFragment(), TaskFragment {
+class PolygonDrawingTaskFragment : AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
 
-  override lateinit var viewModel: AbstractTaskViewModel
-  private val polygonDrawingViewModel: PolygonDrawingViewModel
-    get() = viewModel as PolygonDrawingViewModel
+  override lateinit var viewModel: PolygonDrawingViewModel
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
@@ -63,13 +61,13 @@ class PolygonDrawingTaskFragment : AbstractMapContainerFragment(), TaskFragment 
     super.onViewCreated(view, savedInstanceState)
     val container = binding.bottomContainer
     val taskControlsBinding = PolygonDrawingTaskFragBinding.inflate(layoutInflater, container, true)
-    taskControlsBinding.viewModel = polygonDrawingViewModel
+    taskControlsBinding.viewModel = viewModel
     taskControlsBinding.lifecycleOwner = this
-    polygonDrawingViewModel.startDrawingFlow()
+    viewModel.startDrawingFlow()
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    polygonDrawingViewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -78,12 +76,11 @@ class PolygonDrawingTaskFragment : AbstractMapContainerFragment(), TaskFragment 
     super.onMapCameraMoved(position)
     val mapCenter = position.target
     val mapCenterPoint = Point(mapCenter)
-    val polygonDrawingViewModel = polygonDrawingViewModel
-    polygonDrawingViewModel.onCameraMoved(mapCenterPoint)
-    polygonDrawingViewModel.firstVertex
+    viewModel.onCameraMoved(mapCenterPoint)
+    viewModel.firstVertex
       .map { firstVertex: Point ->
         mapFragment.getDistanceInPixels(firstVertex.coordinate, mapCenter)
       }
-      .ifPresent { dist: Double -> polygonDrawingViewModel.updateLastVertex(mapCenterPoint, dist) }
+      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenterPoint, dist) }
   }
 }

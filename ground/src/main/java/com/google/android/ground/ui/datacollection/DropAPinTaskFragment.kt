@@ -30,12 +30,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment {
+class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
 
-  override lateinit var viewModel: AbstractTaskViewModel
-
-  private val dropAPinTaskViewModel: DropAPinTaskViewModel
-    get() = viewModel as DropAPinTaskViewModel
+  override lateinit var viewModel: DropAPinTaskViewModel
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
@@ -59,13 +56,13 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment {
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    dropAPinTaskViewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    dropAPinTaskViewModel.updateResponse(position)
+    viewModel.updateResponse(position)
   }
 }

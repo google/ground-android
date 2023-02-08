@@ -45,14 +45,12 @@ import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
-class PhotoTaskFragment : AbstractFragment(), TaskFragment {
+class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
   @Inject lateinit var userMediaRepository: UserMediaRepository
 
-  override lateinit var viewModel: AbstractTaskViewModel
+  override lateinit var viewModel: PhotoTaskViewModel
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
-  private val photoTaskViewModel
-    get() = viewModel as PhotoTaskViewModel
 
   lateinit var dataCollectionViewModel: DataCollectionViewModel
 
@@ -64,11 +62,11 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment {
     super.onCreateView(inflater, container, savedInstanceState)
     selectPhotoLauncher =
       registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoTaskViewModel.onSelectPhotoResult(uri)
+        viewModel.onSelectPhotoResult(uri)
       }
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        photoTaskViewModel.onCapturePhotoResult(result)
+        viewModel.onCapturePhotoResult(result)
       }
 
     val binding = PhotoTaskFragBinding.inflate(inflater, container, false)
@@ -77,9 +75,9 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment {
     binding.setVariable(BR.viewModel, viewModel)
     binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
 
-    photoTaskViewModel.setEditable(true)
-    photoTaskViewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    photoTaskViewModel.setSubmissionId(dataCollectionViewModel.submissionId)
+    viewModel.setEditable(true)
+    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
+    viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
     observeSelectPhotoClicks()
     observePhotoResults()
 
@@ -88,27 +86,27 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    photoTaskViewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
-    photoTaskViewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+    viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
+    viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putString(TASK_WAITING_FOR_PHOTO, photoTaskViewModel.getTaskWaitingForPhoto())
-    outState.putString(CAPTURED_PHOTO_PATH, photoTaskViewModel.getCapturedPhotoPath())
+    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto())
+    outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
   }
 
   private fun observeSelectPhotoClicks() {
-    photoTaskViewModel.getShowDialogClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
+    viewModel.getShowDialogClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
       onShowPhotoSelectorDialog()
     }
   }
 
   private fun observePhotoResults() {
-    photoTaskViewModel
+    viewModel
       .getLastPhotoResult()
       .`as`(autoDisposable<PhotoResult>(viewLifecycleOwner))
-      .subscribe { photoResult -> photoTaskViewModel.onPhotoResult(photoResult) }
+      .subscribe { photoResult -> viewModel.onPhotoResult(photoResult) }
   }
 
   private fun onShowPhotoSelectorDialog() {
@@ -132,14 +130,14 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment {
     when (type) {
       PhotoStorageResource.PHOTO_SOURCE_CAMERA ->
         // TODO: Launch intent is not invoked if the permission is not granted by default.
-        photoTaskViewModel
+        viewModel
           .obtainCapturePhotoPermissions()
           .andThen(Completable.fromAction { launchPhotoCapture(fieldId) })
           .`as`(autoDisposable<Any>(viewLifecycleOwner))
           .subscribe()
       PhotoStorageResource.PHOTO_SOURCE_STORAGE ->
         // TODO: Launch intent is not invoked if the permission is not granted by default.
-        photoTaskViewModel
+        viewModel
           .obtainSelectPhotoPermissions()
           .andThen(Completable.fromAction { launchPhotoSelector(fieldId) })
           .`as`(autoDisposable<Any>(viewLifecycleOwner))
@@ -151,14 +149,14 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment {
   private fun launchPhotoCapture(taskId: String) {
     val photoFile = userMediaRepository.createImageFile(taskId)
     val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
-    photoTaskViewModel.setTaskWaitingForPhoto(taskId)
-    photoTaskViewModel.setCapturedPhotoPath(photoFile.absolutePath)
+    viewModel.setTaskWaitingForPhoto(taskId)
+    viewModel.setCapturedPhotoPath(photoFile.absolutePath)
     capturePhotoLauncher.launch(uri)
     Timber.d("Capture photo intent sent")
   }
 
   private fun launchPhotoSelector(taskId: String) {
-    photoTaskViewModel.setTaskWaitingForPhoto(taskId)
+    viewModel.setTaskWaitingForPhoto(taskId)
     selectPhotoLauncher.launch("image/*")
     Timber.d("Select photo intent sent")
   }

@@ -23,12 +23,13 @@ import com.google.android.ground.BR
 import com.google.android.ground.databinding.QuestionTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.editsubmission.TextTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class QuestionTaskFragment : AbstractFragment(), TaskFragment {
-  override lateinit var viewModel: AbstractTaskViewModel
+class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel> {
+  override lateinit var viewModel: TextTaskViewModel
 
   override fun onCreateView(
     inflater: LayoutInflater,
