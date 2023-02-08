@@ -272,15 +272,4 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         MutationEntitySyncStatus.FAILED
       )
   }
-
-  @Test
-  fun testPolygonInfoDialogShown() {
-    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown).isFalse()
-
-    locationOfInterestRepository.setPolygonDialogInfoShown(true)
-    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown).isTrue()
-
-    locationOfInterestRepository.setPolygonDialogInfoShown(false)
-    assertThat(locationOfInterestRepository.isPolygonInfoDialogShown).isFalse()
-  }
 }
