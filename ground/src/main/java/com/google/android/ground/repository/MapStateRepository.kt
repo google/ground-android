@@ -25,16 +25,9 @@ import javax.inject.Singleton
 @Singleton
 class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) {
 
-  val mapTypeFlowable: Flowable<Int>
-    get() = localValueStore.mapTypeFlowable
-
+  val mapTypeFlowable: Flowable<Int> by localValueStore::mapTypeFlowable
   var mapType: Int by localValueStore::mapType
-
-  var isLocationLockEnabled: Boolean
-    get() = localValueStore.isLocationLockEnabled
-    set(value) {
-      localValueStore.isLocationLockEnabled = value
-    }
+  var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
 
   fun setCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
     localValueStore.setLastCameraPosition(surveyId, cameraPosition)

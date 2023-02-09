@@ -154,7 +154,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(
     state = EntityState.DEFAULT,
     created = authInfo,
     lastModified = authInfo,
-    geometry = geometry
+    geometry = geometry?.toLocalDataStoreObject()
   )
 }
 
@@ -164,7 +164,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     surveyId = surveyId,
     jobId = jobId,
     type = MutationEntityType.fromMutationType(type),
-    newGeometry = geometry,
+    newGeometry = geometry?.toLocalDataStoreObject(),
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
@@ -179,7 +179,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     surveyId = surveyId,
     jobId = jobId,
     type = type.toMutationType(),
-    geometry = newGeometry,
+    geometry = newGeometry?.getGeometry(),
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),

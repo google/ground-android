@@ -39,7 +39,7 @@ internal object LoiMutationConverter {
 
     map[LoiConverter.JOB_ID] = mutation.jobId
 
-    when (val geometry = mutation.geometry?.getGeometry()) {
+    when (val geometry = mutation.geometry) {
       is Point -> map[LoiConverter.LOCATION] = toGeoPoint(geometry)
       is Polygon -> {
         val geometryMap: MutableMap<String, Any> = HashMap()
