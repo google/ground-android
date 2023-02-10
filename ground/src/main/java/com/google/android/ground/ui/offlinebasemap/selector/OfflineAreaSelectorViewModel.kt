@@ -27,6 +27,7 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
@@ -43,8 +44,9 @@ internal constructor(
   private val offlineUuidGenerator: OfflineUuidGenerator,
   private val resources: Resources,
   locationController: LocationController,
+  locationManager: LocationManager,
   mapController: MapController,
-) : BaseMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, locationManager, mapController) {
   enum class DownloadMessage {
     STARTED,
     FAILURE

@@ -31,6 +31,7 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
@@ -57,9 +58,10 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
+  locationManager: LocationManager,
   surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, locationManager, mapController) {
 
   private var activeSurveyId: String = ""
 

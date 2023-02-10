@@ -30,6 +30,7 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -57,9 +58,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       mapFragment.mapType = it
     }
 
-    getMapViewModel().locationLockState.observe(viewLifecycleOwner) {
-      onLocationLockStateChange(it, mapFragment)
-    }
+    getMapViewModel().locationLockStateFlow.onEach { onLocationLockStateChange(it, mapFragment) }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
@@ -81,14 +80,15 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
-    result
-      .onSuccess {
+    result.fold(
+      onSuccess = {
         Timber.d("Location lock: $it")
         if (it) {
           map.enableCurrentLocationIndicator()
         }
-      }
-      .onFailure { exception: Throwable -> onLocationLockStateError(exception) }
+      },
+      onFailure = { exception -> onLocationLockStateError(exception) }
+    )
   }
 
   private fun onLocationLockStateError(t: Throwable?) {
