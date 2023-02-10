@@ -27,6 +27,7 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// TODO: Delete me.
 @Singleton
 class LocationController
 @Inject

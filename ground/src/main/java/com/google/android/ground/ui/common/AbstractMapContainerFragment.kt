@@ -57,6 +57,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       mapFragment.mapType = it
     }
 
+    // TODO: Observe new StateFlow instead.
     getMapViewModel().locationLockState.observe(viewLifecycleOwner) {
       onLocationLockStateChange(it, mapFragment)
     }
@@ -81,6 +82,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
+    // TODO: Use Result.fold() here.
     result
       .onSuccess {
         Timber.d("Location lock: $it")

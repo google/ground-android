@@ -48,7 +48,7 @@ constructor(
   private val settingsManager: SettingsManager,
   private val locationClient: RxFusedLocationProviderClient
 ) {
-
+  // TODO: Expose StateFlow<Result<Boolean>> of location lock state?
   private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
   private val locationUpdateCallback: RxLocationCallback = RxLocationCallback(locationUpdates)
 

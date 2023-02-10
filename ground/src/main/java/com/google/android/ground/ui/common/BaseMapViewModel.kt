@@ -36,6 +36,7 @@ open class BaseMapViewModel
 constructor(private val locationController: LocationController, mapController: MapController) :
   AbstractViewModel() {
 
+  // TODO: Use StateFlow from LocationManager instead here:
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
 
@@ -92,6 +93,7 @@ constructor(private val locationController: LocationController, mapController: M
 
   /** Called when location lock button is clicked by the user. */
   fun onLocationLockClick() {
+    // TODO: Don't do this - instead, locationManager.toggleLocationLock().
     if (isLocationLockEnabled()) {
       locationController.unlock()
     } else {
