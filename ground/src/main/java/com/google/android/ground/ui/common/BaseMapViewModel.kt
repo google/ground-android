@@ -21,14 +21,10 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -41,7 +37,6 @@ constructor(
 ) : AbstractViewModel() {
 
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
 
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
   val locationLockIconTint: LiveData<Int>
@@ -85,15 +80,6 @@ constructor(
 
   fun setLocationLockEnabled(enabled: Boolean) {
     locationLockEnabled.postValue(enabled)
-  }
-
-  /** Called when map type button is clicked by the user. */
-  fun onMapTypeButtonClicked() {
-    selectMapTypeClicks.onNext(Nil.NIL)
-  }
-
-  fun getSelectMapTypeClicks(): Observable<Nil> {
-    return selectMapTypeClicks
   }
 
   /** Called when location lock button is clicked by the user. */

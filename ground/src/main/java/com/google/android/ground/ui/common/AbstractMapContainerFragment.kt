@@ -58,9 +58,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
-    getMapViewModel().getSelectMapTypeClicks().`as`(autoDisposable(this)).subscribe {
-      showMapTypeSelectorDialog()
-    }
 
     // Enable map controls
     getMapViewModel().setLocationLockEnabled(true)
@@ -69,7 +66,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Opens a dialog for selecting a `MapType` for the basemap layer. */
-  private fun showMapTypeSelectorDialog() {
+  fun showMapTypeSelectorDialog() {
     val types = mapFragment.availableMapTypes
     NavHostFragment.findNavController(this)
       .navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types.toTypedArray()))
