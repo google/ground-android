@@ -36,9 +36,7 @@ object Config {
   const val PHOTO_EXT = ".jpg"
 
   // Map Settings
-  /**
-   * Map zoom level threshold for clustering & LOI cards.
-   */
+  /** Map zoom level threshold for clustering & LOI cards. */
   const val CLUSTERING_ZOOM_LEVEL_THRESHOLD = 10.0f
 
   /**
