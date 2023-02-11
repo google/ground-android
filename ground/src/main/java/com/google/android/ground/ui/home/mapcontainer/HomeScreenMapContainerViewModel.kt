@@ -55,7 +55,7 @@ internal constructor(
   private val mapController: MapController,
   surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationController, mapController) {
+) : BaseMapViewModel(locationController, mapController, mapStateRepository) {
 
   private var activeSurveyId: String = ""
 

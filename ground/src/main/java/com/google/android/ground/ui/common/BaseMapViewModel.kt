@@ -19,6 +19,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -33,8 +34,11 @@ import timber.log.Timber
 
 open class BaseMapViewModel
 @Inject
-constructor(private val locationController: LocationController, mapController: MapController) :
-  AbstractViewModel() {
+constructor(
+  private val locationController: LocationController,
+  mapController: MapController,
+  mapStateRepository: MapStateRepository
+) : AbstractViewModel() {
 
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
@@ -43,6 +47,7 @@ constructor(private val locationController: LocationController, mapController: M
   val locationLockIconTint: LiveData<Int>
   val locationLockIcon: LiveData<Int>
   val locationLockState: LiveData<Result<Boolean>>
+  val basemapType: LiveData<Int>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -73,6 +78,7 @@ constructor(private val locationController: LocationController, mapController: M
       LiveDataReactiveStreams.fromPublisher(
         mapController.getCameraUpdates().map { Event.create(it) }
       )
+    basemapType = LiveDataReactiveStreams.fromPublisher(mapStateRepository.mapTypeFlowable)
   }
 
   fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled

@@ -23,6 +23,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
@@ -44,7 +45,8 @@ internal constructor(
   private val resources: Resources,
   locationController: LocationController,
   mapController: MapController,
-) : BaseMapViewModel(locationController, mapController) {
+  mapStateRepository: MapStateRepository
+) : BaseMapViewModel(locationController, mapController, mapStateRepository) {
   enum class DownloadMessage {
     STARTED,
     FAILURE

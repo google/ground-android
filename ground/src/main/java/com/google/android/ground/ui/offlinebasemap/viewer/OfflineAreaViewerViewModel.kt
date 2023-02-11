@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -48,8 +49,9 @@ constructor(
   @ApplicationContext context: Context,
   navigator: Navigator,
   locationController: LocationController,
-  mapController: MapController
-) : BaseMapViewModel(locationController, mapController) {
+  mapController: MapController,
+  mapStateRepository: MapStateRepository
+) : BaseMapViewModel(locationController, mapController, mapStateRepository) {
 
   private val fragmentArgs: @Hot(replays = true) PublishSubject<OfflineAreaViewerFragmentArgs> =
     PublishSubject.create()

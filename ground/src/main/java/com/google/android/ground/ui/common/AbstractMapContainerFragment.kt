@@ -20,7 +20,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
-import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
@@ -36,7 +35,6 @@ import timber.log.Timber
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var mapFragment: MapFragment
-  @Inject lateinit var mapStateRepository: MapStateRepository
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -53,10 +51,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { getMapViewModel().onMapDragged() }
 
-    mapStateRepository.mapTypeFlowable.`as`(autoDisposable(this)).subscribe {
-      mapFragment.mapType = it
-    }
-
+    getMapViewModel().basemapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
     getMapViewModel().locationLockState.observe(viewLifecycleOwner) {
       onLocationLockStateChange(it, mapFragment)
     }
