@@ -19,6 +19,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
+import com.google.android.ground.Config.CLUSTERING_ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -32,6 +33,8 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -87,6 +90,7 @@ internal constructor(
     }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    super.onMapCameraMoved(newCameraPosition)
     Timber.d("Setting position to $newCameraPosition")
     loiController.onCameraBoundsUpdated(newCameraPosition.bounds?.toGoogleMapsObject())
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
@@ -164,6 +168,12 @@ internal constructor(
         }
       )
 
-    loisWithinMapBounds = LiveDataReactiveStreams.fromPublisher(loiController.loisWithinMapBounds())
+    loisWithinMapBounds =
+      LiveDataReactiveStreams.fromPublisher(
+        cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST).switchMap { zoomLevel ->
+          if (zoomLevel >= CLUSTERING_ZOOM_LEVEL_THRESHOLD) loiController.loisWithinMapBounds()
+          else Flowable.just(listOf())
+        }
+      )
   }
 }

@@ -37,6 +37,11 @@ object Config {
 
   // Map Settings
   /**
+   * Map zoom level threshold for clustering & LOI cards.
+   */
+  const val CLUSTERING_ZOOM_LEVEL_THRESHOLD = 10.0f
+
+  /**
    * Map zoom level threshold at which to trigger scaling of markers and re-rendering. When a user
    * zooms in far enough, we scale LOIs to make them easier to interact with.
    */

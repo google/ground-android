@@ -36,6 +36,7 @@ open class BaseMapViewModel
 constructor(private val locationController: LocationController, mapController: MapController) :
   AbstractViewModel() {
 
+  protected val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
 
@@ -110,8 +111,10 @@ constructor(private val locationController: LocationController, mapController: M
   /** Returns true if the location lock is enabled. */
   private fun isLocationLockEnabled(): Boolean = locationLockState.value!!.getOrDefault(false)
 
-  /** Called when the map camera is moved by the user. */
-  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {}
+  /** Called when the map camera is moved. */
+  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    newCameraPosition.zoomLevel?.let { cameraZoomSubject.onNext(it) }
+  }
 
   companion object {
     private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.colorMapBlue
