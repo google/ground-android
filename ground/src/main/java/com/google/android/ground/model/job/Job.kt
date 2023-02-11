@@ -24,5 +24,5 @@ data class Job(val id: String, val name: String? = null, val tasks: Map<String, 
 
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
 
-  fun hasData(): Boolean = !tasks.isEmpty()
+  fun hasData(): Boolean = tasks.isNotEmpty()
 }
