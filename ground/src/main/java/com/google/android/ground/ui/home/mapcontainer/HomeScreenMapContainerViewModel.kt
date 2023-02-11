@@ -151,7 +151,7 @@ internal constructor(
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
         loiController
-          .allLois()
+          .getAllLocationsOfInterest()
           .map { toLocationOfInterestFeatures(it) }
           .startWith(setOf<Feature>())
           .distinctUntilChanged()

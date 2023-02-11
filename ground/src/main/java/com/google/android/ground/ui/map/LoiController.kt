@@ -38,14 +38,10 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
 ) {
 
-  private val loiStream = getAllLocationsOfInterest().share()
   private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
 
-  fun allLois(): Flowable<Set<LocationOfInterest>> {
-    return loiStream
-  }
-
   fun loisWithinMapBounds(): Flowable<List<LocationOfInterest>> {
+    val loiStream = getAllLocationsOfInterest()
     return getCameraBoundUpdates()
       .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
       .distinctUntilChanged()
@@ -60,7 +56,7 @@ internal constructor(
     cameraBoundsSubject.toFlowable(BackpressureStrategy.LATEST).distinctUntilChanged()
 
   /** Returns a flowable of all [LocationOfInterest] for the selected [Survey]. */
-  private fun getAllLocationsOfInterest(): Flowable<Set<LocationOfInterest>> =
+  fun getAllLocationsOfInterest(): Flowable<Set<LocationOfInterest>> =
     surveyRepository.activeSurvey
       .switchMap { survey ->
         survey
