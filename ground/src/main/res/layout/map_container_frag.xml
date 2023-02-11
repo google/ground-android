@@ -21,6 +21,9 @@
 
   <data>
     <variable
+      name="fragment"
+      type="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel" />
     <variable
@@ -35,6 +38,7 @@
     <include
       android:id="@+id/basemap"
       layout="@layout/basemap_layout"
+      app:fragment="@{fragment}"
       app:viewModel="@{viewModel}" />
 
     <com.google.android.material.card.MaterialCardView

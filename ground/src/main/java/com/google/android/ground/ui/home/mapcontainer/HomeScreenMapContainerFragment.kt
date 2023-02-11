@@ -85,6 +85,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?
   ): View {
     binding = MapContainerFragBinding.inflate(inflater, container, false)
+    binding.fragment = this
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
