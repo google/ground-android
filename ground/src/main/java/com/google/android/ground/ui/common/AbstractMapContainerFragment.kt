@@ -21,7 +21,6 @@ import android.widget.Toast
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
 import com.google.android.ground.rx.RxAutoDispose
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
