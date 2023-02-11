@@ -393,12 +393,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   companion object {
-    // TODO(#936): Remove placeholder with appropriate images
     private val MAP_TYPES =
       listOf(
-        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ground_logo),
-        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ground_logo),
-        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ground_logo)
+        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),
+        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ic_type_terrain),
+        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ic_type_satellite)
       )
   }
 }
