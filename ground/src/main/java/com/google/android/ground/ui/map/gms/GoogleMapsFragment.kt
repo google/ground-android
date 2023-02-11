@@ -393,6 +393,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   companion object {
+    // TODO(#1544): Use optimized icons. Current icons are very large in size.
     private val MAP_TYPES =
       listOf(
         MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),

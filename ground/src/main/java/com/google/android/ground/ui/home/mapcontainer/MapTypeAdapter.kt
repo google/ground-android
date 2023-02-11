@@ -18,13 +18,11 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
+import com.google.android.ground.databinding.MapTypeDialogItemBinding
 import com.google.android.ground.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
 import com.google.android.ground.ui.map.MapType
 
@@ -41,18 +39,31 @@ class MapTypeAdapter(
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    val view =
-      LayoutInflater.from(parent.context).inflate(R.layout.map_type_dialog_item, parent, false)
-    return ViewHolder(view)
+    val binding =
+      MapTypeDialogItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    return ViewHolder(binding)
   }
 
   /** Binds [MapType] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val itemsViewModel = itemsList[position]
-    holder.imageView.setImageResource(itemsViewModel.imageId)
-    holder.textView.text = context.getString(itemsViewModel.labelId)
-    val color = if (selectedIndex == position) R.color.colorGrey300 else R.color.colorBackground
-    holder.itemView.setBackgroundColor(ContextCompat.getColor(context, color))
+    holder.binding.imageview.setImageResource(itemsViewModel.imageId)
+    holder.binding.textView.text = context.getString(itemsViewModel.labelId)
+    val textColor =
+      if (selectedIndex == position) {
+        R.color.colorAccent
+      } else {
+        R.color.colorForeground
+      }
+    holder.binding.textView.setTextColor(context.resources.getColor(textColor, null))
+    val borderDrawable =
+      if (selectedIndex == position) {
+        R.drawable.map_type_item_selected_background
+      } else {
+        R.drawable.map_type_item_default_background
+      }
+    holder.binding.imageview.background =
+      ResourcesCompat.getDrawable(context.resources, borderDrawable, null)
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
 
@@ -67,8 +78,6 @@ class MapTypeAdapter(
   }
 
   /** View item representing the [MapType] data in the list. */
-  class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val imageView: ImageView = view.findViewById(R.id.imageview)
-    val textView: TextView = view.findViewById(R.id.textView)
-  }
+  class ViewHolder(internal val binding: MapTypeDialogItemBinding) :
+    RecyclerView.ViewHolder(binding.root)
 }
