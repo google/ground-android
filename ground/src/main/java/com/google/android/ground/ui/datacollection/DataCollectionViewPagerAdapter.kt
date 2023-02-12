@@ -18,9 +18,9 @@ package com.google.android.ground.ui.datacollection
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
+import com.google.android.ground.ui.editsubmission.TextTaskViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -30,7 +30,6 @@ import dagger.assisted.AssistedInject
 class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
-  private val userMediaRepository: UserMediaRepository,
   @Assisted fragment: Fragment,
   @Assisted val tasks: List<Task>,
   @Assisted private val dataCollectionViewModel: DataCollectionViewModel
@@ -41,21 +40,27 @@ constructor(
     val task = tasks[position]
     val viewModel = dataCollectionViewModel.getTaskViewModel(position, task)
 
-    return when (task.type) {
-      Task.Type.TEXT -> QuestionTaskFragment(task, viewModel)
-      Task.Type.MULTIPLE_CHOICE ->
-        MultipleChoiceTaskFragment(task, viewModel as MultipleChoiceTaskViewModel)
-      Task.Type.PHOTO ->
-        PhotoTaskFragment(
-          task,
-          viewModel as PhotoTaskViewModel,
-          dataCollectionViewModel,
-          userMediaRepository
-        )
-      Task.Type.DROP_A_PIN -> DropAPinTaskFragment(task, viewModel as DropAPinTaskViewModel)
-      Task.Type.DRAW_POLYGON ->
-        PolygonDrawingTaskFragment(task, viewModel as PolygonDrawingViewModel)
-      else -> DataCollectionTaskFragment()
-    }
+    val taskFragment =
+      when (task.type) {
+        Task.Type.TEXT -> {
+          QuestionTaskFragment().also { it.viewModel = viewModel as TextTaskViewModel }
+        }
+        Task.Type.MULTIPLE_CHOICE ->
+          MultipleChoiceTaskFragment().also {
+            it.viewModel = viewModel as MultipleChoiceTaskViewModel
+          }
+        Task.Type.PHOTO ->
+          PhotoTaskFragment().also {
+            it.viewModel = viewModel as PhotoTaskViewModel
+            it.dataCollectionViewModel = dataCollectionViewModel
+          }
+        Task.Type.DROP_A_PIN ->
+          DropAPinTaskFragment().also { it.viewModel = viewModel as DropAPinTaskViewModel }
+        Task.Type.DRAW_POLYGON ->
+          PolygonDrawingTaskFragment().also { it.viewModel = viewModel as PolygonDrawingViewModel }
+        else -> throw UnsupportedOperationException("Unsupported task type: ${task.type}")
+      }
+
+    return taskFragment
   }
 }

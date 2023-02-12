@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.model.mutation
 
-import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
+import com.google.android.ground.model.geometry.Geometry
 import java.util.*
 
 data class LocationOfInterestMutation(
@@ -29,7 +29,7 @@ data class LocationOfInterestMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   val jobId: String = "",
-  val geometry: GeometryWrapper? = null,
+  val geometry: Geometry? = null,
 ) : Mutation() {
 
   companion object {
@@ -40,7 +40,6 @@ data class LocationOfInterestMutation(
           when (it) {
             is LocationOfInterestMutation -> true
             is SubmissionMutation -> false
-            else -> false
           }
         }
         .map { it as LocationOfInterestMutation }

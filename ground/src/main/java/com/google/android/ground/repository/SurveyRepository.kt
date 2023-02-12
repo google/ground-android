@@ -64,11 +64,7 @@ constructor(
       else localSurveyStore.getSurveyById(it).map { s -> Optional.of(s) }
     }
 
-  var activeSurveyId: String
-    get() = localValueStore.activeSurveyId
-    private set(value) {
-      localValueStore.activeSurveyId = value
-    }
+  var activeSurveyId: String by localValueStore::activeSurveyId
 
   val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = localSurveyStore.surveys

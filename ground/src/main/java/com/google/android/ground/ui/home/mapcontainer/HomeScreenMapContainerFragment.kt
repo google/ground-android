@@ -63,10 +63,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     mapFragment.locationOfInterestInteractions
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe {
-        mapContainerViewModel.onFeatureClick(it)
-        homeScreenViewModel.onFeatureClick(it)
-      }
+      .subscribe { mapContainerViewModel.onFeatureClick(it) }
     mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }

@@ -129,11 +129,4 @@ constructor(
       MutationEntitySyncStatus.IN_PROGRESS,
       MutationEntitySyncStatus.FAILED
     )
-
-  val isPolygonInfoDialogShown: Boolean
-    get() = localValueStore.isPolygonInfoDialogShown
-
-  fun setPolygonDialogInfoShown(value: Boolean) {
-    localValueStore.isPolygonInfoDialogShown = value
-  }
 }

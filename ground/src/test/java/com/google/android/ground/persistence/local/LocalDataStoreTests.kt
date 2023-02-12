@@ -38,7 +38,6 @@ import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.formatVertices
 import com.google.android.ground.persistence.local.room.converter.parseVertices
-import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
@@ -480,7 +479,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation =
       LocationOfInterestMutation(
         jobId = "job id",
-        geometry = point.toLocalDataStoreObject(),
+        geometry = point,
         id = 1L,
         locationOfInterestId = "loi id",
         type = Mutation.Type.CREATE,
@@ -495,8 +494,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     ): LocationOfInterestMutation =
       LocationOfInterestMutation(
         jobId = "job id",
-        geometry =
-          Polygon(LinearRing(polygonVertices.map { it.coordinate })).toLocalDataStoreObject(),
+        geometry = Polygon(LinearRing(polygonVertices.map { it.coordinate })),
         id = 1L,
         locationOfInterestId = "loi id",
         type = Mutation.Type.CREATE,

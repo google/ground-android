@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.BasemapLayoutBinding
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -30,8 +29,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropAPinTaskFragment(task: Task, private val viewModel: DropAPinTaskViewModel) :
-  AbstractMapContainerFragment() {
+class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
+
+  override lateinit var viewModel: DropAPinTaskViewModel
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 

@@ -21,7 +21,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import java.util.*
 
 /** User-defined locations of interest (LOI) shown on the map. */
@@ -68,6 +67,6 @@ data class LocationOfInterest(
       locationOfInterestId = id,
       userId = userId,
       clientTimestamp = Date(),
-      geometry = GeometryWrapper.fromGeometry(geometry)
+      geometry = geometry
     )
 }
