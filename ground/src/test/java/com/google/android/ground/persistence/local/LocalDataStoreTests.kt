@@ -155,7 +155,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore
       .getLocationOfInterest(TEST_SURVEY, TEST_POLYGON_LOI_MUTATION.locationOfInterestId)
       .test()
-      .assertValue { it.geometry == TEST_POLYGON_LOI_MUTATION.geometry?.polygon }
+      .assertValue { it.geometry == TEST_POLYGON_LOI_MUTATION.geometry }
   }
 
   @Test
