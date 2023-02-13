@@ -30,7 +30,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
-    android:src="@drawable/ic_menu_black_24dp"
+    android:src="@drawable/baseline_menu_24"
     app:backgroundTint="@color/colorBackground"
     app:fabSize="mini"
     app:useCompatPadding="true" />

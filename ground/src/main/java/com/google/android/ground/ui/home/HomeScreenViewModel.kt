@@ -17,8 +17,6 @@ package com.google.android.ground.ui.home
 
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -26,24 +24,14 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
-import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.FeatureType
-import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import timber.log.Timber
 
 @SharedViewModel
-class HomeScreenViewModel
-@Inject
-internal constructor(
-  private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val navigator: Navigator
-) : AbstractViewModel() {
+class HomeScreenViewModel @Inject internal constructor(private val navigator: Navigator) :
+  AbstractViewModel() {
 
   @JvmField
   val isSubmissionButtonVisible: @Hot(replays = true) MutableLiveData<Boolean> =
@@ -52,14 +40,6 @@ internal constructor(
   // TODO(#719): Move into LocationOfInterestDetailsViewModel.
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
-  val showLocationOfInterestSelectorRequests: @Hot Subject<List<LocationOfInterest>> =
-    PublishSubject.create()
-
-  /**
-   * Live cache of locations of interest. Updated every time the underlying local storage data
-   * changes.
-   */
-  private var locationOfInterestCache: Set<LocationOfInterest> = setOf()
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
@@ -88,41 +68,7 @@ internal constructor(
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
   }
 
-  /** Intended for use as a callback for handling user clicks on rendered map features. */
-  fun onFeatureClick(features: List<Feature>) {
-    val loiFeatureIds =
-      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.map { it.tag.id }
-    val locationsOfInterest = locationOfInterestCache.filter { loiFeatureIds.contains(it.id) }
-
-    if (locationsOfInterest.isEmpty()) {
-      Timber.e("onLocationOfInterestClick called with empty or null map locationsOfInterest")
-      return
-    }
-
-    if (locationsOfInterest.size == 1) {
-      onLocationOfInterestSelected(locationsOfInterest[0])
-      return
-    }
-
-    showLocationOfInterestSelectorRequests.onNext(locationsOfInterest)
-  }
-
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
-  }
-
-  init {
-    val locationsOfInterestSubscription =
-      surveyRepository.activeSurvey
-        .switchMap {
-          if (it.isPresent) {
-            locationOfInterestRepository.getLocationsOfInterestOnceAndStream(it.get())
-          } else {
-            Flowable.empty()
-          }
-        }
-        .subscribe { locationOfInterestCache = it }
-
-    disposeOnClear(locationsOfInterestSubscription)
   }
 }

@@ -20,9 +20,9 @@ import java8.util.Optional
 
 data class Job(val id: String, val name: String? = null, val tasks: Map<String, Task> = mapOf()) {
   val tasksSorted: List<Task>
-    get() = tasks.values.sortedBy { it.id }
+    get() = tasks.values.sortedBy { it.index }
 
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
 
-  fun hasData(): Boolean = !tasks.isEmpty()
+  fun hasData(): Boolean = tasks.isNotEmpty()
 }
