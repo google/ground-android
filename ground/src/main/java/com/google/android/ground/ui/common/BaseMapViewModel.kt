@@ -25,7 +25,6 @@ import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -37,11 +36,8 @@ import timber.log.Timber
 
 open class BaseMapViewModel
 @Inject
-constructor(
-  private val locationController: LocationController,
-  private val locationManager: LocationManager,
-  mapController: MapController
-) : AbstractViewModel() {
+constructor(private val locationManager: LocationManager, mapController: MapController) :
+  AbstractViewModel() {
 
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
@@ -91,16 +87,14 @@ constructor(
 
   /** Called when location lock button is clicked by the user. */
   fun onLocationLockClick() {
-    viewModelScope.launch {
-      locationManager.toggleLocationLock()
-    }
+    viewModelScope.launch { locationManager.toggleLocationLock() }
   }
 
   /** Called when the map starts to move by the user. */
   fun onMapDragged() {
     if (locationLockStateFlow.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
-      locationController.unlock()
+      locationManager.disableLocationLock()
     }
   }
 

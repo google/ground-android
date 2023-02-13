@@ -18,6 +18,7 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.viewModelScope
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
@@ -37,7 +38,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -47,6 +47,10 @@ import io.reactivex.subjects.Subject
 import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 
 @SharedViewModel
@@ -56,12 +60,11 @@ internal constructor(
   private val resources: Resources,
   private val mapStateRepository: MapStateRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val locationController: LocationController,
   private val mapController: MapController,
   locationManager: LocationManager,
   surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationController, locationManager, mapController) {
+) : BaseMapViewModel(locationManager, mapController) {
 
   private var activeSurveyId: String = ""
 
@@ -70,8 +73,21 @@ internal constructor(
   private var lastCameraPosition: CameraPosition? = null
 
   val mbtilesFilePaths: LiveData<Set<String>>
-  val isLocationUpdatesEnabled: LiveData<Boolean>
-  val locationAccuracy: LiveData<String>
+  val isLocationUpdatesEnabled: StateFlow<Boolean> =
+    locationManager.locationLockState
+      .map { it.getOrDefault(false) }
+      .stateIn(viewModelScope, SharingStarted.Lazily, false)
+  val locationAccuracy: StateFlow<String> =
+    locationManager
+      .getLocationUpdates()
+      .map {
+        if (it == null) {
+          ""
+        } else {
+          resources.getString(R.string.location_accuracy, it.accuracy)
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, "")
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
   /** The currently selected LOI on the map. */
@@ -116,11 +132,6 @@ internal constructor(
       }
       .toPersistentSet()
   }
-
-  private fun createLocationAccuracyFlowable() =
-    locationController.getLocationUpdates().map {
-      resources.getString(R.string.location_accuracy, it.accuracy)
-    }
 
   // TODO(#1373): Delete once LOIs are synced on survey activation and on update in background
   //   worker.
@@ -194,12 +205,6 @@ internal constructor(
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    val locationLockStateFlowable = locationController.getLocationLockUpdates()
-    isLocationUpdatesEnabled =
-      LiveDataReactiveStreams.fromPublisher(
-        locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
-      )
-    locationAccuracy = LiveDataReactiveStreams.fromPublisher(createLocationAccuracyFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo

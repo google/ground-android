@@ -18,18 +18,15 @@ package com.google.android.ground.system
 import android.Manifest.permission
 import android.location.Location
 import com.google.android.gms.location.LocationRequest
+import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.repository.MapStateRepository
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.rx.RxFusedLocationProviderClient
-import com.google.android.ground.system.rx.RxLocationCallback
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
+import com.google.android.ground.system.stateflow.StateFlowLocationCallback
 import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
@@ -47,28 +44,34 @@ private val FINE_LOCATION_UPDATES_REQUEST =
 class LocationManager
 @Inject
 constructor(
+  @ApplicationScope private val externalScope: CoroutineScope,
   private val permissionsManager: PermissionsManager,
   private val settingsManager: SettingsManager,
   private val locationClient: RxFusedLocationProviderClient,
   private val mapStateRepository: MapStateRepository
 ) {
 
-  private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
-  private val locationUpdateCallback: RxLocationCallback = RxLocationCallback(locationUpdates)
   val locationLockState: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
+  private val locationUpdatesStateFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
+  private val locationUpdateStateFlowCallback = StateFlowLocationCallback(locationUpdatesStateFlow)
+
+  private val locationLockAwareLocationUpdates: StateFlow<Location?> =
+    locationUpdatesStateFlow
+      .combine(locationLockState) { location, lockState ->
+        if (lockState.getOrDefault(false)) {
+          location
+        } else {
+          null
+        }
+      }
+      .stateIn(externalScope, SharingStarted.Lazily, null)
 
   /**
    * Returns the location update stream. New subscribers and downstream subscribers that can't keep
    * up will only see the latest location.
    */
-  fun getLocationUpdates(): Flowable<Location> =
-    locationUpdates
-      // There sometimes noticeable latency between when location update request succeeds and when
-      // the first location update is received. Requesting the last know location is usually
-      // immediate, so we merge into the stream to reduce perceived latency.
-      .startWith(locationClient.lastLocation.toObservable())
-      .toFlowable(BackpressureStrategy.LATEST)
+  fun getLocationUpdates(): StateFlow<Location?> = locationLockAwareLocationUpdates
 
   /**
    * Asynchronously try to enable location permissions and settings, and if successful, turns on
@@ -108,7 +111,7 @@ constructor(
   private fun enableLocationLock() = onLockStateChanged(true)
 
   /** Releases location enableLocationLock by disabling location updates. */
-  private fun disableLocationLock() = onLockStateChanged(false)
+  fun disableLocationLock() = onLockStateChanged(false)
 
   private fun onLockStateChanged(isLocked: Boolean) {
     locationLockState.value = Result.success(isLocked)
@@ -116,7 +119,10 @@ constructor(
   }
 
   private fun requestLocationUpdates() =
-    locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback)
+    locationClient.requestLocationUpdates(
+      FINE_LOCATION_UPDATES_REQUEST,
+      locationUpdateStateFlowCallback
+    )
 
   // TODO: Request/remove updates on resume/pause.
   @Synchronized
@@ -127,5 +133,6 @@ constructor(
       .doOnError { Timber.e(it, "disableLocationUpdates") }
       .onErrorReturn { Result.success(false) }
 
-  private fun removeLocationUpdates() = locationClient.removeLocationUpdates(locationUpdateCallback)
+  private fun removeLocationUpdates() =
+    locationClient.removeLocationUpdates(locationUpdateStateFlowCallback)
 }
