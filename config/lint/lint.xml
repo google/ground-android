@@ -18,6 +18,7 @@
 
 <lint>
   <!-- Severity: Warning -->
+  <issue id="DuplicateStrings" severity="warning" />
   <issue id="InvalidPackage" severity="warning" />
   <issue id="LintError" severity="warning" />
   <issue id="MissingTranslation" severity="warning" />
