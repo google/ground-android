@@ -32,6 +32,7 @@
   <issue id="FragmentGradleConfiguration" severity="error" />
   <issue id="HardcodedText" severity="error" />
   <issue id="IconXmlAndPng" severity="error" />
+  <issue id="JvmStaticProvidesInObjectDetector" severity="error" />
   <issue id="LogNotTimber" severity="error" />
   <issue id="NonConstantResourceId" severity="error" />
   <issue id="PxUsage" severity="error" />
