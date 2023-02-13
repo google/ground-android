@@ -93,8 +93,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       .getIncompleteLocationOfInterestMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
       .test()
       .assertNoErrors()
-      .assertValue(listOf(mutation))
-    //    verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
+      .assertValue(listOf(mutation.copy(id = 1)))
   }
 
   @Test
