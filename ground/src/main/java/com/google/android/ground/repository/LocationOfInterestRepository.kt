@@ -19,7 +19,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
 import com.google.android.ground.persistence.remote.NotFoundException
@@ -45,7 +44,6 @@ class LocationOfInterestRepository
 @Inject
 constructor(
   private val localLoiStore: LocalLocationOfInterestMutationStore,
-  private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
   private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
