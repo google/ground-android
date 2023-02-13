@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
@@ -30,7 +31,8 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -58,7 +60,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       mapFragment.mapType = it
     }
 
-    getMapViewModel().locationLockStateFlow.onEach { onLocationLockStateChange(it, mapFragment) }
+    lifecycleScope.launch {
+      getMapViewModel().locationLockStateFlow.collect { onLocationLockStateChange(it, mapFragment) }
+    }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }

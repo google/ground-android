@@ -111,6 +111,7 @@ constructor(
   private fun disableLocationLock() = onLockStateChanged(false)
 
   private fun onLockStateChanged(isLocked: Boolean) {
+    locationLockState.value = Result.success(isLocked)
     mapStateRepository.isLocationLockEnabled = isLocked
   }
 
