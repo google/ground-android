@@ -63,7 +63,6 @@
           android:layout_height="wrap_content"
           android:layout_gravity="bottom|end"
           android:layout_marginEnd="@dimen/chip_button_margin_right"
-          android:layout_marginRight="@dimen/chip_button_margin_right"
           android:layout_marginBottom="@dimen/map_btn_margin_bottom"
           android:elevation="6dp"
           android:text="@string/offline_base_map_selector_download"
