@@ -73,21 +73,6 @@ constructor(
    */
   fun getLocationUpdates(): StateFlow<Location?> = locationLockAwareLocationUpdates
 
-  /**
-   * Asynchronously try to enable location permissions and settings, and if successful, turns on
-   * location updates exposed by [.getLocationUpdates].
-   */
-  @Synchronized
-  fun enableLocationUpdates(): Single<Result<Boolean>> {
-    Timber.d("Attempting to enable location updates")
-    return permissionsManager
-      .obtainPermission(permission.ACCESS_FINE_LOCATION)
-      .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
-      .andThen(requestLocationUpdates())
-      .toSingle { Result.success(true) }
-      .onErrorReturn { Result.failure(it) }
-  }
-
   suspend fun toggleLocationLock() {
     if (locationLockState.value.getOrDefault(false)) {
       disableLocationLock()
