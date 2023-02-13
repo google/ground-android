@@ -33,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
+import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Style
@@ -66,6 +67,8 @@ import timber.log.Timber
  */
 @AndroidEntryPoint
 class GoogleMapsFragment : SupportMapFragment(), MapFragment {
+  private lateinit var clusterRenderer: FeatureClusterRenderer
+
   /** Marker click events. */
   private val markerClicks: @Hot Subject<Feature> = PublishSubject.create()
 
@@ -168,8 +171,16 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
     this.clusterManager = FeatureClusterManager(context, map)
+    this.clusterRenderer =
+      FeatureClusterRenderer(
+        context,
+        map,
+        clusterManager,
+        Config.CLUSTERING_ZOOM_THRESHOLD,
+        map.cameraPosition.zoom
+      )
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
-    clusterManager.renderer = FeatureClusterRenderer(context, map, clusterManager)
+    clusterManager.renderer = clusterRenderer
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -347,6 +358,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
 
   private fun onCameraIdle() {
+    clusterRenderer.zoom = getMap().cameraPosition.zoom
     clusterManager.onCameraIdle()
 
     if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
