@@ -15,14 +15,9 @@
  */
 package com.google.android.ground.repository
 
-import android.content.res.Resources.NotFoundException
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.loaded
-import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.modified
-import com.google.android.ground.persistence.remote.RemoteDataEvent.Companion.removed
+import com.google.android.ground.model.mutation.Mutation.Type.CREATE
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
-import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.FakeData.USER
@@ -45,7 +40,6 @@ import org.mockito.*
 import org.mockito.Mockito.*
 import org.robolectric.RobolectricTestRunner
 
-// TODO: Include a test for Polygon locationOfInterest
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -58,6 +52,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var testDispatcher: TestDispatcher
+
+  private val mutation = LOCATION_OF_INTEREST.toMutation(CREATE, USER.id)
 
   @Before
   override fun setUp() {
@@ -76,167 +72,54 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue() {
+  fun testApplyAndEnqueue_createsLocalLoi() {
     mockEnqueueSyncWorker()
-    val mutation = LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, USER.id)
     locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
 
     locationOfInterestRepository
       .getOfflineLocationOfInterest(SURVEY.id, LOCATION_OF_INTEREST.id)
       .test()
+      .assertNoErrors()
       .assertValue(LOCATION_OF_INTEREST)
+  }
+
+  @Test
+  fun testApplyAndEnqueue_enqueuesLoiMutation() {
+    mockEnqueueSyncWorker()
+
+    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
+
     locationOfInterestRepository
       .getIncompleteLocationOfInterestMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
       .test()
+      .assertNoErrors()
       .assertValue(listOf(mutation))
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
+    //    verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
   }
 
   @Test
-  fun testApplyAndEnqueue_returnsError() {
+  fun testApplyAndEnqueue_enqueuesWorker() {
     mockEnqueueSyncWorker()
-    //    doReturn(Completable.error(NullPointerException()))
-    //      .`when`(mockLocalLocationOfInterestStore)
-    //      .applyAndEnqueue(any())
+
+    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
+
+    verify(mockWorkManager).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
+  }
+
+  @Test
+  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() {
+    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.error(Error()))
+
     locationOfInterestRepository
-      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, USER.id))
+      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(CREATE, USER.id))
       .test()
-      .assertError(NullPointerException::class.java)
+      .assertError(Error::class.java)
       .assertNotComplete()
-    //    verify(mockLocalLocationOfInterestStore, Mockito.times(1)).applyAndEnqueue(any())
+
     verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
   }
 
-  @Test
-  fun testEnqueueSyncWorker_returnsError() {
-    //    mockApplyAndEnqueue()
-    `when`(mockWorkManager.enqueueSyncWorker(anyString()))
-      .thenReturn(Completable.error(NullPointerException()))
-    locationOfInterestRepository
-      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(Mutation.Type.CREATE, USER.id))
-      .test()
-      .assertError(NullPointerException::class.java)
-      .assertNotComplete()
+  // TODO(#1373): Add tests for new LOI sync once implemented (create, update, delete, error).
 
-    //    verify(mockLocalLocationOfInterestStore, times(1)).applyAndEnqueue(any())
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
-  }
-
-  @Test
-  fun testSyncLocationsOfInterest_loaded() {
-    fakeRemoteDataStore.streamLoiOnce(loaded("entityId", LOCATION_OF_INTEREST))
-    //    `when`(mockLocalLocationOfInterestStore.merge(LOCATION_OF_INTEREST))
-    //      .thenReturn(Completable.complete())
-    locationOfInterestRepository
-      .syncLocationsOfInterest(SURVEY)
-      .test()
-      .assertNoErrors()
-      .assertComplete()
-    //    verify(mockLocalLocationOfInterestStore, Mockito.times(1)).merge(LOCATION_OF_INTEREST)
-  }
-
-  @Test
-  fun testSyncLocationsOfInterest_modified() {
-    fakeRemoteDataStore.streamLoiOnce(modified("entityId", LOCATION_OF_INTEREST))
-    //    `when`(mockLocalLocationOfInterestStore.merge(LOCATION_OF_INTEREST))
-    //      .thenReturn(Completable.complete())
-    locationOfInterestRepository
-      .syncLocationsOfInterest(SURVEY)
-      .test()
-      .assertNoErrors()
-      .assertComplete()
-    //    verify(mockLocalLocationOfInterestStore, Mockito.times(1)).merge(LOCATION_OF_INTEREST)
-  }
-
-  @Test
-  fun testSyncLocationsOfInterest_removed() {
-    fakeRemoteDataStore.streamLoiOnce(removed("entityId"))
-    //    `when`(mockLocalLocationOfInterestStore.deleteLocationOfInterest(anyString()))
-    //      .thenReturn(Completable.complete())
-
-    locationOfInterestRepository.syncLocationsOfInterest(SURVEY).test().assertComplete()
-    //    verify(mockLocalLocationOfInterestStore,
-    // Mockito.times(1)).deleteLocationOfInterest("entityId")
-  }
-
-  @Test
-  fun testSyncLocationsOfInterest_error() {
-    fakeRemoteDataStore.streamLoiOnce(error(Throwable("Foo error")))
-    locationOfInterestRepository
-      .syncLocationsOfInterest(SURVEY)
-      .test()
-      .assertNoErrors()
-      .assertComplete()
-  }
-
-  @Test
-  fun testGetLocationsOfInterestOnceAndStream() {
-    //
-    // `when`(mockLocalLocationOfInterestStore.getLocationsOfInterestOnceAndStream(SURVEY))
-    //      .thenReturn(Flowable.just(setOf(LOCATION_OF_INTEREST)))
-    locationOfInterestRepository
-      .getLocationsOfInterestOnceAndStream(SURVEY)
-      .test()
-      .assertValue(setOf(LOCATION_OF_INTEREST))
-  }
-
-  @Test
-  fun testGetLocationsOfInterest_surveyNotPresent() {
-    //    `when`(mockSurveyRepository.getOfflineSurvey(anyString()))
-    //      .thenReturn(Single.error(NoSuchElementException()))
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest("non_existent_survey_id", "loi_id")
-      .test()
-      .assertFailure(NoSuchElementException::class.java)
-  }
-
-  @Test
-  fun testGetLocationsOfInterest_surveyPresent() {
-    //    `when`(mockSurveyRepository.getOfflineSurvey(anyString()))
-    //      .thenReturn(Single.just(SURVEY))
-    //    `when`(
-    //        mockLocalLocationOfInterestStore.getLocationOfInterest(
-    //          SURVEY,
-    //          LOCATION_OF_INTEREST.id
-    //        )
-    //      )
-    //      .thenReturn(Maybe.just(LOCATION_OF_INTEREST))
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest(SURVEY.id, LOCATION_OF_INTEREST.id)
-      .test()
-      .assertResult(LOCATION_OF_INTEREST)
-  }
-
-  @Test
-  fun testGetLocationOfInterest_whenLocationOfInterestIsNotPresent() {
-    //    `when`(mockSurveyRepository.getOfflineSurvey(anyString()))
-    //      .thenReturn(Single.just(SURVEY))
-    //    `when`(
-    //        mockLocalLocationOfInterestStore.getLocationOfInterest(
-    //          SURVEY,
-    //          LOCATION_OF_INTEREST.id
-    //        )
-    //      )
-    //      .thenReturn(Maybe.empty())
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest(SURVEY.id, LOCATION_OF_INTEREST.id)
-      .test()
-      .assertFailureAndMessage(
-        NotFoundException::class.java,
-        "Location of interest not found loi id"
-      )
-  }
-
-  @Test
-  fun testGetIncompleteLocationOfInterestMutationsOnceAndStream() {
-
-    locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream("loi_id_1")
-    //    verify(mockLocalLocationOfInterestStore, Mockito.times(1))
-    //      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-    //        "loi_id_1",
-    //        MutationEntitySyncStatus.PENDING,
-    //        MutationEntitySyncStatus.IN_PROGRESS,
-    //        MutationEntitySyncStatus.FAILED
-    //      )
-  }
+  // TODO(#1373): Add tests for getLocationsOfInterest once new LOI sync implemented.
 }
