@@ -20,10 +20,12 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.system.LocationManager
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import java8.util.Optional
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,21 +37,23 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MapControllerTest : BaseHiltTest() {
-  @Mock lateinit var locationController: LocationController
+  @Mock lateinit var locationManager: LocationManager
   @Mock lateinit var surveyRepository: SurveyRepository
   @Mock lateinit var mapStateRepository: MapStateRepository
+
+  private val locationStateFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
 
   private lateinit var mapController: MapController
 
   @Before
   override fun setUp() {
     super.setUp()
-    mapController = MapController(locationController, surveyRepository, mapStateRepository)
+    mapController = MapController(locationManager, surveyRepository, mapStateRepository)
+    `when`(locationManager.getLocationUpdates()).thenReturn(locationStateFlow)
   }
 
   @Test
   fun testGetCameraUpdates_returnsNothing() {
-    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
 
     mapController.getCameraUpdates().test().assertValueCount(0)
@@ -57,7 +61,6 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_whenPanAndZoomCamera() {
-    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
 
     val cameraUpdatesSubscriber = mapController.getCameraUpdates().test()
@@ -70,22 +73,17 @@ class MapControllerTest : BaseHiltTest() {
   @Test
   fun testGetCameraUpdates_whenLocationUpdates() {
     `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
-    `when`(locationController.getLocationUpdates())
-      .thenReturn(
-        Flowable.just(
-          Location("test provider").apply {
-            latitude = TEST_COORDINATE.x
-            longitude = TEST_COORDINATE.y
-          }
-        )
-      )
+    locationStateFlow.value =
+      Location("test provider").apply {
+        latitude = TEST_COORDINATE.x
+        longitude = TEST_COORDINATE.y
+      }
 
     mapController.getCameraUpdates().test().assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
   }
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsEmpty() {
-    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     `when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
     `when`(mapStateRepository.getCameraPosition(any())).thenReturn(null)
 
@@ -94,7 +92,6 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationAvailable() {
-    `when`(locationController.getLocationUpdates()).thenReturn(Flowable.empty())
     `when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
     `when`(mapStateRepository.getCameraPosition(any())).thenReturn(TEST_POSITION)
 
