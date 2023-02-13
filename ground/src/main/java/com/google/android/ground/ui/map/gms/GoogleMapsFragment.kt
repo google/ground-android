@@ -52,7 +52,6 @@ import io.reactivex.Observable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import java.io.File
 import java8.util.function.Consumer
 import javax.inject.Inject
@@ -69,12 +68,6 @@ import timber.log.Timber
 class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
-  /** Marker click events. */
-  private val markerClicks: @Hot Subject<Feature> = PublishSubject.create()
-
-  /** Ambiguous click events. */
-  private val locationOfInterestClicks: @Hot Subject<List<Feature>> = PublishSubject.create()
-
   /** Map drag events. Emits items when the map drag has started. */
   private val startDragEventsProcessor: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
 
@@ -89,11 +82,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private val tileProvidersSubject: @Hot PublishSubject<MapBoxOfflineTileProvider> =
     PublishSubject.create()
 
-  /**
-   * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
-   * with current view and data state.
-   */
-  private val clusters: MutableMap<FeatureClusterItem, Feature> = HashMap()
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
@@ -113,7 +101,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
    * start and end of polygon.
    */
   private lateinit var customCap: CustomCap
-  private var cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
 
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
     val insetBottom = insets.systemWindowInsetBottom
@@ -264,11 +251,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun disableGestures() = getMap().uiSettings.setAllGesturesEnabled(false)
 
   override fun moveCamera(coordinate: Coordinate) =
-    getMap().moveCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
+    getMap().animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
 
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     getMap()
-      .moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+      .animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
   private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
     multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
@@ -360,22 +347,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun onCameraIdle() {
     clusterRenderer.zoom = getMap().cameraPosition.zoom
     clusterManager.onCameraIdle()
-
-    if (cameraChangeReason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      cameraMovedEventsProcessor.onNext(
-        CameraPosition(
-          getMap().cameraPosition.target.toCoordinate(),
-          getMap().cameraPosition.zoom,
-          false,
-          getMap().projection.visibleRegion.latLngBounds.toModelObject()
-        )
+    cameraMovedEventsProcessor.onNext(
+      CameraPosition(
+        getMap().cameraPosition.target.toCoordinate(),
+        getMap().cameraPosition.zoom,
+        false,
+        getMap().projection.visibleRegion.latLngBounds.toModelObject()
       )
-      cameraChangeReason = OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION
-    }
+    )
   }
 
   private fun onCameraMoveStarted(reason: Int) {
-    cameraChangeReason = reason
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
       this.startDragEventsProcessor.onNext(Nil.NIL)
     }

@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
-import com.google.android.ground.util.Enums.toEnum
 import java8.util.Optional
 import timber.log.Timber
 
@@ -27,7 +26,7 @@ import timber.log.Timber
 internal object TaskConverter {
 
   fun toTask(id: String, em: TaskNestedObject): Optional<Task> {
-    val type = toEnum(Task.Type::class.java, em.type!!)
+    val type = toTaskType(em.type)
     if (type == Task.Type.UNKNOWN) {
       Timber.d("Unsupported task type: ${em.type}")
       return Optional.empty()
@@ -39,4 +38,15 @@ internal object TaskConverter {
       Task(id, em.index ?: -1, type, em.label!!, em.required != null && em.required, multipleChoice)
     )
   }
+
+  // Note: Key value must be in sync with web app.
+  private fun toTaskType(typeStr: String?): Task.Type =
+    when (typeStr) {
+      "text_field" -> Task.Type.TEXT
+      "multiple_choice" -> Task.Type.MULTIPLE_CHOICE
+      "photo" -> Task.Type.PHOTO
+      "point" -> Task.Type.DROP_A_PIN
+      "polygon" -> Task.Type.DRAW_POLYGON
+      else -> Task.Type.UNKNOWN
+    }
 }

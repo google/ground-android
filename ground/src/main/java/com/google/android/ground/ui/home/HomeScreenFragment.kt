@@ -30,7 +30,6 @@ import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
@@ -81,22 +80,12 @@ class HomeScreenFragment :
       getViewModel(LocationOfInterestSelectorViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     homeScreenViewModel.bottomSheetState.observe(this) { onBottomSheetStateChange(it) }
-    homeScreenViewModel.showLocationOfInterestSelectorRequests
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { showLocationOfInterestSelector(it) }
     homeScreenViewModel.openDrawerRequests.`as`(RxAutoDispose.autoDisposable(this)).subscribe {
       openDrawer()
     }
     locationOfInterestSelectorViewModel.locationOfInterestClicks
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
-  }
-
-  private fun showLocationOfInterestSelector(locationsOfInterest: List<LocationOfInterest>) {
-    locationOfInterestSelectorViewModel.locationsOfInterest = locationsOfInterest
-    navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToLocationOfInterestSelectorFragment()
-    )
   }
 
   override fun onCreateView(
