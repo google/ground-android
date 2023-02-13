@@ -60,9 +60,6 @@ def getCommitSha1 = { ->
 }
 
 android {
-    lint {
-        disable 'FragmentGradleConfiguration'
-    }
     compileSdkVersion rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
