@@ -61,9 +61,7 @@
     <ignore regexp="res/values/dimens.xml" />
     <ignore regexp="res/values/strings.xml" />
   </issue>
-  <issue id="UselessLeaf" severity="error">
-    <ignore path="res/layout/feature_details_frag.xml" />
-  </issue>
+  <issue id="UselessLeaf" severity="error" />
   <issue id="UselessParent" severity="error" />
   <issue id="UseCompatLoadingForDrawables" severity="error" />
   <issue id="UseCompatTextViewDrawableXml" severity="error" />
