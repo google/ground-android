@@ -36,9 +36,5 @@ android {
         lintConfig file("$configDir/lint.xml")
         xmlOutput file("$reportsDir/lint/lint-result.xml")
         xmlReport true
-        disable 'FragmentGradleConfiguration'
     }
-//    lintOptions {
-//        baseline file("lint-baseline.xml")
-//    }
 }
