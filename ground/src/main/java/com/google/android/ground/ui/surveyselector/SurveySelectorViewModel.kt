@@ -61,7 +61,7 @@ internal constructor(
       surveyId = survey.id,
       surveyTitle = survey.title,
       surveyDescription = survey.description.ifEmpty { "Description Missing" },
-      isAvailableOffline = localSurveys.contains(survey)
+      isAvailableOffline = localSurveys.any { it.id == survey.id }
     )
 
   private val offlineSurveys: Flowable<List<Survey>>
