@@ -32,6 +32,7 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 open class BaseMapViewModel
@@ -49,7 +50,7 @@ constructor(
   val locationLocked =
     locationLockStateFlow
       .map { lockState -> lockState.getOrDefault(false) }
-      .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_TINT_DISABLED)
+      .stateIn(viewModelScope, SharingStarted.Lazily, false)
   val locationLockIconTint =
     locationLockStateFlow
       .map { lockState ->
@@ -90,7 +91,9 @@ constructor(
 
   /** Called when location lock button is clicked by the user. */
   fun onLocationLockClick() {
-    locationManager.toggleLocationLock()
+    viewModelScope.launch {
+      locationManager.toggleLocationLock()
+    }
   }
 
   /** Called when the map starts to move by the user. */

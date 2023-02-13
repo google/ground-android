@@ -19,7 +19,6 @@ import android.Manifest.permission
 import android.location.Location
 import com.google.android.gms.location.LocationRequest
 import com.google.android.ground.repository.MapStateRepository
-import com.google.android.ground.rx.RxCompletable.completeIf
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.rx.RxFusedLocationProviderClient
 import com.google.android.ground.system.rx.RxLocationCallback
@@ -31,7 +30,7 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 private const val UPDATE_INTERVAL: Long = 1000 /* 1 sec */
@@ -56,7 +55,7 @@ constructor(
 
   private val locationUpdates: @Hot(replays = true) Subject<Location> = BehaviorSubject.create()
   private val locationUpdateCallback: RxLocationCallback = RxLocationCallback(locationUpdates)
-  val locationLockState: StateFlow<Result<Boolean>> =
+  val locationLockState: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
 
   /**
@@ -86,35 +85,30 @@ constructor(
       .onErrorReturn { Result.failure(it) }
   }
 
-  fun toggleLocationLock() {
+  suspend fun toggleLocationLock() {
     if (locationLockState.value.getOrDefault(false)) {
-      unlock()
+      disableLocationLock()
 
       disableLocationUpdates()
     } else {
-      permissionsManager
-        .obtainPermission(permission.ACCESS_FINE_LOCATION)
-        .andThen(
-          completeIf {
-            lock()
-            true
-          }
-        )
-        .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
-        .andThen(requestLocationUpdates())
-        .toSingle {
-          lock()
-          Result.success(true)
-        }
-        .onErrorReturn { Result.failure(it) }
-        .subscribe()
+      try {
+        permissionsManager.obtainPermission(permission.ACCESS_FINE_LOCATION).await()
+
+        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST).await()
+
+        enableLocationLock()
+
+        requestLocationUpdates()
+      } catch (e: PermissionDeniedException) {
+        locationLockState.value = Result.failure(e)
+      }
     }
   }
 
-  private fun lock() = onLockStateChanged(true)
+  private fun enableLocationLock() = onLockStateChanged(true)
 
-  /** Releases location lock by disabling location updates. */
-  private fun unlock() = onLockStateChanged(false)
+  /** Releases location enableLocationLock by disabling location updates. */
+  private fun disableLocationLock() = onLockStateChanged(false)
 
   private fun onLockStateChanged(isLocked: Boolean) {
     mapStateRepository.isLocationLockEnabled = isLocked
