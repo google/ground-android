@@ -191,7 +191,6 @@
   <string name="time">Time</string>
   <string name="terms_load_error">An error occurred while loading Terms of Service</string>
   <!-- Other strings (to be organized) -->
-  <string name="offline_base_map_name" translatable="false">%s</string>
   <string name="sync_status">Sync status</string>
   <string name="polygon">Polygon</string>
   <string name="point">Point</string>

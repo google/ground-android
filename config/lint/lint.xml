@@ -45,6 +45,7 @@
   <issue id="TypographyEllipsis" severity="error" />
   <issue id="TypographyQuotes" severity="error" />
   <issue id="Typos" severity="error" />
+  <issue id="Untranslatable" severity="error" />
   <issue id="UnusedResources" severity="error">
     <!-- Maps API key is used internally by SDK. -->
     <ignore regexp="res/values/google_maps_api.xml" />

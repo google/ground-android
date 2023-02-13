@@ -183,7 +183,6 @@
   <string name="time">Hora</string>
   <string name="terms_load_error">Se produjo un error al cargar las Condiciones de servicio.</string>
   <!-- Other strings (to be organized) -->
-  <string name="offline_base_map_name" translatable="false">%s</string>
   <string name="sync_status">Estado de sincronización</string>
   <string name="polygon">Polígono</string>
   <string name="point">Punto</string>
