@@ -53,14 +53,7 @@
   <issue id="TypographyQuotes" severity="error" />
   <issue id="Typos" severity="error" />
   <issue id="Untranslatable" severity="error" />
-  <issue id="UnusedResources" severity="error">
-    <!-- Maps API key is used internally by SDK. -->
-    <ignore regexp="res/values/google_maps_api.xml" />
-    <!-- TODO: Remove the below ignores -->
-    <ignore regexp="res/values/colors.xml" />
-    <ignore regexp="res/values/dimens.xml" />
-    <ignore regexp="res/values/strings.xml" />
-  </issue>
+  <issue id="UnusedResources" severity="error" />
   <issue id="UselessLeaf" severity="error" />
   <issue id="UselessParent" severity="error" />
   <issue id="UseCompatLoadingForDrawables" severity="error" />
