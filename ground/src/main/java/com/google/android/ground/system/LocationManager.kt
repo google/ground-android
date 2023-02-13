@@ -86,7 +86,7 @@ constructor(
 
         enableLocationLock()
 
-        requestLocationUpdates()
+        requestLocationUpdates().await()
       } catch (e: PermissionDeniedException) {
         locationLockState.value = Result.failure(e)
       }
