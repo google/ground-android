@@ -52,7 +52,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/user_name"
-        android:layout_toRightOf="@id/user_name"
         android:text="@string/text_separator" />
 
       <TextView
@@ -60,7 +59,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/separator_dot1"
-        android:layout_toRightOf="@id/separator_dot1"
         android:text="@{viewModel.modifiedDate}"
         android:textAppearance="@style/SubmissionListText.Timestamp"
         tools:text="Sept 25, 2018" />
@@ -70,7 +68,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/last_modified_date"
-        android:layout_toRightOf="@id/last_modified_date"
         android:text="@string/text_separator"
         android:textAppearance="@style/SubmissionListText.Separator" />
 
@@ -79,7 +76,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/separator_dot2"
-        android:layout_toRightOf="@id/separator_dot2"
         android:text="@{viewModel.modifiedTime}"
         android:textAppearance="@style/SubmissionListText.Timestamp"
         tools:text="4:25 PM" />
@@ -89,7 +85,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/user_name"
         android:layout_marginEnd="@dimen/submission_list_item_preview_table_right_margin"
-        android:layout_marginRight="@dimen/submission_list_item_preview_table_right_margin"
         android:paddingStart="14dp"
         android:paddingLeft="14dp"
         android:paddingEnd="14dp"
@@ -118,7 +113,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:onClick="@{viewModel::onClick}"
         android:src="@drawable/ic_chevron_right_black_36dp" />

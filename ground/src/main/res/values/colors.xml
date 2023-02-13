@@ -18,7 +18,6 @@
 
 <resources>
   <color name="colorPrimary">#3B4563</color>
-  <color name="colorPrimaryDark">#3B4563</color>
   <color name="colorAccent">#0B57D0</color>
   <color name="colorMapAccent">#ff9131</color>
   <color name="colorMapBlue">#4F87ED</color>
