@@ -39,6 +39,7 @@
   <issue id="JvmStaticProvidesInObjectDetector" severity="error" />
   <issue id="KotlinPropertyAccess" severity="error" />
   <issue id="KtxExtensionAvailable" severity="error" />
+  <issue id="LambdaLast" severity="error" />
   <issue id="LogNotTimber" severity="error" />
   <issue id="NonConstantResourceId" severity="error" />
   <issue id="ObsoleteSdkInt" severity="error" />
