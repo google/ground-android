@@ -159,6 +159,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(
     surveyId = surveyId,
     jobId = jobId,
     state = EntityState.DEFAULT,
+    // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo,
     geometry = geometry?.toLocalDataStoreObject()
@@ -277,7 +278,7 @@ fun Submission.toLocalDataStoreObject() =
   )
 
 fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEntity {
-  val authInfo = created.toLocalDataStoreObject()
+  val auditInfo = created.toLocalDataStoreObject()
 
   return SubmissionEntity(
     id = this.submissionId,
@@ -285,8 +286,9 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
     responses = ResponseMapConverter.toString(TaskDataMap().copyWithDeltas(this.taskDataDeltas)),
-    created = authInfo,
-    lastModified = authInfo
+    // TODO(#1562): Preserve creation audit info for UPDATE mutations.
+    created = auditInfo,
+    lastModified = auditInfo
   )
 }
 
