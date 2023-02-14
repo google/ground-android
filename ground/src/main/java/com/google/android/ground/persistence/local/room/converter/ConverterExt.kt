@@ -142,18 +142,25 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
   }
 }
 
+@Deprecated("Use toLocalDataStoreObject(User) instead",
+  ReplaceWith("toLocalDataStoreObject(auditInfo.user)")
+)
 fun LocationOfInterestMutation.toLocalDataStoreObject(
-  created: AuditInfo
+  auditInfo: AuditInfo
+) = toLocalDataStoreObject(auditInfo.user)
+
+fun LocationOfInterestMutation.toLocalDataStoreObject(
+  user: User
 ): LocationOfInterestEntity {
-  val authInfo = created.toLocalDataStoreObject()
+  val auditInfo = AuditInfo(user, clientTimestamp).toLocalDataStoreObject()
 
   return LocationOfInterestEntity(
     id = locationOfInterestId,
     surveyId = surveyId,
     jobId = jobId,
     state = EntityState.DEFAULT,
-    created = authInfo,
-    lastModified = authInfo,
+    created = auditInfo,
+    lastModified = auditInfo,
     geometry = geometry?.toLocalDataStoreObject()
   )
 }

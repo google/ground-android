@@ -144,7 +144,7 @@ class RoomLocationOfInterestMutationStore @Inject internal constructor() :
     user: User
   ): Completable =
     locationOfInterestDao
-      .insertOrUpdate(mutation.toLocalDataStoreObject(AuditInfo(user)))
+      .insertOrUpdate(mutation.toLocalDataStoreObject(user))
       .subscribeOn(schedulers.io())
 
   private fun markLocationOfInterestForDeletion(
