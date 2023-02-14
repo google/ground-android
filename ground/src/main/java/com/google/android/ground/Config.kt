@@ -44,4 +44,10 @@ object Config {
 
   /** Default zoom level used when panning and zooming the map to a specific position. */
   const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
+
+  /**
+   * Map zoom level threshold for cluster rendering. When the user is zoomed out at this level or
+   * lower, renders markers as clusters, otherwise, we render them as individual markers.
+   */
+  const val CLUSTERING_ZOOM_THRESHOLD = 14f
 }
