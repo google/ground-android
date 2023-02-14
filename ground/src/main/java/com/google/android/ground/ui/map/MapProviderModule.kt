@@ -24,5 +24,5 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 @Module
 object MapProviderModule {
-  @JvmStatic @Provides fun providesGoogleMapFragment(): MapFragment = GoogleMapsFragment()
+  @Provides fun providesGoogleMapFragment(): MapFragment = GoogleMapsFragment()
 }

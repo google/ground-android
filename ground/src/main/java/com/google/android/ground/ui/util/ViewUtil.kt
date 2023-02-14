@@ -17,7 +17,6 @@ package com.google.android.ground.ui.util
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -48,8 +47,6 @@ object ViewUtil {
 
   @JvmStatic
   fun assignGeneratedId(view: View?) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-      view?.id = View.generateViewId()
-    }
+    view?.id = View.generateViewId()
   }
 }
