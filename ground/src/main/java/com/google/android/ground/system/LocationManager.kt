@@ -47,16 +47,16 @@ constructor(
 ) {
 
   private val locationUpdates = Channel<Location>()
-  private val latestLocationCallback = ChannelLocationCallback(locationUpdates, externalScope)
+  private val locationCallback = ChannelLocationCallback(locationUpdates, externalScope)
 
   /**
    * Returns the location StateFlow. New subscribers and downstream subscribers that can't keep up
    * will only see the latest location. Returns null if location lock is disabled
    */
-  fun getLatestLocation(): Flow<Location?> = locationUpdates.receiveAsFlow()
+  fun getLocation(): Flow<Location?> = locationUpdates.receiveAsFlow()
 
   fun requestLocationUpdates() =
-    locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, latestLocationCallback)
+    locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback)
 
   // TODO: Request/remove updates on resume/pause.
   @Synchronized
@@ -67,5 +67,5 @@ constructor(
       .doOnError { Timber.e(it, "disableLocationUpdates") }
       .onErrorReturn { Result.success(false) }
 
-  private fun removeLocationUpdates() = locationClient.removeLocationUpdates(latestLocationCallback)
+  private fun removeLocationUpdates() = locationClient.removeLocationUpdates(locationCallback)
 }

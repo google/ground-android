@@ -49,7 +49,7 @@ class MapControllerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     mapController = MapController(locationManager, surveyRepository, mapStateRepository)
-    `when`(locationManager.getLatestLocation()).thenReturn(locationStateFlow)
+    `when`(locationManager.getLocation()).thenReturn(locationStateFlow)
   }
 
   @Test
