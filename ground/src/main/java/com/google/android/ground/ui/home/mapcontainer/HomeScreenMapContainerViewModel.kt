@@ -79,7 +79,7 @@ internal constructor(
       .stateIn(viewModelScope, SharingStarted.Lazily, false)
   val locationAccuracy: StateFlow<String> =
     locationManager
-      .getLocationUpdates()
+      .getLatestLocation()
       .map {
         if (it == null) {
           ""

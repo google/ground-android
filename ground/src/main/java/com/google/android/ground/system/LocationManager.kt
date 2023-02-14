@@ -53,11 +53,11 @@ constructor(
 
   val locationLockState: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
-  private val locationUpdatesStateFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
-  private val locationUpdateStateFlowCallback = StateFlowLocationCallback(locationUpdatesStateFlow)
+  private val latestLocationStateFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
+  private val latestLocationStateFlowCallback = StateFlowLocationCallback(latestLocationStateFlow)
 
-  private val locationLockAwareLocationUpdates: StateFlow<Location?> =
-    locationUpdatesStateFlow
+  private val locationLockAwareLatestLocation: StateFlow<Location?> =
+    latestLocationStateFlow
       .combine(locationLockState) { location, lockState ->
         if (lockState.getOrDefault(false)) {
           location
@@ -68,10 +68,10 @@ constructor(
       .stateIn(externalScope, SharingStarted.Lazily, null)
 
   /**
-   * Returns the location update stream. New subscribers and downstream subscribers that can't keep
-   * up will only see the latest location.
+   * Returns the location StateFlow. New subscribers and downstream subscribers that can't keep up
+   * will only see the latest location.
    */
-  fun getLocationUpdates(): StateFlow<Location?> = locationLockAwareLocationUpdates
+  fun getLatestLocation(): StateFlow<Location?> = locationLockAwareLatestLocation
 
   suspend fun toggleLocationLock() {
     if (locationLockState.value.getOrDefault(false)) {
@@ -106,7 +106,7 @@ constructor(
   private fun requestLocationUpdates() =
     locationClient.requestLocationUpdates(
       FINE_LOCATION_UPDATES_REQUEST,
-      locationUpdateStateFlowCallback
+      latestLocationStateFlowCallback
     )
 
   // TODO: Request/remove updates on resume/pause.
@@ -119,5 +119,5 @@ constructor(
       .onErrorReturn { Result.success(false) }
 
   private fun removeLocationUpdates() =
-    locationClient.removeLocationUpdates(locationUpdateStateFlowCallback)
+    locationClient.removeLocationUpdates(latestLocationStateFlowCallback)
 }

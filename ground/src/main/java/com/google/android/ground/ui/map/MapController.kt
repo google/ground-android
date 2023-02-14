@@ -52,7 +52,7 @@ constructor(
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraPosition> {
     val locationUpdates =
-      locationManager.getLocationUpdates().mapNotNull { it }.asFlowable().map { it.toCoordinate() }
+      locationManager.getLatestLocation().mapNotNull { it }.asFlowable().map { it.toCoordinate() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates
