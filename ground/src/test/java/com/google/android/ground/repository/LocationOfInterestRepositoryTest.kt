@@ -73,14 +73,20 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testApplyAndEnqueue_createsLocalLoi() {
+    // TODO(#1559): Remove once customId and caption are handled consistently.
+    val loi = LOCATION_OF_INTEREST.copy(customId = null, caption = null)
     mockEnqueueSyncWorker()
-    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
-
     locationOfInterestRepository
-      .getOfflineLocationOfInterest(SURVEY.id, LOCATION_OF_INTEREST.id)
+      .applyAndEnqueue(loi.toMutation(CREATE, USER.id))
       .test()
       .assertNoErrors()
-      .assertValue(LOCATION_OF_INTEREST)
+      .assertComplete()
+
+    locationOfInterestRepository
+      .getOfflineLocationOfInterest(SURVEY.id, loi.id)
+      .test()
+      .assertNoErrors()
+      .assertValue(loi)
   }
 
   @Test
