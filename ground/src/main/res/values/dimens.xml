@@ -19,7 +19,6 @@
 <resources>
   <!-- Map -->
   <dimen name="polyline_stroke_width">4dp</dimen>
-  <dimen name="selected_polyline_stroke_width">7dp</dimen>
   <item name="marker_bitmap_default_scale" format="float" type="dimen">1.8</item>
   <item name="marker_bitmap_zoomed_scale" format="float" type="dimen">2.5</item>
 
@@ -34,42 +33,13 @@
   <dimen name="task_horizontal_margin">14dp</dimen>
   <dimen name="task_vertical_margin">8dp</dimen>
 
-  <!-- Space between tasks in Submission Details View -->
-  <dimen name="details_task_spacing">4dp</dimen>
-
-  <!-- Submission menu button -->
-  <dimen name="submission_menu_btn_top">6dp</dimen>
-  <dimen name="menu_btn_width">24dp</dimen>
-  <dimen name="menu_btn_height">24dp</dimen>
-
-  <!-- Sheet titleText -->
-  <dimen name="sheet_title_text_size">20sp</dimen>
-  <dimen name="sheet_title_horizontal_margin">10dp</dimen>
-  <dimen name="sheet_title_top_margin">8dp</dimen>
-
-  <dimen name="header_task_horizontal_margin">12dp</dimen>
-
   <!-- Task selection tabs -->
-  <dimen name="tab_max_width">264dp</dimen>
-  <dimen name="tab_padding_bottom">16dp</dimen>
-  <dimen name="tab_label">14sp</dimen>
-  <dimen name="custom_tab_layout_height">72dp</dimen>
-  <dimen name="input_error">12sp</dimen>
-  <dimen name="submission_menu_btn_right">2dp</dimen>
-  <dimen name="map_btn_spacing">8dp</dimen>
-  <dimen name="map_btn_margin_right">8dp</dimen>
   <dimen name="map_btn_margin_bottom">8dp</dimen>
   <dimen name="toolbar_button_margin_top">8dp</dimen>
   <dimen name="toolbar_button_margin_right">12dp</dimen>
   <dimen name="chip_button_margin_bottom">16dp</dimen>
   <dimen name="chip_button_margin_right">14dp</dimen>
   <dimen name="fab_margin">16dp</dimen>
-  <dimen name="sheet_subtitle_text_size">14dp</dimen>
-  <dimen name="submission_heading_height">32dp</dimen>
-  <dimen name="submission_status_margin_left">6dp</dimen>
-  <dimen name="submission_status_text_size">12sp</dimen>
-  <dimen name="data_sheet_header_height">70dp</dimen>
-  <dimen name="task_error_padding_bottom">6dp</dimen>
   <!-- TODO: Make dimensions relative using Android data binding. -->
   <dimen name="bottom_sheet_margin_top">16dp</dimen>
   <dimen name="loi_details_icon_bg_diameter">58dp</dimen>
@@ -92,26 +62,16 @@
   <dimen name="toolbar_elevation">4dp</dimen>
   <dimen name="loi_details_header_padding_bottom">16dp</dimen>
   <dimen name="submission_list_item_preview_table_right_margin">18dp</dimen>
-  <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
   <dimen name="loi_details_header_height">120dp</dimen>
 
   <!-- Photo bottom dialog -->
   <dimen name="add_photo_bottom_sheet_drawable_margin">24dp</dimen>
   <dimen name="add_photo_bottom_sheet_text_size">16sp</dimen>
 
-  <!-- Photo CardView -->
-  <dimen name="cardview_elevation">4dp</dimen>
-  <dimen name="photo_label_horizontal_padding">10dp</dimen>
-  <dimen name="photo_label_vertical_padding">5dp</dimen>
-
   <!-- Offline areas UI -->
-  <dimen name="offline_area_viewer_map_container_width">20dp</dimen>
-  <dimen name="offline_area_viewer_map_container_height">20dp</dimen>
   <dimen name="selector_dialog_list_item_padding">26dp</dimen>
   <dimen name="selector_dialog_list_item_text_size">16sp</dimen>
   <dimen name="selector_dialog_progress_bar_padding">48dp</dimen>
-  <dimen name="upload_pending_icon_margin_bottom">2dp</dimen>
-  <dimen name="upload_pending_icon_margin_end">2dp</dimen>
 
   <!-- Navigation drawer -->
   <dimen name="nav_drawer_profile_image_size">64dp</dimen>

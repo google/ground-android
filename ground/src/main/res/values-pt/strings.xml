@@ -17,28 +17,14 @@
   -->
 
 <resources>
-  <!-- Message shown while survey is loading. -->
-  <string name="survey_loading_please_wait">O projeto esta a ser carregado, por favor
-    aguarde um instante&#8230;</string>
 
   <!--
     ADD/EDIT LOI DATA
   -->
 
-  <!-- Title shown above list of jobs when (+) is clicked on map. -->
-  <string name="add_loi_select_type_dialog_title">O que adicionar?</string>
-
-  <!-- Shown in toolbar when adding a new locationOfInterest and task instance. -->
-  <string name="add_loi_toolbar_title">Adicionar local</string>
-  <!-- Shown in toolbar when editing an existing submission (task instance). -->
-  <string name="edit_loi_data_toolbar_title">Editar dados do local</string>
-  <!-- Shown in toolbar when adding a new submission (task instance) to a locationOfInterest. -->
-  <string name="add_loi_data_toolbar_title">Adicionar dados ao local</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Deseja salvar os dados antes de fechar?</string>
   <string name="discard_changes">Descartar alterações</string>
-  <!-- Shown on save when connection was not available. -->
-  <string name="save_queued">Salvo no dispositivo, sincronização pendente.</string>
   <!-- Shown on save when connection is available (TBD). -->
   <string name="saved">Alterações salvas.</string>
 
@@ -59,39 +45,10 @@
   <string name="edit_submission">Editar registro</string>
   <!-- Shown in submission overflow menu to delete a submission. -->
   <string name="delete_submission">Apagar registro</string>
-  <!-- Confirmation shown when deleting a submission (TBD). -->
-  <string name="delete_submission_confirmation">
-    Tem certeza que deseja apagar permanentemente os dados? Isso não pode ser desfeito.
-  </string>
-  <!--
-    Shown above saved submissions (tasks) that have been submitted. %1$s placeholder will already be
-    translated, and it will contain the "time ago" that the submission was received by the server
-    (e.g., "Submitted 2 min ago").
-   -->
-  <string name="submitted_status">Enviado %1$s</string>
-  <!--
-    Shown above saved submissions (tasks) that have been submitted and subsequently modified. %1$s
-    placeholder will already be translated, and it will contain the "time ago" that the changes were
-    last received by the server (e.g., "Updated 1 min ago").
-   -->
-  <string name="updated_status">Atualizado %1$s</string>
 
   <!--
     IN BOTH ADD/EDIT AND VIEW LOI SCREENS
   -->
-
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a locationOfInterest. -->
-  <string name="move_loi">Reposicionar local</string>
-  <!-- Shown in toolbar overflow menu to open popup dialog to edit locationOfInterest metadata. -->
-  <string name="edit_loi_id_and_caption">Editar ID e legenda</string>
-  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest ID. -->
-  <string name="loi_id">ID</string>
-  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
-  <string name="loi_caption">Legenda</string>
-  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
-  <string name="delete_loi_confirmation">
-Tem certeza que deseja apagar o local e todos os dados associados? Isso não pode ser desfeito.
-  </string>
 
   <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
@@ -111,18 +68,13 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="join_survey">Junte-se ao projeto</string>
   <string name="add_submission_button_label">Adicionar registro</string>
   <string name="view_submission_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
-  <string name="survey_load_error">O projeto não pôde ser carregado</string>
-  <string name="survey_list_load_error">Lista de projetos não disponível</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>
-  <string name="edit_submission_button_label">Editar</string>
   <string name="save_submission_button_label">Salve</string>
   <string name="saving">Salvando&#8230;</string>
   <string name="no_changes_to_save">Não há alterações para salvar</string>
-  <string name="select_project_menu_item">Projetos</string>
   <string name="google_api_install_failed">Google Play Services instalação falhada</string>
   <string name="sign_in_unsuccessful">Entrar sem sucesso</string>
   <string name="sign_out">Sair</string>
@@ -131,13 +83,11 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
   <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
-  <string name="terms_load_error">Ocorreu um erro ao carregar os Termos de Serviço</string>
 
   <string name="date">Data</string>
   <string name="time">Hora</string>
   <string name="continue_editing">Continuar editando</string>
   <string name="offline_base_maps">Base de mapas offline</string>
-  <string name="unknown_user"> Usuário desconhecido</string>
   <string name="add_submission_toolbar_title">Adicionar observação</string>
   <string name="offline_base_map_selector">Selecionar área de download</string>
   <string name="offline_base_map_selector_prompt">Selecionar o mapa de base para uso offline</string>
@@ -146,17 +96,12 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="action_camera">Câmera</string>
   <string name="action_storage">Armazenamento</string>
   <string name="photo_preview">Prévia</string>
-  <string name="select_map_type">Selecionar o mapa base</string>
-  <string name="uploading_photos">Carregamento de fotos</string>
   <string name="starting">Início</string>
   <string name="in_progress">Em progresso</string>
   <string name="paused">Pausado</string>
   <string name="completed">Concluído</string>
   <string name="failed">Falha</string>
-  <string name="downloading_tiles">Downloading de Títulos</string>
-  <string name="uploading_data">Carregando dados</string>
   <string name="settings">Ajustes</string>
-  <string name="offline_base_map_viewer_navgraph_label">Visualizador offline de base de mapas</string>
   <string name="offline_base_map_viewer_title">Visualizador offline de Títulos de Base de Mapas</string>
   <string name="offline_base_map_viewer_remove_button">Remover</string>
   <string name="offline_base_map_viewer_storage">Essa base de mapa ocupará %.1f MB do espaço no seu dispositivo.</string>
@@ -164,9 +109,6 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="offline_base_map_download_started">Download iniciado</string>
   <string name="offline_base_map_download_failed">Erro no download da Base de  mapas</string>
   <string name="added_by">Adicionado por %s</string>
-  <string name="move_point_confirmation">Mover para novo local?</string>
-  <string name="move_point_hint">Arraste para deslocar o mapa para o novo local</string>
-  <string name="error_occurred">Erro ocorrido</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_base_map_selector_select">Selecionar e download</string>
   <string name="no_basemaps_downloaded">Nenhum mapa carregado.</string>

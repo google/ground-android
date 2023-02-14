@@ -28,11 +28,26 @@ import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
 
-/** A cluster renderer for [FeatureClusterItem]s. */
+/**
+ * A cluster renderer for [FeatureClusterItem]s.
+ *
+ * Cluster rendering is determined by checking the current map zoom level against a given threshold.
+ * Clusters will render when the zoom level is lesser than the threshold, otherwise we render
+ * individual markers for each cluster item.
+ */
 class FeatureClusterRenderer(
   private val context: Context?,
   private val map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
+  private val clusteringZoomThreshold: Float,
+  /**
+   * The current zoom level to compare against the renderer's threshold.
+   *
+   * To use the current zoom level of the map, this value must be updated on the main thread. Do not
+   * attempt to use the map instance initially passed to the renderer, as renderer methods may not
+   * run on the main thread.
+   */
+  var zoom: Float,
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
   private val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
@@ -87,4 +102,12 @@ class FeatureClusterRenderer(
     super.onClusterUpdated(cluster, marker)
     marker.setIcon(createMarker(cluster))
   }
+
+  /**
+   * Indicates whether or not a cluster should be rendered as a cluster or individual markers.
+   *
+   * Only true when the current zoom level is lesser than a set threshold.
+   */
+  override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
+    zoom < clusteringZoomThreshold
 }
