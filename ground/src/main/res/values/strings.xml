@@ -18,22 +18,10 @@
 
 <resources>
 
-  <!-- Message shown while survey is loading. -->
-  <string name="survey_loading_please_wait">Project loading, please wait &#8230;</string>
-
   <!--
     ADD/EDIT LOI DATA
   -->
 
-  <!-- Title shown above list of jobs when (+) is clicked on map. -->
-  <string name="add_loi_select_type_dialog_title">What would you like to add?</string>
-
-  <!-- Shown in toolbar when adding a new locationOfInterest and task instance. -->
-  <string name="add_loi_toolbar_title">Add a locationOfInterest</string>
-  <!-- Shown in toolbar when editing an existing submission (task instance). -->
-  <string name="edit_loi_data_toolbar_title">Edit locationOfInterest data</string>
-  <!-- Shown in toolbar when adding a new submission (task instance) to a locationOfInterest. -->
-  <string name="add_loi_data_toolbar_title">Add locationOfInterest data</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Save changes before closing?</string>
   <!--
@@ -46,8 +34,6 @@
     changes will be lost.
   -->
   <string name="discard_changes">Discard changes</string>
-  <!-- Shown on save when connection was not available. -->
-  <string name="save_queued">Saved locally, queued for sync.</string>
   <!-- Shown on save when connection is available (TBD). -->
   <string name="saved">Changes saved</string>
 
@@ -68,40 +54,10 @@
   <string name="edit_submission">Edit submission</string>
   <!-- Shown in submission overflow menu to delete a submission. -->
   <string name="delete_submission">Delete submission</string>
-  <!-- Confirmation shown when deleting a submission (TBD). -->
-  <string name="delete_submission_confirmation">
-    This will permanently delete the selected submission. This cannot be undone. Are you sure?
-  </string>
-  <!--
-    Shown above saved submissions (tasks) that have been submitted. %1$s placeholder will already be
-    translated, and it will contain the "time ago" that the submission was received by the server
-    (e.g., "Submitted 2 min ago").
-   -->
-  <string name="submitted_status">Submitted %1$s</string>
-  <!--
-    Shown above saved submissions (tasks) that have been submitted and subsequently modified. %1$s
-    placeholder will already be translated, and it will contain the "time ago" that the changes were
-    last received by the server (e.g., "Updated 1 min ago").
-   -->
-  <string name="updated_status">Updated %1$s</string>
 
   <!--
     IN BOTH ADD/EDIT AND VIEW LOI SCREENS
   -->
-
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a locationOfInterest. -->
-  <string name="move_loi">Move locationOfInterest</string>
-  <!-- Shown in toolbar overflow menu to open popup dialog to edit locationOfInterest metadata. -->
-  <string name="edit_loi_id_and_caption">Edit ID &amp; caption</string>
-  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest ID. -->
-  <string name="loi_id">ID</string>
-  <!-- Shown in edit id/caption popup (TBD) above locationOfInterest caption. -->
-  <string name="loi_caption">Caption</string>
-  <!-- Shown in toolbar overflow menu to delete a locationOfInterest and all related data. -->
-  <string name="delete_loi_confirmation">
-    This will delete the currently selected locationOfInterest and all related data. This cannot be undone.
-    Are you sure?
-  </string>
 
   <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
@@ -123,30 +79,21 @@
   <string name="add_submission_button_label">Add submission</string>
   <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
-  <string name="survey_load_error">Project could not be loaded</string>
-  <string name="survey_list_load_error">Survey list not available</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
-  <string name="edit_submission_button_label">Edit</string>
   <string name="save_submission_button_label">Save</string>
   <string name="saving">Saving&#8230;</string>
   <string name="no_changes_to_save">No changes to save</string>
-  <string name="select_project_menu_item">My Projects</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
   <string name="cancel">Cancel</string>
-  <string name="join_survey">Join survey</string>
   <string name="change_survey">Change survey</string>
-  <!-- TODO(#1146): Remove temporary task name text and populate from the label of the Task  -->
-  <string name="collect_data_task_name">Test Task Name</string>
   <string name="collect_data">Collect data</string>
   <string name="question_data_collection_title">Question</string>
-  <string name="question_data_collection_no_response">Please enter a response</string>
   <string name="task_number">Task %1$s:</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>
-  <string name="unknown_user">Unknown user</string>
   <string name="add_submission_toolbar_title">Add submission</string>
   <string name="offline_base_map_selector">Select area to download</string>
   <string name="offline_base_map_selector_prompt">Select a base map for offline use</string>
@@ -155,18 +102,12 @@
   <string name="action_camera">Camera</string>
   <string name="action_storage">Storage</string>
   <string name="photo_preview">Preview</string>
-  <string name="select_map_type">Select base map</string>
-  <string name="uploading_photos">Uploading photos</string>
   <string name="starting">Starting</string>
-  <string name="downloading_tiles">Downloading base map</string>
   <string name="in_progress">In progress</string>
   <string name="paused">Paused</string>
   <string name="completed">Completed</string>
-  <string name="uploading_data">Uploading data</string>
   <string name="failed">Failed</string>
-  <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
-  <string name="offline_base_map_viewer_navgraph_label">Offline Base Map Viewer</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>
   <string name="offline_base_map_viewer_remove_button">Remove</string>
   <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
@@ -174,9 +115,6 @@
   <string name="offline_base_map_download_started">Download started</string>
   <string name="offline_base_map_download_failed">Base map download failed</string>
   <string name="added_by">Added by %s</string>
-  <string name="move_point_confirmation">Move point to new location?</string>
-  <string name="move_point_hint">Drag to pan map to new location</string>
-  <string name="error_occurred">An error occurred</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_base_map_selector_select">Select and download</string>
   <string name="no_basemaps_downloaded">No base maps downloaded.</string>
@@ -189,9 +127,7 @@
   <string name="agree_checkbox">I agree to the Terms of Service</string>
   <string name="date">Date</string>
   <string name="time">Time</string>
-  <string name="terms_load_error">An error occurred while loading Terms of Service</string>
   <!-- Other strings (to be organized) -->
-  <string name="offline_base_map_name" translatable="false">%s</string>
   <string name="sync_status">Sync status</string>
   <string name="polygon">Polygon</string>
   <string name="point">Point</string>
@@ -201,7 +137,6 @@
   <string name="loi_properties">LOI properties</string>
   <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
   <string name="close_loi_properties">OK</string>
-  <string name="config_load_error">Error loading config from remote server.</string>
   <string name="permission_denied_error">Permission denied! Check user pass-list.</string>
 
   <string name="add_point">Add point</string>
@@ -221,12 +156,7 @@
   <string name="terrain">Terrain</string>
   <string name="map_type">Map Type</string>
   <string name="close">Close</string>
-  <string name="next">Next</string>
   <string name="continue_text">Continue</string>
-  <string name="submit">Submit</string>
-  <string name="empty_caption">empty caption</string>
-  <string name="empty_name">empty name</string>
-  <string name="start">Start</string>
   <string name="select_survey_title">Select a survey to start collecting data</string>
   <string name="survey_sync_hint">Surveys are automatically synced</string>
 
