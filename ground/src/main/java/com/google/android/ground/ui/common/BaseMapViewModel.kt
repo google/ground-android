@@ -15,15 +15,17 @@
  */
 package com.google.android.ground.ui.common
 
+import android.Manifest
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Observable
@@ -32,30 +34,33 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 open class BaseMapViewModel
 @Inject
-constructor(private val locationManager: LocationManager, mapController: MapController) :
-  AbstractViewModel() {
+constructor(
+  private val locationManager: LocationManager,
+  private val mapStateRepository: MapStateRepository,
+  private val settingsManager: SettingsManager,
+  private val permissionsManager: PermissionsManager,
+  mapController: MapController
+) : AbstractViewModel() {
 
+  val locationLock: MutableStateFlow<Result<Boolean>> =
+    MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
-  val locationLockStateFlow = locationManager.locationLockState
 
-  val locationLocked =
-    locationLockStateFlow
-      .map { lockState -> lockState.getOrDefault(false) }
-      .stateIn(viewModelScope, SharingStarted.Lazily, false)
   val locationLockIconTint =
-    locationLockStateFlow
+    locationLock
       .map { lockState ->
         if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_TINT_ENABLED
         else LOCATION_LOCK_ICON_TINT_DISABLED
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_TINT_DISABLED)
   val locationLockIcon =
-    locationLockStateFlow
+    locationLock
       .map { lockState ->
         if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_ENABLED
         else LOCATION_LOCK_ICON_DISABLED
@@ -68,6 +73,40 @@ constructor(private val locationManager: LocationManager, mapController: MapCont
       LiveDataReactiveStreams.fromPublisher(
         mapController.getCameraUpdates().map { Event.create(it) }
       )
+  }
+
+  private suspend fun toggleLocationLock() {
+    if (locationLock.value.getOrDefault(false)) {
+      disableLocationLock()
+
+      locationManager.disableLocationUpdates()
+    } else {
+      try {
+        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION).await()
+
+        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST).await()
+
+        enableLocationLock()
+
+        locationManager.requestLocationUpdates().await()
+      } catch (e: PermissionDeniedException) {
+        locationLock.value = Result.failure(e)
+        locationManager.disableLocationUpdates()
+      }
+    }
+  }
+
+  private fun enableLocationLock() = onLockStateChanged(true)
+
+  /** Releases location enableLocationLock by disabling location updates. */
+  private fun disableLocationLock() {
+    locationManager.disableLocationUpdates()
+    onLockStateChanged(false)
+  }
+
+  private fun onLockStateChanged(isLocked: Boolean) {
+    locationLock.value = Result.success(isLocked)
+    mapStateRepository.isLocationLockEnabled = isLocked
   }
 
   fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
@@ -87,14 +126,14 @@ constructor(private val locationManager: LocationManager, mapController: MapCont
 
   /** Called when location lock button is clicked by the user. */
   fun onLocationLockClick() {
-    viewModelScope.launch { locationManager.toggleLocationLock() }
+    viewModelScope.launch { toggleLocationLock() }
   }
 
   /** Called when the map starts to move by the user. */
   fun onMapDragged() {
-    if (locationLockStateFlow.value.getOrDefault(false)) {
+    if (locationLock.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
-      locationManager.disableLocationLock()
+      disableLocationLock()
     }
   }
 

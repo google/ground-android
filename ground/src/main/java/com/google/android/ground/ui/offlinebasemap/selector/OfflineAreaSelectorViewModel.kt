@@ -23,11 +23,14 @@ import com.google.android.ground.R
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
@@ -43,8 +46,18 @@ internal constructor(
   private val offlineUuidGenerator: OfflineUuidGenerator,
   private val resources: Resources,
   locationManager: LocationManager,
+  mapStateRepository: MapStateRepository,
+  settingsManager: SettingsManager,
+  permissionsManager: PermissionsManager,
   mapController: MapController,
-) : BaseMapViewModel(locationManager, mapController) {
+) :
+  BaseMapViewModel(
+    locationManager,
+    mapStateRepository,
+    settingsManager,
+    permissionsManager,
+    mapController
+  ) {
   enum class DownloadMessage {
     STARTED,
     FAILURE

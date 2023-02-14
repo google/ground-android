@@ -33,6 +33,8 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
@@ -44,10 +46,7 @@ import io.reactivex.subjects.Subject
 import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 @SharedViewModel
@@ -59,9 +58,18 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   locationManager: LocationManager,
+  settingsManager: SettingsManager,
+  permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationManager, mapController) {
+) :
+  BaseMapViewModel(
+    locationManager,
+    mapStateRepository,
+    settingsManager,
+    permissionsManager,
+    mapController
+  ) {
 
   private var activeSurveyId: String = ""
 
@@ -70,21 +78,17 @@ internal constructor(
   private var lastCameraPosition: CameraPosition? = null
 
   val mbtilesFilePaths: LiveData<Set<String>>
-  val isLocationUpdatesEnabled: StateFlow<Boolean> =
-    locationManager.locationLockState
-      .map { it.getOrDefault(false) }
-      .stateIn(viewModelScope, SharingStarted.Lazily, false)
-  val locationAccuracy: StateFlow<String> =
-    locationManager
-      .getLatestLocation()
-      .map {
-        if (it == null) {
-          ""
+  val locationAccuracy: StateFlow<String?> =
+    locationLock
+      .combine(locationManager.getLatestLocation()) { locationLock, latestLocation ->
+        if (locationLock.getOrDefault(false) && latestLocation != null) {
+          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
         } else {
-          resources.getString(R.string.location_accuracy, it.accuracy)
+          null
         }
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, "")
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
   /** The currently selected LOI on the map. */

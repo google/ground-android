@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.system.stateflow
+package com.google.android.ground.system.channel
 
 import android.location.Location
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 /** Implementation of [LocationCallback] linked to a [MutableStateFlow]. */
-class StateFlowLocationCallback(private val locationStateFlow: MutableStateFlow<Location?>) :
-  LocationCallback() {
+class ChannelLocationCallback(
+  private val locationUpdates: Channel<Location>,
+  private val coroutineScope: CoroutineScope
+) : LocationCallback() {
   override fun onLocationResult(locationResult: LocationResult) {
-    locationStateFlow.value = locationResult.lastLocation
+    coroutineScope.launch { locationUpdates.send(locationResult.lastLocation) }
   }
 
   override fun onLocationAvailability(p0: LocationAvailability) {
