@@ -77,8 +77,6 @@ class RoomLocationOfInterestMutationStore @Inject internal constructor() :
     locationOfInterestDao
       .findById(locationOfInterestId)
       .map { it.toModelObject(survey) }
-      .doOnError { Timber.e(it) }
-      .onErrorComplete()
       .subscribeOn(schedulers.io())
 
   fun delete(locationOfInterestId: String): Completable =
