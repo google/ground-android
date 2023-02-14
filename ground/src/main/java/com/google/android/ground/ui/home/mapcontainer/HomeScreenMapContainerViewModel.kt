@@ -19,7 +19,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
-import com.google.android.ground.Config.CLUSTERING_ZOOM_LEVEL_THRESHOLD
+import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -171,7 +171,7 @@ internal constructor(
     loisWithinMapBounds =
       LiveDataReactiveStreams.fromPublisher(
         cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST).switchMap { zoomLevel ->
-          if (zoomLevel >= CLUSTERING_ZOOM_LEVEL_THRESHOLD) loiController.loisWithinMapBounds()
+          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD) loiController.loisWithinMapBounds()
           else Flowable.just(listOf())
         }
       )
