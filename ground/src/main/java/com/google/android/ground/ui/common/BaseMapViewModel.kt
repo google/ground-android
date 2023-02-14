@@ -29,6 +29,7 @@ import com.google.android.ground.system.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
@@ -77,9 +78,7 @@ constructor(
 
   private suspend fun toggleLocationLock() {
     if (locationLock.value.getOrDefault(false)) {
-      disableLocationLock()
-
-      locationManager.disableLocationUpdates()
+      disableLocationLock().await()
     } else {
       try {
         permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION).await()
@@ -91,7 +90,7 @@ constructor(
         locationManager.requestLocationUpdates().await()
       } catch (e: PermissionDeniedException) {
         locationLock.value = Result.failure(e)
-        locationManager.disableLocationUpdates()
+        locationManager.disableLocationUpdates().await()
       }
     }
   }
@@ -99,9 +98,9 @@ constructor(
   private fun enableLocationLock() = onLockStateChanged(true)
 
   /** Releases location enableLocationLock by disabling location updates. */
-  private fun disableLocationLock() {
-    locationManager.disableLocationUpdates()
+  private fun disableLocationLock(): Single<Result<Boolean>> {
     onLockStateChanged(false)
+    return locationManager.disableLocationUpdates()
   }
 
   private fun onLockStateChanged(isLocked: Boolean) {
@@ -133,7 +132,7 @@ constructor(
   fun onMapDragged() {
     if (locationLock.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
-      disableLocationLock()
+      viewModelScope.launch { disableLocationLock().await() }
     }
   }
 
