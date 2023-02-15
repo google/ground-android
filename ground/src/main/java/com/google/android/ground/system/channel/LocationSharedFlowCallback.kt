@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 /** Implementation of [LocationCallback] linked to a [MutableStateFlow]. */
 class LocationSharedFlowCallback(
-  private val locationUpdates: MutableSharedFlow<Location?>,
+  private val locationUpdates: MutableSharedFlow<Location>,
   private val coroutineScope: CoroutineScope
 ) : LocationCallback() {
   override fun onLocationResult(locationResult: LocationResult) {

@@ -25,8 +25,11 @@ import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import java8.util.Optional
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,8 +44,9 @@ class MapControllerTest : BaseHiltTest() {
   @Mock lateinit var locationManager: LocationManager
   @Mock lateinit var surveyRepository: SurveyRepository
   @Mock lateinit var mapStateRepository: MapStateRepository
+  @Inject lateinit var testDispatcher: TestDispatcher
 
-  private val locationSharedFlow: MutableSharedFlow<Location?> = MutableSharedFlow()
+  private val locationSharedFlow: MutableSharedFlow<Location> = MutableSharedFlow()
 
   private lateinit var mapController: MapController
 
@@ -50,7 +54,7 @@ class MapControllerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     mapController = MapController(locationManager, surveyRepository, mapStateRepository)
-//    `when`(locationManager.locationUpdates).thenReturn(locationSharedFlow as SharedFlow<Location>)
+    `when`(locationManager.locationUpdates).thenReturn(locationSharedFlow)
   }
 
   @Test
@@ -72,17 +76,20 @@ class MapControllerTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetCameraUpdates_whenLocationUpdates() {
-    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
-    runBlocking {
-      locationSharedFlow.emit(Location("test provider").apply {
-        latitude = TEST_COORDINATE.x
-        longitude = TEST_COORDINATE.y
-      })
-    }
+  fun testGetCameraUpdates_whenLocationUpdates() =
+    runTest(testDispatcher) {
+      `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+      val cameraUpdates = mapController.getCameraUpdates().test()
+      locationSharedFlow.emit(
+        Location("test provider").apply {
+          latitude = TEST_COORDINATE.x
+          longitude = TEST_COORDINATE.y
+        }
+      )
+      advanceUntilIdle()
 
-    mapController.getCameraUpdates().test().assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
-  }
+      cameraUpdates.assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
+    }
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsEmpty() {

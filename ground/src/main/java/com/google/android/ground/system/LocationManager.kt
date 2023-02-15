@@ -45,8 +45,8 @@ constructor(
   private val locationClient: RxFusedLocationProviderClient,
 ) {
 
-  private val _locationUpdates = MutableSharedFlow<Location?>()
-  val locationUpdates: SharedFlow<Location?>
+  private val _locationUpdates = MutableSharedFlow<Location>()
+  val locationUpdates: SharedFlow<Location>
     get() = _locationUpdates
   private val locationCallback = LocationSharedFlowCallback(_locationUpdates, externalScope)
 
