@@ -22,7 +22,7 @@ import io.reactivex.Completable
  * [LocalStore]s that additionally manage data synchronization with remote storage using [Mutation]s
  * .
  */
-interface LocalMutationStore<T : Mutation, M> : LocalStore<M> {
+interface LocalMutationStore<T : Mutation, M> {
   /**
    * Applies enqueued mutations to an entity then saves it to the local database, ensuring the
    * latest version of the data is retained.
@@ -32,9 +32,7 @@ interface LocalMutationStore<T : Mutation, M> : LocalStore<M> {
   /** Enqueue a mutation to be applied to the remote data store. */
   fun enqueue(mutation: T): Completable
 
-  /**
-   * Applies a mutation to the local data store.
-   */
+  /** Applies a mutation to the local data store. */
   fun apply(mutation: T): Completable
 
   /** Updates specified mutations in the local queue. */
