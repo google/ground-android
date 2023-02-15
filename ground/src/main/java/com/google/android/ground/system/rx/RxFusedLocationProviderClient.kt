@@ -24,7 +24,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.ground.rx.RxTask.toCompletable
 import com.google.android.ground.rx.RxTask.toMaybe
-import com.google.android.ground.system.channel.ChannelLocationCallback
+import com.google.android.ground.system.channel.LocationSharedFlowCallback
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -45,7 +45,7 @@ class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext cont
   @SuppressLint("MissingPermission")
   fun requestLocationUpdates(
     locationRequest: LocationRequest,
-    locationCallback: ChannelLocationCallback
+    locationCallback: LocationSharedFlowCallback
   ): Completable = toCompletable {
     fusedLocationProviderClient.requestLocationUpdates(
       locationRequest,
@@ -54,7 +54,7 @@ class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext cont
     )
   }
 
-  fun removeLocationUpdates(locationCallback: ChannelLocationCallback): Completable =
+  fun removeLocationUpdates(locationCallback: LocationSharedFlowCallback): Completable =
     toCompletable {
       fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }

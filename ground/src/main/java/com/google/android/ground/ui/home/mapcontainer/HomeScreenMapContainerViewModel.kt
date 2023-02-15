@@ -80,7 +80,7 @@ internal constructor(
   val mbtilesFilePaths: LiveData<Set<String>>
   val locationAccuracy: StateFlow<String?> =
     locationLock
-      .combine(locationManager.getLocation()) { locationLock, latestLocation ->
+      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
         if (locationLock.getOrDefault(false) && latestLocation != null) {
           resources.getString(R.string.location_accuracy, latestLocation.accuracy)
         } else {

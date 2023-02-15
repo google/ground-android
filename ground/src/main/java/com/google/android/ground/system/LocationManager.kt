@@ -18,13 +18,12 @@ package com.google.android.ground.system
 import android.location.Location
 import com.google.android.gms.location.LocationRequest
 import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.system.channel.ChannelLocationCallback
+import com.google.android.ground.system.channel.LocationSharedFlowCallback
 import com.google.android.ground.system.rx.RxFusedLocationProviderClient
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
@@ -46,14 +45,10 @@ constructor(
   private val locationClient: RxFusedLocationProviderClient,
 ) {
 
-  private val locationUpdates = Channel<Location>()
-  private val locationCallback = ChannelLocationCallback(locationUpdates, externalScope)
-
-  /**
-   * Returns the location StateFlow. New subscribers and downstream subscribers that can't keep up
-   * will only see the latest location. Returns null if location lock is disabled
-   */
-  fun getLocation(): Flow<Location?> = locationUpdates.receiveAsFlow()
+  private val _locationUpdates = MutableSharedFlow<Location?>()
+  val locationUpdates: SharedFlow<Location?>
+    get() = _locationUpdates
+  private val locationCallback = LocationSharedFlowCallback(_locationUpdates, externalScope)
 
   fun requestLocationUpdates() =
     locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback)

@@ -25,7 +25,8 @@ import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import java8.util.Optional
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +42,7 @@ class MapControllerTest : BaseHiltTest() {
   @Mock lateinit var surveyRepository: SurveyRepository
   @Mock lateinit var mapStateRepository: MapStateRepository
 
-  private val locationStateFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
+  private val locationSharedFlow: MutableSharedFlow<Location?> = MutableSharedFlow()
 
   private lateinit var mapController: MapController
 
@@ -49,7 +50,7 @@ class MapControllerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     mapController = MapController(locationManager, surveyRepository, mapStateRepository)
-    `when`(locationManager.getLocation()).thenReturn(locationStateFlow)
+//    `when`(locationManager.locationUpdates).thenReturn(locationSharedFlow as SharedFlow<Location>)
   }
 
   @Test
@@ -73,11 +74,12 @@ class MapControllerTest : BaseHiltTest() {
   @Test
   fun testGetCameraUpdates_whenLocationUpdates() {
     `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
-    locationStateFlow.value =
-      Location("test provider").apply {
+    runBlocking {
+      locationSharedFlow.emit(Location("test provider").apply {
         latitude = TEST_COORDINATE.x
         longitude = TEST_COORDINATE.y
-      }
+      })
+    }
 
     mapController.getCameraUpdates().test().assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
   }

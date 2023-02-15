@@ -20,17 +20,17 @@ import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /** Implementation of [LocationCallback] linked to a [MutableStateFlow]. */
-class ChannelLocationCallback(
-  private val locationUpdates: Channel<Location>,
+class LocationSharedFlowCallback(
+  private val locationUpdates: MutableSharedFlow<Location?>,
   private val coroutineScope: CoroutineScope
 ) : LocationCallback() {
   override fun onLocationResult(locationResult: LocationResult) {
-    coroutineScope.launch { locationUpdates.send(locationResult.lastLocation) }
+    coroutineScope.launch { locationUpdates.emit(locationResult.lastLocation) }
   }
 
   override fun onLocationAvailability(p0: LocationAvailability) {
