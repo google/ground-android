@@ -30,9 +30,8 @@ import com.google.android.ground.persistence.local.room.entity.LocationOfInteres
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
+import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.util.Debug
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
@@ -45,8 +44,7 @@ import timber.log.Timber
 
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
 @Singleton
-class RoomLocationOfInterestMutationStore @Inject internal constructor() :
-  LocalLocationOfInterestMutationStore {
+class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInterestStore {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
