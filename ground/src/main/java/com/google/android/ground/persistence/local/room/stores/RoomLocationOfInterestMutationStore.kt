@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
