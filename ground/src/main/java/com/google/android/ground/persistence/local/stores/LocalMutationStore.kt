@@ -24,19 +24,22 @@ import io.reactivex.Completable
  */
 interface LocalMutationStore<T : Mutation, M> : LocalStore<M> {
   /**
-   * Commits enqueued mutations to a model object then saves it to the local database, ensuring the
+   * Applies enqueued mutations to an entity then saves it to the local database, ensuring the
    * latest version of the data is retained.
    */
   fun merge(model: M): Completable
-  /** Queue a mutation for application to locally stored data. */
+
+  /** Enqueue a mutation to be applied to the remote data store. */
   fun enqueue(mutation: T): Completable
+
   /**
-   * Applies a mutation to locally stored data. The local database will be updated according to the
-   * changes in the mutation.
+   * Applies a mutation to the local data store.
    */
   fun apply(mutation: T): Completable
-  /** Updates all "re-queues" mutations in the list of provided list of mutations. */
+
+  /** Updates specified mutations in the local queue. */
   fun updateAll(mutations: List<T>): Completable
+
   /**
    * Applies mutations to locally stored data, then enqueues the mutation for use when merging
    * runtime model objects.
