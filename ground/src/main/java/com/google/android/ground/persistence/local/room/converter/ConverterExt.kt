@@ -142,18 +142,24 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
   }
 }
 
-fun LocationOfInterestMutation.toLocalDataStoreObject(
-  created: AuditInfo
-): LocationOfInterestEntity {
-  val authInfo = created.toLocalDataStoreObject()
+@Deprecated(
+  "Use toLocalDataStoreObject(User) instead",
+  ReplaceWith("toLocalDataStoreObject(auditInfo.user)")
+)
+fun LocationOfInterestMutation.toLocalDataStoreObject(auditInfo: AuditInfo) =
+  toLocalDataStoreObject(auditInfo.user)
+
+fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInterestEntity {
+  val auditInfo = AuditInfo(user, clientTimestamp).toLocalDataStoreObject()
 
   return LocationOfInterestEntity(
     id = locationOfInterestId,
     surveyId = surveyId,
     jobId = jobId,
     state = EntityState.DEFAULT,
-    created = authInfo,
-    lastModified = authInfo,
+    // TODO(#1562): Preserve creation audit info for UPDATE mutations.
+    created = auditInfo,
+    lastModified = auditInfo,
     geometry = geometry?.toLocalDataStoreObject()
   )
 }
@@ -270,7 +276,7 @@ fun Submission.toLocalDataStoreObject() =
   )
 
 fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEntity {
-  val authInfo = created.toLocalDataStoreObject()
+  val auditInfo = created.toLocalDataStoreObject()
 
   return SubmissionEntity(
     id = this.submissionId,
@@ -278,8 +284,9 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
     responses = ResponseMapConverter.toString(TaskDataMap().copyWithDeltas(this.taskDataDeltas)),
-    created = authInfo,
-    lastModified = authInfo
+    // TODO(#1562): Preserve creation audit info for UPDATE mutations.
+    created = auditInfo,
+    lastModified = auditInfo
   )
 }
 

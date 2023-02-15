@@ -16,8 +16,8 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.local.LocalDataStoreHelper
@@ -33,7 +33,7 @@ import org.robolectric.RobolectricTestRunner
 class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
-  @Inject lateinit var localDataStore: LocalDataStore
+  @Inject lateinit var localUserStore: LocalUserStore
 
   @Inject lateinit var localDataStoreHelper: LocalDataStoreHelper
 
@@ -49,12 +49,12 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testSaveUser() {
-    localDataStore.userStore
+    localUserStore
       .getUser(FakeData.USER.id)
       .test()
       .assertFailure(NoSuchElementException::class.java)
     userRepository.saveUser(FakeData.USER).test().assertComplete()
-    localDataStore.userStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+    localUserStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
   }
 
   @Test

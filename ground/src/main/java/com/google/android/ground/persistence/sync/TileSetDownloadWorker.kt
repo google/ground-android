@@ -20,7 +20,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.basemap.tile.TileSet
-import com.google.android.ground.persistence.local.LocalDataStore
+import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.reactivex.Completable
@@ -42,7 +42,7 @@ class TileSetDownloadWorker
 constructor(
   @param:Assisted private val context: Context,
   @Assisted params: WorkerParameters,
-  private val localDataStore: LocalDataStore
+  private val localTileSetStore: LocalTileSetStore
 ) : Worker(context, params) {
 
   /**
@@ -102,7 +102,7 @@ constructor(
       val existingTileFile = File(context.filesDir, tileSet.path)
       requestProperties["Range"] = "bytes=" + existingTileFile.length() + "-"
     }
-    return localDataStore.tileSetStore
+    return localTileSetStore
       .insertOrUpdateTileSet(
         tileSet.copy(
           state = TileSet.State.IN_PROGRESS,
@@ -111,14 +111,14 @@ constructor(
       .andThen(Completable.fromRunnable { downloadTileFile(tileSet, requestProperties) })
       .onErrorResumeNext { e ->
         Timber.d(e, "Failed to download tile: $tileSet")
-        localDataStore.tileSetStore.insertOrUpdateTileSet(
+        localTileSetStore.insertOrUpdateTileSet(
           tileSet.copy(
             state = TileSet.State.FAILED,
           )
         )
       }
       .andThen(
-        localDataStore.tileSetStore.insertOrUpdateTileSet(
+        localTileSetStore.insertOrUpdateTileSet(
           tileSet.copy(
             state = TileSet.State.DOWNLOADED,
           )
@@ -154,8 +154,7 @@ constructor(
    * and does not re-download the file.
    */
   override fun doWork(): Result {
-    val pendingTileSets =
-      localDataStore.tileSetStore.pendingTileSets.blockingGet() ?: return Result.success()
+    val pendingTileSets = localTileSetStore.pendingTileSets.blockingGet() ?: return Result.success()
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -77,8 +76,6 @@ class RoomLocationOfInterestMutationStore @Inject internal constructor() :
     locationOfInterestDao
       .findById(locationOfInterestId)
       .map { it.toModelObject(survey) }
-      .doOnError { Timber.e(it) }
-      .onErrorComplete()
       .subscribeOn(schedulers.io())
 
   fun delete(locationOfInterestId: String): Completable =
@@ -146,7 +143,7 @@ class RoomLocationOfInterestMutationStore @Inject internal constructor() :
     user: User
   ): Completable =
     locationOfInterestDao
-      .insertOrUpdate(mutation.toLocalDataStoreObject(AuditInfo(user)))
+      .insertOrUpdate(mutation.toLocalDataStoreObject(user))
       .subscribeOn(schedulers.io())
 
   private fun markLocationOfInterestForDeletion(
