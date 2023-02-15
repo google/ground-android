@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.util
 
+import java.util.function.Supplier
 import timber.log.Timber
 
 object Debug {
@@ -23,4 +24,12 @@ object Debug {
     val callingMethod = stackTrace[3].methodName + "()"
     Timber.tag(instance.javaClass.simpleName).v("Lifecycle event: $callingMethod")
   }
+
+  fun <T> logOnFailure(supplier: Supplier<T>): T? =
+    try {
+      supplier.get()
+    } catch (e: RuntimeException) {
+      Timber.d(e.message)
+      null
+    }
 }

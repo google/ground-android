@@ -15,9 +15,6 @@
  */
 package com.google.android.ground.persistence.local.stores
 
-import java8.util.function.Supplier
-import timber.log.Timber
-
 /**
  * The shared type of classes responsible for managing access to Ground's local-only stored data.
  * These classes return Ground model objects that represent an object as its currently stored in the
@@ -26,12 +23,4 @@ import timber.log.Timber
  * When data needs to be persisted and synchronized in both the local and remote data storage use
  * [LocalMutationStore], which has additional methods for handling synchronization.
  */
-sealed interface LocalStore<T> {
-  fun <R> logAndSkip(supplier: Supplier<R>): Iterable<R> =
-    try {
-      setOf(supplier.get())
-    } catch (e: RuntimeException) {
-      Timber.d(e.message)
-      emptySet()
-    }
-}
+sealed interface LocalStore<T> {}

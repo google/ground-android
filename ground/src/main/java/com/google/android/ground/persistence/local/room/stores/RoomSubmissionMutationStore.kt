@@ -41,6 +41,7 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
 import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.util.Debug.logOnFailure
 import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.*
@@ -116,7 +117,7 @@ class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissi
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override fun apply(mutation: SubmissionMutation): Completable {
     return when (mutation.type) {
@@ -229,7 +230,7 @@ class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissi
     locationOfInterest: LocationOfInterest,
     submissionEntities: List<SubmissionEntity>
   ): List<Submission> =
-    submissionEntities.flatMap { logAndSkip { it.toModelObject(locationOfInterest) } }
+    submissionEntities.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
 
   override fun deleteSubmission(submissionId: String): Completable =
     submissionDao
