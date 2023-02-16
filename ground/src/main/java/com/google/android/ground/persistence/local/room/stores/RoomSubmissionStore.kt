@@ -117,7 +117,7 @@ class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   *   exist, or if type is "CREATE" and entity already exists.
+   * exist, or if type is "CREATE" and entity already exists.
    */
   override fun apply(mutation: SubmissionMutation): Completable {
     return when (mutation.type) {
