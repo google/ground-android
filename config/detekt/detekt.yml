@@ -634,7 +634,7 @@ style:
     OptionalWhenBraces:
         active: false
     PreferToOverPairSyntax:
-        active: false
+        active: true
     ProtectedMemberInFinalClass:
         active: true
     RedundantExplicitType:
