@@ -18,6 +18,7 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.viewModelScope
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
@@ -30,15 +31,25 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 
 @SharedViewModel
@@ -47,19 +58,37 @@ class HomeScreenMapContainerViewModel
 internal constructor(
   private val resources: Resources,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val mapStateRepository: MapStateRepository,
-  private val locationController: LocationController,
   private val mapController: MapController,
+  private val mapStateRepository: MapStateRepository,
+  locationManager: LocationManager,
+  settingsManager: SettingsManager,
+  permissionsManager: PermissionsManager,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationController, mapController) {
+) :
+  BaseMapViewModel(
+    locationManager,
+    mapStateRepository,
+    settingsManager,
+    permissionsManager,
+    mapController
+  ) {
 
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
 
   val mbtilesFilePaths: LiveData<Set<String>>
-  val isLocationUpdatesEnabled: LiveData<Boolean>
-  val locationAccuracy: LiveData<String>
+  val locationAccuracy: StateFlow<String?> =
+    locationLock
+      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
+        if (locationLock.getOrDefault(false) && latestLocation != null) {
+          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
+        } else {
+          null
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
   /* UI Clicks */
@@ -87,11 +116,6 @@ internal constructor(
       .toPersistentSet()
   }
 
-  private fun createLocationAccuracyFlowable() =
-    locationController.getLocationUpdates().map {
-      resources.getString(R.string.location_accuracy, it.accuracy)
-    }
-
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
     Timber.d("Setting position to $newCameraPosition")
@@ -104,8 +128,8 @@ internal constructor(
     if (oldZoomLevel == null || newZoomLevel == null) return
 
     val zoomThresholdCrossed =
-      (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
-        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD)
+      oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
+        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
       this.zoomThresholdCrossed.onNext(Nil.NIL)
     }
@@ -142,12 +166,6 @@ internal constructor(
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    val locationLockStateFlowable = locationController.getLocationLockUpdates()
-    isLocationUpdatesEnabled =
-      LiveDataReactiveStreams.fromPublisher(
-        locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
-      )
-    locationAccuracy = LiveDataReactiveStreams.fromPublisher(createLocationAccuracyFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo

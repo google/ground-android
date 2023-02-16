@@ -44,7 +44,7 @@ class MultipleChoiceTaskData(
 
   override fun equals(other: Any?): Boolean {
     if (other is MultipleChoiceTaskData) {
-      return selectedOptionIds == (other).selectedOptionIds
+      return selectedOptionIds == other.selectedOptionIds
     }
     return false
   }

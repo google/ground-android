@@ -139,8 +139,8 @@ class MainViewModelTest : BaseHiltTest() {
     Shadows.shadowOf(Looper.getMainLooper()).idle()
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(
-      (SignInFragmentDirections.showTermsOfService()
-        .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections)
+      SignInFragmentDirections.showTermsOfService()
+        .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections
     )
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()

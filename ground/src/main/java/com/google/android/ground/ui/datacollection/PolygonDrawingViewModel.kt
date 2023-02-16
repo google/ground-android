@@ -75,7 +75,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
    */
   fun updateLastVertex(newTarget: Point, distanceInPixels: Double) {
     val isPolygonComplete = vertices.size > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP
-    addVertex((if (isPolygonComplete) vertices[0] else newTarget), true)
+    addVertex(if (isPolygonComplete) vertices[0] else newTarget, true)
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
