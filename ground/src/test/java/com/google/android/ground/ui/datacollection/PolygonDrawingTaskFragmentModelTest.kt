@@ -185,10 +185,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     drawnGeometryTestObserver.assertValue { features: Set<Feature> ->
       var actualPolygonCount = 0
       for (feature in features) {
-        when (feature.geometry) {
-          is Polygon -> actualPolygonCount++
-          else -> {}
-        }
+        if (feature.geometry is Polygon) actualPolygonCount++
       }
 
       // Check whether drawn features contain expected number of polygons.

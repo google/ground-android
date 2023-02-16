@@ -153,13 +153,11 @@ class HomeScreenFragment :
 
   @Deprecated("Deprecated in Java")
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    when (item.itemId) {
-      R.id.loi_properties_menu_item -> {
-        showLocationOfInterestProperties()
-      }
-      else -> return false
+    if (item.itemId == R.id.loi_properties_menu_item) {
+      showLocationOfInterestProperties()
+      return true
     }
-    return true
+    return false
   }
 
   private fun showSurveySelector() {
