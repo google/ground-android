@@ -656,7 +656,7 @@ style:
     SerialVersionUIDInSerializableClass:
         active: true
     SpacingBetweenPackageAndImports:
-        active: false
+        active: true
     ThrowsCount:
         active: true
         max: 2
