@@ -28,7 +28,6 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.rx2.asFlowable
 
 @Singleton
@@ -51,8 +50,7 @@ constructor(
 
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraPosition> {
-    val locationUpdates =
-      locationManager.locationUpdates.asFlowable().map { it.toCoordinate() }
+    val locationUpdates = locationManager.locationUpdates.asFlowable().map { it.toCoordinate() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates
