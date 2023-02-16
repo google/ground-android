@@ -132,7 +132,8 @@ internal constructor(
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
   fun getTaskViewModel(position: Int, task: Task): AbstractTaskViewModel {
-    val viewModels = taskViewModels.value ?: throw IllegalStateException()
+    val viewModels = taskViewModels.value
+    require(viewModels != null)
     if (position < viewModels.size) {
       return viewModels[position]
     }

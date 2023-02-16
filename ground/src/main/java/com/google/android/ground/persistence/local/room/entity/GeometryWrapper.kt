@@ -37,7 +37,7 @@ data class GeometryWrapper(
         is Point -> GeometryWrapper(point = geometry)
         is Polygon -> GeometryWrapper(polygon = geometry)
         is MultiPolygon -> GeometryWrapper(multiPolygon = geometry)
-        else -> throw IllegalStateException("No matching geometry found")
+        else -> error("No matching geometry found")
       }
   }
 }
