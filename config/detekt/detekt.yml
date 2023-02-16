@@ -719,7 +719,7 @@ style:
     UseOrEmpty:
         active: true
     UseRequire:
-        active: false
+        active: true
     UseRequireNotNull:
         active: true
     UseSumOfInsteadOfFlatMapSize:
