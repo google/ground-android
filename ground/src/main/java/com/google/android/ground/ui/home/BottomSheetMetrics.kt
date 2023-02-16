@@ -24,14 +24,14 @@ import kotlin.math.min
 import timber.log.Timber
 
 /** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
-class BottomSheetMetrics internal constructor(bottomSheet: View) {
-  private val parent: CoordinatorLayout
-  private val bottomSheet: View
-  private val addSubmissionButton: View
-  private val bottomSheetBehavior: BottomSheetBehavior<View>
-  private val header: View
-  private val toolbarWrapper: View
-  private val marginTop: Int
+data class BottomSheetMetrics internal constructor(val bottomSheet: View) {
+  private val parent: CoordinatorLayout = bottomSheet.parent as CoordinatorLayout
+  private val addSubmissionButton: View = parent.findViewById(R.id.add_submission_btn)
+  private val bottomSheetBehavior: BottomSheetBehavior<View> = BottomSheetBehavior.from(bottomSheet)
+  private val header: View = parent.findViewById(R.id.bottom_sheet_header)
+  private val toolbarWrapper: View = parent.findViewById(R.id.toolbar_wrapper)
+  private val marginTop: Int =
+    parent.resources.getDimension(R.dimen.bottom_sheet_margin_top).toInt()
 
   /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
   val visibleHeight: Int
@@ -95,15 +95,5 @@ class BottomSheetMetrics internal constructor(bottomSheet: View) {
   companion object {
     /** Fallback toolbar height - margin top used when toolbar height is uninitialized. */
     const val FALLBACK_EXPANDED_OFFSET = 210 - 168
-  }
-
-  init {
-    this.bottomSheet = bottomSheet
-    parent = bottomSheet.parent as CoordinatorLayout
-    addSubmissionButton = parent.findViewById(R.id.add_submission_btn)
-    bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-    header = parent.findViewById(R.id.bottom_sheet_header)
-    toolbarWrapper = parent.findViewById(R.id.toolbar_wrapper)
-    marginTop = parent.resources.getDimension(R.dimen.bottom_sheet_margin_top).toInt()
   }
 }

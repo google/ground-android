@@ -37,18 +37,14 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
       return
     }
 
-    when (feature.tag.type) {
-      FeatureType.LOCATION_OF_INTEREST.ordinal -> {
-        val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
-
-        if (clusterItem != null) {
-          updateItem(clusterItem)
-        } else {
-          Timber.d("adding loi to cluster manager: ${feature}")
-          addItem(FeatureClusterItem(feature))
-        }
+    if (feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal) {
+      val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
+      if (clusterItem != null) {
+        updateItem(clusterItem)
+      } else {
+        Timber.d("adding loi to cluster manager: $feature")
+        addItem(FeatureClusterItem(feature))
       }
-      else -> {}
     }
   }
 

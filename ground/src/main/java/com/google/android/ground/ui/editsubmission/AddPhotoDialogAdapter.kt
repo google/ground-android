@@ -52,7 +52,7 @@ class AddPhotoDialogAdapter(private val onSelectPhotoStorageClick: Consumer<Int>
     }
   }
 
-  class PhotoStorageResource(
+  data class PhotoStorageResource(
     @param:StringRes val titleResId: Int,
     @param:DrawableRes val iconResId: Int,
     val sourceType: Int

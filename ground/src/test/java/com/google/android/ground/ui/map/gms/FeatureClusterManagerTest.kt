@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.map.gms
 
-import android.content.Context
 import android.os.Looper.getMainLooper
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.maps.GoogleMap
@@ -33,7 +32,6 @@ import org.robolectric.Shadows.shadowOf
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class FeatureClusterManagerTest : BaseHiltTest() {
-  @Mock private lateinit var context: Context
   @Mock private lateinit var map: GoogleMap
 
   private lateinit var featureClusterManager: FeatureClusterManager

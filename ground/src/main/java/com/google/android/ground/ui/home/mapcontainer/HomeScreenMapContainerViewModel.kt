@@ -18,6 +18,7 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.viewModelScope
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
@@ -31,17 +32,20 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 @SharedViewModel
@@ -51,11 +55,20 @@ internal constructor(
   private val resources: Resources,
   private val mapStateRepository: MapStateRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val locationController: LocationController,
   private val mapController: MapController,
+  locationManager: LocationManager,
+  settingsManager: SettingsManager,
+  permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
-) : BaseMapViewModel(locationController, mapController) {
+) :
+  BaseMapViewModel(
+    locationManager,
+    mapStateRepository,
+    settingsManager,
+    permissionsManager,
+    mapController
+  ) {
 
   private var activeSurveyId: String = ""
 
@@ -64,36 +77,21 @@ internal constructor(
   private var lastCameraPosition: CameraPosition? = null
 
   val mbtilesFilePaths: LiveData<Set<String>>
-  val isLocationUpdatesEnabled: LiveData<Boolean>
-  val locationAccuracy: LiveData<String>
-  private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
+  val locationAccuracy: StateFlow<String?> =
+    locationLock
+      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
+        if (locationLock.getOrDefault(false) && latestLocation != null) {
+          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
+        } else {
+          null
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  /** The currently selected LOI on the map. */
-  private val selectedLocationOfInterest =
-    BehaviorProcessor.createDefault(Optional.empty<LocationOfInterest>())
+  private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
-
-  private fun updateSelectedLocationOfInterest(
-    locationsOfInterest: Set<Feature>,
-    selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): Set<Feature> {
-    Timber.v("Updating selected LOI style")
-
-    if (selectedLocationOfInterest.isEmpty) {
-      return locationsOfInterest
-    }
-
-    val updatedLocationsOfInterest = mutableSetOf<Feature>()
-    val selectedLocationOfInterestId = selectedLocationOfInterest.get().id
-
-    for (locationOfInterest in locationsOfInterest) {
-      // TODO: Update strokewidth of non MapGeoJson locationOfInterest
-      updatedLocationsOfInterest.add(locationOfInterest)
-    }
-    return updatedLocationsOfInterest.toPersistentSet()
-  }
 
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
@@ -110,11 +108,6 @@ internal constructor(
       }
       .toPersistentSet()
   }
-
-  private fun createLocationAccuracyFlowable() =
-    locationController.getLocationUpdates().map {
-      resources.getString(R.string.location_accuracy, it.accuracy)
-    }
 
   // TODO(#1373): Delete once LOIs are synced on survey activation and on update in background
   //   worker.
@@ -141,8 +134,8 @@ internal constructor(
     if (oldZoomLevel == null || newZoomLevel == null) return
 
     val zoomThresholdCrossed =
-      (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
-        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD)
+      oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
+        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
       this.zoomThresholdCrossed.onNext(Nil.NIL)
     }
@@ -177,19 +170,8 @@ internal constructor(
     return zoomThresholdCrossed
   }
 
-  /** Called when a LOI is (de)selected. */
-  fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
-    this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    val locationLockStateFlowable = locationController.getLocationLockUpdates()
-    isLocationUpdatesEnabled =
-      LiveDataReactiveStreams.fromPublisher(
-        locationLockStateFlowable.map { it.getOrDefault(false) }.startWith(false)
-      )
-    locationAccuracy = LiveDataReactiveStreams.fromPublisher(createLocationAccuracyFlowable())
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
@@ -200,17 +182,12 @@ internal constructor(
         getLocationsOfInterestStream(survey)
       }
 
-    val savedMapLocationsOfInterest =
-      Flowable.combineLatest(
-        loiStream.map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) },
-        selectedLocationOfInterest
-      ) { locationsOfInterest, selectedLocationOfInterest ->
-        updateSelectedLocationOfInterest(locationsOfInterest, selectedLocationOfInterest)
-      }
-
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        savedMapLocationsOfInterest.startWith(setOf<Feature>()).distinctUntilChanged()
+        loiStream
+          .map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) }
+          .startWith(setOf<Feature>())
+          .distinctUntilChanged()
       )
 
     mbtilesFilePaths =

@@ -173,7 +173,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
     viewModel.onCompletePolygonButtonClick()
     stateTestObserver.assertValue { polygonDrawingState: PolygonDrawingState ->
-      (polygonDrawingState.isCompleted && polygonDrawingState.polygon?.vertices?.size == 4)
+      polygonDrawingState.isCompleted && polygonDrawingState.polygon?.vertices?.size == 4
     }
   }
 
@@ -185,10 +185,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     drawnGeometryTestObserver.assertValue { features: Set<Feature> ->
       var actualPolygonCount = 0
       for (feature in features) {
-        when (feature.geometry) {
-          is Polygon -> actualPolygonCount++
-          else -> {}
-        }
+        if (feature.geometry is Polygon) actualPolygonCount++
       }
 
       // Check whether drawn features contain expected number of polygons.
