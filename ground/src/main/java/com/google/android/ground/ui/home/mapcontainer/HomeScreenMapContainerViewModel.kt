@@ -116,8 +116,8 @@ internal constructor(
     if (oldZoomLevel == null || newZoomLevel == null) return
 
     val zoomThresholdCrossed =
-      (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
-        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD)
+      oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
+        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
       this.zoomThresholdCrossed.onNext(Nil.NIL)
     }

@@ -45,7 +45,7 @@ abstract class AbstractView(context: Context) : FrameLayout(context) {
 
   protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding =
     DataBindingUtil.inflate(
-      (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater),
+      context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
       layoutId,
       this,
       true

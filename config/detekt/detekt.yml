@@ -682,14 +682,14 @@ style:
     UnnecessaryInheritance:
         active: true
     UnnecessaryInnerClass:
-        active: false
+        active: true
     UnnecessaryLet:
-        active: false
+        active: true
     UnnecessaryParentheses:
-        active: false
-        allowForUnclearPrecedence: false
+        active: true
+        allowForUnclearPrecedence: true
     UntilInsteadOfRangeTo:
-        active: false
+        active: true
     UnusedImports:
         active: true
     UnusedPrivateClass:
