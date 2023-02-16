@@ -25,6 +25,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil
@@ -32,8 +33,6 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -47,10 +46,10 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val resources: Resources,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapStateRepository: MapStateRepository,
   private val locationController: LocationController,
   private val mapController: MapController,
-  private val loiController: LoiController,
   offlineAreaRepository: OfflineAreaRepository
 ) : BaseMapViewModel(locationController, mapController) {
 
@@ -66,7 +65,11 @@ internal constructor(
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
-  val loisWithinMapBounds: LiveData<List<LocationOfInterest>>
+  /**
+   * List of [LocationOfInterest] for the active survey that are present within the map bounds and
+   * zoom level is clustering threshold or higher.
+   */
+  val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
@@ -92,7 +95,6 @@ internal constructor(
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
     Timber.d("Setting position to $newCameraPosition")
-    loiController.onCameraBoundsUpdated(newCameraPosition.bounds?.toGoogleMapsObject())
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     mapStateRepository.setCameraPosition(newCameraPosition)
     lastCameraPosition = newCameraPosition
@@ -153,8 +155,8 @@ internal constructor(
 
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        loiController
-          .getAllLocationsOfInterest()
+        locationOfInterestRepository
+          .getAllLocationsOfInterestOnceAndStream()
           .map { toLocationOfInterestFeatures(it) }
           .startWith(setOf<Feature>())
           .distinctUntilChanged()
@@ -167,10 +169,11 @@ internal constructor(
         }
       )
 
-    loisWithinMapBounds =
+    loisWithinMapBoundsAtVisibleZoomLevel =
       LiveDataReactiveStreams.fromPublisher(
-        cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST).switchMap { zoomLevel ->
-          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD) loiController.loisWithinMapBounds()
+        cameraZoomUpdates.switchMap { zoomLevel ->
+          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD)
+            locationOfInterestRepository.getWithinBoundsOnceAndStream(cameraBoundUpdates)
           else Flowable.just(listOf())
         }
       )

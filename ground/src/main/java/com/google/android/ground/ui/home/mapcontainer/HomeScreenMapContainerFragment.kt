@@ -73,7 +73,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     adapter = LoiCardAdapter()
     adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    mapContainerViewModel.loisWithinMapBounds.observe(this) { adapter.updateData(it) }
+    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) {
+      adapter.updateData(it)
+    }
   }
 
   override fun onCreateView(
