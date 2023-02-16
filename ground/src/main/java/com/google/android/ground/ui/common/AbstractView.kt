@@ -37,7 +37,7 @@ abstract class AbstractView(context: Context) : FrameLayout(context) {
         if (context is FragmentActivity) return context
         context = context.baseContext
       }
-      throw IllegalStateException("View is not contained in FragmentActivity")
+      error("View is not contained in FragmentActivity")
     }
 
   protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =

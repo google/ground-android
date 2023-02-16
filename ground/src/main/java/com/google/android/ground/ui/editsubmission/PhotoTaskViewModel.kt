@@ -219,6 +219,7 @@ constructor(
     if (result.path != null) {
       return File(result.path)
     }
-    throw IllegalStateException("PhotoResult is empty")
+
+    error("PhotoResult is empty")
   }
 }

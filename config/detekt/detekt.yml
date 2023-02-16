@@ -704,7 +704,7 @@ style:
     UseCheckNotNull:
         active: true
     UseCheckOrError:
-        active: false
+        active: true
     UseDataClass:
         active: true
         allowVars: false
