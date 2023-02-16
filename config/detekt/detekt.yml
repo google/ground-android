@@ -638,11 +638,11 @@ style:
     ProtectedMemberInFinalClass:
         active: true
     RedundantExplicitType:
-        active: false
+        active: true
     RedundantHigherOrderMapUsage:
         active: true
     RedundantVisibilityModifierRule:
-        active: false
+        active: true
     ReturnCount:
         active: false
         max: 2
