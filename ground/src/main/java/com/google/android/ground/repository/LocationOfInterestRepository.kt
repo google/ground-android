@@ -15,7 +15,9 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -27,6 +29,7 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.ui.map.gms.toLatLng
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -80,12 +83,6 @@ constructor(
     )
   }
 
-  // TODO: Only return location of interest fields needed to render locations of interest on map.
-  fun getLocationsOfInterestOnceAndStream(
-    survey: Survey
-  ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>> =
-    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
-
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getOfflineLocationOfInterest(
     surveyId: String,
@@ -127,4 +124,33 @@ constructor(
       MutationEntitySyncStatus.IN_PROGRESS,
       MutationEntitySyncStatus.FAILED
     )
+
+  /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
+  fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> =
+    surveyRepository.activeSurvey
+      .switchMap { survey ->
+        survey
+          .map { localLoiStore.getLocationsOfInterestOnceAndStream(it) }
+          .orElse(Flowable.just(setOf()))
+      }
+      .distinctUntilChanged()
+
+  /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
+  fun getWithinBoundsOnceAndStream(
+    cameraBoundUpdates: Flowable<LatLngBounds>
+  ): Flowable<List<LocationOfInterest>> {
+    val loiStream = getAllLocationsOfInterestOnceAndStream()
+    return cameraBoundUpdates
+      .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
+      .distinctUntilChanged()
+  }
+
+  /** Filters all [LocationOfInterest] within [bounds]. */
+  private fun Set<LocationOfInterest>.toLoiCardsWithinBounds(
+    bounds: LatLngBounds
+  ): List<LocationOfInterest> = this.filter { isGeometryWithinBounds(it.geometry, bounds) }
+
+  /** Returns true if the provided [geometry] is within [bounds]. */
+  private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean =
+    geometry.vertices.any { bounds.contains(it.toLatLng()) }
 }
