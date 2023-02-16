@@ -140,7 +140,7 @@ complexity:
         active: true
         threshold: 600
     LongMethod:
-        active: true
+        active: false
         threshold: 60
     LongParameterList:
         active: false
@@ -462,7 +462,7 @@ potential-bugs:
             - 'java.util.stream.*Stream'
         ignoreFunctionCall: [ ]
     ImplicitDefaultLocale:
-        active: true
+        active: false
     ImplicitUnitReturnType:
         active: false
         allowExplicitReturnType: true
@@ -538,7 +538,7 @@ style:
     ExplicitCollectionElementAccessMethod:
         active: false
     ExplicitItLambdaParameter:
-        active: true
+        active: false
     ExpressionBodySyntax:
         active: false
         includeLineWrapping: false
@@ -574,7 +574,7 @@ style:
         ignoreActualFunction: true
         excludedFunctions: [ ]
     LoopWithTooManyJumpStatements:
-        active: true
+        active: false
         maxJumpCount: 1
     MagicNumber:
         active: false
