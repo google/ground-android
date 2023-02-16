@@ -129,11 +129,11 @@ constructor(
     locationOfInterestId: String,
     jobId: String
   ): @Cold Single<Submission> {
-    // TODO: Very jobId == loi job id.
     val auditInfo = AuditInfo(authManager.currentUser)
     return locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .map { locationOfInterest: LocationOfInterest ->
+        check(locationOfInterest.job.id == jobId)
         Submission(
           uuidGenerator.generateUuid(),
           locationOfInterest.surveyId,
