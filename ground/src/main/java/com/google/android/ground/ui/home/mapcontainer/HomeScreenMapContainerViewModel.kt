@@ -151,7 +151,6 @@ internal constructor(
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
 
-    // TODO: Should we only render the LOIs that are present within the map bounds?
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
         loiController
