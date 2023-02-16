@@ -630,7 +630,7 @@ style:
     OptionalAbstractKeyword:
         active: true
     OptionalUnit:
-        active: false
+        active: true
     OptionalWhenBraces:
         active: false
     PreferToOverPairSyntax:
