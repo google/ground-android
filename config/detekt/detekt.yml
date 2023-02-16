@@ -709,9 +709,9 @@ style:
         active: true
         allowVars: false
     UseEmptyCounterpart:
-        active: false
+        active: true
     UseIfEmptyOrIfBlank:
-        active: false
+        active: true
     UseIfInsteadOfWhen:
         active: false
     UseIsNullOrEmpty:
