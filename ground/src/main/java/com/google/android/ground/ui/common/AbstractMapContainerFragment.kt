@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
 import com.google.android.ground.rx.RxAutoDispose
@@ -28,6 +29,8 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -50,10 +53,10 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { getMapViewModel().onMapDragged() }
 
-    getMapViewModel().basemapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
-    getMapViewModel().locationLockState.observe(viewLifecycleOwner) {
-      onLocationLockStateChange(it, mapFragment)
+    lifecycleScope.launch {
+      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, mapFragment) }
     }
+    getMapViewModel().basemapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }
@@ -72,14 +75,15 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
-    result
-      .onSuccess {
+    result.fold(
+      onSuccess = {
         Timber.d("Location lock: $it")
         if (it) {
           map.enableCurrentLocationIndicator()
         }
-      }
-      .onFailure { exception: Throwable -> onLocationLockStateError(exception) }
+      },
+      onFailure = { exception -> onLocationLockStateError(exception) }
+    )
   }
 
   private fun onLocationLockStateError(t: Throwable?) {

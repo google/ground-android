@@ -24,9 +24,11 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.BackpressureStrategy
@@ -48,10 +50,19 @@ constructor(
   offlineAreaRepository: OfflineAreaRepository,
   @ApplicationContext context: Context,
   navigator: Navigator,
-  locationController: LocationController,
-  mapController: MapController,
-  mapStateRepository: MapStateRepository
-) : BaseMapViewModel(locationController, mapController, mapStateRepository) {
+  locationManager: LocationManager,
+  mapStateRepository: MapStateRepository,
+  settingsManager: SettingsManager,
+  permissionsManager: PermissionsManager,
+  mapController: MapController
+) :
+  BaseMapViewModel(
+    locationManager,
+    mapStateRepository,
+    settingsManager,
+    permissionsManager,
+    mapController
+  ) {
 
   private val fragmentArgs: @Hot(replays = true) PublishSubject<OfflineAreaViewerFragmentArgs> =
     PublishSubject.create()

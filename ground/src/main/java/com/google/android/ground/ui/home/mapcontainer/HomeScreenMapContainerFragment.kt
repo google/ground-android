@@ -160,7 +160,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private fun onBottomSheetStateChange(state: BottomSheetState, map: MapFragment) {
     val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)
-    mapContainerViewModel.setSelectedLocationOfInterest(loi)
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> {
         map.disableGestures()

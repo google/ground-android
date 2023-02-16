@@ -15,7 +15,5 @@
  */
 package com.google.android.ground.persistence.local.room
 
-/**
- * Checked exception used internally to ensure we catch and handle errors in [RoomLocalDataStore].
- */
+/** Checked exception used internally to ensure we catch and handle errors in local data stores. */
 class LocalDataStoreException(message: String) : Exception(message)

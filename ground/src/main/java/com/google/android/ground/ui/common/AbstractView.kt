@@ -37,7 +37,7 @@ abstract class AbstractView(context: Context) : FrameLayout(context) {
         if (context is FragmentActivity) return context
         context = context.baseContext
       }
-      throw IllegalStateException("View is not contained in FragmentActivity")
+      error("View is not contained in FragmentActivity")
     }
 
   protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
@@ -45,7 +45,7 @@ abstract class AbstractView(context: Context) : FrameLayout(context) {
 
   protected fun inflate(@LayoutRes layoutId: Int): ViewDataBinding =
     DataBindingUtil.inflate(
-      (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater),
+      context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
       layoutId,
       this,
       true

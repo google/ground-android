@@ -22,8 +22,9 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.persistence.local.LocalDataStore
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -50,25 +51,22 @@ private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
 class SubmissionRepository
 @Inject
 constructor(
-  private val localDataStore: LocalDataStore,
+  private val localSurveyStore: LocalSurveyStore,
+  private val localSubmissionMutationStore: LocalSubmissionMutationStore,
   private val remoteDataStore: RemoteDataStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authManager: AuthenticationManager
 ) {
-  private val submissionStore = localDataStore.submissionStore
-  private val surveyStore = localDataStore.surveyStore
 
   /**
    * Retrieves the submissions or the specified survey, location of interest, and task.
-   *
-   * <ol> <li>Attempt to sync remote submission changes to the local data store. If network is not
-   *
+   * 1. Attempt to sync remote submission changes to the local data store. If network is not
    * ```
-   *       available or operation times out, this step is skipped.
+   *    available or operation times out, this step is skipped.
    * ```
-   * <li>Relevant submissions are returned directly from the local data store. </ol>
+   * 2. Relevant submissions are returned directly from the local data store.
    */
   fun getSubmissions(
     surveyId: String,
@@ -95,7 +93,9 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(submissionStore.getSubmissions(locationOfInterest, taskId))
+    return remoteSync.andThen(
+      localSubmissionMutationStore.getSubmissions(locationOfInterest, taskId)
+    )
   }
 
   private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable {
@@ -107,7 +107,7 @@ constructor(
       }
       .filter { it.isSuccess }
       .map { it.getOrThrow() }
-      .flatMapCompletable { submissionStore.merge(it) }
+      .flatMapCompletable { localSubmissionMutationStore.merge(it) }
   }
 
   fun getSubmission(
@@ -119,7 +119,7 @@ constructor(
     locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .flatMap { locationOfInterest ->
-        submissionStore
+        localSubmissionMutationStore
           .getSubmission(locationOfInterest, submissionId)
           .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
       }
@@ -129,11 +129,11 @@ constructor(
     locationOfInterestId: String,
     jobId: String
   ): @Cold Single<Submission> {
-    // TODO: Very jobId == loi job id.
     val auditInfo = AuditInfo(authManager.currentUser)
     return locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .map { locationOfInterest: LocationOfInterest ->
+        check(locationOfInterest.job.id == jobId)
         Submission(
           uuidGenerator.generateUuid(),
           locationOfInterest.surveyId,
@@ -177,7 +177,7 @@ constructor(
     )
 
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-    submissionStore
+    localSubmissionMutationStore
       .applyAndEnqueue(mutation)
       .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
 
@@ -190,8 +190,8 @@ constructor(
     surveyId: String,
     locationOfInterestId: String
   ): Flowable<List<SubmissionMutation>> =
-    surveyStore.getSurveyById(surveyId).toFlowable().flatMap {
-      submissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+    localSurveyStore.getSurveyById(surveyId).toFlowable().flatMap {
+      localSubmissionMutationStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
         it,
         locationOfInterestId,
         MutationEntitySyncStatus.PENDING,

@@ -56,7 +56,7 @@
         android:padding="5dp"
         android:text="@{viewModel.getLocationAccuracy()}"
         android:textColor="@color/colorPrimary"
-        app:visible="@{viewModel.isLocationUpdatesEnabled()}" />
+        app:visible="@{viewModel.getLocationAccuracy() != null}" />
     </com.google.android.material.card.MaterialCardView>
   </FrameLayout>
 </layout>

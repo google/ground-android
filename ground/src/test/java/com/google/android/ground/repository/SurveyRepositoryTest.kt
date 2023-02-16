@@ -17,6 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -102,13 +103,14 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun deleteSurvey_whenSurveyIsInActive() =
     runTest(testDispatcher) {
-      val survey1 = SURVEY.copy(id = "active survey id")
-      val survey2 = SURVEY.copy(id = "inactive survey id")
+      // Job ID must be globally unique.
+      val job1 = JOB.copy(id = "job1")
+      val job2 = JOB.copy(id = "job2")
+      val survey1 = SURVEY.copy(id = "active survey id", jobMap = mapOf(job1.id to job1))
+      val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = mapOf(job2.id to job2))
       fakeRemoteDataStore.surveys = listOf(survey1, survey2)
       surveyRepository.syncSurveyWithRemote(survey1.id).await()
-      advanceUntilIdle()
       surveyRepository.syncSurveyWithRemote(survey2.id).await()
-      advanceUntilIdle()
       surveyRepository.activateSurvey(survey1.id)
       advanceUntilIdle()
 
