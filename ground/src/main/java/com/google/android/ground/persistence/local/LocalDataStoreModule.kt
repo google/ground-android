@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.local
 
 import com.google.android.ground.persistence.local.room.LocalDatabase
-import com.google.android.ground.persistence.local.room.RoomLocalDataStore
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.stores.*
 import com.google.android.ground.persistence.local.stores.*
@@ -31,7 +30,6 @@ import javax.inject.Singleton
 @Module
 abstract class LocalDataStoreModule {
 
-  @Binds @Singleton abstract fun localDataStore(ds: RoomLocalDataStore): LocalDataStore
   @Binds
   @Singleton
   abstract fun locationOfInterestStore(

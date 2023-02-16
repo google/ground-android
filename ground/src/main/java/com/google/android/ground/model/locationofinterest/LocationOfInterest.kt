@@ -66,7 +66,7 @@ data class LocationOfInterest(
       surveyId = surveyId,
       locationOfInterestId = id,
       userId = userId,
-      clientTimestamp = Date(),
+      clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry
     )
 }
