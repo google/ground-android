@@ -26,6 +26,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -38,6 +39,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MapControllerTest : BaseHiltTest() {
