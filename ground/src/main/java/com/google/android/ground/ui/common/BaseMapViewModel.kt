@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.R
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.Nil
@@ -25,6 +26,9 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.LocationController
 import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -36,7 +40,13 @@ open class BaseMapViewModel
 constructor(private val locationController: LocationController, mapController: MapController) :
   AbstractViewModel() {
 
-  protected val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
+  private val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
+  val cameraZoomUpdates: Flowable<Float> = cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST)
+
+  private val cameraBoundsSubject: @Hot Subject<LatLngBounds> = PublishSubject.create()
+  val cameraBoundUpdates: Flowable<LatLngBounds> =
+    cameraBoundsSubject.toFlowable(BackpressureStrategy.LATEST)
+
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
   private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
 
@@ -114,6 +124,7 @@ constructor(private val locationController: LocationController, mapController: M
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     newCameraPosition.zoomLevel?.let { cameraZoomSubject.onNext(it) }
+    newCameraPosition.bounds?.let { cameraBoundsSubject.onNext(it.toGoogleMapsObject()) }
   }
 
   companion object {
