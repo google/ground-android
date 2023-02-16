@@ -25,6 +25,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.ground.model.locationofinterest.LocationOfInterest;
 import com.google.android.ground.model.mutation.Mutation;
 import com.google.android.ground.repository.LocationOfInterestRepository;
+import com.google.android.ground.repository.MutationRepository;
 import com.google.android.ground.repository.SurveyRepository;
 import com.google.android.ground.rx.annotations.Cold;
 import com.google.android.ground.ui.common.AbstractViewModel;
@@ -42,14 +43,17 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private final LiveData<List<Pair<LocationOfInterest, Mutation>>> mutations;
   private final Navigator navigator;
+  private final MutationRepository mutationRepository;
   private final SurveyRepository surveyRepository;
   private final LocationOfInterestRepository locationOfInterestRepository;
 
   @Inject
   SyncStatusViewModel(
+      MutationRepository mutationRepository,
       SurveyRepository surveyRepository,
       LocationOfInterestRepository locationOfInterestRepository,
       Navigator navigator) {
+    this.mutationRepository = mutationRepository;
     this.navigator = navigator;
     this.surveyRepository = surveyRepository;
     this.locationOfInterestRepository = locationOfInterestRepository;
@@ -80,7 +84,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
         .switchMap(
             survey ->
                 survey
-                    .map(surveyRepository::getMutationsOnceAndStream)
+                    .map(mutationRepository::getMutationsOnceAndStream)
                     .orElse(Flowable.just(List.of())));
   }
 

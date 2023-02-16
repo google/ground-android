@@ -44,7 +44,7 @@ object FakeData {
       "SURVEY",
       "Survey title",
       "Test survey description",
-      mapOf(),
+      mapOf(JOB.id to JOB),
       listOf(),
       mapOf(Pair(USER.email, "data-collector"))
     )

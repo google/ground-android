@@ -32,6 +32,6 @@ data class Survey(
     get() = jobMap.values
 
   fun getJob(jobId: String): Optional<Job> {
-    return Optional.of(jobMap[jobId])
+    return Optional.ofNullable(jobMap[jobId])
   }
 }

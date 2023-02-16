@@ -26,9 +26,10 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.local.LocalDataStore
+import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
+import com.google.android.ground.repository.MutationRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -47,7 +48,8 @@ class LocalMutationSyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
-  private val localDataStore: LocalDataStore,
+  private val mutationRepository: MutationRepository,
+  private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
   private val photoSyncWorkManager: PhotoSyncWorkManager
 ) : Worker(context, params) {
@@ -58,7 +60,7 @@ constructor(
   override fun doWork(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     val mutations: List<Mutation> =
-      localDataStore.getPendingMutations(locationOfInterestId).blockingGet()
+      mutationRepository.getPendingMutations(locationOfInterestId).blockingGet()
     return try {
       Timber.v("Mutations: $mutations")
       processMutations(mutations).blockingAwait()
@@ -68,7 +70,7 @@ constructor(
         .log("Error applying remote updates to location of interest $locationOfInterestId")
       FirebaseCrashlytics.getInstance().recordException(t)
       Timber.e(t, "Remote updates for location of interest $locationOfInterestId failed")
-      localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait()
+      mutationRepository.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait()
       Result.retry()
     }
   }
@@ -88,7 +90,7 @@ constructor(
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private fun processMutations(mutations: List<Mutation>, userId: String): Completable {
-    return localDataStore.userStore
+    return localUserStore
       .getUser(userId)
       .flatMapCompletable { user: User -> processMutations(mutations, user) }
       .doOnError { Timber.d("User account removed before mutation processed") }
@@ -102,7 +104,7 @@ constructor(
       .andThen(
         processPhotoFieldMutations(mutations)
       ) // TODO: If the remote sync fails, reset the state to DEFAULT.
-      .andThen(localDataStore.finalizePendingMutations(mutations))
+      .andThen(mutationRepository.finalizePendingMutations(mutations))
   }
 
   /**
@@ -134,7 +136,6 @@ constructor(
         mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
       is SubmissionMutation ->
         mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
-      else -> throw Exception("Unknown mutation type $mutation")
     }
 
   companion object {
