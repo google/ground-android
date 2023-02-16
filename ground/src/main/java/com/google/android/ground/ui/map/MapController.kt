@@ -20,6 +20,7 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.map.gms.toCoordinate
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -27,12 +28,13 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.asFlowable
 
 @Singleton
 class MapController
 @Inject
 constructor(
-  private val locationController: LocationController,
+  private val locationManager: LocationManager,
   private val surveyRepository: SurveyRepository,
   private val mapStateRepository: MapStateRepository
 ) {
@@ -48,7 +50,7 @@ constructor(
 
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraPosition> {
-    val locationUpdates = locationController.getLocationUpdates().map { it.toCoordinate() }
+    val locationUpdates = locationManager.locationUpdates.asFlowable().map { it.toCoordinate() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates
