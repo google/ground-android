@@ -80,14 +80,14 @@ constructor(
   private var surveyId: String? = null
   private var submissionId: String? = null
 
-  private val showDialogClicks: @Hot Subject<Task> = PublishSubject.create()
+  private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
   private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
-  fun onShowPhotoSelectorDialog() {
-    showDialogClicks.onNext(task)
+  fun onTakePhotoClick() {
+    takePhotoClicks.onNext(task)
   }
 
-  fun getShowDialogClicks(): @Hot Observable<Task> = showDialogClicks
+  fun getTakePhotoClicks(): @Hot Observable<Task> = takePhotoClicks
 
   fun setEditable(enabled: Boolean) {
     editable.postValue(enabled)

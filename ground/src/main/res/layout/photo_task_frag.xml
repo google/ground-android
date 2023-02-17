@@ -46,12 +46,12 @@
         layout="@layout/data_collection_header" />
 
       <Button
-        android:id="@+id/btn_select_photo"
+        android:id="@+id/btn_take_photo"
         style="?attr/materialButtonOutlinedStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
-        android:text="@string/add_photo"
+        android:onClick="@{()-> viewModel.onTakePhotoClick()}"
+        android:text="@string/take_picture"
         android:textColor="@color/colorAccent"
         android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}" />
 
