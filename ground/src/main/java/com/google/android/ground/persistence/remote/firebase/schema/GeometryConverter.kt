@@ -26,7 +26,6 @@ typealias IndexedMap<T> = Map<String, T>
 /**
  * Converts between Geometry model objects and their equivalent remote representation using a
  * modified GeoJSON representation:
- *
  * * The GeoJSON map hierarchy is converted to a Firestore nested map.
  * * Since Firestore does not allow nested arrays, arrays are replaced with nested maps, keyed by
  * integer array index.
@@ -123,8 +122,8 @@ object GeometryConverter {
    */
   private fun <T> indexedMapToList(map: IndexedMap<T>): List<T> {
     val sortedEntries = map.entries.sortedBy { it.key.toInt() }
-    if (sortedEntries.withIndex().any { it.index != it.value.key.toInt() }) {
-      throw IllegalArgumentException("Invalid map $map")
+    require(sortedEntries.withIndex().all { it.index == it.value.key.toInt() }) {
+      "Invalid map $map"
     }
     return sortedEntries.map { it.value }
   }

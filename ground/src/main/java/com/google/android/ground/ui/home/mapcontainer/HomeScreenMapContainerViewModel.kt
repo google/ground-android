@@ -40,7 +40,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.*
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java8.util.Optional
@@ -91,32 +90,8 @@ internal constructor(
 
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
-  /** The currently selected LOI on the map. */
-  private val selectedLocationOfInterest =
-    BehaviorProcessor.createDefault(Optional.empty<LocationOfInterest>())
-
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
-
-  private fun updateSelectedLocationOfInterest(
-    locationsOfInterest: Set<Feature>,
-    selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): Set<Feature> {
-    Timber.v("Updating selected LOI style")
-
-    if (selectedLocationOfInterest.isEmpty) {
-      return locationsOfInterest
-    }
-
-    val updatedLocationsOfInterest = mutableSetOf<Feature>()
-    val selectedLocationOfInterestId = selectedLocationOfInterest.get().id
-
-    for (locationOfInterest in locationsOfInterest) {
-      // TODO: Update strokewidth of non MapGeoJson locationOfInterest
-      updatedLocationsOfInterest.add(locationOfInterest)
-    }
-    return updatedLocationsOfInterest.toPersistentSet()
-  }
 
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
@@ -159,8 +134,8 @@ internal constructor(
     if (oldZoomLevel == null || newZoomLevel == null) return
 
     val zoomThresholdCrossed =
-      (oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
-        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD)
+      oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
+        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
       this.zoomThresholdCrossed.onNext(Nil.NIL)
     }
@@ -195,11 +170,6 @@ internal constructor(
     return zoomThresholdCrossed
   }
 
-  /** Called when a LOI is (de)selected. */
-  fun setSelectedLocationOfInterest(selectedLocationOfInterest: Optional<LocationOfInterest>) {
-    this.selectedLocationOfInterest.onNext(selectedLocationOfInterest)
-  }
-
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
@@ -212,17 +182,12 @@ internal constructor(
         getLocationsOfInterestStream(survey)
       }
 
-    val savedMapLocationsOfInterest =
-      Flowable.combineLatest(
-        loiStream.map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) },
-        selectedLocationOfInterest
-      ) { locationsOfInterest, selectedLocationOfInterest ->
-        updateSelectedLocationOfInterest(locationsOfInterest, selectedLocationOfInterest)
-      }
-
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        savedMapLocationsOfInterest.startWith(setOf<Feature>()).distinctUntilChanged()
+        loiStream
+          .map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) }
+          .startWith(setOf<Feature>())
+          .distinctUntilChanged()
       )
 
     mbtilesFilePaths =
