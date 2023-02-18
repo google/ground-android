@@ -313,17 +313,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       submission = submission.copy(job = SUBMISSION.job.copy(tasks = tasks))
     }
 
-    whenever(
-        submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id)
-      )
+    whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
       .thenReturn(Single.just(submission))
   }
 
   private fun setupFragment() {
     val argsBundle =
-      DataCollectionFragmentArgs.Builder(SURVEY.id, LOCATION_OF_INTEREST.id, SUBMISSION.id)
-        .build()
-        .toBundle()
+      DataCollectionFragmentArgs.Builder(SURVEY.id, LOCATION_OF_INTEREST.id).build().toBundle()
 
     launchFragmentInHiltContainer<DataCollectionFragment>(argsBundle) {
       fragment = this as DataCollectionFragment
