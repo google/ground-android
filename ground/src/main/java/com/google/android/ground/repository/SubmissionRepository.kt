@@ -63,6 +63,7 @@ constructor(
   /**
    * Retrieves the submissions or the specified survey, location of interest, and task.
    * 1. Attempt to sync remote submission changes to the local data store. If network is not
+   *
    * ```
    *    available or operation times out, this step is skipped.
    * ```
@@ -127,15 +128,14 @@ constructor(
   fun createSubmission(
     surveyId: String,
     locationOfInterestId: String,
-    jobId: String
+    submissionId: String
   ): @Cold Single<Submission> {
     val auditInfo = AuditInfo(authManager.currentUser)
     return locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .map { locationOfInterest: LocationOfInterest ->
-        check(locationOfInterest.job.id == jobId)
         Submission(
-          uuidGenerator.generateUuid(),
+          submissionId,
           locationOfInterest.surveyId,
           locationOfInterest,
           locationOfInterest.job,
