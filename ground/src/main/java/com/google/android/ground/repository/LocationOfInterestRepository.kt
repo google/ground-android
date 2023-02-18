@@ -17,7 +17,6 @@ package com.google.android.ground.repository
 
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -29,7 +28,6 @@ import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
-import com.google.android.ground.ui.map.gms.toLatLng
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -148,9 +146,5 @@ constructor(
   /** Filters all [LocationOfInterest] within [bounds]. */
   private fun Set<LocationOfInterest>.toLoiCardsWithinBounds(
     bounds: LatLngBounds
-  ): List<LocationOfInterest> = this.filter { isGeometryWithinBounds(it.geometry, bounds) }
-
-  /** Returns true if the provided [geometry] is within [bounds]. */
-  private fun isGeometryWithinBounds(geometry: Geometry, bounds: LatLngBounds): Boolean =
-    geometry.vertices.any { bounds.contains(it.toLatLng()) }
+  ): List<LocationOfInterest> = this.filter { it.geometry.isWithinBounds(bounds) }
 }
