@@ -139,12 +139,9 @@ constructor(
   ): Flowable<List<LocationOfInterest>> {
     val loiStream = getAllLocationsOfInterestOnceAndStream()
     return cameraBoundUpdates
-      .flatMap { bounds -> loiStream.map { it.toLoiCardsWithinBounds(bounds) } }
+      .flatMap { bounds ->
+        loiStream.map { lois -> lois.filter { it.geometry.isWithinBounds(bounds) } }
+      }
       .distinctUntilChanged()
   }
-
-  /** Filters all [LocationOfInterest] within [bounds]. */
-  private fun Set<LocationOfInterest>.toLoiCardsWithinBounds(
-    bounds: LatLngBounds
-  ): List<LocationOfInterest> = this.filter { it.geometry.isWithinBounds(bounds) }
 }
