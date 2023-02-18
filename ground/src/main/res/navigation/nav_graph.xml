@@ -97,9 +97,6 @@
     <argument
       android:name="locationOfInterestId"
       type="string" />
-    <argument
-      android:name="submissionId"
-      type="string" />
   </fragment>
   <fragment
     android:id="@+id/question_data_collection_fragment"

@@ -103,13 +103,13 @@ internal constructor(
     val submissionStream: Flowable<Submission> =
       argsProcessor.switchMapSingle { args ->
         surveyId = args.surveyId
-        submissionId = args.submissionId
 
-        submissionRepository.createSubmission(
-          args.surveyId,
-          args.locationOfInterestId,
-          args.submissionId
-        )
+        submissionRepository
+          .createSubmission(
+            args.surveyId,
+            args.locationOfInterestId,
+          )
+          .doOnSuccess { submissionId = it.id }
       }
 
     submission = LiveDataReactiveStreams.fromPublisher(submissionStream)

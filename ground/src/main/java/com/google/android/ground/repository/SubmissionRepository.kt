@@ -125,17 +125,13 @@ constructor(
           .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
       }
 
-  fun createSubmission(
-    surveyId: String,
-    locationOfInterestId: String,
-    submissionId: String
-  ): @Cold Single<Submission> {
+  fun createSubmission(surveyId: String, locationOfInterestId: String): @Cold Single<Submission> {
     val auditInfo = AuditInfo(authManager.currentUser)
     return locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .map { locationOfInterest: LocationOfInterest ->
         Submission(
-          submissionId,
+          uuidGenerator.generateUuid(),
           locationOfInterest.surveyId,
           locationOfInterest,
           locationOfInterest.job,

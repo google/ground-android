@@ -138,8 +138,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
         /* surveyId = */ loi.surveyId,
-        /* locationOfInterestId = */ loi.id,
-        /* submissionId = */ offlineUuidGenerator.generateUuid()
+        /* locationOfInterestId = */ loi.id
       )
     )
   }

@@ -207,7 +207,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
 
   private Single<Submission> createSubmission(EditSubmissionFragmentArgs args) {
     return submissionRepository
-        .createSubmission(args.getSurveyId(), args.getLocationOfInterestId(), args.getJobId())
+        .createSubmission(args.getSurveyId(), args.getLocationOfInterestId())
         .onErrorResumeNext(this::onError);
   }
 
