@@ -97,7 +97,6 @@ detekt {
     basePath = projectDir
 }
 
-// TODO: Remove java only plugins to improve build speed
 task checkCode(type: GradleBuild) {
     tasks = ['checkstyle', 'lintDebug', 'ktfmtCheck', 'detekt']
 }
