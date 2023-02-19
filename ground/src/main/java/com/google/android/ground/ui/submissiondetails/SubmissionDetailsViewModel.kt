@@ -21,7 +21,6 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.LocationOfInterestHelper
@@ -39,7 +38,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   val progressBarVisibility: @Hot(replays = true) LiveData<Int>
-  val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
+  val submission: @Hot(replays = true) LiveData<Result<Submission>>
   val subtitle: @Hot(replays = true) LiveData<String>
   val title: @Hot(replays = true) LiveData<String>
 
@@ -51,33 +50,25 @@ internal constructor(
       argsProcessor.switchMapSingle { args: SubmissionDetailsFragmentArgs ->
         submissionRepository
           .getSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
-          .map { Loadable.loaded(it) }
-          .onErrorReturn { Loadable.error(it) }
+          .map { Result.success(it) }
+          .onErrorReturn { Result.failure(it) }
       }
 
     // TODO: Refactor to expose the fetched submission directly.
     submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
     progressBarVisibility =
-      LiveDataReactiveStreams.fromPublisher(
-        submissionStream.map { submission: Loadable<Submission> ->
-          getProgressBarVisibility(submission)
-        }
-      )
+      LiveDataReactiveStreams.fromPublisher(submissionStream.map { getProgressBarVisibility(it) })
     title =
       LiveDataReactiveStreams.fromPublisher(
         submissionStream
-          .map { submission: Loadable<Submission> -> getLocationOfInterest(submission) }
-          .map { locationOfInterest: Optional<LocationOfInterest> ->
-            locationOfInterestHelper.getLabel(locationOfInterest)
-          }
+          .map { getLocationOfInterest(it) }
+          .map { locationOfInterestHelper.getLabel(it) }
       )
     subtitle =
       LiveDataReactiveStreams.fromPublisher(
         submissionStream
-          .map { submission: Loadable<Submission> -> getLocationOfInterest(submission) }
-          .map { locationOfInterest: Optional<LocationOfInterest> ->
-            locationOfInterestHelper.getCreatedBy(locationOfInterest)
-          }
+          .map { getLocationOfInterest(it) }
+          .map { locationOfInterestHelper.getCreatedBy(it) }
       )
   }
 
@@ -101,14 +92,17 @@ internal constructor(
   }
 
   companion object {
-    private fun getProgressBarVisibility(submission: Loadable<Submission>): Int {
-      return if (submission.isLoaded) View.GONE else View.VISIBLE
+    private fun getProgressBarVisibility(submission: Result<Submission>): Int {
+      return if (submission.isSuccess) View.GONE else View.VISIBLE
     }
 
     private fun getLocationOfInterest(
-      submission: Loadable<Submission>
+      submission: Result<Submission>
     ): Optional<LocationOfInterest> {
-      return submission.value().map(Submission::locationOfInterest)
+      return submission.fold(
+        onSuccess = { Optional.of(it.locationOfInterest) },
+        onFailure = { Optional.empty() }
+      )
     }
   }
 }

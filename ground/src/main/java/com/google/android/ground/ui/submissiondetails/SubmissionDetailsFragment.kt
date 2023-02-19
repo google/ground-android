@@ -28,8 +28,6 @@ import com.google.android.ground.databinding.SubmissionDetailsTaskBindingImpl
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.rx.Loadable
-import com.google.android.ground.rx.Loadable.LoadState
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -53,7 +51,7 @@ class SubmissionDetailsFragment : AbstractFragment() {
     super.onCreate(savedInstanceState)
     val args = submissionDetailsFragmentArgs
     viewModel = getViewModel(SubmissionDetailsViewModel::class.java)
-    viewModel.submission.observe(this) { submission: Loadable<Submission> -> onUpdate(submission) }
+    viewModel.submission.observe(this) { onUpdate(it) }
     viewModel.loadSubmissionDetails(args)
   }
 
@@ -61,7 +59,7 @@ class SubmissionDetailsFragment : AbstractFragment() {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
-  ): View? {
+  ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = SubmissionDetailsFragBindingImpl.inflate(inflater, container, false)
     binding.viewModel = viewModel
@@ -85,15 +83,14 @@ class SubmissionDetailsFragment : AbstractFragment() {
     setHasOptionsMenu(true)
   }
 
-  private fun onUpdate(submission: Loadable<Submission>) {
-    when (submission.state) {
-      LoadState.LOADED -> submission.value().ifPresent { showSubmission(it) }
-      LoadState.ERROR -> {
-        // TODO: Replace w/error view?
-        Timber.e("Failed to load submission")
+  private fun onUpdate(submission: Result<Submission>) {
+    submission.fold(
+      onSuccess = { showSubmission(it) },
+      onFailure = { // TODO: Replace w/error view?
+        Timber.e(it, "Failed to load submission")
         popups.showError()
       }
-    }
+    )
   }
 
   private fun showSubmission(submission: Submission) {
