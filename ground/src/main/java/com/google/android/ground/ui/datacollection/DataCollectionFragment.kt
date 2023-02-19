@@ -25,7 +25,6 @@ import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
@@ -61,12 +60,11 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.offscreenPageLimit = 1
 
     viewModel.loadSubmissionDetails(args)
-    viewModel.submission.observe(viewLifecycleOwner) { submission: Loadable<Submission> ->
-      submission.value().ifPresent {
-        val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
-        if (currentAdapter == null || currentAdapter.tasks != it.job.tasksSorted) {
-          viewPager.adapter = viewPagerAdapterFactory.create(this, it.job.tasksSorted, viewModel)
-        }
+    viewModel.submission.observe(viewLifecycleOwner) { submission: Submission ->
+      val tasks = submission.job.tasksSorted
+      val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
+      if (currentAdapter == null || currentAdapter.tasks != tasks) {
+        viewPager.adapter = viewPagerAdapterFactory.create(this, tasks, viewModel)
       }
     }
 
