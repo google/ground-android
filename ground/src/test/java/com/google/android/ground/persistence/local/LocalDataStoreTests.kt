@@ -67,8 +67,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   // TODO(#1491): Split into multiple test suites, one for each SoT.
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localUserStore: LocalUserStore
-  @Inject lateinit var localSubmissionStore: LocalSubmissionMutationStore
-  @Inject lateinit var localLoiStore: LocalLocationOfInterestMutationStore
+  @Inject lateinit var localSubmissionStore: SubmissionStore
+  @Inject lateinit var localLoiStore: LocationOfInterestStore
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   @Inject lateinit var localTileSetStore: LocalTileSetStore
   @Inject lateinit var localValueStore: LocalValueStore

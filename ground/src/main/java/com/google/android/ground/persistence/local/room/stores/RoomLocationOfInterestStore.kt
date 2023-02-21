@@ -30,8 +30,9 @@ import com.google.android.ground.persistence.local.room.entity.LocationOfInteres
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
+import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -43,8 +44,7 @@ import timber.log.Timber
 
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
 @Singleton
-class RoomLocationOfInterestMutationStore @Inject internal constructor() :
-  LocalLocationOfInterestMutationStore {
+class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInterestStore {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
@@ -131,7 +131,7 @@ class RoomLocationOfInterestMutationStore @Inject internal constructor() :
     survey: Survey,
     locationOfInterestEntities: List<LocationOfInterestEntity>
   ): Set<LocationOfInterest> =
-    locationOfInterestEntities.flatMap { logAndSkip { it.toModelObject(survey) } }.toSet()
+    locationOfInterestEntities.mapNotNull { logOnFailure { it.toModelObject(survey) } }.toSet()
 
   private fun toLocationOfInterestMutationEntities(
     mutations: List<LocationOfInterestMutation>

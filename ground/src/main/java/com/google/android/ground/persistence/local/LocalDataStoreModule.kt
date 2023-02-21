@@ -32,15 +32,11 @@ abstract class LocalDataStoreModule {
 
   @Binds
   @Singleton
-  abstract fun locationOfInterestStore(
-    store: RoomLocationOfInterestMutationStore
-  ): LocalLocationOfInterestMutationStore
+  abstract fun locationOfInterestStore(store: RoomLocationOfInterestStore): LocationOfInterestStore
   @Binds
   @Singleton
   abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
-  @Binds
-  @Singleton
-  abstract fun submissionStore(store: RoomSubmissionMutationStore): LocalSubmissionMutationStore
+  @Binds @Singleton abstract fun submissionStore(store: RoomSubmissionStore): SubmissionStore
   @Binds @Singleton abstract fun surveyStore(store: RoomSurveyStore): LocalSurveyStore
   @Binds @Singleton abstract fun tileSetStore(store: RoomTileSetStore): LocalTileSetStore
   @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
