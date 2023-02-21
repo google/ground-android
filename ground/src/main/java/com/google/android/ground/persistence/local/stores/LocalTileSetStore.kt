@@ -22,7 +22,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
-interface LocalTileSetStore : LocalStore<TileSet> {
+interface LocalTileSetStore {
   /**
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
    * return the full set each time a tile is added/changed/removed.

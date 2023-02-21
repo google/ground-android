@@ -21,7 +21,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 /** Provides access to [User] data in local storage. */
-interface LocalUserStore : LocalStore<User> {
+interface LocalUserStore {
   /** Add user to the database. */
   fun insertOrUpdateUser(user: User): @Cold Completable
   /**
