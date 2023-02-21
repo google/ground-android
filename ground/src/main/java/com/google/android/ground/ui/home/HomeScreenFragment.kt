@@ -140,7 +140,7 @@ class HomeScreenFragment :
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     setHasOptionsMenu(true)
-    getMainActivity().setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false)
+    getAbstractActivity().setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false)
   }
 
   private fun openDrawer() {
