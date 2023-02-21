@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding
 import com.google.android.ground.rx.Event
@@ -73,7 +72,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     val binding = OfflineBaseMapSelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    (activity as MainActivity?)!!.setActionBar(binding.offlineAreaSelectorToolbar, true)
+    getAbstractActivity().setActionBar(binding.offlineAreaSelectorToolbar, true)
     return binding.root
   }
 

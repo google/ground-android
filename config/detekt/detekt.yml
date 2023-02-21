@@ -420,11 +420,11 @@ potential-bugs:
         forbiddenTypePatterns:
             - 'kotlin.String'
     CastToNullableType:
-        active: false
+        active: true
     Deprecation:
         active: false
     DontDowncastCollectionTypes:
-        active: false
+        active: true
     DoubleMutabilityForCollection:
         active: true
         mutableTypes:
