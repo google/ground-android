@@ -31,7 +31,7 @@ interface BaseDao<E> {
 
   // TODO(#1581): Rename once all uses migrated to coroutines.
   /** Insert entity into local db. Main-safe. */
-  @Insert fun insertSuspend(entity: E)
+  @Insert suspend fun insertSuspend(entity: E)
 
   /** Update entity in local db. Main-safe. */
   @Update fun update(entity: E): Single<Int>
@@ -39,7 +39,7 @@ interface BaseDao<E> {
   // TODO(#1581): Rename once all uses migrated to coroutines.
   @Update suspend fun updateSuspend(entity: E): Int
 
-  @Update suspend fun updateAll(entities: List<E>): Completable
+  @Update fun updateAll(entities: List<E>): Completable
 
   @Delete fun delete(entity: E): Completable
 }
