@@ -76,7 +76,7 @@ comments:
     DeprecatedBlockTag:
         active: false
     EndOfSentenceFormat:
-        active: false
+        active: true
         endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
     KDocReferencesNonPublicProperty:
         active: false
