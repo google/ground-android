@@ -29,9 +29,17 @@ import io.reactivex.Single
 interface BaseDao<E> {
   @Insert fun insert(entity: E): Completable
 
+  // TODO(#1581): Rename once all uses migrated to coroutines.
+  /** Insert entity into local db. Main-safe. */
+  @Insert fun insertSuspend(entity: E)
+
+  /** Update entity in local db. Main-safe. */
   @Update fun update(entity: E): Single<Int>
 
-  @Update fun updateAll(entities: List<E>): Completable
+  // TODO(#1581): Rename once all uses migrated to coroutines.
+  @Update suspend fun updateSuspend(entity: E): Int
+
+  @Update suspend fun updateAll(entities: List<E>): Completable
 
   @Delete fun delete(entity: E): Completable
 }
@@ -39,4 +47,13 @@ interface BaseDao<E> {
 /** Try to update the specified entity, and if it doesn't yet exist, create it. */
 fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable {
   return update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
+}
+
+// TODO(#1581): Rename once all uses migrated to coroutines.
+/** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
+suspend fun <E> BaseDao<E>.insertOrUpdateSuspend(entity: E) {
+  val count = updateSuspend(entity)
+  if (count == 0) {
+    insertSuspend(entity)
+  }
 }
