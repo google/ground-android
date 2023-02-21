@@ -23,9 +23,9 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
-import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.SubmissionStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
@@ -45,8 +45,8 @@ class MutationRepository
 @Inject
 constructor(
   private val localSurveyStore: LocalSurveyStore,
-  private val localLocationOfInterestStore: LocalLocationOfInterestMutationStore,
-  private val submissionStore: LocalSubmissionMutationStore,
+  private val localLocationOfInterestStore: LocationOfInterestStore,
+  private val submissionStore: SubmissionStore,
   private val schedulers: Schedulers
 ) {
   /**
