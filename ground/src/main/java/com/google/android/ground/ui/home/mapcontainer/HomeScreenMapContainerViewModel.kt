@@ -37,7 +37,10 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -45,7 +48,10 @@ import io.reactivex.subjects.Subject
 import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 
 @SharedViewModel
@@ -95,9 +101,8 @@ internal constructor(
 
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
-  ): Set<Feature> {
-    // TODO: Add support for polylines similar to mapPins.
-    return locationsOfInterest
+  ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
+  locationsOfInterest
       .map {
         Feature(
           id = it.id,
@@ -107,7 +112,6 @@ internal constructor(
         )
       }
       .toPersistentSet()
-  }
 
   // TODO(#1373): Delete once LOIs are synced on survey activation and on update in background
   //   worker.

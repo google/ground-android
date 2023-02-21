@@ -68,10 +68,9 @@ sealed class Mutation {
 
   companion object {
     @JvmStatic
-    fun byDescendingClientTimestamp(): Comparator<Mutation> {
-      return Comparator { m1: Mutation, m2: Mutation ->
+    fun byDescendingClientTimestamp(): Comparator<Mutation> =
+      Comparator { m1: Mutation, m2: Mutation ->
         m2.clientTimestamp.compareTo(m1.clientTimestamp)
       }
-    }
   }
 }

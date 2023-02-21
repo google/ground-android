@@ -44,10 +44,9 @@ protected constructor(private val reference: CollectionReference) {
   protected fun <T> runQuery(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
-  ): @Cold Single<List<T>> {
-    return requireActiveNetwork()
+  ): @Cold Single<List<T>> =
+    requireActiveNetwork()
       .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction))
-  }
 
   protected fun reference(): CollectionReference = reference
 

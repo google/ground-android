@@ -66,8 +66,8 @@ internal constructor(
     FirebaseCrashlytics.getInstance().recordException(t)
   }
 
-  override fun loadSurvey(surveyId: String): @Cold Single<Survey> {
-    return db
+  override fun loadSurvey(surveyId: String): @Cold Single<Survey> =
+    db
       .surveys()
       .survey(surveyId)
       .get()
@@ -76,12 +76,11 @@ internal constructor(
       }
       .switchIfEmpty(Single.error { NotFoundException("Survey $surveyId") })
       .subscribeOn(schedulers.io())
-  }
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>> {
-    return db
+  ): @Cold Single<List<Result<Submission>>> =
+    db
       .surveys()
       .survey(locationOfInterest.surveyId)
       .submissions()
@@ -90,10 +89,9 @@ internal constructor(
         if (shouldInterceptException(e)) Single.never() else Single.error(e)
       }
       .subscribeOn(schedulers.io())
-  }
 
-  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> {
-    return db
+  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
+    db
       .termsOfService()
       .terms()
       .get()
@@ -101,22 +99,20 @@ internal constructor(
         if (shouldInterceptException(e)) Maybe.never() else Maybe.error(e)
       }
       .subscribeOn(schedulers.io())
-  }
 
-  override fun loadSurveySummaries(user: User): @Cold Single<List<Survey>> {
-    return db
+  override fun loadSurveySummaries(user: User): @Cold Single<List<Survey>> =
+    db
       .surveys()
       .getReadable(user)
       .onErrorResumeNext { e: Throwable ->
         if (shouldInterceptException(e)) Single.never() else Single.error(e)
       }
       .subscribeOn(schedulers.io())
-  }
 
   override fun loadLocationsOfInterestOnceAndStreamChanges(
     survey: Survey
-  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> {
-    return db
+  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> =
+    db
       .surveys()
       .survey(survey.id)
       .lois()
@@ -125,16 +121,14 @@ internal constructor(
         if (shouldInterceptException(e)) Flowable.never() else Flowable.error(e)
       }
       .subscribeOn(schedulers.io())
-  }
 
-  override fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable {
-    return RxTask.toCompletable { applyMutationsInternal(mutations, user) }
+  override fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable =
+    RxTask.toCompletable { applyMutationsInternal(mutations, user) }
       .doOnError { e: Throwable -> recordException(e, "Error applying mutation") }
       .onErrorResumeNext { e: Throwable ->
         if (shouldInterceptException(e)) Completable.never() else Completable.error(e)
       }
       .subscribeOn(schedulers.io())
-  }
 
   override fun subscribeToSurveyUpdates(surveyId: String): Completable =
     RxTask.toCompletable {

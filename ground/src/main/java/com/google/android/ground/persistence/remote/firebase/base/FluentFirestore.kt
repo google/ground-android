@@ -41,12 +41,11 @@ abstract class FluentFirestore protected constructor(private val db: FirebaseFir
     fun <T> toSingleList(
       result: Maybe<QuerySnapshot>,
       mappingFunction: Function<DocumentSnapshot, T>
-    ): @Cold Single<List<T>> {
-      return result
+    ): @Cold Single<List<T>> =
+      result
         .map { querySnapshot: QuerySnapshot ->
           querySnapshot.documents.map { mappingFunction.apply(it) }
         }
         .toSingle(emptyList())
-    }
   }
 }
