@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
@@ -76,7 +75,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (activity as AbstractActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
+    getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
   }

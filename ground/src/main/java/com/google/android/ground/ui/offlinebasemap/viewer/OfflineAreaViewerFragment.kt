@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.MainActivity
 import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -56,7 +55,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     binding.removeButton.setOnClickListener { onRemoveClick() }
-    (activity as MainActivity?)!!.setActionBar(binding.offlineAreaViewerToolbar, true)
+    getAbstractActivity().setActionBar(binding.offlineAreaViewerToolbar, true)
     return binding.root
   }
 

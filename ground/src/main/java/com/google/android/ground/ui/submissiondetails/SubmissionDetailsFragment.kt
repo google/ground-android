@@ -19,7 +19,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
-import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.PhotoTaskBinding
 import com.google.android.ground.databinding.SubmissionDetailsFragBinding
@@ -69,7 +68,7 @@ class SubmissionDetailsFragment : AbstractFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    (activity as MainActivity?)!!.setActionBar(binding.submissionDetailsToolbar, false)
+    getAbstractActivity().setActionBar(binding.submissionDetailsToolbar, false)
   }
 
   @Deprecated("Deprecated in Java")
