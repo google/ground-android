@@ -54,6 +54,9 @@ interface RemoteDataStore {
     survey: Survey
   ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>>
 
+  /** Returns all LOIs in the specified survey. Main-safe. */
+  suspend fun loadLocationsOfInterest(survey: Survey): List<LocationOfInterest>
+
   /**
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.

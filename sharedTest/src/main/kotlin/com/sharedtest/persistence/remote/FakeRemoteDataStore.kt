@@ -63,6 +63,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     return if (loiEvent == null) Flowable.empty() else Flowable.just(loiEvent)
   }
 
+  override suspend fun loadLocationsOfInterest(survey: Survey) = listOf<LocationOfInterest>()
+
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest
   ): Single<List<Result<Submission>>> {
