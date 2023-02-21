@@ -85,24 +85,21 @@ internal constructor(
     surveyId: String,
     locationOfInterestId: String,
     submissionId: String
-  ): @Hot Completable {
-    return submissionRepository
+  ): @Hot Completable =
+    submissionRepository
       .getSubmission(surveyId, locationOfInterestId, submissionId)
       .flatMapCompletable { submissionRepository.deleteSubmission(it) }
-  }
 
   companion object {
-    private fun getProgressBarVisibility(submission: Result<Submission>): Int {
-      return if (submission.isSuccess) View.GONE else View.VISIBLE
-    }
+    private fun getProgressBarVisibility(submission: Result<Submission>): Int =
+      if (submission.isSuccess) View.GONE else View.VISIBLE
 
     private fun getLocationOfInterest(
       submission: Result<Submission>
-    ): Optional<LocationOfInterest> {
-      return submission.fold(
+    ): Optional<LocationOfInterest> =
+      submission.fold(
         onSuccess = { Optional.of(it.locationOfInterest) },
         onFailure = { Optional.empty() }
       )
-    }
   }
 }
