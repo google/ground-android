@@ -75,9 +75,7 @@ class DataBindingIdlingResource : IdlingResource {
     activityScenario.onActivity { activity: T -> this.activity = activity }
   }
 
-  private fun getBinding(view: View?): ViewDataBinding? {
-    return DataBindingUtil.getBinding(view!!)
-  }
+  private fun getBinding(view: View): ViewDataBinding? = DataBindingUtil.getBinding(view)
 
   private val bindings: List<ViewDataBinding?>
     get() {

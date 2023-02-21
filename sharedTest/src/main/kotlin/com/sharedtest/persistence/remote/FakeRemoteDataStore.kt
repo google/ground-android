@@ -43,9 +43,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override fun loadSurveySummaries(user: User): Single<List<Survey>> {
-    return Single.just(surveys)
-  }
+  override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
 
   override fun loadSurvey(surveyId: String): Single<Survey> {
     return Single.just(
@@ -59,9 +57,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(
     survey: Survey
-  ): Flowable<RemoteDataEvent<LocationOfInterest>> {
-    return if (loiEvent == null) Flowable.empty() else Flowable.just(loiEvent)
-  }
+  ): Flowable<RemoteDataEvent<LocationOfInterest>> =
+    if (loiEvent == null) Flowable.empty() else Flowable.just(loiEvent)
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest

@@ -166,9 +166,7 @@ internal constructor(
     tileProviders.forEach { it.close() }
   }
 
-  fun getZoomThresholdCrossed(): Observable<Nil> {
-    return zoomThresholdCrossed
-  }
+  fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE

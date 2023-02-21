@@ -64,9 +64,7 @@ sealed class Mutation {
     FAILED
   }
 
-  override fun toString(): String {
-    return "$syncStatus $type $clientTimestamp"
-  }
+  override fun toString(): String = "$syncStatus $type $clientTimestamp"
 
   companion object {
     @JvmStatic

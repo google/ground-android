@@ -58,9 +58,8 @@ internal constructor(
    * Prevents known `FirebaseFirestoreException` from propagating downstream. Also, notifies the
    * event to a processor that should be handled commonly.
    */
-  private fun shouldInterceptException(throwable: Throwable): Boolean {
-    return errorManager.handleException(throwable)
-  }
+  private fun shouldInterceptException(throwable: Throwable): Boolean =
+    errorManager.handleException(throwable)
 
   private fun recordException(t: Throwable, message: String) {
     FirebaseCrashlytics.getInstance().log(message)
