@@ -29,13 +29,12 @@ import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
+import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -45,8 +44,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /** View model for the Data Collection fragment. */
+@HiltViewModel
 class DataCollectionViewModel
-@AssistedInject
+@Inject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
@@ -55,12 +55,8 @@ internal constructor(
   private val navigator: Navigator,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  @Assisted private val savedStateHandle: SavedStateHandle
+  private val savedStateHandle: SavedStateHandle
 ) : AbstractViewModel() {
-  @AssistedFactory
-  interface Factory {
-    fun create(savedStateHandle: SavedStateHandle): DataCollectionViewModel
-  }
 
   val submission: @Hot(replays = true) LiveData<Submission>
   val jobName: @Hot(replays = true) LiveData<String>
