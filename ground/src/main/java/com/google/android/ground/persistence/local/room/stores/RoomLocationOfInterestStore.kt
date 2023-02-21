@@ -26,6 +26,7 @@ import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
@@ -179,4 +180,10 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInt
     vararg states: MutationEntitySyncStatus
   ): Single<List<LocationOfInterestMutationEntity>> =
     locationOfInterestMutationDao.findByLocationOfInterestId(id, *states)
+
+  override suspend fun insertOrUpdate(loi: LocationOfInterest) =
+    locationOfInterestDao.insertOrUpdateSuspend(loi.toLocalDataStoreObject())
+
+  override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
+    locationOfInterestDao.deleteNotIn(surveyId, ids)
 }

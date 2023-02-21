@@ -59,4 +59,8 @@ interface LocationOfInterestStore : MutationStore<LocationOfInterestMutation, Lo
     id: String,
     vararg states: MutationEntitySyncStatus
   ): Single<List<LocationOfInterestMutationEntity>>
+
+  suspend fun insertOrUpdate(loi: LocationOfInterest)
+
+  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
 }
