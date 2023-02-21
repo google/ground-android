@@ -33,4 +33,11 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
   fun findById(id: String): Maybe<LocationOfInterestEntity>
+
+  /**
+   * Deletes all LOIs in specified survey whose IDs are not present in the specified list..
+   * Main-safe.
+   */
+  @Query("DELETE FROM location_of_interest WHERE survey_id = :surveyId AND id NOT IN (:ids)")
+  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
 }
