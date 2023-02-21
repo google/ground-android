@@ -541,7 +541,7 @@ style:
         active: false
     ExpressionBodySyntax:
         active: true
-        includeLineWrapping: false
+        includeLineWrapping: true
         excludes: [ '**/*Module.kt' ]
     ForbiddenComment:
         active: true
