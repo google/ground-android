@@ -25,6 +25,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
 
 interface LocationOfInterestStore : MutationStore<LocationOfInterestMutation, LocationOfInterest> {
   /**
@@ -34,6 +35,12 @@ interface LocationOfInterestStore : MutationStore<LocationOfInterestMutation, Lo
   fun getLocationsOfInterestOnceAndStream(
     survey: Survey
   ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>>
+
+  /**
+   * Returns a main-safe flow that emits the full set of LOIs for a survey on subscribe, and
+   * continues to return the full set each time a LOI is added/changed/removed.
+   */
+  suspend fun findLocationsOfInterest(survey: Survey): Flow<Set<LocationOfInterest>>
 
   /** Returns the LOI with the specified UUID from the local data store, if found. */
   fun getLocationOfInterest(

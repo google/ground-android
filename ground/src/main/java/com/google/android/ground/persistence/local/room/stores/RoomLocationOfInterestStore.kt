@@ -41,6 +41,7 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
@@ -63,6 +64,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInt
       .findOnceAndStream(survey.id, EntityState.DEFAULT)
       .map { toLocationsOfInterest(survey, it) }
       .subscribeOn(schedulers.io())
+
+  override suspend fun findLocationsOfInterest(survey: Survey) =
+    locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
+      toLocationsOfInterest(survey, it)
+    }
 
   /**
    * Attempts to retrieve the [LocationOfInterest] with the given ID that's associated with the
