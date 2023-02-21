@@ -27,8 +27,7 @@ data class TextTaskData(val text: String) : TaskData {
 
   companion object {
     @JvmStatic
-    fun fromString(text: String): Optional<TaskData> {
-      return if (text.isEmpty()) Optional.empty() else Optional.of(TextTaskData(text))
-    }
+    fun fromString(text: String): Optional<TaskData> =
+      if (text.isEmpty()) Optional.empty() else Optional.of(TextTaskData(text))
   }
 }

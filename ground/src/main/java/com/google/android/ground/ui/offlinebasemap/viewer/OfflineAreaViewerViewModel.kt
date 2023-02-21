@@ -107,12 +107,11 @@ constructor(
     )
   }
 
-  private fun tileSetsToTotalStorageSize(tileSets: Set<TileSet>): Double {
-    return StreamSupport.stream(tileSets)
+  private fun tileSetsToTotalStorageSize(tileSets: Set<TileSet>): Double =
+    StreamSupport.stream(tileSets)
       .map { tileSet: TileSet -> tileSetStorageSize(tileSet) }
       .reduce { x: Double, y: Double -> x + y }
       .orElse(0.0)
-  }
 
   private fun tileSetStorageSize(tileSet: TileSet): Double {
     val context1 = context.get()

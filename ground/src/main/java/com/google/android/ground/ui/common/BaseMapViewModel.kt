@@ -119,9 +119,7 @@ constructor(
     selectMapTypeClicks.onNext(Nil.NIL)
   }
 
-  fun getSelectMapTypeClicks(): Observable<Nil> {
-    return selectMapTypeClicks
-  }
+  fun getSelectMapTypeClicks(): Observable<Nil> = selectMapTypeClicks
 
   /** Called when location lock button is clicked by the user. */
   fun onLocationLockClick() {

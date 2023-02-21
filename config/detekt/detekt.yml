@@ -540,8 +540,9 @@ style:
     ExplicitItLambdaParameter:
         active: false
     ExpressionBodySyntax:
-        active: false
-        includeLineWrapping: false
+        active: true
+        includeLineWrapping: true
+        excludes: [ '**/*Module.kt' ]
     ForbiddenComment:
         active: true
         values:
