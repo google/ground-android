@@ -56,7 +56,6 @@ buildscript {
 
 plugins {
     id "com.github.ben-manes.versions" version "0.36.0"
-    id "com.github.spotbugs" version "4.7.2" apply false
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
     id "com.ncorti.ktfmt.gradle" version "0.11.0"
@@ -98,9 +97,8 @@ detekt {
     basePath = projectDir
 }
 
-// TODO: Remove java only plugins to improve build speed
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugsDebug', 'ktfmtCheck', 'detekt']
+    tasks = ['checkstyle', 'lintDebug', 'ktfmtCheck', 'detekt']
 }
 
 task clean(type: Delete) {
