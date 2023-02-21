@@ -27,6 +27,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Flowable
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -37,6 +40,18 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
   ): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> =
     RxFirestore.observeQueryRef(reference()).flatMapIterable { snapshot: QuerySnapshot ->
       toRemoteDataEvents(survey, snapshot)
+    }
+
+  /** Retrieves all LOIs in the specified survey. Main-safe. */
+  suspend fun locationsOfInterest(survey: Survey): List<LocationOfInterest> =
+    withContext(ioDispatcher) { toLois(survey, reference().get().await()) }
+
+  private suspend fun toLois(survey: Survey, snapshot: QuerySnapshot): List<LocationOfInterest> =
+    withContext(defaultDispatcher) {
+      snapshot.documents
+        .map { toLoi(survey, it) }
+        // Filter out bad results and log.
+        .mapNotNull { it.onFailure { t -> Timber.e(t) }.getOrNull() }
     }
 
   fun loi(id: String) = LoiDocumentReference(reference().document(id))

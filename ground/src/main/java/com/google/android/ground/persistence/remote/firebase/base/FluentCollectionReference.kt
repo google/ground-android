@@ -25,9 +25,15 @@ import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Completable
 import io.reactivex.Single
 import java8.util.function.Function
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 abstract class FluentCollectionReference
-protected constructor(private val reference: CollectionReference) {
+protected constructor(
+  private val reference: CollectionReference,
+  protected val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+  protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+) {
 
   /**
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
