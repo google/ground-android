@@ -28,7 +28,6 @@ import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -47,7 +46,6 @@ import timber.log.Timber
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var offlineUuidGenerator: OfflineUuidGenerator
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -137,8 +135,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
         /* surveyId = */ loi.surveyId,
-        /* locationOfInterestId = */ loi.id,
-        /* submissionId = */ offlineUuidGenerator.generateUuid()
+        /* locationOfInterestId = */ loi.id
       )
     )
   }

@@ -57,9 +57,7 @@ internal class OfflineAreaListAdapter(private val navigator: Navigator) :
     viewHolder.binding.offlineAreaName.text = offlineAreas[position].name
   }
 
-  override fun getItemCount(): Int {
-    return offlineAreas.size
-  }
+  override fun getItemCount(): Int = offlineAreas.size
 
   fun update(offlineAreas: List<OfflineArea>) {
     this.offlineAreas = offlineAreas

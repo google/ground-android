@@ -102,9 +102,8 @@ internal constructor(
 
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
-  ): Set<Feature> {
-    // TODO: Add support for polylines similar to mapPins.
-    return locationsOfInterest
+  ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
+  locationsOfInterest
       .map {
         Feature(
           id = it.id,
@@ -114,7 +113,6 @@ internal constructor(
         )
       }
       .toPersistentSet()
-  }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
@@ -160,9 +158,7 @@ internal constructor(
     tileProviders.forEach { it.close() }
   }
 
-  fun getZoomThresholdCrossed(): Observable<Nil> {
-    return zoomThresholdCrossed
-  }
+  fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE

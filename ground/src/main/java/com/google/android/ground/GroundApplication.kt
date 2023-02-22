@@ -53,9 +53,8 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
     WorkManager.initialize(applicationContext, workManagerConfiguration)
   }
 
-  override fun getWorkManagerConfiguration(): Configuration {
-    return Configuration.Builder().setWorkerFactory(workerFactory).build()
-  }
+  override fun getWorkManagerConfiguration(): Configuration =
+    Configuration.Builder().setWorkerFactory(workerFactory).build()
 
   private fun setStrictMode() {
     StrictMode.setThreadPolicy(ThreadPolicy.Builder().detectAll().penaltyLog().build())

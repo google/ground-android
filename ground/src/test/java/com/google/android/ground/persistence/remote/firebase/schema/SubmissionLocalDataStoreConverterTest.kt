@@ -247,9 +247,8 @@ class SubmissionLocalDataStoreConverterTest {
       .thenReturn(doc)
   }
 
-  private fun toSubmission(): Submission {
-    return toSubmission(locationOfInterest, submissionDocumentSnapshot)
-  }
+  private fun toSubmission(): Submission =
+    toSubmission(locationOfInterest, submissionDocumentSnapshot)
 
   companion object {
     private val AUDIT_INFO_1 = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))

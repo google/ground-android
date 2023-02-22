@@ -19,8 +19,6 @@ apply plugin: 'kotlin-android'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
-apply from: '../config/pmd/pmd.gradle'
-apply from: '../config/spotbugs/spotbugs.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
 android {

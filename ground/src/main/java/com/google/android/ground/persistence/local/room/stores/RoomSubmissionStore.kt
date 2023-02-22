@@ -39,8 +39,9 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionMutatio
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.fields.UserDetails
-import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
+import com.google.android.ground.persistence.local.stores.SubmissionStore
 import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.util.Debug.logOnFailure
 import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.*
@@ -51,7 +52,7 @@ import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
-class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissionMutationStore {
+class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomUserStore
@@ -118,8 +119,8 @@ class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissi
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    * exist, or if type is "CREATE" and entity already exists.
    */
-  override fun apply(mutation: SubmissionMutation): Completable {
-    return when (mutation.type) {
+  override fun apply(mutation: SubmissionMutation): Completable =
+    when (mutation.type) {
       Mutation.Type.CREATE ->
         userStore.getUser(mutation.userId).flatMapCompletable { user ->
           insertFromMutation(mutation, user)
@@ -134,7 +135,6 @@ class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissi
         }
       Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
-  }
 
   override fun updateAll(mutations: List<SubmissionMutation>): Completable =
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
@@ -229,7 +229,7 @@ class RoomSubmissionMutationStore @Inject internal constructor() : LocalSubmissi
     locationOfInterest: LocationOfInterest,
     submissionEntities: List<SubmissionEntity>
   ): List<Submission> =
-    submissionEntities.flatMap { logAndSkip { it.toModelObject(locationOfInterest) } }
+    submissionEntities.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
 
   override fun deleteSubmission(submissionId: String): Completable =
     submissionDao

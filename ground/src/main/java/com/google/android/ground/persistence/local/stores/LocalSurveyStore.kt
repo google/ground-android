@@ -22,7 +22,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 
 /** Provides access to [Survey] data in local storage. */
-interface LocalSurveyStore : LocalStore<Survey> {
+interface LocalSurveyStore {
   /** Load surveys stored in local database. */
   val surveys: @Cold Flowable<List<Survey>>
   /** Load last active survey, if any. */

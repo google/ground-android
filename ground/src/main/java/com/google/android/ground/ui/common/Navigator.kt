@@ -37,13 +37,9 @@ class Navigator @Inject constructor() {
   private val navigateUpRequests: @Hot Subject<Any> = PublishSubject.create()
 
   /** Stream of navigation requests for fulfillment by the view layer. */
-  fun getNavigateRequests(): Observable<NavDirections> {
-    return navigateRequests
-  }
+  fun getNavigateRequests(): Observable<NavDirections> = navigateRequests
 
-  fun getNavigateUpRequests(): Observable<Any> {
-    return navigateUpRequests
-  }
+  fun getNavigateUpRequests(): Observable<Any> = navigateUpRequests
 
   /** Navigates up one level on the back stack. */
   fun navigateUp() {

@@ -34,9 +34,6 @@ class Event<T> private constructor(private val data: T) : Action() {
 
   companion object {
     /** Returns a new event with the specified event data. */
-    @JvmStatic
-    fun <T> create(data: T): Event<T> {
-      return Event(data)
-    }
+    @JvmStatic fun <T> create(data: T): Event<T> = Event(data)
   }
 }

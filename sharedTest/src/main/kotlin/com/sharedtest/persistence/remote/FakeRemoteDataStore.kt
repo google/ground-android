@@ -42,15 +42,12 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override fun loadSurveySummaries(user: User): Single<List<Survey>> {
-    return Single.just(surveys)
-  }
+  override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
 
-  override fun loadSurvey(surveyId: String): Single<Survey> {
-    return Single.just(
+  override fun loadSurvey(surveyId: String): Single<Survey> =
+    Single.just(
       surveys.firstOrNull { it.id == surveyId } ?: throw NotFoundException("Invalid survey id")
     )
-  }
 
   override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
     if (termsOfService == null) Maybe.empty() else Maybe.just(termsOfService)

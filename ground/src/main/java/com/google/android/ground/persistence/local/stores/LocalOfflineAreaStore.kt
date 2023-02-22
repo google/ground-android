@@ -21,7 +21,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 
-interface LocalOfflineAreaStore : LocalStore<OfflineArea> {
+interface LocalOfflineAreaStore {
   /**
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
    * the area into the local data store.

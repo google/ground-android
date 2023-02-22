@@ -23,13 +23,10 @@ import javax.inject.Singleton
 /** Object representation of Ground Firestore database. */
 @Singleton
 class GroundFirestore @Inject internal constructor(db: FirebaseFirestore) : FluentFirestore(db) {
-  fun surveys(): SurveysCollectionReference {
-    return SurveysCollectionReference(db().collection(SURVEYS))
-  }
+  fun surveys(): SurveysCollectionReference = SurveysCollectionReference(db().collection(SURVEYS))
 
-  fun termsOfService(): TermsOfServiceCollectionReference {
-    return TermsOfServiceCollectionReference(db().collection(CONFIG))
-  }
+  fun termsOfService(): TermsOfServiceCollectionReference =
+    TermsOfServiceCollectionReference(db().collection(CONFIG))
 
   companion object {
     private const val SURVEYS = "surveys"

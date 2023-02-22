@@ -30,13 +30,9 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
   POINT(7),
   POLYGON(8);
 
-  override fun intValue(): Int {
-    return intValue
-  }
+  override fun intValue(): Int = intValue
 
-  fun toTaskType(): Task.Type {
-    return TASK_TYPES.getOrDefault(this, Task.Type.UNKNOWN)
-  }
+  fun toTaskType(): Task.Type = TASK_TYPES.getOrDefault(this, Task.Type.UNKNOWN)
 
   companion object {
     private val TASK_TYPES: Map<TaskEntityType, Task.Type> =
@@ -53,20 +49,13 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
     private val REVERSE_TASK_TYPES: Map<Task.Type, TaskEntityType> =
       TASK_TYPES.entries.associateBy({ it.value }) { it.key }
 
-    fun fromTaskType(type: Task.Type): TaskEntityType {
-      return REVERSE_TASK_TYPES.getOrDefault(type, UNKNOWN)
-    }
+    fun fromTaskType(type: Task.Type): TaskEntityType =
+      REVERSE_TASK_TYPES.getOrDefault(type, UNKNOWN)
+
+    @JvmStatic @TypeConverter fun toInt(value: TaskEntityType?): Int = IntEnum.toInt(value, UNKNOWN)
 
     @JvmStatic
     @TypeConverter
-    fun toInt(value: TaskEntityType?): Int {
-      return IntEnum.toInt(value, UNKNOWN)
-    }
-
-    @JvmStatic
-    @TypeConverter
-    fun fromInt(intValue: Int): TaskEntityType {
-      return IntEnum.fromInt(values(), intValue, UNKNOWN)
-    }
+    fun fromInt(intValue: Int): TaskEntityType = IntEnum.fromInt(values(), intValue, UNKNOWN)
   }
 }
