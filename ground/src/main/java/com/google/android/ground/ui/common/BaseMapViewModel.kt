@@ -23,17 +23,16 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
-import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
@@ -51,7 +50,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  private val selectMapTypeClicks: @Hot Subject<Nil> = PublishSubject.create()
+  val baseMapType: LiveData<Int>
 
   val locationLockIconTint =
     locationLock
@@ -74,6 +73,7 @@ constructor(
       LiveDataReactiveStreams.fromPublisher(
         mapController.getCameraUpdates().map { Event.create(it) }
       )
+    baseMapType = LiveDataReactiveStreams.fromPublisher(mapStateRepository.mapTypeFlowable)
   }
 
   private suspend fun toggleLocationLock() {
@@ -113,13 +113,6 @@ constructor(
   fun setLocationLockEnabled(enabled: Boolean) {
     locationLockEnabled.postValue(enabled)
   }
-
-  /** Called when map type button is clicked by the user. */
-  fun onMapTypeButtonClicked() {
-    selectMapTypeClicks.onNext(Nil.NIL)
-  }
-
-  fun getSelectMapTypeClicks(): Observable<Nil> = selectMapTypeClicks
 
   /** Called when location lock button is clicked by the user. */
   fun onLocationLockClick() {
