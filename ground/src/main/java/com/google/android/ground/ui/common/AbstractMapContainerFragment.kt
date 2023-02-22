@@ -29,7 +29,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -56,7 +55,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     lifecycleScope.launch {
       getMapViewModel().locationLock.collect { onLocationLockStateChange(it, mapFragment) }
     }
-    getMapViewModel().basemapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
+    getMapViewModel().baseMapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
     }

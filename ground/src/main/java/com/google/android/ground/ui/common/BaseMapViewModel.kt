@@ -29,7 +29,10 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Single
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
@@ -47,7 +50,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  val basemapType: LiveData<Int>
+  val baseMapType: LiveData<Int>
 
   val locationLockIconTint =
     locationLock
@@ -70,7 +73,7 @@ constructor(
       LiveDataReactiveStreams.fromPublisher(
         mapController.getCameraUpdates().map { Event.create(it) }
       )
-    basemapType = LiveDataReactiveStreams.fromPublisher(mapStateRepository.mapTypeFlowable)
+    baseMapType = LiveDataReactiveStreams.fromPublisher(mapStateRepository.mapTypeFlowable)
   }
 
   private suspend fun toggleLocationLock() {
