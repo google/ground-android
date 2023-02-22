@@ -49,6 +49,7 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
     savedInstanceState: Bundle?
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
+    binding.fragment = this
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
     return binding.root
