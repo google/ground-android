@@ -53,15 +53,14 @@ class MbtilesFootprintParser @Inject constructor(private val uuidGenerator: Offl
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  fun intersectingTiles(bounds: LatLngBounds, file: File): Single<List<TileSet>> {
-    return getJsonTileSets(file)
+  fun intersectingTiles(bounds: LatLngBounds, file: File): Single<List<TileSet>> =
+    getJsonTileSets(file)
       .map { tilesetJsonList ->
         tilesetJsonList
           .filter { it.boundsIntersect(bounds) }
           .map { jsonToTileSet(it).incrementOfflineAreaCount() }
       }
       .doOnError { Timber.e(it) }
-  }
 
   // TODO: Instead of returning tiles with invalid state (empty URL/ID values), throw an exception
   //  here and handle it downstream.

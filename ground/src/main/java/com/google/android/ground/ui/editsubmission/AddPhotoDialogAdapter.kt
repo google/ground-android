@@ -39,9 +39,7 @@ class AddPhotoDialogAdapter(private val onSelectPhotoStorageClick: Consumer<Int>
     holder.type = storageResource.sourceType
   }
 
-  override fun getItemCount(): Int {
-    return photoStorageResources.size
-  }
+  override fun getItemCount(): Int = photoStorageResources.size
 
   class ViewHolder(val binding: AddPhotoListItemBinding, consumer: Consumer<Int>) :
     RecyclerView.ViewHolder(binding.root) {

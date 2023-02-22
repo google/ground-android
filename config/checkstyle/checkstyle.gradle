@@ -32,6 +32,7 @@ apply plugin: 'checkstyle'
 
 checkstyle.toolVersion = '8.36.2'
 
+// This is only being used for checking license header for java and xml files.
 tasks.register("checkstyle", Checkstyle) {
     configFile file("../third_party/checkstyle/google_checks.xml")
 
@@ -40,9 +41,7 @@ tasks.register("checkstyle", Checkstyle) {
 
     source 'src'
     include '**/*.java'
-    include '**/*.kt'
     include '**/*.xml'
     exclude '**/gen/**'
-    exclude '**/LocalDatabase.java'
     classpath = files()
 }

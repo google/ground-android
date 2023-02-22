@@ -33,8 +33,8 @@ data class LocationOfInterestMutation(
 ) : Mutation() {
 
   companion object {
-    fun filter(mutations: List<Mutation>): List<LocationOfInterestMutation> {
-      return mutations
+    fun filter(mutations: List<Mutation>): List<LocationOfInterestMutation> =
+      mutations
         .toTypedArray()
         .filter {
           when (it) {
@@ -43,6 +43,5 @@ data class LocationOfInterestMutation(
           }
         }
         .map { it as LocationOfInterestMutation }
-    }
   }
 }

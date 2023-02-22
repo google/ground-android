@@ -92,8 +92,8 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       .apply()
   }
 
-  fun getLastCameraPosition(surveyId: String): CameraPosition? {
-    return try {
+  fun getLastCameraPosition(surveyId: String): CameraPosition? =
+    try {
       val stringVal = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
       CameraPosition.deserialize(stringVal)
     } catch (e: NumberFormatException) {
@@ -103,7 +103,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       Timber.e(e, "Invalid camera pos in prefs")
       null
     }
-  }
 
   companion object {
     const val ACTIVE_SURVEY_ID_KEY = "activeSurveyId"

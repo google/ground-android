@@ -23,8 +23,8 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 
 /** ViewAction for item within recycler view item. */
-fun <T : View> recyclerChildAction(@IdRes id: Int, block: T.() -> Unit): ViewAction {
-  return object : ViewAction {
+fun <T : View> recyclerChildAction(@IdRes id: Int, block: T.() -> Unit): ViewAction =
+  object : ViewAction {
     override fun getConstraints(): Matcher<View> {
       return Matchers.any(View::class.java)
     }
@@ -37,4 +37,3 @@ fun <T : View> recyclerChildAction(@IdRes id: Int, block: T.() -> Unit): ViewAct
       view.findViewById<T>(id).block()
     }
   }
-}

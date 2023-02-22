@@ -21,7 +21,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
@@ -50,18 +49,13 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   ): View {
     binding = SurveySelectorFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
-
-    // Required for unit tests since they are run inside a sandbox activity
-    if (requireActivity() is MainActivity) {
-      getMainActivity().setActionBar(binding.toolbar, true)
-    }
-
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.recyclerView.adapter = adapter
+    getAbstractActivity().setActionBar(binding.toolbar, true)
   }
 
   fun showPopupMenu(view: View, surveyId: String) {

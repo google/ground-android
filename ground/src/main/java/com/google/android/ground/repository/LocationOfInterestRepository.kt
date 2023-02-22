@@ -20,7 +20,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestMutationStore
+import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
@@ -43,7 +43,7 @@ import timber.log.Timber
 class LocationOfInterestRepository
 @Inject
 constructor(
-  private val localLoiStore: LocalLocationOfInterestMutationStore,
+  private val localLoiStore: LocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
@@ -54,17 +54,16 @@ constructor(
    * from the remote db, subsequently syncing only remote changes. The returned stream never
    * completes, and subscriptions will only terminate on disposal.
    */
-  fun syncLocationsOfInterest(survey: Survey): @Cold Completable {
-    return remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
+  fun syncLocationsOfInterest(survey: Survey): @Cold Completable =
+    remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
       updateLocalLocationOfInterest(it)
     }
-  }
 
   // TODO: Remove "location of interest" qualifier from this and other repository method names.
   private fun updateLocalLocationOfInterest(
     event: RemoteDataEvent<LocationOfInterest>
-  ): @Cold Completable {
-    return event.result.fold(
+  ): @Cold Completable =
+    event.result.fold(
       { (entityId: String, entity: LocationOfInterest?) ->
         when (event.eventType) {
           ENTITY_LOADED,
@@ -78,7 +77,6 @@ constructor(
         Completable.complete()
       }
     )
-  }
 
   // TODO: Only return location of interest fields needed to render locations of interest on map.
   fun getLocationsOfInterestOnceAndStream(

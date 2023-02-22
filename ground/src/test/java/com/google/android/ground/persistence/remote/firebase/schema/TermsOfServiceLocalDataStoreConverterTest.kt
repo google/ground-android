@@ -50,9 +50,7 @@ class TermsOfServiceLocalDataStoreConverterTest {
       .thenReturn(doc)
   }
 
-  private fun toTermsOfService(): TermsOfService {
-    return toTerms(termsOfServiceDocumentSnapshot)
-  }
+  private fun toTermsOfService(): TermsOfService = toTerms(termsOfServiceDocumentSnapshot)
 
   companion object {
     private const val TEST_TERMS = "TERMS"

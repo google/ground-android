@@ -211,8 +211,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   /** Handles both cluster and marker clicks. */
-  private fun onClusterItemClick(item: FeatureClusterItem): Boolean {
-    return if (getMap().uiSettings.isZoomGesturesEnabled) {
+  private fun onClusterItemClick(item: FeatureClusterItem): Boolean =
+    if (getMap().uiSettings.isZoomGesturesEnabled) {
       locationOfInterestInteractionSubject.onNext(listOf(item.feature))
       // Allow map to pan to marker.
       false
@@ -220,7 +220,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       // Prevent map from panning to marker.
       true
     }
-  }
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()

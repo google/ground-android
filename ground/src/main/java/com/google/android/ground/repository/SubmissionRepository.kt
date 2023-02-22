@@ -23,8 +23,8 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalSubmissionMutationStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.local.stores.SubmissionStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -52,7 +52,7 @@ class SubmissionRepository
 @Inject
 constructor(
   private val localSurveyStore: LocalSurveyStore,
-  private val localSubmissionMutationStore: LocalSubmissionMutationStore,
+  private val localSubmissionStore: SubmissionStore,
   private val remoteDataStore: RemoteDataStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
@@ -63,6 +63,7 @@ constructor(
   /**
    * Retrieves the submissions or the specified survey, location of interest, and task.
    * 1. Attempt to sync remote submission changes to the local data store. If network is not
+   *
    * ```
    *    available or operation times out, this step is skipped.
    * ```
@@ -93,13 +94,11 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(
-      localSubmissionMutationStore.getSubmissions(locationOfInterest, taskId)
-    )
+    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, taskId))
   }
 
-  private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable {
-    return Observable.fromIterable(submissions)
+  private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =
+    Observable.fromIterable(submissions)
       .doOnNext { result: Result<Submission> ->
         if (result.isFailure) {
           Timber.e(result.exceptionOrNull(), "Skipping bad submission")
@@ -107,8 +106,7 @@ constructor(
       }
       .filter { it.isSuccess }
       .map { it.getOrThrow() }
-      .flatMapCompletable { localSubmissionMutationStore.merge(it) }
-  }
+      .flatMapCompletable { localSubmissionStore.merge(it) }
 
   fun getSubmission(
     surveyId: String,
@@ -119,21 +117,16 @@ constructor(
     locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .flatMap { locationOfInterest ->
-        localSubmissionMutationStore
+        localSubmissionStore
           .getSubmission(locationOfInterest, submissionId)
           .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
       }
 
-  fun createSubmission(
-    surveyId: String,
-    locationOfInterestId: String,
-    jobId: String
-  ): @Cold Single<Submission> {
+  fun createSubmission(surveyId: String, locationOfInterestId: String): @Cold Single<Submission> {
     val auditInfo = AuditInfo(authManager.currentUser)
     return locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .map { locationOfInterest: LocationOfInterest ->
-        check(locationOfInterest.job.id == jobId)
         Submission(
           uuidGenerator.generateUuid(),
           locationOfInterest.surveyId,
@@ -177,7 +170,7 @@ constructor(
     )
 
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-    localSubmissionMutationStore
+    localSubmissionStore
       .applyAndEnqueue(mutation)
       .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
 
@@ -191,7 +184,7 @@ constructor(
     locationOfInterestId: String
   ): Flowable<List<SubmissionMutation>> =
     localSurveyStore.getSurveyById(surveyId).toFlowable().flatMap {
-      localSubmissionMutationStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
         it,
         locationOfInterestId,
         MutationEntitySyncStatus.PENDING,
