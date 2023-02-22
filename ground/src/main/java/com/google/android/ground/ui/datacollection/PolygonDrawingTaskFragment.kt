@@ -52,6 +52,7 @@ class PolygonDrawingTaskFragment :
     savedInstanceState: Bundle?
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
+    binding.fragment = this
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
     return binding.root
