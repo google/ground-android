@@ -30,16 +30,16 @@ import java.util.concurrent.TimeUnit
 abstract class SyncService {
   /** A set of constraints that must be satisfied in order to start the scheduled job. */
   private val workerConstraints: Constraints
-    get() = Constraints.Builder().setRequiredNetworkType(preferredNetworkType).build()
+    get() = Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build()
+
+  /** A class extending [Worker] which gets scheduled for a request. */
+  protected abstract val workerClass: Class<out Worker?>
 
   /**
    * Override this method if the worker requires a stable internet connection for large file
    * upload/download. By default, the worker just needs access to internet connection.
    */
-  protected open val preferredNetworkType: NetworkType = DEFAULT_NETWORK_TYPE
-
-  /** A class extending [Worker] which gets scheduled for a request. */
-  protected abstract val workerClass: Class<out Worker?>
+  protected open fun preferredNetworkType(): NetworkType = DEFAULT_NETWORK_TYPE
 
   /**
    * Create a work request for non-repeating work along with input data that would be passed along

@@ -34,7 +34,7 @@ constructor(
   override val workerClass: Class<PhotoSyncWorker>
     get() = PhotoSyncWorker::class.java
 
-  override val preferredNetworkType: NetworkType =
+  override fun preferredNetworkType(): NetworkType =
     if (localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()) NetworkType.UNMETERED
     else NetworkType.CONNECTED
 
