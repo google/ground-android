@@ -46,6 +46,9 @@ class SubmissionDetailsFragment : AbstractFragment() {
   lateinit var viewModel: SubmissionDetailsViewModel
   lateinit var binding: SubmissionDetailsFragBinding
 
+  private val submissionDetailsFragmentArgs: SubmissionDetailsFragmentArgs
+    get() = SubmissionDetailsFragmentArgs.fromBundle(requireArguments())
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val args = submissionDetailsFragmentArgs
@@ -155,7 +158,4 @@ class SubmissionDetailsFragment : AbstractFragment() {
     }
     return true
   }
-
-  private val submissionDetailsFragmentArgs: SubmissionDetailsFragmentArgs
-    get() = SubmissionDetailsFragmentArgs.fromBundle(requireArguments())
 }

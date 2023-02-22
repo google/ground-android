@@ -41,13 +41,6 @@ interface MapFragment {
   /** Get or set the bounds of the currently visible viewport. */
   var viewport: Bounds
 
-  /** Adds the [MapFragment] to a fragment. */
-  fun attachToFragment(
-    containerFragment: AbstractFragment,
-    @IdRes containerId: Int,
-    mapAdapter: Consumer<MapFragment>
-  )
-
   /** A stream of interaction events on rendered location of interest [Feature]s. */
   val locationOfInterestInteractions: @Hot Observable<List<Feature>>
 
@@ -62,6 +55,17 @@ interface MapFragment {
    * Subscribers that can't keep up receive the latest event ([Flowable.onBackpressureLatest]).
    */
   val cameraMovedEvents: @Hot Flowable<CameraPosition>
+
+  // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
+  /** Returns TileProviders associated with this map adapter. */
+  val tileProviders: @Hot Observable<MapBoxOfflineTileProvider>
+
+  /** Adds the [MapFragment] to a fragment. */
+  fun attachToFragment(
+    containerFragment: AbstractFragment,
+    @IdRes containerId: Int,
+    mapAdapter: Consumer<MapFragment>
+  )
 
   /** Enables map gestures like pan and zoom. */
   fun enableGestures()
@@ -85,10 +89,6 @@ interface MapFragment {
   fun renderFeatures(features: Set<Feature>)
 
   fun refresh()
-
-  // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
-  /** Returns TileProviders associated with this map adapter. */
-  val tileProviders: @Hot Observable<MapBoxOfflineTileProvider>
 
   /** Render locally stored tile overlays on the map. */
   fun addLocalTileOverlays(mbtilesFiles: Set<String>)

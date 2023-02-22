@@ -29,7 +29,7 @@ interface LocalOfflineAreaStore {
   fun insertOrUpdateOfflineArea(area: OfflineArea): @Cold Completable
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
-  val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<List<OfflineArea>>
+  fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>
 
   /** Delete an offline area and any associated tiles that are no longer needed. */
   fun deleteOfflineArea(offlineAreaId: String): @Cold Completable

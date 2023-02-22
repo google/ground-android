@@ -99,6 +99,34 @@ internal constructor(
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
+  init {
+    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    // TODO: Clear location of interest markers when survey is deactivated.
+    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
+    // into the repo
+    // LOIs that are persisted to the local and remote dbs.
+    val loiStream =
+      surveyRepository.activeSurvey.switchMap { survey ->
+        activeSurveyId = survey.map { it.id }.orElse("")
+        getLocationsOfInterestStream(survey)
+      }
+
+    mapLocationOfInterestFeatures =
+      LiveDataReactiveStreams.fromPublisher(
+        loiStream
+          .map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) }
+          .startWith(setOf<Feature>())
+          .distinctUntilChanged()
+      )
+
+    mbtilesFilePaths =
+      LiveDataReactiveStreams.fromPublisher(
+        offlineAreaRepository.downloadedTileSetsOnceAndStream().map { set: Set<TileSet> ->
+          set.map(TileSet::path).toPersistentSet()
+        }
+      )
+  }
+
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
   ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
@@ -171,32 +199,4 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
-
-  init {
-    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    // TODO: Clear location of interest markers when survey is deactivated.
-    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
-    // into the repo
-    // LOIs that are persisted to the local and remote dbs.
-    val loiStream =
-      surveyRepository.activeSurvey.switchMap { survey ->
-        activeSurveyId = survey.map { it.id }.orElse("")
-        getLocationsOfInterestStream(survey)
-      }
-
-    mapLocationOfInterestFeatures =
-      LiveDataReactiveStreams.fromPublisher(
-        loiStream
-          .map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) }
-          .startWith(setOf<Feature>())
-          .distinctUntilChanged()
-      )
-
-    mbtilesFilePaths =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineAreaRepository.downloadedTileSetsOnceAndStream.map { set: Set<TileSet> ->
-          set.map(TileSet::path).toPersistentSet()
-        }
-      )
-  }
 }

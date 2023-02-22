@@ -29,7 +29,7 @@ constructor(private val workManager: WorkManager, private val localValueStore: L
   override val workerClass: Class<TileSetDownloadWorker>
     get() = TileSetDownloadWorker::class.java
 
-  override fun preferredNetworkType(): NetworkType =
+  override val preferredNetworkType: NetworkType =
     if (localValueStore.shouldDownloadOfflineAreasOverUnmeteredConnectionOnly())
       NetworkType.UNMETERED
     else NetworkType.CONNECTED

@@ -154,7 +154,8 @@ constructor(
    * and does not re-download the file.
    */
   override fun doWork(): Result {
-    val pendingTileSets = localTileSetStore.pendingTileSets.blockingGet() ?: return Result.success()
+    val pendingTileSets =
+      localTileSetStore.pendingTileSets().blockingGet() ?: return Result.success()
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.
