@@ -32,14 +32,14 @@ abstract class SyncService {
   private val workerConstraints: Constraints
     get() = Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build()
 
+  /** A class extending [Worker] which gets scheduled for a request. */
+  protected abstract val workerClass: Class<out Worker?>
+
   /**
    * Override this method if the worker requires a stable internet connection for large file
    * upload/download. By default, the worker just needs access to internet connection.
    */
   protected open fun preferredNetworkType(): NetworkType = DEFAULT_NETWORK_TYPE
-
-  /** A class extending [Worker] which gets scheduled for a request. */
-  protected abstract val workerClass: Class<out Worker?>
 
   /**
    * Create a work request for non-repeating work along with input data that would be passed along

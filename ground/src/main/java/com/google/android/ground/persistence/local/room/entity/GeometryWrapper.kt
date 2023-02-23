@@ -23,9 +23,9 @@ import com.google.android.ground.model.geometry.Polygon
 data class GeometryWrapper(
   /** Non-null iff this geometry is a point. */
   val point: Point? = null,
-  /** Non-null iff this geometry is a polygon */
+  /** Non-null iff this geometry is a polygon. */
   val polygon: Polygon? = null,
-  /** Non-null iff this geometry is a multi-polygon */
+  /** Non-null iff this geometry is a multi-polygon. */
   val multiPolygon: MultiPolygon? = null,
 ) {
 

@@ -354,7 +354,7 @@ fun Survey.toLocalDataStoreObject() =
     id = id,
     title = title,
     description = description,
-    acl = JSONObject(acl as Map<*, *>?)
+    acl = JSONObject(acl as Map<*, *>)
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =

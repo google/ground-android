@@ -39,7 +39,7 @@ class DataBindingIdlingResource : IdlingResource {
 
   override fun isIdleNow(): Boolean {
     var idle = false
-    for (b in bindings) {
+    for (b in bindings()) {
       if (b == null) {
         continue
       }
@@ -75,28 +75,25 @@ class DataBindingIdlingResource : IdlingResource {
     activityScenario.onActivity { activity: T -> this.activity = activity }
   }
 
-  private fun getBinding(view: View?): ViewDataBinding? {
-    return DataBindingUtil.getBinding(view!!)
-  }
+  private fun getBinding(view: View): ViewDataBinding? = DataBindingUtil.getBinding(view)
 
-  private val bindings: List<ViewDataBinding?>
-    get() {
-      val fragments = activity?.supportFragmentManager?.fragments ?: emptyList()
-      val bindings: MutableList<ViewDataBinding?> = ArrayList()
-      for (f in fragments) {
-        val fv: View = f.view ?: continue
-        bindings.add(getBinding(fv))
-        for (cf in f.childFragmentManager.fragments) {
-          val cfv: View = cf.view ?: continue
-          bindings.add(getBinding(cfv))
-          for (cf2 in cf.childFragmentManager.fragments) {
-            val cf2v: View = cf2.view ?: continue
-            bindings.add(getBinding(cf2v))
-          }
+  private fun bindings(): List<ViewDataBinding?> {
+    val fragments = activity?.supportFragmentManager?.fragments ?: emptyList()
+    val bindings: MutableList<ViewDataBinding?> = ArrayList()
+    for (f in fragments) {
+      val fv: View = f.view ?: continue
+      bindings.add(getBinding(fv))
+      for (cf in f.childFragmentManager.fragments) {
+        val cfv: View = cf.view ?: continue
+        bindings.add(getBinding(cfv))
+        for (cf2 in cf.childFragmentManager.fragments) {
+          val cf2v: View = cf2.view ?: continue
+          bindings.add(getBinding(cf2v))
         }
       }
-      return bindings
     }
+    return bindings
+  }
 
   companion object {
     // Give it a unique id to work around an Espresso bug where you cannot register/unregister

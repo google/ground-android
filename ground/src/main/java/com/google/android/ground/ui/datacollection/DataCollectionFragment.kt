@@ -19,9 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
@@ -29,7 +29,6 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.util.assistedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -39,12 +38,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
-  @Inject lateinit var dataCollectionViewModelFactory: DataCollectionViewModel.Factory
 
   private val args: DataCollectionFragmentArgs by navArgs()
-  private val viewModel: DataCollectionViewModel by assistedViewModel { savedStateHandle ->
-    dataCollectionViewModelFactory.create(savedStateHandle)
-  }
+  private val viewModel: DataCollectionViewModel by viewModels()
 
   private lateinit var viewPager: ViewPager2
 
@@ -76,7 +72,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (activity as AbstractActivity?)?.setActionBar(binding.dataCollectionToolbar, showTitle = false)
+    getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
   }

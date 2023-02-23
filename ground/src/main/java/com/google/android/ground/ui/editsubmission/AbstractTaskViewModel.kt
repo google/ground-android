@@ -47,13 +47,18 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   lateinit var task: Task
 
+  init {
+    taskData = LiveDataReactiveStreams.fromPublisher(taskDataSubject.distinctUntilChanged())
+    responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable())
+  }
+
   // TODO: Add a reference of Task in TaskData for simplification.
   fun initialize(task: Task, taskData: Optional<TaskData>) {
     this.task = task
     setResponse(taskData)
   }
 
-  protected val detailsTextFlowable: @Cold(stateful = true, terminates = false) Flowable<String> =
+  protected fun detailsTextFlowable(): @Cold(stateful = true, terminates = false) Flowable<String> =
     taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<TaskData> ->
       taskDataOptional.map { it.getDetailsText() }.orElse("")
     }
@@ -86,10 +91,5 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   fun clearResponse() {
     setResponse(Optional.empty())
-  }
-
-  init {
-    taskData = LiveDataReactiveStreams.fromPublisher(taskDataSubject.distinctUntilChanged())
-    responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable)
   }
 }

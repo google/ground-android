@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -54,17 +55,16 @@ constructor(
    * from the remote db, subsequently syncing only remote changes. The returned stream never
    * completes, and subscriptions will only terminate on disposal.
    */
-  fun syncLocationsOfInterest(survey: Survey): @Cold Completable {
-    return remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
+  fun syncLocationsOfInterest(survey: Survey): @Cold Completable =
+    remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
       updateLocalLocationOfInterest(it)
     }
-  }
 
   // TODO: Remove "location of interest" qualifier from this and other repository method names.
   private fun updateLocalLocationOfInterest(
     event: RemoteDataEvent<LocationOfInterest>
-  ): @Cold Completable {
-    return event.result.fold(
+  ): @Cold Completable =
+    event.result.fold(
       { (entityId: String, entity: LocationOfInterest?) ->
         when (event.eventType) {
           ENTITY_LOADED,
@@ -78,13 +78,6 @@ constructor(
         Completable.complete()
       }
     )
-  }
-
-  // TODO: Only return location of interest fields needed to render locations of interest on map.
-  fun getLocationsOfInterestOnceAndStream(
-    survey: Survey
-  ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>> =
-    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getOfflineLocationOfInterest(
@@ -127,4 +120,26 @@ constructor(
       MutationEntitySyncStatus.IN_PROGRESS,
       MutationEntitySyncStatus.FAILED
     )
+
+  /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
+  fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> =
+    surveyRepository.activeSurvey
+      .switchMap { survey ->
+        survey
+          .map { localLoiStore.getLocationsOfInterestOnceAndStream(it) }
+          .orElse(Flowable.just(setOf()))
+      }
+      .distinctUntilChanged()
+
+  /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
+  fun getWithinBoundsOnceAndStream(
+    cameraBoundUpdates: Flowable<LatLngBounds>
+  ): Flowable<List<LocationOfInterest>> {
+    val loiStream = getAllLocationsOfInterestOnceAndStream()
+    return cameraBoundUpdates
+      .flatMap { bounds ->
+        loiStream.map { lois -> lois.filter { it.geometry.isWithinBounds(bounds) } }
+      }
+      .distinctUntilChanged()
+  }
 }

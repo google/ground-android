@@ -127,8 +127,8 @@ constructor(
    * Retrieves all offline areas from the local store and continually streams the list as the local
    * store is updated. Triggers `onError` only if there is a problem accessing the local store.
    */
-  val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<List<OfflineArea>>
-    get() = localOfflineAreaStore.offlineAreasOnceAndStream
+  fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>> =
+    localOfflineAreaStore.offlineAreasOnceAndStream()
 
   /**
    * Fetches a single offline area by ID. Triggers `onError` when the area is not found. Triggers
@@ -162,7 +162,7 @@ constructor(
   ): @Cold(terminates = false) Flowable<Set<TileSet>> =
     getOfflineAreaTileSets(offlineArea)
       .flatMapPublisher { tiles ->
-        downloadedTileSetsOnceAndStream.map { tileSet ->
+        downloadedTileSetsOnceAndStream().map { tileSet ->
           downloadedTileSetsIntersection(tileSet, tiles)
         }
       } // If no tile sources are found, we report the area takes up 0.0mb on the device.
@@ -180,11 +180,10 @@ constructor(
    * Retrieves all downloaded tile sources from the local store. Triggers `onError` only if there is
    * a problem accessing the local store; does not trigger an error on empty rows.
    */
-  val downloadedTileSetsOnceAndStream: @Cold(terminates = false) Flowable<Set<TileSet>>
-    get() =
-      localTileSetStore.tileSetsOnceAndStream.map { tileSet ->
-        tileSet.filter { it.state === TileSet.State.DOWNLOADED }.toPersistentSet()
-      }
+  fun downloadedTileSetsOnceAndStream(): @Cold(terminates = false) Flowable<Set<TileSet>> =
+    localTileSetStore.tileSetsOnceAndStream().map { tileSet ->
+      tileSet.filter { it.state === TileSet.State.DOWNLOADED }.toPersistentSet()
+    }
 
   /**
    * Delete an offline area and any tile sources associated with it that do not overlap with other
@@ -210,15 +209,14 @@ constructor(
    * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their
    * coordinates.
    */
-  val tileSets: Single<List<TileSet>>
-    get() =
-      surveyRepository.activeSurvey
-        .map { it.map(Survey::baseMaps).orElse(listOf()) }
-        .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
-        .flatMap { source -> Flowable.fromIterable(source) }
-        .firstOrError()
-        .flatMap { baseMap -> getTileSets(baseMap) }
-        .doOnError { t -> Timber.e(t, "Couldn't retrieve basemap sources for the active survey") }
+  fun tileSets(): Single<List<TileSet>> =
+    surveyRepository.activeSurvey
+      .map { it.map(Survey::baseMaps).orElse(listOf()) }
+      .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
+      .flatMap { source -> Flowable.fromIterable(source) }
+      .firstOrError()
+      .flatMap { baseMap -> getTileSets(baseMap) }
+      .doOnError { t -> Timber.e(t, "Couldn't retrieve basemap sources for the active survey") }
 
   /**
    * Returns a list of [TileSet]s corresponding to a given [BaseMap] based on the BaseMap's type.

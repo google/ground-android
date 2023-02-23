@@ -66,9 +66,9 @@ output-reports:
 comments:
     active: true
     AbsentOrWrongFileLicense:
-        active: false
+        active: true
         licenseTemplateFile: 'license.template'
-        licenseTemplateIsRegex: false
+        licenseTemplateIsRegex: true
     CommentOverPrivateFunction:
         active: false
     CommentOverPrivateProperty:
@@ -76,7 +76,7 @@ comments:
     DeprecatedBlockTag:
         active: false
     EndOfSentenceFormat:
-        active: false
+        active: true
         endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
     KDocReferencesNonPublicProperty:
         active: false
@@ -420,11 +420,11 @@ potential-bugs:
         forbiddenTypePatterns:
             - 'kotlin.String'
     CastToNullableType:
-        active: false
+        active: true
     Deprecation:
         active: false
     DontDowncastCollectionTypes:
-        active: false
+        active: true
     DoubleMutabilityForCollection:
         active: true
         mutableTypes:
@@ -519,7 +519,7 @@ style:
         active: false
         includeElvis: true
     ClassOrdering:
-        active: false
+        active: true
     CollapsibleIfStatements:
         active: false
     DataClassContainsFunctions:
@@ -540,8 +540,9 @@ style:
     ExplicitItLambdaParameter:
         active: false
     ExpressionBodySyntax:
-        active: false
-        includeLineWrapping: false
+        active: true
+        includeLineWrapping: true
+        excludes: [ '**/*Module.kt' ]
     ForbiddenComment:
         active: true
         values:

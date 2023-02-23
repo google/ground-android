@@ -15,17 +15,19 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.mutation.Mutation.Type.CREATE
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST
-import com.sharedtest.FakeData.SURVEY
-import com.sharedtest.FakeData.USER
+import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import java.util.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,16 +55,24 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var testDispatcher: TestDispatcher
 
-  private val mutation = LOCATION_OF_INTEREST.toMutation(CREATE, USER.id)
+  private val mutation = LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
 
   @Before
   override fun setUp() {
     super.setUp()
     runTest(testDispatcher) {
-      userRepository.saveUser(USER).await()
-      fakeAuthenticationManager.setUser(USER)
-      fakeRemoteDataStore.surveys = listOf(SURVEY)
-      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+      // Setup user
+      userRepository.saveUser(TEST_USER).blockingAwait()
+      fakeAuthenticationManager.setUser(TEST_USER)
+
+      // Setup survey
+      fakeRemoteDataStore.surveys = listOf(TEST_SURVEY)
+      surveyRepository.syncSurveyWithRemote(TEST_SURVEY.id).await()
+      surveyRepository.activateSurvey(TEST_SURVEY.id)
+
+      // Setup LOIs
+      fakeRemoteDataStore.lois = TEST_LOCATIONS_OF_INTEREST
+      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY).blockingAwait()
       advanceUntilIdle()
     }
   }
@@ -83,13 +93,13 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
     mockEnqueueSyncWorker()
     locationOfInterestRepository
-      .applyAndEnqueue(loi.toMutation(CREATE, USER.id))
+      .applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
       .test()
       .assertNoErrors()
       .assertComplete()
 
     locationOfInterestRepository
-      .getOfflineLocationOfInterest(SURVEY.id, loi.id)
+      .getOfflineLocationOfInterest(TEST_SURVEY.id, loi.id)
       .test()
       .assertNoErrors()
       .assertValue(loi)
@@ -122,7 +132,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.error(Error()))
 
     locationOfInterestRepository
-      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(CREATE, USER.id))
+      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id))
       .test()
       .assertError(Error::class.java)
       .assertNotComplete()
@@ -133,4 +143,97 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   // TODO(#1373): Add tests for new LOI sync once implemented (create, update, delete, error).
 
   // TODO(#1373): Add tests for getLocationsOfInterest once new LOI sync implemented.
+
+  @Test
+  fun testLoiWithinBounds_whenBoundsNotAvailable_returnsNothing() = runTest {
+    locationOfInterestRepository
+      .getWithinBoundsOnceAndStream(Flowable.empty())
+      .test()
+      .assertNoValues()
+  }
+
+  @Test
+  fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() {
+    val southwest = LatLng(-60.0, -60.0)
+    val northeast = LatLng(-50.0, -50.0)
+
+    locationOfInterestRepository
+      .getWithinBoundsOnceAndStream(Flowable.just(LatLngBounds(southwest, northeast)))
+      .test()
+      .assertValues(listOf())
+  }
+
+  @Test
+  fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() {
+    val southwest = LatLng(-20.0, -20.0)
+    val northeast = LatLng(-10.0, -10.0)
+
+    locationOfInterestRepository
+      .getWithinBoundsOnceAndStream(Flowable.just(LatLngBounds(southwest, northeast)))
+      .test()
+      .assertValues(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+  }
+
+  @Test
+  fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() {
+    val southwest = LatLng(-20.0, -20.0)
+    val northeast = LatLng(20.0, 20.0)
+
+    locationOfInterestRepository
+      .getWithinBoundsOnceAndStream(Flowable.just(LatLngBounds(southwest, northeast)))
+      .test()
+      .assertValues(
+        listOf(
+          TEST_POINT_OF_INTEREST_1,
+          TEST_POINT_OF_INTEREST_2,
+          TEST_POINT_OF_INTEREST_3,
+          TEST_AREA_OF_INTEREST_1,
+          TEST_AREA_OF_INTEREST_2
+        )
+      )
+  }
+
+  companion object {
+    private val COORDINATE_1 = Coordinate(-20.0, -20.0)
+    private val COORDINATE_2 = Coordinate(0.0, 0.0)
+    private val COORDINATE_3 = Coordinate(20.0, 20.0)
+
+    private val AREA_OF_INTEREST = FakeData.AREA_OF_INTEREST
+    private val LOCATION_OF_INTEREST = FakeData.LOCATION_OF_INTEREST
+    private val TEST_SURVEY = FakeData.SURVEY
+    private val TEST_USER = FakeData.USER
+
+    private val TEST_POINT_OF_INTEREST_1 = createPoint("1", COORDINATE_1)
+    private val TEST_POINT_OF_INTEREST_2 = createPoint("2", COORDINATE_2)
+    private val TEST_POINT_OF_INTEREST_3 = createPoint("3", COORDINATE_3)
+    private val TEST_AREA_OF_INTEREST_1 = createPolygon("4", listOf(COORDINATE_1, COORDINATE_2))
+    private val TEST_AREA_OF_INTEREST_2 = createPolygon("5", listOf(COORDINATE_2, COORDINATE_3))
+
+    private val TEST_LOCATIONS_OF_INTEREST =
+      listOf(
+        TEST_POINT_OF_INTEREST_1,
+        TEST_POINT_OF_INTEREST_2,
+        TEST_POINT_OF_INTEREST_3,
+        TEST_AREA_OF_INTEREST_1,
+        TEST_AREA_OF_INTEREST_2
+      )
+
+    private fun createPoint(id: String, coordinate: Coordinate) =
+      LOCATION_OF_INTEREST.copy(
+        id = id,
+        geometry = Point(coordinate),
+        surveyId = TEST_SURVEY.id,
+        caption = null,
+        customId = null
+      )
+
+    private fun createPolygon(id: String, coordinates: List<Coordinate>) =
+      AREA_OF_INTEREST.copy(
+        id = id,
+        geometry = Polygon(LinearRing(coordinates)),
+        surveyId = TEST_SURVEY.id,
+        caption = null,
+        customId = null
+      )
+  }
 }

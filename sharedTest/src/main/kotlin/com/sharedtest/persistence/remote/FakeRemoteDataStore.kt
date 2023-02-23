@@ -34,8 +34,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
-  private var loiEvent: RemoteDataEvent<LocationOfInterest>? = null
-
+  var lois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
 
   // TODO(#1373): Delete once new LOI sync is implemented.
@@ -43,15 +42,12 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override fun loadSurveySummaries(user: User): Single<List<Survey>> {
-    return Single.just(surveys)
-  }
+  override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
 
-  override fun loadSurvey(surveyId: String): Single<Survey> {
-    return Single.just(
+  override fun loadSurvey(surveyId: String): Single<Survey> =
+    Single.just(
       surveys.firstOrNull { it.id == surveyId } ?: throw NotFoundException("Invalid survey id")
     )
-  }
 
   override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
     if (termsOfService == null) Maybe.empty() else Maybe.just(termsOfService)
@@ -59,9 +55,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(
     survey: Survey
-  ): Flowable<RemoteDataEvent<LocationOfInterest>> {
-    return if (loiEvent == null) Flowable.empty() else Flowable.just(loiEvent)
-  }
+  ): Flowable<RemoteDataEvent<LocationOfInterest>> =
+    Flowable.fromIterable(lois).map { RemoteDataEvent.loaded(it.id, it) }
 
   override suspend fun loadLocationsOfInterest(survey: Survey) = listOf<LocationOfInterest>()
 
@@ -77,11 +72,6 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override fun subscribeToSurveyUpdates(surveyId: String): Completable =
     Completable.fromRunnable { subscribedSurveyIds.add(surveyId) }
-
-  // TODO(#1373): Delete once new LOI sync is implemented.
-  fun streamLoiOnce(loiEvent: RemoteDataEvent<LocationOfInterest>) {
-    this.loiEvent = loiEvent
-  }
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =

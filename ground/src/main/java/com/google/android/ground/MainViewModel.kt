@@ -84,11 +84,10 @@ constructor(
    */
   private fun syncLocationsOfInterest(
     survey: Optional<Survey>
-  ): @Cold(terminates = false) Completable {
-    return survey
+  ): @Cold(terminates = false) Completable =
+    survey
       .map { locationOfInterestRepository.syncLocationsOfInterest(it) }
       .orElse(Completable.never())
-  }
 
   private fun onSignInStateChange(signInState: SignInState): Observable<NavDirections> {
     // Display progress only when signing in.

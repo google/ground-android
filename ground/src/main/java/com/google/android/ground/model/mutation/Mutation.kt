@@ -64,16 +64,13 @@ sealed class Mutation {
     FAILED
   }
 
-  override fun toString(): String {
-    return "$syncStatus $type $clientTimestamp"
-  }
+  override fun toString(): String = "$syncStatus $type $clientTimestamp"
 
   companion object {
     @JvmStatic
-    fun byDescendingClientTimestamp(): Comparator<Mutation> {
-      return Comparator { m1: Mutation, m2: Mutation ->
+    fun byDescendingClientTimestamp(): Comparator<Mutation> =
+      Comparator { m1: Mutation, m2: Mutation ->
         m2.clientTimestamp.compareTo(m1.clientTimestamp)
       }
-    }
   }
 }

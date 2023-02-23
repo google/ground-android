@@ -97,8 +97,8 @@ constructor(
     return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, taskId))
   }
 
-  private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable {
-    return Observable.fromIterable(submissions)
+  private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =
+    Observable.fromIterable(submissions)
       .doOnNext { result: Result<Submission> ->
         if (result.isFailure) {
           Timber.e(result.exceptionOrNull(), "Skipping bad submission")
@@ -107,7 +107,6 @@ constructor(
       .filter { it.isSuccess }
       .map { it.getOrThrow() }
       .flatMapCompletable { localSubmissionStore.merge(it) }
-  }
 
   fun getSubmission(
     surveyId: String,
