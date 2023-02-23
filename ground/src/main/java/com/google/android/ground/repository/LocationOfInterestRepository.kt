@@ -24,8 +24,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.persistence.remote.NotFoundException
-import com.google.android.ground.persistence.remote.RemoteDataEvent
-import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
@@ -34,7 +32,6 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
