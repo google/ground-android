@@ -33,6 +33,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
+import kotlinx.coroutines.rx2.rxSingle
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -70,25 +71,22 @@ constructor(
   val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = localSurveyStore.surveys
 
-  private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
-    val survey = syncSurveyWithRemote(surveyId).await()
-    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
-    return survey
-  }
-
   /** This only works if the survey is already cached to local db. */
   fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
     localSurveyStore
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
-  fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
-    remoteDataStore
-      .loadSurvey(id)
-      .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
-      .doOnSubscribe { Timber.d("Loading survey $id") }
-      .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
+  fun syncSurveyWithRemote(id: String) = rxSingle<Survey> {
+    Timber.d("Loading survey $id")
+    val survey =
+      remoteDataStore
+        .loadSurvey(id)
+        .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .await()
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    survey
+  }
 
   suspend fun activateSurvey(surveyId: String) {
     // Do nothing if survey is already active.
@@ -104,8 +102,11 @@ constructor(
     withContext(ioDispatcher) {
       var survey = localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
       if (survey == null) {
-        survey = syncSurveyFromRemote(surveyId)
+        // TODO(#1591): Wrap in a transaction so survey/LOI sync is atomic.
+        survey = syncSurveyWithRemote(surveyId).await()
+        // TODO(#1591): Move this call into [syncSurveyWithRemote()]?
         loiRepository.syncAll(survey)
+        remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
       }
       activeSurveyId = surveyId
     }
