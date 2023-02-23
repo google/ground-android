@@ -148,9 +148,6 @@ internal constructor(
    * the next Data Collection screen if the user input was valid.
    */
   fun onContinueClicked() {
-    // TODO(jsunde): Publish the clicks in a StateFlow, or maybe it should be a sharedflow?
-    //  Then the viewModel children should subscribe to those events and then call this method,
-    //  which should probably be renamed to onTaskCompleted.
     val currentTask = currentTaskViewModel ?: return
 
     val validationError = currentTask.validate()
