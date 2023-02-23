@@ -49,6 +49,19 @@ constructor(
   private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
+  /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
+  suspend fun syncAll(survey: Survey) {
+    val lois = remoteDataStore.loadLocationsOfInterest(survey)
+    mergeAll(survey.id, lois)
+  }
+
+  private suspend fun mergeAll(surveyId: String, lois: List<LocationOfInterest>) {
+    // Insert new or update existing LOIs in local db.
+    lois.forEach { localLoiStore.insertOrUpdate(it) }
+
+    // Delete LOIs in local db not returned in latest list from server.
+    localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
+  }
   /**
    * Mirrors locations of interest in the specified survey from the remote db into the local db when
    * the network is available. When invoked, will first attempt to resync all locations of interest
