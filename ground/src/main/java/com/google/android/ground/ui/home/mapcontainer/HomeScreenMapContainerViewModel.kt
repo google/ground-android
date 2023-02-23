@@ -100,6 +100,39 @@ internal constructor(
    */
   val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
+  init {
+    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    // TODO: Clear location of interest markers when survey is deactivated.
+    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
+    // into the repo
+    // LOIs that are persisted to the local and remote dbs.
+
+    mapLocationOfInterestFeatures =
+      LiveDataReactiveStreams.fromPublisher(
+        locationOfInterestRepository
+          .getAllLocationsOfInterestOnceAndStream()
+          .map { toLocationOfInterestFeatures(it) }
+          .startWith(setOf<Feature>())
+          .distinctUntilChanged()
+      )
+
+    mbtilesFilePaths =
+      LiveDataReactiveStreams.fromPublisher(
+        offlineAreaRepository.downloadedTileSetsOnceAndStream().map { set: Set<TileSet> ->
+          set.map(TileSet::path).toPersistentSet()
+        }
+      )
+
+    loisWithinMapBoundsAtVisibleZoomLevel =
+      LiveDataReactiveStreams.fromPublisher(
+        cameraZoomUpdates.switchMap { zoomLevel ->
+          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD)
+            locationOfInterestRepository.getWithinBoundsOnceAndStream(cameraBoundUpdates)
+          else Flowable.just(listOf())
+        }
+      )
+  }
+
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
   ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
@@ -159,37 +192,4 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
-
-  init {
-    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    // TODO: Clear location of interest markers when survey is deactivated.
-    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
-    // into the repo
-    // LOIs that are persisted to the local and remote dbs.
-
-    mapLocationOfInterestFeatures =
-      LiveDataReactiveStreams.fromPublisher(
-        locationOfInterestRepository
-          .getAllLocationsOfInterestOnceAndStream()
-          .map { toLocationOfInterestFeatures(it) }
-          .startWith(setOf<Feature>())
-          .distinctUntilChanged()
-      )
-
-    mbtilesFilePaths =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineAreaRepository.downloadedTileSetsOnceAndStream.map { set: Set<TileSet> ->
-          set.map(TileSet::path).toPersistentSet()
-        }
-      )
-
-    loisWithinMapBoundsAtVisibleZoomLevel =
-      LiveDataReactiveStreams.fromPublisher(
-        cameraZoomUpdates.switchMap { zoomLevel ->
-          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD)
-            locationOfInterestRepository.getWithinBoundsOnceAndStream(cameraBoundUpdates)
-          else Flowable.just(listOf())
-        }
-      )
-  }
 }
