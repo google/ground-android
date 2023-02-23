@@ -35,6 +35,9 @@ class ApplicationErrorManager @Inject internal constructor(private val resources
 
   private val exceptionProcessor: FlowableProcessor<String> = BehaviorProcessor.create()
 
+  val exceptions: Flowable<String>
+    get() = exceptionProcessor
+
   private fun publishMessage(@StringRes msgId: Int) {
     val message = resources.getString(msgId)
     Timber.e("Error: %s", message)
@@ -59,7 +62,4 @@ class ApplicationErrorManager @Inject internal constructor(private val resources
     }
     return false
   }
-
-  val exceptions: Flowable<String>
-    get() = exceptionProcessor
 }

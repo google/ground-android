@@ -21,9 +21,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
-import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.RxAutoDispose
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
@@ -31,7 +29,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -39,7 +36,6 @@ import timber.log.Timber
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var mapFragment: MapFragment
-  @Inject lateinit var mapStateRepository: MapStateRepository
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -56,18 +52,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { getMapViewModel().onMapDragged() }
 
-    mapStateRepository.mapTypeFlowable.`as`(autoDisposable(this)).subscribe {
-      mapFragment.mapType = it
-    }
-
     lifecycleScope.launch {
       getMapViewModel().locationLock.collect { onLocationLockStateChange(it, mapFragment) }
     }
+    getMapViewModel().baseMapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
-    }
-    getMapViewModel().getSelectMapTypeClicks().`as`(autoDisposable(this)).subscribe {
-      showMapTypeSelectorDialog()
     }
 
     // Enable map controls
@@ -77,7 +67,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Opens a dialog for selecting a `MapType` for the basemap layer. */
-  private fun showMapTypeSelectorDialog() {
+  fun showMapTypeSelectorDialog() {
     val types = mapFragment.availableMapTypes
     NavHostFragment.findNavController(this)
       .navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types.toTypedArray()))

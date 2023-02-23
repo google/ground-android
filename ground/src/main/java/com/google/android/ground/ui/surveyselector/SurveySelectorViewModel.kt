@@ -45,6 +45,12 @@ internal constructor(
 
   val surveySummaries: LiveData<List<SurveyItem>>
 
+  private val offlineSurveys: Flowable<List<Survey>>
+    get() = surveyRepository.offlineSurveys
+
+  private val allSurveys: Flowable<List<Survey>>
+    get() = surveyRepository.getSurveySummaries(authManager.currentUser).toFlowable()
+
   init {
     surveySummaries =
       LiveDataReactiveStreams.fromPublisher(
@@ -63,12 +69,6 @@ internal constructor(
       surveyDescription = survey.description.ifEmpty { "Description Missing" },
       isAvailableOffline = localSurveys.any { it.id == survey.id }
     )
-
-  private val offlineSurveys: Flowable<List<Survey>>
-    get() = surveyRepository.offlineSurveys
-
-  private val allSurveys: Flowable<List<Survey>>
-    get() = surveyRepository.getSurveySummaries(authManager.currentUser).toFlowable()
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =

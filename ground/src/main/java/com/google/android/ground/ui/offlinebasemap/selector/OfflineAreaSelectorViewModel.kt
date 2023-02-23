@@ -80,7 +80,7 @@ internal constructor(
             .map { Event.create(it) }
         }
       )
-    remoteTileSets = remoteTileRequests.switchMapSingle { offlineAreaRepository.tileSets }
+    remoteTileSets = remoteTileRequests.switchMapSingle { offlineAreaRepository.tileSets() }
   }
 
   private fun onEnqueueError(e: Throwable): DownloadMessage {

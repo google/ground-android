@@ -20,16 +20,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.viewModelScope
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
+import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -45,7 +44,6 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.SharingStarted
@@ -59,13 +57,12 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val resources: Resources,
-  private val mapStateRepository: MapStateRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
+  private val mapStateRepository: MapStateRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
 ) :
   BaseMapViewModel(
@@ -75,8 +72,6 @@ internal constructor(
     permissionsManager,
     mapController
   ) {
-
-  private var activeSurveyId: String = ""
 
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
@@ -99,6 +94,45 @@ internal constructor(
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
+  /**
+   * List of [LocationOfInterest] for the active survey that are present within the map bounds and
+   * zoom level is clustering threshold or higher.
+   */
+  val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
+
+  init {
+    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
+    // TODO: Clear location of interest markers when survey is deactivated.
+    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
+    // into the repo
+    // LOIs that are persisted to the local and remote dbs.
+
+    mapLocationOfInterestFeatures =
+      LiveDataReactiveStreams.fromPublisher(
+        locationOfInterestRepository
+          .getAllLocationsOfInterestOnceAndStream()
+          .map { toLocationOfInterestFeatures(it) }
+          .startWith(setOf<Feature>())
+          .distinctUntilChanged()
+      )
+
+    mbtilesFilePaths =
+      LiveDataReactiveStreams.fromPublisher(
+        offlineAreaRepository.downloadedTileSetsOnceAndStream().map { set: Set<TileSet> ->
+          set.map(TileSet::path).toPersistentSet()
+        }
+      )
+
+    loisWithinMapBoundsAtVisibleZoomLevel =
+      LiveDataReactiveStreams.fromPublisher(
+        cameraZoomUpdates.switchMap { zoomLevel ->
+          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD)
+            locationOfInterestRepository.getWithinBoundsOnceAndStream(cameraBoundUpdates)
+          else Flowable.just(listOf())
+        }
+      )
+  }
+
   private fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
   ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
@@ -113,24 +147,11 @@ internal constructor(
       }
       .toPersistentSet()
 
-  // TODO(#1373): Delete once LOIs are synced on survey activation and on update in background
-  //   worker.
-  private fun getLocationsOfInterestStream(
-    activeProject: Optional<Survey>
-  ): Flowable<Set<LocationOfInterest>> =
-    // Emit empty set in separate stream to force unsubscribe from LocationOfInterest updates and
-    // update
-    // subscribers.
-    activeProject
-      .map { survey: Survey ->
-        locationOfInterestRepository.getLocationsOfInterestOnceAndStream(survey)
-      }
-      .orElse(Flowable.just(setOf()))
-
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    super.onMapCameraMoved(newCameraPosition)
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    mapStateRepository.setCameraPosition(activeSurveyId, newCameraPosition)
+    mapStateRepository.setCameraPosition(newCameraPosition)
     lastCameraPosition = newCameraPosition
   }
 
@@ -171,32 +192,4 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
-
-  init {
-    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    // TODO: Clear location of interest markers when survey is deactivated.
-    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
-    // into the repo
-    // LOIs that are persisted to the local and remote dbs.
-    val loiStream =
-      surveyRepository.activeSurvey.switchMap { survey ->
-        activeSurveyId = survey.map { it.id }.orElse("")
-        getLocationsOfInterestStream(survey)
-      }
-
-    mapLocationOfInterestFeatures =
-      LiveDataReactiveStreams.fromPublisher(
-        loiStream
-          .map { locationsOfInterest -> toLocationOfInterestFeatures(locationsOfInterest) }
-          .startWith(setOf<Feature>())
-          .distinctUntilChanged()
-      )
-
-    mbtilesFilePaths =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineAreaRepository.downloadedTileSetsOnceAndStream.map { set: Set<TileSet> ->
-          set.map(TileSet::path).toPersistentSet()
-        }
-      )
-  }
 }
