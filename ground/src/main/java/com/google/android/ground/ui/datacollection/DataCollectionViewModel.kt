@@ -125,8 +125,10 @@ internal constructor(
 
   fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
-    require(viewModels != null)
-    val tasks = submission.value!!.job.tasksSorted
+    requireNotNull(viewModels)
+    // TODO(#1146): Show toast or error if submission is null
+    val tasks = requireNotNull(submission.value).job.tasksSorted
+
     val task = tasks[position]
     if (position < viewModels.size) {
       return viewModels[position]
