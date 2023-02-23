@@ -21,7 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:padding="10dp">
+  android:padding="20dp">
 
   <TextView
     android:id="@+id/dialog_title"
@@ -47,8 +47,9 @@
     android:id="@+id/recycler_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
     android:orientation="horizontal"
+    android:paddingTop="20dp"
+    android:paddingBottom="10dp"
     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"

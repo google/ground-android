@@ -15,8 +15,14 @@
  */
 package com.sharedtest
 
-import com.google.android.ground.model.*
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.model.User
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
@@ -94,12 +100,6 @@ object FakeData {
 
   val COORDINATE = Coordinate(42.0, 18.0)
 
-  fun newTask(
-    id: String = "",
-    type: Task.Type = Task.Type.TEXT,
-    multipleChoice: MultipleChoice? = null
-  ): Task = Task(id, 0, type, "", false, multipleChoice)
-
   private const val SUBMISSION_ID = "789"
   const val TASK_1_NAME = "task 1"
   const val TASK_2_NAME = "task 2"
@@ -120,4 +120,10 @@ object FakeData {
       AUDIT_INFO,
       AUDIT_INFO
     )
+
+  fun newTask(
+    id: String = "",
+    type: Task.Type = Task.Type.TEXT,
+    multipleChoice: MultipleChoice? = null
+  ): Task = Task(id, 0, type, "", false, multipleChoice)
 }
