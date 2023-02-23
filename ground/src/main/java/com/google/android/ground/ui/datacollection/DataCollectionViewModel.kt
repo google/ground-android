@@ -171,7 +171,13 @@ internal constructor(
           TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData))
         }
       saveChanges(submission, taskDataDeltas)
+
+      // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+      navigator.navigate(
+        DataSubmissionConfirmationDialogFragmentDirections
+          .showSubmissionConfirmationDialogFragment()
+      )
     }
   }
 
