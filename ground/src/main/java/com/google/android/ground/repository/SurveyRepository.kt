@@ -48,6 +48,7 @@ private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
 class SurveyRepository
 @Inject
 constructor(
+  private val loiRepository: LocationOfInterestRepository,
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
@@ -101,7 +102,11 @@ constructor(
     }
 
     withContext(ioDispatcher) {
-      localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
+      var survey = localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
+      if (survey == null) {
+        survey = syncSurveyFromRemote(surveyId)
+        loiRepository.syncAll(survey)
+      }
       activeSurveyId = surveyId
     }
   }
