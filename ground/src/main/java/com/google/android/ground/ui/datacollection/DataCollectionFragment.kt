@@ -60,7 +60,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       val tasks = submission.job.tasksSorted
       val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
       if (currentAdapter == null || currentAdapter.tasks != tasks) {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, tasks, viewModel)
+        viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
       }
     }
 
