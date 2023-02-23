@@ -99,6 +99,7 @@ constructor(
       return
     }
 
+    // TODO(#1581): Remove next line once data layers manage dispatchers themselves.
     withContext(ioDispatcher) {
       var survey = localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
       if (survey == null) {
