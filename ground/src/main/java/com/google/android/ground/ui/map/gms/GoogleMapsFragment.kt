@@ -40,7 +40,6 @@ import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
@@ -71,9 +70,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Map drag events. Emits items when the map drag has started. */
   private val startDragEventsProcessor: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
 
+  override val startDragEvents: @Hot Flowable<Nil> = this.startDragEventsProcessor
+
   /** Camera move events. Emits items after the camera has stopped moving. */
   private val cameraMovedEventsProcessor: @Hot FlowableProcessor<CameraPosition> =
     PublishProcessor.create()
+
+  override val cameraMovedEvents: @Hot Flowable<CameraPosition> = cameraMovedEventsProcessor
 
   // TODO(#693): Simplify impl of tile providers.
   // TODO(#691): This is a limitation of the MapBox tile provider we're using;
@@ -82,12 +85,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private val tileProvidersSubject: @Hot PublishSubject<MapBoxOfflineTileProvider> =
     PublishSubject.create()
 
+  override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
+
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
-  @Inject lateinit var markerIconFactory: MarkerIconFactory
-  private var map: GoogleMap? = null
+  private lateinit var map: GoogleMap
 
   private lateinit var clusterManager: FeatureClusterManager
 
@@ -101,6 +105,31 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
    * start and end of polygon.
    */
   private lateinit var customCap: CustomCap
+
+  override val availableMapTypes: List<MapType> = MAP_TYPES
+
+  private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
+    PublishSubject.create()
+
+  override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
+    locationOfInterestInteractionSubject
+
+  private val polylineStrokeWidth: Int
+    get() = resources.getDimension(R.dimen.polyline_stroke_width).toInt()
+
+  override var mapType: Int
+    get() = map.mapType
+    set(mapType) {
+      map.mapType = mapType
+    }
+
+  override var viewport: Bounds
+    get() = map.projection.visibleRegion.latLngBounds.toModelObject()
+    set(bounds) =
+      map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 0))
+
+  override val currentZoomLevel: Float
+    get() = map.cameraPosition.zoom
 
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
     val insetBottom = insets.systemWindowInsetBottom
@@ -118,13 +147,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val params = watermark.layoutParams as RelativeLayout.LayoutParams
     params.setMargins(left, top, right, bottom)
     watermark.layoutParams = params
-  }
-
-  override val availableMapTypes: List<MapType> = MAP_TYPES
-
-  private fun getMap(): GoogleMap {
-    checkNotNull(map) { "Map is not ready" }
-    return map!!
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -212,7 +234,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   /** Handles both cluster and marker clicks. */
   private fun onClusterItemClick(item: FeatureClusterItem): Boolean =
-    if (getMap().uiSettings.isZoomGesturesEnabled) {
+    if (map.uiSettings.isZoomGesturesEnabled) {
       locationOfInterestInteractionSubject.onNext(listOf(item.feature))
       // Allow map to pan to marker.
       false
@@ -221,23 +243,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       true
     }
 
-  private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
-    PublishSubject.create()
-  override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
-    locationOfInterestInteractionSubject
-
-  override val startDragEvents: @Hot Flowable<Nil> = this.startDragEventsProcessor
-
-  override val cameraMovedEvents: @Hot Flowable<CameraPosition> = cameraMovedEventsProcessor
-
-  override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
-
   override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
-    if (map == null) {
-      Timber.e("Null Map reference")
-      return 0.toDouble()
-    }
-    val projection = map!!.projection
+    val projection = map.projection
     val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
     val loc2 = projection.toScreenLocation(coordinate2.toGoogleMapsObject())
     val dx = (loc1.x - loc2.x).toDouble()
@@ -245,16 +252,15 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     return sqrt(dx * dx + dy * dy)
   }
 
-  override fun enableGestures() = getMap().uiSettings.setAllGesturesEnabled(true)
+  override fun enableGestures() = map.uiSettings.setAllGesturesEnabled(true)
 
-  override fun disableGestures() = getMap().uiSettings.setAllGesturesEnabled(false)
+  override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
   override fun moveCamera(coordinate: Coordinate) =
-    getMap().animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
+    map.animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
 
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
-    getMap()
-      .animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+    map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
   private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
     multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
@@ -269,7 +275,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val holes = polygon.holes.map { hole -> hole.vertices.map { point -> point.toLatLng() } }
     holes.forEach { options.addHole(it) }
 
-    val mapsPolygon = getMap().addPolygon(options)
+    val mapsPolygon = map.addPolygon(options)
     mapsPolygon.tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
     mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
     // TODO(jsunde): Figure out where we want to get the style from
@@ -281,18 +287,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     polygons.getOrPut(feature) { mutableListOf() }.add(mapsPolygon)
   }
 
-  private val polylineStrokeWidth: Int
-    get() = resources.getDimension(R.dimen.polyline_stroke_width).toInt()
-
   private fun onMapClick(latLng: LatLng) = handleAmbiguity(latLng)
-
-  override val currentZoomLevel: Float
-    get() = getMap().cameraPosition.zoom
 
   @SuppressLint("MissingPermission")
   override fun enableCurrentLocationIndicator() {
-    if (!getMap().isMyLocationEnabled) {
-      getMap().isMyLocationEnabled = true
+    if (!map.isMyLocationEnabled) {
+      map.isMyLocationEnabled = true
     }
   }
 
@@ -329,12 +329,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
 
-  override var mapType: Int
-    get() = getMap().mapType
-    set(mapType) {
-      getMap().mapType = mapType
-    }
-
   private fun parseColor(colorHexCode: String?): Int =
     try {
       Color.parseColor(colorHexCode.toString())
@@ -344,14 +338,14 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
 
   private fun onCameraIdle() {
-    clusterRenderer.zoom = getMap().cameraPosition.zoom
+    clusterRenderer.zoom = map.cameraPosition.zoom
     clusterManager.onCameraIdle()
     cameraMovedEventsProcessor.onNext(
       CameraPosition(
-        getMap().cameraPosition.target.toCoordinate(),
-        getMap().cameraPosition.zoom,
+        map.cameraPosition.target.toCoordinate(),
+        map.cameraPosition.zoom,
         false,
-        getMap().projection.visibleRegion.latLngBounds.toModelObject()
+        map.projection.visibleRegion.latLngBounds.toModelObject()
       )
     )
   }
@@ -361,11 +355,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       this.startDragEventsProcessor.onNext(Nil.NIL)
     }
   }
-
-  override var viewport: Bounds
-    get() = getMap().projection.visibleRegion.latLngBounds.toModelObject()
-    set(bounds) =
-      getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 0))
 
   private fun addTileOverlay(filePath: String) {
     val mbtilesFile = File(requireContext().filesDir, filePath)
@@ -378,7 +367,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     try {
       val tileProvider = MapBoxOfflineTileProvider(mbtilesFile)
       tileProvidersSubject.onNext(tileProvider)
-      getMap().addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+      map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
     } catch (e: Exception) {
       Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile")
     }
@@ -389,7 +378,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun addRemoteTileOverlay(url: String) {
     val webTileProvider = WebTileProvider(url)
-    getMap().addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
+    map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
   override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }

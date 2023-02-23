@@ -365,7 +365,7 @@ class LocalDataStoreTests : BaseHiltTest() {
 
   @Test
   fun testGetTilesOnceAndStream() {
-    val subscriber = localTileSetStore.tileSetsOnceAndStream.test()
+    val subscriber = localTileSetStore.tileSetsOnceAndStream().test()
     subscriber.assertValue(setOf())
     localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
     localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
@@ -383,7 +383,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
     localTileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
     localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-    localTileSetStore.pendingTileSets.test().assertValue(listOf(TEST_PENDING_TILE_SOURCE))
+    localTileSetStore.pendingTileSets().test().assertValue(listOf(TEST_PENDING_TILE_SOURCE))
   }
 
   @Test
@@ -395,7 +395,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   fun testGetOfflineAreas() {
     localOfflineAreaStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
 
-    localOfflineAreaStore.offlineAreasOnceAndStream.test().assertValue(listOf(TEST_OFFLINE_AREA))
+    localOfflineAreaStore.offlineAreasOnceAndStream().test().assertValue(listOf(TEST_OFFLINE_AREA))
   }
 
   @Test

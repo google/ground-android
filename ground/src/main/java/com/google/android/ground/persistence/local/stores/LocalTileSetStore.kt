@@ -27,7 +27,7 @@ interface LocalTileSetStore {
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
    * return the full set each time a tile is added/changed/removed.
    */
-  val tileSetsOnceAndStream: Flowable<Set<TileSet>>
+  fun tileSetsOnceAndStream(): Flowable<Set<TileSet>>
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
@@ -39,7 +39,7 @@ interface LocalTileSetStore {
   fun getTileSet(tileUrl: String): @Cold Maybe<TileSet>
 
   /** Returns all pending tiles from the local data store. */
-  val pendingTileSets: @Cold Single<List<TileSet>>
+  fun pendingTileSets(): @Cold Single<List<TileSet>>
 
   /**
    * Update the area count of an existing tile source in the local data store with the area count of
