@@ -19,7 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
@@ -40,7 +40,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val args: DataCollectionFragmentArgs by navArgs()
-  private val viewModel: DataCollectionViewModel by viewModels()
+  private val viewModel: DataCollectionViewModel by activityViewModels()
 
   private lateinit var viewPager: ViewPager2
 

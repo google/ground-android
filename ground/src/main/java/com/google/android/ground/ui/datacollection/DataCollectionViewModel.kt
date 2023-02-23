@@ -123,9 +123,11 @@ internal constructor(
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
-  fun getTaskViewModel(position: Int, task: Task): AbstractTaskViewModel {
+  fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
     require(viewModels != null)
+    val tasks = submission.value!!.job.tasksSorted
+    val task = tasks[position]
     if (position < viewModels.size) {
       return viewModels[position]
     }
@@ -146,6 +148,9 @@ internal constructor(
    * the next Data Collection screen if the user input was valid.
    */
   fun onContinueClicked() {
+    // TODO(jsunde): Publish the clicks in a StateFlow, or maybe it should be a sharedflow?
+    //  Then the viewModel children should subscribe to those events and then call this method,
+    //  which should probably be renamed to onTaskCompleted.
     val currentTask = currentTaskViewModel ?: return
 
     val validationError = currentTask.validate()

@@ -30,8 +30,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
-
   override lateinit var viewModel: DropAPinTaskViewModel
+  // Not needed for DropAPinTaskFragment
+  override var position = -1
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
