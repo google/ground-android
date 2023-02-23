@@ -21,9 +21,12 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 /** Worker responsible for syncing latest surveys and LOIs from remote server to local db. */
@@ -33,7 +36,8 @@ class SurveySyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
-  private val surveyRepository: SurveyRepository
+  private val surveyRepository: SurveyRepository,
+  private val loiRepository: LocationOfInterestRepository
 ) : Worker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
 
@@ -45,10 +49,17 @@ constructor(
 
     // It's ok to block here since WorkManager calls doWork() on a background thread.
     Timber.d("Syncing survey $surveyId")
-    surveyRepository.syncSurveyWithRemote(surveyId).ignoreElement().blockingAwait()
 
-    // TODO(https://github.com/google/ground-android/issues/1383): Also sync remote LOIs to localdb.
-    // TODO: Handle failures - log and retry.
+    // It's ok to block here since WorkManager calls doWork() on a background thread.
+    runBlocking {
+      // Update survey definition.
+      val survey = surveyRepository.syncSurveyWithRemote(surveyId).await()
+
+      // Insert, update, or delete LOIs.
+      loiRepository.syncAll(survey)
+    }
+
+    // TODO(#1468): Handle failures - log and retry.
     return Result.success()
   }
 
