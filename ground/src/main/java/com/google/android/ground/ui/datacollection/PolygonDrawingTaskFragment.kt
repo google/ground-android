@@ -33,8 +33,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PolygonDrawingTaskFragment :
   AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
-
   override lateinit var viewModel: PolygonDrawingViewModel
+  // Not needed for PolygonDrawingTaskFragment
+  override var position = -1
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 

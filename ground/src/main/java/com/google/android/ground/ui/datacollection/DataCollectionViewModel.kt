@@ -123,9 +123,13 @@ internal constructor(
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
-  fun getTaskViewModel(position: Int, task: Task): AbstractTaskViewModel {
+  fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
-    require(viewModels != null)
+    requireNotNull(viewModels)
+    // TODO(#1146): Show toast or error if submission is null
+    val tasks = requireNotNull(submission.value).job.tasksSorted
+
+    val task = tasks[position]
     if (position < viewModels.size) {
       return viewModels[position]
     }
