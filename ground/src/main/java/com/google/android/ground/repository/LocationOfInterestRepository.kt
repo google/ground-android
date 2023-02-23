@@ -63,35 +63,6 @@ constructor(
     // Delete LOIs in local db not returned in latest list from server.
     localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
   }
-  /**
-   * Mirrors locations of interest in the specified survey from the remote db into the local db when
-   * the network is available. When invoked, will first attempt to resync all locations of interest
-   * from the remote db, subsequently syncing only remote changes. The returned stream never
-   * completes, and subscriptions will only terminate on disposal.
-   */
-  fun syncLocationsOfInterest(survey: Survey): @Cold Completable =
-    remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
-      updateLocalLocationOfInterest(it)
-    }
-
-  // TODO: Remove "location of interest" qualifier from this and other repository method names.
-  private fun updateLocalLocationOfInterest(
-    event: RemoteDataEvent<LocationOfInterest>
-  ): @Cold Completable =
-    event.result.fold(
-      { (entityId: String, entity: LocationOfInterest?) ->
-        when (event.eventType) {
-          ENTITY_LOADED,
-          ENTITY_MODIFIED -> localLoiStore.merge(checkNotNull(entity))
-          ENTITY_REMOVED -> localLoiStore.deleteLocationOfInterest(entityId)
-          else -> throw IllegalArgumentException()
-        }
-      },
-      {
-        Timber.d(it, "Invalid locations of interest in remote db ignored")
-        Completable.complete()
-      }
-    )
 
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getOfflineLocationOfInterest(

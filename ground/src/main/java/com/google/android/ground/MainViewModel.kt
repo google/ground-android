@@ -38,7 +38,6 @@ import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirecti
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
@@ -49,16 +48,13 @@ class MainViewModel
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val popups: EphemeralPopups,
   navigator: Navigator,
   authenticationManager: AuthenticationManager,
-  private val schedulers: Schedulers
+  val schedulers: Schedulers
 ) : AbstractViewModel() {
-
-  private var surveySyncSubscription: Disposable? = null
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
@@ -74,20 +70,6 @@ constructor(
         .subscribe { directions: NavDirections -> navigator.navigate(directions) }
     )
   }
-
-  /**
-   * Keeps local locations o interest in sync with remote when a survey is active, does nothing when
-   * no survey is active. The stream never completes; syncing stops when subscriptions are disposed
-   * of.
-   *
-   * @param survey the currently active survey.
-   */
-  private fun syncLocationsOfInterest(
-    survey: Optional<Survey>
-  ): @Cold(terminates = false) Completable =
-    survey
-      .map { locationOfInterestRepository.syncLocationsOfInterest(it) }
-      .orElse(Completable.never())
 
   private fun onSignInStateChange(signInState: SignInState): Observable<NavDirections> {
     // Display progress only when signing in.
@@ -113,24 +95,12 @@ constructor(
   }
 
   private fun onUserSignedOut(): Observable<NavDirections> {
-    // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
-    // attempts to maintain a connection even after user has logged out and throws an error.
-    surveySyncSubscription?.dispose()
-
     surveyRepository.clearActiveSurvey()
     userRepository.clearUserPreferences()
     return Observable.just(SignInFragmentDirections.showSignInScreen())
   }
 
   private fun onUserSignedIn(user: User): Observable<NavDirections> {
-    // TODO: Move to background service.
-    surveySyncSubscription =
-      surveyRepository.activeSurvey
-        .observeOn(schedulers.io())
-        .switchMapCompletable { syncLocationsOfInterest(it) }
-        .subscribe()
-    surveySyncSubscription?.let { disposeOnClear(it) }
-
     return userRepository
       .saveUser(user)
       .andThen(
