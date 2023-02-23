@@ -21,6 +21,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
@@ -45,8 +46,8 @@ class LocationOfInterestRepository
 @Inject
 constructor(
   private val localLoiStore: LocationOfInterestStore,
+  private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
-  private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
@@ -97,11 +98,9 @@ constructor(
     surveyId: String,
     locationOfInterest: String
   ): @Cold Single<LocationOfInterest> =
-    surveyRepository
-      .getOfflineSurvey(surveyId)
-      .flatMapMaybe { survey: Survey ->
-        localLoiStore.getLocationOfInterest(survey, locationOfInterest)
-      }
+    localSurveyStore
+      .getSurveyById(surveyId)
+      .flatMap { survey: Survey -> localLoiStore.getLocationOfInterest(survey, locationOfInterest) }
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
@@ -134,15 +133,9 @@ constructor(
       MutationEntitySyncStatus.FAILED
     )
 
+  // TODO(#1582): Delete me before sending for review.
   /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
-  fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> =
-    surveyRepository.activeSurvey
-      .switchMap { survey ->
-        survey
-          .map { localLoiStore.getLocationsOfInterestOnceAndStream(it) }
-          .orElse(Flowable.just(setOf()))
-      }
-      .distinctUntilChanged()
+  fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> = Flowable.never()
 
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
