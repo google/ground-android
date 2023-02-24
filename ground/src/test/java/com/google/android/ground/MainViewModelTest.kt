@@ -120,7 +120,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
     tosRepository.isTermsOfServiceAccepted = true
-    localValueStore.activeSurveyId = "foo survey id"
+    localValueStore.lastActiveSurveyId = "foo survey id"
     fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
     fakeAuthenticationManager.signIn()
     Shadows.shadowOf(Looper.getMainLooper()).idle()

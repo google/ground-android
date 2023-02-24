@@ -34,7 +34,7 @@ import timber.log.Timber
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
 
   private val activeSurveyIdProcessor: BehaviorProcessor<String> =
-    BehaviorProcessor.createDefault(activeSurveyId)
+    BehaviorProcessor.createDefault(lastActiveSurveyId)
 
   val activeSurveyIdFlowable: Flowable<String>
     get() = activeSurveyIdProcessor
@@ -44,8 +44,12 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   val mapTypeFlowable: Flowable<Int>
     get() = mapTypeProcessor
 
-  /** Id of the last survey successfully activated by the user. */
-  var activeSurveyId: String
+  /**
+   * Id of the last survey successfully activated by the user. This value is only updated after the
+   * survey activation process is complete.
+   */
+  var lastActiveSurveyId: String
+    // TODO(#1592): Stop using this field to identify current survey.
     get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
     set(id) {
       preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
