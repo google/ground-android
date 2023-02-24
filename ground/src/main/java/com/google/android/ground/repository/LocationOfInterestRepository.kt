@@ -123,7 +123,7 @@ constructor(
 
   /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
   fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> =
-    surveyRepository.activeSurvey
+    surveyRepository.activeSurveyFlowable
       .switchMap { survey ->
         survey
           .map { localLoiStore.getLocationsOfInterestOnceAndStream(it) }

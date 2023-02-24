@@ -53,7 +53,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       // Verify survey is available offline.
       surveyRepository.getOfflineSurvey(SURVEY.id).test().assertValue(SURVEY)
       // Verify survey is active.
-      surveyRepository.activeSurvey.test().assertValues(Optional.of(SURVEY))
+      surveyRepository.activeSurveyFlowable.test().assertValues(Optional.of(SURVEY))
       // Verify app is subscribed to push updates.
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
     }
@@ -78,7 +78,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       surveyRepository.activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
-      surveyRepository.activeSurvey.test().assertValue(Optional.of(SURVEY))
+      surveyRepository.activeSurveyFlowable.test().assertValue(Optional.of(SURVEY))
       assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
     }
 

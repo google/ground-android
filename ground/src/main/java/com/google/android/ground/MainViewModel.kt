@@ -125,7 +125,7 @@ constructor(
   private fun onUserSignedIn(user: User): Observable<NavDirections> {
     // TODO: Move to background service.
     surveySyncSubscription =
-      surveyRepository.activeSurvey
+      surveyRepository.activeSurveyFlowable
         .observeOn(schedulers.io())
         .switchMapCompletable { syncLocationsOfInterest(it) }
         .subscribe()

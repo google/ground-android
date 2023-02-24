@@ -58,7 +58,7 @@ constructor(
    * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
    * active or local db isn't up-to-date.
    */
-  val activeSurvey: @Cold Flowable<Optional<Survey>> =
+  val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
     localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapMaybe {
       if (it.isEmpty()) Maybe.just(Optional.empty())
       else localSurveyStore.getSurveyById(it).map { s -> Optional.of(s) }
