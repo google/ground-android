@@ -19,16 +19,33 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.QuestionTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.datacollection.TaskFragment.Companion.POSITION
 import com.google.android.ground.ui.editsubmission.TextTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.properties.Delegates
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel> {
+  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: TextTaskViewModel
+  override var position by Delegates.notNull<Int>()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      position = savedInstanceState.getInt(POSITION)
+    }
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putInt(POSITION, position)
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -38,6 +55,7 @@ class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel>
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = QuestionTaskFragBinding.inflate(inflater, container, false)
 
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
 
