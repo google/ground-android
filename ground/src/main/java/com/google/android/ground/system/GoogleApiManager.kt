@@ -52,11 +52,11 @@ constructor(
       } else if (googleApiAvailability.isUserResolvableError(status)) {
         activityStreams.withActivity {
           googleApiAvailability.showErrorDialogFragment(it, status, INSTALL_API_REQUEST_CODE) {
-            emitter.onError(Exception())
-          } // TODO: Throw appropriate Exception.
+            emitter.onError(Exception("Google play services not available"))
+          }
         }
       } else {
-        emitter.onError(Exception()) // TODO: Throw appropriate Exception.
+        emitter.onError(Exception("Google play services not available"))
       }
     }
 

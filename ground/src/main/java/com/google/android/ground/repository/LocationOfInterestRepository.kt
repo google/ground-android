@@ -70,7 +70,7 @@ constructor(
           ENTITY_LOADED,
           ENTITY_MODIFIED -> localLoiStore.merge(checkNotNull(entity))
           ENTITY_REMOVED -> localLoiStore.deleteLocationOfInterest(entityId)
-          else -> throw IllegalArgumentException()
+          else -> throw IllegalArgumentException("Unknown eventType ${event.eventType}")
         }
       },
       {

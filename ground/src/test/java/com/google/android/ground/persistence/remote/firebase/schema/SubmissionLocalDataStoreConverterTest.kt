@@ -71,10 +71,10 @@ class SubmissionLocalDataStoreConverterTest {
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
         mapOf(
-          Pair("task1", "Text taskData"),
-          Pair("task2", listOf("option2")),
-          Pair("task3", listOf("optionA", "optionB")),
-          Pair("task4", "Photo URL")
+          "task1" to "Text taskData",
+          "task2" to listOf("option2"),
+          "task3" to listOf("optionA", "optionB"),
+          "task4" to "Photo URL"
         )
       )
     )
@@ -89,22 +89,18 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_2,
           TaskDataMap(
             mapOf(
-              Pair("task1", TextTaskData("Text taskData")),
-              Pair(
-                "task2",
+              "task1" to TextTaskData("Text taskData"),
+              "task2" to
                 MultipleChoiceTaskData(
                   MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
                   listOf("option2")
-                )
-              ),
-              Pair(
-                "task3",
+                ),
+              "task3" to
                 MultipleChoiceTaskData(
                   MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
                   listOf("optionA", "optionB")
-                )
-              ),
-              Pair("task4", TextTaskData("Photo URL"))
+                ),
+              "task4" to TextTaskData("Photo URL")
             )
           )
         )
@@ -121,7 +117,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", ""))
+        mapOf("task1" to "")
       )
     )
     Assert.assertThrows(DataStoreException::class.java) { this.toSubmission() }
@@ -163,7 +159,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", ""))
+        mapOf("task1" to "")
       )
     )
     assertThat(toSubmission())
@@ -189,7 +185,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", listOf<Any>()))
+        mapOf("task1" to listOf<Any>())
       )
     )
     assertThat(toSubmission())
@@ -215,7 +211,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", "Unknown"), Pair("task2", "Text taskData"))
+        mapOf("task1" to "Unknown", "task2" to "Text taskData")
       )
     )
     assertThat(toSubmission())
@@ -228,7 +224,7 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          TaskDataMap(mapOf(Pair("task2", TextTaskData("Text taskData"))))
+          TaskDataMap(mapOf("task2" to TextTaskData("Text taskData")))
         )
       )
   }

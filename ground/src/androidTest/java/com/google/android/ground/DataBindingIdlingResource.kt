@@ -35,7 +35,7 @@ class DataBindingIdlingResource : IdlingResource {
   private var wasNotIdle = false
   private var activity: FragmentActivity? = null
 
-  override fun getName(): String = String.format("DataBinding $ID")
+  override fun getName(): String = String.format(Locale.getDefault(), "DataBinding $ID")
 
   override fun isIdleNow(): Boolean {
     var idle = false
