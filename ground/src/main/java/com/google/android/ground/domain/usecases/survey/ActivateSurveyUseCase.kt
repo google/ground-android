@@ -17,8 +17,11 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.repository.SurveyRepository
+import javax.inject.Inject
 
-class ActivateSurveyUseCase(
+class ActivateSurveyUseCase
+@Inject
+constructor(
   private val surveyRepository: SurveyRepository,
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOffline
 ) {

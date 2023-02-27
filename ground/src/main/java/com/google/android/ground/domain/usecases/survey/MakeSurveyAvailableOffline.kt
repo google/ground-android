@@ -18,8 +18,11 @@ package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
+import javax.inject.Inject
 
-class MakeSurveyAvailableOffline(
+class MakeSurveyAvailableOffline
+@Inject
+constructor(
   private val surveyRepository: SurveyRepository,
   private val syncSurvey: SyncSurveyUseCase
 ) {
