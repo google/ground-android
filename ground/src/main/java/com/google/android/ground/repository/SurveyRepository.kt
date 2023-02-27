@@ -91,10 +91,17 @@ constructor(
   }
 
   /** This only works if the survey is already cached to local db. */
+  @Deprecated("Use getOfflineSurveySuspend() instead")
   fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
     localSurveyStore
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
+
+  /**
+   * Returns the survey with the specified id from the local db, or `null` if not available offline.
+   */
+  suspend fun getOfflineSurveySuspend(surveyId: String): Survey? =
+    localSurveyStore.getSurveyByIdSuspend(surveyId)
 
   fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
     remoteDataStore

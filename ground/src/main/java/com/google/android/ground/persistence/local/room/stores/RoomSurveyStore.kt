@@ -71,6 +71,13 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   override fun getSurveyById(id: String): Maybe<Survey> =
     surveyDao.getSurveyById(id).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
+  /**
+   * Returns the [Survey] with the given ID from the local database. Returns `null` if retrieval
+   * fails, .
+   */
+  override suspend fun getSurveyByIdSuspend(id: String): Survey? =
+    surveyDao.getSurveyByIdSuspend(id)?.toModelObject()
+
   /** Deletes the provided [Survey] from the local database, if it exists in the database. */
   override fun deleteSurvey(survey: Survey): Completable =
     surveyDao.delete(survey.toLocalDataStoreObject()).subscribeOn(schedulers.io())
