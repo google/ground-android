@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -30,13 +29,11 @@ import java.util.concurrent.TimeUnit
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -54,8 +51,7 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  @ApplicationScope private val externalScope: CoroutineScope,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @ApplicationScope private val externalScope: CoroutineScope
 ) {
   private val _activeSurvey = MutableStateFlow<Survey?>(null)
 
@@ -66,12 +62,7 @@ constructor(
    * Emits the currently active survey on subscribe and on change. Emits `null`when no survey is
    * active or local db isn't up-to-date.
    */
-  var activeSurvey: Survey?
-    get() = _activeSurvey.value
-    private set(value) {
-      _activeSurvey.value = value
-      localValueStore.lastActiveSurveyId = value?.id ?: ""
-    }
+  var activeSurvey: Survey? by _activeSurvey::value
 
   /**
    * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
@@ -84,11 +75,14 @@ constructor(
   val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = localSurveyStore.surveys
 
-  private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
-    val survey = syncSurveyWithRemote(surveyId).await()
-    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
-    return survey
+  init {
+    // Persist last active survey ID whenever survey is activated.
+    _activeSurvey.onEach { localValueStore.lastActiveSurveyId = it?.id ?: "" }
   }
+
+  /** Listens for remote changes to the survey with the specified id. */
+  suspend fun subscribeToSurveyUpdates(surveyId: String) =
+    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
 
   /** This only works if the survey is already cached to local db. */
   @Deprecated("Use getOfflineSurveySuspend() instead")
@@ -110,24 +104,6 @@ constructor(
       .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
-
-  suspend fun activateSurvey(surveyId: String) {
-    // Do nothing if survey is already active.
-    if (surveyId == activeSurvey?.id) {
-      return
-    }
-    // Clear survey if id is empty.
-    if (surveyId.isEmpty()) {
-      clearActiveSurvey()
-      return
-    }
-
-    withContext(ioDispatcher) {
-      activeSurvey =
-        localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
-          ?: syncSurveyFromRemote(surveyId)
-    }
-  }
 
   fun clearActiveSurvey() {
     activeSurvey = null
