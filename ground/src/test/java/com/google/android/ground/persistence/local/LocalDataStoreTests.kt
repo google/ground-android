@@ -67,8 +67,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   // TODO(#1491): Split into multiple test suites, one for each SoT.
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localUserStore: LocalUserStore
-  @Inject lateinit var localSubmissionStore: LocalSubmissionMutationStore
-  @Inject lateinit var localLoiStore: LocalLocationOfInterestMutationStore
+  @Inject lateinit var localSubmissionStore: SubmissionStore
+  @Inject lateinit var localLoiStore: LocationOfInterestStore
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   @Inject lateinit var localTileSetStore: LocalTileSetStore
   @Inject lateinit var localValueStore: LocalValueStore
@@ -365,7 +365,7 @@ class LocalDataStoreTests : BaseHiltTest() {
 
   @Test
   fun testGetTilesOnceAndStream() {
-    val subscriber = localTileSetStore.tileSetsOnceAndStream.test()
+    val subscriber = localTileSetStore.tileSetsOnceAndStream().test()
     subscriber.assertValue(setOf())
     localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
     localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
@@ -383,7 +383,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
     localTileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
     localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-    localTileSetStore.pendingTileSets.test().assertValue(listOf(TEST_PENDING_TILE_SOURCE))
+    localTileSetStore.pendingTileSets().test().assertValue(listOf(TEST_PENDING_TILE_SOURCE))
   }
 
   @Test
@@ -395,7 +395,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   fun testGetOfflineAreas() {
     localOfflineAreaStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
 
-    localOfflineAreaStore.offlineAreasOnceAndStream.test().assertValue(listOf(TEST_OFFLINE_AREA))
+    localOfflineAreaStore.offlineAreasOnceAndStream().test().assertValue(listOf(TEST_OFFLINE_AREA))
   }
 
   @Test

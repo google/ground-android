@@ -28,7 +28,6 @@ import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -36,9 +35,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
@@ -48,9 +45,7 @@ import timber.log.Timber
 @AndroidEntryPoint
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
-  @Inject lateinit var loiCardSource: LoiCardSource
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var offlineUuidGenerator: OfflineUuidGenerator
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -76,7 +71,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     adapter = LoiCardAdapter()
     adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    loiCardSource.locationsOfInterest.observe(this) { adapter.updateData(it) }
+    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) {
+      adapter.updateData(it)
+    }
   }
 
   override fun onCreateView(
@@ -85,6 +82,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?
   ): View {
     binding = MapContainerFragBinding.inflate(inflater, container, false)
+    binding.fragment = this
     binding.viewModel = mapContainerViewModel
     binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
@@ -138,8 +136,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
         /* surveyId = */ loi.surveyId,
-        /* locationOfInterestId = */ loi.id,
-        /* submissionId = */ offlineUuidGenerator.generateUuid()
+        /* locationOfInterestId = */ loi.id
       )
     )
   }
@@ -181,10 +178,5 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onDestroy() {
     mapContainerViewModel.closeProviders()
     super.onDestroy()
-  }
-
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
-    loiCardSource.onCameraBoundsUpdated(position.bounds?.toGoogleMapsObject())
   }
 }

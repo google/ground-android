@@ -23,7 +23,7 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
-import com.google.android.ground.MainActivity
+import com.google.android.ground.AbstractActivity
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
@@ -109,5 +109,5 @@ abstract class AbstractFragment : Fragment() {
     childFragmentManager.beginTransaction().replace(containerViewId, fragment).commit()
   }
 
-  protected fun getMainActivity(): MainActivity = requireActivity() as MainActivity
+  protected fun getAbstractActivity(): AbstractActivity = requireActivity() as AbstractActivity
 }

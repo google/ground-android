@@ -71,11 +71,11 @@ constructor(
 
   val uri: LiveData<Uri> =
     LiveDataReactiveStreams.fromPublisher(
-      detailsTextFlowable.switchMapSingle { userMediaRepository.getDownloadUrl(it) }
+      detailsTextFlowable().switchMapSingle { userMediaRepository.getDownloadUrl(it) }
     )
 
   val isPhotoPresent: LiveData<Boolean> =
-    LiveDataReactiveStreams.fromPublisher(detailsTextFlowable.map { it.isNotEmpty() })
+    LiveDataReactiveStreams.fromPublisher(detailsTextFlowable().map { it.isNotEmpty() })
 
   private var surveyId: String? = null
   private var submissionId: String? = null

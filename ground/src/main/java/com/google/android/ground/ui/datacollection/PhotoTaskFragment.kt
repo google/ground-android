@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.databinding.PhotoTaskFragBinding
@@ -34,6 +35,7 @@ import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
 import javax.inject.Inject
+import kotlin.properties.Delegates
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
@@ -41,12 +43,19 @@ import timber.log.Timber
 class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
   @Inject lateinit var userMediaRepository: UserMediaRepository
 
+  val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: PhotoTaskViewModel
+  override var position by Delegates.notNull<Int>()
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
   private var hasRequestedPermissionsOnResume = false
 
-  lateinit var dataCollectionViewModel: DataCollectionViewModel
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      position = savedInstanceState.getInt(TaskFragment.POSITION)
+    }
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -100,6 +109,7 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
     super.onSaveInstanceState(outState)
     outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto())
     outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
+    outState.putInt(TaskFragment.POSITION, position)
   }
 
   private fun observeSelectPhotoClicks() {

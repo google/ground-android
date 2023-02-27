@@ -89,30 +89,28 @@ constructor(
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
-  private fun processMutations(mutations: List<Mutation>, userId: String): Completable {
-    return localUserStore
+  private fun processMutations(mutations: List<Mutation>, userId: String): Completable =
+    localUserStore
       .getUser(userId)
       .flatMapCompletable { user: User -> processMutations(mutations, user) }
       .doOnError { Timber.d("User account removed before mutation processed") }
       .onErrorComplete()
-  }
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
-  private fun processMutations(mutations: List<Mutation>, user: User): Completable {
-    return remoteDataStore
+  private fun processMutations(mutations: List<Mutation>, user: User): Completable =
+    remoteDataStore
       .applyMutations(mutations, user)
       .andThen(
         processPhotoFieldMutations(mutations)
       ) // TODO: If the remote sync fails, reset the state to DEFAULT.
       .andThen(mutationRepository.finalizePendingMutations(mutations))
-  }
 
   /**
    * Filters all mutations containing submission mutations with changes to photo fields and uploads
    * to remote storage.
    */
-  private fun processPhotoFieldMutations(mutations: List<Mutation>): Completable {
-    return Observable.fromIterable(mutations)
+  private fun processPhotoFieldMutations(mutations: List<Mutation>): Completable =
+    Observable.fromIterable(mutations)
       .filter { mutation: Mutation -> mutation is SubmissionMutation }
       .flatMapIterable { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
       .filter { (_, taskType, newResponse): TaskDataDelta ->
@@ -122,7 +120,6 @@ constructor(
       .flatMapCompletable { remotePath: String ->
         Completable.fromRunnable { photoSyncWorkManager.enqueueSyncWorker(remotePath) }
       }
-  }
 
   private fun groupByUserId(pendingMutations: List<Mutation>): Map<String, List<Mutation>> =
     pendingMutations.groupBy { it.userId }

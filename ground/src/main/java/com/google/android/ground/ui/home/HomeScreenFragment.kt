@@ -140,7 +140,7 @@ class HomeScreenFragment :
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     setHasOptionsMenu(true)
-    getMainActivity().setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false)
+    getAbstractActivity().setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false)
   }
 
   private fun openDrawer() {
@@ -224,14 +224,13 @@ class HomeScreenFragment :
     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
   }
 
-  override fun onBack(): Boolean {
-    return if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
+  override fun onBack(): Boolean =
+    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
       false
     } else {
       hideBottomSheet()
       true
     }
-  }
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {

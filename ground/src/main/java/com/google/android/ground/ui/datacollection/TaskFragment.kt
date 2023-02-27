@@ -19,4 +19,12 @@ import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 
 interface TaskFragment<T : AbstractTaskViewModel> {
   var viewModel: T
+
+  /** Position of the task in the Job's sorted tasklist. Used to instantiate the ViewModel. */
+  var position: Int
+
+  companion object {
+    /** Key used to store the position of the task in the Job's sorted tasklist. */
+    const val POSITION = "position"
+  }
 }

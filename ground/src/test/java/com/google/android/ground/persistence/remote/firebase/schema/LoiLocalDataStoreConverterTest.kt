@@ -118,9 +118,8 @@ class LoiLocalDataStoreConverterTest {
     Mockito.`when`(loiDocumentSnapshot.toObject(LoiDocument::class.java)).thenReturn(doc)
   }
 
-  private fun toLocationOfInterest(): Result<LocationOfInterest> {
-    return toLoi(survey, loiDocumentSnapshot)
-  }
+  private fun toLocationOfInterest(): Result<LocationOfInterest> =
+    toLoi(survey, loiDocumentSnapshot)
 
   companion object {
     private val AUDIT_INFO_1_NESTED_OBJECT =

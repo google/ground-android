@@ -31,20 +31,18 @@ class SubmissionCollectionReference internal constructor(ref: CollectionReferenc
 
   fun submissionsByLocationOfInterestId(
     locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>> {
-    return RxFirestore.getCollection(byLoiId(locationOfInterest.id))
+  ): @Cold Single<List<Result<Submission>>> =
+    RxFirestore.getCollection(byLoiId(locationOfInterest.id))
       .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
       .toSingle(listOf())
-  }
 
   private fun convert(
     querySnapshot: QuerySnapshot,
     locationOfInterest: LocationOfInterest
-  ): List<Result<Submission>> {
-    return querySnapshot.documents.map { doc: DocumentSnapshot ->
+  ): List<Result<Submission>> =
+    querySnapshot.documents.map { doc: DocumentSnapshot ->
       runCatching { SubmissionConverter.toSubmission(locationOfInterest, doc) }
     }
-  }
 
   private fun byLoiId(loiId: String): Query =
     reference().whereEqualTo(FieldPath.of(SubmissionMutationConverter.LOI_ID), loiId)

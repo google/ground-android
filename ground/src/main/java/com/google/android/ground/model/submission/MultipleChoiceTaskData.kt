@@ -55,12 +55,11 @@ class MultipleChoiceTaskData(
 
   companion object {
     @JvmStatic
-    fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<TaskData> {
-      return if (codes.isEmpty()) {
+    fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<TaskData> =
+      if (codes.isEmpty()) {
         Optional.empty()
       } else {
         Optional.of(MultipleChoiceTaskData(multipleChoice, codes))
       }
-    }
   }
 }

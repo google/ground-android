@@ -23,20 +23,18 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.rx.Loadable
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
+import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -46,8 +44,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /** View model for the Data Collection fragment. */
+@HiltViewModel
 class DataCollectionViewModel
-@AssistedInject
+@Inject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
@@ -56,14 +55,10 @@ internal constructor(
   private val navigator: Navigator,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  @Assisted private val savedStateHandle: SavedStateHandle
+  private val savedStateHandle: SavedStateHandle
 ) : AbstractViewModel() {
-  @AssistedFactory
-  interface Factory {
-    fun create(savedStateHandle: SavedStateHandle): DataCollectionViewModel
-  }
 
-  val submission: @Hot(replays = true) LiveData<Loadable<Submission>>
+  val submission: @Hot(replays = true) LiveData<Submission>
   val jobName: @Hot(replays = true) LiveData<String>
   val loiName: @Hot(replays = true) LiveData<String>
 
@@ -85,7 +80,7 @@ internal constructor(
 
   var currentTaskViewModel: AbstractTaskViewModel? = null
 
-  val currentTaskViewModelLiveData =
+  private val currentTaskViewModelLiveData =
     currentPosition.combineWith(taskViewModels) { position, viewModels ->
       if (position!! < viewModels!!.size) {
         currentTaskViewModel = viewModels[position]
@@ -101,39 +96,40 @@ internal constructor(
   lateinit var submissionId: String
 
   init {
-    val submissionStream: Flowable<Loadable<Submission>> =
+    val submissionStream: Flowable<Submission> =
       argsProcessor.switchMapSingle { args ->
         surveyId = args.surveyId
-        submissionId = args.submissionId
 
         submissionRepository
-          .createSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
-          .map { Loadable.loaded(it) }
-          .onErrorReturn { Loadable.error(it) }
+          .createSubmission(
+            args.surveyId,
+            args.locationOfInterestId,
+          )
+          .doOnSuccess { submissionId = it.id }
       }
 
     submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
 
     jobName =
-      LiveDataReactiveStreams.fromPublisher(
-        submissionStream.map { submission ->
-          submission.value().map { it.locationOfInterest.job.name }.orElse("")
-        }
-      )
+      LiveDataReactiveStreams.fromPublisher(submissionStream.map { it.locationOfInterest.job.name })
 
     loiName =
       LiveDataReactiveStreams.fromPublisher(
-        submissionStream
-          .map { submission -> submission.value().map { it.locationOfInterest } }
-          .map { locationOfInterest -> locationOfInterestHelper.getLabel(locationOfInterest) }
+        submissionStream.map {
+          locationOfInterestHelper.getLabel(Optional.of(it.locationOfInterest))
+        }
       )
   }
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
-  fun getTaskViewModel(position: Int, task: Task): AbstractTaskViewModel {
+  fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
-    require(viewModels != null)
+    requireNotNull(viewModels)
+    // TODO(#1146): Show toast or error if submission is null
+    val tasks = requireNotNull(submission.value).job.tasksSorted
+
+    val task = tasks[position]
     if (position < viewModels.size) {
       return viewModels[position]
     }
@@ -164,7 +160,7 @@ internal constructor(
 
     responses[currentTask.task] = currentTaskData
 
-    val submission = submission.value!!.value().get()
+    val submission = submission.value!!
     val currentTaskPosition = currentPosition.value!!
     val finalTaskPosition = submission.job.tasks.size - 1
 

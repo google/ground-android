@@ -21,7 +21,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 
-interface LocalOfflineAreaStore : LocalStore<OfflineArea> {
+interface LocalOfflineAreaStore {
   /**
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
    * the area into the local data store.
@@ -29,7 +29,7 @@ interface LocalOfflineAreaStore : LocalStore<OfflineArea> {
   fun insertOrUpdateOfflineArea(area: OfflineArea): @Cold Completable
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
-  val offlineAreasOnceAndStream: @Cold(terminates = false) Flowable<List<OfflineArea>>
+  fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>
 
   /** Delete an offline area and any associated tiles that are no longer needed. */
   fun deleteOfflineArea(offlineAreaId: String): @Cold Completable

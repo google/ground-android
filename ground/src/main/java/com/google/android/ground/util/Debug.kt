@@ -23,4 +23,12 @@ object Debug {
     val callingMethod = stackTrace[3].methodName + "()"
     Timber.tag(instance.javaClass.simpleName).v("Lifecycle event: $callingMethod")
   }
+
+  fun <T> logOnFailure(fn: () -> T): T? =
+    try {
+      fn()
+    } catch (e: RuntimeException) {
+      Timber.d(e.message)
+      null
+    }
 }

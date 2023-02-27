@@ -24,6 +24,5 @@ interface DataCollectionViewPagerAdapterFactory {
   fun create(
     fragment: Fragment,
     tasks: List<Task>,
-    dataCollectionViewModel: DataCollectionViewModel
   ): DataCollectionViewPagerAdapter
 }
