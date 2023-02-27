@@ -73,9 +73,6 @@ constructor(
       localValueStore.lastActiveSurveyId = value?.id ?: ""
     }
 
-  val activeSurveyId: String
-    get() = activeSurvey?.id ?: ""
-
   /**
    * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
    * active or local db isn't up-to-date.

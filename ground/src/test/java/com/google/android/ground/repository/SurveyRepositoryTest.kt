@@ -97,7 +97,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       // Verify survey is deleted
       surveyRepository.offlineSurveys.test().assertValues(listOf())
       // Verify survey deactivated
-      assertThat(surveyRepository.activeSurveyId).isEmpty()
+      assertThat(surveyRepository.activeSurvey).isNull()
     }
 
   @Test
@@ -118,7 +118,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       advanceUntilIdle()
 
       // Verify active survey isn't cleared
-      assertThat(surveyRepository.activeSurveyId).isEqualTo(survey1.id)
+      assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
       // Verify survey is deleted
       surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
     }

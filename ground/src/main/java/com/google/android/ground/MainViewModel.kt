@@ -147,7 +147,7 @@ constructor(
   }
 
   private fun getDirectionAfterSignIn(): NavDirections =
-    if (surveyRepository.activeSurveyId.isNotEmpty()) {
+    if (surveyRepository.activeSurvey != null) {
       HomeScreenFragmentDirections.showHomeScreen()
     } else {
       SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
