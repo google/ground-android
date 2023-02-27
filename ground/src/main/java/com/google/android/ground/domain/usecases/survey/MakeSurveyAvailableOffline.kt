@@ -21,14 +21,14 @@ import com.google.android.ground.repository.SurveyRepository
 
 class MakeSurveyAvailableOffline(
   private val surveyRepository: SurveyRepository,
-  private val fetchSurvey: FetchSurveyUseCase
+  private val syncSurvey: SyncSurveyUseCase
 ) {
   /**
    * Makes the survey with the specified ID and related LOIs available offline. Subscribes to
    * updated from the remote server so that they may be refetched on updates.
    */
   suspend operator fun invoke(surveyId: String): Survey {
-    val survey = fetchSurvey(surveyId)
+    val survey = syncSurvey(surveyId)
     surveyRepository.subscribeToSurveyUpdates(surveyId)
     return survey
   }

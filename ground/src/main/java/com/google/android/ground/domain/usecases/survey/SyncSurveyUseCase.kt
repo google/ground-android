@@ -20,7 +20,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import kotlinx.coroutines.rx2.await
 
-class FetchSurveyUseCase(private val surveyRepository: SurveyRepository) {
+class SyncSurveyUseCase(private val surveyRepository: SurveyRepository) {
   /**
    * Downloads the survey with the specified ID and related LOIs from remote and inserts and/or
    * updates them on the local device.
