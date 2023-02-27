@@ -51,7 +51,7 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
 
-  val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: PhotoTaskViewModel
   override var position by Delegates.notNull<Int>()
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
@@ -107,7 +107,7 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
     super.onResume()
 
     if (!hasRequestedPermissionsOnResume) {
-      externalScope.launch { obtainCapturePhotoPermissions() }
+      obtainCapturePhotoPermissions()
       hasRequestedPermissionsOnResume = true
     }
   }
@@ -132,7 +132,7 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
       .subscribe { photoResult -> viewModel.onPhotoResult(photoResult) }
   }
 
-  private suspend fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
+  private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
     externalScope.launch {
       try {
         permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE).await()
@@ -146,7 +146,7 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
 
   private fun onTakePhoto() {
     // TODO(#1600): Launch intent is not invoked if the permission is not granted by default.
-    externalScope.launch { obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) } }
+    obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
 
   private fun launchPhotoCapture(taskId: String) {
