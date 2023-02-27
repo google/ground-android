@@ -37,13 +37,12 @@ constructor(
 
     val taskFragment =
       when (task.type) {
-        Task.Type.TEXT -> {
-          QuestionTaskFragment().also { it.position = position }
-        }
+        Task.Type.TEXT -> QuestionTaskFragment().also { it.position = position }
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment().also { it.position = position }
         Task.Type.PHOTO -> PhotoTaskFragment().also { it.position = position }
         Task.Type.DROP_A_PIN -> DropAPinTaskFragment()
         Task.Type.DRAW_POLYGON -> PolygonDrawingTaskFragment()
+        Task.Type.NUMBER -> NumberTaskFragment().also { it.position = position }
         else -> throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
