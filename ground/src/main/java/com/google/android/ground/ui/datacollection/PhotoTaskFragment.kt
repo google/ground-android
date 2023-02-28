@@ -140,7 +140,9 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
         permissionsManager.obtainPermission(Manifest.permission.CAMERA).await()
 
         onPermissionsGranted()
-      } catch (_: PermissionDeniedException) {}
+      } catch (_: PermissionDeniedException) {
+        // TODO: Handle permission denied case
+      }
     }
   }
 
