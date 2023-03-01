@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.editsubmission
 
-import android.Manifest.permission
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
@@ -25,11 +24,8 @@ import com.google.android.ground.model.submission.TextTaskData.Companion.fromStr
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.util.BitmapUtil
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
@@ -43,7 +39,6 @@ class PhotoTaskViewModel
 @Inject
 constructor(
   private val userMediaRepository: UserMediaRepository,
-  private val permissionsManager: PermissionsManager,
   private val bitmapUtil: BitmapUtil,
   resources: Resources
 ) : AbstractTaskViewModel(resources) {
@@ -80,14 +75,14 @@ constructor(
   private var surveyId: String? = null
   private var submissionId: String? = null
 
-  private val showDialogClicks: @Hot Subject<Task> = PublishSubject.create()
+  private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
   private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
-  fun onShowPhotoSelectorDialog() {
-    showDialogClicks.onNext(task)
+  fun onTakePhotoClick() {
+    takePhotoClicks.onNext(task)
   }
 
-  fun getShowDialogClicks(): @Hot Observable<Task> = showDialogClicks
+  fun getTakePhotoClicks(): @Hot Observable<Task> = takePhotoClicks
 
   fun setEditable(enabled: Boolean) {
     editable.postValue(enabled)
@@ -141,14 +136,6 @@ constructor(
       Timber.e(e, "Failed to save photo")
     }
   }
-
-  fun obtainCapturePhotoPermissions(): @Cold Completable =
-    permissionsManager
-      .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
-      .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-
-  fun obtainSelectPhotoPermissions(): @Cold Completable =
-    permissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE)
 
   fun getTaskWaitingForPhoto(): String? = taskWaitingForPhoto
 

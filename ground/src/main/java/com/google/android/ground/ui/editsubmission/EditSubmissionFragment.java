@@ -17,14 +17,11 @@
 package com.google.android.ground.ui.editsubmission;
 
 import static com.google.android.ground.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
-import static com.google.android.ground.ui.editsubmission.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 import static java.util.Objects.requireNonNull;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -32,16 +29,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.GetContent;
-import androidx.activity.result.contract.ActivityResultContracts.TakePicture;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.FileProvider;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.BuildConfig;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.DateInputTaskBinding;
@@ -67,8 +59,6 @@ import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Completable;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -106,9 +96,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private EditSubmissionViewModel viewModel;
   private EditSubmissionFragBinding binding;
 
-  private ActivityResultLauncher<String> selectPhotoLauncher;
-  private ActivityResultLauncher<Uri> capturePhotoLauncher;
-
   private static AbstractTaskViewModel getViewModel(ViewDataBinding binding) {
     if (binding instanceof TextInputTaskBinding) {
       return ((TextInputTaskBinding) binding).getViewModel();
@@ -131,10 +118,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(EditSubmissionViewModel.class);
-    selectPhotoLauncher =
-        registerForActivityResult(new GetContent(), viewModel::onSelectPhotoResult);
-    capturePhotoLauncher =
-        registerForActivityResult(new TakePicture(), viewModel::onCapturePhotoResult);
   }
 
   @Override
@@ -314,7 +297,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
 
   private void observeSelectPhotoClicks(PhotoTaskViewModel fieldViewModel) {
     fieldViewModel
-        .getShowDialogClicks()
+        .getTakePhotoClicks()
         .as(autoDisposable(getViewLifecycleOwner()))
         .subscribe(__ -> onShowPhotoSelectorDialog(fieldViewModel.getTask(), fieldViewModel));
   }
@@ -340,12 +323,7 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(
-        new AddPhotoDialogAdapter(
-            type -> {
-              bottomSheetDialog.dismiss();
-              onSelectPhotoClick(type, task.getId(), fieldViewModel);
-            }));
+    recyclerView.setAdapter(new AddPhotoDialogAdapter(type -> bottomSheetDialog.dismiss()));
   }
 
   private void showDateDialog(DateTaskViewModel fieldViewModel) {
@@ -386,44 +364,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
             minute,
             DateFormat.is24HourFormat(requireContext()));
     timePickerDialog.show();
-  }
-
-  private void onSelectPhotoClick(int type, String fieldId, PhotoTaskViewModel fieldViewModel) {
-    switch (type) {
-      case PHOTO_SOURCE_CAMERA:
-        // TODO: Launch intent is not invoked if the permission is not granted by default.
-        fieldViewModel
-            .obtainCapturePhotoPermissions()
-            .andThen(Completable.fromAction(() -> launchPhotoCapture(fieldId)))
-            .as(autoDisposable(getViewLifecycleOwner()))
-            .subscribe();
-        break;
-      case PHOTO_SOURCE_STORAGE:
-        // TODO: Launch intent is not invoked if the permission is not granted by default.
-        fieldViewModel
-            .obtainSelectPhotoPermissions()
-            .andThen(Completable.fromAction(() -> launchPhotoSelector(fieldId)))
-            .as(autoDisposable(getViewLifecycleOwner()))
-            .subscribe();
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown type: " + type);
-    }
-  }
-
-  private void launchPhotoCapture(String taskId) {
-    File photoFile = userMediaRepository.createImageFile(taskId);
-    Uri uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile);
-    viewModel.setTaskWaitingForPhoto(taskId);
-    viewModel.setCapturedPhotoPath(photoFile.getAbsolutePath());
-    capturePhotoLauncher.launch(uri);
-    Timber.d("Capture photo intent sent");
-  }
-
-  private void launchPhotoSelector(String taskId) {
-    viewModel.setTaskWaitingForPhoto(taskId);
-    selectPhotoLauncher.launch("image/*");
-    Timber.d("Select photo intent sent");
   }
 
   @Override
