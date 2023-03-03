@@ -58,10 +58,7 @@ constructor(
   val activeSurveyFlow: SharedFlow<Survey?> =
     _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.WhileSubscribed())
 
-  /**
-   * Emits the currently active survey on subscribe and on change. Emits `null`when no survey is
-   * active or local db isn't up-to-date.
-   */
+  /** Returns the currently active survey, or `null` if survey is active. */
   var activeSurvey: Survey? by _activeSurvey::value
 
   /**
