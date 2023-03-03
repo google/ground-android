@@ -21,7 +21,6 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TimePicker
 import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.TimeTaskFragBinding
@@ -72,7 +71,7 @@ class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
     val timePickerDialog =
       TimePickerDialog(
         requireContext(),
-        { _: TimePicker?, updatedHourOfDay: Int, updatedMinute: Int ->
+        { _, updatedHourOfDay, updatedMinute ->
           val c = Calendar.getInstance()
           c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
           c[Calendar.MINUTE] = updatedMinute

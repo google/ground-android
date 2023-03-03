@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.DatePicker
 import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.DateTaskFragBinding
@@ -72,7 +71,7 @@ class DateTaskFragment : AbstractFragment(), TaskFragment<DateTaskViewModel> {
     val datePickerDialog =
       DatePickerDialog(
         requireContext(),
-        { _: DatePicker?, updatedYear: Int, updatedMonth: Int, updatedDayOfMonth: Int ->
+        { _, updatedYear, updatedMonth, updatedDayOfMonth ->
           val c = Calendar.getInstance()
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
