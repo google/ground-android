@@ -23,7 +23,7 @@ class ActivateSurveyUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val makeSurveyAvailableOffline: MakeSurveyAvailableOffline
+  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 ) {
   suspend operator fun invoke(surveyId: String) {
     // Do nothing if survey is already active.

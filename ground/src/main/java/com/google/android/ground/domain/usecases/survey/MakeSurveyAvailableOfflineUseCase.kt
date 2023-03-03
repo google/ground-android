@@ -20,7 +20,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
 
-class MakeSurveyAvailableOffline
+class MakeSurveyAvailableOfflineUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
