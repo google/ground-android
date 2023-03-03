@@ -16,14 +16,13 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
-import java8.util.Optional
 import javax.inject.Inject
-import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.TestDispatcher
@@ -40,47 +39,8 @@ import org.robolectric.RobolectricTestRunner
 class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var testDispatcher: TestDispatcher
-
-  @Test
-  fun activateSurvey_firstTime() =
-    runTest(testDispatcher) {
-      fakeRemoteDataStore.surveys = listOf(SURVEY)
-
-      surveyRepository.activateSurvey(SURVEY.id)
-      advanceUntilIdle()
-
-      // Verify survey is available offline.
-      surveyRepository.getOfflineSurvey(SURVEY.id).test().assertValue(SURVEY)
-      // Verify survey is active.
-      surveyRepository.activeSurveyFlowable.test().assertValues(Optional.of(SURVEY))
-      // Verify app is subscribed to push updates.
-      assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
-    }
-
-  @Test
-  fun activateSurvey_firstTime_handleRemoteFailure() =
-    runTest(testDispatcher) {
-      fakeRemoteDataStore.surveys = listOf()
-
-      assertFails { surveyRepository.activateSurvey(SURVEY.id) }
-      advanceUntilIdle()
-      assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
-    }
-
-  @Test
-  fun activateSurvey_alreadyAvailableOffline() =
-    runTest(testDispatcher) {
-      fakeRemoteDataStore.surveys = listOf(SURVEY)
-      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
-      advanceUntilIdle()
-
-      surveyRepository.activateSurvey(SURVEY.id)
-      advanceUntilIdle()
-
-      surveyRepository.activeSurveyFlowable.test().assertValue(Optional.of(SURVEY))
-      assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isFalse()
-    }
 
   @Test
   fun deleteSurvey_whenSurveyIsActive() =
@@ -88,7 +48,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       fakeRemoteDataStore.surveys = listOf(SURVEY)
       surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
       advanceUntilIdle()
-      surveyRepository.activateSurvey(SURVEY.id)
+      activateSurvey(SURVEY.id)
       advanceUntilIdle()
 
       surveyRepository.removeOfflineSurvey(SURVEY.id)
@@ -111,7 +71,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
       fakeRemoteDataStore.surveys = listOf(survey1, survey2)
       surveyRepository.syncSurveyWithRemote(survey1.id).await()
       surveyRepository.syncSurveyWithRemote(survey2.id).await()
-      surveyRepository.activateSurvey(survey1.id)
+      activateSurvey(survey1.id)
       advanceUntilIdle()
 
       surveyRepository.removeOfflineSurvey(survey2.id)

@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
