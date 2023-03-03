@@ -31,11 +31,7 @@ constructor(
       return
     }
 
-    var survey = surveyRepository.getOfflineSurveySuspend(surveyId)
-
-    if (survey == null) {
-      survey = makeSurveyAvailableOffline(surveyId)
-    }
-    surveyRepository.activeSurvey = survey
+    surveyRepository.activeSurvey =
+      surveyRepository.getOfflineSurveySuspend(surveyId) ?: makeSurveyAvailableOffline(surveyId)
   }
 }
