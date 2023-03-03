@@ -43,6 +43,8 @@ constructor(
         Task.Type.DROP_A_PIN -> DropAPinTaskFragment()
         Task.Type.DRAW_POLYGON -> PolygonDrawingTaskFragment()
         Task.Type.NUMBER -> NumberTaskFragment().also { it.position = position }
+        Task.Type.DATE -> DateTaskFragment().also { it.position = position }
+        Task.Type.TIME -> TimeTaskFragment().also { it.position = position }
         else -> throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
