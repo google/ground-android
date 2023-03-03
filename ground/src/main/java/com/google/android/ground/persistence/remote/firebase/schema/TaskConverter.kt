@@ -47,6 +47,7 @@ internal object TaskConverter {
       "photo" -> Task.Type.PHOTO
       "point" -> Task.Type.DROP_A_PIN
       "polygon" -> Task.Type.DRAW_POLYGON
+      "number" -> Task.Type.NUMBER
       else -> Task.Type.UNKNOWN
     }
 }
