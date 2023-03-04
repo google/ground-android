@@ -57,7 +57,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private final List<AbstractTaskViewModel> taskViewModels = new ArrayList<>();
 
   @Inject Navigator navigator;
-  @Inject TaskViewFactory taskViewFactory;
   @Inject EphemeralPopups popups;
   @Inject Schedulers schedulers;
   @Inject UserMediaRepository userMediaRepository;
