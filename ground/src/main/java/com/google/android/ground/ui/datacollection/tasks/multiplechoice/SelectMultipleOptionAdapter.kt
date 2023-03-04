@@ -13,60 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBinding
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.databinding.MultipleChoiceCheckboxItemBinding
 import com.google.android.ground.model.task.Option
-import com.google.android.ground.ui.datacollection.SelectOneOptionAdapter.ViewHolder
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectMultipleOptionAdapter.ViewHolder
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [Option] data with the [ViewHolder]
- * RadioButton views.
+ * An implementation of [RecyclerView.Adapter] that associates [Option]s with the [ViewHolder]
+ * checkbox views.
  */
-class SelectOneOptionAdapter(
+class SelectMultipleOptionAdapter(
   private val options: List<Option>,
   private val viewModel: MultipleChoiceTaskViewModel
-) : RecyclerView.Adapter<ViewHolder>() {
+) : SelectionAdapter<ViewHolder>() {
 
-  private var selectedIndex = -1
+  private val selectedPositions = mutableSetOf<Int>()
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
-      MultipleChoiceRadiobuttonItemBinding.inflate(
-        LayoutInflater.from(parent.context),
-        parent,
-        false
-      )
+      MultipleChoiceCheckboxItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     )
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     holder.bind(options[position])
 
-    holder.binding.radioButton.isChecked = position == selectedIndex
-
-    holder.binding.radioButton.setOnClickListener {
-      val oldPosition = selectedIndex
-      selectedIndex = holder.adapterPosition
-      viewModel.updateResponse(listOf(options[selectedIndex]))
-
-      holder.binding.radioButton.post {
-        if (oldPosition >= 0) {
-          notifyItemChanged(oldPosition)
-        }
-        notifyItemChanged(selectedIndex)
-      }
-    }
+    holder.binding.checkbox.isChecked = position in selectedPositions
   }
 
   override fun getItemCount(): Int = options.size
 
-  /** View item representing the [LocationOfInterest] data in the list. */
-  class ViewHolder(internal val binding: MultipleChoiceRadiobuttonItemBinding) :
+  override fun getItemId(position: Int): Long = position.toLong()
+
+  override fun getPosition(key: Long): Int = key.toInt()
+
+  override fun handleItemStateChanged(position: Int, selected: Boolean) {
+    if (position in selectedPositions) {
+      selectedPositions.remove(position)
+    } else {
+      selectedPositions.add(position)
+    }
+
+    viewModel.updateResponse(
+      options.filterIndexed { index, _ -> selectedPositions.contains(index) }
+    )
+  }
+
+  class ViewHolder(internal val binding: MultipleChoiceCheckboxItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(option: Option) {
       binding.option = option

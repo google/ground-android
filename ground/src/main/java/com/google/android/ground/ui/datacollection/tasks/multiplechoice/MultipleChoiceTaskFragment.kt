@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -31,6 +31,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.datacollection.*
 import com.google.android.ground.ui.datacollection.TaskFragment.Companion.POSITION
 import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint

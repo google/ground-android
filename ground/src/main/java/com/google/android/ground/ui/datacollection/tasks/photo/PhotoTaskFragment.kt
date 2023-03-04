@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks.photo
 
 import android.Manifest
 import android.net.Uri
@@ -34,8 +34,9 @@ import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.TaskFragment
 import com.google.android.ground.ui.editsubmission.PhotoResult
-import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.properties.Delegates

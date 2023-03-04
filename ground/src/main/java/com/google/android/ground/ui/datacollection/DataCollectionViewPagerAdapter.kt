@@ -18,6 +18,14 @@ package com.google.android.ground.ui.datacollection
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.datacollection.tasks.date.DateTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 

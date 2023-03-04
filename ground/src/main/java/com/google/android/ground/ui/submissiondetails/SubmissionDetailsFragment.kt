@@ -31,7 +31,7 @@ import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.editsubmission.PhotoTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject

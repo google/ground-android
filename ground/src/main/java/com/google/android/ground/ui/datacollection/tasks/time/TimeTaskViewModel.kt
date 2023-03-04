@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks.time
 
-import androidx.recyclerview.widget.RecyclerView
+import android.content.res.Resources
+import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import java.util.*
+import javax.inject.Inject
 
-/**
- * Abstract class extending RecyclerView.Adapter, handling the selection states of items selected in
- * the RecyclerView.
- */
-abstract class SelectionAdapter<V : RecyclerView.ViewHolder> : RecyclerView.Adapter<V>() {
-  abstract fun getPosition(key: Long): Int
+class TimeTaskViewModel @Inject constructor(resources: Resources) :
+  AbstractTaskViewModel(resources) {
 
-  abstract fun handleItemStateChanged(position: Int, selected: Boolean)
+  fun updateResponse(date: Date) {
+    setResponse(fromDate(date))
+  }
 }

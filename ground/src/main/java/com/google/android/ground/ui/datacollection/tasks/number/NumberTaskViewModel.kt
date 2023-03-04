@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.editsubmission
+package com.google.android.ground.ui.datacollection.tasks.number
 
 import android.content.res.Resources
 import com.google.android.ground.model.submission.NumberTaskData.Companion.fromNumber
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import javax.inject.Inject
 
 class NumberTaskViewModel @Inject constructor(resources: Resources) :

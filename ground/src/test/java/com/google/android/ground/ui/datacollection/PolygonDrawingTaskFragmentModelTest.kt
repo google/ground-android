@@ -19,7 +19,8 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.PolygonDrawingState
 import com.google.android.ground.ui.map.Feature
 import com.google.common.truth.Truth
 import com.jraska.livedata.TestObserver

@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.DateTaskViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel" />
   </data>
 
   <LinearLayout

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks.time
 
+import android.app.TimePickerDialog
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
-import com.google.android.ground.databinding.QuestionTaskFragBinding
+import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.TaskFragment.Companion.POSITION
-import com.google.android.ground.ui.editsubmission.TextTaskViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.TaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 import kotlin.properties.Delegates
 
-/** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel> {
+class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
   private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
-  override lateinit var viewModel: TextTaskViewModel
+  override lateinit var viewModel: TimeTaskViewModel
   override var position by Delegates.notNull<Int>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
+      position = savedInstanceState.getInt(TaskFragment.POSITION)
     }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
+    outState.putInt(TaskFragment.POSITION, position)
   }
 
   override fun onCreateView(
@@ -53,12 +55,33 @@ class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel>
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = QuestionTaskFragBinding.inflate(inflater, container, false)
+    val binding = TimeTaskFragBinding.inflate(inflater, container, false)
 
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TimeTaskViewModel
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
+    binding.setVariable(BR.fragment, this)
 
     return binding.root
+  }
+
+  fun showTimeDialog() {
+    val calendar = Calendar.getInstance()
+    val hour = calendar[Calendar.HOUR]
+    val minute = calendar[Calendar.MINUTE]
+    val timePickerDialog =
+      TimePickerDialog(
+        requireContext(),
+        { _, updatedHourOfDay, updatedMinute ->
+          val c = Calendar.getInstance()
+          c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
+          c[Calendar.MINUTE] = updatedMinute
+          viewModel.updateResponse(c.time)
+        },
+        hour,
+        minute,
+        DateFormat.is24HourFormat(requireContext())
+      )
+    timePickerDialog.show()
   }
 }

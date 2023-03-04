@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.editsubmission
+package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
-import android.content.res.Resources
-import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
-import javax.inject.Inject
+import androidx.recyclerview.widget.RecyclerView
 
-class TextTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
+/**
+ * Abstract class extending RecyclerView.Adapter, handling the selection states of items selected in
+ * the RecyclerView.
+ */
+abstract class SelectionAdapter<V : RecyclerView.ViewHolder> : RecyclerView.Adapter<V>() {
+  abstract fun getPosition(key: Long): Int
 
-  fun updateResponse(text: String) {
-    setResponse(fromString(text))
-  }
+  abstract fun handleItemStateChanged(position: Int, selected: Boolean)
 }

@@ -23,10 +23,10 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.TimeTaskViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel" />
     <variable
       name="fragment"
-      type="com.google.android.ground.ui.datacollection.TimeTaskFragment" />
+      type="com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment" />
   </data>
 
   <ScrollView

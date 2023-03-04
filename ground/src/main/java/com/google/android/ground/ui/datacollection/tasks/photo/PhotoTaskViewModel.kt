@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.editsubmission
+package com.google.android.ground.ui.datacollection.tasks.photo
 
 import android.content.res.Resources
 import android.net.Uri
@@ -25,6 +25,8 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.editsubmission.PhotoResult
 import com.google.android.ground.ui.util.BitmapUtil
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
