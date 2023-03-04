@@ -17,7 +17,7 @@ package com.google.android.ground.ui.datacollection.tasks.date
 
 import android.content.res.Resources
 import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
-import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import java.util.*
 import javax.inject.Inject
 

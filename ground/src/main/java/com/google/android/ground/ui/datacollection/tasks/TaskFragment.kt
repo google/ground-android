@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks
 
 interface TaskFragment<T : AbstractTaskViewModel> {
   var viewModel: T

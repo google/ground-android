@@ -23,7 +23,7 @@ import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.TaskFragment
+import com.google.android.ground.ui.datacollection.tasks.TaskFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint

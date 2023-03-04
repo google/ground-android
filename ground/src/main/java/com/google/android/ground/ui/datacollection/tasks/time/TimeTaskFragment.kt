@@ -26,7 +26,7 @@ import com.google.android.ground.BR
 import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.TaskFragment
+import com.google.android.ground.ui.datacollection.tasks.TaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import kotlin.properties.Delegates

@@ -25,7 +25,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject

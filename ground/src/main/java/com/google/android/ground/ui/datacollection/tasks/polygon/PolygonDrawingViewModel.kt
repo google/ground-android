@@ -24,7 +24,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.BackpressureStrategy

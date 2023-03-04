@@ -24,8 +24,8 @@ import com.google.android.ground.BR
 import com.google.android.ground.databinding.NumberTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.TaskFragment
-import com.google.android.ground.ui.datacollection.TaskFragment.Companion.POSITION
+import com.google.android.ground.ui.datacollection.tasks.TaskFragment
+import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
