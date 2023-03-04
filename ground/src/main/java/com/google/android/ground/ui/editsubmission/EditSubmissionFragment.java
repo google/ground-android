@@ -25,15 +25,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.databinding.ViewDataBinding;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
-import com.google.android.ground.databinding.DateInputTaskBinding;
 import com.google.android.ground.databinding.EditSubmissionFragBinding;
-import com.google.android.ground.databinding.NumberInputTaskBinding;
-import com.google.android.ground.databinding.TimeInputTaskBinding;
 import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.task.Task;
 import com.google.android.ground.repository.UserMediaRepository;
 import com.google.android.ground.rx.Schedulers;
 import com.google.android.ground.ui.common.AbstractFragment;
@@ -69,18 +64,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
 
   private EditSubmissionViewModel viewModel;
   private EditSubmissionFragBinding binding;
-
-  private static AbstractTaskViewModel getViewModel(ViewDataBinding binding) {
-    if (binding instanceof NumberInputTaskBinding) {
-      return ((NumberInputTaskBinding) binding).getViewModel();
-    } else if (binding instanceof DateInputTaskBinding) {
-      return ((DateInputTaskBinding) binding).getViewModel();
-    } else if (binding instanceof TimeInputTaskBinding) {
-      return ((TimeInputTaskBinding) binding).getViewModel();
-    } else {
-      throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
-    }
-  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,14 +107,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
   }
 
-  private void addTaskViewModel(Task task, ViewDataBinding binding) {
-    AbstractTaskViewModel taskViewModel = getViewModel(binding);
-    taskViewModel.initialize(task, viewModel.getResponse(task.getId()));
-    taskViewModel.getTaskData().observe(this, response -> viewModel.setResponse(task, response));
-
-    taskViewModels.add(taskViewModel);
-  }
-
   public void onSaveClick(View view) {
     hideKeyboard(view);
     viewModel.onSaveClick(getValidationErrors());
@@ -160,10 +135,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
     taskViewModels.clear();
-    for (Task task : job.getTasksSorted()) {
-      ViewDataBinding binding = taskViewFactory.addTaskView(task.getType(), formLayout);
-      addTaskViewModel(task, binding);
-    }
   }
 
   @Override
