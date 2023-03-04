@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>LongMethod:SubmissionLocalDataStoreConverterTest.kt$SubmissionLocalDataStoreConverterTest$@Test fun testToSubmission()</ID>
+  </CurrentIssues>
+</SmellBaseline>
