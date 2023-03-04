@@ -19,20 +19,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
+  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: DropAPinTaskViewModel
-  // Not needed for DropAPinTaskFragment
-  override var position = -1
+  override var position by Delegates.notNull<Int>()
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
@@ -41,7 +44,15 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      position = savedInstanceState.getInt(TaskFragment.POSITION)
+    }
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putInt(TaskFragment.POSITION, position)
   }
 
   override fun onCreateView(
@@ -49,6 +60,8 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as DropAPinTaskViewModel
+
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapViewModel
