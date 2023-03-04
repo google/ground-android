@@ -41,6 +41,7 @@ import com.google.android.ground.ui.common.BackPressListener;
 import com.google.android.ground.ui.common.EphemeralPopups;
 import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.common.TwoLineToolbar;
+import com.google.android.ground.ui.datacollection.AbstractTaskViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.HashMap;

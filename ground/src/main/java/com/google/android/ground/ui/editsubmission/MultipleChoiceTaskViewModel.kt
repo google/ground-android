@@ -19,6 +19,7 @@ import android.content.res.Resources
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
 import com.google.android.ground.model.task.Option
+import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
 import java8.util.Optional
 import javax.inject.Inject
 

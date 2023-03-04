@@ -17,7 +17,7 @@ package com.google.android.ground.ui.datacollection.tasks.time
 
 import android.content.res.Resources
 import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
 import java.util.*
 import javax.inject.Inject
 

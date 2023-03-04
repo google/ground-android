@@ -24,6 +24,7 @@ import com.google.android.ground.BR
 import com.google.android.ground.R
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
+import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
