@@ -39,8 +39,6 @@
     LOI DATA FORMS
   -->
 
-  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
-  <string name="apply_multiple_choice_changes">Apply</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_task">This field is required</string>
 
@@ -90,10 +88,7 @@
   <string name="offline_base_map_selector">Select area to download</string>
   <string name="offline_base_map_selector_prompt">Select a base map for offline use</string>
   <string name="offline_base_map_selector_download">Download</string>
-  <string name="add_photo">Add photo</string>
   <string name="take_picture">Take a picture</string>
-  <string name="action_camera">Camera</string>
-  <string name="action_storage">Storage</string>
   <string name="photo_preview">Preview</string>
   <string name="starting">Starting</string>
   <string name="in_progress">In progress</string>
