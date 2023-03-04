@@ -26,7 +26,6 @@ import com.google.android.ground.persistence.remote.firebase.FirebaseStorageMana
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
-import com.google.android.ground.ui.editsubmission.PhotoResult
 import com.google.android.ground.ui.util.BitmapUtil
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject

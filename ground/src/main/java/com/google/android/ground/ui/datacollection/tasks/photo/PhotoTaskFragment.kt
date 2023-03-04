@@ -36,7 +36,6 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.TaskFragment
-import com.google.android.ground.ui.editsubmission.PhotoResult
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.properties.Delegates
