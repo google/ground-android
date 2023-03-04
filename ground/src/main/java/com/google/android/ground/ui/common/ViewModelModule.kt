@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel

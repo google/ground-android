@@ -33,7 +33,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.*
 import com.google.android.ground.ui.datacollection.TaskFragment.Companion.POSITION
-import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 

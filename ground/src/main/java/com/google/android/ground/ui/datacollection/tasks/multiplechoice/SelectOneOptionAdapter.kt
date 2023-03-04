@@ -22,7 +22,6 @@ import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBindin
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOneOptionAdapter.ViewHolder
-import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [Option] data with the [ViewHolder]

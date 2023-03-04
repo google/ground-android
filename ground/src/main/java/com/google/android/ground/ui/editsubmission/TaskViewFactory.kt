@@ -26,6 +26,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel

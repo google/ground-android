@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceCheckboxItemBinding
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectMultipleOptionAdapter.ViewHolder
-import com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [Option]s with the [ViewHolder]
