@@ -47,7 +47,6 @@
         android:focusableInTouchMode="false"
         android:inputType="datetime"
         android:maxLines="1"
-        android:onClick="@{__ -> viewModel.onShowDialogClick()}"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
         tools:text="@string/date" />

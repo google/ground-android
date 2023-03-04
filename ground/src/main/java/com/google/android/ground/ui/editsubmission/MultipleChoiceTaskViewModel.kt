@@ -23,7 +23,7 @@ import java8.util.Optional
 import javax.inject.Inject
 
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractDialogTaskViewModel(resources) {
+  AbstractTaskViewModel(resources) {
 
   fun getCurrentResponse(): Optional<MultipleChoiceTaskData> =
     taskData.value?.map { it as MultipleChoiceTaskData } ?: Optional.empty()
