@@ -26,7 +26,7 @@ import io.reactivex.Single
 import java8.util.function.Function
 
 /** Base class for representing Firestore databases as object hierarchies. */
-open class FluentFirestore(private val db: FirebaseFirestore) {
+open class FluentFirestore protected constructor(private val db: FirebaseFirestore) {
 
   protected fun db(): FirebaseFirestore = db
 
