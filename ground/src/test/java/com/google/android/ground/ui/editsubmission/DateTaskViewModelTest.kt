@@ -17,7 +17,6 @@ package com.google.android.ground.ui.editsubmission
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
-import com.google.android.ground.rx.Nil
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.TestObservers.observeUntilFirstChange
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,15 +37,6 @@ class DateTaskViewModelTest : BaseHiltTest() {
 
     observeUntilFirstChange(dateTaskViewModel.taskData)
     assertThat(dateTaskViewModel.taskData.value).isEqualTo(fromDate(TEST_DATE))
-  }
-
-  @Test
-  fun testDialogClick() {
-    val testObserver = dateTaskViewModel.showDialogClicks.test()
-
-    dateTaskViewModel.onShowDialogClick()
-
-    testObserver.assertNoErrors().assertNotComplete().assertValue(Nil.NIL)
   }
 
   companion object {

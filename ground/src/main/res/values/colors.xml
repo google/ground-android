@@ -18,7 +18,7 @@
 
 <resources>
   <color name="colorPrimary">#3B4563</color>
-  <color name="colorAccent">#0B57D0</color>
+  <color name="colorAccent">#009113</color>
   <color name="colorMapAccent">#ff9131</color>
   <color name="colorMapBlue">#4F87ED</color>
   <color name="colorBackground">#FAFAFA</color>
@@ -34,4 +34,7 @@
   <color name="colorJobCardIconBackground">#A7F5A7</color>
   <color name="colorJobCardBorderSelected">#FA7B17</color>
   <color name="colorJobCardCollectButton">#216C2E</color>
+
+  <!-- Data Submission Confirmation -->
+  <color name="colorDataSubmissionConfirmationGreen">#216C2E</color>
 </resources>

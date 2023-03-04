@@ -25,8 +25,6 @@
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Deseja salvar os dados antes de fechar?</string>
   <string name="discard_changes">Descartar alterações</string>
-  <!-- Shown on save when connection is available (TBD). -->
-  <string name="saved">Alterações salvas.</string>
 
   <!--
     LOI DATA FORMS
@@ -63,18 +61,12 @@
 
   <!-- NEW STRINGS FOR TRANSLATION -->
 
-  <!-- Shown when saving a task that contains missing or invalid data -->
-  <string name="invalid_data_warning">The task contains incomplete or invalid data. Please check
-  your responses and try again.</string>
-  <string name="invalid_data_confirm">OK</string>
-
   <string name="add_submission_button_label">Adicionar registro</string>
   <string name="view_submission_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>
   <string name="save_submission_button_label">Salve</string>
   <string name="saving">Salvando&#8230;</string>
-  <string name="no_changes_to_save">Não há alterações para salvar</string>
   <string name="google_api_install_failed">Google Play Services instalação falhada</string>
   <string name="sign_in_unsuccessful">Entrar sem sucesso</string>
   <string name="sign_out">Sair</string>
