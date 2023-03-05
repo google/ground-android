@@ -22,8 +22,10 @@ import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
+import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -41,6 +43,33 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var testDispatcher: TestDispatcher
+
+  @Test
+  fun activeSurveyFlowable_emitsValueOnSetActiveSurvey() =
+    runTest(testDispatcher) {
+      surveyRepository.activeSurvey = SURVEY
+      advanceUntilIdle()
+
+      surveyRepository.activeSurveyFlowable.test().assertValues(Optional.of(SURVEY))
+    }
+
+  @Test
+  fun activeSurveyFlowable_emitsEmptyOnClearActiveSurvey() =
+    runTest(testDispatcher) {
+      surveyRepository.clearActiveSurvey()
+      advanceUntilIdle()
+
+      surveyRepository.activeSurveyFlowable.test().assertValues(Optional.empty())
+    }
+
+  @Test
+  fun activeSurveyFlow_emitsNullOnClearActiveSurvey() =
+    runTest(testDispatcher) {
+      surveyRepository.clearActiveSurvey()
+      advanceUntilIdle()
+
+      assertThat(surveyRepository.activeSurveyFlow.first()).isNull()
+    }
 
   @Test
   fun deleteSurvey_whenSurveyIsActive() =
