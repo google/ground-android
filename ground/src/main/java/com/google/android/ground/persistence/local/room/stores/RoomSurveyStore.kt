@@ -73,7 +73,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   /**
    * Returns the [Survey] with the given ID from the local database. Returns `null` if retrieval
-   * fails, .
+   * fails.
    */
   override suspend fun getSurveyByIdSuspend(id: String): Survey? =
     surveyDao.getSurveyByIdSuspend(id)?.toModelObject()
