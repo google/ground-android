@@ -16,13 +16,8 @@
 
 package com.google.android.ground.ui.editsubmission;
 
-import static com.google.android.ground.rx.RxAutoDispose.autoDisposable;
-
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +43,6 @@ import com.google.android.ground.ui.common.Navigator;
 import com.google.android.ground.ui.common.TwoLineToolbar;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,13 +126,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
   private void addTaskViewModel(Task task, ViewDataBinding binding) {
     AbstractTaskViewModel taskViewModel = getViewModel(binding);
     taskViewModel.initialize(task, viewModel.getResponse(task.getId()));
-
-    if (taskViewModel instanceof DateTaskViewModel) {
-      observeDateDialogClicks((DateTaskViewModel) taskViewModel);
-    } else if (taskViewModel instanceof TimeTaskViewModel) {
-      observeTimeDialogClicks((TimeTaskViewModel) taskViewModel);
-    }
-
     taskViewModel.getTaskData().observe(this, response -> viewModel.setResponse(task, response));
 
     taskViewModels.add(taskViewModel);
@@ -168,20 +155,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
     return errors;
   }
 
-  private void observeDateDialogClicks(DateTaskViewModel dateFieldViewModel) {
-    dateFieldViewModel
-        .getShowDialogClicks()
-        .as(autoDisposable(this))
-        .subscribe(__ -> showDateDialog(dateFieldViewModel));
-  }
-
-  private void observeTimeDialogClicks(TimeTaskViewModel timeFieldViewModel) {
-    timeFieldViewModel
-        .getShowDialogClicks()
-        .as(autoDisposable(this))
-        .subscribe(__ -> showTimeDialog(timeFieldViewModel));
-  }
-
   private void rebuildForm(Job job) {
     LinearLayout formLayout = binding.editSubmissionLayout;
     formLayout.removeAllViews();
@@ -190,46 +163,6 @@ public class EditSubmissionFragment extends AbstractFragment implements BackPres
       ViewDataBinding binding = taskViewFactory.addTaskView(task.getType(), formLayout);
       addTaskViewModel(task, binding);
     }
-  }
-
-  private void showDateDialog(DateTaskViewModel fieldViewModel) {
-    Calendar calendar = Calendar.getInstance();
-    int year = calendar.get(Calendar.YEAR);
-    int month = calendar.get(Calendar.MONTH);
-    int day = calendar.get(Calendar.DAY_OF_MONTH);
-    DatePickerDialog datePickerDialog =
-        new DatePickerDialog(
-            requireContext(),
-            (view, updatedYear, updatedMonth, updatedDayOfMonth) -> {
-              Calendar c = Calendar.getInstance();
-              c.set(Calendar.DAY_OF_MONTH, updatedDayOfMonth);
-              c.set(Calendar.MONTH, updatedMonth);
-              c.set(Calendar.YEAR, updatedYear);
-              fieldViewModel.updateResponse(c.getTime());
-            },
-            year,
-            month,
-            day);
-    datePickerDialog.show();
-  }
-
-  private void showTimeDialog(TimeTaskViewModel fieldViewModel) {
-    Calendar calendar = Calendar.getInstance();
-    int hour = calendar.get(Calendar.HOUR);
-    int minute = calendar.get(Calendar.MINUTE);
-    TimePickerDialog timePickerDialog =
-        new TimePickerDialog(
-            requireContext(),
-            (view, updatedHourOfDay, updatedMinute) -> {
-              Calendar c = Calendar.getInstance();
-              c.set(Calendar.HOUR_OF_DAY, updatedHourOfDay);
-              c.set(Calendar.MINUTE, updatedMinute);
-              fieldViewModel.updateResponse(c.getTime());
-            },
-            hour,
-            minute,
-            DateFormat.is24HourFormat(requireContext()));
-    timePickerDialog.show();
   }
 
   @Override
