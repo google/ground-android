@@ -16,7 +16,6 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -57,7 +56,7 @@ constructor(
   private val _activeSurvey = MutableStateFlow<Survey?>(null)
 
   val activeSurveyFlow: SharedFlow<Survey?> =
-    _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.WhileSubscribed())
+    _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.Eagerly)
 
   /** Returns the currently active survey, or `null` if survey is active. */
   var activeSurvey: Survey? by _activeSurvey::value
