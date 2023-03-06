@@ -34,7 +34,7 @@ project.ext {
     lifecycleVersion = "2.2.0"
     roomVersion = "2.5.0"
     rxBindingVersion = "2.2.0"
-    workVersion = "2.5.0"
+    workVersion = "2.8.0"
     mockitoVersion = "4.4.0"
     mockitoKotlinVersion = "4.1.0"
     coroutinesVersion = "1.6.4"
