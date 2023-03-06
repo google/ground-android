@@ -26,11 +26,12 @@ import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -40,11 +41,12 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
 @Singleton
-class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInterestStore {
+class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocationOfInterestStore {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
@@ -62,6 +64,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInt
       .findOnceAndStream(survey.id, EntityState.DEFAULT)
       .map { toLocationsOfInterest(survey, it) }
       .subscribeOn(schedulers.io())
+
+  override suspend fun findLocationsOfInterest(survey: Survey) =
+    locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
+      toLocationsOfInterest(survey, it)
+    }
 
   /**
    * Attempts to retrieve the [LocationOfInterest] with the given ID that's associated with the
@@ -179,4 +186,10 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocationOfInt
     vararg states: MutationEntitySyncStatus
   ): Single<List<LocationOfInterestMutationEntity>> =
     locationOfInterestMutationDao.findByLocationOfInterestId(id, *states)
+
+  override suspend fun insertOrUpdate(loi: LocationOfInterest) =
+    locationOfInterestDao.insertOrUpdateSuspend(loi.toLocalDataStoreObject())
+
+  override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
+    locationOfInterestDao.deleteNotIn(surveyId, ids)
 }
