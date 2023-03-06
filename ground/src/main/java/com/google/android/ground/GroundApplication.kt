@@ -49,8 +49,6 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf(javaClass.getPackage().name))
-
-    WorkManager.initialize(applicationContext, workManagerConfiguration)
   }
 
   override fun getWorkManagerConfiguration(): Configuration =
