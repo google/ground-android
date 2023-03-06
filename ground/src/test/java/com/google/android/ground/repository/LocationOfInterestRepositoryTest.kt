@@ -53,7 +53,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var testDispatcher: TestDispatcher
 
@@ -149,7 +148,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun testLoiWithinBounds_whenBoundsNotAvailable_returnsNothing() = runTest {
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(Flowable.empty())
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.empty())
       .test()
       .assertNoValues()
   }
@@ -160,7 +159,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     val northeast = LatLng(-50.0, -50.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(Flowable.just(LatLngBounds(southwest, northeast)))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(LatLngBounds(southwest, northeast)))
       .test()
       .assertValues(listOf())
   }
@@ -171,7 +170,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     val northeast = LatLng(-10.0, -10.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(Flowable.just(LatLngBounds(southwest, northeast)))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(LatLngBounds(southwest, northeast)))
       .test()
       .assertValues(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
   }
@@ -182,7 +181,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     val northeast = LatLng(20.0, 20.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(Flowable.just(LatLngBounds(southwest, northeast)))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(LatLngBounds(southwest, northeast)))
       .test()
       .assertValues(
         listOf(
