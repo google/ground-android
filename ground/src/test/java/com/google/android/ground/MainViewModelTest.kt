@@ -90,7 +90,9 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   private fun verifyNavigationRequested(vararg navDirections: NavDirections) {
-    navDirectionsTestObserver.assertNoErrors().assertNotComplete().assertValues(*navDirections)
+    navDirectionsTestObserver.assertNoErrors()
+    navDirectionsTestObserver.assertNotComplete()
+    navDirectionsTestObserver.assertValues(*navDirections)
   }
 
   @Test
