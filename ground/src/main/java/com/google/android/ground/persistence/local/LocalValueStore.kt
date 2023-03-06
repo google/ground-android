@@ -32,25 +32,19 @@ import timber.log.Timber
  */
 @Singleton
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
-
-  private val activeSurveyIdProcessor: BehaviorProcessor<String> =
-    BehaviorProcessor.createDefault(activeSurveyId)
-
-  val activeSurveyIdFlowable: Flowable<String>
-    get() = activeSurveyIdProcessor
-
   private val mapTypeProcessor: BehaviorProcessor<Int> = BehaviorProcessor.createDefault(mapType)
 
   val mapTypeFlowable: Flowable<Int>
     get() = mapTypeProcessor
 
-  /** Id of the last survey successfully activated by the user. */
-  var activeSurveyId: String
+  /**
+   * Id of the last survey successfully activated by the user. This value is only updated after the
+   * survey activation process is complete.
+   */
+  var lastActiveSurveyId: String
+    // TODO(#1592): Stop using this field to identify current survey.
     get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
-    set(id) {
-      preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
-      activeSurveyIdProcessor.onNext(id)
-    }
+    set(id) = preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
 
   /** Id of the basemap type. */
   var mapType: Int
@@ -92,8 +86,8 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       .apply()
   }
 
-  fun getLastCameraPosition(surveyId: String): CameraPosition? {
-    return try {
+  fun getLastCameraPosition(surveyId: String): CameraPosition? =
+    try {
       val stringVal = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
       CameraPosition.deserialize(stringVal)
     } catch (e: NumberFormatException) {
@@ -103,7 +97,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       Timber.e(e, "Invalid camera pos in prefs")
       null
     }
-  }
 
   companion object {
     const val ACTIVE_SURVEY_ID_KEY = "activeSurveyId"

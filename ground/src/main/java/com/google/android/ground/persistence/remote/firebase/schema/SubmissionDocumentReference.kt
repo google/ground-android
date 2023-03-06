@@ -31,11 +31,10 @@ import io.reactivex.Maybe
 
 class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {
-  operator fun get(locationOfInterest: LocationOfInterest): @Cold Maybe<Submission> {
-    return RxFirestore.getDocument(reference()).map { doc: DocumentSnapshot ->
+  operator fun get(locationOfInterest: LocationOfInterest): @Cold Maybe<Submission> =
+    RxFirestore.getDocument(reference()).map { doc: DocumentSnapshot ->
       SubmissionConverter.toSubmission(locationOfInterest, doc)
     }
-  }
 
   /** Appends the operation described by the specified mutation to the provided write batch. */
   fun addMutationToBatch(mutation: SubmissionMutation, user: User, batch: WriteBatch) {

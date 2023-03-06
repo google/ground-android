@@ -21,7 +21,7 @@ import java.util.*
 import javax.inject.Inject
 
 class TimeTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractDialogTaskViewModel(resources) {
+  AbstractTaskViewModel(resources) {
 
   fun updateResponse(date: Date) {
     setResponse(fromDate(date))

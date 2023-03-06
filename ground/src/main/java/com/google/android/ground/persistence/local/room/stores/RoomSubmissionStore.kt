@@ -119,8 +119,8 @@ class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    * exist, or if type is "CREATE" and entity already exists.
    */
-  override fun apply(mutation: SubmissionMutation): Completable {
-    return when (mutation.type) {
+  override fun apply(mutation: SubmissionMutation): Completable =
+    when (mutation.type) {
       Mutation.Type.CREATE ->
         userStore.getUser(mutation.userId).flatMapCompletable { user ->
           insertFromMutation(mutation, user)
@@ -135,7 +135,6 @@ class RoomSubmissionStore @Inject internal constructor() : SubmissionStore {
         }
       Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
-  }
 
   override fun updateAll(mutations: List<SubmissionMutation>): Completable =
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })

@@ -62,6 +62,27 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   val drawingState: @Hot Observable<PolygonDrawingState>
     get() = polygonDrawingState
 
+  val firstVertex: Optional<Point>
+    get() = Optional.ofNullable(vertices.firstOrNull())
+
+  init {
+    val polygonFlowable =
+      partialPolygonFlowable
+        .startWith(Optional.empty())
+        .toFlowable(BackpressureStrategy.LATEST)
+        .share()
+    isPolygonCompleted =
+      LiveDataReactiveStreams.fromPublisher(
+        polygonFlowable
+          .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
+          .startWith(false)
+      )
+    features =
+      LiveDataReactiveStreams.fromPublisher(
+        polygonFlowable.map { polygon -> polygon.map { createFeatures(it) }.orElse(setOf()) }
+      )
+  }
+
   fun onCameraMoved(newTarget: Point) {
     cameraTarget = newTarget
   }
@@ -132,9 +153,6 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     partialPolygonFlowable.onNext(Optional.empty())
   }
 
-  val firstVertex: Optional<Point>
-    get() = Optional.ofNullable(vertices.firstOrNull())
-
   fun startDrawingFlow() {
     polygonDrawingState.onNext(PolygonDrawingState.inProgress())
   }
@@ -179,29 +197,6 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     )
   }
 
-  companion object {
-    /** Min. distance in dp between two points for them be considered as overlapping. */
-    const val DISTANCE_THRESHOLD_DP = 24
-  }
-
-  init {
-    val polygonFlowable =
-      partialPolygonFlowable
-        .startWith(Optional.empty())
-        .toFlowable(BackpressureStrategy.LATEST)
-        .share()
-    isPolygonCompleted =
-      LiveDataReactiveStreams.fromPublisher(
-        polygonFlowable
-          .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
-          .startWith(false)
-      )
-    features =
-      LiveDataReactiveStreams.fromPublisher(
-        polygonFlowable.map { polygon -> polygon.map { createFeatures(it) }.orElse(setOf()) }
-      )
-  }
-
   private fun Polygon.isPolygonComplete(): Boolean {
     if (vertices.size < 4) {
       return false
@@ -209,5 +204,10 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     val first: Point = vertices[0]
     val last: Point = vertices[vertices.lastIndex]
     return first == last
+  }
+
+  companion object {
+    /** Min. distance in dp between two points for them be considered as overlapping. */
+    const val DISTANCE_THRESHOLD_DP = 24
   }
 }

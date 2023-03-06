@@ -80,7 +80,7 @@ public class SyncStatusViewModel extends AbstractViewModel {
 
   private Flowable<List<Mutation>> getMutationsOnceAndStream() {
     return surveyRepository
-        .getActiveSurvey()
+        .getActiveSurveyFlowable()
         .switchMap(
             survey ->
                 survey

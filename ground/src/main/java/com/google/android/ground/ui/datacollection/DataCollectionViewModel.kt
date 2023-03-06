@@ -29,13 +29,12 @@ import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
 import com.google.android.ground.ui.editsubmission.TaskViewFactory
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
+import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -45,8 +44,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /** View model for the Data Collection fragment. */
+@HiltViewModel
 class DataCollectionViewModel
-@AssistedInject
+@Inject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
@@ -55,12 +55,8 @@ internal constructor(
   private val navigator: Navigator,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  @Assisted private val savedStateHandle: SavedStateHandle
+  private val savedStateHandle: SavedStateHandle
 ) : AbstractViewModel() {
-  @AssistedFactory
-  interface Factory {
-    fun create(savedStateHandle: SavedStateHandle): DataCollectionViewModel
-  }
 
   val submission: @Hot(replays = true) LiveData<Submission>
   val jobName: @Hot(replays = true) LiveData<String>
@@ -127,9 +123,13 @@ internal constructor(
 
   fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
-  fun getTaskViewModel(position: Int, task: Task): AbstractTaskViewModel {
+  fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
-    require(viewModels != null)
+    requireNotNull(viewModels)
+    // TODO(#1146): Show toast or error if submission is null
+    val tasks = requireNotNull(submission.value).job.tasksSorted
+
+    val task = tasks[position]
     if (position < viewModels.size) {
       return viewModels[position]
     }
@@ -175,7 +175,13 @@ internal constructor(
           TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData))
         }
       saveChanges(submission, taskDataDeltas)
+
+      // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+      navigator.navigate(
+        DataSubmissionConfirmationDialogFragmentDirections
+          .showSubmissionConfirmationDialogFragment()
+      )
     }
   }
 

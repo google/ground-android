@@ -31,12 +31,13 @@ class SelectMultipleOptionAdapter(
   private val options: List<Option>,
   private val viewModel: MultipleChoiceTaskViewModel
 ) : SelectionAdapter<ViewHolder>() {
+
+  private val selectedPositions = mutableSetOf<Int>()
+
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
       MultipleChoiceCheckboxItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     )
-
-  private val selectedPositions = mutableSetOf<Int>()
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     holder.bind(options[position])

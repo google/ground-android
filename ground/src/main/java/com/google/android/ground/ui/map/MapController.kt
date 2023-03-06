@@ -61,7 +61,7 @@ constructor(
 
   /** Emits a stream of camera update requests due to active survey changes. */
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
-    surveyRepository.activeSurvey
+    surveyRepository.activeSurveyFlowable
       .filter { it.isPresent }
       .map { it.get().id }
       .flatMap { surveyId ->

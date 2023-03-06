@@ -29,6 +29,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
+import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
@@ -61,6 +62,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var navigator: Navigator
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
+  @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var testDispatcher: TestDispatcher
 
@@ -131,7 +133,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       advanceUntilIdle()
 
       // Assert survey is activated.
-      verify(surveyRepository).activateSurvey(TEST_SURVEY_2.id)
+      verify(activateSurvey).invoke(TEST_SURVEY_2.id)
       // Assert that navigation to home screen was requested
       verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
     }

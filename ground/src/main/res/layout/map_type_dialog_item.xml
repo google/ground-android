@@ -17,23 +17,36 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
-  android:orientation="vertical"
-  android:padding="5dp">
+  android:orientation="vertical">
 
-  <ImageView
-    android:id="@+id/imageview"
+  <FrameLayout
+    android:id="@+id/container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:src="@drawable/ground_logo" />
+    android:padding="5dp">
+    <androidx.cardview.widget.CardView
+      android:layout_width="128dp"
+      android:layout_height="128dp"
+      app:cardCornerRadius="8dp">
+      <ImageView
+        android:id="@+id/imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:src="@drawable/ic_type_roadmap" />
+    </androidx.cardview.widget.CardView>
+  </FrameLayout>
 
   <TextView
     android:id="@+id/textView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    tools:text="Item" />
+    android:layout_marginTop="10dp"
+    android:textSize="14sp"
+    tools:text="Roadmap" />
 
 </LinearLayout>

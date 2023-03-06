@@ -45,9 +45,8 @@ interface BaseDao<E> {
 }
 
 /** Try to update the specified entity, and if it doesn't yet exist, create it. */
-fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable {
-  return update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
-}
+fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable =
+  update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
 
 // TODO(#1581): Rename once all uses migrated to coroutines.
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */

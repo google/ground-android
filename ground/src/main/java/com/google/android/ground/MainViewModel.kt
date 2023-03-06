@@ -84,11 +84,10 @@ constructor(
    */
   private fun syncLocationsOfInterest(
     survey: Optional<Survey>
-  ): @Cold(terminates = false) Completable {
-    return survey
+  ): @Cold(terminates = false) Completable =
+    survey
       .map { locationOfInterestRepository.syncLocationsOfInterest(it) }
       .orElse(Completable.never())
-  }
 
   private fun onSignInStateChange(signInState: SignInState): Observable<NavDirections> {
     // Display progress only when signing in.
@@ -126,7 +125,7 @@ constructor(
   private fun onUserSignedIn(user: User): Observable<NavDirections> {
     // TODO: Move to background service.
     surveySyncSubscription =
-      surveyRepository.activeSurvey
+      surveyRepository.activeSurveyFlowable
         .observeOn(schedulers.io())
         .switchMapCompletable { syncLocationsOfInterest(it) }
         .subscribe()
@@ -148,7 +147,7 @@ constructor(
   }
 
   private fun getDirectionAfterSignIn(): NavDirections =
-    if (surveyRepository.activeSurveyId.isNotEmpty()) {
+    if (surveyRepository.activeSurvey != null) {
       HomeScreenFragmentDirections.showHomeScreen()
     } else {
       SurveySelectorFragmentDirections.showSurveySelectorScreen(true)

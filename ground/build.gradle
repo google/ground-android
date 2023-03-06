@@ -24,8 +24,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
-apply from: '../config/pmd/pmd.gradle'
-apply from: '../config/spotbugs/spotbugs.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
 project.ext {
@@ -241,6 +239,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
     testImplementation "androidx.room:room-testing:$roomVersion"
 

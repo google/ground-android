@@ -38,12 +38,11 @@ class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStor
   override fun insertOrUpdateOfflineArea(area: OfflineArea): Completable =
     offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity()).subscribeOn(schedulers.io())
 
-  override val offlineAreasOnceAndStream: Flowable<List<OfflineArea>>
-    get() =
-      offlineAreaDao
-        .findAllOnceAndStream()
-        .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
-        .subscribeOn(schedulers.io())
+  override fun offlineAreasOnceAndStream(): Flowable<List<OfflineArea>> =
+    offlineAreaDao
+      .findAllOnceAndStream()
+      .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
+      .subscribeOn(schedulers.io())
 
   override fun getOfflineAreaById(id: String): Single<OfflineArea> =
     offlineAreaDao.findById(id).map { it.toModelObject() }.toSingle().subscribeOn(schedulers.io())

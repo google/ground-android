@@ -38,12 +38,11 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var fileUtil: FileUtil
 
-  override val tileSetsOnceAndStream: Flowable<Set<TileSet>>
-    get() =
-      tileSetDao
-        .findAllOnceAndStream()
-        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toSet() }
-        .subscribeOn(schedulers.io())
+  override fun tileSetsOnceAndStream(): Flowable<Set<TileSet>> =
+    tileSetDao
+      .findAllOnceAndStream()
+      .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toSet() }
+      .subscribeOn(schedulers.io())
 
   override fun insertOrUpdateTileSet(tileSet: TileSet): Completable =
     tileSetDao.insertOrUpdate(tileSet.toLocalDataStoreObject()).subscribeOn(schedulers.io())
@@ -51,12 +50,11 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
   override fun getTileSet(tileUrl: String): Maybe<TileSet> =
     tileSetDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
-  override val pendingTileSets: Single<List<TileSet>>
-    get() =
-      tileSetDao
-        .findByState(TileSetEntityState.PENDING.intValue())
-        .map { list: List<TileSetEntity> -> list.map { it.toModelObject() } }
-        .subscribeOn(schedulers.io())
+  override fun pendingTileSets(): Single<List<TileSet>> =
+    tileSetDao
+      .findByState(TileSetEntityState.PENDING.intValue())
+      .map { list: List<TileSetEntity> -> list.map { it.toModelObject() } }
+      .subscribeOn(schedulers.io())
 
   override fun updateTileSetOfflineAreaReferenceCountByUrl(
     newCount: Int,
