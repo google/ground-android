@@ -68,7 +68,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localSubmissionStore: SubmissionStore
-  @Inject lateinit var localLoiStore: LocationOfInterestStore
+  @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   @Inject lateinit var localTileSetStore: LocalTileSetStore
   @Inject lateinit var localValueStore: LocalValueStore

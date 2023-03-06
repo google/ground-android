@@ -22,7 +22,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
@@ -46,20 +46,23 @@ class LocationOfInterestRepository
 @Inject
 constructor(
   private val localSurveyStore: LocalSurveyStore,
-  private val localLoiStore: LocationOfInterestStore,
+  private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
-  /**
-   * Mirrors locations of interest in the specified survey from the remote db into the local db when
-   * the network is available. When invoked, will first attempt to resync all locations of interest
-   * from the remote db, subsequently syncing only remote changes. The returned stream never
-   * completes, and subscriptions will only terminate on disposal.
-   */
-  fun syncLocationsOfInterest(survey: Survey): @Cold Completable =
-    remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
-      updateLocalLocationOfInterest(it)
-    }
+  /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
+  suspend fun syncAll(survey: Survey) {
+    val lois = remoteDataStore.loadLocationsOfInterest(survey)
+    mergeAll(survey.id, lois)
+  }
+
+  private suspend fun mergeAll(surveyId: String, lois: List<LocationOfInterest>) {
+    // Insert new or update existing LOIs in local db.
+    lois.forEach { localLoiStore.insertOrUpdate(it) }
+
+    // Delete LOIs in local db not returned in latest list from server.
+    localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
+  }
 
   // TODO: Remove "location of interest" qualifier from this and other repository method names.
   private fun updateLocalLocationOfInterest(

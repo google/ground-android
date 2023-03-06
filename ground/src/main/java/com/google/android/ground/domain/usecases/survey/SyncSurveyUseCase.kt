@@ -17,16 +17,26 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
 import kotlinx.coroutines.rx2.await
 
-class SyncSurveyUseCase @Inject constructor(private val surveyRepository: SurveyRepository) {
+class SyncSurveyUseCase
+@Inject
+constructor(
+  private val surveyRepository: SurveyRepository,
+  private val loiRepository: LocationOfInterestRepository
+) {
   /**
    * Downloads the survey with the specified ID and related LOIs from remote and inserts and/or
    * updates them on the local device.
    */
-  // TODO(#1373): Also download and merge LOIs.
-  suspend operator fun invoke(surveyId: String): Survey =
-    surveyRepository.syncSurveyWithRemote(surveyId).await()
+  suspend operator fun invoke(surveyId: String): Survey {
+    val survey = surveyRepository.syncSurveyWithRemote(surveyId).await()
+
+    loiRepository.syncAll(survey)
+
+    return survey
+  }
 }

@@ -122,6 +122,9 @@ internal constructor(
       }
       .subscribeOn(schedulers.io())
 
+  override suspend fun loadLocationsOfInterest(survey: Survey) =
+    db.surveys().survey(survey.id).lois().locationsOfInterest(survey)
+
   override fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable =
     RxTask.toCompletable { applyMutationsInternal(mutations, user) }
       .doOnError { e: Throwable -> recordException(e, "Error applying mutation") }
