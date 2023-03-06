@@ -24,7 +24,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState.Companion.error
 import com.google.android.ground.system.auth.SignInState.Companion.signingIn
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
@@ -119,19 +118,8 @@ class MainViewModelTest : BaseHiltTest() {
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
 
-  @Test
-  fun testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable() {
-    tosRepository.isTermsOfServiceAccepted = true
-    localValueStore.lastActiveSurveyId = "foo survey id"
-    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
-    fakeAuthenticationManager.signIn()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-    verifyProgressDialogVisible(false)
-    verifyNavigationRequested(HomeScreenFragmentDirections.showHomeScreen())
-    verifyUserSaved()
-    assertThat(tosRepository.isTermsOfServiceAccepted).isTrue()
-  }
+  // TODO(#1612): Add back testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable
+  //   once reactivate last survey is implemented.
 
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() {
