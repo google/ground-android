@@ -18,7 +18,16 @@ package com.google.android.ground.model.job
 import com.google.android.ground.model.task.Task
 import java8.util.Optional
 
-data class Job(val id: String, val name: String? = null, val tasks: Map<String, Task> = mapOf()) {
+/**
+ * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
+ *  is already associated with an LOI.
+ */
+data class Job(
+  val id: String,
+  val name: String? = null,
+  val tasks: Map<String, Task> = mapOf(),
+  val suggestLoiTaskType: Task.Type? = null
+) {
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
