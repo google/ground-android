@@ -73,7 +73,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
       // Setup LOIs
       fakeRemoteDataStore.lois = TEST_LOCATIONS_OF_INTEREST
-      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY).await()
+      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
       advanceUntilIdle()
     }
   }
