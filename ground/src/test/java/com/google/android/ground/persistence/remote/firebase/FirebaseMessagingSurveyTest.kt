@@ -45,7 +45,7 @@ class FirebaseMessagingSurveyTest {
   @Test
   fun enqueueSurveySyncForTopic() {
     val surveyId = "test-survey-id"
-    `when`(remoteMessage.from).thenReturn("/topic/${surveyId}")
+    `when`(remoteMessage.from).thenReturn("/topics/${surveyId}")
 
     messagingService.onMessageReceived(remoteMessage)
 
@@ -63,7 +63,7 @@ class FirebaseMessagingSurveyTest {
 
   @Test
   fun ignoreEmptyTopic() {
-    `when`(remoteMessage.from).thenReturn("/topic/")
+    `when`(remoteMessage.from).thenReturn("/topics/")
 
     messagingService.onMessageReceived(remoteMessage)
 
