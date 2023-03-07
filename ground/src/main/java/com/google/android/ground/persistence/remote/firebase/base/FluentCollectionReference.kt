@@ -26,7 +26,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import java8.util.function.Function
 
-abstract class FluentCollectionReference
+open class FluentCollectionReference
 protected constructor(private val reference: CollectionReference) {
 
   /**

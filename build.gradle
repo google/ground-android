@@ -91,6 +91,7 @@ detekt {
     source = files("ground/src", "sharedTest/src")
     allRules = true
     config = files("${project.rootDir}/config/detekt/detekt.yml")
+    baseline = file("${project.rootDir}/config/detekt/baseline.xml")
     buildUponDefaultConfig = true
     ignoreFailures = false
 
