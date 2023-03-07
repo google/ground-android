@@ -70,7 +70,7 @@ object RxTask {
 
   private fun <T> onNullableSuccess(v: T?, emitter: SingleEmitter<T>) {
     if (v == null) {
-      emitter.onError(NullPointerException())
+      emitter.onError(NullPointerException("Expected non-null value"))
     } else {
       emitter.onSuccess(v)
     }

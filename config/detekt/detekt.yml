@@ -74,12 +74,12 @@ comments:
     CommentOverPrivateProperty:
         active: false
     DeprecatedBlockTag:
-        active: false
+        active: true
     EndOfSentenceFormat:
         active: true
         endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
     KDocReferencesNonPublicProperty:
-        active: false
+        active: true
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
     OutdatedDocumentation:
         active: false
@@ -106,11 +106,11 @@ comments:
 complexity:
     active: true
     CognitiveComplexMethod:
-        active: false
+        active: true
         threshold: 15
     ComplexCondition:
-        active: false
-        threshold: 4
+        active: true
+        threshold: 5
     ComplexInterface:
         active: false
         threshold: 10
@@ -134,13 +134,13 @@ complexity:
             - 'use'
             - 'with'
     LabeledExpression:
-        active: false
+        active: true
         ignoredLabels: [ ]
     LargeClass:
         active: true
         threshold: 600
     LongMethod:
-        active: false
+        active: true
         threshold: 60
     LongParameterList:
         active: false
@@ -150,7 +150,7 @@ complexity:
         ignoreDataClasses: true
         ignoreAnnotatedParameter: [ ]
     MethodOverloading:
-        active: false
+        active: true
         threshold: 6
     NamedArguments:
         active: false
@@ -160,7 +160,7 @@ complexity:
         active: false
         threshold: 4
     NestedScopeFunctions:
-        active: false
+        active: true
         threshold: 1
         functions:
             - 'kotlin.apply'
@@ -169,9 +169,9 @@ complexity:
             - 'kotlin.let'
             - 'kotlin.also'
     ReplaceSafeCallChainWithRun:
-        active: false
+        active: true
     StringLiteralDuplication:
-        active: false
+        active: true
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         threshold: 3
         ignoreAnnotation: true
@@ -192,7 +192,7 @@ complexity:
 coroutines:
     active: true
     GlobalCoroutineUsage:
-        active: false
+        active: true
     InjectDispatcher:
         active: true
         dispatcherNames:
@@ -204,7 +204,7 @@ coroutines:
     SleepInsteadOfDelay:
         active: true
     SuspendFunWithCoroutineScopeReceiver:
-        active: false
+        active: true
     SuspendFunWithFlowReturnType:
         active: true
 
@@ -258,7 +258,7 @@ exceptions:
     NotImplementedDeclaration:
         active: false
     ObjectExtendsThrowable:
-        active: false
+        active: true
     PrintStackTrace:
         active: true
     RethrowCaughtException:
@@ -277,9 +277,9 @@ exceptions:
     ThrowingExceptionFromFinally:
         active: true
     ThrowingExceptionInMain:
-        active: false
+        active: true
     ThrowingExceptionsWithoutMessageOrCause:
-        active: false
+        active: true
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         exceptions:
             - 'ArrayIndexOutOfBoundsException'
@@ -307,7 +307,7 @@ exceptions:
             - 'Throwable'
         allowedExceptionNameRegex: '_|(ignore|expected).*'
     TooGenericExceptionThrown:
-        active: false
+        active: true
         exceptionNames:
             - 'Error'
             - 'Exception'
@@ -357,7 +357,7 @@ naming:
         rootPackage: ''
         requireRootInDeclaration: false
     LambdaParameterNaming:
-        active: false
+        active: true
         parameterPattern: '[a-z][A-Za-z0-9]*|_'
     MatchingDeclarationName:
         active: true
@@ -368,7 +368,7 @@ naming:
     NoNameShadowing:
         active: true
     NonBooleanPropertyPrefixedWithIs:
-        active: false
+        active: true
     ObjectPropertyNaming:
         active: true
         constantPattern: '[A-Za-z][_A-Za-z0-9]*'
@@ -400,7 +400,7 @@ performance:
     ArrayPrimitive:
         active: true
     CouldBeSequence:
-        active: false
+        active: true
         threshold: 3
     ForEachOnRange:
         active: true
@@ -409,7 +409,7 @@ performance:
         active: true
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
     UnnecessaryPartOfBinaryExpression:
-        active: false
+        active: true
     UnnecessaryTemporaryInstantiation:
         active: true
 
@@ -422,7 +422,7 @@ potential-bugs:
     CastToNullableType:
         active: true
     Deprecation:
-        active: false
+        active: true
     DontDowncastCollectionTypes:
         active: true
     DoubleMutabilityForCollection:
@@ -437,13 +437,13 @@ potential-bugs:
             - 'java.util.LinkedHashMap'
             - 'java.util.HashMap'
     ElseCaseInsteadOfExhaustiveWhen:
-        active: false
+        active: true
     EqualsAlwaysReturnsTrueOrFalse:
         active: true
     EqualsWithHashCodeExist:
         active: true
     ExitOutsideMain:
-        active: false
+        active: true
     ExplicitGarbageCollectionCall:
         active: true
     HasPlatformType:
@@ -462,9 +462,9 @@ potential-bugs:
             - 'java.util.stream.*Stream'
         ignoreFunctionCall: [ ]
     ImplicitDefaultLocale:
-        active: false
+        active: true
     ImplicitUnitReturnType:
-        active: false
+        active: true
         allowExplicitReturnType: true
     InvalidRange:
         active: true
@@ -479,16 +479,16 @@ potential-bugs:
     MapGetWithNotNullAssertionOperator:
         active: true
     MissingPackageDeclaration:
-        active: false
+        active: true
         excludes: [ '**/*.kts' ]
     NullCheckOnMutableProperty:
-        active: false
+        active: true
     NullableToStringCall:
-        active: false
+        active: true
     UnconditionalJumpStatementInLoop:
-        active: false
+        active: true
     UnnecessaryNotNullCheck:
-        active: false
+        active: true
     UnnecessaryNotNullOperator:
         active: true
     UnnecessarySafeCall:
@@ -512,16 +512,16 @@ potential-bugs:
 style:
     active: true
     AlsoCouldBeApply:
-        active: false
+        active: true
     CanBeNonNullable:
-        active: false
+        active: true
     CascadingCallWrapping:
-        active: false
+        active: true
         includeElvis: true
     ClassOrdering:
         active: true
     CollapsibleIfStatements:
-        active: false
+        active: true
     DataClassContainsFunctions:
         active: false
         conversionFunctionPrefix:
@@ -534,11 +534,11 @@ style:
     EqualsNullCall:
         active: true
     EqualsOnSignatureLine:
-        active: false
+        active: true
     ExplicitCollectionElementAccessMethod:
-        active: false
+        active: true
     ExplicitItLambdaParameter:
-        active: false
+        active: true
     ExpressionBodySyntax:
         active: true
         includeLineWrapping: true
@@ -600,7 +600,7 @@ style:
     MandatoryBracesLoops:
         active: false
     MaxChainedCallsOnSameLine:
-        active: false
+        active: true
         maxChainedCalls: 5
     MaxLineLength:
         active: true
@@ -616,7 +616,7 @@ style:
     MultilineLambdaItParameter:
         active: true
     MultilineRawStringIndentation:
-        active: false
+        active: true
         indentSize: 4
     NestedClassesVisibility:
         active: true
@@ -645,13 +645,13 @@ style:
     RedundantVisibilityModifierRule:
         active: true
     ReturnCount:
-        active: false
+        active: true
         max: 2
         excludedFunctions:
             - 'equals'
         excludeLabeled: false
         excludeReturnFromLambda: true
-        excludeGuardClauses: false
+        excludeGuardClauses: true
     SafeCast:
         active: true
     SerialVersionUIDInSerializableClass:
@@ -665,13 +665,14 @@ style:
     TrailingWhitespace:
         active: true
     TrimMultilineRawString:
-        active: false
+        active: true
     UnderscoresInNumericLiterals:
         active: false
         acceptableLength: 4
         allowNonStandardGrouping: false
     UnnecessaryAbstractClass:
-        active: false
+        active: true
+        excludes: [ '**Module**']
     UnnecessaryAnnotationUseSiteTarget:
         active: false
     UnnecessaryApply:
