@@ -190,6 +190,7 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
+    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
     kapt "com.google.dagger:hilt-compiler:$project.hiltVersion"
     // For Robolectric tests.
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
@@ -205,6 +206,7 @@ dependencies {
     androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
     // Hilt Android Worker API support.
     implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
+    kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
 
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
