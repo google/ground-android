@@ -61,14 +61,14 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_returnsNothing() {
-    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
 
     mapController.getCameraUpdates().test().assertValueCount(0)
   }
 
   @Test
   fun testGetCameraUpdates_whenPanAndZoomCamera() {
-    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
 
     val cameraUpdatesSubscriber = mapController.getCameraUpdates().test()
 
@@ -80,7 +80,7 @@ class MapControllerTest : BaseHiltTest() {
   @Test
   fun testGetCameraUpdates_whenLocationUpdates() =
     runTest(testDispatcher) {
-      `when`(surveyRepository.activeSurvey).thenReturn(Flowable.empty())
+      `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
       val cameraUpdates = mapController.getCameraUpdates().test()
       locationSharedFlow.emit(
         Location("test provider").apply {
@@ -95,7 +95,7 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsEmpty() {
-    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
+    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.just(TEST_SURVEY))
     `when`(mapStateRepository.getCameraPosition(any())).thenReturn(null)
 
     mapController.getCameraUpdates().test().assertEmpty()
@@ -103,7 +103,7 @@ class MapControllerTest : BaseHiltTest() {
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationAvailable() {
-    `when`(surveyRepository.activeSurvey).thenReturn(Flowable.just(TEST_SURVEY))
+    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.just(TEST_SURVEY))
     `when`(mapStateRepository.getCameraPosition(any())).thenReturn(TEST_POSITION)
 
     mapController.getCameraUpdates().test().assertValues(TEST_POSITION.copy(isAllowZoomOut = true))

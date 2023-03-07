@@ -21,6 +21,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
@@ -44,9 +45,9 @@ import timber.log.Timber
 class LocationOfInterestRepository
 @Inject
 constructor(
+  private val localSurveyStore: LocalSurveyStore,
   private val localLoiStore: LocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
-  private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
   /**
@@ -84,9 +85,9 @@ constructor(
     surveyId: String,
     locationOfInterest: String
   ): @Cold Single<LocationOfInterest> =
-    surveyRepository
-      .getOfflineSurvey(surveyId)
-      .flatMapMaybe { survey: Survey ->
+    localSurveyStore
+      .getSurveyById(surveyId)
+      .flatMap() { survey: Survey ->
         localLoiStore.getLocationOfInterest(survey, locationOfInterest)
       }
       .switchIfEmpty(
@@ -122,24 +123,19 @@ constructor(
     )
 
   /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
-  fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> =
-    surveyRepository.activeSurvey
-      .switchMap { survey ->
-        survey
-          .map { localLoiStore.getLocationsOfInterestOnceAndStream(it) }
-          .orElse(Flowable.just(setOf()))
-      }
-      .distinctUntilChanged()
+  fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
+    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
+    survey: Survey,
     cameraBoundUpdates: Flowable<LatLngBounds>
-  ): Flowable<List<LocationOfInterest>> {
-    val loiStream = getAllLocationsOfInterestOnceAndStream()
-    return cameraBoundUpdates
+  ): Flowable<List<LocationOfInterest>> =
+    cameraBoundUpdates
       .flatMap { bounds ->
-        loiStream.map { lois -> lois.filter { it.geometry.isWithinBounds(bounds) } }
+        getLocationsOfInterestOnceAndStream(survey).map { lois ->
+          lois.filter { it.geometry.isWithinBounds(bounds) }
+        }
       }
       .distinctUntilChanged()
-  }
 }

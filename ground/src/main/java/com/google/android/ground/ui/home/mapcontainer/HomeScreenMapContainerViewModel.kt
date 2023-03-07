@@ -29,6 +29,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -63,6 +64,7 @@ internal constructor(
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
+  surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository
 ) :
   BaseMapViewModel(
@@ -109,11 +111,15 @@ internal constructor(
 
     mapLocationOfInterestFeatures =
       LiveDataReactiveStreams.fromPublisher(
-        locationOfInterestRepository
-          .getAllLocationsOfInterestOnceAndStream()
-          .map { toLocationOfInterestFeatures(it) }
-          .startWith(setOf<Feature>())
-          .distinctUntilChanged()
+        surveyRepository.activeSurveyFlowable.switchMap { survey ->
+          if (survey.isPresent)
+            locationOfInterestRepository
+              .getLocationsOfInterestOnceAndStream(survey.get())
+              .map { toLocationOfInterestFeatures(it) }
+              .startWith(setOf<Feature>())
+              .distinctUntilChanged()
+          else Flowable.just(setOf())
+        }
       )
 
     mbtilesFilePaths =
@@ -125,10 +131,15 @@ internal constructor(
 
     loisWithinMapBoundsAtVisibleZoomLevel =
       LiveDataReactiveStreams.fromPublisher(
-        cameraZoomUpdates.switchMap { zoomLevel ->
-          if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD)
-            locationOfInterestRepository.getWithinBoundsOnceAndStream(cameraBoundUpdates)
-          else Flowable.just(listOf())
+        surveyRepository.activeSurveyFlowable.switchMap { survey ->
+          cameraZoomUpdates.switchMap { zoomLevel ->
+            if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && survey.isPresent)
+              locationOfInterestRepository.getWithinBoundsOnceAndStream(
+                survey.get(),
+                cameraBoundUpdates
+              )
+            else Flowable.just(listOf())
+          }
         }
       )
   }

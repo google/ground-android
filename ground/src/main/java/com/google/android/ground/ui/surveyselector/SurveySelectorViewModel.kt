@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -39,6 +40,7 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
   private val authManager: AuthenticationManager,
   private val navigator: Navigator,
+  private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
@@ -74,7 +76,8 @@ internal constructor(
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
       // TODO(#1497): Handle exceptions thrown by activateSurvey().
-      surveyRepository.activateSurvey(surveyId)
+      activateSurveyUseCase(surveyId)
+      // TODO(#1490): Show spinner while survey is loading.
       navigateToHomeScreen()
     }
 
