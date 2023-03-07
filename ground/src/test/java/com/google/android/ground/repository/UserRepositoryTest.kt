@@ -59,8 +59,8 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testClearUserPreferences_returnsEmptyLastActiveSurvey() {
-    localValueStore.activeSurveyId = "foo"
+    localValueStore.lastActiveSurveyId = "foo"
     userRepository.clearUserPreferences()
-    assertThat(localValueStore.activeSurveyId).isEmpty()
+    assertThat(localValueStore.lastActiveSurveyId).isEmpty()
   }
 }

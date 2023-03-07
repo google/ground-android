@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -24,16 +24,16 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitSingleOrNull
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -51,35 +51,48 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @ApplicationScope private val externalScope: CoroutineScope
 ) {
+  private val _activeSurvey = MutableStateFlow<Survey?>(null)
+
+  val activeSurveyFlow: SharedFlow<Survey?> =
+    _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.Eagerly)
+
+  /** Returns the currently active survey, or `null` if survey is active. */
+  var activeSurvey: Survey? by _activeSurvey::value
 
   /**
    * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
    * active or local db isn't up-to-date.
    */
-  val activeSurvey: @Cold Flowable<Optional<Survey>> =
-    localValueStore.activeSurveyIdFlowable.distinctUntilChanged().switchMapMaybe {
-      if (it.isEmpty()) Maybe.just(Optional.empty())
-      else localSurveyStore.getSurveyById(it).map { s -> Optional.of(s) }
-    }
-
-  var activeSurveyId: String by localValueStore::activeSurveyId
+  // TODO(#1593): Update callers to use [activeSurveyFlow] and delete this member.
+  val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
+    activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
   val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = localSurveyStore.surveys
 
-  private suspend fun syncSurveyFromRemote(surveyId: String): Survey {
-    val survey = syncSurveyWithRemote(surveyId).await()
-    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
-    return survey
+  init {
+    // Persist last active survey ID whenever survey is activated.
+    _activeSurvey.onEach { localValueStore.lastActiveSurveyId = it?.id ?: "" }
   }
 
+  /** Listens for remote changes to the survey with the specified id. */
+  suspend fun subscribeToSurveyUpdates(surveyId: String) =
+    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
+
   /** This only works if the survey is already cached to local db. */
+  @Deprecated("Use getOfflineSurveySuspend() instead")
   fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
     localSurveyStore
       .getSurveyById(surveyId)
       .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
+
+  /**
+   * Returns the survey with the specified id from the local db, or `null` if not available offline.
+   */
+  suspend fun getOfflineSurveySuspend(surveyId: String): Survey? =
+    localSurveyStore.getSurveyByIdSuspend(surveyId)
 
   fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
     remoteDataStore
@@ -89,25 +102,8 @@ constructor(
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 
-  suspend fun activateSurvey(surveyId: String) {
-    // Do nothing if survey is already active.
-    if (surveyId == activeSurveyId) {
-      return
-    }
-    // Clear survey if id is empty.
-    if (surveyId.isEmpty()) {
-      clearActiveSurvey()
-      return
-    }
-
-    withContext(ioDispatcher) {
-      localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull() ?: syncSurveyFromRemote(surveyId)
-      activeSurveyId = surveyId
-    }
-  }
-
   fun clearActiveSurvey() {
-    activeSurveyId = ""
+    activeSurvey = null
   }
 
   fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
@@ -125,7 +121,7 @@ constructor(
   suspend fun removeOfflineSurvey(surveyId: String) {
     val survey = localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
     survey?.let { localSurveyStore.deleteSurvey(survey).await() }
-    if (activeSurveyId == surveyId) {
+    if (activeSurvey?.id == surveyId) {
       clearActiveSurvey()
     }
   }

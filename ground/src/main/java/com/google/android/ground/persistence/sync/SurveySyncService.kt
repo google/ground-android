@@ -38,7 +38,7 @@ class SurveySyncService @Inject constructor(private val workManager: WorkManager
     val request = buildWorkerRequest(inputData)
     workManager
       .enqueueUniqueWork(
-        "${SurveySyncWorker.javaClass.name}#${surveyId}",
+        "${SurveySyncWorker::class.java}#${surveyId}",
         ExistingWorkPolicy.APPEND,
         request
       )
