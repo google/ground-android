@@ -49,10 +49,6 @@ interface LocalLocationOfInterestStore :
     locationOfInterestId: String
   ): @Cold Maybe<LocationOfInterest>
 
-  suspend fun insertOrUpdate(loi: LocationOfInterest)
-
-  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
-
   /** Deletes LOI from local database. */
   fun deleteLocationOfInterest(locationOfInterestId: String): @Cold Completable
 
