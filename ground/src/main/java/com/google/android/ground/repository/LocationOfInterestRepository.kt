@@ -51,7 +51,7 @@ constructor(
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncAll(survey: Survey) {
+  suspend fun syncLocationsOfInterest(survey: Survey) {
     val lois = remoteDataStore.loadLocationsOfInterest(survey)
     mergeAll(survey.id, lois)
   }

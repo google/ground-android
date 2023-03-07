@@ -35,7 +35,7 @@ constructor(
   suspend operator fun invoke(surveyId: String): Survey {
     val survey = surveyRepository.syncSurveyWithRemote(surveyId).await()
 
-    loiRepository.syncAll(survey)
+    loiRepository.syncLocationsOfInterest(survey)
 
     return survey
   }
