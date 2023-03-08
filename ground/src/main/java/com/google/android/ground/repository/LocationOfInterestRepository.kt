@@ -21,8 +21,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
@@ -135,7 +135,7 @@ constructor(
     cameraBoundUpdates: Flowable<LatLngBounds>
   ): Flowable<List<LocationOfInterest>> =
     cameraBoundUpdates
-      .flatMap { bounds ->
+      .switchMap { bounds ->
         getLocationsOfInterestOnceAndStream(survey).map { lois ->
           lois.filter { it.geometry.isWithinBounds(bounds) }
         }
