@@ -106,16 +106,16 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
 
     var viewHolder = getViewHolder(0)
-    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
-    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
-    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
-
-    viewHolder = getViewHolder(1)
     assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
     assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.VISIBLE)
     assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.VISIBLE)
+
+    viewHolder = getViewHolder(1)
+    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
+    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
+    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
   }
 
   @Test
