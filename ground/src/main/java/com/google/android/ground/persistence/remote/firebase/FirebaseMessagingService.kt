@@ -23,6 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import timber.log.Timber
 
+const val TOPIC_PREFIX = "/topics/"
+
 /**
  * Listens to messages from Firebase Cloud Messaging, and enqueuing re-sync of survey metadata when
  * receiving.
@@ -31,13 +33,12 @@ import timber.log.Timber
 class FirebaseMessagingService : FirebaseMessagingService() {
 
   @Inject lateinit var surveySyncService: SurveySyncService
-
   /**
    * Processes new messages, enqueuing a worker to sync the survey with the id specified in the
    * message topic.
    */
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    val surveyId = remoteMessage.from?.removePrefix("/topic/")
+    val surveyId = remoteMessage.from?.removePrefix(TOPIC_PREFIX)
     if (surveyId.isNullOrEmpty()) {
       Timber.w("Invalid topic: ${remoteMessage.from}")
       return
