@@ -100,7 +100,7 @@
   </fragment>
   <fragment
     android:id="@+id/question_data_collection_fragment"
-    android:name="com.google.android.ground.ui.datacollection.QuestionTaskFragment"
+    android:name="com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment"
     android:label="@string/collect_data"
     tools:layout="@layout/question_task_frag" />
   <fragment

@@ -26,7 +26,7 @@
       type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.PhotoTaskViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
   </data>
 
   <ScrollView

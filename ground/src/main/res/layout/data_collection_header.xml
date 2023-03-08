@@ -23,7 +23,7 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.AbstractTaskViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
