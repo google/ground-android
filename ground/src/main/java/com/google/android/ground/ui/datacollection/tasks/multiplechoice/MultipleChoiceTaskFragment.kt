@@ -19,7 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionTracker
@@ -43,7 +43,8 @@ import kotlin.properties.Delegates
  */
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoiceTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: MultipleChoiceTaskViewModel
   override var position by Delegates.notNull<Int>()
 

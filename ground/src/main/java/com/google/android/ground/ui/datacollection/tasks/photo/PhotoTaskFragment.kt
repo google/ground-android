@@ -24,9 +24,10 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.fragment.app.activityViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
@@ -51,7 +52,8 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
 
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: PhotoTaskViewModel
   override var position by Delegates.notNull<Int>()
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>

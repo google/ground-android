@@ -191,6 +191,7 @@ dependencies {
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
     kapt "com.google.dagger:hilt-compiler:$project.hiltVersion"
+    implementation "androidx.hilt:hilt-navigation-fragment:$project.hiltJetpackVersion"
     // For Robolectric tests.
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
     // ...with Kotlin.
