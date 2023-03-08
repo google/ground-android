@@ -24,7 +24,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -34,7 +33,6 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -63,25 +61,6 @@ constructor(
     // Delete LOIs in local db not returned in latest list from server.
     localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
   }
-
-  // TODO: Remove "location of interest" qualifier from this and other repository method names.
-  private fun updateLocalLocationOfInterest(
-    event: RemoteDataEvent<LocationOfInterest>
-  ): @Cold Completable =
-    event.result.fold(
-      { (entityId: String, entity: LocationOfInterest?) ->
-        when (event.eventType) {
-          ENTITY_LOADED,
-          ENTITY_MODIFIED -> localLoiStore.merge(checkNotNull(entity))
-          ENTITY_REMOVED -> localLoiStore.deleteLocationOfInterest(entityId)
-          else -> throw IllegalArgumentException("Unknown eventType ${event.eventType}")
-        }
-      },
-      {
-        Timber.d(it, "Invalid locations of interest in remote db ignored")
-        Completable.complete()
-      }
-    )
 
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getOfflineLocationOfInterest(
