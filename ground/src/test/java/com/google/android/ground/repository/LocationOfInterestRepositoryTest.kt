@@ -66,14 +66,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       userRepository.saveUser(TEST_USER).await()
       fakeAuthenticationManager.setUser(TEST_USER)
 
-      // Setup survey
+      // Setup survey and LOIs
       fakeRemoteDataStore.surveys = listOf(TEST_SURVEY)
-      activateSurvey(TEST_SURVEY.id)
-      advanceUntilIdle()
-
-      // Setup LOIs
       fakeRemoteDataStore.lois = TEST_LOCATIONS_OF_INTEREST
-      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+      activateSurvey(TEST_SURVEY.id)
       advanceUntilIdle()
     }
   }
