@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.R
@@ -34,7 +33,8 @@ import kotlin.properties.Delegates
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: NumberTaskViewModel
   override var position by Delegates.notNull<Int>()
 
