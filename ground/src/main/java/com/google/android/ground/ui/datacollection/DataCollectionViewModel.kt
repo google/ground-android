@@ -25,8 +25,15 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.*
-import com.google.android.ground.ui.editsubmission.AbstractTaskViewModel
-import com.google.android.ground.ui.editsubmission.TaskViewFactory
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -133,7 +140,7 @@ internal constructor(
     if (position < viewModels.size) {
       return viewModels[position]
     }
-    val viewModel = viewModelFactory.create(TaskViewFactory.getViewModelClass(task.type))
+    val viewModel = viewModelFactory.create(getViewModelClass(task.type))
     // TODO(#1146): Pass in the existing taskData if there is one
     viewModel.initialize(task, Optional.empty())
     addTaskViewModel(viewModel)
@@ -196,5 +203,20 @@ internal constructor(
 
   fun setCurrentPosition(position: Int) {
     savedStateHandle[currentPositionKey] = position
+  }
+
+  companion object {
+    fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
+      when (taskType) {
+        Task.Type.TEXT -> TextTaskViewModel::class.java
+        Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskViewModel::class.java
+        Task.Type.PHOTO -> PhotoTaskViewModel::class.java
+        Task.Type.NUMBER -> NumberTaskViewModel::class.java
+        Task.Type.DATE -> DateTaskViewModel::class.java
+        Task.Type.TIME -> TimeTaskViewModel::class.java
+        Task.Type.DROP_A_PIN -> DropAPinTaskViewModel::class.java
+        Task.Type.DRAW_POLYGON -> PolygonDrawingViewModel::class.java
+        Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
+      }
   }
 }

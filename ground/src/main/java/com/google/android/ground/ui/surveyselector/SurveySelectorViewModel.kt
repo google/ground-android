@@ -58,7 +58,10 @@ internal constructor(
       LiveDataReactiveStreams.fromPublisher(
         offlineSurveys.flatMap { offlineSurveys: List<Survey> ->
           allSurveys.map { allSurveys: List<Survey> ->
-            allSurveys.map { createSurveyItem(it, offlineSurveys) }
+            allSurveys
+              .map { createSurveyItem(it, offlineSurveys) }
+              .sortedBy { it.surveyTitle }
+              .sortedByDescending { it.isAvailableOffline }
           }
         }
       )

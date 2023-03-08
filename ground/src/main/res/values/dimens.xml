@@ -24,14 +24,11 @@
 
   <!-- Task -->
   <dimen name="task_label_text_size">14sp</dimen>
-  <dimen name="edit_task_label_text_size">18sp</dimen>
   <dimen name="task_value_text_size">18sp</dimen>
   <dimen name="task_horizontal_padding">16dp</dimen>
   <dimen name="task_top_padding">18dp</dimen>
   <dimen name="task_value_top_padding">4dp</dimen>
   <dimen name="task_bottom_padding">0dp</dimen>
-  <dimen name="task_horizontal_margin">14dp</dimen>
-  <dimen name="task_vertical_margin">8dp</dimen>
 
   <!-- Task selection tabs -->
   <dimen name="map_btn_margin_bottom">8dp</dimen>
@@ -63,10 +60,6 @@
   <dimen name="loi_details_header_padding_bottom">16dp</dimen>
   <dimen name="submission_list_item_preview_table_right_margin">18dp</dimen>
   <dimen name="loi_details_header_height">120dp</dimen>
-
-  <!-- Photo bottom dialog -->
-  <dimen name="add_photo_bottom_sheet_drawable_margin">24dp</dimen>
-  <dimen name="add_photo_bottom_sheet_text_size">16sp</dimen>
 
   <!-- Offline areas UI -->
   <dimen name="selector_dialog_list_item_padding">26dp</dimen>

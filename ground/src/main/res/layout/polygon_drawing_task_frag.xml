@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.PolygonDrawingViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel" />
     <import type="android.view.View" />
   </data>
 

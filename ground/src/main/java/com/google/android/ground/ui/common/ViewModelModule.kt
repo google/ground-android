@@ -18,8 +18,14 @@ package com.google.android.ground.ui.common
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
-import com.google.android.ground.ui.datacollection.DropAPinTaskViewModel
-import com.google.android.ground.ui.datacollection.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.editsubmission.*
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel
