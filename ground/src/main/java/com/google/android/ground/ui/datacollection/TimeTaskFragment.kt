@@ -15,38 +15,32 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.app.TimePickerDialog
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import com.google.android.ground.databinding.BasemapLayoutBinding
-import com.google.android.ground.ui.MarkerIconFactory
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.BR
+import com.google.android.ground.databinding.TimeTaskFragBinding
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.editsubmission.TimeTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import java.util.*
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
+class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
   private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
-  override lateinit var viewModel: DropAPinTaskViewModel
+  override lateinit var viewModel: TimeTaskViewModel
   override var position by Delegates.notNull<Int>()
-
-  @Inject lateinit var markerIconFactory: MarkerIconFactory
-
-  private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var binding: BasemapLayoutBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
       position = savedInstanceState.getInt(TaskFragment.POSITION)
     }
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -59,23 +53,34 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as DropAPinTaskViewModel
+    super.onCreateView(inflater, container, savedInstanceState)
+    val binding = TimeTaskFragBinding.inflate(inflater, container, false)
 
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TimeTaskViewModel
     binding.lifecycleOwner = this
+    binding.setVariable(BR.viewModel, viewModel)
+    binding.setVariable(BR.fragment, this)
+
     return binding.root
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
-  }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
-    viewModel.updateResponse(position)
+  fun showTimeDialog() {
+    val calendar = Calendar.getInstance()
+    val hour = calendar[Calendar.HOUR]
+    val minute = calendar[Calendar.MINUTE]
+    val timePickerDialog =
+      TimePickerDialog(
+        requireContext(),
+        { _, updatedHourOfDay, updatedMinute ->
+          val c = Calendar.getInstance()
+          c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
+          c[Calendar.MINUTE] = updatedMinute
+          viewModel.updateResponse(c.time)
+        },
+        hour,
+        minute,
+        DateFormat.is24HourFormat(requireContext())
+      )
+    timePickerDialog.show()
   }
 }

@@ -104,7 +104,7 @@ constructor(
    */
   // TODO: Simplify this stream.
   private fun getOfflineAreaTileSets(offlineArea: OfflineArea): @Cold Single<List<TileSet>> =
-    surveyRepository.activeSurvey
+    surveyRepository.activeSurveyFlowable
       .map { it.map(Survey::baseMaps).orElse(listOf()) }
       .doOnError { throwable ->
         Timber.e(throwable, "no basemap sources specified for the active survey")
@@ -210,7 +210,7 @@ constructor(
    * coordinates.
    */
   fun tileSets(): Single<List<TileSet>> =
-    surveyRepository.activeSurvey
+    surveyRepository.activeSurveyFlowable
       .map { it.map(Survey::baseMaps).orElse(listOf()) }
       .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
       .flatMap { source -> Flowable.fromIterable(source) }

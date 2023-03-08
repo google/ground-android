@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.PolygonDrawingTaskFragBinding
 import com.google.android.ground.model.geometry.Point
@@ -29,13 +30,14 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class PolygonDrawingTaskFragment :
   AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
+  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: PolygonDrawingViewModel
-  // Not needed for PolygonDrawingTaskFragment
-  override var position = -1
+  override var position by Delegates.notNull<Int>()
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
 
@@ -44,7 +46,15 @@ class PolygonDrawingTaskFragment :
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      position = savedInstanceState.getInt(TaskFragment.POSITION)
+    }
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putInt(TaskFragment.POSITION, position)
   }
 
   override fun onCreateView(
@@ -52,6 +62,8 @@ class PolygonDrawingTaskFragment :
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PolygonDrawingViewModel
+
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapViewModel

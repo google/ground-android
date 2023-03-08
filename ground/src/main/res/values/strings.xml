@@ -34,8 +34,6 @@
     changes will be lost.
   -->
   <string name="discard_changes">Discard changes</string>
-  <!-- Shown on save when connection is available (TBD). -->
-  <string name="saved">Changes saved</string>
 
   <!--
     LOI DATA FORMS
@@ -71,18 +69,12 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Please enable location in system settings</string>
 
-  <!-- Shown when saving a task that contains missing or invalid data -->
-  <string name="invalid_data_warning">The task contains incomplete or invalid data. Please check
-  your responses and try again.</string>
-  <string name="invalid_data_confirm">OK</string>
-
   <string name="add_submission_button_label">Add submission</string>
   <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
   <string name="save_submission_button_label">Save</string>
   <string name="saving">Saving&#8230;</string>
-  <string name="no_changes_to_save">No changes to save</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
@@ -160,5 +152,8 @@
   <string name="continue_text">Continue</string>
   <string name="select_survey_title">Select a survey to start collecting data</string>
   <string name="survey_sync_hint">Surveys are automatically synced</string>
+  <string name="sync_dialog_subtitle">Your data will be synced shortly.</string>
+  <string name="data_collected">Data collected</string>
+  <string name="done">Done</string>
 
 </resources>
