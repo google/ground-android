@@ -19,8 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
+import com.google.android.ground.R
 import com.google.android.ground.databinding.QuestionTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.TaskFragment.Companion.POSITION
@@ -31,7 +32,8 @@ import kotlin.properties.Delegates
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: TextTaskViewModel
   override var position by Delegates.notNull<Int>()
 
