@@ -17,6 +17,9 @@
 package com.google.android.ground.ui.datacollection
 
 import android.widget.RadioButton
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -321,8 +324,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val argsBundle =
       DataCollectionFragmentArgs.Builder(SURVEY.id, LOCATION_OF_INTEREST.id).build().toBundle()
 
+    val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
     launchFragmentInHiltContainer<DataCollectionFragment>(argsBundle) {
       fragment = this as DataCollectionFragment
+
+      navController.setGraph(R.id.data_collection)
+
+      Navigation.setViewNavController(fragment.requireView(), navController)
     }
   }
 }

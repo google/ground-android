@@ -269,6 +269,8 @@ dependencies {
     androidTestImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
     testImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
     testImplementation "org.jetbrains.kotlin:kotlin-test:$project.kotlinVersion"
+    testImplementation "androidx.navigation:navigation-testing:$project.navigationVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$project.navigationVersion"
 
     // Mockito
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
