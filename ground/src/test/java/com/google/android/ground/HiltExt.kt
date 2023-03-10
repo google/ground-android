@@ -34,7 +34,14 @@ import androidx.test.core.app.ApplicationProvider
 inline fun <reified T : Fragment> launchFragmentInHiltContainer(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-  crossinline action: Fragment.() -> Unit = {}
+  crossinline action: Fragment.() -> Unit = {},
+): ActivityScenario<HiltTestActivity> {
+  return hiltActivityScenario(themeResId).launchFragment<T>(fragmentArgs, {}) { this.action() }
+}
+
+/** Instantiates a new activity scenario with Hilt support. */
+fun hiltActivityScenario(
+  @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
 ): ActivityScenario<HiltTestActivity> {
   val startActivityIntent =
     Intent.makeMainActivity(
@@ -45,18 +52,33 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
         themeResId
       )
 
-  return ActivityScenario.launch<HiltTestActivity>(startActivityIntent).onActivity { activity ->
+  return ActivityScenario.launch<HiltTestActivity>(startActivityIntent)
+}
+
+/**
+ * Launch a fragment in a Hilt enabled ActivityScenario. If needed, provide fragment arguments and
+ * fragment actions to run prior to and after the fragment transaction is committed.
+ */
+inline fun <reified T : Fragment> ActivityScenario<HiltTestActivity>.launchFragment(
+  fragmentArgs: Bundle? = null,
+  crossinline preTransactionAction: Fragment.() -> Unit = {},
+  crossinline postTransactionAction: Fragment.() -> Unit = {}
+): ActivityScenario<HiltTestActivity> {
+  return this.onActivity { activity ->
     val fragment: Fragment =
       activity.supportFragmentManager.fragmentFactory.instantiate(
         Preconditions.checkNotNull(T::class.java.classLoader),
         T::class.java.name
       )
     fragment.arguments = fragmentArgs
+
+    fragment.preTransactionAction()
+
     activity.supportFragmentManager
       .beginTransaction()
       .add(android.R.id.content, fragment, "")
       .commitNow()
 
-    fragment.action()
+    fragment.postTransactionAction()
   }
 }
