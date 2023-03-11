@@ -25,31 +25,13 @@
       type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/select_option_list"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp">
-    <include
-      android:id="@+id/data_collection_header"
-      app:viewModel="@{viewModel}"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintBottom_toTopOf="@+id/select_option_list"
-      layout="@layout/data_collection_header" />
+    android:divider="@null"
+    android:dividerHeight="0dp"
+    android:orientation="vertical"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/select_option_list"
-      android:layout_width="wrap_content"
-      android:layout_height="0dp"
-      android:layout_marginTop="4dp"
-      android:divider="@null"
-      android:dividerHeight="0dp"
-      android:orientation="vertical"
-      app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-      app:layout_constrainedHeight="true"
-      app:layout_constraintTop_toBottomOf="@id/data_collection_header"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
-
-  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -24,17 +24,18 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -46,12 +47,11 @@ import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
-class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
+class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
 
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: PhotoTaskViewModel
   override var position by Delegates.notNull<Int>()
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
@@ -82,11 +82,15 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
         viewModel.onCapturePhotoResult(result)
       }
 
-    val binding = PhotoTaskFragBinding.inflate(inflater, container, false)
+    // Base template with just a footer
+    taskView = TaskViewWithoutHeader.create(container, inflater, this, viewModel)
 
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
-    binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
+    // Task view
+    val taskBinding = PhotoTaskFragBinding.inflate(inflater, container, false)
+    taskBinding.lifecycleOwner = this
+    taskBinding.setVariable(BR.viewModel, viewModel)
+    taskBinding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
+    taskView.addTaskView(taskBinding.root)
 
     viewModel.setEditable(true)
     viewModel.setSurveyId(dataCollectionViewModel.surveyId)
@@ -94,13 +98,25 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
     observeSelectPhotoClicks()
     observePhotoResults()
 
-    return binding.root
+    return taskView.root
+  }
+
+  override fun onCreateActionButtons() {
+    addContinueButton()
+    addSkipButton()
+    addUndoButton()
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
     viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+  }
+
+  override fun refreshState(taskData: TaskData?) {
+    super.refreshState(taskData)
+    val isTaskEmpty = taskData?.isEmpty() ?: true
+    getButton(ButtonAction.UNDO).apply { visibility = if (isTaskEmpty) View.GONE else View.VISIBLE }
   }
 
   override fun onResume() {

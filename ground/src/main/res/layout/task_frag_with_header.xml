@@ -22,38 +22,43 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
-    <com.google.android.ground.ui.common.TwoLineToolbar
-      android:id="@+id/data_collection_toolbar"
-      android:layout_width="0dp"
+    <include
+      android:id="@+id/data_collection_header"
+      layout="@layout/data_collection_header"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:elevation="@dimen/toolbar_elevation"
-      android:theme="@style/PrimaryToolbarTheme"
-      app:layout_constraintBottom_toTopOf="@+id/pager"
-      app:layout_constraintEnd_toEndOf="parent"
+      android:layout_marginStart="20dp"
+      android:layout_marginEnd="20dp"
+      app:layout_constraintBottom_toTopOf="@+id/task_container"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0"
-      app:layout_constraintVertical_chainStyle="packed"
-      app:subtitle="@{viewModel.loiName}"
-      app:title="@{viewModel.jobName}" />
+      app:viewModel="@{viewModel}" />
 
-    <androidx.viewpager2.widget.ViewPager2
-      android:id="@+id/pager"
+    <FrameLayout
+      android:id="@+id/task_container"
       android:layout_width="match_parent"
-      android:layout_height="0dp"
-      android:paddingTop="20dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="20dp"
+      android:layout_marginEnd="20dp"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/data_collection_header" />
+
+    <LinearLayout
+      android:id="@+id/bottomControls"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="#FCFDF7"
+      android:orientation="horizontal"
+      android:padding="24dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar" />
-
+      app:layout_constraintStart_toStartOf="parent" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

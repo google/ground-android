@@ -19,29 +19,30 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
-import com.google.android.ground.databinding.BasemapLayoutBinding
+import android.widget.LinearLayout
+import android.widget.Toast
+import com.google.android.ground.R
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.MarkerIconFactory
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   override lateinit var viewModel: DropAPinTaskViewModel
   override var position by Delegates.notNull<Int>()
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
+  @Inject lateinit var mapFragment: MapFragment
 
   private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var binding: BasemapLayoutBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -63,21 +64,44 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
   ): View {
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as DropAPinTaskViewModel
 
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
-    binding.lifecycleOwner = this
-    return binding.root
+    // Base template with just a footer
+    taskView = TaskViewWithoutHeader.create(container, inflater, this, viewModel)
+
+    // Task view
+    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    parentFragmentManager
+      .beginTransaction()
+      .add(
+        rowLayout.id,
+        DropAPinMapFragment.newInstance(viewModel, mapViewModel, mapFragment),
+        "Drop a pin fragment"
+      )
+      .commit()
+    taskView.addTaskView(rowLayout)
+
+    return taskView.root
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+  override fun onCreateActionButtons() {
+    createButton(R.string.drop_pin, null, ButtonAction.DROP_PIN) {
+      Toast.makeText(requireContext(), "TODO: Add a marker at the center", Toast.LENGTH_SHORT)
+        .show()
+    }
+    addContinueButton()
+    addSkipButton()
+    addUndoButton()
   }
 
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
-    viewModel.updateResponse(position)
+  override fun refreshState(taskData: TaskData?) {
+    val isTaskEmpty = taskData?.isEmpty() ?: true
+    getButton(ButtonAction.CONTINUE).apply {
+      isEnabled = true
+      visibility = if (isTaskEmpty) View.GONE else View.VISIBLE
+    }
+    getButton(ButtonAction.UNDO).apply { visibility = if (isTaskEmpty) View.GONE else View.VISIBLE }
+    getButton(ButtonAction.DROP_PIN).apply {
+      isEnabled = true
+      visibility = if (isTaskEmpty) View.VISIBLE else View.GONE
+    }
   }
 }

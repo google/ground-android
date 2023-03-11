@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.ground.model.User
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -42,6 +43,7 @@ import timber.log.Timber
 class MainViewModel
 @Inject
 constructor(
+  private val localValueStore: LocalValueStore,
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
@@ -113,7 +115,7 @@ constructor(
       )
 
   private fun getDirectionAfterSignIn(): NavDirections =
-    if (surveyRepository.activeSurvey != null) {
+    if (localValueStore.lastActiveSurveyId != "") {
       HomeScreenFragmentDirections.showHomeScreen()
     } else {
       SurveySelectorFragmentDirections.showSurveySelectorScreen(true)

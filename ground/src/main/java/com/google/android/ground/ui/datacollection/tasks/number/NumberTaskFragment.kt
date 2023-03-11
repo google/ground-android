@@ -19,20 +19,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.NumberTaskFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment
+import com.google.android.ground.databinding.TaskFragWithHeaderBinding
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
   override lateinit var viewModel: NumberTaskViewModel
   override var position by Delegates.notNull<Int>()
 
@@ -54,11 +51,18 @@ class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel>
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = NumberTaskFragBinding.inflate(inflater, container, false)
-
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as NumberTaskViewModel
+
+    // Base template with header and footer
+    val binding = TaskFragWithHeaderBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
+
+    // Task view
+    val taskBinding = NumberTaskFragBinding.inflate(inflater)
+    taskBinding.lifecycleOwner = this
+    taskBinding.setVariable(BR.viewModel, viewModel)
+    binding.taskContainer.addView(taskBinding.root)
 
     return binding.root
   }

@@ -21,19 +21,18 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.TimeTaskFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
   override lateinit var viewModel: TimeTaskViewModel
   override var position by Delegates.notNull<Int>()
 
@@ -55,14 +54,19 @@ class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = TimeTaskFragBinding.inflate(inflater, container, false)
-
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as TimeTaskViewModel
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
-    binding.setVariable(BR.fragment, this)
 
-    return binding.root
+    // Base template with header and footer
+    taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)
+
+    // Task view
+    val taskBinding = TimeTaskFragBinding.inflate(inflater, container, false)
+    taskBinding.lifecycleOwner = this
+    taskBinding.setVariable(BR.viewModel, viewModel)
+    taskBinding.setVariable(BR.fragment, this)
+    taskView.addTaskView(taskBinding.root)
+
+    return taskView.root
   }
 
   fun showTimeDialog() {

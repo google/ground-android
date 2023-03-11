@@ -25,39 +25,17 @@
       type="com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel" />
   </data>
 
-  <ScrollView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <include
-        android:id="@+id/data_collection_header"
-        app:viewModel="@{viewModel}"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/text_input_layout"
-        layout="@layout/data_collection_header"/>
-
-      <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_layout"
-        style="@style/EditSubmission.Task.Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/data_collection_header">
-        <com.google.android.material.textfield.TextInputEditText
-          android:id="@+id/user_response_text"
-          android:layout_width="200dp"
-          android:layout_height="wrap_content"
-          android:text="@{viewModel.responseText}"
-          app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
-          android:inputType="text" />
-      </com.google.android.material.textfield.TextInputLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-  </ScrollView>
+  <com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/text_input_layout"
+    style="@style/EditSubmission.Task.Text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <com.google.android.material.textfield.TextInputEditText
+      android:id="@+id/user_response_text"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:inputType="text"
+      android:text="@{viewModel.responseText}"
+      app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}" />
+  </com.google.android.material.textfield.TextInputLayout>
 </layout>

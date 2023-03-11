@@ -37,4 +37,8 @@
 
   <!-- Data Submission Confirmation -->
   <color name="colorDataSubmissionConfirmationGreen">#216C2E</color>
+
+  <!-- Task UI Components -->
+  <color name="taskBtnDarkGreen">#47854B</color>
+  <color name="taskBtnLightGreen">#D5E8D0</color>
 </resources>

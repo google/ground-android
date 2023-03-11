@@ -48,7 +48,10 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   lateinit var task: Task
 
   init {
-    taskData = LiveDataReactiveStreams.fromPublisher(taskDataSubject.distinctUntilChanged())
+    taskData =
+      LiveDataReactiveStreams.fromPublisher(
+        taskDataSubject.distinctUntilChanged().startWith(Optional.empty())
+      )
     responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable())
   }
 
@@ -57,6 +60,8 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     this.task = task
     setResponse(taskData)
   }
+
+  fun isTaskOptional(): Boolean = !task.isRequired
 
   protected fun detailsTextFlowable(): @Cold(stateful = true, terminates = false) Flowable<String> =
     taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<TaskData> ->

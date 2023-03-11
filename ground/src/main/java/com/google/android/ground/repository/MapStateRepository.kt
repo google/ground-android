@@ -23,14 +23,19 @@ import javax.inject.Singleton
 
 /** Provides access and storage of persistent map states. */
 @Singleton
-class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) {
+class MapStateRepository
+@Inject
+constructor(
+  private val localValueStore: LocalValueStore,
+  private val surveyRepository: SurveyRepository
+) {
 
   val mapTypeFlowable: Flowable<Int> by localValueStore::mapTypeFlowable
   var mapType: Int by localValueStore::mapType
   var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
 
   fun setCameraPosition(cameraPosition: CameraPosition) =
-    localValueStore.setLastCameraPosition(localValueStore.lastActiveSurveyId, cameraPosition)
+    localValueStore.setLastCameraPosition(surveyRepository.activeSurvey?.id ?: "", cameraPosition)
 
   fun getCameraPosition(surveyId: String): CameraPosition? =
     localValueStore.getLastCameraPosition(surveyId)

@@ -22,24 +22,29 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel" />
   </data>
 
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/number_input_layout"
-    style="@style/EditSubmission.Task.Text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/data_collection_header">
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/user_response_text"
-      android:layout_width="200dp"
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+      android:id="@+id/task_container"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:inputType="number"
-      android:text="@{viewModel.responseText}"
-      app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}" />
-  </com.google.android.material.textfield.TextInputLayout>
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+      android:id="@+id/bottomControls"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="#FCFDF7"
+      android:orientation="horizontal"
+      android:padding="24dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

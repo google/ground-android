@@ -19,20 +19,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
-import com.google.android.ground.BR
 import com.google.android.ground.databinding.QuestionTaskFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment
+import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+class QuestionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
   override lateinit var viewModel: TextTaskViewModel
   override var position by Delegates.notNull<Int>()
 
@@ -54,12 +51,17 @@ class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel>
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = QuestionTaskFragBinding.inflate(inflater, container, false)
-
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
 
-    return binding.root
+    // Base template with header and footer
+    taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)
+
+    // Task view
+    val taskBinding = QuestionTaskFragBinding.inflate(inflater)
+    taskBinding.viewModel = viewModel
+    taskBinding.lifecycleOwner = this
+    taskView.addTaskView(taskBinding.root)
+
+    return taskView.root
   }
 }
