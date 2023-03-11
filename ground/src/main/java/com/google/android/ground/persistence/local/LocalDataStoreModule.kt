@@ -32,7 +32,9 @@ abstract class LocalDataStoreModule {
 
   @Binds
   @Singleton
-  abstract fun locationOfInterestStore(store: RoomLocationOfInterestStore): LocationOfInterestStore
+  abstract fun localLocationOfInterestStore(
+    store: RoomLocationOfInterestStore
+  ): LocalLocationOfInterestStore
   @Binds
   @Singleton
   abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
