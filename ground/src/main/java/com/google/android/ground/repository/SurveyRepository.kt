@@ -58,11 +58,20 @@ constructor(
   val activeSurveyFlow: SharedFlow<Survey?> =
     _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.Eagerly)
 
-  /** Returns the currently active survey, or `null` if survey is active. */
-  var activeSurvey: Survey? by _activeSurvey::value
+  /**
+   * The currently active survey, or `null` if no survey is active. Updating this property causes
+   * [lastActiveSurveyId] to be updated with the id of the specified survey, or `""` if the
+   * specified survey is `null`.
+   */
+  var activeSurvey: Survey?
+    get() = _activeSurvey.value
+    set(value) {
+      _activeSurvey.value = value
+      lastActiveSurveyId = value?.id ?: ""
+    }
 
   /**
-   * Emits the currently active survey on subscribe and on change. Emits `empty()`when no survey is
+   * Emits the currently active survey on subscribe and on change. Emits `empty()` when no survey is
    * active or local db isn't up-to-date.
    */
   // TODO(#1593): Update callers to use [activeSurveyFlow] and delete this member.
@@ -72,10 +81,8 @@ constructor(
   val offlineSurveys: @Cold Flowable<List<Survey>>
     get() = localSurveyStore.surveys
 
-  init {
-    // Persist last active survey ID whenever survey is activated.
-    _activeSurvey.onEach { localValueStore.lastActiveSurveyId = it?.id ?: "" }
-  }
+  var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
+    private set
 
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
