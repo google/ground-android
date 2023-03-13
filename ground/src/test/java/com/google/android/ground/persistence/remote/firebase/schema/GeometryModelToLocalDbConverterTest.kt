@@ -211,5 +211,5 @@ class GeometryModelToLocalDbConverterTest {
     path.map { Coordinate(it.first, it.second) }
 
   private fun indexedGeoPointMap(path: Path): Map<String, Any> =
-    path.mapIndexed { idx, it -> idx.toString() to GeoPoint(it.first, it.second) }.toMap()
+    path.mapIndexed { idx, (first, second) -> idx.toString() to GeoPoint(first, second) }.toMap()
 }

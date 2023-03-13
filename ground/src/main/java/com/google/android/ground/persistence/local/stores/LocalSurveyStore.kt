@@ -27,6 +27,8 @@ interface LocalSurveyStore {
   val surveys: @Cold Flowable<List<Survey>>
   /** Load last active survey, if any. */
   fun getSurveyById(id: String): @Cold Maybe<Survey>
+  /** Load last active survey, if any. */
+  suspend fun getSurveyByIdSuspend(id: String): Survey?
   /** Delete stored survey from database. */
   fun deleteSurvey(survey: Survey): @Cold Completable
   /** Add survey to the database. */

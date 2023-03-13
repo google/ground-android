@@ -18,7 +18,7 @@
 
 buildscript {
     ext {
-        hiltVersion = "2.44"
+        hiltVersion = "2.45"
         kotlinVersion = "1.8.10"
         navigationVersion = "2.5.3"
     }
@@ -91,6 +91,7 @@ detekt {
     source = files("ground/src", "sharedTest/src")
     allRules = true
     config = files("${project.rootDir}/config/detekt/detekt.yml")
+    baseline = file("${project.rootDir}/config/detekt/baseline.xml")
     buildUponDefaultConfig = true
     ignoreFailures = false
 

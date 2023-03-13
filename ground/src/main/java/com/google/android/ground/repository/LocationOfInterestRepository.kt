@@ -21,9 +21,9 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -33,7 +33,6 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -44,49 +43,33 @@ import timber.log.Timber
 class LocationOfInterestRepository
 @Inject
 constructor(
-  private val localLoiStore: LocationOfInterestStore,
+  private val localSurveyStore: LocalSurveyStore,
+  private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
-  private val surveyRepository: SurveyRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager
 ) {
-  /**
-   * Mirrors locations of interest in the specified survey from the remote db into the local db when
-   * the network is available. When invoked, will first attempt to resync all locations of interest
-   * from the remote db, subsequently syncing only remote changes. The returned stream never
-   * completes, and subscriptions will only terminate on disposal.
-   */
-  fun syncLocationsOfInterest(survey: Survey): @Cold Completable =
-    remoteDataStore.loadLocationsOfInterestOnceAndStreamChanges(survey).flatMapCompletable {
-      updateLocalLocationOfInterest(it)
-    }
+  /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
+  suspend fun syncLocationsOfInterest(survey: Survey) {
+    val lois = remoteDataStore.loadLocationsOfInterest(survey)
+    mergeAll(survey.id, lois)
+  }
 
-  // TODO: Remove "location of interest" qualifier from this and other repository method names.
-  private fun updateLocalLocationOfInterest(
-    event: RemoteDataEvent<LocationOfInterest>
-  ): @Cold Completable =
-    event.result.fold(
-      { (entityId: String, entity: LocationOfInterest?) ->
-        when (event.eventType) {
-          ENTITY_LOADED,
-          ENTITY_MODIFIED -> localLoiStore.merge(checkNotNull(entity))
-          ENTITY_REMOVED -> localLoiStore.deleteLocationOfInterest(entityId)
-          else -> throw IllegalArgumentException()
-        }
-      },
-      {
-        Timber.d(it, "Invalid locations of interest in remote db ignored")
-        Completable.complete()
-      }
-    )
+  private suspend fun mergeAll(surveyId: String, lois: List<LocationOfInterest>) {
+    // Insert new or update existing LOIs in local db.
+    lois.forEach { localLoiStore.insertOrUpdate(it) }
+
+    // Delete LOIs in local db not returned in latest list from server.
+    localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
+  }
 
   /** This only works if the survey and location of interests are already cached to local db. */
   fun getOfflineLocationOfInterest(
     surveyId: String,
     locationOfInterest: String
   ): @Cold Single<LocationOfInterest> =
-    surveyRepository
-      .getOfflineSurvey(surveyId)
-      .flatMapMaybe { survey: Survey ->
+    localSurveyStore
+      .getSurveyById(surveyId)
+      .flatMap() { survey: Survey ->
         localLoiStore.getLocationOfInterest(survey, locationOfInterest)
       }
       .switchIfEmpty(
@@ -122,24 +105,19 @@ constructor(
     )
 
   /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
-  fun getAllLocationsOfInterestOnceAndStream(): Flowable<Set<LocationOfInterest>> =
-    surveyRepository.activeSurvey
-      .switchMap { survey ->
-        survey
-          .map { localLoiStore.getLocationsOfInterestOnceAndStream(it) }
-          .orElse(Flowable.just(setOf()))
-      }
-      .distinctUntilChanged()
+  fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
+    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
+    survey: Survey,
     cameraBoundUpdates: Flowable<LatLngBounds>
-  ): Flowable<List<LocationOfInterest>> {
-    val loiStream = getAllLocationsOfInterestOnceAndStream()
-    return cameraBoundUpdates
-      .flatMap { bounds ->
-        loiStream.map { lois -> lois.filter { it.geometry.isWithinBounds(bounds) } }
+  ): Flowable<List<LocationOfInterest>> =
+    cameraBoundUpdates
+      .switchMap { bounds ->
+        getLocationsOfInterestOnceAndStream(survey).map { lois ->
+          lois.filter { it.geometry.isWithinBounds(bounds) }
+        }
       }
       .distinctUntilChanged()
-  }
 }

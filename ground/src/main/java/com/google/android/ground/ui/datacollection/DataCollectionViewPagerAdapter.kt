@@ -18,6 +18,14 @@ package com.google.android.ground.ui.datacollection
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.datacollection.tasks.date.DateTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -37,15 +45,17 @@ constructor(
 
     val taskFragment =
       when (task.type) {
-        Task.Type.TEXT -> QuestionTaskFragment().also { it.position = position }
-        Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment().also { it.position = position }
-        Task.Type.PHOTO -> PhotoTaskFragment().also { it.position = position }
+        Task.Type.TEXT -> QuestionTaskFragment()
+        Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
+        Task.Type.PHOTO -> PhotoTaskFragment()
         Task.Type.DROP_A_PIN -> DropAPinTaskFragment()
         Task.Type.DRAW_POLYGON -> PolygonDrawingTaskFragment()
-        Task.Type.NUMBER -> NumberTaskFragment().also { it.position = position }
+        Task.Type.NUMBER -> NumberTaskFragment()
+        Task.Type.DATE -> DateTaskFragment()
+        Task.Type.TIME -> TimeTaskFragment()
         else -> throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
-    return taskFragment
+    return taskFragment.also { it.position = position }
   }
 }

@@ -100,12 +100,6 @@
     <item name="android:textSize">@dimen/task_value_text_size</item>
   </style>
 
-  <style name="EditSubmission.Task.Label" parent="AppTheme.Base">
-    <item name="android:textColor">@color/colorForeground</item>
-    <item name="android:textSize">@dimen/edit_task_label_text_size</item>
-    <item name="android:textStyle">bold</item>
-  </style>
-
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
     <item name="boxStrokeColor">@color/colorAccent</item>
@@ -138,17 +132,6 @@
   <style name="ChipButtonText">
     <item name="android:textSize">@dimen/chip_button_text_size</item>
     <item name="android:textStyle">bold</item>
-  </style>
-
-  <style name="TaskView">
-    <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginTop">@dimen/task_vertical_margin</item>
-    <item name="android:layout_marginBottom">@dimen/task_vertical_margin</item>
-    <item name="android:layout_marginStart">@dimen/task_horizontal_margin</item>
-    <item name="android:layout_marginEnd">@dimen/task_horizontal_margin</item>
-    <item name="android:layout_marginLeft">@dimen/task_horizontal_margin</item>
-    <item name="android:layout_marginRight">@dimen/task_horizontal_margin</item>
   </style>
 
   <!-- NavDrawer Header -->

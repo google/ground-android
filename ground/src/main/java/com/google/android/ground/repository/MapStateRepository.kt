@@ -30,7 +30,7 @@ class MapStateRepository @Inject constructor(private val localValueStore: LocalV
   var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
 
   fun setCameraPosition(cameraPosition: CameraPosition) =
-    localValueStore.setLastCameraPosition(localValueStore.activeSurveyId, cameraPosition)
+    localValueStore.setLastCameraPosition(localValueStore.lastActiveSurveyId, cameraPosition)
 
   fun getCameraPosition(surveyId: String): CameraPosition? =
     localValueStore.getLastCameraPosition(surveyId)

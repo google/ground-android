@@ -28,7 +28,7 @@ import org.junit.Before
 import org.junit.Rule
 
 /** Configures all necessary rules and [MainActivity] needed for running instrumentation tests. */
-abstract class BaseMainActivityTest {
+sealed class BaseMainActivityTest {
   // Create an idling resource which can be used to wait for data-bindings to complete.
   val dataBindingIdlingResource = DataBindingIdlingResource()
 

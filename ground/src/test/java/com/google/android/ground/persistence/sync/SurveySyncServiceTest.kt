@@ -23,28 +23,31 @@ import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestDriver
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.repository.SurveyRepository
-import com.sharedtest.FakeData
+import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Single
 import javax.inject.Inject
 import junit.framework.Assert.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncServiceTest : BaseHiltTest() {
   @Inject @ApplicationContext lateinit var context: Context
-
-  @Mock private lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var testDispatcher: TestDispatcher
+  @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver
@@ -52,9 +55,6 @@ class SurveySyncServiceTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-
-    `when`(surveyRepository.syncSurveyWithRemote(Mockito.anyString()))
-      .thenReturn(Single.just(FakeData.SURVEY))
 
     val config =
       Configuration.Builder()
@@ -66,27 +66,30 @@ class SurveySyncServiceTest : BaseHiltTest() {
               appContext: Context,
               workerClassName: String,
               workerParameters: WorkerParameters
-            ) = SurveySyncWorker(context, workerParameters, surveyRepository)
+            ) = SurveySyncWorker(context, workerParameters, syncSurvey)
           }
         )
         .build()
-
     WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
     workManager = WorkManager.getInstance(context)
     testDriver = WorkManagerTestInitHelper.getTestDriver(context)!!
   }
 
   @Test
-  fun callSyncSurveyWithIdWhenConstraintsMet() {
-    val surveyId = "survey1000"
+  fun callSyncSurveyWithIdWhenConstraintsMet() =
+    runTest(testDispatcher) {
+      `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
 
-    val service = SurveySyncService(workManager)
-    val requestId = service.enqueueSync(surveyId)
+      val surveyId = "survey1000"
 
-    // Tell the testing framework that the constraints have been met and to run the worker.
-    testDriver.setAllConstraintsMet(requestId)
+      val service = SurveySyncService(workManager)
+      val requestId = service.enqueueSync(surveyId)
 
-    assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).get().state)
-    verify(surveyRepository).syncSurveyWithRemote(surveyId)
-  }
+      // Tell the testing framework that the constraints have been met and to run the worker.
+      testDriver.setAllConstraintsMet(requestId)
+      advanceUntilIdle()
+
+      verify(syncSurvey).invoke(surveyId)
+      assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
+    }
 }

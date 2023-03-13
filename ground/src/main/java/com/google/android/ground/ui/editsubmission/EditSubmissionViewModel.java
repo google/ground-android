@@ -33,6 +33,7 @@ import com.google.android.ground.repository.SubmissionRepository;
 import com.google.android.ground.rx.Nil;
 import com.google.android.ground.rx.annotations.Hot;
 import com.google.android.ground.ui.common.AbstractViewModel;
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoResult;
 import com.google.android.ground.ui.util.BitmapUtil;
 import io.reactivex.Observable;
 import io.reactivex.Single;

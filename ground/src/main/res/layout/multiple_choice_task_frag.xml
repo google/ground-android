@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.editsubmission.MultipleChoiceTaskViewModel" />
+      type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

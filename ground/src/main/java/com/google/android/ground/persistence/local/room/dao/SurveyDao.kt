@@ -31,4 +31,7 @@ interface SurveyDao : BaseDao<SurveyEntity> {
   @Transaction
   @Query("SELECT * FROM survey WHERE id = :id")
   fun getSurveyById(id: String): Maybe<SurveyEntityAndRelations>
+
+  @Query("SELECT * FROM survey WHERE id = :id")
+  suspend fun getSurveyByIdSuspend(id: String): SurveyEntityAndRelations?
 }

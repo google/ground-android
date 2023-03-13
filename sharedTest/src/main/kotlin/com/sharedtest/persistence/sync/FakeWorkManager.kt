@@ -24,6 +24,9 @@ import java.util.*
 
 @SuppressLint("RestrictedApi")
 class FakeWorkManager : WorkManager() {
+  override fun getConfiguration(): Configuration {
+    TODO("Not yet implemented")
+  }
 
   override fun enqueue(requests: List<WorkRequest?>): Operation {
     throw NotImplementedError()
@@ -119,5 +122,9 @@ class FakeWorkManager : WorkManager() {
 
   override fun getWorkInfos(workQuery: WorkQuery): ListenableFuture<List<WorkInfo>> {
     throw NotImplementedError()
+  }
+
+  override fun updateWork(request: WorkRequest): ListenableFuture<UpdateResult> {
+    TODO("Not yet implemented")
   }
 }

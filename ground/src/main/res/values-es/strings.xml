@@ -34,15 +34,11 @@
     changes will be lost.
   -->
   <string name="discard_changes">Descartar cambios</string>
-  <!-- Shown on save when connection is available (TBD). -->
-  <string name="saved">Cambios guardados</string>
 
   <!--
     LOI DATA FORMS
   -->
 
-  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to task -->
-  <string name="apply_multiple_choice_changes">Aplicar</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_task">Este campo es obligatorio</string>
 
@@ -70,18 +66,12 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Habilite la ubicación en la configuración del sistema</string>
 
-  <!-- Shown when saving a task that contains missing or invalid data -->
-  <string name="invalid_data_warning">El formulario contiene datos incompletos o no válidos. Por favor, compruebe
-  sus respuestas y vuelve a intentarlo.</string>
-  <string name="invalid_data_confirm">OK</string>
-
   <string name="add_submission_button_label">Agregar registro</string>
   <string name="view_submission_details">Ver detalles del registro</string>
   <string name="map_view">Vista del mapa</string>
   <string name="unexpected_error">Ha ocurrido un error inesperado</string>
   <string name="save_submission_button_label">Guardar</string>
   <string name="saving">Guardando&#8230;</string>
-  <string name="no_changes_to_save">Sin cambios para guardar</string>
   <string name="google_api_install_failed">Falló la instalación de los servicios de Google Play</string>
   <string name="sign_in_unsuccessful">Iniciar sesión sin éxito</string>
   <string name="sign_out">Salir</string>
@@ -93,9 +83,6 @@
   <string name="offline_base_map_selector">Seleccionar área para descargar</string>
   <string name="offline_base_map_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
   <string name="offline_base_map_selector_download">Descargar</string>
-  <string name="add_photo">Agregar imagen</string>
-  <string name="action_camera">Cámara</string>
-  <string name="action_storage">Almacenamiento</string>
   <string name="photo_preview">Vista previa</string>
   <string name="starting">Iniciando</string>
   <string name="in_progress">En curso</string>
