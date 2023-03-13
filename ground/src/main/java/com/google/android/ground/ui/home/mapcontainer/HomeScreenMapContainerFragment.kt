@@ -50,7 +50,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: MapContainerFragBinding
-  private lateinit var adapter: LoiCardAdapter
+  private lateinit var adapter: MapCardAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -68,11 +68,27 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    adapter = LoiCardAdapter()
-    adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
+    adapter = MapCardAdapter()
+    adapter.setLoiCardFocusedListener {
+      if (it?.loiId != null) {
+        mapFragment.setActiveLocationOfInterest(it.loiId)
+      }
+    }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) {
-      adapter.updateData(it)
+    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) { lois ->
+      // TODO(#1541): Merge loi MapCardUiData with SuggestLoit MapCardUiData
+      adapter.updateData(
+        lois.map {
+          MapCardUiData(
+            name = it.caption ?: it.type.name,
+            subtitle = it.job.name,
+            surveyId = it.surveyId,
+            // TODO(#1483): Add submission count
+            submissionText = "No submissions",
+            loiId = it.id
+          )
+        }
+      )
     }
   }
 
@@ -132,11 +148,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     helper.attachToRecyclerView(recyclerView)
   }
 
-  private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
+  private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
+    // TODO(#1541): Handle null loiId, the loiId will be null for the SuggestLoi cards
+    if (cardUiData.loiId == null) {
+      return
+    }
+
     navigator.navigate(
       HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-        /* surveyId = */ loi.surveyId,
-        /* locationOfInterestId = */ loi.id
+        /* surveyId = */ cardUiData.surveyId,
+        /* locationOfInterestId = */ cardUiData.loiId
       )
     )
   }
