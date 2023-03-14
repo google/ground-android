@@ -20,7 +20,7 @@ import java8.util.Optional
 
 /**
  * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
- *  is already associated with an LOI.
+ *   is already associated with an LOI.
  */
 data class Job(
   val id: String,
