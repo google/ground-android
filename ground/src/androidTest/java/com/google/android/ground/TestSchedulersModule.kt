@@ -17,7 +17,7 @@ package com.google.android.ground
 
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.SchedulersModule
-import com.sharedtest.TestScheduler
+import com.sharedtest.TestSchedulers
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.components.SingletonComponent
@@ -27,5 +27,5 @@ import javax.inject.Singleton
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [SchedulersModule::class])
 abstract class TestSchedulersModule {
-  @Binds @Singleton abstract fun schedulers(testScheduler: TestScheduler): Schedulers
+  @Binds @Singleton abstract fun schedulers(testSchedulers: TestSchedulers): Schedulers
 }
