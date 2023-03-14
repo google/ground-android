@@ -37,6 +37,7 @@ class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel>
     hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: TextTaskViewModel
   override var position by Delegates.notNull<Int>()
+  private lateinit var binding: QuestionTaskFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,10 +59,14 @@ class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel>
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = QuestionTaskFragBinding.inflate(inflater, container, false)
 
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
-
-    return binding.root
   }
 }

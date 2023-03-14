@@ -37,6 +37,7 @@ class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel>
     hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: NumberTaskViewModel
   override var position by Delegates.notNull<Int>()
+  private lateinit var binding: NumberTaskFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,10 +59,14 @@ class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel>
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = NumberTaskFragBinding.inflate(inflater, container, false)
 
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as NumberTaskViewModel
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
-
-    return binding.root
   }
 }

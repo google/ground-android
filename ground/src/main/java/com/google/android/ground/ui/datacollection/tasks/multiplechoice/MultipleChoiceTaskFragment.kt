@@ -47,6 +47,7 @@ class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoi
     hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: MultipleChoiceTaskViewModel
   override var position by Delegates.notNull<Int>()
+  private lateinit var binding: MultipleChoiceTaskFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -66,7 +67,13 @@ class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoi
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = MultipleChoiceTaskFragBinding.inflate(inflater, container, false)
+    binding = MultipleChoiceTaskFragBinding.inflate(inflater, container, false)
+
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as MultipleChoiceTaskViewModel
     binding.lifecycleOwner = this
@@ -83,8 +90,6 @@ class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoi
     } else {
       optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
     }
-
-    return binding.root
   }
 
   private fun setupMultipleSelectionTracker(view: RecyclerView, adapter: SelectionAdapter<*>) {

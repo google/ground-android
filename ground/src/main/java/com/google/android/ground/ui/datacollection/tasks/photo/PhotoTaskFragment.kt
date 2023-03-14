@@ -58,6 +58,7 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
   override var position by Delegates.notNull<Int>()
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
+  private lateinit var binding: PhotoTaskFragBinding
   private var hasRequestedPermissionsOnResume = false
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +74,13 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
+    binding = PhotoTaskFragBinding.inflate(inflater, container, false)
 
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as PhotoTaskViewModel
     selectPhotoLauncher =
       registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -83,8 +90,6 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
         viewModel.onCapturePhotoResult(result)
       }
-
-    val binding = PhotoTaskFragBinding.inflate(inflater, container, false)
 
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
@@ -96,11 +101,6 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
     observeSelectPhotoClicks()
     observePhotoResults()
 
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
     viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
     viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
   }

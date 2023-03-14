@@ -64,17 +64,17 @@ class PolygonDrawingTaskFragment :
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PolygonDrawingViewModel
-
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
-    binding.lifecycleOwner = this
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PolygonDrawingViewModel
+    binding.fragment = this
+    binding.viewModel = mapViewModel
+    binding.lifecycleOwner = this
+
     val container = binding.bottomContainer
     val taskControlsBinding = PolygonDrawingTaskFragBinding.inflate(layoutInflater, container, true)
     taskControlsBinding.viewModel = viewModel

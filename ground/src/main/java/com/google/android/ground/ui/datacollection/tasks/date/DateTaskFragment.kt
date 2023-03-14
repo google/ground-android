@@ -35,6 +35,7 @@ class DateTaskFragment : AbstractFragment(), TaskFragment<DateTaskViewModel> {
   private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: DateTaskViewModel
   override var position by Delegates.notNull<Int>()
+  private lateinit var binding: DateTaskFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -54,14 +55,18 @@ class DateTaskFragment : AbstractFragment(), TaskFragment<DateTaskViewModel> {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = DateTaskFragBinding.inflate(inflater, container, false)
+    binding = DateTaskFragBinding.inflate(inflater, container, false)
+
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as DateTaskViewModel
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
     binding.setVariable(BR.fragment, this)
-
-    return binding.root
   }
 
   fun showDateDialog() {

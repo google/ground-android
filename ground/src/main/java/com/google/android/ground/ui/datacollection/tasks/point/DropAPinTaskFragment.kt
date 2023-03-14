@@ -61,13 +61,18 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
+    binding = BasemapLayoutBinding.inflate(inflater, container, false)
+
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as DropAPinTaskViewModel
 
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
-    return binding.root
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
