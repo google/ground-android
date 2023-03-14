@@ -31,7 +31,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.*
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment
 import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
 import dagger.hilt.android.AndroidEntryPoint
