@@ -70,25 +70,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     adapter = MapCardAdapter()
     adapter.setLoiCardFocusedListener {
-      if (it?.loiId != null) {
-        mapFragment.setActiveLocationOfInterest(it.loiId)
+      when (it) {
+        is MapCardUiData.LoiCardUiData -> mapFragment.setActiveLocationOfInterest(it.loi.id)
+        null -> mapFragment.setActiveLocationOfInterest(null)
       }
     }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
     mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) { lois ->
-      // TODO(#1541): Merge loi MapCardUiData with SuggestLoit MapCardUiData
-      adapter.updateData(
-        lois.map {
-          MapCardUiData(
-            name = it.caption ?: it.type.name,
-            subtitle = it.job.name,
-            surveyId = it.surveyId,
-            // TODO(#1483): Add submission count
-            submissionText = "No submissions",
-            loiId = it.id
-          )
-        }
-      )
+      // TODO(#1541): Merge loi MapCardUiData with SuggestLoi MapCardUiData
+      adapter.updateData(lois.map { MapCardUiData.LoiCardUiData(it) })
     }
   }
 

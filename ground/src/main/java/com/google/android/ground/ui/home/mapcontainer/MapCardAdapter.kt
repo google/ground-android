@@ -46,7 +46,9 @@ class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val uiData: MapCardUiData = itemsList[position]
 
-    holder.bind(uiData)
+    when (uiData) {
+      is MapCardUiData.LoiCardUiData -> holder.bind(uiData.loi)
+    }
 
     // TODO(#1483): Selected card color should match job color
     // Add highlight border if selected.
@@ -96,8 +98,8 @@ class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   class ViewHolder(internal val binding: LoiCardItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(mapCardUiData: MapCardUiData) {
-      binding.viewModel = LoiCardViewModel(mapCardUiData)
+    fun bind(loi: LocationOfInterest) {
+      binding.viewModel = LoiCardViewModel(loi)
     }
   }
 }

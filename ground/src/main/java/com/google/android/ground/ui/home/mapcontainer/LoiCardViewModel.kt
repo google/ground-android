@@ -17,17 +17,18 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 
-class LoiCardViewModel(mapCardUiData: MapCardUiData) : AbstractViewModel() {
+class LoiCardViewModel(loi: LocationOfInterest) : AbstractViewModel() {
   val loiName: @Hot(replays = true) LiveData<String>
   val loiJobName: @Hot(replays = true) LiveData<String>
-  val loiSubmissions: @Hot(replays = true) LiveData<String>
+  // TODO(#1483): Add submission count
+  val loiSubmissions: @Hot(replays = true) LiveData<String> = MutableLiveData("No submissions")
 
   init {
-    loiName = MutableLiveData(mapCardUiData.name)
-    loiJobName = MutableLiveData(mapCardUiData.subtitle)
-    loiSubmissions = MutableLiveData(mapCardUiData.submissionText)
+    loiName = MutableLiveData(loi.caption ?: loi.type.name)
+    loiJobName = MutableLiveData(loi.job.name)
   }
 }
