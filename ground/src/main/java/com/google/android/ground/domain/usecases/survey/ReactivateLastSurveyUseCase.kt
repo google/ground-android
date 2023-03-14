@@ -31,7 +31,7 @@ constructor(
       return
     }
     // Do nothing if survey is already active.
-    if (surveyRepository.activeSurvey?.id == surveyRepository.lastActiveSurveyId) {
+    if (surveyRepository.activeSurvey != null) {
       return
     }
     activateSurvey(surveyRepository.lastActiveSurveyId)
