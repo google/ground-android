@@ -139,17 +139,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
-    // TODO(#1541): Handle null loiId, the loiId will be null for the SuggestLoi cards
-    if (cardUiData.loiId == null) {
-      return
+    // TODO(#1541): Handle suggest loi cards
+    when (cardUiData) {
+      is MapCardUiData.LoiCardUiData ->
+        navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            /* surveyId = */ cardUiData.loi.surveyId,
+            /* locationOfInterestId = */ cardUiData.loi.id
+          )
+        )
     }
-
-    navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-        /* surveyId = */ cardUiData.surveyId,
-        /* locationOfInterestId = */ cardUiData.loiId
-      )
-    )
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
