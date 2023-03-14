@@ -82,7 +82,7 @@ constructor(
     get() = localSurveyStore.surveys
 
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
-    private set
+    internal set
 
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
