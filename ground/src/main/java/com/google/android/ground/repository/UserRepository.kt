@@ -18,7 +18,6 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import io.reactivex.Completable
@@ -36,14 +35,12 @@ class UserRepository
 constructor(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
-  private val schedulers: Schedulers,
-  val localUserStore: LocalUserStore
+  private val localUserStore: LocalUserStore
 ) {
   val currentUser: User
     get() = authenticationManager.currentUser
 
-  fun saveUser(user: User): @Cold Completable =
-    localUserStore.insertOrUpdateUser(user).observeOn(schedulers.io())
+  fun saveUser(user: User): @Cold Completable = localUserStore.insertOrUpdateUser(user)
 
   fun getUser(userId: String): @Cold Single<User> = localUserStore.getUser(userId)
 
