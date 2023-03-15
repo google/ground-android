@@ -28,12 +28,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
@@ -41,20 +38,6 @@ import kotlin.properties.Delegates
  */
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
-  override lateinit var viewModel: MultipleChoiceTaskViewModel
-  override var position by Delegates.notNull<Int>()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater,

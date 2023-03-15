@@ -23,27 +23,11 @@ import com.google.android.ground.BR
 import com.google.android.ground.databinding.NumberTaskFragBinding
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
-  override lateinit var viewModel: NumberTaskViewModel
-  override var position by Delegates.notNull<Int>()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater,

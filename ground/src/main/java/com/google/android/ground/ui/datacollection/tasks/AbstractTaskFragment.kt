@@ -13,15 +13,32 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
 import java.util.*
+import kotlin.properties.Delegates
 
-abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
-  AbstractFragment(), TaskFragment<T> {
+abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   private val actions: EnumMap<ButtonAction, () -> Unit> = EnumMap(ButtonAction::class.java)
   private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
 
   protected val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   protected lateinit var taskView: TaskView
+
+  lateinit var viewModel: T
+
+  /** Position of the task in the Job's sorted tasklist. Used to instantiate the ViewModel. */
+  var position by Delegates.notNull<Int>()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      position = savedInstanceState.getInt(POSITION)
+    }
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putInt(POSITION, position)
+  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -101,5 +118,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
   protected fun getButton(action: ButtonAction): View {
     check(buttons.contains(action)) { "Expected key $action in $buttons" }
     return buttons[action]!!.view
+  }
+
+  companion object {
+    /** Key used to store the position of the task in the Job's sorted tasklist. */
+    private const val POSITION = "position"
   }
 }

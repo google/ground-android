@@ -23,30 +23,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.TimeTaskFragBinding
-import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
-  override lateinit var viewModel: TimeTaskViewModel
-  override var position by Delegates.notNull<Int>()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(TaskFragment.POSITION)
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt(TaskFragment.POSITION, position)
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
