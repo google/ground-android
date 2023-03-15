@@ -18,25 +18,20 @@ package com.google.android.ground.domain.usecase
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
-import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
