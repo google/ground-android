@@ -23,18 +23,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.ui.home.mapcontainer.LoiCardAdapter.ViewHolder
+import com.google.android.ground.ui.home.mapcontainer.MapCardAdapter.ViewHolder
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
  * [ViewHolder] views.
  */
-class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
+class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   private var focusedIndex: Int = 0
-  private val itemsList: MutableList<LocationOfInterest> = mutableListOf()
-  private lateinit var cardFocusedListener: (LocationOfInterest?) -> Unit
-  private lateinit var collectDataListener: (LocationOfInterest) -> Unit
+  private val itemsList: MutableList<MapCardUiData> = mutableListOf()
+  private lateinit var cardFocusedListener: (MapCardUiData?) -> Unit
+  private lateinit var collectDataListener: (MapCardUiData) -> Unit
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -44,9 +44,11 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
 
   /** Binds [LocationOfInterest] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val loi: LocationOfInterest = itemsList[position]
+    val uiData: MapCardUiData = itemsList[position]
 
-    holder.bind(loi)
+    when (uiData) {
+      is MapCardUiData.LoiCardUiData -> holder.bind(uiData.loi)
+    }
 
     // TODO(#1483): Selected card color should match job color
     // Add highlight border if selected.
@@ -59,7 +61,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     holder.binding.loiCard.background =
       ResourcesCompat.getDrawable(holder.itemView.context.resources, borderDrawable, null)
 
-    holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(loi) }
+    holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(uiData) }
   }
 
   /** Returns the size of the list. */
@@ -76,7 +78,7 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   }
 
   /** Overwrites existing cards. */
-  fun updateData(newItemsList: List<LocationOfInterest>) {
+  fun updateData(newItemsList: List<MapCardUiData>) {
     itemsList.clear()
     itemsList.addAll(newItemsList)
     focusedIndex = 0
@@ -84,11 +86,11 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
     cardFocusedListener.invoke(null)
   }
 
-  fun setLoiCardFocusedListener(listener: (LocationOfInterest?) -> Unit) {
+  fun setLoiCardFocusedListener(listener: (MapCardUiData?) -> Unit) {
     this.cardFocusedListener = listener
   }
 
-  fun setCollectDataListener(listener: (LocationOfInterest) -> Unit) {
+  fun setCollectDataListener(listener: (MapCardUiData) -> Unit) {
     this.collectDataListener = listener
   }
 
@@ -96,8 +98,8 @@ class LoiCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   class ViewHolder(internal val binding: LoiCardItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(locationOfInterest: LocationOfInterest) {
-      binding.viewModel = LoiCardViewModel(locationOfInterest)
+    fun bind(loi: LocationOfInterest) {
+      binding.viewModel = LoiCardViewModel(loi)
     }
   }
 }
