@@ -45,7 +45,6 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as MultipleChoiceTaskViewModel
 
     // Base template with header and footer
     taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)

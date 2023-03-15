@@ -34,7 +34,6 @@ class QuestionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
 
     // Base template with header and footer
     taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)

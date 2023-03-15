@@ -61,7 +61,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
 
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PhotoTaskViewModel
     selectPhotoLauncher =
       registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         viewModel.onSelectPhotoResult(uri)

@@ -35,7 +35,6 @@ class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as NumberTaskViewModel
 
     // Base template with header and footer
     val binding = TaskFragWithHeaderBinding.inflate(inflater, container, false)

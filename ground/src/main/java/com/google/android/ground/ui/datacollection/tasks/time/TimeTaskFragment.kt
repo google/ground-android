@@ -37,7 +37,6 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TimeTaskViewModel
 
     // Base template with header and footer
     taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)

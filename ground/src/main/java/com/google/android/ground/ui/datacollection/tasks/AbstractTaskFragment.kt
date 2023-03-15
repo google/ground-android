@@ -1,7 +1,9 @@
 package com.google.android.ground.ui.datacollection.tasks
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.activityViewModels
@@ -38,6 +40,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     outState.putInt(POSITION, position)
+  }
+
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? {
+    @Suppress("UNCHECKED_CAST")
+    viewModel = dataCollectionViewModel.getTaskViewModel(position) as T
+    return super.onCreateView(inflater, container, savedInstanceState)
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

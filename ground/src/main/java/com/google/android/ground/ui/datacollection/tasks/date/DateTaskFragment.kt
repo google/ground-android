@@ -36,7 +36,6 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as DateTaskViewModel
 
     // Base template with header and footer
     taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)

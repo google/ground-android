@@ -49,7 +49,7 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PolygonDrawingViewModel
+    super.onCreateView(inflater, container, savedInstanceState)
 
     // Base template with just a footer
     taskView = TaskViewWithoutHeader.create(container, inflater, this, viewModel)
