@@ -42,6 +42,8 @@ constructor(
 
   fun saveUser(user: User): @Cold Completable = localUserStore.insertOrUpdateUser(user)
 
+  suspend fun saveUserSuspend(user: User) = localUserStore.insertOrUpdateUserSuspend(user)
+
   fun getUser(userId: String): @Cold Single<User> = localUserStore.getUser(userId)
 
   /** Clears all user-specific preferences and settings. */

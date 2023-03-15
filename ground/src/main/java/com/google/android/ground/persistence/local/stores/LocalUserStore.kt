@@ -24,6 +24,9 @@ import io.reactivex.Single
 interface LocalUserStore {
   /** Add user to the database. */
   fun insertOrUpdateUser(user: User): @Cold Completable
+  /** Add user to the database. */
+  suspend fun insertOrUpdateUserSuspend(user: User)
+
   /**
    * Loads the user with the specified id from the local data store. The returned Single fails with
    * [java.util.NoSuchElementException] if not found.
