@@ -34,6 +34,7 @@ import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,16 +71,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
         viewModel.onCapturePhotoResult(result)
       }
 
-    // Base template with just a footer
-    taskView = TaskViewWithoutHeader.create(container, inflater, this, viewModel)
-
-    // Task view
-    val taskBinding = PhotoTaskFragBinding.inflate(inflater, container, false)
-    taskBinding.lifecycleOwner = this
-    taskBinding.setVariable(BR.viewModel, viewModel)
-    taskBinding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
-    taskView.addTaskView(taskBinding.root)
-
     viewModel.setEditable(true)
     viewModel.setSurveyId(dataCollectionViewModel.surveyId)
     viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
@@ -87,6 +78,18 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     observePhotoResults()
 
     return taskView.root
+  }
+
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithoutHeader.create(container, inflater)
+  }
+
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val taskBinding = PhotoTaskFragBinding.inflate(inflater)
+    taskBinding.lifecycleOwner = this
+    taskBinding.setVariable(BR.viewModel, viewModel)
+    taskBinding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
+    return taskBinding.root
   }
 
   override fun onCreateActionButtons() {

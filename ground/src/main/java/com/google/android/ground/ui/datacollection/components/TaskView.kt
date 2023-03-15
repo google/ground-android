@@ -10,6 +10,8 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 
 sealed interface TaskView {
 
+  fun bind(fragment: Fragment, viewModel: AbstractTaskViewModel)
+
   fun addTaskView(view: View)
 
   val bottomControls: ViewGroup
@@ -18,6 +20,12 @@ sealed interface TaskView {
 }
 
 class TaskViewWithHeader(private val binding: TaskFragWithHeaderBinding) : TaskView {
+
+  override fun bind(fragment: Fragment, viewModel: AbstractTaskViewModel) {
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = fragment
+  }
+
   override fun addTaskView(view: View) {
     binding.taskContainer.addView(view)
   }
@@ -27,21 +35,20 @@ class TaskViewWithHeader(private val binding: TaskFragWithHeaderBinding) : TaskV
   override val root = binding.root
 
   companion object {
-    fun create(
-      container: ViewGroup?,
-      layoutInflater: LayoutInflater,
-      fragment: Fragment,
-      viewModel: AbstractTaskViewModel
-    ): TaskView {
+    fun create(container: ViewGroup?, layoutInflater: LayoutInflater): TaskView {
       val binding = TaskFragWithHeaderBinding.inflate(layoutInflater, container, false)
-      binding.viewModel = viewModel
-      binding.lifecycleOwner = fragment
       return TaskViewWithHeader(binding)
     }
   }
 }
 
 class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBinding) : TaskView {
+
+  override fun bind(fragment: Fragment, viewModel: AbstractTaskViewModel) {
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = fragment
+  }
+
   override fun addTaskView(view: View) {
     binding.taskContainer.addView(view)
   }
@@ -51,15 +58,8 @@ class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBinding) :
   override val root = binding.root
 
   companion object {
-    fun create(
-      container: ViewGroup?,
-      layoutInflater: LayoutInflater,
-      fragment: Fragment,
-      viewModel: AbstractTaskViewModel
-    ): TaskView {
+    fun create(container: ViewGroup?, layoutInflater: LayoutInflater): TaskView {
       val binding = TaskFragWithoutHeaderBinding.inflate(layoutInflater, container, false)
-      binding.viewModel = viewModel
-      binding.lifecycleOwner = fragment
       return TaskViewWithoutHeader(binding)
     }
   }

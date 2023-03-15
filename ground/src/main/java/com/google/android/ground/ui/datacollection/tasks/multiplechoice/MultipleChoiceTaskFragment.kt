@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,15 +47,6 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
 
-    // Base template with header and footer
-    taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)
-
-    // Task view
-    val taskBinding = MultipleChoiceTaskFragBinding.inflate(inflater)
-    taskBinding.viewModel = viewModel
-    taskBinding.lifecycleOwner = this
-    taskView.addTaskView(taskBinding.root)
-
     val multipleChoice = viewModel.task.multipleChoice!!
     val optionListView = taskView.root.findViewById<RecyclerView>(R.id.select_option_list)
     optionListView.setHasFixedSize(true)
@@ -68,6 +60,17 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     }
 
     return taskView.root
+  }
+
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithHeader.create(container, inflater)
+  }
+
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val taskBinding = MultipleChoiceTaskFragBinding.inflate(inflater)
+    taskBinding.viewModel = viewModel
+    taskBinding.lifecycleOwner = this
+    return taskBinding.root
   }
 
   private fun setupMultipleSelectionTracker(view: RecyclerView, adapter: SelectionAdapter<*>) {

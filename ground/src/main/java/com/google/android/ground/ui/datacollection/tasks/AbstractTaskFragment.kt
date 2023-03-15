@@ -47,10 +47,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
+    super.onCreateView(inflater, container, savedInstanceState)
+
     @Suppress("UNCHECKED_CAST")
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as T
-    return super.onCreateView(inflater, container, savedInstanceState)
+
+    taskView = onCreateTaskView(inflater, container)
+    taskView.bind(this, viewModel)
+    taskView.addTaskView(onCreateTaskBody(inflater))
+    return taskView.root
   }
+
+  /** Inflates common task template with or without header. */
+  abstract fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView
+
+  /** Inflates body of the task. */
+  abstract fun onCreateTaskBody(inflater: LayoutInflater): View
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

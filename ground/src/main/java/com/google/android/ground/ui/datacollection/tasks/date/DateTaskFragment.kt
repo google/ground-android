@@ -16,12 +16,12 @@
 package com.google.android.ground.ui.datacollection.tasks.date
 
 import android.app.DatePickerDialog
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.DateTaskFragBinding
+import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,24 +30,16 @@ import java.util.*
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithHeader.create(container, inflater)
+  }
 
-    // Base template with header and footer
-    taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)
-
-    // Task view
-    val taskBinding = DateTaskFragBinding.inflate(inflater, container, false)
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val taskBinding = DateTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.setVariable(BR.viewModel, viewModel)
     taskBinding.setVariable(BR.fragment, this)
-    taskView.addTaskView(taskBinding.root)
-
-    return taskView.root
+    return taskBinding.root
   }
 
   fun showDateDialog() {

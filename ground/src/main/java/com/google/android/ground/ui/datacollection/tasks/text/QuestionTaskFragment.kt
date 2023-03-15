@@ -15,11 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.text
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.QuestionTaskFragBinding
+import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,22 +28,14 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class QuestionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithHeader.create(container, inflater)
+  }
 
-    // Base template with header and footer
-    taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)
-
-    // Task view
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = QuestionTaskFragBinding.inflate(inflater)
     taskBinding.viewModel = viewModel
     taskBinding.lifecycleOwner = this
-    taskView.addTaskView(taskBinding.root)
-
-    return taskView.root
+    return taskBinding.root
   }
 }

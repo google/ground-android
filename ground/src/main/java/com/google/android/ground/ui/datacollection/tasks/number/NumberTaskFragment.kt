@@ -15,13 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.number
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.NumberTaskFragBinding
-import com.google.android.ground.databinding.TaskFragWithHeaderBinding
+import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,24 +29,14 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithHeader.create(container, layoutInflater)
+  }
 
-    // Base template with header and footer
-    val binding = TaskFragWithHeaderBinding.inflate(inflater, container, false)
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
-
-    // Task view
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = NumberTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.setVariable(BR.viewModel, viewModel)
-    binding.taskContainer.addView(taskBinding.root)
-
-    return binding.root
+    return taskBinding.root
   }
 }

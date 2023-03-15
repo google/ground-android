@@ -16,13 +16,13 @@
 package com.google.android.ground.ui.datacollection.tasks.time
 
 import android.app.TimePickerDialog
-import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.TimeTaskFragBinding
+import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,24 +31,16 @@ import java.util.*
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithHeader.create(container, inflater)
+  }
 
-    // Base template with header and footer
-    taskView = TaskViewWithHeader.create(container, inflater, this, viewModel)
-
-    // Task view
-    val taskBinding = TimeTaskFragBinding.inflate(inflater, container, false)
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val taskBinding = TimeTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.setVariable(BR.viewModel, viewModel)
     taskBinding.setVariable(BR.fragment, this)
-    taskView.addTaskView(taskBinding.root)
-
-    return taskView.root
+    return taskBinding.root
   }
 
   fun showTimeDialog() {

@@ -25,6 +25,7 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.MapFragment
@@ -44,17 +45,11 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
+    return TaskViewWithoutHeader.create(container, inflater)
+  }
 
-    // Base template with just a footer
-    taskView = TaskViewWithoutHeader.create(container, inflater, this, viewModel)
-
-    // Task view
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
     parentFragmentManager
       .beginTransaction()
@@ -64,9 +59,7 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
         "Draw a polygon fragment"
       )
       .commit()
-    taskView.addTaskView(rowLayout)
-
-    return taskView.root
+    return rowLayout
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
