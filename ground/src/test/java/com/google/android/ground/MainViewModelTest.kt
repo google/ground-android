@@ -64,7 +64,6 @@ class MainViewModelTest : BaseHiltTest() {
 
   @Before
   override fun setUp() {
-    // TODO: Add a test for syncLois
     super.setUp()
 
     fakeAuthenticationManager.setUser(FakeData.USER)
