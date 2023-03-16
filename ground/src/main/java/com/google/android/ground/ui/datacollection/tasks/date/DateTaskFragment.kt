@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnAttach
 import androidx.fragment.app.activityViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.databinding.DateTaskFragBinding
@@ -63,10 +64,12 @@ class DateTaskFragment : AbstractFragment(), TaskFragment<DateTaskViewModel> {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as DateTaskViewModel
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
-    binding.setVariable(BR.fragment, this)
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as DateTaskViewModel
+      binding.lifecycleOwner = this
+      binding.setVariable(BR.viewModel, viewModel)
+      binding.setVariable(BR.fragment, this)
+    }
   }
 
   fun showDateDialog() {

@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.R
@@ -57,7 +58,7 @@ class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel>
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = NumberTaskFragBinding.inflate(inflater, container, false)
+    binding = NumberTaskFragBinding.inflate(inflater, container, false)
 
     return binding.root
   }
@@ -65,8 +66,10 @@ class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel>
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as NumberTaskViewModel
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as NumberTaskViewModel
+      binding.lifecycleOwner = this
+      binding.setVariable(BR.viewModel, viewModel)
+    }
   }
 }

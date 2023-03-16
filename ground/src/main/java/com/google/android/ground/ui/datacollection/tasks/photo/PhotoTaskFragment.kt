@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
@@ -81,28 +82,31 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PhotoTaskViewModel
-    selectPhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        viewModel.onSelectPhotoResult(uri)
-      }
-    capturePhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        viewModel.onCapturePhotoResult(result)
-      }
 
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
-    binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as PhotoTaskViewModel
+      selectPhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+          viewModel.onSelectPhotoResult(uri)
+        }
+      capturePhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+          viewModel.onCapturePhotoResult(result)
+        }
 
-    viewModel.setEditable(true)
-    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
-    observeSelectPhotoClicks()
-    observePhotoResults()
+      binding.lifecycleOwner = this
+      binding.setVariable(BR.viewModel, viewModel)
+      binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
 
-    viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
-    viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+      viewModel.setEditable(true)
+      viewModel.setSurveyId(dataCollectionViewModel.surveyId)
+      viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
+      observeSelectPhotoClicks()
+      observePhotoResults()
+
+      viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
+      viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+    }
   }
 
   override fun onResume() {

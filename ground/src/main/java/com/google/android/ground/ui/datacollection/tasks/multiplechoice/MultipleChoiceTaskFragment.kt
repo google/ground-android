@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -75,20 +76,22 @@ class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoi
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as MultipleChoiceTaskViewModel
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as MultipleChoiceTaskViewModel
+      binding.lifecycleOwner = this
+      binding.setVariable(BR.viewModel, viewModel)
 
-    val multipleChoice = viewModel.task.multipleChoice!!
-    val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
-    optionListView.setHasFixedSize(true)
-    if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
-      adapter.setHasStableIds(true)
-      optionListView.adapter = adapter
-      setupMultipleSelectionTracker(optionListView, adapter)
-    } else {
-      optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
+      val multipleChoice = viewModel.task.multipleChoice!!
+      val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
+      optionListView.setHasFixedSize(true)
+      if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
+        val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
+        adapter.setHasStableIds(true)
+        optionListView.adapter = adapter
+        setupMultipleSelectionTracker(optionListView, adapter)
+      } else {
+        optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
+      }
     }
   }
 
