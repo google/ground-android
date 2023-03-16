@@ -17,12 +17,10 @@
   -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
   <com.google.android.material.button.MaterialButton
     android:id="@+id/button"
     style="@style/TaskChipButton.Transparent.TextAndIcon"
-    app:iconTint="#216C2E"
     tools:icon="@drawable/ic_add"
     tools:text="Button label" />
 </merge>
