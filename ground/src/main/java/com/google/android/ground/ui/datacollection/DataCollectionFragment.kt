@@ -19,11 +19,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import com.google.android.ground.databinding.DataCollectionFragBinding
+import androidx.compose.ui.unit.dp
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
@@ -75,6 +83,19 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
 
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    view.findViewById<ConstraintLayout>(R.id.data_collection_container).addView(
+      ComposeView(view.context).apply {
+        setContent {
+          Row(modifier = Modifier.size(200.dp).background(Color.Cyan)) {}
+        }
+      },
+      0
+    )
   }
 
   override fun onBack(): Boolean =

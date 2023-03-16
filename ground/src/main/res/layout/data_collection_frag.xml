@@ -28,6 +28,7 @@
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/data_collection_container"
     android:fitsSystemWindows="true">
 
     <com.google.android.ground.ui.common.TwoLineToolbar

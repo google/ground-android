@@ -19,7 +19,7 @@
 buildscript {
     ext {
         hiltVersion = "2.45"
-        kotlinVersion = "1.8.10"
+        kotlinVersion = "1.8.0"
         navigationVersion = "2.5.3"
     }
     repositories {
