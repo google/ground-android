@@ -50,7 +50,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: MapContainerFragBinding
-  private lateinit var adapter: LoiCardAdapter
+  private lateinit var adapter: MapCardAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -68,11 +68,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    adapter = LoiCardAdapter()
-    adapter.setLoiCardFocusedListener { mapFragment.setActiveLocationOfInterest(it) }
+    adapter = MapCardAdapter()
+    adapter.setLoiCardFocusedListener {
+      when (it) {
+        is MapCardUiData.LoiCardUiData -> mapFragment.setActiveLocationOfInterest(it.loi.id)
+        null -> mapFragment.setActiveLocationOfInterest(null)
+      }
+    }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) {
-      adapter.updateData(it)
+    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) { lois ->
+      // TODO(#1541): Merge loi MapCardUiData with SuggestLoi MapCardUiData
+      adapter.updateData(lois.map { MapCardUiData.LoiCardUiData(it) })
     }
   }
 
@@ -132,13 +138,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     helper.attachToRecyclerView(recyclerView)
   }
 
-  private fun navigateToDataCollectionFragment(loi: LocationOfInterest) {
-    navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-        /* surveyId = */ loi.surveyId,
-        /* locationOfInterestId = */ loi.id
-      )
-    )
+  private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
+    // TODO(#1541): Handle suggest loi cards
+    when (cardUiData) {
+      is MapCardUiData.LoiCardUiData ->
+        navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            /* surveyId = */ cardUiData.loi.surveyId,
+            /* locationOfInterestId = */ cardUiData.loi.id
+          )
+        )
+    }
   }
 
   override fun onMapReady(mapFragment: MapFragment) {

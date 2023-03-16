@@ -383,10 +383,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
 
-  override fun setActiveLocationOfInterest(locationOfInterest: LocationOfInterest?) {
-    val newId = locationOfInterest?.id
-    if (activeLocationOfInterest == newId) return
-    clusterManager.activeLocationOfInterest = newId
+  override fun setActiveLocationOfInterest(newLoiId: String?) {
+    if (activeLocationOfInterest == newLoiId) return
+    clusterManager.activeLocationOfInterest = newLoiId
 
     refresh()
   }
