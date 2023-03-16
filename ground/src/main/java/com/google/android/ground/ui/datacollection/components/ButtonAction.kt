@@ -23,11 +23,11 @@ enum class ButtonAction(val type: Type, val theme: Theme) {
   UNDO(Type.ICON, Theme.LIGHT_GREEN),
 
   // Drop a pin task
-  DROP_PIN(Type.TEXT, Theme.TRANSPARENT),
+  DROP_PIN(Type.TEXT, Theme.OUTLINED),
 
   // Draw a polygon task
-  ADD_PIN(Type.TEXT_ICON, Theme.TRANSPARENT),
-  COMPLETE(Type.TEXT, Theme.TRANSPARENT);
+  ADD_PIN(Type.TEXT_ICON, Theme.OUTLINED),
+  COMPLETE(Type.TEXT, Theme.OUTLINED);
 
   enum class Type {
     TEXT,
@@ -38,6 +38,6 @@ enum class ButtonAction(val type: Type, val theme: Theme) {
   enum class Theme {
     DARK_GREEN,
     LIGHT_GREEN,
-    TRANSPARENT,
+    OUTLINED,
   }
 }

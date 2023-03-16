@@ -76,7 +76,7 @@ private fun createTextTypeButtons(
   when (theme) {
     Theme.DARK_GREEN -> TaskChipButtonDarkGreenBinding.inflate(layoutInflater, container).button
     Theme.LIGHT_GREEN -> TaskChipButtonLightGreenBinding.inflate(layoutInflater, container).button
-    Theme.TRANSPARENT -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
+    Theme.OUTLINED -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
   }
 
 // TODO(Shobhit): Figure out a way to create styled buttons without using XML.
@@ -97,7 +97,7 @@ private fun createTextIconTypeButtons(
   container: ViewGroup,
   theme: Theme
 ): MaterialButton =
-  if (theme == Theme.TRANSPARENT) {
+  if (theme == Theme.OUTLINED) {
     TaskChipButtonWithTextAndIconTransparentBinding.inflate(layoutInflater, container).button
   } else {
     error("Unsupported icon type button for theme: $theme")
