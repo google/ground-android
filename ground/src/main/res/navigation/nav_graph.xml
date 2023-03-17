@@ -76,7 +76,7 @@
       app:destination="@id/surveySelectorFragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
-      app:destination="@id/data_collection_fragment" />
+      app:destination="@id/data_collection" />
     <action
       android:id="@+id/action_home_screen_fragment_to_locationOfInterestSelectorFragment"
       app:destination="@id/locationOfInterestSelectorFragment" />
@@ -86,23 +86,65 @@
     android:name="com.google.android.ground.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
     tools:layout="@layout/sync_status_frag" />
-  <fragment
-    android:id="@+id/data_collection_fragment"
-    android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
-    android:label="@string/collect_data"
-    tools:layout="@layout/data_collection_frag">
+  <navigation
+    android:id="@+id/data_collection"
+    app:startDestination="@id/data_collection_fragment">
     <argument
       android:name="surveyId"
       type="string" />
     <argument
       android:name="locationOfInterestId"
       type="string" />
-  </fragment>
-  <fragment
-    android:id="@+id/question_data_collection_fragment"
-    android:name="com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment"
-    android:label="@string/collect_data"
-    tools:layout="@layout/question_task_frag" />
+
+    <fragment
+      android:id="@+id/data_collection_fragment"
+      android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/data_collection_frag">
+      <argument
+        android:name="surveyId"
+        type="string" />
+      <argument
+        android:name="locationOfInterestId"
+        type="string" />
+    </fragment>
+
+    <fragment
+      android:id="@+id/drop_a_pin_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.DropAPinTaskFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/question_task_frag" />
+
+    <fragment
+      android:id="@+id/multiple_choice_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.MultipleChoiceTaskFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/question_task_frag" />
+
+    <fragment
+      android:id="@+id/number_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.NumberTaskFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/question_task_frag" />
+
+    <fragment
+      android:id="@+id/photo_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.PhotoTaskFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/question_task_frag" />
+
+    <fragment
+      android:id="@+id/polygon_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.PolygonDrawingTaskFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/question_task_frag" />
+
+    <fragment
+      android:id="@+id/question_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment"
+      android:label="@string/collect_data"
+      tools:layout="@layout/question_task_frag" />
+  </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.ground.ui.offlinebasemap.OfflineAreasFragment"

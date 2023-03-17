@@ -24,9 +24,11 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.fragment.app.activityViewModels
+import androidx.core.view.doOnAttach
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
@@ -51,11 +53,13 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
 
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: PhotoTaskViewModel
   override var position by Delegates.notNull<Int>()
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
+  private lateinit var binding: PhotoTaskFragBinding
   private var hasRequestedPermissionsOnResume = false
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,36 +75,38 @@ class PhotoTaskFragment : AbstractFragment(), TaskFragment<PhotoTaskViewModel> {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as PhotoTaskViewModel
-    selectPhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        viewModel.onSelectPhotoResult(uri)
-      }
-    capturePhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        viewModel.onCapturePhotoResult(result)
-      }
-
-    val binding = PhotoTaskFragBinding.inflate(inflater, container, false)
-
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
-    binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
-
-    viewModel.setEditable(true)
-    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
-    observeSelectPhotoClicks()
-    observePhotoResults()
+    binding = PhotoTaskFragBinding.inflate(inflater, container, false)
 
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
-    viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as PhotoTaskViewModel
+      selectPhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+          viewModel.onSelectPhotoResult(uri)
+        }
+      capturePhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+          viewModel.onCapturePhotoResult(result)
+        }
+
+      binding.lifecycleOwner = this
+      binding.setVariable(BR.viewModel, viewModel)
+      binding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
+
+      viewModel.setEditable(true)
+      viewModel.setSurveyId(dataCollectionViewModel.surveyId)
+      viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
+      observeSelectPhotoClicks()
+      observePhotoResults()
+
+      viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
+      viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+    }
   }
 
   override fun onResume() {
