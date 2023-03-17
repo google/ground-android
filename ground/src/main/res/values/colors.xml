@@ -30,11 +30,24 @@
   <color name="colorAlert">#d2004d</color>
   <color name="colorNavMenuItem">#333333</color>
 
+  <!-- Palette -->
+  <color name="paletteGreen">#216C2E</color>
+
   <!-- Loi Card -->
   <color name="colorJobCardIconBackground">#A7F5A7</color>
   <color name="colorJobCardBorderSelected">#FA7B17</color>
-  <color name="colorJobCardCollectButton">#216C2E</color>
+  <color name="colorJobCardCollectButton">@color/paletteGreen</color>
 
   <!-- Data Submission Confirmation -->
-  <color name="colorDataSubmissionConfirmationGreen">#216C2E</color>
+  <color name="colorDataSubmissionConfirmationGreen">@color/paletteGreen</color>
+
+  <!-- Task UI Components -->
+  <color name="taskBottomControlsBackground">#FCFDF7</color>
+  <color name="taskBtnDarkGreen">#47854B</color>
+  <color name="taskBtnTextDarkGreen">#FFFFFF</color>
+  <color name="taskBtnLightGreen">#D5E8D0</color>
+  <color name="taskBtnTextLightGreen">#000000</color>
+  <color name="taskBtnTransparentStrokeColor">#747775</color>
+  <color name="taskBtnTextTransparent">@color/paletteGreen</color>
+  <color name="taskBtnIconTintTransparent">@color/paletteGreen</color>
 </resources>
