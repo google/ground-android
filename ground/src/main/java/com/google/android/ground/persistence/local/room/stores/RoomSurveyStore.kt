@@ -23,15 +23,15 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.*
-import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
@@ -44,12 +44,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var baseMapDao: BaseMapDao
   @Inject lateinit var schedulers: Schedulers
 
-  override val surveys: Flowable<List<Survey>>
-    get() =
-      surveyDao
-        .findAllOnceAndStream()
-        .map { list: List<SurveyEntityAndRelations> -> list.map { it.toModelObject() } }
-        .subscribeOn(schedulers.io())
+  override val surveys: Flow<List<Survey>>
+    get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }
 
   /**
    * Attempts to update persisted data associated with a [Survey] in the local database. If the

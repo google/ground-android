@@ -70,7 +70,7 @@ constructor(
     activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
   val offlineSurveys: @Cold Flowable<List<Survey>>
-    get() = localSurveyStore.surveys
+    get() = localSurveyStore.surveys.asFlowable()
 
   init {
     // Persist last active survey ID whenever survey is activated.

@@ -20,13 +20,12 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.google.android.ground.persistence.local.room.entity.SurveyEntity
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
-import io.reactivex.Flowable
 import io.reactivex.Maybe
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SurveyDao : BaseDao<SurveyEntity> {
-  @Query("SELECT * FROM survey")
-  fun findAllOnceAndStream(): Flowable<List<SurveyEntityAndRelations>>
+  @Query("SELECT * FROM survey") fun getAll(): Flow<List<SurveyEntityAndRelations>>
 
   @Transaction
   @Query("SELECT * FROM survey WHERE id = :id")
