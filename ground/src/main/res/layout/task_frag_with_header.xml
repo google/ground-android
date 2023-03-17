@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2022 Google LLC
+  ~ Copyright 2023 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -51,10 +51,10 @@
       app:layout_constraintTop_toBottomOf="@+id/data_collection_header" />
 
     <LinearLayout
-      android:id="@+id/bottomControls"
+      android:id="@+id/action_buttons_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="#FCFDF7"
+      android:background="@color/taskBottomControlsBackground"
       android:orientation="horizontal"
       android:padding="24dp"
       app:layout_constraintBottom_toBottomOf="parent"

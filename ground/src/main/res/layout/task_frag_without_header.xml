@@ -37,10 +37,10 @@
       app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-      android:id="@+id/bottomControls"
+      android:id="@+id/action_buttons_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="#FCFDF7"
+      android:background="@color/taskBottomControlsBackground"
       android:orientation="horizontal"
       android:padding="24dp"
       app:layout_constraintBottom_toBottomOf="parent"

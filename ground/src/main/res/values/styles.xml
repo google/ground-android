@@ -180,17 +180,23 @@
 
   <style name="TaskChipButton.DarkGreen">
     <item name="android:backgroundTint">@drawable/task_dark_green_btn_selector</item>
-    <item name="android:textColor">#FFFFFF</item>
+    <item name="android:textColor">@color/taskBtnTextDarkGreen</item>
   </style>
 
   <style name="TaskChipButton.LightGreen">
     <item name="android:backgroundTint">@drawable/task_light_green_btn_selector</item>
-    <item name="android:textColor">#000000</item>
+    <item name="android:textColor">@color/taskBtnTextLightGreen</item>
   </style>
 
   <style name="TaskChipButton.Transparent">
     <item name="android:backgroundTint">@drawable/task_transparent_btn_selector</item>
-    <item name="android:textColor">#216C2E</item>
+    <item name="android:textColor">@color/taskBtnTextTransparent</item>
+    <item name="strokeColor">@color/taskBtnTransparentStrokeColor</item>
+    <item name="strokeWidth">2dp</item>
+  </style>
+
+  <style name="TaskChipButton.Transparent.TextAndIcon">
+    <item name="iconTint">@color/taskBtnIconTintTransparent</item>
   </style>
 
 </resources>
