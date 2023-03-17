@@ -35,9 +35,8 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   crossinline action: Fragment.() -> Unit = {},
-): ActivityScenario<HiltTestActivity> {
-  return hiltActivityScenario(themeResId).launchFragment<T>(fragmentArgs, {}) { this.action() }
-}
+): ActivityScenario<HiltTestActivity> =
+  hiltActivityScenario(themeResId).launchFragment<T>(fragmentArgs, {}) { this.action() }
 
 /** Instantiates a new activity scenario with Hilt support. */
 fun hiltActivityScenario(
@@ -63,8 +62,8 @@ inline fun <reified T : Fragment> ActivityScenario<HiltTestActivity>.launchFragm
   fragmentArgs: Bundle? = null,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {}
-): ActivityScenario<HiltTestActivity> {
-  return this.onActivity { activity ->
+): ActivityScenario<HiltTestActivity> =
+  this.onActivity { activity ->
     val fragment: Fragment =
       activity.supportFragmentManager.fragmentFactory.instantiate(
         Preconditions.checkNotNull(T::class.java.classLoader),
@@ -81,4 +80,3 @@ inline fun <reified T : Fragment> ActivityScenario<HiltTestActivity>.launchFragm
 
     fragment.postTransactionAction()
   }
-}
