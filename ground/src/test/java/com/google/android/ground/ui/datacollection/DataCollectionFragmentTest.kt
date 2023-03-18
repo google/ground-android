@@ -17,15 +17,17 @@
 package com.google.android.ground.ui.datacollection
 
 import android.widget.RadioButton
+import androidx.lifecycle.ViewModelStore
+import androidx.navigation.Navigation
+import androidx.navigation.set
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.R
-import com.google.android.ground.capture
-import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.*
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
@@ -321,8 +323,25 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val argsBundle =
       DataCollectionFragmentArgs.Builder(SURVEY.id, LOCATION_OF_INTEREST.id).build().toBundle()
 
-    launchFragmentInHiltContainer<DataCollectionFragment>(argsBundle) {
-      fragment = this as DataCollectionFragment
-    }
+    val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+    navController.setViewModelStore(ViewModelStore()) // required for graph scoped view models.
+    navController.setGraph(R.navigation.nav_graph)
+    navController.setCurrentDestination(R.id.data_collection_fragment, argsBundle)
+
+    hiltActivityScenario()
+      .launchFragment<DataCollectionFragment>(
+        argsBundle,
+        preTransactionAction = {
+          fragment = this as DataCollectionFragment
+          this.also {
+            it.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
+              if (viewLifecycleOwner != null) {
+                // Bind the controller after the view is created but before onViewCreated is called.
+                Navigation.setViewNavController(fragment.requireView(), navController)
+              }
+            }
+          }
+        }
+      )
   }
 }

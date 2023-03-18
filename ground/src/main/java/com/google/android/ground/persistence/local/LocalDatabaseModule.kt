@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local
 import android.content.Context
 import androidx.room.Room
 import com.google.android.ground.Config
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import dagger.Module
 import dagger.Provides
@@ -25,15 +26,21 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asExecutor
 
 @InstallIn(SingletonComponent::class)
 @Module
 object LocalDatabaseModule {
   @Provides
   @Singleton
-  fun localDatabase(@ApplicationContext context: Context): LocalDatabase {
-    return Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
+  fun localDatabase(
+    @ApplicationContext context: Context,
+    @IoDispatcher ioDispatcher: CoroutineDispatcher
+  ): LocalDatabase =
+    Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
       .fallbackToDestructiveMigration() // TODO(#128): Disable before official release.
+      // Run queries and transactions on background I/O thread.
+      .setQueryExecutor(ioDispatcher.asExecutor())
       .build()
-  }
 }
