@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.fragment.app.activityViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.common.AbstractFragment
@@ -22,7 +22,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private val actions: EnumMap<ButtonAction, () -> Unit> = EnumMap(ButtonAction::class.java)
   private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
 
-  protected val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  protected val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
+
   protected lateinit var taskView: TaskView
 
   lateinit var viewModel: T
