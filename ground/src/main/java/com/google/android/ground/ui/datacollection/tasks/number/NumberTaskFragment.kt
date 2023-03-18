@@ -30,7 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithHeader.create(container, layoutInflater)
+    return TaskViewWithHeader.create(layoutInflater)
   }
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

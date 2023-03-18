@@ -115,7 +115,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     action: ButtonAction,
     clickHandler: () -> Unit
   ) {
-    val container = taskView.bottomControls
+    val container = taskView.actionButtonsContainer
     val taskButton =
       TaskButton.createAndAttachButton(action, container, layoutInflater, drawableId, textId)
     val button = taskButton.view

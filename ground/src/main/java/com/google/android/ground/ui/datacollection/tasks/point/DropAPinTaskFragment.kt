@@ -47,7 +47,7 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   }
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithoutHeader.create(container, inflater)
+    return TaskViewWithoutHeader.create(inflater)
   }
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

@@ -31,7 +31,7 @@ import java.util.*
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithHeader.create(container, inflater)
+    return TaskViewWithHeader.create(inflater)
   }
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
