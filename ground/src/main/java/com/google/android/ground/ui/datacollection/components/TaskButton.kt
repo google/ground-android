@@ -24,12 +24,38 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.ground.databinding.*
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.datacollection.components.ButtonAction.Theme
 import com.google.android.ground.ui.datacollection.components.ButtonAction.Type
 import com.google.android.material.button.MaterialButton
 
 /** Wrapper class for holding a button. */
-data class TaskButton(val view: View) {
+data class TaskButton(private val view: View) {
+
+  private var taskUpdatedCallback: ((button: TaskButton, taskData: TaskData?) -> Unit)? = null
+
+  /** Updates the state of the button. */
+  fun updateState(block: View.() -> Unit): TaskButton {
+    block(view)
+    return this
+  }
+
+  /** Register a callback to be invoked when this view is clicked. */
+  fun setOnClickListener(block: () -> Unit): TaskButton {
+    view.setOnClickListener { block() }
+    return this
+  }
+
+  /** Register a callback to be invoked when [TaskData] is updated. */
+  fun setOnTaskUpdated(block: (button: TaskButton, taskData: TaskData?) -> Unit): TaskButton {
+    this.taskUpdatedCallback = block
+    return this
+  }
+
+  /** Must be called when a new [TaskData] is available. */
+  fun onTaskDataUpdated(taskData: TaskData?) {
+    taskUpdatedCallback?.let { it(this, taskData) }
+  }
 
   companion object {
     /** Inflates the button layout and attaches to the given container view. */
@@ -58,11 +84,7 @@ data class TaskButton(val view: View) {
               icon = ResourcesCompat.getDrawable(resources, requireNotNull(drawableId), null)
             }
           }
-        }.apply {
-          id = View.generateViewId()
-          // Default state
-          isEnabled = false
-        }
+        }.apply { id = View.generateViewId() }
       )
   }
 }
