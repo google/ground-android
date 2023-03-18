@@ -20,7 +20,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnAttach
-import androidx.fragment.app.activityViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import com.google.android.ground.R
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -35,7 +36,8 @@ import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAPinTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: DropAPinTaskViewModel
   override var position by Delegates.notNull<Int>()
 
