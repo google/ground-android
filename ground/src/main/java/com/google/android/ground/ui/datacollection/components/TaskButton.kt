@@ -20,8 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.ground.databinding.*
 import com.google.android.ground.model.submission.TaskData
@@ -33,6 +31,10 @@ import com.google.android.material.button.MaterialButton
 data class TaskButton(private val view: View) {
 
   private var taskUpdatedCallback: ((button: TaskButton, taskData: TaskData?) -> Unit)? = null
+
+  init {
+    view.id = View.generateViewId()
+  }
 
   /** Updates the state of the button. */
   fun updateState(block: View.() -> Unit): TaskButton {
@@ -62,29 +64,14 @@ data class TaskButton(private val view: View) {
     fun createAndAttachButton(
       action: ButtonAction,
       container: ViewGroup,
-      layoutInflater: LayoutInflater,
-      @DrawableRes drawableId: Int?,
-      @StringRes textId: Int?,
+      layoutInflater: LayoutInflater
     ) =
       TaskButton(
         when (action.type) {
-          Type.TEXT ->
-            createTextTypeButtons(layoutInflater, container, action.theme).apply {
-              setText(requireNotNull(textId))
-            }
-          Type.ICON ->
-            createIconTypeButtons(layoutInflater, container, action.theme).apply {
-              setImageDrawable(
-                ResourcesCompat.getDrawable(resources, requireNotNull(drawableId), null)
-              )
-            }
-          Type.TEXT_ICON -> {
-            createTextIconTypeButtons(layoutInflater, container, action.theme).apply {
-              setText(requireNotNull(textId))
-              icon = ResourcesCompat.getDrawable(resources, requireNotNull(drawableId), null)
-            }
-          }
-        }.apply { id = View.generateViewId() }
+          Type.TEXT -> createTextTypeButtons(layoutInflater, container, action)
+          Type.ICON -> createIconTypeButtons(layoutInflater, container, action)
+          Type.TEXT_ICON -> createTextIconTypeButtons(layoutInflater, container, action)
+        }
       )
   }
 }
@@ -93,34 +80,41 @@ data class TaskButton(private val view: View) {
 private fun createTextTypeButtons(
   layoutInflater: LayoutInflater,
   container: ViewGroup,
-  theme: Theme
+  action: ButtonAction
 ): Button =
-  when (theme) {
+  when (action.theme) {
     Theme.DARK_GREEN -> TaskChipButtonDarkGreenBinding.inflate(layoutInflater, container).button
     Theme.LIGHT_GREEN -> TaskChipButtonLightGreenBinding.inflate(layoutInflater, container).button
     Theme.OUTLINED -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
-  }
+  }.apply { action.textId?.let { setText(it) } }
 
 // TODO(Shobhit): Figure out a way to create styled buttons without using XML.
 private fun createIconTypeButtons(
   layoutInflater: LayoutInflater,
   container: ViewGroup,
-  theme: Theme
+  action: ButtonAction
 ): ImageButton =
-  if (theme == Theme.LIGHT_GREEN) {
-    TaskChipButtonWithIconLightGreenBinding.inflate(layoutInflater, container).button
-  } else {
-    error("Unsupported icon type button for theme: $theme")
-  }
+  if (action.theme == Theme.LIGHT_GREEN) {
+      TaskChipButtonWithIconLightGreenBinding.inflate(layoutInflater, container).button
+    } else {
+      error("Unsupported icon type button for theme: ${action.theme}")
+    }
+    .apply {
+      action.drawableId?.let { setImageDrawable(ResourcesCompat.getDrawable(resources, it, null)) }
+    }
 
 // TODO(Shobhit): Figure out a way to create styled buttons without using XML.
 private fun createTextIconTypeButtons(
   layoutInflater: LayoutInflater,
   container: ViewGroup,
-  theme: Theme
+  action: ButtonAction
 ): MaterialButton =
-  if (theme == Theme.OUTLINED) {
-    TaskChipButtonWithTextAndIconTransparentBinding.inflate(layoutInflater, container).button
-  } else {
-    error("Unsupported icon type button for theme: $theme")
-  }
+  if (action.theme == Theme.OUTLINED) {
+      TaskChipButtonWithTextAndIconTransparentBinding.inflate(layoutInflater, container).button
+    } else {
+      error("Unsupported icon type button for theme: $action.theme")
+    }
+    .apply {
+      action.textId?.let { setText(it) }
+      action.drawableId?.let { icon = ResourcesCompat.getDrawable(resources, it, null) }
+    }

@@ -19,8 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
@@ -102,7 +100,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
   }
 
   private fun addContinueButton() {
-    addButton(ButtonAction.CONTINUE, textId = R.string.continue_text)
+    addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData ->
         button.updateState { isEnabled = taskData.isNotEmpty() }
@@ -111,7 +109,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
   }
 
   private fun addSkipButton() {
-    addButton(ButtonAction.SKIP, textId = R.string.skip)
+    addButton(ButtonAction.SKIP)
       .setOnClickListener {
         viewModel.clearResponse()
         dataCollectionViewModel.onContinueClicked()
@@ -120,7 +118,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
   }
 
   fun addUndoButton() {
-    addButton(ButtonAction.UNDO, drawableId = R.drawable.ic_undo_black)
+    addButton(ButtonAction.UNDO)
       .setOnClickListener { viewModel.clearResponse() }
       .setOnTaskUpdated { button, taskData ->
         button.updateState { visibility = if (taskData.isEmpty()) View.GONE else View.VISIBLE }
@@ -131,20 +129,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
       }
   }
 
-  private fun addButton(
-    action: ButtonAction,
-    @StringRes textId: Int? = null,
-    @DrawableRes drawableId: Int? = null,
-  ): TaskButton {
+  private fun addButton(action: ButtonAction): TaskButton {
     check(!buttons.contains(action)) { "Button $action already bound" }
     val button =
-      TaskButton.createAndAttachButton(
-        action,
-        taskView.actionButtonsContainer,
-        layoutInflater,
-        drawableId,
-        textId
-      )
+      TaskButton.createAndAttachButton(action, taskView.actionButtonsContainer, layoutInflater)
     buttons[action] = button
     return button
   }
