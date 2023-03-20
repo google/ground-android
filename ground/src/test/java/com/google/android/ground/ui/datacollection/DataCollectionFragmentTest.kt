@@ -46,12 +46,9 @@ import com.sharedtest.FakeData.TASK_2_NAME
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
-import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -71,7 +68,6 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
 
-  @Inject lateinit var testDispatcher: TestDispatcher
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
   @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<List<TaskDataDelta>>
   lateinit var fragment: DataCollectionFragment
@@ -220,87 +216,85 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_onFinalTask_resultIsSaved() =
-    runTest(testDispatcher) {
-      setupFragment()
-      val task1Response = "response 1"
-      val task2Response = "response 2"
-      val expectedTaskDataDeltas =
-        listOf(
-          TaskDataDelta(
-            SUBMISSION.job.tasksSorted[0].id,
-            Task.Type.TEXT,
-            TextTaskData.fromString(task1Response)
-          ),
-          TaskDataDelta(
-            SUBMISSION.job.tasksSorted[1].id,
-            Task.Type.TEXT,
-            TextTaskData.fromString(task2Response)
-          ),
-        )
-      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
-      onView(withId(R.id.data_collection_continue_button)).perform(click())
-      onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
-      onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
+  fun onContinueClicked_onFinalTask_resultIsSaved() = runWithTestDispatcher {
+    setupFragment()
+    val task1Response = "response 1"
+    val task2Response = "response 2"
+    val expectedTaskDataDeltas =
+      listOf(
+        TaskDataDelta(
+          SUBMISSION.job.tasksSorted[0].id,
+          Task.Type.TEXT,
+          TextTaskData.fromString(task1Response)
+        ),
+        TaskDataDelta(
+          SUBMISSION.job.tasksSorted[1].id,
+          Task.Type.TEXT,
+          TextTaskData.fromString(task2Response)
+        ),
+      )
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
+    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
+    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
-      // Click continue on final task
-      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-      onView(withId(R.id.data_collection_continue_button)).perform(click())
-      advanceUntilIdle()
+    // Click continue on final task
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
+    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    advanceUntilIdle()
 
-      verify(submissionRepository)
-        .createOrUpdateSubmission(eq(SUBMISSION), capture(taskDataDeltaCaptor), eq(true))
-      expectedTaskDataDeltas.forEach { taskData ->
-        assertThat(taskDataDeltaCaptor.value).contains(taskData)
-      }
+    verify(submissionRepository)
+      .createOrUpdateSubmission(eq(SUBMISSION), capture(taskDataDeltaCaptor), eq(true))
+    expectedTaskDataDeltas.forEach { taskData ->
+      assertThat(taskDataDeltaCaptor.value).contains(taskData)
     }
+  }
 
   @Test
-  fun onContinueClicked_onFinalTask_withMultipleChoiceTask_resultIsSaved() =
-    runTest(testDispatcher) {
-      val label = "multiple_choice_task"
-      val option2Label = "Option 2"
-      val option2Id = "2"
-      val multipleChoice =
-        MultipleChoice(
-          persistentListOf(
-            Option("1", "code1", "Option 1"),
-            Option(option2Id, "code2", option2Label),
-          ),
-          MultipleChoice.Cardinality.SELECT_ONE
-        )
-      val taskId = "task id"
-      setupSubmission(
-        mapOf(
-          Pair(
-            "field id",
-            Task(
-              taskId,
-              0,
-              Task.Type.MULTIPLE_CHOICE,
-              label,
-              isRequired = false,
-              multipleChoice = multipleChoice
-            )
+  fun onContinueClicked_onFinalTask_withMultipleChoiceTask_resultIsSaved() = runWithTestDispatcher {
+    val label = "multiple_choice_task"
+    val option2Label = "Option 2"
+    val option2Id = "2"
+    val multipleChoice =
+      MultipleChoice(
+        persistentListOf(
+          Option("1", "code1", "Option 1"),
+          Option(option2Id, "code2", option2Label),
+        ),
+        MultipleChoice.Cardinality.SELECT_ONE
+      )
+    val taskId = "task id"
+    setupSubmission(
+      mapOf(
+        Pair(
+          "field id",
+          Task(
+            taskId,
+            0,
+            Task.Type.MULTIPLE_CHOICE,
+            label,
+            isRequired = false,
+            multipleChoice = multipleChoice
           )
         )
       )
-      setupFragment()
-      val expectedTaskDataDeltas =
-        TaskDataDelta(
-          taskId,
-          Task.Type.MULTIPLE_CHOICE,
-          MultipleChoiceTaskData.fromList(multipleChoice, listOf(option2Id))
-        )
+    )
+    setupFragment()
+    val expectedTaskDataDeltas =
+      TaskDataDelta(
+        taskId,
+        Task.Type.MULTIPLE_CHOICE,
+        MultipleChoiceTaskData.fromList(multipleChoice, listOf(option2Id))
+      )
 
-      onView(allOf(withText(option2Label), isDisplayed())).perform(click())
-      onView(withId(R.id.data_collection_continue_button)).perform(click())
-      advanceUntilIdle()
+    onView(allOf(withText(option2Label), isDisplayed())).perform(click())
+    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    advanceUntilIdle()
 
-      verify(submissionRepository)
-        .createOrUpdateSubmission(any(), capture(taskDataDeltaCaptor), eq(true))
-      assertThat(taskDataDeltaCaptor.value[0]).isEqualTo(expectedTaskDataDeltas)
-    }
+    verify(submissionRepository)
+      .createOrUpdateSubmission(any(), capture(taskDataDeltaCaptor), eq(true))
+    assertThat(taskDataDeltaCaptor.value[0]).isEqualTo(expectedTaskDataDeltas)
+  }
 
   @Test
   fun onBack_firstViewPagerItem_returnsFalse() {

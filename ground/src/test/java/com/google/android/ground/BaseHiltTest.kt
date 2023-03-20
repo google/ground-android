@@ -19,6 +19,11 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.mockito.junit.MockitoJUnit
@@ -26,6 +31,7 @@ import org.mockito.junit.MockitoRule
 import org.robolectric.annotation.Config
 
 /** Injects Hilt dependencies during setUp. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Config(application = HiltTestApplication::class)
 abstract class BaseHiltTest {
   /** Required for injecting hilt dependencies using @Inject annotation. */
@@ -36,6 +42,11 @@ abstract class BaseHiltTest {
 
   /* Allows creating mocks using @Mock annotation. */
   @get:Rule(order = 2) var rule: MockitoRule = MockitoJUnit.rule()
+
+  @Inject lateinit var testDispatcher: TestDispatcher
+
+  open fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
+    runTest(context = testDispatcher, testBody = testBody)
 
   @Before
   @OverridingMethodsMustInvokeSuper
