@@ -13,35 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground;
-
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltTestApplication;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import org.junit.Before;
-import org.junit.Rule;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.Config;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltTestApplication
+import javax.annotation.OverridingMethodsMustInvokeSuper
+import org.junit.Before
+import org.junit.Rule
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
+import org.robolectric.annotation.Config
 
 /** Injects Hilt dependencies during setUp. */
-@Config(application = HiltTestApplication.class)
-public abstract class BaseHiltTest {
+@Config(application = HiltTestApplication::class)
+abstract class BaseHiltTest {
+  /** Required for injecting hilt dependencies using @Inject annotation. */
+  @get:Rule(order = 0) var hiltRule = HiltAndroidRule(this)
 
-  // Required for injecting hilt dependencies using @Inject annotation.
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  /* Background executor executes tasks synchronously. Needed for Room database operations. */
+  @get:Rule(order = 1) var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-  // Background executor executes tasks synchronously. Needed for Room database operations.
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-
-  // Allows creating mocks using @Mock annotation.
-  @Rule public MockitoRule rule = MockitoJUnit.rule();
+  /* Allows creating mocks using @Mock annotation. */
+  @get:Rule(order = 2) var rule: MockitoRule = MockitoJUnit.rule()
 
   @Before
   @OverridingMethodsMustInvokeSuper
-  public void setUp() {
-    hiltRule.inject();
+  open fun setUp() {
+    hiltRule.inject()
   }
 }
