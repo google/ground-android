@@ -19,6 +19,8 @@ import android.content.SharedPreferences
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
+import com.google.android.ground.util.allowThreadDiskReads
+import com.google.android.ground.util.allowThreadDiskWrites
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
@@ -35,7 +37,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   private val mapTypeProcessor: BehaviorProcessor<Int> = BehaviorProcessor.createDefault(mapType)
 
   val mapTypeFlowable: Flowable<Int>
-    get() = mapTypeProcessor
+    get() = allowThreadDiskReads { mapTypeProcessor }
 
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the
@@ -43,50 +45,53 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
    */
   var lastActiveSurveyId: String
     // TODO(#1592): Stop using this field to identify current survey.
-    get() = preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty()
-    set(id) = preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
+    get() = allowThreadDiskReads { preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty() }
+    set(id) = allowThreadDiskWrites {
+      preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
+    }
 
   /** Id of the basemap type. */
   var mapType: Int
-    get() = preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID)
-    set(type) {
+    get() = allowThreadDiskReads { preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID) }
+    set(type) = allowThreadDiskWrites {
       preferences.edit().putInt(MAP_TYPE, type).apply()
       mapTypeProcessor.onNext(type)
     }
 
   /** Whether location lock is enabled or not. */
   var isLocationLockEnabled: Boolean
-    get() = preferences.getBoolean(LOCATION_LOCK_ENABLED, false)
-    set(value) {
+    get() = allowThreadDiskReads { preferences.getBoolean(LOCATION_LOCK_ENABLED, false) }
+    set(value) = allowThreadDiskWrites {
       preferences.edit().putBoolean(LOCATION_LOCK_ENABLED, value).apply()
     }
 
   /** Terms of service acceptance state for the currently signed in user. */
   var isTermsOfServiceAccepted: Boolean
-    get() = preferences.getBoolean(TOS_ACCEPTED, false)
-    set(value) {
+    get() = allowThreadDiskReads { preferences.getBoolean(TOS_ACCEPTED, false) }
+    set(value) = allowThreadDiskWrites {
       preferences.edit().putBoolean(TOS_ACCEPTED, value).apply()
     }
 
   /** Removes all values stored in the local store. */
-  fun clear() {
-    preferences.edit().clear().apply()
-  }
+  fun clear() = allowThreadDiskWrites { preferences.edit().clear().apply() }
 
-  fun shouldUploadMediaOverUnmeteredConnectionOnly(): Boolean =
+  fun shouldUploadMediaOverUnmeteredConnectionOnly(): Boolean = allowThreadDiskReads {
     preferences.getBoolean(Keys.UPLOAD_MEDIA, false)
-
-  fun shouldDownloadOfflineAreasOverUnmeteredConnectionOnly(): Boolean =
-    preferences.getBoolean(Keys.OFFLINE_AREAS, false)
-
-  fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) {
-    preferences
-      .edit()
-      .putString(LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize())
-      .apply()
   }
 
-  fun getLastCameraPosition(surveyId: String): CameraPosition? =
+  fun shouldDownloadOfflineAreasOverUnmeteredConnectionOnly(): Boolean = allowThreadDiskReads {
+    preferences.getBoolean(Keys.OFFLINE_AREAS, false)
+  }
+
+  fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
+    allowThreadDiskReads {
+      preferences
+        .edit()
+        .putString(LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize())
+        .apply()
+    }
+
+  fun getLastCameraPosition(surveyId: String): CameraPosition? = allowThreadDiskReads {
     try {
       val stringVal = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
       CameraPosition.deserialize(stringVal)
@@ -97,6 +102,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       Timber.e(e, "Invalid camera pos in prefs")
       null
     }
+  }
 
   companion object {
     const val ACTIVE_SURVEY_ID_KEY = "activeSurveyId"

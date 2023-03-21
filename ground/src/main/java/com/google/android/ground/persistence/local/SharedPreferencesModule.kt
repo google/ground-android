@@ -21,6 +21,7 @@ import com.google.android.ground.Config
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.stores.*
 import com.google.android.ground.persistence.local.stores.*
+import com.google.android.ground.util.allowThreadDiskReads
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,5 +35,7 @@ object SharedPreferencesModule {
   @Provides
   @Singleton
   fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-    context.getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE)
+    allowThreadDiskReads {
+      context.getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE)
+    }
 }
