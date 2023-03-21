@@ -50,6 +50,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -77,10 +78,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
 
   @Test
-  fun testInsertAndGetSurveys() {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
-    localSurveyStore.surveys.test().assertValue(listOf(TEST_SURVEY))
-  }
+  fun testInsertAndGetSurveys() =
+    runTest(testDispatcher) {
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
+      assertThat(localSurveyStore.surveys.first()).containsExactly(TEST_SURVEY)
+    }
 
   @Test
   fun testGetSurveyById() {
@@ -89,11 +91,12 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteSurvey() {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localSurveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
-    localSurveyStore.surveys.test().assertValue { obj: List<Survey> -> obj.isEmpty() }
-  }
+  fun testDeleteSurvey() =
+    runTest(testDispatcher) {
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+      localSurveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
+      assertThat(localSurveyStore.surveys.first()).isEmpty()
+    }
 
   @Test
   fun testRemovedJobFromSurvey() {

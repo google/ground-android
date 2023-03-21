@@ -26,7 +26,7 @@ import javax.inject.Inject
  * Runs all tasks synchronously by executing the tasks on the current thread without any queueing
  * and blocking the call until finished.
  */
-class TestScheduler @Inject internal constructor() : Schedulers {
+class TestSchedulers @Inject internal constructor() : Schedulers {
 
   override fun io(): Scheduler = createCurrentThreadScheduler("Test I/O Scheduler")
   override fun ui(): Scheduler = createCurrentThreadScheduler("Test UI Scheduler")
