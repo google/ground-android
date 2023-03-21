@@ -22,32 +22,57 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.LoiCardItemBinding
+import com.google.android.ground.databinding.SuggestLoiCardItemBinding
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.ui.home.mapcontainer.MapCardAdapter.ViewHolder
+import com.google.android.material.card.MaterialCardView
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
  * [ViewHolder] views.
  */
-class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
+class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
+  private var indexOfLastLoi: Int = -1
   private val itemsList: MutableList<MapCardUiData> = mutableListOf()
   private lateinit var cardFocusedListener: (MapCardUiData?) -> Unit
   private lateinit var collectDataListener: (MapCardUiData) -> Unit
 
-  /** Creates a new [ViewHolder] item without any data. */
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    val binding = LoiCardItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    return ViewHolder(binding)
-  }
+  /** Creates a new [RecyclerView.ViewHolder] item without any data. */
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+    if (viewType == R.layout.loi_card_item) {
+      LoiViewHolder(LoiCardItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    } else {
+      SuggestLoiViewHolder(
+        SuggestLoiCardItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+      )
+    }
 
-  /** Binds [LocationOfInterest] data to [ViewHolder]. */
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+  override fun getItemViewType(position: Int): Int =
+    if (position <= indexOfLastLoi) {
+      R.layout.loi_card_item
+    } else {
+      R.layout.suggest_loi_card_item
+    }
+
+  /** Binds [LocationOfInterest] data to [LoiViewHolder] or [SuggestLoiViewHolder]. */
+  override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
     val uiData: MapCardUiData = itemsList[position]
 
+    var loiCard: MaterialCardView? = null
     when (uiData) {
-      is MapCardUiData.LoiCardUiData -> holder.bind(uiData.loi)
+      is MapCardUiData.LoiCardUiData -> {
+        with(holder as LoiViewHolder) {
+          bind(uiData.loi)
+          loiCard = binding.loiCard
+        }
+      }
+      is MapCardUiData.SuggestLoiCardUiData ->
+        with(holder as SuggestLoiViewHolder) {
+          bind(uiData.job)
+          loiCard = binding.loiCard
+        }
     }
 
     // TODO(#1483): Selected card color should match job color
@@ -58,10 +83,10 @@ class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
       } else {
         R.drawable.loi_card_default_background
       }
-    holder.binding.loiCard.background =
+    loiCard?.background =
       ResourcesCompat.getDrawable(holder.itemView.context.resources, borderDrawable, null)
 
-    holder.binding.loiCard.setOnClickListener { collectDataListener.invoke(uiData) }
+    loiCard?.setOnClickListener { collectDataListener.invoke(uiData) }
   }
 
   /** Returns the size of the list. */
@@ -78,7 +103,8 @@ class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   }
 
   /** Overwrites existing cards. */
-  fun updateData(newItemsList: List<MapCardUiData>) {
+  fun updateData(newItemsList: List<MapCardUiData>, indexOfLastLoi: Int) {
+    this.indexOfLastLoi = indexOfLastLoi
     itemsList.clear()
     itemsList.addAll(newItemsList)
     focusedIndex = 0
@@ -95,11 +121,20 @@ class MapCardAdapter : RecyclerView.Adapter<ViewHolder>() {
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */
-  class ViewHolder(internal val binding: LoiCardItemBinding) :
+  class LoiViewHolder(internal val binding: LoiCardItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(loi: LocationOfInterest) {
       binding.viewModel = LoiCardViewModel(loi)
+    }
+  }
+
+  /** View item representing the Suggestion Loi Job data in the list. */
+  class SuggestLoiViewHolder(internal val binding: SuggestLoiCardItemBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(job: Job) {
+      binding.viewModel = SuggestLoiCardViewModel(job)
     }
   }
 }

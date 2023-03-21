@@ -150,5 +150,6 @@
   <string name="sync_dialog_subtitle">Your data will be synced shortly.</string>
   <string name="data_collected">Data collected</string>
   <string name="done">Done</string>
+  <string name="new_location">New location</string>
 
 </resources>
