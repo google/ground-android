@@ -42,9 +42,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -64,7 +62,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   private lateinit var fragment: SurveySelectorFragment
 
@@ -119,24 +116,21 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun click_activatesSurvey() =
-    runTest(testDispatcher) {
-      setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setOfflineSurveys(listOf())
-      setUpFragment()
+  fun click_activatesSurvey() = runWithTestDispatcher {
+    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setOfflineSurveys(listOf())
+    setUpFragment()
 
-      // Click second item
-      onView(withId(R.id.recycler_view))
-        .perform(
-          RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click())
-        )
-      advanceUntilIdle()
+    // Click second item
+    onView(withId(R.id.recycler_view))
+      .perform(RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+    advanceUntilIdle()
 
-      // Assert survey is activated.
-      verify(activateSurvey).invoke(TEST_SURVEY_2.id)
-      // Assert that navigation to home screen was requested
-      verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
-    }
+    // Assert survey is activated.
+    verify(activateSurvey).invoke(TEST_SURVEY_2.id)
+    // Assert that navigation to home screen was requested
+    verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
+  }
 
   @Test
   fun shouldExitAppOnBackPress_defaultFalse() {
@@ -159,34 +153,33 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun deleteSurveyOnOverflowMenuClick() =
-    runTest(testDispatcher) {
-      setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setOfflineSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setUpFragment()
+  fun deleteSurveyOnOverflowMenuClick() = runWithTestDispatcher {
+    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setOfflineSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setUpFragment()
 
-      // Click second item's overflow menu
-      onView(withId(R.id.recycler_view))
-        .perform(
-          RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
-            1,
-            recyclerChildAction<TextView>(R.id.overflowMenu) { performClick() }
-          )
+    // Click second item's overflow menu
+    onView(withId(R.id.recycler_view))
+      .perform(
+        RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
+          1,
+          recyclerChildAction<TextView>(R.id.overflowMenu) { performClick() }
         )
-      advanceUntilIdle()
+      )
+    advanceUntilIdle()
 
-      // Verify that popup menu is visible and it contains items
-      val latestPopupMenu: PopupMenu = ShadowPopupMenu.getLatestPopupMenu()
-      val menu: Menu = latestPopupMenu.menu
-      assertThat(menu.hasVisibleItems()).isTrue()
+    // Verify that popup menu is visible and it contains items
+    val latestPopupMenu: PopupMenu = ShadowPopupMenu.getLatestPopupMenu()
+    val menu: Menu = latestPopupMenu.menu
+    assertThat(menu.hasVisibleItems()).isTrue()
 
-      // Click delete item
-      onView(withText("Delete")).inRoot(isPlatformPopup()).perform(click())
-      advanceUntilIdle()
+    // Click delete item
+    onView(withText("Delete")).inRoot(isPlatformPopup()).perform(click())
+    advanceUntilIdle()
 
-      // Assert survey is deleted
-      verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
-    }
+    // Assert survey is deleted
+    verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
+  }
 
   private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) {
     launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {

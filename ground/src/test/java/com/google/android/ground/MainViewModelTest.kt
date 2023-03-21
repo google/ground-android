@@ -34,10 +34,7 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.observers.TestObserver
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +42,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowToast
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
@@ -58,7 +54,6 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var sharedPreferences: SharedPreferences
   @Inject lateinit var tosRepository: TermsOfServiceRepository
   @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
 
@@ -127,36 +122,34 @@ class MainViewModelTest : BaseHiltTest() {
   //   once reactivate last survey is implemented.
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() =
-    runTest(testDispatcher) {
-      tosRepository.isTermsOfServiceAccepted = false
-      fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
-      Shadows.shadowOf(Looper.getMainLooper()).idle()
-      verifyProgressDialogVisible(false)
-      verifyNavigationRequested(
-        SignInFragmentDirections.showTermsOfService()
-          .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections
-      )
-      verifyUserSaved()
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+  fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = false
+    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
+    fakeAuthenticationManager.signIn()
+    advanceUntilIdle()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(
+      SignInFragmentDirections.showTermsOfService()
+        .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections
+    )
+    verifyUserSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosMissing() =
-    runTest(testDispatcher) {
-      tosRepository.isTermsOfServiceAccepted = false
-      fakeRemoteDataStore.termsOfService = null
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
-      Shadows.shadowOf(Looper.getMainLooper()).idle()
+  fun testSignInStateChanged_onSignedIn_whenTosMissing() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = false
+    fakeRemoteDataStore.termsOfService = null
+    fakeAuthenticationManager.signIn()
+    advanceUntilIdle()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
 
-      verifyProgressDialogVisible(false)
-      verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
-      verifyUserSaved()
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    }
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+    verifyUserSaved()
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
 
   @Test
   fun testSignInStateChanged_onSignInError() {

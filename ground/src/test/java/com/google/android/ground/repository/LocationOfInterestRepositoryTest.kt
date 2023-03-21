@@ -33,7 +33,6 @@ import java.util.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -54,14 +53,13 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   private val mutation = LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
 
   @Before
   override fun setUp() {
     super.setUp()
-    runTest(testDispatcher) {
+    runWithTestDispatcher {
       // Setup user
       userRepository.saveUser(TEST_USER).await()
       fakeAuthenticationManager.setUser(TEST_USER)

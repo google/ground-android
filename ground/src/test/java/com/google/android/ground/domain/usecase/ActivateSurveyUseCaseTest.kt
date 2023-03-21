@@ -29,9 +29,7 @@ import javax.inject.Inject
 import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -47,27 +45,25 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var surveyRepository: SurveyRepository
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   @BindValue @Mock lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 
   @Test
-  fun activateSurvey_noActiveSurvey() =
-    runTest(testDispatcher) {
-      `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(SURVEY)
+  fun activateSurvey_noActiveSurvey() = runWithTestDispatcher {
+    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(SURVEY)
 
-      activateSurvey(SURVEY.id)
-      advanceUntilIdle()
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
-      // Verify survey is made available for offline use.
-      verify(makeSurveyAvailableOffline).invoke(SURVEY.id)
-      // Verify survey is active.
-      assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
-    }
+    // Verify survey is made available for offline use.
+    verify(makeSurveyAvailableOffline).invoke(SURVEY.id)
+    // Verify survey is active.
+    assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
+  }
 
   @Test
   fun activateSurvey_noActiveSurvey_handleFailedMakeSurveyAvailableOffline() =
-    runTest(testDispatcher) {
+    runWithTestDispatcher {
       `when`(makeSurveyAvailableOffline(SURVEY.id)).thenThrow(Error::class.java)
 
       assertFails { activateSurvey(SURVEY.id) }
@@ -78,31 +74,29 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
     }
 
   @Test
-  fun activateSurvey_alreadyAvailableOffline() =
-    runTest(testDispatcher) {
-      localSurveyStore.insertOrUpdateSurvey(SURVEY).await()
+  fun activateSurvey_alreadyAvailableOffline() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(SURVEY).await()
 
-      activateSurvey(SURVEY.id)
-      advanceUntilIdle()
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
-      // Verify that we don't try to make survey available offline again.
-      verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
-      // Verify survey is active.
-      assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
-    }
+    // Verify that we don't try to make survey available offline again.
+    verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
+    // Verify survey is active.
+    assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
+  }
 
   @Test
-  fun activateSurvey_surveyAlreadyActive() =
-    runTest(testDispatcher) {
-      localSurveyStore.insertOrUpdateSurvey(SURVEY)
-      surveyRepository.activeSurvey = SURVEY
+  fun activateSurvey_surveyAlreadyActive() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
+    surveyRepository.activeSurvey = SURVEY
 
-      activateSurvey(SURVEY.id)
-      advanceUntilIdle()
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
-      // Verify that we don't try to make survey available offline again.
-      verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
-      // Verify survey is active.
-      assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
-    }
+    // Verify that we don't try to make survey available offline again.
+    verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
+    // Verify survey is active.
+    assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
+  }
 }
