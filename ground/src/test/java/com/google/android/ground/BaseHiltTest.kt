@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
 /** Injects Hilt dependencies during setUp. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Config(application = HiltTestApplication::class)
-abstract class BaseHiltTest {
+open class BaseHiltTest {
   /** Required for injecting hilt dependencies using @Inject annotation. */
   @get:Rule(order = 0) var hiltRule = HiltAndroidRule(this)
 
