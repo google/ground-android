@@ -40,14 +40,15 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
   private lateinit var collectDataListener: (MapCardUiData) -> Unit
 
   /** Creates a new [RecyclerView.ViewHolder] item without any data. */
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-    if (viewType == R.layout.loi_card_item) {
-      LoiViewHolder(LoiCardItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    val layoutInflater = LayoutInflater.from(parent.context)
+
+    return if (viewType == R.layout.loi_card_item) {
+      LoiViewHolder(LoiCardItemBinding.inflate(layoutInflater, parent, false))
     } else {
-      SuggestLoiViewHolder(
-        SuggestLoiCardItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-      )
+      SuggestLoiViewHolder(SuggestLoiCardItemBinding.inflate(layoutInflater, parent, false))
     }
+  }
 
   override fun getItemViewType(position: Int): Int =
     if (position <= indexOfLastLoi) {
@@ -60,7 +61,7 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
   override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
     val uiData: MapCardUiData = itemsList[position]
 
-    var loiCard: MaterialCardView? = null
+    var loiCard: MaterialCardView
     when (uiData) {
       is MapCardUiData.LoiCardUiData -> {
         with(holder as LoiViewHolder) {
@@ -83,10 +84,10 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
       } else {
         R.drawable.loi_card_default_background
       }
-    loiCard?.background =
+    loiCard.background =
       ResourcesCompat.getDrawable(holder.itemView.context.resources, borderDrawable, null)
 
-    loiCard?.setOnClickListener { collectDataListener.invoke(uiData) }
+    loiCard.setOnClickListener { collectDataListener.invoke(uiData) }
   }
 
   /** Returns the size of the list. */
