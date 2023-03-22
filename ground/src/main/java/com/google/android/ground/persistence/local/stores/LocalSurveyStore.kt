@@ -18,13 +18,13 @@ package com.google.android.ground.persistence.local.stores
 import com.google.android.ground.model.Survey
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Maybe
+import kotlinx.coroutines.flow.Flow
 
 /** Provides access to [Survey] data in local storage. */
 interface LocalSurveyStore {
   /** Load surveys stored in local database. */
-  val surveys: @Cold Flowable<List<Survey>>
+  val surveys: Flow<List<Survey>>
   /** Load last active survey, if any. */
   fun getSurveyById(id: String): @Cold Maybe<Survey>
   /** Load last active survey, if any. */

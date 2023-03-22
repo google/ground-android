@@ -36,6 +36,7 @@ class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
   private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
   override lateinit var viewModel: TimeTaskViewModel
   override var position by Delegates.notNull<Int>()
+  private lateinit var binding: TimeTaskFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -55,14 +56,18 @@ class TimeTaskFragment : AbstractFragment(), TaskFragment<TimeTaskViewModel> {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = TimeTaskFragBinding.inflate(inflater, container, false)
+    binding = TimeTaskFragBinding.inflate(inflater, container, false)
+
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
     viewModel = dataCollectionViewModel.getTaskViewModel(position) as TimeTaskViewModel
     binding.lifecycleOwner = this
     binding.setVariable(BR.viewModel, viewModel)
     binding.setVariable(BR.fragment, this)
-
-    return binding.root
   }
 
   fun showTimeDialog() {

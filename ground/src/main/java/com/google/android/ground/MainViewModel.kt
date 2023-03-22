@@ -18,6 +18,8 @@ package com.google.android.ground
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
+import com.google.android.ground.coroutines.DefaultDispatcher
+import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
 import com.google.android.ground.model.User
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
@@ -32,9 +34,11 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.rx2.awaitSingleOrNull
+import kotlinx.coroutines.rx2.rxObservable
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -45,10 +49,12 @@ constructor(
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
+  private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   private val popups: EphemeralPopups,
+  @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
   navigator: Navigator,
   authenticationManager: AuthenticationManager,
-  schedulers: Schedulers
+  schedulers: Schedulers,
 ) : AbstractViewModel() {
 
   /** The window insets determined by the activity. */
@@ -74,7 +80,8 @@ constructor(
     return signInState.result.fold(
       {
         when (signInState.state) {
-          SignInState.State.SIGNED_IN -> onUserSignedIn(it!!)
+          SignInState.State.SIGNED_IN ->
+            rxObservable(defaultDispatcher) { send(onUserSignedIn(it!!)) }
           SignInState.State.SIGNED_OUT -> onUserSignedOut()
           else -> Observable.never()
         }
@@ -97,20 +104,16 @@ constructor(
     return Observable.just(SignInFragmentDirections.showSignInScreen())
   }
 
-  private fun onUserSignedIn(user: User): Observable<NavDirections> =
-    userRepository
-      .saveUser(user)
-      .andThen(
-        if (termsOfServiceRepository.isTermsOfServiceAccepted) {
-          Observable.just(getDirectionAfterSignIn())
-        } else {
-          termsOfServiceRepository.termsOfService
-            .map { SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(it.text) }
-            .cast(NavDirections::class.java)
-            .switchIfEmpty(Maybe.just(getDirectionAfterSignIn()))
-            .toObservable()
-        }
-      )
+  private suspend fun onUserSignedIn(user: User): NavDirections {
+    userRepository.saveUserSuspend(user)
+    val tos = termsOfServiceRepository.termsOfService.awaitSingleOrNull()
+    return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
+      reactivateLastSurvey()
+      getDirectionAfterSignIn()
+    } else {
+      SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+    }
+  }
 
   private fun getDirectionAfterSignIn(): NavDirections =
     if (surveyRepository.activeSurvey != null) {

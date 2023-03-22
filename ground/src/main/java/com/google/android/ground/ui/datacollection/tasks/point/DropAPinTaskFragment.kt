@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnAttach
 import androidx.fragment.app.activityViewModels
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.ui.MarkerIconFactory
@@ -61,13 +62,21 @@ class DropAPinTaskFragment : AbstractMapContainerFragment(), TaskFragment<DropAP
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as DropAPinTaskViewModel
-
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
-    binding.lifecycleOwner = this
+
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    binding.fragment = this
+    binding.lifecycleOwner = this
+
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as DropAPinTaskViewModel
+      binding.viewModel = mapViewModel
+    }
   }
 
   override fun onMapReady(mapFragment: MapFragment) {

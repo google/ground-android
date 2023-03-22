@@ -19,8 +19,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.core.view.doOnAttach
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.BR
+import com.google.android.ground.R
 import com.google.android.ground.databinding.QuestionTaskFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -32,9 +34,11 @@ import kotlin.properties.Delegates
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by activityViewModels()
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
   override lateinit var viewModel: TextTaskViewModel
   override var position by Delegates.notNull<Int>()
+  private lateinit var binding: QuestionTaskFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -54,12 +58,18 @@ class QuestionTaskFragment : AbstractFragment(), TaskFragment<TextTaskViewModel>
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = QuestionTaskFragBinding.inflate(inflater, container, false)
-
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
-    binding.lifecycleOwner = this
-    binding.setVariable(BR.viewModel, viewModel)
+    binding = QuestionTaskFragBinding.inflate(inflater, container, false)
 
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    view.doOnAttach {
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as TextTaskViewModel
+      binding.lifecycleOwner = this
+      binding.setVariable(BR.viewModel, viewModel)
+    }
   }
 }

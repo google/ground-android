@@ -20,6 +20,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.UserDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Completable
@@ -40,6 +41,9 @@ class RoomUserStore @Inject internal constructor() : LocalUserStore {
    */
   override fun insertOrUpdateUser(user: User): Completable =
     userDao.insertOrUpdate(user.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+
+  override suspend fun insertOrUpdateUserSuspend(user: User) =
+    userDao.insertOrUpdateSuspend(user.toLocalDataStoreObject())
 
   /**
    * Attempts to retrieve the [User] with the given ID from the local database. If the retrieval

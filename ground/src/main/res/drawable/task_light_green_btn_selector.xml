@@ -16,10 +16,7 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <corners android:radius="8dp" />
-  <stroke
-    android:width="3dp"
-    android:color="@color/paletteGreen" />
-  <solid android:color="#F0F1EB" />
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:color="@color/colorGrey600" android:state_enabled="false" />
+  <item android:color="@color/taskBtnLightGreen" android:state_enabled="true" />
+</selector>

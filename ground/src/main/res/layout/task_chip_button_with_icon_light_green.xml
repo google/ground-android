@@ -16,10 +16,12 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <corners android:radius="8dp" />
-  <stroke
-    android:width="3dp"
-    android:color="@color/paletteGreen" />
-  <solid android:color="#F0F1EB" />
-</shape>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+  <ImageButton
+    android:id="@+id/button"
+    style="@style/TaskChipButton.LightGreen"
+    android:background="@drawable/task_chip_image_button"
+    tools:src="@drawable/ic_undo_black"
+    tools:text="sample text" />
+</merge>

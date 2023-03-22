@@ -16,10 +16,11 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <corners android:radius="8dp" />
-  <stroke
-    android:width="3dp"
-    android:color="@color/paletteGreen" />
-  <solid android:color="#F0F1EB" />
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+  android:shape="rectangle">
+  <size
+    android:width="20dp"
+    android:height="20dp" />
+  <solid android:color="@color/colorBackground" />
+  <corners android:radius="30dp" />
 </shape>
