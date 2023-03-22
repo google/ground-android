@@ -151,5 +151,6 @@
   <string name="data_collected">Data collected</string>
   <string name="done">Done</string>
   <string name="skip">Skip</string>
+  <string name="drop_pin">Drop pin</string>
 
 </resources>

@@ -19,92 +19,66 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnAttach
-import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
-import com.google.android.ground.R
-import com.google.android.ground.databinding.BasemapLayoutBinding
-import com.google.android.ground.databinding.PolygonDrawingTaskFragBinding
-import com.google.android.ground.model.geometry.Point
+import android.widget.LinearLayout
 import com.google.android.ground.ui.MarkerIconFactory
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment
-import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class PolygonDrawingTaskFragment :
-  AbstractMapContainerFragment(), TaskFragment<PolygonDrawingViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by
-    hiltNavGraphViewModels(R.id.data_collection)
-  override lateinit var viewModel: PolygonDrawingViewModel
-  override var position by Delegates.notNull<Int>()
+class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>() {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
+  @Inject lateinit var mapFragment: MapFragment
 
   private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var binding: BasemapLayoutBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(TaskFragment.POSITION)
-    }
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt(TaskFragment.POSITION, position)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithoutHeader.create(inflater)
+
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    parentFragmentManager
+      .beginTransaction()
+      .add(
+        rowLayout.id,
+        PolygonDrawingMapFragment.newInstance(viewModel, mapViewModel, mapFragment),
+        "Draw a polygon fragment"
+      )
+      .commit()
+    return rowLayout
   }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    return binding.root
+  override fun onCreateActionButtons() {
+    super.onCreateActionButtons()
+    addButton(ButtonAction.ADD_PIN).setOnClickListener { viewModel.selectCurrentVertex() }
+    addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
+    addButton(ButtonAction.UNDO).setOnClickListener { viewModel.removeLastVertex() }
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
+  override fun onTaskViewAttached() {
+    viewModel.startDrawingFlow()
+    viewModel.isPolygonCompleted.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
+  }
 
-    binding.fragment = this
-    binding.lifecycleOwner = this
-
-    view.doOnAttach {
-      viewModel = dataCollectionViewModel.getTaskViewModel(position) as PolygonDrawingViewModel
-      binding.viewModel = mapViewModel
-
-      val container = binding.bottomContainer
-      val taskControlsBinding =
-        PolygonDrawingTaskFragBinding.inflate(layoutInflater, container, true)
-      taskControlsBinding.viewModel = viewModel
-      taskControlsBinding.lifecycleOwner = this
-      viewModel.startDrawingFlow()
+  private fun onPolygonUpdated(isPolygonComplete: Boolean) {
+    getButton(ButtonAction.ADD_PIN).updateState {
+      isEnabled = true
+      visibility = if (isPolygonComplete) View.GONE else View.VISIBLE
     }
-  }
-
-  override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
-  }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
-    val mapCenter = position.target
-    val mapCenterPoint = Point(mapCenter)
-    viewModel.onCameraMoved(mapCenterPoint)
-    viewModel.firstVertex
-      .map { firstVertex: Point ->
-        mapFragment.getDistanceInPixels(firstVertex.coordinate, mapCenter)
-      }
-      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenterPoint, dist) }
+    getButton(ButtonAction.COMPLETE).updateState {
+      isEnabled = true
+      visibility = if (isPolygonComplete) View.VISIBLE else View.GONE
+    }
   }
 }
