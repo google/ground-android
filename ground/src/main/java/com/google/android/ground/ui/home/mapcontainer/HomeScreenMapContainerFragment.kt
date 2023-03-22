@@ -72,13 +72,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     adapter.setLoiCardFocusedListener {
       when (it) {
         is MapCardUiData.LoiCardUiData -> mapFragment.setActiveLocationOfInterest(it.loi.id)
+        is MapCardUiData.SuggestLoiCardUiData,
         null -> mapFragment.setActiveLocationOfInterest(null)
       }
     }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
     mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) { lois ->
       // TODO(#1541): Merge loi MapCardUiData with SuggestLoi MapCardUiData
-      adapter.updateData(lois.map { MapCardUiData.LoiCardUiData(it) })
+      adapter.updateData(lois.map { MapCardUiData.LoiCardUiData(it) }, lois.size - 1)
     }
   }
 
@@ -139,7 +140,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
-    // TODO(#1541): Handle suggest loi cards
     when (cardUiData) {
       is MapCardUiData.LoiCardUiData ->
         navigator.navigate(
@@ -148,6 +148,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
             /* locationOfInterestId = */ cardUiData.loi.id
           )
         )
+      is MapCardUiData.SuggestLoiCardUiData -> {
+        // TODO(#1541): Handle navigation to Data Collection flow with additional Suggest LOI task
+      }
     }
   }
 
