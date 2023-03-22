@@ -27,9 +27,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.*
@@ -42,73 +40,67 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   @Test
-  fun activeSurveyFlowable_emitsValueOnSetActiveSurvey() =
-    runTest(testDispatcher) {
-      surveyRepository.activeSurvey = SURVEY
-      advanceUntilIdle()
+  fun activeSurveyFlowable_emitsValueOnSetActiveSurvey() = runWithTestDispatcher {
+    surveyRepository.activeSurvey = SURVEY
+    advanceUntilIdle()
 
-      surveyRepository.activeSurveyFlowable.test().assertValues(Optional.of(SURVEY))
-    }
-
-  @Test
-  fun activeSurveyFlowable_emitsEmptyOnClearActiveSurvey() =
-    runTest(testDispatcher) {
-      surveyRepository.clearActiveSurvey()
-      advanceUntilIdle()
-
-      surveyRepository.activeSurveyFlowable.test().assertValues(Optional.empty())
-    }
+    surveyRepository.activeSurveyFlowable.test().assertValues(Optional.of(SURVEY))
+  }
 
   @Test
-  fun activeSurveyFlow_emitsNullOnClearActiveSurvey() =
-    runTest(testDispatcher) {
-      surveyRepository.clearActiveSurvey()
-      advanceUntilIdle()
+  fun activeSurveyFlowable_emitsEmptyOnClearActiveSurvey() = runWithTestDispatcher {
+    surveyRepository.clearActiveSurvey()
+    advanceUntilIdle()
 
-      assertThat(surveyRepository.activeSurveyFlow.first()).isNull()
-    }
-
-  @Test
-  fun deleteSurvey_whenSurveyIsActive() =
-    runTest(testDispatcher) {
-      fakeRemoteDataStore.surveys = listOf(SURVEY)
-      surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
-      advanceUntilIdle()
-      activateSurvey(SURVEY.id)
-      advanceUntilIdle()
-
-      surveyRepository.removeOfflineSurvey(SURVEY.id)
-      advanceUntilIdle()
-
-      // Verify survey is deleted
-      surveyRepository.offlineSurveys.test().assertValues(listOf())
-      // Verify survey deactivated
-      assertThat(surveyRepository.activeSurvey).isNull()
-    }
+    surveyRepository.activeSurveyFlowable.test().assertValues(Optional.empty())
+  }
 
   @Test
-  fun deleteSurvey_whenSurveyIsInActive() =
-    runTest(testDispatcher) {
-      // Job ID must be globally unique.
-      val job1 = JOB.copy(id = "job1")
-      val job2 = JOB.copy(id = "job2")
-      val survey1 = SURVEY.copy(id = "active survey id", jobMap = mapOf(job1.id to job1))
-      val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = mapOf(job2.id to job2))
-      fakeRemoteDataStore.surveys = listOf(survey1, survey2)
-      surveyRepository.syncSurveyWithRemote(survey1.id).await()
-      surveyRepository.syncSurveyWithRemote(survey2.id).await()
-      activateSurvey(survey1.id)
-      advanceUntilIdle()
+  fun activeSurveyFlow_emitsNullOnClearActiveSurvey() = runWithTestDispatcher {
+    surveyRepository.clearActiveSurvey()
+    advanceUntilIdle()
 
-      surveyRepository.removeOfflineSurvey(survey2.id)
-      advanceUntilIdle()
+    assertThat(surveyRepository.activeSurveyFlow.first()).isNull()
+  }
 
-      // Verify active survey isn't cleared
-      assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
-      // Verify survey is deleted
-      surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
-    }
+  @Test
+  fun deleteSurvey_whenSurveyIsActive() = runWithTestDispatcher {
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+    surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+    advanceUntilIdle()
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
+
+    surveyRepository.removeOfflineSurvey(SURVEY.id)
+    advanceUntilIdle()
+
+    // Verify survey is deleted
+    surveyRepository.offlineSurveys.test().assertValues(listOf())
+    // Verify survey deactivated
+    assertThat(surveyRepository.activeSurvey).isNull()
+  }
+
+  @Test
+  fun deleteSurvey_whenSurveyIsInActive() = runWithTestDispatcher {
+    // Job ID must be globally unique.
+    val job1 = JOB.copy(id = "job1")
+    val job2 = JOB.copy(id = "job2")
+    val survey1 = SURVEY.copy(id = "active survey id", jobMap = mapOf(job1.id to job1))
+    val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = mapOf(job2.id to job2))
+    fakeRemoteDataStore.surveys = listOf(survey1, survey2)
+    surveyRepository.syncSurveyWithRemote(survey1.id).await()
+    surveyRepository.syncSurveyWithRemote(survey2.id).await()
+    activateSurvey(survey1.id)
+    advanceUntilIdle()
+
+    surveyRepository.removeOfflineSurvey(survey2.id)
+    advanceUntilIdle()
+
+    // Verify active survey isn't cleared
+    assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
+    // Verify survey is deleted
+    surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
+  }
 }
