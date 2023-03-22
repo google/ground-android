@@ -25,12 +25,9 @@ import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import java8.util.Optional
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +43,6 @@ class MapControllerTest : BaseHiltTest() {
   @Mock lateinit var locationManager: LocationManager
   @Mock lateinit var surveyRepository: SurveyRepository
   @Mock lateinit var mapStateRepository: MapStateRepository
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   private val locationSharedFlow: MutableSharedFlow<Location> = MutableSharedFlow()
 
@@ -78,20 +74,19 @@ class MapControllerTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetCameraUpdates_whenLocationUpdates() =
-    runTest(testDispatcher) {
-      `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
-      val cameraUpdates = mapController.getCameraUpdates().test()
-      locationSharedFlow.emit(
-        Location("test provider").apply {
-          latitude = TEST_COORDINATE.x
-          longitude = TEST_COORDINATE.y
-        }
-      )
-      advanceUntilIdle()
+  fun testGetCameraUpdates_whenLocationUpdates() = runWithTestDispatcher {
+    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
+    val cameraUpdates = mapController.getCameraUpdates().test()
+    locationSharedFlow.emit(
+      Location("test provider").apply {
+        latitude = TEST_COORDINATE.x
+        longitude = TEST_COORDINATE.y
+      }
+    )
+    advanceUntilIdle()
 
-      cameraUpdates.assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
-    }
+    cameraUpdates.assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
+  }
 
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailable_returnsEmpty() {

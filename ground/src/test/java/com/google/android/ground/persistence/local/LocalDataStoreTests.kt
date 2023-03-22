@@ -51,9 +51,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.Test
@@ -64,7 +62,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocalDataStoreTests : BaseHiltTest() {
-  @Inject lateinit var testDispatcher: TestDispatcher
   // TODO(#1491): Split into multiple test suites, one for each SoT.
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localUserStore: LocalUserStore
@@ -78,11 +75,10 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
 
   @Test
-  fun testInsertAndGetSurveys() =
-    runTest(testDispatcher) {
-      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
-      assertThat(localSurveyStore.surveys.first()).containsExactly(TEST_SURVEY)
-    }
+  fun testInsertAndGetSurveys() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
+    assertThat(localSurveyStore.surveys.first()).containsExactly(TEST_SURVEY)
+  }
 
   @Test
   fun testGetSurveyById() {
@@ -91,12 +87,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteSurvey() =
-    runTest(testDispatcher) {
-      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-      localSurveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
-      assertThat(localSurveyStore.surveys.first()).isEmpty()
-    }
+  fun testDeleteSurvey() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localSurveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
+    assertThat(localSurveyStore.surveys.first()).isEmpty()
+  }
 
   @Test
   fun testRemovedJobFromSurvey() {
@@ -131,22 +126,21 @@ class LocalDataStoreTests : BaseHiltTest() {
       .assertValue { it.geometry == TEST_POINT }
   }
   @Test
-  fun testApplyAndEnqueue_insertsMutation() =
-    runTest(testDispatcher) {
-      localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
-      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+  fun testApplyAndEnqueue_insertsMutation() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
 
-      localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
-      advanceUntilIdle()
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
+    advanceUntilIdle()
 
-      localLoiStore
-        .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-          TEST_LOI_MUTATION.locationOfInterestId,
-          MutationEntitySyncStatus.PENDING
-        )
-        .test()
-        .assertValue(listOf(TEST_LOI_MUTATION))
-    }
+    localLoiStore
+      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+        TEST_LOI_MUTATION.locationOfInterestId,
+        MutationEntitySyncStatus.PENDING
+      )
+      .test()
+      .assertValue(listOf(TEST_LOI_MUTATION))
+  }
 
   @Test
   fun testApplyAndEnqueue_insertPolygonLoi() {
