@@ -15,83 +15,48 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnAttach
-import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.BR
-import com.google.android.ground.R
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
+import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
  * task.
  */
 @AndroidEntryPoint
-class MultipleChoiceTaskFragment : AbstractFragment(), TaskFragment<MultipleChoiceTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by
-    hiltNavGraphViewModels(R.id.data_collection)
-  override lateinit var viewModel: MultipleChoiceTaskViewModel
-  override var position by Delegates.notNull<Int>()
-  private lateinit var binding: MultipleChoiceTaskFragBinding
+class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
-    }
-  }
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithHeader.create(inflater)
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
-  }
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
-    binding = MultipleChoiceTaskFragBinding.inflate(inflater, container, false)
-
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val binding = MultipleChoiceTaskFragBinding.inflate(inflater)
+    setupMultipleChoice(binding.selectOptionList)
     return binding.root
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-
-    view.doOnAttach {
-      viewModel = dataCollectionViewModel.getTaskViewModel(position) as MultipleChoiceTaskViewModel
-      binding.lifecycleOwner = this
-      binding.setVariable(BR.viewModel, viewModel)
-
-      val multipleChoice = viewModel.task.multipleChoice!!
-      val optionListView = binding.root.findViewById<RecyclerView>(R.id.select_option_list)
-      optionListView.setHasFixedSize(true)
-      if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-        val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
-        adapter.setHasStableIds(true)
-        optionListView.adapter = adapter
-        setupMultipleSelectionTracker(optionListView, adapter)
-      } else {
-        optionListView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
-      }
+  private fun setupMultipleChoice(recyclerView: RecyclerView) {
+    val multipleChoice = viewModel.task.multipleChoice!!
+    recyclerView.setHasFixedSize(true)
+    if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
+      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
+      adapter.setHasStableIds(true)
+      recyclerView.adapter = adapter
+      setupMultipleSelectionTracker(recyclerView, adapter)
+    } else {
+      recyclerView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
     }
   }
 

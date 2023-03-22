@@ -19,7 +19,6 @@ package com.google.android.ground.ui.datacollection
 import android.widget.RadioButton
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.Navigation
-import androidx.navigation.set
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -178,12 +177,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_noUserInput_toastIsShown() {
+  fun onContinueClicked_noUserInput_buttonDisabled() {
     setupFragment()
 
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(allOf(withText("Continue"), isDisplayed(), isNotEnabled())).perform(click())
 
-    assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("This field is required")
     onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
     onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
   }
@@ -193,7 +191,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
 
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
@@ -204,7 +202,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun onContinueClicked_thenOnBack_initialTaskIsShown() {
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
     onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
@@ -234,13 +232,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         ),
       )
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
     onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
     // Click continue on final task
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
     advanceUntilIdle()
 
     verify(submissionRepository)
@@ -288,7 +286,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       )
 
     onView(allOf(withText(option2Label), isDisplayed())).perform(click())
-    onView(withId(R.id.data_collection_continue_button)).perform(click())
+    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
     advanceUntilIdle()
 
     verify(submissionRepository)
