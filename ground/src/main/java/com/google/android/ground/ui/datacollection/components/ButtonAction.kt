@@ -33,11 +33,16 @@ enum class ButtonAction(
   UNDO(Type.ICON, Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
 
   // Drop a pin task
-  DROP_PIN(Type.TEXT, Theme.OUTLINED),
+  DROP_PIN(Type.TEXT, Theme.OUTLINED, textId = R.string.drop_pin),
 
   // Draw a polygon task
-  ADD_PIN(Type.TEXT_ICON, Theme.OUTLINED),
-  COMPLETE(Type.TEXT, Theme.OUTLINED);
+  ADD_PIN(
+    Type.TEXT_ICON,
+    Theme.OUTLINED,
+    textId = R.string.add_point,
+    drawableId = R.drawable.ic_add
+  ),
+  COMPLETE(Type.TEXT, Theme.OUTLINED, textId = R.string.complete);
 
   enum class Type {
     TEXT,

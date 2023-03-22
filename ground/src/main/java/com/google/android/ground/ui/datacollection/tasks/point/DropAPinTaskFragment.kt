@@ -21,8 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
-import com.google.android.ground.R
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -64,25 +62,17 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   }
 
   override fun onCreateActionButtons() {
-    createButton(R.string.drop_pin, null, ButtonAction.DROP_PIN) {
-      Toast.makeText(requireContext(), "TODO: Add a marker at the center", Toast.LENGTH_SHORT)
-        .show()
-    }
-    addContinueButton()
-    addSkipButton()
+    super.onCreateActionButtons()
+    addButton(ButtonAction.DROP_PIN)
+      .setOnClickListener {
+        Toast.makeText(requireContext(), "TODO: Add a marker at the center", Toast.LENGTH_SHORT)
+          .show()
+      }
+      .setOnTaskUpdated { button, taskData ->
+        button.updateState {
+          visibility = if (taskData?.isEmpty() != false) View.VISIBLE else View.GONE
+        }
+      }
     addUndoButton()
-  }
-
-  override fun refreshState(taskData: TaskData?) {
-    val isTaskEmpty = taskData?.isEmpty() ?: true
-    getButton(ButtonAction.CONTINUE).apply {
-      isEnabled = true
-      visibility = if (isTaskEmpty) View.GONE else View.VISIBLE
-    }
-    getButton(ButtonAction.UNDO).apply { visibility = if (isTaskEmpty) View.GONE else View.VISIBLE }
-    getButton(ButtonAction.DROP_PIN).apply {
-      isEnabled = true
-      visibility = if (isTaskEmpty) View.VISIBLE else View.GONE
-    }
   }
 }

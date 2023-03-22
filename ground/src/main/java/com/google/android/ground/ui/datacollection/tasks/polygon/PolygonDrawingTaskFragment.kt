@@ -20,8 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.google.android.ground.R
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -62,41 +60,26 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
     return rowLayout
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
+  override fun onCreateActionButtons() {
+    super.onCreateActionButtons()
+    addButton(ButtonAction.ADD_PIN).setOnClickListener { viewModel.selectCurrentVertex() }
+    addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
+    addButton(ButtonAction.UNDO).setOnClickListener { viewModel.removeLastVertex() }
+  }
+
+  override fun onTaskViewAttached() {
     viewModel.startDrawingFlow()
     viewModel.isPolygonCompleted.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
   }
 
-  override fun onCreateActionButtons() {
-    createButton(R.string.add_point, R.drawable.ic_add, ButtonAction.ADD_PIN) {
-      viewModel.selectCurrentVertex()
-    }
-    createButton(R.string.complete, null, ButtonAction.COMPLETE) {
-      viewModel.onCompletePolygonButtonClick()
-    }
-    addContinueButton()
-    addSkipButton()
-    createButton(null, R.drawable.ic_undo_black, ButtonAction.UNDO) { viewModel.removeLastVertex() }
-  }
-
   private fun onPolygonUpdated(isPolygonComplete: Boolean) {
-    getButton(ButtonAction.ADD_PIN).apply {
+    getButton(ButtonAction.ADD_PIN).updateState {
       isEnabled = true
       visibility = if (isPolygonComplete) View.GONE else View.VISIBLE
     }
-    getButton(ButtonAction.COMPLETE).apply {
+    getButton(ButtonAction.COMPLETE).updateState {
       isEnabled = true
       visibility = if (isPolygonComplete) View.VISIBLE else View.GONE
     }
-  }
-
-  override fun refreshState(taskData: TaskData?) {
-    val isTaskEmpty = taskData?.isEmpty() ?: true
-    getButton(ButtonAction.CONTINUE).apply {
-      isEnabled = true
-      visibility = if (isTaskEmpty) View.GONE else View.VISIBLE
-    }
-    getButton(ButtonAction.UNDO).apply { visibility = if (isTaskEmpty) View.GONE else View.VISIBLE }
   }
 }

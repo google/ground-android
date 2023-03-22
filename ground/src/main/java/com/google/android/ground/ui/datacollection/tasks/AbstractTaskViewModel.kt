@@ -97,6 +97,4 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   fun clearResponse() {
     setResponse(Optional.empty())
   }
-
-  fun isTaskOptional(): Boolean = !task.isRequired
 }
