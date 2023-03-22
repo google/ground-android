@@ -51,6 +51,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
   private var hasRequestedPermissionsOnResume = false
+  private var taskWaitingForPhoto: String? = null
+  private var capturedPhotoPath: String? = null
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewWithoutHeader.create(inflater)
@@ -65,6 +67,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    taskWaitingForPhoto = savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO)
+    capturedPhotoPath = savedInstanceState?.getString(CAPTURED_PHOTO_PATH)
+  }
+
+  override fun onTaskViewAttached() {
     selectPhotoLauncher =
       registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         viewModel.onSelectPhotoResult(uri)
@@ -77,8 +84,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     viewModel.setEditable(true)
     viewModel.setSurveyId(dataCollectionViewModel.surveyId)
     viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
-    viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
-    viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
+    viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
+    viewModel.setCapturedPhotoPath(capturedPhotoPath)
 
     observeSelectPhotoClicks()
     observePhotoResults()

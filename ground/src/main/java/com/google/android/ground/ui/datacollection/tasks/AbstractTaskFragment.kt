@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
@@ -61,18 +62,24 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
     savedInstanceState: Bundle?
   ): View? {
     super.onCreateView(inflater, container, savedInstanceState)
-
-    @Suppress("UNCHECKED_CAST")
-    viewModel = dataCollectionViewModel.getTaskViewModel(position) as T
-
     taskView = onCreateTaskView(inflater, container)
-    taskView.bind(this, viewModel)
-    taskView.addTaskView(onCreateTaskBody(inflater))
-
-    onCreateActionButtons()
-    onActionButtonsCreated()
-
     return taskView.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    view.doOnAttach {
+      @Suppress("UNCHECKED_CAST")
+      viewModel = dataCollectionViewModel.getTaskViewModel(position) as T
+
+      taskView.bind(this, viewModel)
+      taskView.addTaskView(onCreateTaskBody(layoutInflater))
+      onTaskViewAttached()
+
+      // Add actions buttons after the view model is bound to the view.
+      onCreateActionButtons()
+      onActionButtonsCreated()
+    }
   }
 
   /** Creates the view for common task template with/without header. */
@@ -80,6 +87,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
 
   /** Creates the view for body of the task. */
   abstract fun onCreateTaskBody(inflater: LayoutInflater): View
+
+  /** Invoked after the task view gets attached to the fragment. */
+  open fun onTaskViewAttached() {}
 
   /** Invoked when the fragment is ready to add buttons to the current [TaskView]. */
   open fun onCreateActionButtons() {
