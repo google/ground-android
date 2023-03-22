@@ -132,7 +132,6 @@ internal constructor(
         }
       )
 
-    // TODO(jsunde): Look into loading the Suggest LOI jobs here
     loisWithinMapBoundsAtVisibleZoomLevel =
       LiveDataReactiveStreams.fromPublisher(
         surveyRepository.activeSurveyFlowable.switchMap { survey ->
