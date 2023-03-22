@@ -52,4 +52,16 @@ internal object TaskConverter {
       "time" -> Task.Type.TIME
       else -> Task.Type.UNKNOWN
     }
+
+  fun toSuggestLoiTaskType(typeStr: String?): Task.Type? {
+    val taskType = toTaskType(typeStr)
+
+    return if (suggestLoiTaskTypes.contains(taskType)) {
+      taskType
+    } else {
+      null
+    }
+  }
+
+  private val suggestLoiTaskTypes = setOf(Task.Type.DROP_A_PIN, Task.Type.DRAW_POLYGON)
 }

@@ -28,9 +28,14 @@ internal object JobConverter {
     val taskMap = mutableMapOf<String, Task>()
     obj.tasks?.let {
       it.entries.map { (key, value) ->
-        TaskConverter.toTask(key, value).ifPresent { task -> taskMap.put(task.id, task) }
+        TaskConverter.toTask(key, value).ifPresent { task -> taskMap[task.id] = task }
       }
     }
-    return Job(id, obj.name, taskMap.toPersistentMap())
+    return Job(
+      id,
+      obj.name,
+      taskMap.toPersistentMap(),
+      TaskConverter.toSuggestLoiTaskType(obj.suggestLoiTaskType)
+    )
   }
 }

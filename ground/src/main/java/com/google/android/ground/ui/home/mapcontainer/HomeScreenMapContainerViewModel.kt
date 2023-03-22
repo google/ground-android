@@ -25,6 +25,7 @@ import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
@@ -102,6 +103,8 @@ internal constructor(
    */
   val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
+  val suggestLoiJobs: LiveData<List<Job>>
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
@@ -129,6 +132,7 @@ internal constructor(
         }
       )
 
+    // TODO(jsunde): Look into loading the Suggest LOI jobs here
     loisWithinMapBoundsAtVisibleZoomLevel =
       LiveDataReactiveStreams.fromPublisher(
         surveyRepository.activeSurveyFlowable.switchMap { survey ->
@@ -140,6 +144,13 @@ internal constructor(
               )
             else Flowable.just(listOf())
           }
+        }
+      )
+
+    suggestLoiJobs =
+      LiveDataReactiveStreams.fromPublisher(
+        surveyRepository.activeSurveyFlowable.map { survey ->
+          survey.get().jobs.filter { it.suggestLoiTaskType != null }.toList()
         }
       )
   }

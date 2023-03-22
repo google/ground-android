@@ -36,6 +36,7 @@ import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.util.combineWith
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
@@ -77,9 +78,21 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) { lois ->
-      // TODO(#1541): Merge loi MapCardUiData with SuggestLoi MapCardUiData
-      adapter.updateData(lois.map { MapCardUiData.LoiCardUiData(it) }, lois.size - 1)
+    mapContainerViewModel.suggestLoiJobs.observe(this) { jobs ->
+      Timber.e("[DEBUG123] suggestLoiJobs: $jobs")
+    }
+
+    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.combineWith(
+      mapContainerViewModel.suggestLoiJobs
+    ) { lois, jobs ->
+      {
+        requireNotNull(lois)
+        requireNotNull(jobs)
+
+        val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
+        val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
+        adapter.updateData(loiCards + jobCards, lois.size - 1)
+      }
     }
   }
 
