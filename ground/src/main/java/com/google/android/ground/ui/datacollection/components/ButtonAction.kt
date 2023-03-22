@@ -15,12 +15,22 @@
  */
 package com.google.android.ground.ui.datacollection.components
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import com.google.android.ground.R
+
 /** Defines a unique action that can be bound to a [TaskButton], along with the UI styling. */
-enum class ButtonAction(val type: Type, val theme: Theme) {
+enum class ButtonAction(
+  val type: Type,
+  val theme: Theme,
+  @StringRes val textId: Int? = null,
+  @DrawableRes val drawableId: Int? = null
+) {
+
   // All tasks
-  CONTINUE(Type.TEXT, Theme.DARK_GREEN),
-  SKIP(Type.TEXT, Theme.LIGHT_GREEN),
-  UNDO(Type.ICON, Theme.LIGHT_GREEN),
+  CONTINUE(Type.TEXT, Theme.DARK_GREEN, textId = R.string.continue_text),
+  SKIP(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.skip),
+  UNDO(Type.ICON, Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
 
   // Drop a pin task
   DROP_PIN(Type.TEXT, Theme.OUTLINED),

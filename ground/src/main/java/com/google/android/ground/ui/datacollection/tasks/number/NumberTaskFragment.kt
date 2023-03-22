@@ -15,61 +15,26 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.number
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnAttach
-import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
-import com.google.android.ground.BR
-import com.google.android.ground.R
 import com.google.android.ground.databinding.NumberTaskFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment
-import com.google.android.ground.ui.datacollection.tasks.TaskFragment.Companion.POSITION
+import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class NumberTaskFragment : AbstractFragment(), TaskFragment<NumberTaskViewModel> {
-  private val dataCollectionViewModel: DataCollectionViewModel by
-    hiltNavGraphViewModels(R.id.data_collection)
-  override lateinit var viewModel: NumberTaskViewModel
-  override var position by Delegates.notNull<Int>()
-  private lateinit var binding: NumberTaskFragBinding
+class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
-    }
-  }
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithHeader.create(layoutInflater)
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
-  }
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
-    binding = NumberTaskFragBinding.inflate(inflater, container, false)
-
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-
-    view.doOnAttach {
-      viewModel = dataCollectionViewModel.getTaskViewModel(position) as NumberTaskViewModel
-      binding.lifecycleOwner = this
-      binding.setVariable(BR.viewModel, viewModel)
-    }
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val taskBinding = NumberTaskFragBinding.inflate(inflater)
+    taskBinding.lifecycleOwner = this
+    taskBinding.viewModel = viewModel
+    return taskBinding.root
   }
 }
