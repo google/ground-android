@@ -24,16 +24,13 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import com.google.android.ground.BR
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -54,14 +51,27 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
   private var hasRequestedPermissionsOnResume = false
+  private var taskWaitingForPhoto: String? = null
+  private var capturedPhotoPath: String? = null
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    super.onCreateView(inflater, container, savedInstanceState)
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithoutHeader.create(inflater)
 
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    val taskBinding = PhotoTaskFragBinding.inflate(inflater)
+    taskBinding.lifecycleOwner = this
+    taskBinding.dataCollectionViewModel = dataCollectionViewModel
+    taskBinding.viewModel = viewModel
+    return taskBinding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    taskWaitingForPhoto = savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO)
+    capturedPhotoPath = savedInstanceState?.getString(CAPTURED_PHOTO_PATH)
+  }
+
+  override fun onTaskViewAttached() {
     selectPhotoLauncher =
       registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         viewModel.onSelectPhotoResult(uri)
@@ -74,40 +84,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     viewModel.setEditable(true)
     viewModel.setSurveyId(dataCollectionViewModel.surveyId)
     viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
+    viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
+    viewModel.setCapturedPhotoPath(capturedPhotoPath)
+
     observeSelectPhotoClicks()
     observePhotoResults()
-
-    return taskView.root
-  }
-
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithoutHeader.create(inflater)
-  }
-
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = PhotoTaskFragBinding.inflate(inflater)
-    taskBinding.lifecycleOwner = this
-    taskBinding.setVariable(BR.viewModel, viewModel)
-    taskBinding.setVariable(BR.dataCollectionViewModel, dataCollectionViewModel)
-    return taskBinding.root
   }
 
   override fun onCreateActionButtons() {
-    addContinueButton()
-    addSkipButton()
+    super.onCreateActionButtons()
     addUndoButton()
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    viewModel.setTaskWaitingForPhoto(savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO))
-    viewModel.setCapturedPhotoPath(savedInstanceState?.getString(CAPTURED_PHOTO_PATH))
-  }
-
-  override fun refreshState(taskData: TaskData?) {
-    super.refreshState(taskData)
-    val isTaskEmpty = taskData?.isEmpty() ?: true
-    getButton(ButtonAction.UNDO).apply { visibility = if (isTaskEmpty) View.GONE else View.VISIBLE }
   }
 
   override fun onResume() {

@@ -28,9 +28,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class QuestionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithHeader.create(inflater)
-  }
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithHeader.create(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = QuestionTaskFragBinding.inflate(inflater)

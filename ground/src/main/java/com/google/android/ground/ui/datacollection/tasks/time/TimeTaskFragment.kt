@@ -20,7 +20,6 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.BR
 import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
@@ -31,15 +30,14 @@ import java.util.*
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithHeader.create(inflater)
-  }
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithHeader.create(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = TimeTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
-    taskBinding.setVariable(BR.viewModel, viewModel)
-    taskBinding.setVariable(BR.fragment, this)
+    taskBinding.fragment = this
+    taskBinding.viewModel = viewModel
     return taskBinding.root
   }
 

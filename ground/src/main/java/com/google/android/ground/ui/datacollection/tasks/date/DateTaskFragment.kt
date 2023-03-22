@@ -19,7 +19,6 @@ import android.app.DatePickerDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.BR
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
@@ -30,15 +29,14 @@ import java.util.*
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithHeader.create(inflater)
-  }
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithHeader.create(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = DateTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
-    taskBinding.setVariable(BR.viewModel, viewModel)
-    taskBinding.setVariable(BR.fragment, this)
+    taskBinding.fragment = this
+    taskBinding.viewModel = viewModel
     return taskBinding.root
   }
 

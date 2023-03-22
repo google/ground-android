@@ -31,9 +31,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +44,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncServiceTest : BaseHiltTest() {
   @Inject @ApplicationContext lateinit var context: Context
-  @Inject lateinit var testDispatcher: TestDispatcher
   @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   private lateinit var workManager: WorkManager
@@ -76,20 +73,19 @@ class SurveySyncServiceTest : BaseHiltTest() {
   }
 
   @Test
-  fun callSyncSurveyWithIdWhenConstraintsMet() =
-    runTest(testDispatcher) {
-      `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
+  fun callSyncSurveyWithIdWhenConstraintsMet() = runWithTestDispatcher {
+    `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
 
-      val surveyId = "survey1000"
+    val surveyId = "survey1000"
 
-      val service = SurveySyncService(workManager)
-      val requestId = service.enqueueSync(surveyId)
+    val service = SurveySyncService(workManager)
+    val requestId = service.enqueueSync(surveyId)
 
-      // Tell the testing framework that the constraints have been met and to run the worker.
-      testDriver.setAllConstraintsMet(requestId)
-      advanceUntilIdle()
+    // Tell the testing framework that the constraints have been met and to run the worker.
+    testDriver.setAllConstraintsMet(requestId)
+    advanceUntilIdle()
 
-      verify(syncSurvey).invoke(surveyId)
-      assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
-    }
+    verify(syncSurvey).invoke(surveyId)
+    assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
+  }
 }

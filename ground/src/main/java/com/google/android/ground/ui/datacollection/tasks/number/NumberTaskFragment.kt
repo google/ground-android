@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.number
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.BR
 import com.google.android.ground.databinding.NumberTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
@@ -29,14 +28,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView {
-    return TaskViewWithHeader.create(layoutInflater)
-  }
+  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+    TaskViewWithHeader.create(layoutInflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = NumberTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
-    taskBinding.setVariable(BR.viewModel, viewModel)
+    taskBinding.viewModel = viewModel
     return taskBinding.root
   }
 }

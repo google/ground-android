@@ -26,9 +26,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -43,41 +41,37 @@ class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var reactivateLastSurvey: ReactivateLastSurveyUseCase
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var surveyRepository: SurveyRepository
-  @Inject lateinit var testDispatcher: TestDispatcher
 
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
 
   @Test
-  fun reactivateLastSurvey_lastIdSet_noActiveSurvey() =
-    runTest(testDispatcher) {
-      surveyRepository.lastActiveSurveyId = SURVEY.id
+  fun reactivateLastSurvey_lastIdSet_noActiveSurvey() = runWithTestDispatcher {
+    surveyRepository.lastActiveSurveyId = SURVEY.id
 
-      reactivateLastSurvey()
-      advanceUntilIdle()
+    reactivateLastSurvey()
+    advanceUntilIdle()
 
-      // Verify survey is made available for offline use.
-      verify(activateSurvey).invoke(SURVEY.id)
-    }
-
-  @Test
-  fun reactivateLastSurvey_lastIdNotSet() =
-    runTest(testDispatcher) {
-      reactivateLastSurvey()
-      advanceUntilIdle()
-
-      // Verify survey is made available for offline use.
-      verify(activateSurvey, never()).invoke(SURVEY.id)
-    }
+    // Verify survey is made available for offline use.
+    verify(activateSurvey).invoke(SURVEY.id)
+  }
 
   @Test
-  fun reactivateLastSurvey_lastIdSet_activeSurvey() =
-    runTest(testDispatcher) {
-      surveyRepository.activeSurvey = SURVEY
+  fun reactivateLastSurvey_lastIdNotSet() = runWithTestDispatcher {
+    reactivateLastSurvey()
+    advanceUntilIdle()
 
-      reactivateLastSurvey()
-      advanceUntilIdle()
+    // Verify survey is made available for offline use.
+    verify(activateSurvey, never()).invoke(SURVEY.id)
+  }
 
-      // Verify survey is made available for offline use.
-      verify(activateSurvey, never()).invoke(SURVEY.id)
-    }
+  @Test
+  fun reactivateLastSurvey_lastIdSet_activeSurvey() = runWithTestDispatcher {
+    surveyRepository.activeSurvey = SURVEY
+
+    reactivateLastSurvey()
+    advanceUntilIdle()
+
+    // Verify survey is made available for offline use.
+    verify(activateSurvey, never()).invoke(SURVEY.id)
+  }
 }
