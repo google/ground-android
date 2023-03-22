@@ -15,13 +15,16 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.AbstractViewModel
 
-/** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
-sealed interface MapCardUiData {
+class SuggestLoiCardViewModel(job: Job) : AbstractViewModel() {
+  val jobName: @Hot(replays = true) LiveData<String>
 
-  data class LoiCardUiData(val loi: LocationOfInterest) : MapCardUiData
-
-  data class SuggestLoiCardUiData(val job: Job) : MapCardUiData
+  init {
+    jobName = MutableLiveData(job.name)
+  }
 }
