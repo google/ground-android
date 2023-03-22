@@ -155,4 +155,4 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
 
 private fun TaskData?.isEmpty(): Boolean = this?.isEmpty() ?: true
 
-private fun TaskData?.isNotEmpty(): Boolean = !(this?.isEmpty() ?: true)
+private fun TaskData?.isNotEmpty(): Boolean = !this.isEmpty()
