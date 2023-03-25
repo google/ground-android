@@ -24,11 +24,18 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
+import dagger.hilt.android.AndroidEntryPoint
 
-class DropAPinMapFragment(
-  private val viewModel: DropAPinTaskViewModel,
-  private val mapViewModel: BaseMapViewModel
-) : AbstractMapContainerFragment() {
+@AndroidEntryPoint
+class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
+  AbstractMapContainerFragment() {
+
+  private lateinit var mapViewModel: BaseMapViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -54,10 +61,7 @@ class DropAPinMapFragment(
   }
 
   companion object {
-    fun newInstance(
-      viewModel: DropAPinTaskViewModel,
-      mapViewModel: BaseMapViewModel,
-      mapFragment: MapFragment
-    ) = DropAPinMapFragment(viewModel, mapViewModel).apply { this.mapFragment = mapFragment }
+    fun newInstance(viewModel: DropAPinTaskViewModel, mapFragment: MapFragment) =
+      DropAPinMapFragment(viewModel).apply { this.mapFragment = mapFragment }
   }
 }

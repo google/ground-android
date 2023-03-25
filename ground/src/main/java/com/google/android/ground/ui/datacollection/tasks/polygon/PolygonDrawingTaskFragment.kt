@@ -15,13 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.ui.MarkerIconFactory
-import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
@@ -36,13 +34,6 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   @Inject lateinit var markerIconFactory: MarkerIconFactory
   @Inject lateinit var mapFragment: MapFragment
 
-  private lateinit var mapViewModel: BaseMapViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
-
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewWithoutHeader.create(inflater)
 
@@ -52,7 +43,7 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
       .beginTransaction()
       .add(
         rowLayout.id,
-        PolygonDrawingMapFragment.newInstance(viewModel, mapViewModel, mapFragment),
+        PolygonDrawingMapFragment.newInstance(viewModel, mapFragment),
         "Draw a polygon fragment"
       )
       .commit()

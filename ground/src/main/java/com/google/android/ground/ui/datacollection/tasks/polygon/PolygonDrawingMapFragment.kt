@@ -25,11 +25,18 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
+import dagger.hilt.android.AndroidEntryPoint
 
-class PolygonDrawingMapFragment(
-  private val viewModel: PolygonDrawingViewModel,
-  private val mapViewModel: BaseMapViewModel
-) : AbstractMapContainerFragment() {
+@AndroidEntryPoint
+class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
+  AbstractMapContainerFragment() {
+
+  private lateinit var mapViewModel: BaseMapViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -62,10 +69,7 @@ class PolygonDrawingMapFragment(
   }
 
   companion object {
-    fun newInstance(
-      viewModel: PolygonDrawingViewModel,
-      mapViewModel: BaseMapViewModel,
-      mapFragment: MapFragment
-    ) = PolygonDrawingMapFragment(viewModel, mapViewModel).apply { this.mapFragment = mapFragment }
+    fun newInstance(viewModel: PolygonDrawingViewModel, mapFragment: MapFragment) =
+      PolygonDrawingMapFragment(viewModel).apply { this.mapFragment = mapFragment }
   }
 }
