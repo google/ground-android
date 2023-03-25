@@ -26,53 +26,51 @@
       type="com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <FrameLayout
       android:id="@+id/task_container"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+      android:layout_height="0dp"
+      android:layout_weight="1">
 
-    <com.google.android.material.card.MaterialCardView
-      android:id="@+id/header_card"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="20dp"
-      android:alpha="0.7"
-      android:orientation="vertical"
-      app:cardCornerRadius="8dp"
-      app:cardElevation="2dp"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="@+id/task_container">
-
-      <LinearLayout
+      <com.google.android.material.card.MaterialCardView
+        android:id="@+id/header_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#000000"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="8dp">
-        <ImageView
-          android:id="@+id/header_icon"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="20dp"
+        android:alpha="0.7"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          app:tint="#ffffff"
-          tools:src="@drawable/ic_add" />
-        <TextView
-          android:id="@+id/header_label"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="5dp"
-          android:layout_marginEnd="5dp"
-          android:textColor="#ffffff"
-          tools:text="Task label" />
-      </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+          android:background="#000000"
+          android:gravity="center"
+          android:orientation="horizontal"
+          android:padding="8dp">
+          <ImageView
+            android:id="@+id/header_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tint="#ffffff"
+            tools:src="@drawable/ic_add" />
+          <TextView
+            android:id="@+id/header_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:textColor="#ffffff"
+            tools:text="Task label" />
+        </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 
     <LinearLayout
       android:id="@+id/action_buttons_container"
@@ -80,9 +78,6 @@
       android:layout_height="wrap_content"
       android:background="@color/taskBottomControlsBackground"
       android:orientation="horizontal"
-      android:padding="24dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
+      android:padding="24dp" />
+  </LinearLayout>
 </layout>
