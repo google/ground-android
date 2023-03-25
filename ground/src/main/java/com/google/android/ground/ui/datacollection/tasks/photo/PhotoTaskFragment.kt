@@ -25,6 +25,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
@@ -55,7 +56,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private var capturedPhotoPath: String? = null
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewWithoutHeader.create(inflater)
+    TaskViewWithoutHeader.create(inflater, R.drawable.outline_photo_camera, R.string.take_a_photo)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)

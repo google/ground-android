@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.google.android.ground.R
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -35,7 +36,7 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   @Inject lateinit var mapFragment: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewWithoutHeader.create(inflater)
+    TaskViewWithoutHeader.create(inflater, R.drawable.outline_draw, R.string.draw_an_area)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }

@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.google.android.ground.R
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -36,7 +37,7 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   @Inject lateinit var mapFragment: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewWithoutHeader.create(inflater)
+    TaskViewWithoutHeader.create(inflater, R.drawable.outline_pin_drop, R.string.drop_a_pin)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
