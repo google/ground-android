@@ -23,8 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
-import com.google.android.ground.databinding.MapContainerFragBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
@@ -49,7 +49,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var binding: MapContainerFragBinding
+  private lateinit var binding: BasemapLayoutBinding
   private lateinit var adapter: MapCardAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,10 +88,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = MapContainerFragBinding.inflate(inflater, container, false)
+    binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapContainerViewModel
-    binding.homeScreenViewModel = homeScreenViewModel
     binding.lifecycleOwner = this
     return binding.root
   }
@@ -103,14 +102,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun setupMenuFab() {
-    val mapOverlay = binding.basemap.overlay
+    val mapOverlay = binding.overlay
     val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
     menuBinding.homeScreenViewModel = homeScreenViewModel
     menuBinding.lifecycleOwner = this
   }
 
   private fun setupBottomLoiCards() {
-    val container = binding.basemap.bottomContainer
+    val container = binding.bottomContainer
     val recyclerViewBinding = LoiCardsRecyclerViewBinding.inflate(layoutInflater, container, true)
     val recyclerView = recyclerViewBinding.recyclerView
     recyclerView.adapter = adapter
