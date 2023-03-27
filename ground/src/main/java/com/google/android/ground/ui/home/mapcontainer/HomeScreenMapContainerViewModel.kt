@@ -18,11 +18,9 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.viewModelScope
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -47,17 +45,13 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 
 @SharedViewModel
 class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
-  private val resources: Resources,
+  resources: Resources,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
@@ -68,6 +62,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository
 ) :
   BaseMapViewModel(
+    resources,
     locationManager,
     mapStateRepository,
     settingsManager,
@@ -80,16 +75,6 @@ internal constructor(
   private var lastCameraPosition: CameraPosition? = null
 
   val mbtilesFilePaths: LiveData<Set<String>>
-  val locationAccuracy: StateFlow<String?> =
-    locationLock
-      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
-        if (locationLock.getOrDefault(false) && latestLocation != null) {
-          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
-        } else {
-          null
-        }
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 

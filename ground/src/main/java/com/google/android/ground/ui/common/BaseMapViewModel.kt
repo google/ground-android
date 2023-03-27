@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.common
 
 import android.Manifest
+import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
@@ -34,11 +35,8 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
@@ -46,6 +44,7 @@ import timber.log.Timber
 open class BaseMapViewModel
 @Inject
 constructor(
+  private val resources: Resources,
   private val locationManager: LocationManager,
   private val mapStateRepository: MapStateRepository,
   private val settingsManager: SettingsManager,
@@ -80,6 +79,17 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
+
+  val locationAccuracy: StateFlow<String?> =
+    locationLock
+      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
+        if (locationLock.getOrDefault(false)) {
+          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
+        } else {
+          null
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   init {
     cameraUpdateRequests =
