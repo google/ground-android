@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
@@ -51,7 +50,6 @@ import timber.log.Timber
 class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
-  resources: Resources,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
@@ -62,7 +60,6 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository
 ) :
   BaseMapViewModel(
-    resources,
     locationManager,
     mapStateRepository,
     settingsManager,

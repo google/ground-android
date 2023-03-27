@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.common
 
 import android.Manifest
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
@@ -44,7 +43,6 @@ import timber.log.Timber
 open class BaseMapViewModel
 @Inject
 constructor(
-  private val resources: Resources,
   private val locationManager: LocationManager,
   private val mapStateRepository: MapStateRepository,
   private val settingsManager: SettingsManager,
@@ -80,11 +78,11 @@ constructor(
       .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
 
-  val locationAccuracy: StateFlow<String?> =
+  val locationAccuracy: StateFlow<Float?> =
     locationLock
       .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
         if (locationLock.getOrDefault(false)) {
-          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
+          latestLocation.accuracy
         } else {
           null
         }

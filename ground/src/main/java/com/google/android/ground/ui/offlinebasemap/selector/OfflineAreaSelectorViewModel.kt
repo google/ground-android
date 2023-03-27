@@ -52,7 +52,6 @@ internal constructor(
   mapController: MapController,
 ) :
   BaseMapViewModel(
-    resources,
     locationManager,
     mapStateRepository,
     settingsManager,

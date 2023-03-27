@@ -63,12 +63,12 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
     return binding.root
   }
 
-  private fun updateInfoCard(locationAccuracy: String?) {
-    if (locationAccuracy.isNullOrEmpty()) {
+  private fun updateInfoCard(locationAccuracy: Float?) {
+    if (locationAccuracy == null) {
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.accuracy)
-      binding.cardValue.text = locationAccuracy
+      binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
       binding.infoCard.visibility = View.VISIBLE
     }
   }
