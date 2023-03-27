@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -36,10 +38,11 @@ import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.util.combineWith
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -78,21 +81,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    mapContainerViewModel.suggestLoiJobs.observe(this) { jobs ->
-      Timber.e("[DEBUG123] suggestLoiJobs: $jobs")
-    }
 
-    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.combineWith(
-      mapContainerViewModel.suggestLoiJobs
-    ) { lois, jobs ->
-      {
-        requireNotNull(lois)
-        requireNotNull(jobs)
+    lifecycleScope.launch {
+      mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
+        .asFlow()
+        .combine(mapContainerViewModel.suggestLoiJobs.asFlow()) { lois, jobs ->
+          val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
+          val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
 
-        val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-        val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
-        adapter.updateData(loiCards + jobCards, lois.size - 1)
-      }
+          Pair(loiCards + jobCards, lois.size)
+        }
+        .collect { (mapCards, loiCount) -> adapter.updateData(mapCards, loiCount - 1) }
     }
   }
 

@@ -39,6 +39,7 @@ import com.google.android.ground.persistence.local.room.fields.*
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
+import com.google.android.ground.persistence.remote.firebase.schema.TaskConverter
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.net.URL
@@ -104,11 +105,21 @@ fun parseVertices(vertices: String?): List<Point> {
 }
 
 fun Job.toLocalDataStoreObject(surveyId: String) =
-  JobEntity(id = id, surveyId = surveyId, name = name)
+  JobEntity(
+    id = id,
+    surveyId = surveyId,
+    name = name,
+    suggestLoiTaskType = suggestLoiTaskType?.toString()
+  )
 
 fun JobEntityAndRelations.toModelObject(): Job {
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  return Job(jobEntity.id, jobEntity.name, taskMap.toPersistentMap())
+  return Job(
+    jobEntity.id,
+    jobEntity.name,
+    taskMap.toPersistentMap(),
+    TaskConverter.toSuggestLoiTaskType(jobEntity.suggestLoiTaskType)
+  )
 }
 
 fun LocationOfInterest.toLocalDataStoreObject() =
@@ -122,11 +133,11 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     geometry = geometry.toLocalDataStoreObject()
   )
 
-fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
+fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
   if (geometry == null) {
     throw LocalDataConsistencyException("No geometry in location of interest $this.id")
   } else {
-    return LocationOfInterest(
+    LocationOfInterest(
       id = id,
       surveyId = surveyId,
       created = created.toModelObject(),
@@ -140,7 +151,6 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
         }
     )
   }
-}
 
 @Deprecated(
   "Use toLocalDataStoreObject(User) instead",

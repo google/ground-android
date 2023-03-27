@@ -221,6 +221,7 @@ dependencies {
     // Android Arch Lifecycle
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$project.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$project.lifecycleVersion"
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
 
