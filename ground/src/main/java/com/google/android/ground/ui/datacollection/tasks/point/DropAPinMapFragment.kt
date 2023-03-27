@@ -23,7 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
-import com.google.android.ground.databinding.DropPinTaskFragBinding
+import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   AbstractMapContainerFragment() {
 
-  private lateinit var binding: DropPinTaskFragBinding
+  private lateinit var binding: MapTaskFragBinding
   private lateinit var mapViewModel: BaseMapViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +48,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = DropPinTaskFragBinding.inflate(inflater, container, false)
+    binding = MapTaskFragBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
