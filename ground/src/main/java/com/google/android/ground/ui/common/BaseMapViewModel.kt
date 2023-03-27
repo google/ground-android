@@ -35,8 +35,8 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
