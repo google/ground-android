@@ -39,7 +39,6 @@ import com.google.android.ground.persistence.local.room.fields.*
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
-import com.google.android.ground.persistence.remote.firebase.schema.TaskConverter
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.net.URL
@@ -104,7 +103,7 @@ fun parseVertices(vertices: String?): List<Point> {
   return verticesArray.map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
 }
 
-fun Job.toLocalDataStoreObject(surveyId: String) =
+fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
   JobEntity(
     id = id,
     surveyId = surveyId,
@@ -118,7 +117,7 @@ fun JobEntityAndRelations.toModelObject(): Job {
     jobEntity.id,
     jobEntity.name,
     taskMap.toPersistentMap(),
-    TaskConverter.toSuggestLoiTaskType(jobEntity.suggestLoiTaskType)
+    jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }
   )
 }
 

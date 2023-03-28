@@ -48,10 +48,7 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 @SharedViewModel
@@ -103,7 +100,7 @@ internal constructor(
    */
   val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
-  val suggestLoiJobs: LiveData<List<Job>>
+  val suggestLoiJobs: Flow<List<Job>>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -147,11 +144,9 @@ internal constructor(
       )
 
     suggestLoiJobs =
-      LiveDataReactiveStreams.fromPublisher(
-        surveyRepository.activeSurveyFlowable.map { survey ->
-          survey.get().jobs.filter { it.suggestLoiTaskType != null }.toList()
-        }
-      )
+      surveyRepository.activeSurveyFlow.map {
+        it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
+      }
   }
 
   private fun toLocationOfInterestFeatures(

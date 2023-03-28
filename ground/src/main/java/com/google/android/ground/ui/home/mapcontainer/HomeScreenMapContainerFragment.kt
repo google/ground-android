@@ -85,7 +85,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     lifecycleScope.launch {
       mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
         .asFlow()
-        .combine(mapContainerViewModel.suggestLoiJobs.asFlow()) { lois, jobs ->
+        .combine(mapContainerViewModel.suggestLoiJobs) { lois, jobs ->
           val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
           val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
 
