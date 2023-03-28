@@ -139,7 +139,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> :
       }
   }
 
-  private fun addButton(action: ButtonAction): TaskButton {
+  protected fun addButton(action: ButtonAction): TaskButton {
     check(!buttons.contains(action)) { "Button $action already bound" }
     val button =
       TaskButton.createAndAttachButton(action, taskView.actionButtonsContainer, layoutInflater)
