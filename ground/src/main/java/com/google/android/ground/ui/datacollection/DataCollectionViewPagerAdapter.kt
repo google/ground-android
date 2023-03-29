@@ -24,7 +24,7 @@ import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragme
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -45,7 +45,7 @@ constructor(
 
     val taskFragment =
       when (task.type) {
-        Task.Type.TEXT -> QuestionTaskFragment()
+        Task.Type.TEXT -> TextTaskFragment()
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
         Task.Type.DROP_A_PIN -> DropAPinTaskFragment()

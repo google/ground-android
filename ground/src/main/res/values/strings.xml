@@ -132,7 +132,7 @@
   <string name="select_loi_type">Choose a locationOfInterest type</string>
   <string name="get_started_button_text">Get started</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
-  <string name="location_accuracy">Accuracy: %.2f m</string>
+  <string name="location_accuracy">%.2fm</string>
 
   <string name="delete_button_label">Delete</string>
   <string name="cancel_button_label">Cancel</string>
@@ -155,4 +155,8 @@
   <string name="drop_pin">Drop pin</string>
 
   <string name="new_location">New location</string>
+  <string name="take_a_photo">Take a photo</string>
+  <string name="drop_a_pin">Drop a pin</string>
+  <string name="draw_an_area">Draw an area</string>
+  <string name="accuracy">Accuracy</string>
 </resources>

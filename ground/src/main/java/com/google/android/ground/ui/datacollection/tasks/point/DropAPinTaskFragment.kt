@@ -15,14 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.google.android.ground.R
 import com.google.android.ground.ui.MarkerIconFactory
-import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
@@ -37,15 +36,8 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   @Inject lateinit var markerIconFactory: MarkerIconFactory
   @Inject lateinit var mapFragment: MapFragment
 
-  private lateinit var mapViewModel: BaseMapViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
-
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewWithoutHeader.create(inflater)
+    TaskViewWithoutHeader.create(inflater, R.drawable.outline_pin_drop, R.string.drop_a_pin)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
@@ -53,7 +45,7 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
       .beginTransaction()
       .add(
         rowLayout.id,
-        DropAPinMapFragment.newInstance(viewModel, mapViewModel, mapFragment),
+        DropAPinMapFragment.newInstance(viewModel, mapFragment),
         "Drop a pin fragment"
       )
       .commit()
