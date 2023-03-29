@@ -125,7 +125,7 @@
   <string name="select_loi_type">Elija un tipo de característica</string>
   <string name="get_started_button_text">Empezar</string>
   <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
-  <string name="location_accuracy">Precisión: %.2f m</string>
+  <string name="location_accuracy">%.2fm</string>
 
   <string name="delete_button_label">Borrar</string>
   <string name="cancel_button_label">Cancelar</string>

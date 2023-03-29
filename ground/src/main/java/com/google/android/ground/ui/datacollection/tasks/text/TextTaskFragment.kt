@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
-class QuestionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
+class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewWithHeader.create(inflater)
