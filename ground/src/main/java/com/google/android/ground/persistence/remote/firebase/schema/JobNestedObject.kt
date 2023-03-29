@@ -22,5 +22,6 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 @IgnoreExtraProperties
 data class JobNestedObject(
   val name: String? = null,
-  val tasks: Map<String, TaskNestedObject>? = null
+  val tasks: Map<String, TaskNestedObject>? = null,
+  val suggestLoiTaskType: String? = null
 )

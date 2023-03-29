@@ -25,6 +25,8 @@ import timber.log.Timber
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
 
+  private val suggestLoiTaskTypes = setOf(Task.Type.DROP_A_PIN, Task.Type.DRAW_POLYGON)
+
   fun toTask(id: String, em: TaskNestedObject): Optional<Task> {
     val type = toTaskType(em.type)
     if (type == Task.Type.UNKNOWN) {
@@ -52,4 +54,14 @@ internal object TaskConverter {
       "time" -> Task.Type.TIME
       else -> Task.Type.UNKNOWN
     }
+
+  fun toSuggestLoiTaskType(typeStr: String?): Task.Type? {
+    val taskType = toTaskType(typeStr)
+
+    return if (suggestLoiTaskTypes.contains(taskType)) {
+      taskType
+    } else {
+      null
+    }
+  }
 }
