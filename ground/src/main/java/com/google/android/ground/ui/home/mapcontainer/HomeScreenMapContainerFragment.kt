@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +41,8 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -77,9 +81,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
-    mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel.observe(this) { lois ->
-      // TODO(#1541): Merge loi MapCardUiData with SuggestLoi MapCardUiData
-      adapter.updateData(lois.map { MapCardUiData.LoiCardUiData(it) }, lois.size - 1)
+
+    lifecycleScope.launch {
+      mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
+        .asFlow()
+        .combine(mapContainerViewModel.suggestLoiJobs) { lois, jobs ->
+          val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
+          val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
+
+          Pair(loiCards + jobCards, lois.size)
+        }
+        .collect { (mapCards, loiCount) -> adapter.updateData(mapCards, loiCount - 1) }
     }
   }
 

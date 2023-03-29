@@ -25,6 +25,7 @@ import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
@@ -47,10 +48,7 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 @SharedViewModel
@@ -102,6 +100,8 @@ internal constructor(
    */
   val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
+  val suggestLoiJobs: Flow<List<Job>>
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
@@ -142,6 +142,11 @@ internal constructor(
           }
         }
       )
+
+    suggestLoiJobs =
+      surveyRepository.activeSurveyFlow.map {
+        it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
+      }
   }
 
   private fun toLocationOfInterestFeatures(

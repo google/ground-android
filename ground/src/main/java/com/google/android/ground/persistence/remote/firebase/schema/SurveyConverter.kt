@@ -38,7 +38,7 @@ internal object SurveyConverter {
 
     val jobMap = mutableMapOf<String, Job>()
     if (pd.jobs != null) {
-      pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap.put(id, toJob(id, obj)) }
+      pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap[id] = toJob(id, obj) }
     }
 
     val baseMaps = mutableListOf<BaseMap>()

@@ -103,12 +103,22 @@ fun parseVertices(vertices: String?): List<Point> {
   return verticesArray.map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
 }
 
-fun Job.toLocalDataStoreObject(surveyId: String) =
-  JobEntity(id = id, surveyId = surveyId, name = name)
+fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
+  JobEntity(
+    id = id,
+    surveyId = surveyId,
+    name = name,
+    suggestLoiTaskType = suggestLoiTaskType?.toString()
+  )
 
 fun JobEntityAndRelations.toModelObject(): Job {
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  return Job(jobEntity.id, jobEntity.name, taskMap.toPersistentMap())
+  return Job(
+    jobEntity.id,
+    jobEntity.name,
+    taskMap.toPersistentMap(),
+    jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }
+  )
 }
 
 fun LocationOfInterest.toLocalDataStoreObject() =
@@ -122,11 +132,11 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     geometry = geometry.toLocalDataStoreObject()
   )
 
-fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
+fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
   if (geometry == null) {
     throw LocalDataConsistencyException("No geometry in location of interest $this.id")
   } else {
-    return LocationOfInterest(
+    LocationOfInterest(
       id = id,
       surveyId = surveyId,
       created = created.toModelObject(),
@@ -140,7 +150,6 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest {
         }
     )
   }
-}
 
 @Deprecated(
   "Use toLocalDataStoreObject(User) instead",
