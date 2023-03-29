@@ -40,7 +40,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
-      android:padding="20dp">
+      android:padding="16dp">
       <TextView
         android:id="@+id/jobName"
         android:layout_width="wrap_content"
@@ -81,25 +81,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loiIcon"
         tools:text="No submissions" />
-      <ImageView
-        android:id="@+id/collectIcon"
-        android:layout_width="29dp"
-        android:layout_height="29dp"
-        android:src="@drawable/ic_add_with_green_background"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/submissions" />
       <Button
         android:id="@+id/collectData"
+        style="@style/JobButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:clickable="false"
         android:text="@string/collect_data"
-        android:textColor="@color/colorJobCardCollectButton"
-        android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/collectIcon"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/submissions" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>

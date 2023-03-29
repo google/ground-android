@@ -38,6 +38,10 @@
   <color name="colorJobCardBorderSelected">#FA7B17</color>
   <color name="colorJobCardCollectButton">@color/paletteGreen</color>
 
+  <!--  Suggest Loi Card-->
+  <color name="colorLightGreenCardBackground">#D5E8D0</color>
+  <color name="colorLightGreenButton">#8CD88D</color>
+
   <!-- Data Submission Confirmation -->
   <color name="colorDataSubmissionConfirmationGreen">@color/paletteGreen</color>
 
