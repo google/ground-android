@@ -15,14 +15,11 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.viewModelScope
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.R
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
@@ -55,7 +52,6 @@ import timber.log.Timber
 class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
-  private val resources: Resources,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
@@ -78,16 +74,6 @@ internal constructor(
   private var lastCameraPosition: CameraPosition? = null
 
   val mbtilesFilePaths: LiveData<Set<String>>
-  val locationAccuracy: StateFlow<String?> =
-    locationLock
-      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
-        if (locationLock.getOrDefault(false) && latestLocation != null) {
-          resources.getString(R.string.location_accuracy, latestLocation.accuracy)
-        } else {
-          null
-        }
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 

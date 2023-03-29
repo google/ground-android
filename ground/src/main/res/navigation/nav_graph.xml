@@ -111,37 +111,37 @@
 
     <fragment
       android:id="@+id/drop_a_pin_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.DropAPinTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/question_task_frag" />
 
     <fragment
       android:id="@+id/multiple_choice_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.MultipleChoiceTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/question_task_frag" />
 
     <fragment
       android:id="@+id/number_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.NumberTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/question_task_frag" />
 
     <fragment
       android:id="@+id/photo_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.PhotoTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/question_task_frag" />
 
     <fragment
       android:id="@+id/polygon_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.PolygonDrawingTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/question_task_frag" />
 
     <fragment
       android:id="@+id/question_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.text.QuestionTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/question_task_frag" />
   </navigation>

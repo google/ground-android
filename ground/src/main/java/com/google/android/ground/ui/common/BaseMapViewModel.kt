@@ -35,10 +35,7 @@ import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
@@ -80,6 +77,17 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
   val cameraUpdateRequests: LiveData<Event<CameraPosition>>
+
+  val locationAccuracy: StateFlow<Float?> =
+    locationLock
+      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
+        if (locationLock.getOrDefault(false)) {
+          latestLocation.accuracy
+        } else {
+          null
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   init {
     cameraUpdateRequests =

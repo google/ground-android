@@ -18,6 +18,9 @@ package com.google.android.ground.ui.datacollection.components
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
@@ -80,8 +83,17 @@ data class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBindi
   }
 
   companion object {
-    fun create(layoutInflater: LayoutInflater): TaskView {
+    fun create(
+      layoutInflater: LayoutInflater,
+      @DrawableRes iconResId: Int? = null,
+      @StringRes labelResId: Int? = null
+    ): TaskView {
       val binding = TaskFragWithoutHeaderBinding.inflate(layoutInflater)
+      iconResId?.let {
+        val drawable = AppCompatResources.getDrawable(layoutInflater.context, it)
+        binding.headerIcon.setImageDrawable(drawable)
+      }
+      labelResId?.let { binding.headerLabel.setText(labelResId) }
       return TaskViewWithoutHeader(binding)
     }
   }
