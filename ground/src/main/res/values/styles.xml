@@ -199,4 +199,16 @@
     <item name="iconTint">@color/taskBtnIconTintTransparent</item>
   </style>
 
+  <style name="JobButton" parent="ChipButton">
+    <item name="android:backgroundTint">@color/paletteGreen</item>
+    <item name="android:textColor">@color/colorBackground</item>
+    <item name="android:textSize">13sp</item>
+    <item name="android:layout_marginTop">12dp</item>
+  </style>
+
+  <style name="JobButton.Light">
+    <item name="android:backgroundTint">@color/colorLightGreenButton</item>
+    <item name="android:textColor">@color/taskBtnTextLightGreen</item>
+  </style>
+
 </resources>

@@ -32,6 +32,7 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
+    android:backgroundTint="@color/colorLightGreenCardBackground"
     android:orientation="vertical"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
@@ -40,56 +41,46 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
-      android:padding="20dp">
+      android:padding="16dp">
+      <ImageView
+        android:id="@+id/newLocationIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/add_location_alt_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/colorGrey800" />
       <TextView
         android:id="@+id/jobName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="8dp"
         android:text="@{viewModel.jobName}"
         android:textSize="@dimen/loi_card_item_title_text_size"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/newLocationIcon"
+        app:layout_constraintStart_toEndOf="@+id/newLocationIcon"
+        app:layout_constraintTop_toTopOf="@+id/newLocationIcon"
         tools:text="Map the terrain" />
-      <androidx.constraintlayout.utils.widget.ImageFilterView
-        android:id="@+id/loiIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:tint="@color/colorGrey800"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:srcCompat="@drawable/ic_outline_room_24" />
       <TextView
         android:id="@+id/newLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/loi_card_item_margin"
         android:text="@string/new_location"
-        app:layout_constraintBottom_toBottomOf="@id/loiIcon"
-        app:layout_constraintStart_toEndOf="@id/loiIcon"
-        app:layout_constraintTop_toBottomOf="@id/jobName"
-        tools:text="Quilombolas" />
-      <ImageView
-        android:id="@+id/collectIcon"
-        android:layout_width="29dp"
-        android:layout_height="29dp"
-        android:src="@drawable/ic_add_with_green_background"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newLocation" />
+        app:layout_constraintTop_toBottomOf="@id/jobName"
+        tools:text="Suggest area of interest" />
       <Button
         android:id="@+id/collectData"
+        style="@style/JobButton.Light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:clickable="false"
-        android:text="@string/collect_data"
-        android:textColor="@color/colorJobCardCollectButton"
-        android:textSize="13sp"
+        android:text="@string/add_location"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/collectIcon"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/newLocation" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>
