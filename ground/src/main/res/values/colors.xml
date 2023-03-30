@@ -34,6 +34,7 @@
   <color name="paletteGreen">#216C2E</color>
 
   <!-- Loi Card -->
+  <color name="colorJobCardIconBackground">#A7F5A7</color>
   <color name="colorJobCardBorderSelected">#FA7B17</color>
   <color name="colorJobCardCollectButton">@color/paletteGreen</color>
 
