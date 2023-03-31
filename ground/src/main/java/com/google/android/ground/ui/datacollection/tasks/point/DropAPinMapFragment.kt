@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +30,6 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.math.abs
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -91,40 +89,6 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
       binding.cardValue.text = LatLngConverter.processCoordinates(cameraPosition.target)
       binding.infoCard.visibility = View.VISIBLE
     }
-  }
-
-  private fun convert(latitude: Double, longitude: Double): String {
-    val builder = StringBuilder()
-    if (latitude < 0) {
-      builder.append("S ")
-    } else {
-      builder.append("N ")
-    }
-    val latitudeDegrees = Location.convert(abs(latitude), Location.FORMAT_SECONDS)
-    val latitudeSplit =
-      latitudeDegrees.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-    builder.append(latitudeSplit[0])
-    builder.append("°")
-    builder.append(latitudeSplit[1])
-    builder.append("'")
-    builder.append(latitudeSplit[2])
-    builder.append("\"")
-    builder.append(" ")
-    if (longitude < 0) {
-      builder.append("W ")
-    } else {
-      builder.append("E ")
-    }
-    val longitudeDegrees = Location.convert(abs(longitude), Location.FORMAT_SECONDS)
-    val longitudeSplit =
-      longitudeDegrees.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-    builder.append(longitudeSplit[0])
-    builder.append("°")
-    builder.append(longitudeSplit[1])
-    builder.append("'")
-    builder.append(longitudeSplit[2])
-    builder.append("\"")
-    return builder.toString()
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
