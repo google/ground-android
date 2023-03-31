@@ -28,8 +28,7 @@ class LatLngConverterTest {
 
   @Test
   fun testProcessCoordinates_ne() {
-    assertThat(processCoordinate(Coordinate(10.555, 10.555)))
-      .isEqualTo("10°33'18\" N 10°33'18\" E")
+    assertThat(processCoordinate(Coordinate(10.555, 10.555))).isEqualTo("10°33'18\" N 10°33'18\" E")
   }
 
   @Test
