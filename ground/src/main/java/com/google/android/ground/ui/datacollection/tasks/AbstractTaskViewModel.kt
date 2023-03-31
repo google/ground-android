@@ -19,6 +19,7 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
@@ -28,13 +29,23 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import java8.util.Optional
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor(private val resources: Resources) :
   AbstractViewModel() {
 
   /** Current value. */
-  val taskData: LiveData<Optional<TaskData>>
+  @Deprecated("Use taskDataValue instead") val taskData: LiveData<Optional<TaskData>>
+
+  private val taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
+
+  // TODO(Shobhit): Rename to taskData once legacy taskData is cleaned up.
+  val taskDataValue: StateFlow<TaskData?> =
+    taskDataFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   /** Transcoded text to be displayed for the current [AbstractTaskViewModel.taskData]. */
   val responseText: LiveData<String>
@@ -90,6 +101,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   fun setResponse(taskData: Optional<TaskData>) {
     taskDataSubject.onNext(taskData)
+    taskDataFlow.value = taskData.orElse(null)
   }
 
   open fun clearResponse() {

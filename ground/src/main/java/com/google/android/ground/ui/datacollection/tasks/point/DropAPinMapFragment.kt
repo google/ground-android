@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,11 +25,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
+import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.abs
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -55,14 +58,22 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.locationAccuracy.collect { updateInfoCard(it) }
+        mapViewModel.locationAccuracy.collect { setLocationAccuracyAsInfoCard(it) }
+      }
+    }
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.taskDataValue.collect {
+          setDroppedPinAsInfoCard((it as? LocationTaskData)?.cameraPosition)
+        }
       }
     }
 
     return binding.root
   }
 
-  private fun updateInfoCard(locationAccuracy: Float?) {
+  private fun setLocationAccuracyAsInfoCard(locationAccuracy: Float?) {
     if (locationAccuracy == null) {
       binding.infoCard.visibility = View.GONE
     } else {
@@ -70,6 +81,50 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
       binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
       binding.infoCard.visibility = View.VISIBLE
     }
+  }
+
+  private fun setDroppedPinAsInfoCard(cameraPosition: CameraPosition?) {
+    if (cameraPosition == null) {
+      binding.infoCard.visibility = View.GONE
+    } else {
+      binding.cardTitle.setText(R.string.dropped_pin)
+      binding.cardValue.text = LatLngConverter.processCoordinates(cameraPosition.target)
+      binding.infoCard.visibility = View.VISIBLE
+    }
+  }
+
+  private fun convert(latitude: Double, longitude: Double): String {
+    val builder = StringBuilder()
+    if (latitude < 0) {
+      builder.append("S ")
+    } else {
+      builder.append("N ")
+    }
+    val latitudeDegrees = Location.convert(abs(latitude), Location.FORMAT_SECONDS)
+    val latitudeSplit =
+      latitudeDegrees.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    builder.append(latitudeSplit[0])
+    builder.append("°")
+    builder.append(latitudeSplit[1])
+    builder.append("'")
+    builder.append(latitudeSplit[2])
+    builder.append("\"")
+    builder.append(" ")
+    if (longitude < 0) {
+      builder.append("W ")
+    } else {
+      builder.append("E ")
+    }
+    val longitudeDegrees = Location.convert(abs(longitude), Location.FORMAT_SECONDS)
+    val longitudeSplit =
+      longitudeDegrees.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    builder.append(longitudeSplit[0])
+    builder.append("°")
+    builder.append(longitudeSplit[1])
+    builder.append("'")
+    builder.append(longitudeSplit[2])
+    builder.append("\"")
+    return builder.toString()
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
