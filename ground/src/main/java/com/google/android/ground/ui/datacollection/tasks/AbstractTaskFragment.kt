@@ -117,7 +117,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .updateState { isEnabled = false }
   }
 
-  private fun addSkipButton() {
+  protected fun addSkipButton() {
     addButton(ButtonAction.SKIP)
       .setOnClickListener {
         viewModel.clearResponse()
@@ -157,6 +157,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 }
 
-private fun TaskData?.isEmpty(): Boolean = this?.isEmpty() ?: true
+fun TaskData?.isEmpty(): Boolean = this?.isEmpty() ?: true
 
-private fun TaskData?.isNotEmpty(): Boolean = !this.isEmpty()
+fun TaskData?.isNotEmpty(): Boolean = !this.isEmpty()

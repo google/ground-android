@@ -53,7 +53,6 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   }
 
   override fun onCreateActionButtons() {
-    super.onCreateActionButtons()
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener {
         Toast.makeText(requireContext(), "TODO: Add a marker at the center", Toast.LENGTH_SHORT)
@@ -64,6 +63,15 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
           visibility = if (taskData?.isEmpty() != false) View.VISIBLE else View.GONE
         }
       }
+    addButton(ButtonAction.CONTINUE)
+      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+      .setOnTaskUpdated { button, taskData ->
+        button.updateState {
+          visibility = if (taskData?.isEmpty() != false) View.GONE else View.VISIBLE
+        }
+      }
+      .updateState { visibility = View.GONE }
     addUndoButton()
+    addSkipButton()
   }
 }
