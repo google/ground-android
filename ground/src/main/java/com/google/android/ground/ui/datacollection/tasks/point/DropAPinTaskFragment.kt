@@ -19,7 +19,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import com.google.android.ground.R
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -54,10 +53,7 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
 
   override fun onCreateActionButtons() {
     addButton(ButtonAction.DROP_PIN)
-      .setOnClickListener {
-        Toast.makeText(requireContext(), "TODO: Add a marker at the center", Toast.LENGTH_SHORT)
-          .show()
-      }
+      .setOnClickListener { viewModel.dropPin() }
       .setOnTaskUpdated { button, taskData ->
         button.updateState {
           visibility = if (taskData?.isEmpty() != false) View.VISIBLE else View.GONE

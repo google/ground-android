@@ -80,7 +80,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    viewModel.updateResponse(position)
+    viewModel.updateCameraPosition(position)
   }
 
   companion object {

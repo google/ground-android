@@ -92,7 +92,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     taskDataSubject.onNext(taskData)
   }
 
-  fun clearResponse() {
+  open fun clearResponse() {
     setResponse(Optional.empty())
   }
 
