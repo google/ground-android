@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.point
+package com.google.android.ground.ui.datacollection.tasks.point
 
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
