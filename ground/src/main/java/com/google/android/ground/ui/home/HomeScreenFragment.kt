@@ -105,6 +105,10 @@ class HomeScreenFragment :
     binding.versionText.text = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    homeScreenViewModel.showOfflineAreaMenuItem.observe(viewLifecycleOwner) {
+      binding.navView.menu.findItem(R.id.nav_offline_areas).isVisible = it
+    }
+
     binding.navView.setNavigationItemSelectedListener(this)
     requireView().viewTreeObserver.addOnGlobalLayoutListener(this)
     updateNavHeader()

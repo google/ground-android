@@ -15,8 +15,11 @@
  */
 package com.google.android.ground.ui.home
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -27,11 +30,16 @@ import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 @SharedViewModel
-class HomeScreenViewModel @Inject internal constructor(private val navigator: Navigator) :
-  AbstractViewModel() {
+class HomeScreenViewModel
+@Inject
+internal constructor(
+  private val navigator: Navigator,
+  private val surveyRepository: SurveyRepository
+) : AbstractViewModel() {
 
   @JvmField
   val isSubmissionButtonVisible: @Hot(replays = true) MutableLiveData<Boolean> =
@@ -40,6 +48,8 @@ class HomeScreenViewModel @Inject internal constructor(private val navigator: Na
   // TODO(#719): Move into LocationOfInterestDetailsViewModel.
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
+  val showOfflineAreaMenuItem: LiveData<Boolean> =
+    surveyRepository.activeSurveyFlow.map { it?.baseMaps?.isNotEmpty() ?: false }.asLiveData()
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
