@@ -25,6 +25,7 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
+import com.sharedtest.FakeData.SURVEY
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -35,7 +36,7 @@ import javax.inject.Singleton
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var lois = emptyList<LocationOfInterest>()
-  var surveys = emptyList<Survey>()
+  var surveys = listOf<Survey>(SURVEY)
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   var termsOfService: TermsOfService? = null
