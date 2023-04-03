@@ -50,6 +50,7 @@ class FeatureClusterRenderer(
   var zoom: Float,
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
+  var previousActiveLoiId: String? = null
   private val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
 
   private fun parseColor(colorHexCode: String?): Int =
@@ -69,6 +70,15 @@ class FeatureClusterRenderer(
       markerOptions.icon(getMarkerIcon(true))
     } else {
       markerOptions.icon(getMarkerIcon(false))
+    }
+  }
+
+  override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
+    super.onClusterItemUpdated(item, marker)
+    if (item.feature.tag.id == clusterManager.activeLocationOfInterest) {
+      marker.setIcon(getMarkerIcon(true))
+    } else {
+      marker.setIcon(getMarkerIcon(false))
     }
   }
 
@@ -95,6 +105,7 @@ class FeatureClusterRenderer(
     markerOptions: MarkerOptions
   ) {
     super.onBeforeClusterRendered(cluster, markerOptions)
+    Timber.d("MARKER_RENDER: onBeforeClusterRendered")
     markerOptions.icon(createMarker(cluster))
   }
 
@@ -109,5 +120,19 @@ class FeatureClusterRenderer(
    * Only true when the current zoom level is lesser than a set threshold.
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    zoom < clusteringZoomThreshold
+    zoom < clusteringZoomThreshold && cluster.size > 1
+
+  /**
+   * Determines if the renderer should re-render clusters.
+   *
+   * The default implementation will only re-render when the known clusters have changed. This
+   * implementation will also force a render if the actively selected map feature has changed.
+   */
+  override fun shouldRender(
+    oldClusters: MutableSet<out Cluster<FeatureClusterItem>>,
+    newClusters: MutableSet<out Cluster<FeatureClusterItem>>
+  ): Boolean {
+    return previousActiveLoiId != clusterManager.activeLocationOfInterest ||
+      super.shouldRender(oldClusters, newClusters)
+  }
 }
