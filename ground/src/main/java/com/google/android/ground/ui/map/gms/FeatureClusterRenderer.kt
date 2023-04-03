@@ -131,8 +131,7 @@ class FeatureClusterRenderer(
   override fun shouldRender(
     oldClusters: MutableSet<out Cluster<FeatureClusterItem>>,
     newClusters: MutableSet<out Cluster<FeatureClusterItem>>
-  ): Boolean {
-    return previousActiveLoiId != clusterManager.activeLocationOfInterest ||
+  ): Boolean =
+    previousActiveLoiId != clusterManager.activeLocationOfInterest ||
       super.shouldRender(oldClusters, newClusters)
-  }
 }
