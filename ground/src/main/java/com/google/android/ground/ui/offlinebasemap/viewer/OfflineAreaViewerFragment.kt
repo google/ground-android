@@ -23,7 +23,6 @@ import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.toModelObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,8 +31,6 @@ import javax.inject.Inject
 /** The fragment provides a UI for managing a single offline area on the user's device. */
 @AndroidEntryPoint
 class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFragment() {
-
-  @Inject lateinit var navigator: Navigator
 
   private lateinit var viewModel: OfflineAreaViewerViewModel
 

@@ -30,7 +30,7 @@ import java8.util.function.Consumer
 /** Interface for a Fragment that renders a map view. */
 interface MapFragment {
   /** Returns a list of supported basemap types. */
-  val availableMapTypes: List<MapType>
+  val availableMapTypes: Array<MapType>
 
   /** Returns the current map zoom level. */
   val currentZoomLevel: Float
