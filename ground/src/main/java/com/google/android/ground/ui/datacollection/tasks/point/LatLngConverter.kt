@@ -31,17 +31,17 @@ object LatLngConverter {
 
   private fun convertLatToDMS(lat: Double): String {
     val orientation = if (lat > 0) "N" else "S"
-    return decimalToDMS(lat) + " " + orientation
+    return "${decimalToDMS(lat)} $orientation"
   }
 
   private fun convertLongToDMS(long: Double): String {
     val orientation = if (long > 0) "E" else "W"
-    return decimalToDMS(long) + " " + orientation
+    return "${decimalToDMS(long)} $orientation"
   }
 
   private fun decimalToDMS(latOrLong: Double): String {
-    val degrees = Location.convert(abs(latOrLong), Location.FORMAT_SECONDS)
-    val split = degrees.split(":".toRegex())
-    return split[0] + "°" + split[1] + "'" + split[2] + "\""
+    val dmsFormat = Location.convert(abs(latOrLong), Location.FORMAT_SECONDS)
+    val (degrees, minutes, seconds) = dmsFormat.split(":".toRegex())
+    return "$degrees°$minutes'$seconds\""
   }
 }
