@@ -96,11 +96,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private lateinit var clusterManager: FeatureClusterManager
 
   /**
-   * User selected [LocationOfInterest] by either clicking the bottom card or horizontal scrolling.
-   */
-  private var activeLocationOfInterest: String? = null
-
-  /**
    * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
    * start and end of polygon.
    */
@@ -331,7 +326,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun renderFeatures(features: Set<Feature>) {
     // Re-cluster and re-render
     if (features.isNotEmpty()) {
-      Timber.v("renderLocationsOfInterest() called with ${features.size} locations of interest")
+      Timber.v("renderFeatures() called with ${features.size} locations of interest")
       removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
@@ -398,7 +393,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
-    if (activeLocationOfInterest == newLoiId) return
+    clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
     clusterManager.activeLocationOfInterest = newLoiId
 
     refresh()
