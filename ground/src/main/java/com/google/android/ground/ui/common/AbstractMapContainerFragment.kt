@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.R
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.PermissionDeniedException
@@ -36,6 +35,7 @@ import timber.log.Timber
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var mapFragment: MapFragment
+  @Inject lateinit var navigator: Navigator
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -69,8 +69,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Opens a dialog for selecting a `MapType` for the basemap layer. */
   fun showMapTypeSelectorDialog() {
     val types = mapFragment.availableMapTypes
-    NavHostFragment.findNavController(this)
-      .navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types.toTypedArray()))
+    navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
