@@ -95,11 +95,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private lateinit var clusterManager: FeatureClusterManager
 
-  /**
-   * User selected [LocationOfInterest] by either clicking the bottom card or horizontal scrolling.
-   */
-  private var activeLocationOfInterest: String? = null
-
   override val availableMapTypes: Array<MapType> = MAP_TYPES
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
@@ -308,7 +303,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun renderFeatures(features: Set<Feature>) {
     // Re-cluster and re-render
     if (features.isNotEmpty()) {
-      Timber.v("renderLocationsOfInterest() called with ${features.size} locations of interest")
+      Timber.v("renderFeatures() called with ${features.size} locations of interest")
       removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
@@ -373,7 +368,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
-    if (activeLocationOfInterest == newLoiId) return
+    clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
     clusterManager.activeLocationOfInterest = newLoiId
 
     refresh()
