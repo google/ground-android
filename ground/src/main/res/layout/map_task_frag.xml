@@ -39,6 +39,14 @@
       app:fragment="@{fragment}"
       app:viewModel="@{viewModel}" />
 
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+      android:id="@+id/centerMarker"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:src="@drawable/ic_gps_lock"
+      android:tint="@android:color/white" />
+
     <com.google.android.material.card.MaterialCardView
       android:id="@+id/infoCard"
       android:layout_width="wrap_content"

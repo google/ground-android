@@ -37,7 +37,11 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
       return
     }
 
-    if (feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal) {
+    // TODO(#1352): Re-evaluate the rendering of points for non LOI tag types.
+    if (
+      feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
+        feature.tag.type == FeatureType.USER_POINT.ordinal
+    ) {
       val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
       if (clusterItem != null) {
         updateItem(clusterItem)
@@ -52,6 +56,14 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
   fun removeStaleFeatures(features: Set<Feature>) {
     val deletedIds = algorithm.items.map { it.feature.tag.id } - features.map { it.tag.id }.toSet()
     val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.tag.id) }
+
+    Timber.d("removing points: $deletedFeatures")
+    removeItems(deletedFeatures)
+  }
+
+  /** Removes all features from this manager's clusters. */
+  fun removeAllFeatures() {
+    val deletedFeatures = algorithm.items
 
     Timber.d("removing points: $deletedFeatures")
     removeItems(deletedFeatures)

@@ -282,13 +282,25 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(
-      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.toSet()
+      features
+        .filter {
+          it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
+            it.tag.type == FeatureType.USER_POINT.ordinal
+        }
+        .toSet()
     )
 
     val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
     val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
     deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
     polygons.minusAssign(deletedPolygons.keys)
+  }
+
+  private fun removeAllFeatures() {
+    clusterManager.removeAllFeatures()
+
+    polygons.values.forEach { it.forEach(MapsPolygon::remove) }
+    polygons.clear()
   }
 
   private fun addOrUpdateLocationOfInterest(feature: Feature) {
@@ -307,8 +319,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
-      clusterManager.cluster()
+    } else {
+      removeAllFeatures()
     }
+    clusterManager.cluster()
   }
 
   override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
