@@ -33,7 +33,17 @@ class DropAPinTaskViewModel
 constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
 
+  var lastCameraPosition: CameraPosition? = null
   val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
+
+  fun updateCameraPosition(position: CameraPosition) {
+    lastCameraPosition = position
+  }
+
+  override fun clearResponse() {
+    super.clearResponse()
+    features.postValue(setOf())
+  }
 
   fun updateResponse(position: CameraPosition) {
     setResponse(Optional.of(LocationTaskData(position)))
@@ -47,4 +57,8 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       type = FeatureType.USER_POINT.ordinal,
       geometry = point
     )
+
+  fun dropPin() {
+    lastCameraPosition?.let { updateResponse(it) }
+  }
 }

@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.mapcontainer
+package com.google.android.ground.ui.home.mapcontainer
 
 import android.os.Looper
 import android.view.View
-import android.widget.ListView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.MainActivity
 import com.google.android.ground.R
-import com.google.android.ground.ui.home.mapcontainer.LocationOfInterestDataTypeSelectorDialogFragment
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragment
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import java8.util.function.Consumer
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,16 +33,17 @@ import org.robolectric.Shadows.shadowOf
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
-  private lateinit var dialogFragment: LocationOfInterestDataTypeSelectorDialogFragment
-  private lateinit var onSelectLoiDataType: Consumer<Int>
-  private var selectedPosition = -1
+class PolygonDrawingInfoDialogFragmentTest : BaseHiltTest() {
+
+  private var clicked = false
+  private lateinit var polygonDrawingInfoDialogFragment: PolygonDrawingInfoDialogFragment
+  private lateinit var onClickRunnable: Runnable
 
   @Before
   override fun setUp() {
     super.setUp()
-    selectedPosition = -1
-    onSelectLoiDataType = Consumer { integer: Int -> selectedPosition = integer }
+    clicked = false
+    onClickRunnable = Runnable { clicked = true }
     setUpFragment()
   }
 
@@ -52,9 +51,8 @@ class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
     val activityController = Robolectric.buildActivity(MainActivity::class.java)
     val activity = activityController.setup().get()
 
-    dialogFragment = LocationOfInterestDataTypeSelectorDialogFragment(onSelectLoiDataType)
-
-    dialogFragment.showNow(
+    polygonDrawingInfoDialogFragment = PolygonDrawingInfoDialogFragment(onClickRunnable)
+    polygonDrawingInfoDialogFragment.showNow(
       activity.supportFragmentManager,
       SurveySelectorFragment::class.java.simpleName
     )
@@ -63,22 +61,38 @@ class LocationOfInterestDataTypeSelectorDialogFragmentTest : BaseHiltTest() {
 
   @Test
   fun show_dialogIsShown() {
-    val listView = dialogFragment.dialog!!.currentFocus as ListView
+    val dialogView = polygonDrawingInfoDialogFragment.dialog?.currentFocus
 
-    assertThat(listView.visibility).isEqualTo(View.VISIBLE)
-    assertThat(listView.findViewById<View>(R.id.survey_name)?.visibility).isEqualTo(View.VISIBLE)
+    assertThat(dialogView).isNotNull()
+    assertThat(dialogView?.visibility).isEqualTo(View.VISIBLE)
+    assertThat(
+        (dialogView?.parent as ConstraintLayout)
+          .findViewById<View>(R.id.polygon_info_image)
+          .visibility
+      )
+      .isEqualTo(View.VISIBLE)
   }
 
   @Test
-  fun show_dataTypeSelected_correctDataTypeIsPassed() {
-    val listView = dialogFragment.dialog!!.currentFocus as ListView
-
-    val positionToSelect = 1
-    shadowOf(listView).performItemClick(positionToSelect)
+  fun startClicked_clickIsRegisteredAndDialogIsDismissed() {
+    val dialogView =
+      polygonDrawingInfoDialogFragment.dialog?.currentFocus?.parent as ConstraintLayout
+    shadowOf(dialogView.findViewById(R.id.get_started_button) as View).checkedPerformClick()
     shadowOf(Looper.getMainLooper()).idle()
 
     // Verify Dialog is dismissed
-    assertThat(dialogFragment.dialog).isNull()
-    assertThat(selectedPosition).isEqualTo(1)
+    assertThat(polygonDrawingInfoDialogFragment.dialog).isNull()
+    assertThat(clicked).isTrue()
+  }
+
+  @Test
+  fun cancelClicked_dialogIsDismissed() {
+    val dialogView =
+      polygonDrawingInfoDialogFragment.dialog?.currentFocus?.parent as ConstraintLayout
+    shadowOf(dialogView.findViewById(R.id.cancel_text_view) as View).checkedPerformClick()
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Verify Dialog is dismissed
+    assertThat(polygonDrawingInfoDialogFragment.dialog).isNull()
   }
 }

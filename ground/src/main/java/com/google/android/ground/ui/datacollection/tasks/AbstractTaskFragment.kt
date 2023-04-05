@@ -23,6 +23,7 @@ import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -112,12 +113,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData ->
-        button.updateState { isEnabled = taskData.isNotEmpty() }
+        button.updateState { isEnabled = !taskData.isNullOrEmpty() }
       }
       .updateState { isEnabled = false }
   }
 
-  private fun addSkipButton() {
+  protected fun addSkipButton() {
     addButton(ButtonAction.SKIP)
       .setOnClickListener {
         viewModel.clearResponse()
@@ -130,7 +131,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     addButton(ButtonAction.UNDO)
       .setOnClickListener { viewModel.clearResponse() }
       .setOnTaskUpdated { button, taskData ->
-        button.updateState { visibility = if (taskData.isEmpty()) View.GONE else View.VISIBLE }
+        button.updateState {
+          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
+        }
       }
       .updateState {
         visibility = View.GONE
@@ -156,7 +159,3 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     const val POSITION = "position"
   }
 }
-
-private fun TaskData?.isEmpty(): Boolean = this?.isEmpty() ?: true
-
-private fun TaskData?.isNotEmpty(): Boolean = !this.isEmpty()

@@ -80,6 +80,7 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // Add highlight border if selected.
     val borderDrawable =
       if (focusedIndex == position) {
+        cardFocusedListener.invoke(uiData)
         R.drawable.loi_card_selected_background
       } else {
         R.drawable.loi_card_default_background
@@ -99,8 +100,6 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     focusedIndex = newIndex
     notifyDataSetChanged()
-
-    cardFocusedListener.invoke(itemsList[newIndex])
   }
 
   /** Overwrites existing cards. */
@@ -110,7 +109,6 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     itemsList.addAll(newItemsList)
     focusedIndex = 0
     notifyDataSetChanged()
-    cardFocusedListener.invoke(null)
   }
 
   fun setLoiCardFocusedListener(listener: (MapCardUiData?) -> Unit) {
