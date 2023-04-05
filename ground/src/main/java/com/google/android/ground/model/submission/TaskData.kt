@@ -20,3 +20,5 @@ interface TaskData {
   fun getDetailsText(): String
   fun isEmpty(): Boolean
 }
+
+fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
