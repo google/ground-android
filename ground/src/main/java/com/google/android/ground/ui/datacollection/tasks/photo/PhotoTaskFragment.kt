@@ -84,7 +84,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
     viewModel.setEditable(true)
     viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setSubmissionId(dataCollectionViewModel.submissionId)
+    viewModel.setSubmissionId(requireNotNull(dataCollectionViewModel.submission.value).id)
     viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
     viewModel.setCapturedPhotoPath(capturedPhotoPath)
 

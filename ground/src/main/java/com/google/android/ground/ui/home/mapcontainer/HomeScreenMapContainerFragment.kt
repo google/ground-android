@@ -155,8 +155,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is MapCardUiData.LoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            /* surveyId = */ cardUiData.loi.surveyId,
-            /* locationOfInterestId = */ cardUiData.loi.id
+            cardUiData.loi.id,
+            cardUiData.loi.job.id
           )
         )
       is MapCardUiData.SuggestLoiCardUiData -> {

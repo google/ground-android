@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
@@ -31,6 +32,8 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -62,12 +65,13 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
-    viewModel.loadSubmissionDetails(args)
-    viewModel.submission.observe(viewLifecycleOwner) { submission: Submission ->
-      val tasks = submission.job.tasksSorted
-      val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
-      if (currentAdapter == null || currentAdapter.tasks != tasks) {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
+    lifecycleScope.launch {
+      viewModel.submission.filterNotNull().collect { submission: Submission ->
+        val tasks = submission.job.tasksSorted
+        val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
+        if (currentAdapter == null || currentAdapter.tasks != tasks) {
+          viewPager.adapter = viewPagerAdapterFactory.create(this@DataCollectionFragment, tasks)
+        }
       }
     }
 
