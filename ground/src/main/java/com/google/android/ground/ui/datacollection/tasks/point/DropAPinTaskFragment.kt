@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.R
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -56,14 +57,14 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
       .setOnClickListener { viewModel.dropPin() }
       .setOnTaskUpdated { button, taskData ->
         button.updateState {
-          visibility = if (taskData?.isEmpty() != false) View.VISIBLE else View.GONE
+          visibility = if (taskData.isNullOrEmpty()) View.VISIBLE else View.GONE
         }
       }
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData ->
         button.updateState {
-          visibility = if (taskData?.isEmpty() != false) View.GONE else View.VISIBLE
+          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
       }
       .updateState { visibility = View.GONE }
