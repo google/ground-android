@@ -160,4 +160,5 @@
   <string name="drop_a_pin">Drop a pin</string>
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
+  <string name="dropped_pin">Dropped pin</string>
 </resources>

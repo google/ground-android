@@ -95,13 +95,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private lateinit var clusterManager: FeatureClusterManager
 
-  /**
-   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
-   * start and end of polygon.
-   */
-  private lateinit var customCap: CustomCap
-
-  override val availableMapTypes: List<MapType> = MAP_TYPES
+  override val availableMapTypes: Array<MapType> = MAP_TYPES
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
@@ -142,11 +136,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val params = watermark.layoutParams as RelativeLayout.LayoutParams
     params.setMargins(left, top, right, bottom)
     watermark.layoutParams = params
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    customCap = CustomCap(bitmapUtil.bitmapDescriptorFromVector(R.drawable.ic_endpoint))
   }
 
   override fun onCreateView(
@@ -293,13 +282,25 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(
-      features.filter { it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }.toSet()
+      features
+        .filter {
+          it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
+            it.tag.type == FeatureType.USER_POINT.ordinal
+        }
+        .toSet()
     )
 
     val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
     val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
     deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
     polygons.minusAssign(deletedPolygons.keys)
+  }
+
+  private fun removeAllFeatures() {
+    clusterManager.removeAllFeatures()
+
+    polygons.values.forEach { it.forEach(MapsPolygon::remove) }
+    polygons.clear()
   }
 
   private fun addOrUpdateLocationOfInterest(feature: Feature) {
@@ -318,8 +319,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
-      clusterManager.cluster()
+    } else {
+      removeAllFeatures()
     }
+    clusterManager.cluster()
   }
 
   override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
@@ -387,8 +390,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   companion object {
     // TODO(#1544): Use optimized icons. Current icons are very large in size.
-    private val MAP_TYPES =
-      listOf(
+    val MAP_TYPES =
+      arrayOf(
         MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),
         MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ic_type_terrain),
         MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ic_type_satellite)

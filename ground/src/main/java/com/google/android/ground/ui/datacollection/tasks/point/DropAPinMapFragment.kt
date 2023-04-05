@@ -24,8 +24,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
+import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,19 +57,37 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.locationAccuracy.collect { updateInfoCard(it) }
+        mapViewModel.locationAccuracy.collect { setLocationAccuracyAsInfoCard(it) }
+      }
+    }
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.taskDataValue.collect {
+          setDroppedPinAsInfoCard((it as? LocationTaskData)?.cameraPosition)
+        }
       }
     }
 
     return binding.root
   }
 
-  private fun updateInfoCard(locationAccuracy: Float?) {
+  private fun setLocationAccuracyAsInfoCard(locationAccuracy: Float?) {
     if (locationAccuracy == null) {
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.accuracy)
       binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
+      binding.infoCard.visibility = View.VISIBLE
+    }
+  }
+
+  private fun setDroppedPinAsInfoCard(cameraPosition: CameraPosition?) {
+    if (cameraPosition == null) {
+      binding.infoCard.visibility = View.GONE
+    } else {
+      binding.cardTitle.setText(R.string.dropped_pin)
+      binding.cardValue.text = processCoordinate(cameraPosition.target)
       binding.infoCard.visibility = View.VISIBLE
     }
   }
@@ -80,7 +100,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    viewModel.updateResponse(position)
+    viewModel.updateCameraPosition(position)
   }
 
   companion object {

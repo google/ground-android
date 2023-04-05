@@ -53,7 +53,9 @@
   <issue id="TypographyQuotes" severity="error" />
   <issue id="Typos" severity="error" />
   <issue id="Untranslatable" severity="error" />
-  <issue id="UnusedResources" severity="error" />
+  <issue id="UnusedResources" severity="error">
+    <ignore path="*/ic_endpoint.xml" />
+  </issue>
   <issue id="UselessLeaf" severity="error" />
   <issue id="UselessParent" severity="error" />
   <issue id="UseCompatLoadingForDrawables" severity="error" />
