@@ -22,3 +22,5 @@ interface TaskData {
 }
 
 fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
+
+fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

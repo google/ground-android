@@ -191,6 +191,9 @@
   <style name="TaskChipButton.Transparent">
     <item name="android:backgroundTint">@drawable/task_transparent_btn_selector</item>
     <item name="android:textColor">@color/taskBtnTextTransparent</item>
+  </style>
+
+  <style name="TaskChipButton.Transparent.Outline">
     <item name="strokeColor">@color/taskBtnTransparentStrokeColor</item>
     <item name="strokeWidth">2dp</item>
   </style>

@@ -23,6 +23,7 @@ import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -113,7 +114,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData ->
-        button.updateState { isEnabled = !taskData.isNullOrEmpty() }
+        button.updateState { isEnabled = taskData.isNotNullOrEmpty() }
       }
       .updateState { isEnabled = false }
   }

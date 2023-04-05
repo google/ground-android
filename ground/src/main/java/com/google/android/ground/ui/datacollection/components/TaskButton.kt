@@ -85,7 +85,8 @@ private fun createTextTypeButtons(
   when (action.theme) {
     Theme.DARK_GREEN -> TaskChipButtonDarkGreenBinding.inflate(layoutInflater, container).button
     Theme.LIGHT_GREEN -> TaskChipButtonLightGreenBinding.inflate(layoutInflater, container).button
-    Theme.OUTLINED -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
+    Theme.OUTLINED -> TaskChipButtonOutlineBinding.inflate(layoutInflater, container).button
+    Theme.TRANSPARENT -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
   }.apply { action.textId?.let { setText(it) } }
 
 // TODO(Shobhit): Figure out a way to create styled buttons without using XML.
