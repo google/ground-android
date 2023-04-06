@@ -313,8 +313,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private fun setupSubmission(
-    tasks: Map<String, Task>? =
-      mapOf(Pair("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true)))
+    tasks: Map<String, Task>? = null
   ) {
     var submission = SUBMISSION
     if (tasks != null) {
@@ -326,13 +325,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     runWithTestDispatcher {
       // Setup survey and LOIs
-      val survey =
-        if (tasks != null) {
-          val jobMap = SURVEY.jobMap.entries.associate { it.key to it.value.copy(tasks = tasks) }
-          SURVEY.copy(jobMap = jobMap)
-        } else {
-          SURVEY
-        }
+      val jobMap = SURVEY.jobMap.entries.associate { it.key to SUBMISSION.job }
+      val survey = SURVEY.copy(jobMap = jobMap)
 
       fakeRemoteDataStore.surveys = listOf(survey)
       fakeRemoteDataStore.lois = listOf(LOCATION_OF_INTEREST)
