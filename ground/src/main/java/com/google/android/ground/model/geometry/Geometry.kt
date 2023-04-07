@@ -26,6 +26,9 @@ sealed interface Geometry {
   // subclasses.
   val vertices: List<Point>
 
+  val size: Int
+    get() = vertices.size
+
   /** Returns true if the current geometry is within provided [bounds]. */
   fun isWithinBounds(bounds: LatLngBounds) = vertices.any { bounds.contains(it.toLatLng()) }
 }
@@ -37,6 +40,15 @@ sealed interface Geometry {
 @Serializable
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override val vertices: List<Point> = shell.vertices
+
+  val isEmpty: Boolean = size == 0
+  val firstVertex: Point? = if (isEmpty) null else shell.vertices[0]
+  val lastVertex: Point? = if (isEmpty) null else shell.vertices[size - 1]
+  val isComplete: Boolean = size > 3 && firstVertex == lastVertex
+
+  companion object {
+    val EMPTY_POLYGON = Polygon(shell = LinearRing(coordinates = listOf()))
+  }
 }
 
 /** Represents a single point. */
