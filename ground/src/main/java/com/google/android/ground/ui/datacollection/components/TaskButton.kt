@@ -36,6 +36,14 @@ data class TaskButton(private val view: View) {
     view.id = View.generateViewId()
   }
 
+  fun show() {
+    view.visibility = View.VISIBLE
+  }
+
+  fun hide() {
+    view.visibility = View.GONE
+  }
+
   /** Updates the state of the button. */
   fun updateState(block: View.() -> Unit): TaskButton {
     block(view)

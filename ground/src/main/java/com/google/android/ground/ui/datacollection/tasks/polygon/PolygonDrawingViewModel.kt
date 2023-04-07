@@ -28,7 +28,6 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.BackpressureStrategy
-import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
@@ -39,7 +38,6 @@ class PolygonDrawingViewModel
 @Inject
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
-  private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
   private val partialPolygonFlowable: @Hot Subject<Polygon> = PublishSubject.create()
 
   val polygonLiveData: @Hot LiveData<Polygon>
@@ -50,8 +48,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   /** Represents the current state of polygon that is being drawn. */
   private var polygon: Polygon = Polygon.EMPTY_POLYGON
 
-  val drawingState: @Hot Observable<PolygonDrawingState>
-    get() = polygonDrawingState
+  /** Represents whether the user has completed drawing the polygon or not. */
+  private var isMarkedComplete: Boolean = false
 
   init {
     val polygonFlowable = partialPolygonFlowable.toFlowable(BackpressureStrategy.LATEST).share()
@@ -67,6 +65,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     newTarget: Point,
     calculateDistanceInPixels: (point1: Point, point2: Point) -> Double
   ) {
+    if (isMarkedComplete) return
+
     val firstVertex = polygon.firstVertex
     var updatedTarget: Point = newTarget
 
@@ -80,12 +80,14 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     addVertex(updatedTarget, true)
   }
 
+  override fun clearResponse() {
+    removeLastVertex()
+  }
+
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   fun removeLastVertex() {
-    if (polygon.isEmpty) {
-      polygonDrawingState.onNext(PolygonDrawingState.canceled())
-      reset()
-    } else {
+    isMarkedComplete = false
+    if (!polygon.isEmpty) {
       val updatedVertices = polygon.vertices.toMutableList()
       updatedVertices.removeLast()
       updateVertices(updatedVertices.toImmutableList())
@@ -124,42 +126,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   fun onCompletePolygonButtonClick() {
     check(polygon.isComplete) { "Polygon is not complete" }
-    polygonDrawingState.onNext(PolygonDrawingState.completed(polygon))
+    isMarkedComplete = true
     // TODO: Serialize the polygon and update response
-  }
-
-  private fun reset() {
-    polygon = Polygon.EMPTY_POLYGON
-    partialPolygonFlowable.onNext(Polygon.EMPTY_POLYGON)
-  }
-
-  fun startDrawingFlow() {
-    polygonDrawingState.onNext(PolygonDrawingState.inProgress())
-  }
-
-  data class PolygonDrawingState(val state: State, val polygon: Polygon? = null) {
-    val isCanceled: Boolean
-      get() = state == State.CANCELED
-    val isInProgress: Boolean
-      get() = state == State.IN_PROGRESS
-    val isCompleted: Boolean
-      get() = state == State.COMPLETED
-
-    /** Represents state of PolygonDrawing action. */
-    enum class State {
-      IN_PROGRESS,
-      COMPLETED,
-      CANCELED
-    }
-
-    companion object {
-      fun canceled(): PolygonDrawingState = PolygonDrawingState(State.CANCELED)
-
-      fun inProgress(): PolygonDrawingState = PolygonDrawingState(State.IN_PROGRESS)
-
-      fun completed(polygon: Polygon): PolygonDrawingState =
-        PolygonDrawingState(State.COMPLETED, polygon)
-    }
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */

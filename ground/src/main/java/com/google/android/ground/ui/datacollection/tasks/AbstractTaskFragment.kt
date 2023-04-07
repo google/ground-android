@@ -110,7 +110,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  private fun addContinueButton() {
+  protected fun addContinueButton() {
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData ->

@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -54,39 +53,42 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   }
 
   override fun onCreateActionButtons() {
-    addButton(ButtonAction.CONTINUE)
-      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
-      .setOnTaskUpdated { button, taskData ->
-        button.updateState {
-          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
-        }
-      }
+    addContinueButton()
     addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
-    addButton(ButtonAction.COMPLETE)
-      .setOnClickListener { viewModel.onCompletePolygonButtonClick() }
-      .setOnTaskUpdated { button, taskData ->
-        button.updateState {
-          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
-        }
-      }
-    addButton(ButtonAction.UNDO).setOnClickListener { viewModel.removeLastVertex() }
+    addButton(ButtonAction.COMPLETE).setOnClickListener {
+      viewModel.onCompletePolygonButtonClick()
+      getButton(ButtonAction.CONTINUE).show()
+      getButton(ButtonAction.COMPLETE).hide()
+    }
+    addUndoButton()
     addSkipButton()
   }
 
   override fun onTaskViewAttached() {
-    viewModel.startDrawingFlow()
     viewModel.polygonLiveData.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
   }
 
   private fun onPolygonUpdated(polygon: Polygon) {
-    getButton(ButtonAction.ADD_POINT).updateState {
-      visibility = if (polygon.isComplete) View.GONE else View.VISIBLE
-    }
-    getButton(ButtonAction.COMPLETE).updateState {
-      visibility = if (polygon.isComplete) View.VISIBLE else View.GONE
-    }
-    getButton(ButtonAction.UNDO).updateState {
-      visibility = if (polygon.size > 1) View.VISIBLE else View.GONE
+    val addPointButton = getButton(ButtonAction.ADD_POINT)
+    val completeButton = getButton(ButtonAction.COMPLETE)
+    val continueButton = getButton(ButtonAction.CONTINUE)
+    val undoButton = getButton(ButtonAction.UNDO)
+
+    if (polygon.isEmpty) {
+      addPointButton.show()
+      completeButton.hide()
+      continueButton.hide()
+      undoButton.hide()
+    } else if (polygon.isComplete) {
+      addPointButton.hide()
+      completeButton.show()
+      continueButton.hide()
+      undoButton.show()
+    } else {
+      continueButton.hide()
+      addPointButton.show()
+      completeButton.hide()
+      if (polygon.size > 1) undoButton.show() else undoButton.hide()
     }
   }
 }
