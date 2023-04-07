@@ -86,12 +86,16 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   fun removeLastVertex() {
+    // Do nothing if there are no vertices to remove.
+    if (polygon.isEmpty) return
+
+    // Reset complete status
     isMarkedComplete = false
-    if (!polygon.isEmpty) {
-      val updatedVertices = polygon.vertices.toMutableList()
-      updatedVertices.removeLast()
-      updateVertices(updatedVertices.toImmutableList())
-    }
+
+    // Remove last vertex and update polygon
+    val updatedVertices = polygon.vertices.toMutableList()
+    updatedVertices.removeLast()
+    updatePolygon(updatedVertices.toImmutableList())
   }
 
   /** Adds the last vertex to the polygon. */
@@ -115,10 +119,10 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     updatedVertices.add(vertex)
 
     // Render changes to UI
-    updateVertices(updatedVertices.toImmutableList())
+    updatePolygon(updatedVertices.toImmutableList())
   }
 
-  private fun updateVertices(newVertices: List<Point>) {
+  private fun updatePolygon(newVertices: List<Point>) {
     val polygon = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
     partialPolygonFlowable.onNext(polygon)
     this.polygon = polygon
@@ -132,7 +136,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
   private fun createFeatures(polygon: Polygon): Set<Feature> {
-    if (polygon.vertices.isEmpty()) {
+    if (polygon.isEmpty) {
       return setOf()
     }
 
