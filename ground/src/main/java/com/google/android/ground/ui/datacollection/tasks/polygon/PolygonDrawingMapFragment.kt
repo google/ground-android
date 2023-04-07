@@ -81,14 +81,10 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    val mapCenter = position.target
-    val mapCenterPoint = Point(mapCenter)
-    viewModel.onCameraMoved(mapCenterPoint)
-    viewModel.firstVertex
-      .map { firstVertex: Point ->
-        mapFragment.getDistanceInPixels(firstVertex.coordinate, mapCenter)
-      }
-      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenterPoint, dist) }
+    val mapCenter = Point(position.target)
+    viewModel.addVertexAndMaybeCompletePolygon(mapCenter) { point1, point2 ->
+      mapFragment.getDistanceInPixels(point1.coordinate, point2.coordinate)
+    }
   }
 
   companion object {

@@ -20,6 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.R
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -52,25 +54,39 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   }
 
   override fun onCreateActionButtons() {
-    super.onCreateActionButtons()
-    addButton(ButtonAction.ADD_PIN).setOnClickListener { viewModel.selectCurrentVertex() }
-    addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
+    addButton(ButtonAction.CONTINUE)
+      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+      .setOnTaskUpdated { button, taskData ->
+        button.updateState {
+          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
+        }
+      }
+    addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
+    addButton(ButtonAction.COMPLETE)
+      .setOnClickListener { viewModel.onCompletePolygonButtonClick() }
+      .setOnTaskUpdated { button, taskData ->
+        button.updateState {
+          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
+        }
+      }
     addButton(ButtonAction.UNDO).setOnClickListener { viewModel.removeLastVertex() }
+    addSkipButton()
   }
 
   override fun onTaskViewAttached() {
     viewModel.startDrawingFlow()
-    viewModel.isPolygonCompleted.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
+    viewModel.polygonLiveData.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
   }
 
-  private fun onPolygonUpdated(isPolygonComplete: Boolean) {
-    getButton(ButtonAction.ADD_PIN).updateState {
-      isEnabled = true
-      visibility = if (isPolygonComplete) View.GONE else View.VISIBLE
+  private fun onPolygonUpdated(polygon: Polygon) {
+    getButton(ButtonAction.ADD_POINT).updateState {
+      visibility = if (polygon.isComplete) View.GONE else View.VISIBLE
     }
     getButton(ButtonAction.COMPLETE).updateState {
-      isEnabled = true
-      visibility = if (isPolygonComplete) View.VISIBLE else View.GONE
+      visibility = if (polygon.isComplete) View.VISIBLE else View.GONE
+    }
+    getButton(ButtonAction.UNDO).updateState {
+      visibility = if (polygon.size > 1) View.VISIBLE else View.GONE
     }
   }
 }
