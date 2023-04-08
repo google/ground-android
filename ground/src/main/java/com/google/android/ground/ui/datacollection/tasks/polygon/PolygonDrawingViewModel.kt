@@ -18,10 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
@@ -131,6 +128,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   fun onCompletePolygonButtonClick() {
     check(polygon.isComplete) { "Polygon is not complete" }
     isMarkedComplete = true
+    partialPolygonFlowable.onNext(polygon)
     // TODO: Serialize the polygon and update response
   }
 
@@ -144,9 +142,20 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
       Feature(
         id = uuidGenerator.generateUuid(),
         type = FeatureType.USER_POLYGON.ordinal,
-        geometry = polygon
+        geometry = createFeatureFromPolygon(polygon)
       )
     )
+  }
+
+  /** Returns a map geometry to be drawn based on given partial/complete polygon. */
+  private fun createFeatureFromPolygon(polygon: Polygon): Geometry {
+    return if (!polygon.isComplete) {
+      LineString(polygon.vertices.map { it.coordinate })
+    } else if (!isMarkedComplete) {
+      LinearRing(polygon.vertices.map { it.coordinate })
+    } else {
+      polygon
+    }
   }
 
   companion object {
