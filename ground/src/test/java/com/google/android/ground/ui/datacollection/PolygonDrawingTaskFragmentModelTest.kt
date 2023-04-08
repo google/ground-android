@@ -47,7 +47,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testAddVertex() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
+    updateLastVertexAndAdd(COORDINATE_1)
 
     // One vertex is selected and another is temporary vertex for rendering.
     assertPolygon(2, false)
@@ -56,9 +56,9 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testAddVertex_multiplePoints() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
-    updateLastVertexAndAdd(Coordinate(10.0, 10.0))
-    updateLastVertexAndAdd(Coordinate(20.0, 20.0))
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
 
     assertPolygon(4, false)
     assertPolygonDrawn(true)
@@ -66,10 +66,10 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testUpdateLastVertex_closeToFirstVertex_vertexCountIs2() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
-    updateLastVertexAndAdd(Coordinate(10.0, 10.0))
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
 
-    updateLastVertex(Coordinate(20.0, 20.0), true)
+    updateLastVertex(COORDINATE_3, true)
 
     assertPolygon(3, false)
     assertPolygonDrawn(true)
@@ -77,11 +77,11 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testUpdateLastVertex_closeToFirstVertex_vertexCountIs3() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
-    updateLastVertexAndAdd(Coordinate(10.0, 10.0))
-    updateLastVertexAndAdd(Coordinate(20.0, 20.0))
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
 
-    updateLastVertex(Coordinate(30.0, 30.0), true)
+    updateLastVertex(COORDINATE_4, true)
 
     assertPolygon(4, true)
     assertPolygonDrawn(true)
@@ -89,7 +89,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testRemoveLastVertex_twoVertices() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
+    updateLastVertexAndAdd(COORDINATE_1)
 
     viewModel.removeLastVertex()
 
@@ -99,7 +99,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testRemoveLastVertex_oneVertex() {
-    updateLastVertex(Coordinate(0.0, 0.0))
+    updateLastVertex(COORDINATE_1)
 
     viewModel.removeLastVertex()
 
@@ -109,7 +109,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testRemoveLastVertex_whenEmpty_doesNothing() {
-    updateLastVertex(Coordinate(0.0, 0.0))
+    updateLastVertex(COORDINATE_1)
     viewModel.removeLastVertex()
 
     viewModel.removeLastVertex()
@@ -120,10 +120,10 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testRemoveLastVertex_whenPolygonIsComplete() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
-    updateLastVertexAndAdd(Coordinate(10.0, 10.0))
-    updateLastVertexAndAdd(Coordinate(20.0, 20.0))
-    updateLastVertex(Coordinate(30.0, 30.0), true)
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
 
     viewModel.removeLastVertex()
 
@@ -133,9 +133,9 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testOnCompletePolygonButtonClick_whenPolygonIsIncomplete() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
-    updateLastVertexAndAdd(Coordinate(10.0, 10.0))
-    updateLastVertex(Coordinate(20.0, 20.0), false)
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertex(COORDINATE_3, false)
 
     assertThrows("Polygon is not complete", IllegalStateException::class.java) {
       viewModel.onCompletePolygonButtonClick()
@@ -144,10 +144,10 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
   @Test
   fun testOnCompletePolygonButtonClick_whenPolygonIsComplete() {
-    updateLastVertexAndAdd(Coordinate(0.0, 0.0))
-    updateLastVertexAndAdd(Coordinate(10.0, 10.0))
-    updateLastVertexAndAdd(Coordinate(20.0, 20.0))
-    updateLastVertex(Coordinate(30.0, 30.0), true)
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
 
     viewModel.onCompletePolygonButtonClick()
 
@@ -190,5 +190,12 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     val threshold = DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
+  }
+
+  companion object {
+    private val COORDINATE_1 = Coordinate(0.0, 0.0)
+    private val COORDINATE_2 = Coordinate(10.0, 10.0)
+    private val COORDINATE_3 = Coordinate(20.0, 20.0)
+    private val COORDINATE_4 = Coordinate(30.0, 30.0)
   }
 }
