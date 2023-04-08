@@ -24,7 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
@@ -81,9 +80,9 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    val mapCenter = Point(position.target)
-    viewModel.addVertexAndMaybeCompletePolygon(mapCenter) { point1, point2 ->
-      mapFragment.getDistanceInPixels(point1.coordinate, point2.coordinate)
+    val mapCenter = position.target
+    viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
+      mapFragment.getDistanceInPixels(c1, c2)
     }
   }
 

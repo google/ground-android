@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -58,22 +59,21 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /**
-   * Adds another vertex at the given point if the distance is pixels between first vertex and new
-   * target is more than the configured threshold. Otherwise, snaps to the first vertex.
+   * Overwrites last vertex at the given point if the distance is pixels between first vertex and
+   * new target is more than the configured threshold. Otherwise, snaps to the first vertex.
    */
-  fun addVertexAndMaybeCompletePolygon(
-    newTarget: Point,
-    calculateDistanceInPixels: (point1: Point, point2: Point) -> Double
+  fun updateLastVertexAndMaybeCompletePolygon(
+    target: Coordinate,
+    calculateDistanceInPixels: (c1: Coordinate, c2: Coordinate) -> Double
   ) {
     if (isMarkedComplete) return
 
     val firstVertex = polygon.firstVertex
-    var updatedTarget: Point = newTarget
-
+    var updatedTarget = target
     if (firstVertex != null && polygon.size > 2) {
-      val distance = calculateDistanceInPixels(firstVertex, newTarget)
+      val distance = calculateDistanceInPixels(firstVertex.coordinate, target)
       if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex
+        updatedTarget = firstVertex.coordinate
       }
     }
 
@@ -99,7 +99,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Adds the last vertex to the polygon. */
-  fun addLastVertex() = polygon.lastVertex?.let { addVertex(it, false) }
+  fun addLastVertex() = polygon.lastVertex?.let { addVertex(it.coordinate, false) }
 
   /**
    * Adds a new vertex to the polygon.
@@ -107,7 +107,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
    * @param vertex
    * @param shouldOverwriteLastVertex
    */
-  private fun addVertex(vertex: Point, shouldOverwriteLastVertex: Boolean) {
+  private fun addVertex(vertex: Coordinate, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = polygon.vertices.toMutableList()
 
     // Maybe remove the last vertex before adding the new vertex.
@@ -116,7 +116,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     }
 
     // Add the new vertex
-    updatedVertices.add(vertex)
+    updatedVertices.add(Point(vertex))
 
     // Render changes to UI
     updatePolygon(updatedVertices.toImmutableList())
