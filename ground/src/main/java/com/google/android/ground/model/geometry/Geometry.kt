@@ -42,8 +42,8 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
   override val vertices: List<Point> = shell.vertices
 
   val isEmpty: Boolean = size == 0
-  val firstVertex: Point? = if (isEmpty) null else shell.vertices[0]
-  val lastVertex: Point? = if (isEmpty) null else shell.vertices[size - 1]
+  val firstVertex: Point? = vertices.getOrNull(0)
+  val lastVertex: Point? = vertices.getOrNull(size - 1)
   val isComplete: Boolean = size > 3 && firstVertex == lastVertex
 
   companion object {
