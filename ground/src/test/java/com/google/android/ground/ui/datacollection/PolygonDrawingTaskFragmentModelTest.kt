@@ -51,7 +51,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     // One vertex is selected and another is temporary vertex for rendering.
     assertPolygon(2, false)
-    assertPolygonDrawn(true)
   }
 
   @Test
@@ -61,7 +60,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_3)
 
     assertPolygon(4, false)
-    assertPolygonDrawn(true)
   }
 
   @Test
@@ -72,7 +70,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     updateLastVertex(COORDINATE_3, true)
 
     assertPolygon(3, false)
-    assertPolygonDrawn(true)
   }
 
   @Test
@@ -84,7 +81,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     updateLastVertex(COORDINATE_4, true)
 
     assertPolygon(4, true)
-    assertPolygonDrawn(true)
   }
 
   @Test
@@ -94,7 +90,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.removeLastVertex()
 
     assertPolygon(1, false)
-    assertPolygonDrawn(true)
   }
 
   @Test
@@ -104,7 +99,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.removeLastVertex()
 
     assertPolygon(0, false)
-    assertPolygonDrawn(false)
   }
 
   @Test
@@ -115,7 +109,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.removeLastVertex()
 
     assertPolygon(0, false)
-    assertPolygonDrawn(false)
   }
 
   @Test
@@ -128,7 +121,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.removeLastVertex()
 
     assertPolygon(3, false)
-    assertPolygonDrawn(true)
   }
 
   @Test
@@ -152,7 +144,6 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     viewModel.onCompletePolygonButtonClick()
 
     assertPolygon(4, true)
-    assertPolygonDrawn(true)
   }
 
   private fun assertPolygonDrawn(result: Boolean) {
@@ -177,6 +168,8 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     assertWithMessage("isPolygonComplete doesn't match")
       .that(polygon.isComplete)
       .isEqualTo(isPolygonComplete)
+
+    assertPolygonDrawn(expectedVerticesCount > 0)
   }
 
   /** Overwrites the last vertex and also adds a new one. */
