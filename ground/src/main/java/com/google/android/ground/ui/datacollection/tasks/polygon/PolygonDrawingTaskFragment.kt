@@ -71,26 +71,9 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   }
 
   private fun onPolygonUpdated(polygon: Polygon) {
-    val addPointButton = getButton(ButtonAction.ADD_POINT)
-    val completeButton = getButton(ButtonAction.COMPLETE)
-    val continueButton = getButton(ButtonAction.CONTINUE)
-    val undoButton = getButton(ButtonAction.UNDO)
-
-    if (polygon.isEmpty) {
-      addPointButton.show()
-      completeButton.hide()
-      continueButton.hide()
-      undoButton.hide()
-    } else if (polygon.isComplete) {
-      addPointButton.hide()
-      completeButton.show()
-      continueButton.hide()
-      undoButton.show()
-    } else {
-      continueButton.hide()
-      addPointButton.show()
-      completeButton.hide()
-      if (polygon.size > 1) undoButton.show() else undoButton.hide()
-    }
+    getButton(ButtonAction.ADD_POINT).showIfTrue(!polygon.isComplete)
+    getButton(ButtonAction.COMPLETE).showIfTrue(polygon.isComplete)
+    getButton(ButtonAction.CONTINUE).hide()
+    getButton(ButtonAction.UNDO).showIfTrue(polygon.size > 1)
   }
 }
