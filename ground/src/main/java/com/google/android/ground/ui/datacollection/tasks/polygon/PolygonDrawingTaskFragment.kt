@@ -55,17 +55,19 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   override fun onCreateActionButtons() {
     addContinueButton()
     addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
-    addButton(ButtonAction.COMPLETE).setOnClickListener {
-      viewModel.onCompletePolygonButtonClick()
-      getButton(ButtonAction.CONTINUE).show()
-      getButton(ButtonAction.COMPLETE).hide()
-    }
+    addButton(ButtonAction.COMPLETE).setOnClickListener { onCompleteClicked() }
     addUndoButton()
     addSkipButton()
   }
 
   override fun onTaskViewAttached() {
     viewModel.polygonLiveData.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
+  }
+
+  private fun onCompleteClicked() {
+    viewModel.onCompletePolygonButtonClick()
+    getButton(ButtonAction.CONTINUE).show()
+    getButton(ButtonAction.COMPLETE).hide()
   }
 
   private fun onPolygonUpdated(polygon: Polygon) {

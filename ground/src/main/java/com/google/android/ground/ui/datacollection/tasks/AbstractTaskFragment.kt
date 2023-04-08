@@ -24,7 +24,6 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -110,37 +109,26 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  protected fun addContinueButton() {
+  protected fun addContinueButton() =
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
-      .setOnTaskUpdated { button, taskData ->
-        button.updateState { isEnabled = taskData.isNotNullOrEmpty() }
-      }
-      .updateState { isEnabled = false }
-  }
+      .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
+      .disable()
 
-  protected fun addSkipButton() {
+  protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
       .setOnClickListener {
         viewModel.clearResponse()
         dataCollectionViewModel.onContinueClicked()
       }
-      .updateState { visibility = if (viewModel.isTaskOptional()) View.VISIBLE else View.GONE }
-  }
+      .showIfTrue(viewModel.isTaskOptional())
 
-  fun addUndoButton() {
+  fun addUndoButton() =
     addButton(ButtonAction.UNDO)
       .setOnClickListener { viewModel.clearResponse() }
-      .setOnTaskUpdated { button, taskData ->
-        button.updateState {
-          visibility = if (taskData.isNullOrEmpty()) View.GONE else View.VISIBLE
-        }
-      }
-      .updateState {
-        visibility = View.GONE
-        isEnabled = true
-      }
-  }
+      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .hide()
+      .enable()
 
   protected fun addButton(action: ButtonAction): TaskButton {
     check(!buttons.contains(action)) { "Button $action already bound" }
