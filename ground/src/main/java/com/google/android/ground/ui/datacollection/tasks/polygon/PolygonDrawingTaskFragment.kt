@@ -21,8 +21,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.GeometryValidator.Companion.isClosedGeometry
-import com.google.android.ground.model.geometry.GeometryValidator.Companion.isComplete
+import com.google.android.ground.model.geometry.GeometryValidator.isClosedGeometry
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView

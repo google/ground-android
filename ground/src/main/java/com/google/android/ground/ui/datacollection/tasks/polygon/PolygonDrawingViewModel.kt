@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.*
-import com.google.android.ground.model.geometry.GeometryValidator.Companion.isComplete
+import com.google.android.ground.model.geometry.GeometryValidator.isComplete
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel

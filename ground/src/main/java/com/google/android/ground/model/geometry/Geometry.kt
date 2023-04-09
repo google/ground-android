@@ -16,7 +16,7 @@
 package com.google.android.ground.model.geometry
 
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.model.geometry.GeometryValidator.Companion.validate
+import com.google.android.ground.model.geometry.GeometryValidator.validate
 import com.google.android.ground.ui.map.gms.toLatLng
 import kotlinx.serialization.Serializable
 
