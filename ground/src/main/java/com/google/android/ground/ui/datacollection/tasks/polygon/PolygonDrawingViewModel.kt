@@ -37,26 +37,36 @@ class PolygonDrawingViewModel
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
 
-  /** [Feature]s drawn by the user but not yet saved. */
+  /**
+   * [Feature]s drawn by the user, but not yet saved.
+   *
+   * Can be one of LineString, LinearRing, or Polygon.
+   */
   private val featureFlow: MutableStateFlow<Feature?> = MutableStateFlow(null)
   val featureValue: StateFlow<Feature?> =
     featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  /** Represents the current state of polygon that is being drawn. */
+  /**
+   * List of [Point]s to be used for generating the [Geometry]. If [isMarkedComplete] is false, then
+   * the last vertex represents the map center and the second last vertex is the last added vertex.
+   */
   private var vertices: List<Point> = listOf()
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
+  fun isMarkedComplete(): Boolean = isMarkedComplete
+
   /**
-   * Overwrites last vertex at the given point if the distance is pixels between first vertex and
-   * new target is more than the configured threshold. Otherwise, snaps to the first vertex.
+   * If the distance between the last added vertex and the given [target] is more than the
+   * configured threshold, then updates the last vertex with the given [target]. Otherwise, snaps to
+   * the first vertex to complete the polygon.
    */
   fun updateLastVertexAndMaybeCompletePolygon(
     target: Coordinate,
     calculateDistanceInPixels: (c1: Coordinate, c2: Coordinate) -> Double
   ) {
-    if (isMarkedComplete) return
+    check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
 
     val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
@@ -89,7 +99,10 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Adds the last vertex to the polygon. */
-  fun addLastVertex() = vertices.lastOrNull()?.let { addVertex(it.coordinate, false) }
+  fun addLastVertex() {
+    check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
+    vertices.lastOrNull()?.let { addVertex(it.coordinate, false) }
+  }
 
   /**
    * Adds a new vertex to the polygon.
@@ -129,17 +142,16 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
   private fun refreshFeatures(points: List<Point>, isMarkedComplete: Boolean) {
-    if (points.isEmpty()) {
-      featureFlow.value = null
-      return
-    }
-
     featureFlow.value =
-      Feature(
-        id = uuidGenerator.generateUuid(),
-        type = FeatureType.USER_POLYGON.ordinal,
-        geometry = createGeometry(points.map { it.coordinate }, isMarkedComplete)
-      )
+      if (points.isEmpty()) {
+        null
+      } else {
+        Feature(
+          id = uuidGenerator.generateUuid(),
+          type = FeatureType.USER_POLYGON.ordinal,
+          geometry = createGeometry(points.map { it.coordinate }, isMarkedComplete)
+        )
+      }
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
