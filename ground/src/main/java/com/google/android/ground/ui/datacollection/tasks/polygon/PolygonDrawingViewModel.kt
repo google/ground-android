@@ -16,20 +16,14 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.GeometryValidator.Companion.isComplete
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import io.reactivex.BackpressureStrategy
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,8 +36,6 @@ class PolygonDrawingViewModel
 @Inject
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
-  private val partialPolygonFlowable: @Hot Subject<Polygon> = PublishSubject.create()
-
   private val verticesFlow: MutableStateFlow<List<Point>> = MutableStateFlow(listOf())
   val verticesValue: StateFlow<List<Point>> =
     verticesFlow.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
@@ -53,23 +45,11 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   val featureValue: StateFlow<Feature?> =
     featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  val polygonLiveData: @Hot LiveData<Polygon>
-
-  //  val features: @Hot LiveData<Set<Feature>>
-
   /** Represents the current state of polygon that is being drawn. */
-  //  private var polygon: Polygon = Polygon.EMPTY_POLYGON
   private var vertices: List<Point> = listOf()
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
-
-  init {
-    val polygonFlowable = partialPolygonFlowable.toFlowable(BackpressureStrategy.LATEST).share()
-    polygonLiveData = LiveDataReactiveStreams.fromPublisher(polygonFlowable)
-    //    features = LiveDataReactiveStreams.fromPublisher(polygonFlowable.map {
-    //      createFeatures(it) })
-  }
 
   /**
    * Overwrites last vertex at the given point if the distance is pixels between first vertex and
@@ -136,23 +116,20 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   private fun updateVertices(newVertices: List<Point>) {
-    //    val polygon = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
-    //    partialPolygonFlowable.onNext(polygon)
-    //    this.polygon = polygon
     verticesFlow.value = newVertices
     this.vertices = newVertices
-    refreshFeatures(newVertices)
+    refreshFeatures(newVertices, false)
   }
 
   fun onCompletePolygonButtonClick() {
-    //    check(polygon.isComplete()) { "Polygon is not complete" }
     isMarkedComplete = true
-    //    partialPolygonFlowable.onNext(polygon)
+
+    refreshFeatures(vertices, true)
     // TODO: Serialize the polygon and update response
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun refreshFeatures(points: List<Point>) {
+  private fun refreshFeatures(points: List<Point>, isMarkedComplete: Boolean) {
     if (points.isEmpty()) {
       featureFlow.value = null
       return
@@ -162,12 +139,12 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
       Feature(
         id = uuidGenerator.generateUuid(),
         type = FeatureType.USER_POLYGON.ordinal,
-        geometry = createGeometry(points)
+        geometry = createGeometry(points, isMarkedComplete)
       )
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(points: List<Point>): Geometry {
+  private fun createGeometry(points: List<Point>, isMarkedComplete: Boolean): Geometry {
     val coordinates = points.map { it.coordinate }
     if (isMarkedComplete) {
       return Polygon(LinearRing(coordinates))
