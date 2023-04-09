@@ -16,6 +16,7 @@
 package com.google.android.ground.model.geometry
 
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.geometry.GeometryValidator.Companion.validateLinearRing
 import com.google.android.ground.ui.map.gms.toLatLng
 import kotlinx.serialization.Serializable
 
@@ -40,15 +41,6 @@ sealed interface Geometry {
 @Serializable
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override val vertices: List<Point> = shell.vertices
-
-  val isEmpty: Boolean = size == 0
-  val firstVertex: Point? = vertices.getOrNull(0)
-  val lastVertex: Point? = vertices.getOrNull(size - 1)
-  val isComplete: Boolean = size > 3 && firstVertex == lastVertex
-
-  companion object {
-    val EMPTY_POLYGON = Polygon(shell = LinearRing(coordinates = listOf()))
-  }
 }
 
 /** Represents a single point. */
@@ -75,14 +67,19 @@ data class LineString(val coordinates: List<Coordinate>) : Geometry {
  */
 @Serializable
 data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
+
+  init {
+    validateLinearRing()
+  }
+
   override val vertices: List<Point> = coordinates.map { Point(it) }
 
   /**
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.
    */
   private fun maximum(): Coordinate {
-    val maximumX = this.coordinates.map { it.x }.maxOrNull()
-    val maximumY = this.coordinates.map { it.y }.maxOrNull()
+    val maximumX = this.coordinates.maxOfOrNull { it.x }
+    val maximumY = this.coordinates.maxOfOrNull { it.y }
 
     return Coordinate(maximumX ?: 0.0, maximumY ?: 0.0)
   }
@@ -91,8 +88,8 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
    * Returns a *synthetic* coordinate containing the minimum x and y coordinate values of this ring.
    */
   private fun minimum(): Coordinate {
-    val minimumX = this.coordinates.map { it.x }.minOrNull()
-    val minimumY = this.coordinates.map { it.y }.minOrNull()
+    val minimumX = this.coordinates.minOfOrNull { it.x }
+    val minimumY = this.coordinates.minOfOrNull { it.y }
 
     return Coordinate(minimumX ?: 0.0, minimumY ?: 0.0)
   }

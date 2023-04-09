@@ -15,8 +15,10 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.GeometryValidator.Companion.isClosedGeometry
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.Companion.DISTANCE_THRESHOLD_DP
@@ -37,12 +39,12 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonTestObserver: TestObserver<Polygon>
-  private lateinit var drawnGeometryTestObserver: TestObserver<Set<Feature>>
+  private lateinit var drawnGeometryTestObserver: TestObserver<Feature>
 
   override fun setUp() {
     super.setUp()
     polygonTestObserver = TestObserver.test(viewModel.polygonLiveData)
-    drawnGeometryTestObserver = TestObserver.test(viewModel.features)
+    drawnGeometryTestObserver = TestObserver.test(viewModel.featureValue.asLiveData())
   }
 
   @Test
@@ -147,12 +149,10 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   }
 
   private fun assertPolygonDrawn(result: Boolean) {
-    drawnGeometryTestObserver.assertValue { features: Set<Feature> ->
+    drawnGeometryTestObserver.assertValue { feature: Feature ->
       var actualPolygonCount = 0
-      for (feature in features) {
-        if (feature.geometry is Polygon) {
-          actualPolygonCount++
-        }
+      if (feature.geometry is Polygon) {
+        actualPolygonCount++
       }
 
       assertThat(actualPolygonCount).isEqualTo(if (result) 1 else 0)
@@ -166,7 +166,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
       .that(polygon.size)
       .isEqualTo(expectedVerticesCount)
     assertWithMessage("isPolygonComplete doesn't match")
-      .that(polygon.isComplete)
+      .that(polygon.isClosedGeometry())
       .isEqualTo(isPolygonComplete)
 
     assertPolygonDrawn(expectedVerticesCount > 0)

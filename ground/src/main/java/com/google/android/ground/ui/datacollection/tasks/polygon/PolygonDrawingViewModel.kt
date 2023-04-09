@@ -18,7 +18,9 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.GeometryValidator.Companion.isComplete
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
@@ -30,6 +32,10 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
 @SharedViewModel
 class PolygonDrawingViewModel
@@ -38,13 +44,22 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   AbstractTaskViewModel(resources) {
   private val partialPolygonFlowable: @Hot Subject<Polygon> = PublishSubject.create()
 
-  val polygonLiveData: @Hot LiveData<Polygon>
+  private val verticesFlow: MutableStateFlow<List<Point>> = MutableStateFlow(listOf())
+  val verticesValue: StateFlow<List<Point>> =
+    verticesFlow.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
   /** [Feature]s drawn by the user but not yet saved. */
-  val features: @Hot LiveData<Set<Feature>>
+  private val featureFlow: MutableStateFlow<Feature?> = MutableStateFlow(null)
+  val featureValue: StateFlow<Feature?> =
+    featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+  val polygonLiveData: @Hot LiveData<Polygon>
+
+  //  val features: @Hot LiveData<Set<Feature>>
 
   /** Represents the current state of polygon that is being drawn. */
-  private var polygon: Polygon = Polygon.EMPTY_POLYGON
+  //  private var polygon: Polygon = Polygon.EMPTY_POLYGON
+  private var vertices: List<Point> = listOf()
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
@@ -52,7 +67,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   init {
     val polygonFlowable = partialPolygonFlowable.toFlowable(BackpressureStrategy.LATEST).share()
     polygonLiveData = LiveDataReactiveStreams.fromPublisher(polygonFlowable)
-    features = LiveDataReactiveStreams.fromPublisher(polygonFlowable.map { createFeatures(it) })
+    //    features = LiveDataReactiveStreams.fromPublisher(polygonFlowable.map {
+    //      createFeatures(it) })
   }
 
   /**
@@ -65,9 +81,9 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   ) {
     if (isMarkedComplete) return
 
-    val firstVertex = polygon.firstVertex
+    val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
-    if (firstVertex != null && polygon.size > 2) {
+    if (firstVertex != null && vertices.size > 2) {
       val distance = calculateDistanceInPixels(firstVertex.coordinate, target)
       if (distance <= DISTANCE_THRESHOLD_DP) {
         updatedTarget = firstVertex.coordinate
@@ -84,19 +100,19 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   fun removeLastVertex() {
     // Do nothing if there are no vertices to remove.
-    if (polygon.isEmpty) return
+    if (vertices.isEmpty()) return
 
     // Reset complete status
     isMarkedComplete = false
 
     // Remove last vertex and update polygon
-    val updatedVertices = polygon.vertices.toMutableList()
+    val updatedVertices = vertices.toMutableList()
     updatedVertices.removeLast()
-    updatePolygon(updatedVertices.toImmutableList())
+    updateVertices(updatedVertices.toImmutableList())
   }
 
   /** Adds the last vertex to the polygon. */
-  fun addLastVertex() = polygon.lastVertex?.let { addVertex(it.coordinate, false) }
+  fun addLastVertex() = vertices.lastOrNull()?.let { addVertex(it.coordinate, false) }
 
   /**
    * Adds a new vertex to the polygon.
@@ -105,7 +121,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
    * @param shouldOverwriteLastVertex
    */
   private fun addVertex(vertex: Coordinate, shouldOverwriteLastVertex: Boolean) {
-    val updatedVertices = polygon.vertices.toMutableList()
+    val updatedVertices = vertices.toMutableList()
 
     // Maybe remove the last vertex before adding the new vertex.
     if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
@@ -116,46 +132,50 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     updatedVertices.add(Point(vertex))
 
     // Render changes to UI
-    updatePolygon(updatedVertices.toImmutableList())
+    updateVertices(updatedVertices.toImmutableList())
   }
 
-  private fun updatePolygon(newVertices: List<Point>) {
-    val polygon = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
-    partialPolygonFlowable.onNext(polygon)
-    this.polygon = polygon
+  private fun updateVertices(newVertices: List<Point>) {
+    //    val polygon = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
+    //    partialPolygonFlowable.onNext(polygon)
+    //    this.polygon = polygon
+    verticesFlow.value = newVertices
+    this.vertices = newVertices
+    refreshFeatures(newVertices)
   }
 
   fun onCompletePolygonButtonClick() {
-    check(polygon.isComplete) { "Polygon is not complete" }
+    //    check(polygon.isComplete()) { "Polygon is not complete" }
     isMarkedComplete = true
-    partialPolygonFlowable.onNext(polygon)
+    //    partialPolygonFlowable.onNext(polygon)
     // TODO: Serialize the polygon and update response
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun createFeatures(polygon: Polygon): Set<Feature> {
-    if (polygon.isEmpty) {
-      return setOf()
+  private fun refreshFeatures(points: List<Point>) {
+    if (points.isEmpty()) {
+      featureFlow.value = null
+      return
     }
 
-    return setOf(
+    featureFlow.value =
       Feature(
         id = uuidGenerator.generateUuid(),
         type = FeatureType.USER_POLYGON.ordinal,
-        geometry = createFeatureFromPolygon(polygon)
+        geometry = createGeometry(points)
       )
-    )
   }
 
-  /** Returns a map geometry to be drawn based on given partial/complete polygon. */
-  private fun createFeatureFromPolygon(polygon: Polygon): Geometry {
-    return if (!polygon.isComplete) {
-      LineString(polygon.vertices.map { it.coordinate })
-    } else if (!isMarkedComplete) {
-      LinearRing(polygon.vertices.map { it.coordinate })
-    } else {
-      polygon
+  /** Returns a map geometry to be drawn based on given list of points. */
+  private fun createGeometry(points: List<Point>): Geometry {
+    val coordinates = points.map { it.coordinate }
+    if (isMarkedComplete) {
+      return Polygon(LinearRing(coordinates))
     }
+    if (coordinates.isComplete()) {
+      return LinearRing(coordinates)
+    }
+    return LineString(coordinates)
   }
 
   companion object {

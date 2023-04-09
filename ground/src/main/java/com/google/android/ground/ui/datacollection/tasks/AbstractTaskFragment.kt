@@ -74,11 +74,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
       taskView.bind(this, viewModel)
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
-      onTaskViewAttached()
 
       // Add actions buttons after the view model is bound to the view.
       onCreateActionButtons()
       onActionButtonsCreated()
+
+      onTaskViewAttached()
     }
   }
 

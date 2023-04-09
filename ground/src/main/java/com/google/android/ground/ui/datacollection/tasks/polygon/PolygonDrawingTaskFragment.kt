@@ -19,16 +19,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.geometry.GeometryValidator.Companion.isClosedGeometry
+import com.google.android.ground.model.geometry.GeometryValidator.Companion.isComplete
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>() {
@@ -61,7 +65,9 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   }
 
   override fun onTaskViewAttached() {
-    viewModel.polygonLiveData.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.featureValue.collect { onFeatureUpdated(it) }
+    }
   }
 
   private fun onCompleteClicked() {
@@ -70,10 +76,13 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
     getButton(ButtonAction.COMPLETE).hide()
   }
 
-  private fun onPolygonUpdated(polygon: Polygon) {
-    getButton(ButtonAction.ADD_POINT).showIfTrue(!polygon.isComplete)
-    getButton(ButtonAction.COMPLETE).showIfTrue(polygon.isComplete)
+  private fun onFeatureUpdated(feature: Feature?) {
+    val vertexCount = feature?.geometry?.size ?: 0
+    val isComplete = feature?.geometry.isClosedGeometry()
+
+    getButton(ButtonAction.ADD_POINT).showIfTrue(!isComplete)
+    getButton(ButtonAction.COMPLETE).showIfTrue(isComplete)
     getButton(ButtonAction.CONTINUE).hide()
-    getButton(ButtonAction.UNDO).showIfTrue(polygon.size > 1)
+    getButton(ButtonAction.UNDO).showIfTrue(vertexCount > 1)
   }
 }

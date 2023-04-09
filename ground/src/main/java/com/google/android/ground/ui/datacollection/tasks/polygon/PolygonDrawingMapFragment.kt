@@ -27,6 +27,7 @@ import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -73,7 +74,11 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.featureValue.collect { feature: Feature? ->
+        mapFragment.renderFeatures(if (feature == null) setOf() else setOf(feature))
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
