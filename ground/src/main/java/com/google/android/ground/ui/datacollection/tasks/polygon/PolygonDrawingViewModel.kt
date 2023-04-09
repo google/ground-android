@@ -118,6 +118,9 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   fun onCompletePolygonButtonClick() {
+    check(vertices.map { it.coordinate }.isComplete()) { "Polygon is not complete" }
+    check(!isMarkedComplete) { "Already marked complete" }
+
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)

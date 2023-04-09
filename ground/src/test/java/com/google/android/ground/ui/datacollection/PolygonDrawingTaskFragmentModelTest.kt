@@ -18,7 +18,8 @@ package com.google.android.ground.ui.datacollection
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.GeometryValidator.Companion.isClosedGeometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.Companion.DISTANCE_THRESHOLD_DP
@@ -28,6 +29,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.jraska.livedata.TestObserver
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,13 +40,11 @@ import org.robolectric.RobolectricTestRunner
 class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
-  private lateinit var polygonTestObserver: TestObserver<Polygon>
-  private lateinit var drawnGeometryTestObserver: TestObserver<Feature>
+  private lateinit var featureTestObserver: TestObserver<Feature>
 
   override fun setUp() {
     super.setUp()
-    polygonTestObserver = TestObserver.test(viewModel.polygonLiveData)
-    drawnGeometryTestObserver = TestObserver.test(viewModel.featureValue.asLiveData())
+    featureTestObserver = TestObserver.test(viewModel.featureValue.asLiveData())
   }
 
   @Test
@@ -52,7 +52,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     // One vertex is selected and another is temporary vertex for rendering.
-    assertPolygon(2, false)
+    assertGeometry(2, isLineString = true)
   }
 
   @Test
@@ -61,7 +61,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
 
-    assertPolygon(4, false)
+    assertGeometry(4, isLineString = true)
   }
 
   @Test
@@ -71,7 +71,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     updateLastVertex(COORDINATE_3, true)
 
-    assertPolygon(3, false)
+    assertGeometry(3, isLineString = true)
   }
 
   @Test
@@ -82,7 +82,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     updateLastVertex(COORDINATE_4, true)
 
-    assertPolygon(4, true)
+    assertGeometry(4, isLinearRing = true)
   }
 
   @Test
@@ -91,7 +91,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertPolygon(1, false)
+    assertGeometry(1, isLineString = true)
   }
 
   @Test
@@ -100,7 +100,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertPolygon(0, false)
+    assertGeometry(0, isLineString = true)
   }
 
   @Test
@@ -110,7 +110,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertPolygon(0, false)
+    assertGeometry(0, isLineString = true)
   }
 
   @Test
@@ -122,7 +122,7 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertPolygon(3, false)
+    assertGeometry(3, isLineString = true)
   }
 
   @Test
@@ -145,31 +145,31 @@ class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
 
     viewModel.onCompletePolygonButtonClick()
 
-    assertPolygon(4, true)
+    assertGeometry(4, isPolygon = true)
   }
 
-  private fun assertPolygonDrawn(result: Boolean) {
-    drawnGeometryTestObserver.assertValue { feature: Feature ->
-      var actualPolygonCount = 0
-      if (feature.geometry is Polygon) {
-        actualPolygonCount++
-      }
-
-      assertThat(actualPolygonCount).isEqualTo(if (result) 1 else 0)
-      true
+  private fun assertGeometry(
+    expectedVerticesCount: Int,
+    isLineString: Boolean = false,
+    isLinearRing: Boolean = false,
+    isPolygon: Boolean = false
+  ) {
+    val geometry = featureTestObserver.value()?.geometry
+    if (expectedVerticesCount == 0) {
+      assertThat(geometry).isNull()
+    } else {
+      assertNotNull(geometry)
+      assertWithMessage(geometry.vertices.toString())
+        .that(geometry.size)
+        .isEqualTo(expectedVerticesCount)
+      assertThat(geometry)
+        .isInstanceOf(
+          if (isLineString) LineString::class.java
+          else if (isLinearRing) LinearRing::class.java
+          else if (isPolygon) Polygon::class.java
+          else error("Must be one of LineString, LinearRing, or Polygon")
+        )
     }
-  }
-
-  private fun assertPolygon(expectedVerticesCount: Int, isPolygonComplete: Boolean) {
-    val polygon = polygonTestObserver.value()
-    assertWithMessage(polygon.vertices.toString())
-      .that(polygon.size)
-      .isEqualTo(expectedVerticesCount)
-    assertWithMessage("isPolygonComplete doesn't match")
-      .that(polygon.isClosedGeometry())
-      .isEqualTo(isPolygonComplete)
-
-    assertPolygonDrawn(expectedVerticesCount > 0)
   }
 
   /** Overwrites the last vertex and also adds a new one. */
