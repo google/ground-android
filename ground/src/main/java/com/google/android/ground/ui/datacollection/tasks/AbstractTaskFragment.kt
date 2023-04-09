@@ -129,7 +129,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnClickListener { viewModel.clearResponse() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
-      .enable()
 
   protected fun addButton(action: ButtonAction): TaskButton {
     check(!buttons.contains(action)) { "Button $action already bound" }
