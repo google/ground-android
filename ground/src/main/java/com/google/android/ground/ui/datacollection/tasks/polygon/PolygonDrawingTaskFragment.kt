@@ -58,7 +58,7 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   override fun onCreateActionButtons() {
     addContinueButton()
     addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
-    addButton(ButtonAction.COMPLETE).setOnClickListener { onCompleteClicked() }
+    addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
     addUndoButton()
     addSkipButton()
   }
@@ -69,19 +69,14 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
     }
   }
 
-  private fun onCompleteClicked() {
-    viewModel.onCompletePolygonButtonClick()
-    getButton(ButtonAction.CONTINUE).show()
-    getButton(ButtonAction.COMPLETE).hide()
-  }
-
   private fun onFeatureUpdated(feature: Feature?) {
     val vertexCount = feature?.geometry?.size ?: 0
-    val isComplete = feature?.geometry.isClosedGeometry()
+    val isClosedGeometry = feature?.geometry.isClosedGeometry()
+    val isMarkedComplete = viewModel.isMarkedComplete()
 
-    getButton(ButtonAction.ADD_POINT).showIfTrue(!isComplete)
-    getButton(ButtonAction.COMPLETE).showIfTrue(isComplete)
-    getButton(ButtonAction.CONTINUE).hide()
+    getButton(ButtonAction.ADD_POINT).showIfTrue(!isClosedGeometry)
+    getButton(ButtonAction.COMPLETE).showIfTrue(isClosedGeometry && !isMarkedComplete)
+    getButton(ButtonAction.CONTINUE).showIfTrue(isMarkedComplete)
     getButton(ButtonAction.UNDO).showIfTrue(vertexCount > 1)
   }
 }
