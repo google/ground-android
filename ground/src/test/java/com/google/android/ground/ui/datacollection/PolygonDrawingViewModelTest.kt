@@ -35,7 +35,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
+class PolygonDrawingViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
   private lateinit var polygonTestObserver: TestObserver<Polygon>

@@ -36,9 +36,6 @@ class PolygonDrawingViewModel
 @Inject
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
-  private val verticesFlow: MutableStateFlow<List<Point>> = MutableStateFlow(listOf())
-  val verticesValue: StateFlow<List<Point>> =
-    verticesFlow.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
   /** [Feature]s drawn by the user but not yet saved. */
   private val featureFlow: MutableStateFlow<Feature?> = MutableStateFlow(null)
@@ -116,7 +113,6 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   private fun updateVertices(newVertices: List<Point>) {
-    verticesFlow.value = newVertices
     this.vertices = newVertices
     refreshFeatures(newVertices, false)
   }
