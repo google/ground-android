@@ -124,7 +124,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    // TODO: Serialize the polygon and update response
+    // TODO(#1351): Serialize the polygon and update response
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
