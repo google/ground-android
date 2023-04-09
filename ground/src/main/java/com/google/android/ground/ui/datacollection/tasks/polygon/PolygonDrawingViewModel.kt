@@ -135,21 +135,19 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
       Feature(
         id = uuidGenerator.generateUuid(),
         type = FeatureType.USER_POLYGON.ordinal,
-        geometry = createGeometry(points, isMarkedComplete)
+        geometry = createGeometry(points.map { it.coordinate }, isMarkedComplete)
       )
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(points: List<Point>, isMarkedComplete: Boolean): Geometry {
-    val coordinates = points.map { it.coordinate }
-    if (isMarkedComplete) {
-      return Polygon(LinearRing(coordinates))
+  private fun createGeometry(coordinates: List<Coordinate>, isMarkedComplete: Boolean): Geometry =
+    if (isMarkedComplete && coordinates.isComplete()) {
+      Polygon(LinearRing(coordinates))
+    } else if (coordinates.isComplete()) {
+      LinearRing(coordinates)
+    } else {
+      LineString(coordinates)
     }
-    if (coordinates.isComplete()) {
-      return LinearRing(coordinates)
-    }
-    return LineString(coordinates)
-  }
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */

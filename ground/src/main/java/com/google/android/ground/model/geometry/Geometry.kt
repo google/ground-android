@@ -16,7 +16,7 @@
 package com.google.android.ground.model.geometry
 
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.model.geometry.GeometryValidator.Companion.validateLinearRing
+import com.google.android.ground.model.geometry.GeometryValidator.Companion.validate
 import com.google.android.ground.ui.map.gms.toLatLng
 import kotlinx.serialization.Serializable
 
@@ -69,7 +69,7 @@ data class LineString(val coordinates: List<Coordinate>) : Geometry {
 data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
 
   init {
-    validateLinearRing()
+    validate()
   }
 
   override val vertices: List<Point> = coordinates.map { Point(it) }

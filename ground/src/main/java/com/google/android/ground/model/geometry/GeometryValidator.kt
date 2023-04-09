@@ -9,7 +9,7 @@ class GeometryValidator {
     }
 
     /** Validates that the current [LinearRing] is well-formed. */
-    fun LinearRing.validateLinearRing() {
+    fun LinearRing.validate() {
       if (coordinates.isEmpty()) {
         return
       }
