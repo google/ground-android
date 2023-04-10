@@ -33,8 +33,5 @@ object GeometryValidator {
   fun Geometry?.isClosedGeometry(): Boolean = this is Polygon || this is LinearRing
 
   /** Returns true of the current list of vertices can generate a polygon. */
-  fun List<Coordinate>.isComplete(): Boolean {
-    if (size < 4) return false
-    return isFirstAndLastSame()
-  }
+  fun List<Coordinate>.isComplete(): Boolean = size >= 4 && isFirstAndLastSame()
 }
