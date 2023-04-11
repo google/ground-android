@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.GeometryValidator.isClosedGeometry
+import com.google.android.ground.model.geometry.GeometryValidator.isClosed
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -71,7 +71,7 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
 
   private fun onFeatureUpdated(feature: Feature?) {
     val vertexCount = feature?.geometry?.size ?: 0
-    val isClosedGeometry = feature?.geometry.isClosedGeometry()
+    val isClosedGeometry = feature?.geometry.isClosed()
     val isMarkedComplete = viewModel.isMarkedComplete()
 
     getButton(ButtonAction.ADD_POINT).showIfTrue(!isClosedGeometry)

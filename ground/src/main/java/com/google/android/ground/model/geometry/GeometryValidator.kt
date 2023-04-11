@@ -17,21 +17,21 @@
 package com.google.android.ground.model.geometry
 
 object GeometryValidator {
-  private fun List<Any>.isFirstAndLastSame(): Boolean = firstOrNull() == lastOrNull()
 
   /** Validates that the current [LinearRing] is well-formed. */
   fun LinearRing.validate() {
+    // TODO(#1647): Check for vertices count > 3
     if (coordinates.isEmpty()) {
       return
     }
-    if (!coordinates.isFirstAndLastSame()) {
+    if (coordinates.firstOrNull() != coordinates.lastOrNull()) {
       error("Invalid linear ring")
     }
   }
 
   /** Returns true if the current geometry is closed. */
-  fun Geometry?.isClosedGeometry(): Boolean = this is Polygon || this is LinearRing
+  fun Geometry?.isClosed(): Boolean = this is Polygon || this is LinearRing
 
-  /** Returns true of the current list of vertices can generate a polygon. */
-  fun List<Coordinate>.isComplete(): Boolean = size >= 4 && isFirstAndLastSame()
+  /** Returns true of the current list of vertices can generate a closed loop. */
+  fun List<Coordinate>.isComplete(): Boolean = size >= 4 && firstOrNull() == lastOrNull()
 }

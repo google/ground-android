@@ -16,7 +16,7 @@
 
 package com.google.android.ground.model.geometry
 
-import com.google.android.ground.model.geometry.GeometryValidator.isClosedGeometry
+import com.google.android.ground.model.geometry.GeometryValidator.isClosed
 import com.google.android.ground.model.geometry.GeometryValidator.isComplete
 import com.google.android.ground.model.geometry.GeometryValidator.validate
 import com.google.common.truth.Truth.assertThat
@@ -44,11 +44,11 @@ class GeometryValidatorTest {
 
   @Test
   fun isClosedGeometry() {
-    assertThat(Point(COORDINATE_1).isClosedGeometry()).isFalse()
-    assertThat(LineString(OPEN_LOOP).isClosedGeometry()).isFalse()
-    assertThat(LinearRing(CLOSED_LOOP).isClosedGeometry()).isTrue()
-    assertThat(Polygon(LinearRing(CLOSED_LOOP)).isClosedGeometry()).isTrue()
-    assertThat(MultiPolygon(listOf(Polygon(LinearRing(CLOSED_LOOP)))).isClosedGeometry()).isFalse()
+    assertThat(Point(COORDINATE_1).isClosed()).isFalse()
+    assertThat(LineString(OPEN_LOOP).isClosed()).isFalse()
+    assertThat(LinearRing(CLOSED_LOOP).isClosed()).isTrue()
+    assertThat(Polygon(LinearRing(CLOSED_LOOP)).isClosed()).isTrue()
+    assertThat(MultiPolygon(listOf(Polygon(LinearRing(CLOSED_LOOP)))).isClosed()).isFalse()
   }
 
   @Test
