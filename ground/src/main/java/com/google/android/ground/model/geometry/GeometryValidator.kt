@@ -18,17 +18,6 @@ package com.google.android.ground.model.geometry
 
 object GeometryValidator {
 
-  /** Validates that the current [LinearRing] is well-formed. */
-  fun LinearRing.validate() {
-    // TODO(#1647): Check for vertices count > 3
-    if (coordinates.isEmpty()) {
-      return
-    }
-    if (coordinates.firstOrNull() != coordinates.lastOrNull()) {
-      error("Invalid linear ring")
-    }
-  }
-
   /** Returns true if the current geometry is closed. */
   fun Geometry?.isClosed(): Boolean = this is Polygon || this is LinearRing
 

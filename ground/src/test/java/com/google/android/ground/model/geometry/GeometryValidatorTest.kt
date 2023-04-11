@@ -18,7 +18,6 @@ package com.google.android.ground.model.geometry
 
 import com.google.android.ground.model.geometry.GeometryValidator.isClosed
 import com.google.android.ground.model.geometry.GeometryValidator.isComplete
-import com.google.android.ground.model.geometry.GeometryValidator.validate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test

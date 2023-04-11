@@ -16,7 +16,6 @@
 package com.google.android.ground.model.geometry
 
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.model.geometry.GeometryValidator.validate
 import com.google.android.ground.ui.map.gms.toLatLng
 import kotlinx.serialization.Serializable
 
@@ -32,6 +31,11 @@ sealed interface Geometry {
 
   /** Returns true if the current geometry is within provided [bounds]. */
   fun isWithinBounds(bounds: LatLngBounds) = vertices.any { bounds.contains(it.toLatLng()) }
+
+  /** Validates that the current [Geometry] is well-formed. */
+  fun validate() {
+    // default no-op implementation
+  }
 }
 
 /**
@@ -73,6 +77,16 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
   }
 
   override val vertices: List<Point> = coordinates.map { Point(it) }
+
+  override fun validate() {
+    // TODO(#1647): Check for vertices count > 3
+    if (coordinates.isEmpty()) {
+      return
+    }
+    if (coordinates.firstOrNull() != coordinates.lastOrNull()) {
+      error("Invalid linear ring")
+    }
+  }
 
   /**
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.
