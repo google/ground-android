@@ -178,13 +178,30 @@ This includes the API key and URL for your new Firebase project.
 
 Used to build with Google Cloud and for running integration tests:
 
-1. Install google-cloud-sdk
+1. Install [google-cloud-sdk](https://cloud.google.com/sdk/docs/install)
 
 2. gcloud init
  
 3. gcloud auth login
   
 4. gcloud config set project [PROJECT_ID]
+
+### Updating GCB Docker Image to latest android sdk tool
+
+1. Ensure that the gcloud project setup is done
+
+2. Open `cloud-builder/Dockerfile-base`
+
+3. Search for `build-tools` in the file and replace the version with the latest version
+
+4. Run the following command 
+
+```
+$ cd cloud-builder
+$ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION=30
+```
+
+5. Ensure that the docker image is uploaded under "Container Registry" in cloud project
 
 ### Troubleshooting
 
