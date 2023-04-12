@@ -21,31 +21,14 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
 import java.io.RandomAccessFile
+import java.lang.Math.*
 import javax.inject.Inject
-import kotlin.math.cos
-import kotlin.math.log2
 import mil.nga.tiff.FieldTagType.*
 import mil.nga.tiff.TIFFImage
 import mil.nga.tiff.TiffReader
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.locationtech.proj4j.CRSFactory
-import org.locationtech.proj4j.CoordinateTransform
-import org.locationtech.proj4j.CoordinateTransformFactory
-import org.locationtech.proj4j.ProjCoordinate
-import java.lang.Math.*
-import kotlin.math.pow
-
-val START_OF_IMAGE = byteArrayOf(0xFF, 0xD8)
-val APP0_MARKER = byteArrayOf(0xFF, 0xE0)
-// Marker segment length with no thumbnails.
-const val APP0_MIN_LEN: Short = 16
-const val JFIF_IDENTIFIER = "JFIF"
-const val JFIF_MAJOR_VERSION = 1
-const val JFIF_MINOR_VERSION = 2
-const val NO_DENSITY_UNITS = 0
-val END_OF_IMAGE = byteArrayOf(0xFF, 0xD9)
 
 // Instrumentation needed to use Android SDK's BitmapFactory.
 @Suppress("UNCHECKED_CAST")
@@ -62,89 +45,46 @@ class CogTest {
 
   @Test
   fun extractTiles() {
-    val cogX = 391
-    val cogY = 251
-    val cogZ = 9
-    val x = 31
-    val y = 31
-    val z = 14
-    val cogMaxZoom = 14
+    val x = 251
+    val y = 391
+    val z = 9
 
     val cogFile = File(context.filesDir, "cogs/9/391/251.tif")
     val tiff: TIFFImage = TiffReader.readTiff(cogFile)
+    val cog = Cog(tiff)
+    val image = cog.imagesByZoomLevel[z] ?: return
     // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
     //    val cogMaxZoom = cogMinZoom + tiff.fileDirectories.size - 1
-    val image = tiff.fileDirectories[0]
-    val offsets = image.getLongListEntryValue(TileOffsets)
-    val byteCounts = image.getLongListEntryValue(TileByteCounts)
-    val tileWidth = image.getIntegerEntryValue(TileWidth).toShort()
-    val tileLength = image.getIntegerEntryValue(TileLength).toShort()
-    val imageWidth = image.getIntegerEntryValue(ImageWidth).toShort()
-    val imageLength = image.getIntegerEntryValue(ImageLength).toShort()
-    val pixelScaleX = image.getDoubleListEntryValue(ModelPixelScale)[0]
-    val pixelScaleY = image.getDoubleListEntryValue(ModelPixelScale)[1]
-    // TODO: Verify X and Y scales the same.
-    val tiePointX = image.getDoubleListEntryValue(ModelTiepoint)[3]
-    val tiePointY = image.getDoubleListEntryValue(ModelTiepoint)[4]
-    val geoAsciiParams = image.getStringEntryValue(GeoAsciiParams)
+//    val image = CogImage(tiff.fileDirectories[0])
+    //    val offsets = image.getLongListEntryValue(TileOffsets)
+    //    val byteCounts = image.getLongListEntryValue(TileByteCounts)
+    //    val tileWidth = image.getIntegerEntryValue(TileWidth).toShort()
+    //    val tileLength = image.getIntegerEntryValue(TileLength).toShort()
+    //    val imageWidth = image.getIntegerEntryValue(ImageWidth).toShort()
+    //    val imageLength = image.getIntegerEntryValue(ImageLength).toShort()
+    //    val pixelScaleX = image.getDoubleListEntryValue(ModelPixelScale)[0]
+    //    val pixelScaleY = image.getDoubleListEntryValue(ModelPixelScale)[1]
+    //    // TODO: Verify X and Y scales the same.
+    //    val tiePointX = image.getDoubleListEntryValue(ModelTiepoint)[3]
+    //    val tiePointY = image.getDoubleListEntryValue(ModelTiepoint)[4]
+    //    val geoAsciiParams = image.getStringEntryValue(GeoAsciiParams)
     // TODO: Verify geoAsciiParams is web mercator.
-    val crsFactory = CRSFactory()
-    val webMercator = crsFactory.createFromName("epsg:3857")
-    val wgs84 = crsFactory.createFromName("epsg:4326")
-    val ctFactory = CoordinateTransformFactory()
-    val mercatorToWgs84: CoordinateTransform = ctFactory.createTransform(webMercator, wgs84)
-    val tiePointLatLng =
-      mercatorToWgs84.transform(ProjCoordinate(tiePointX, tiePointY), ProjCoordinate())
-    val EARTH_CIRC_M = 40075016.686
-    val zoomLevel = round(log2(EARTH_CIRC_M * cos(toRadians(tiePointLatLng.y)) / pixelScaleY) - 8.0)
 
-    val tiePointTileX = (tiePointLatLng.x * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
-    val tiePointTileY = (tiePointLatLng.y * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
-
-    val xTileCount = imageWidth / tileWidth
-    val yTileCount = imageLength / tileLength
     // TODO: Verify that tile size is 256x256.
-    val idx = x + y * xTileCount
-    val jpegTables =
-      image
-        .getLongListEntryValue(JPEGTables)
-        .map(Long::toByte)
-        .drop(2) // Skip extraneous SOI.
-        .dropLast(2) // Skip extraneous EOI.
-        .toByteArray()
+    val idx = image.tileIndex(x, y)
 
     val outdir = File(context.filesDir, "tiles")
     outdir.mkdir()
     val raf = RandomAccessFile(cogFile, "r")
-    //    for (idx in offsets.indices) {
-    val offset = offsets[idx] + 2 // Skip extraneous SOI
-    val len = byteCounts[idx] - 2
+    val offset = image.offsets[idx] + 2 // Skip extraneous SOI
+    val len = image.byteCounts[idx] - 2
     val imageBytes = ByteArray(len.toInt())
     raf.seek(offset)
     raf.read(imageBytes)
-    val jpeg =
-      START_OF_IMAGE + app0Segment(tileWidth, tileLength) + jpegTables + imageBytes + END_OF_IMAGE
+    val jpeg = image.toBitmap(imageBytes)
     File(outdir, "tile-$idx.jpg").writeBytes(jpeg)
-    //    }
     raf.close()
-    // Each overview has its own metadata.
-    // Image: 7828x7828
-    // Tile: 256x256
-    // Image / Tile = 935.021728515625
-    // Actual tiles: 31x31 = 961
   }
-
-  /** Build "Application Segment 0" section of header. */
-  private fun app0Segment(tileWidth: Short, tileHeight: Short) =
-    APP0_MARKER +
-      APP0_MIN_LEN.toByteArray() +
-      JFIF_IDENTIFIER.toNulTerminatedByteArray() +
-      JFIF_MAJOR_VERSION.toByte() +
-      JFIF_MINOR_VERSION.toByte() +
-      NO_DENSITY_UNITS.toByte() +
-      tileWidth.toByteArray() +
-      tileHeight.toByteArray() +
-      byteArrayOf(0, 0) // Dimensions of empty thumbnail.
 
   //    val dir = "/Users/gmiceli/Git/google/ground-android/ground"
   // /data/user/0/com.google.android.ground/files
@@ -192,12 +132,6 @@ class CogTest {
   //    bitmap.compress(CompressFormat.JPEG, 90, outfile.outputStream())
 
 }
-
-fun byteArrayOf(vararg elements: Int) = elements.map(Int::toByte).toByteArray()
-
-fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this.toByte())
-
-fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
 fun ByteArray.toHexString() =
   joinToString(" ") {
