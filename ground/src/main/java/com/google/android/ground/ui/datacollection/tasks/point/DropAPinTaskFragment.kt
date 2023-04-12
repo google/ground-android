@@ -20,6 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.R
+import com.google.android.ground.model.submission.isNotNullOrEmpty
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -54,19 +56,11 @@ class DropAPinTaskFragment : AbstractTaskFragment<DropAPinTaskViewModel>() {
   override fun onCreateActionButtons() {
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
-      .setOnTaskUpdated { button, taskData ->
-        button.updateState {
-          visibility = if (taskData?.isEmpty() != false) View.VISIBLE else View.GONE
-        }
-      }
+      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
-      .setOnTaskUpdated { button, taskData ->
-        button.updateState {
-          visibility = if (taskData?.isEmpty() != false) View.GONE else View.VISIBLE
-        }
-      }
-      .updateState { visibility = View.GONE }
+      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .hide()
     addUndoButton()
     addSkipButton()
   }

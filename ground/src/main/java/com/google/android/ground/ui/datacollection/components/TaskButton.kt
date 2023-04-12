@@ -36,9 +36,29 @@ data class TaskButton(private val view: View) {
     view.id = View.generateViewId()
   }
 
-  /** Updates the state of the button. */
-  fun updateState(block: View.() -> Unit): TaskButton {
-    block(view)
+  /** Updates the `visibility` property button. */
+  fun showIfTrue(result: Boolean): TaskButton = if (result) show() else hide()
+
+  /** Updates the `isEnabled` property of button. */
+  fun enableIfTrue(result: Boolean): TaskButton = if (result) enable() else disable()
+
+  fun show(): TaskButton {
+    view.visibility = View.VISIBLE
+    return this
+  }
+
+  fun hide(): TaskButton {
+    view.visibility = View.GONE
+    return this
+  }
+
+  fun enable(): TaskButton {
+    view.isEnabled = true
+    return this
+  }
+
+  fun disable(): TaskButton {
+    view.isEnabled = false
     return this
   }
 
@@ -85,7 +105,8 @@ private fun createTextTypeButtons(
   when (action.theme) {
     Theme.DARK_GREEN -> TaskChipButtonDarkGreenBinding.inflate(layoutInflater, container).button
     Theme.LIGHT_GREEN -> TaskChipButtonLightGreenBinding.inflate(layoutInflater, container).button
-    Theme.OUTLINED -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
+    Theme.OUTLINED -> TaskChipButtonOutlineBinding.inflate(layoutInflater, container).button
+    Theme.TRANSPARENT -> TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
   }.apply { action.textId?.let { setText(it) } }
 
 // TODO(Shobhit): Figure out a way to create styled buttons without using XML.

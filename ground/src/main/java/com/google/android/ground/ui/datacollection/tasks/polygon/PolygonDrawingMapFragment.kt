@@ -24,10 +24,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -74,21 +74,23 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.featureValue.collect { feature: Feature? ->
+        mapFragment.renderFeatures(if (feature == null) setOf() else setOf(feature))
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    val mapCenter = position.target
-    val mapCenterPoint = Point(mapCenter)
-    viewModel.onCameraMoved(mapCenterPoint)
-    viewModel.firstVertex
-      .map { firstVertex: Point ->
-        mapFragment.getDistanceInPixels(firstVertex.coordinate, mapCenter)
+    if (!viewModel.isMarkedComplete()) {
+      val mapCenter = position.target
+      viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
+        mapFragment.getDistanceInPixels(c1, c2)
       }
-      .ifPresent { dist: Double -> viewModel.updateLastVertex(mapCenterPoint, dist) }
+    }
   }
 
   companion object {

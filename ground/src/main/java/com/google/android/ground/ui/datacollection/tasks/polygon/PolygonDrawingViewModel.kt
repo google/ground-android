@@ -16,195 +16,153 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import androidx.lifecycle.viewModelScope
+import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.GeometryValidator.isComplete
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
-import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
 @SharedViewModel
 class PolygonDrawingViewModel
 @Inject
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
-  private val polygonDrawingState: @Hot Subject<PolygonDrawingState> = PublishSubject.create()
-  private val partialPolygonFlowable: @Hot Subject<Optional<Polygon>> = PublishSubject.create()
-
-  /** Denotes whether the drawn polygon is complete or not. This is different from drawing state. */
-  val isPolygonCompleted: @Hot LiveData<Boolean>
-
-  /** [Feature]s drawn by the user but not yet saved. */
-  val features: @Hot LiveData<Set<Feature>>
-
-  private val vertices: MutableList<Point> = ArrayList()
-  private var polygon: Polygon? = null
-  private var cameraTarget: Point? = null
 
   /**
-   * If true, then it means that the last vertex is added automatically and should be removed before
-   * adding any permanent vertex. Used for rendering a line between last added point and current
-   * camera target.
-   */
-  private var isLastVertexNotSelectedByUser = false
-
-  val drawingState: @Hot Observable<PolygonDrawingState>
-    get() = polygonDrawingState
-
-  val firstVertex: Optional<Point>
-    get() = Optional.ofNullable(vertices.firstOrNull())
-
-  init {
-    val polygonFlowable =
-      partialPolygonFlowable
-        .startWith(Optional.empty())
-        .toFlowable(BackpressureStrategy.LATEST)
-        .share()
-    isPolygonCompleted =
-      LiveDataReactiveStreams.fromPublisher(
-        polygonFlowable
-          .map { polygon -> polygon.map { it.isPolygonComplete() }.orElse(false) }
-          .startWith(false)
-      )
-    features =
-      LiveDataReactiveStreams.fromPublisher(
-        polygonFlowable.map { polygon -> polygon.map { createFeatures(it) }.orElse(setOf()) }
-      )
-  }
-
-  fun onCameraMoved(newTarget: Point) {
-    cameraTarget = newTarget
-  }
-
-  /**
-   * Adds another vertex at the given point if {@param distanceInPixels} is more than the configured
-   * threshold. Otherwise, snaps to the first vertex.
+   * [Feature]s drawn by the user, but not yet saved.
    *
-   * @param newTarget Position of the map camera.
-   * @param distanceInPixels Distance between the last vertex and {@param newTarget}.
+   * Can be one of LineString, LinearRing, or Polygon.
    */
-  fun updateLastVertex(newTarget: Point, distanceInPixels: Double) {
-    val isPolygonComplete = vertices.size > 2 && distanceInPixels <= DISTANCE_THRESHOLD_DP
-    addVertex(if (isPolygonComplete) vertices[0] else newTarget, true)
+  private val featureFlow: MutableStateFlow<Feature?> = MutableStateFlow(null)
+  val featureValue: StateFlow<Feature?> =
+    featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+  /**
+   * List of [Point]s to be used for generating the [Geometry]. If [isMarkedComplete] is false, then
+   * the last vertex represents the map center and the second last vertex is the last added vertex.
+   */
+  private var vertices: List<Point> = listOf()
+
+  /** Represents whether the user has completed drawing the polygon or not. */
+  private var isMarkedComplete: Boolean = false
+
+  fun isMarkedComplete(): Boolean = isMarkedComplete
+
+  /**
+   * If the distance between the last added vertex and the given [target] is more than the
+   * configured threshold, then updates the last vertex with the given [target]. Otherwise, snaps to
+   * the first vertex to complete the polygon.
+   */
+  fun updateLastVertexAndMaybeCompletePolygon(
+    target: Coordinate,
+    calculateDistanceInPixels: (c1: Coordinate, c2: Coordinate) -> Double
+  ) {
+    check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
+
+    val firstVertex = vertices.firstOrNull()
+    var updatedTarget = target
+    if (firstVertex != null && vertices.size > 2) {
+      val distance = calculateDistanceInPixels(firstVertex.coordinate, target)
+      if (distance <= DISTANCE_THRESHOLD_DP) {
+        updatedTarget = firstVertex.coordinate
+      }
+    }
+
+    addVertex(updatedTarget, true)
+  }
+
+  override fun clearResponse() {
+    removeLastVertex()
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   fun removeLastVertex() {
-    if (vertices.isEmpty()) {
-      polygonDrawingState.onNext(PolygonDrawingState.canceled())
-      reset()
-    } else {
-      vertices.removeAt(vertices.size - 1)
-      updateVertices(vertices.toList())
-    }
+    // Do nothing if there are no vertices to remove.
+    if (vertices.isEmpty()) return
+
+    // Reset complete status
+    isMarkedComplete = false
+
+    // Remove last vertex and update polygon
+    val updatedVertices = vertices.toMutableList()
+    updatedVertices.removeLast()
+    updateVertices(updatedVertices.toImmutableList())
   }
 
-  fun selectCurrentVertex() = cameraTarget?.let { addVertex(it, false) }
+  /** Adds the last vertex to the polygon. */
+  fun addLastVertex() {
+    check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
+    vertices.lastOrNull()?.let { addVertex(it.coordinate, false) }
+  }
 
   /**
-   * Adds a new vertex.
+   * Adds a new vertex to the polygon.
    *
-   * @param vertex new position
-   * @param isNotSelectedByUser whether the vertex is not selected by the user
+   * @param vertex
+   * @param shouldOverwriteLastVertex
    */
-  private fun addVertex(vertex: Point, isNotSelectedByUser: Boolean) {
-    // Clear last vertex if it is unselected
-    if (isLastVertexNotSelectedByUser && vertices.isNotEmpty()) {
-      vertices.removeAt(vertices.size - 1)
+  private fun addVertex(vertex: Coordinate, shouldOverwriteLastVertex: Boolean) {
+    val updatedVertices = vertices.toMutableList()
+
+    // Maybe remove the last vertex before adding the new vertex.
+    if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
+      updatedVertices.removeLast()
     }
 
-    // Update selected state
-    isLastVertexNotSelectedByUser = isNotSelectedByUser
-
     // Add the new vertex
-    vertices.add(vertex)
+    updatedVertices.add(Point(vertex))
 
     // Render changes to UI
-    updateVertices(vertices.toList())
+    updateVertices(updatedVertices.toImmutableList())
   }
 
   private fun updateVertices(newVertices: List<Point>) {
-    val polygon = Polygon(LinearRing(newVertices.map { point -> point.coordinate }))
-    partialPolygonFlowable.onNext(Optional.of(polygon))
-    this.polygon = polygon
+    this.vertices = newVertices
+    refreshFeatures(newVertices, false)
   }
 
   fun onCompletePolygonButtonClick() {
-    check(polygon!!.isPolygonComplete()) { "Polygon is not complete" }
-    polygonDrawingState.onNext(PolygonDrawingState.completed(polygon!!))
-    reset()
-  }
+    check(vertices.map { it.coordinate }.isComplete()) { "Polygon is not complete" }
+    check(!isMarkedComplete) { "Already marked complete" }
 
-  private fun reset() {
-    isLastVertexNotSelectedByUser = false
-    vertices.clear()
-    polygon = null
-    partialPolygonFlowable.onNext(Optional.empty())
-  }
+    isMarkedComplete = true
 
-  fun startDrawingFlow() {
-    polygonDrawingState.onNext(PolygonDrawingState.inProgress())
-  }
-
-  data class PolygonDrawingState(val state: State, val polygon: Polygon? = null) {
-    val isCanceled: Boolean
-      get() = state == State.CANCELED
-    val isInProgress: Boolean
-      get() = state == State.IN_PROGRESS
-    val isCompleted: Boolean
-      get() = state == State.COMPLETED
-
-    /** Represents state of PolygonDrawing action. */
-    enum class State {
-      IN_PROGRESS,
-      COMPLETED,
-      CANCELED
-    }
-
-    companion object {
-      fun canceled(): PolygonDrawingState = PolygonDrawingState(State.CANCELED)
-
-      fun inProgress(): PolygonDrawingState = PolygonDrawingState(State.IN_PROGRESS)
-
-      fun completed(polygon: Polygon): PolygonDrawingState =
-        PolygonDrawingState(State.COMPLETED, polygon)
-    }
+    refreshFeatures(vertices, true)
+    // TODO(#1351): Serialize the polygon and update response
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun createFeatures(polygon: Polygon): Set<Feature> {
-    if (polygon.vertices.isEmpty()) {
-      return setOf()
-    }
-
-    return setOf(
-      Feature(
-        id = uuidGenerator.generateUuid(),
-        type = FeatureType.USER_POLYGON.ordinal,
-        geometry = polygon
-      )
-    )
+  private fun refreshFeatures(points: List<Point>, isMarkedComplete: Boolean) {
+    featureFlow.value =
+      if (points.isEmpty()) {
+        null
+      } else {
+        Feature(
+          id = uuidGenerator.generateUuid(),
+          type = FeatureType.USER_POLYGON.ordinal,
+          geometry = createGeometry(points.map { it.coordinate }, isMarkedComplete)
+        )
+      }
   }
 
-  private fun Polygon.isPolygonComplete(): Boolean {
-    if (vertices.size < 4) {
-      return false
+  /** Returns a map geometry to be drawn based on given list of points. */
+  private fun createGeometry(coordinates: List<Coordinate>, isMarkedComplete: Boolean): Geometry =
+    if (isMarkedComplete && coordinates.isComplete()) {
+      Polygon(LinearRing(coordinates))
+    } else if (coordinates.isComplete()) {
+      LinearRing(coordinates)
+    } else {
+      LineString(coordinates)
     }
-    val first: Point = vertices[0]
-    val last: Point = vertices[vertices.lastIndex]
-    return first == last
-  }
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
