@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.ground
+package com.google.android.ground.cog
 
-import mil.nga.tiff.TIFFImage
-
-class Cog(private val tiff: TIFFImage) {
-  val images = tiff.fileDirectories.map(::CogImage)
-  val minZoomLevel = images.minBy { it.zoomLevel }
-  val maxZoomLevel = images.maxBy { it.zoomLevel }
-  val imagesByZoomLevel = images.map { it.zoomLevel to it }.toMap()
-}
+data class CogTile(
+  val width: Short,
+  val height: Short,
+  val imageBytes: ByteArray
+)

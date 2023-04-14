@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground
+package com.google.android.ground.cog
 
 import com.google.android.gms.maps.model.LatLng
 import org.locationtech.proj4j.CRSFactory
