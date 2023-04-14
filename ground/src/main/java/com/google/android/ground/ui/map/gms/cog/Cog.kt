@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.cog
+package com.google.android.ground.ui.map.gms.cog
 
-import java.io.File
 import mil.nga.tiff.TIFFImage
+import java.io.File
 
 class Cog(private val cogFile: File, private val tiff: TIFFImage) {
 

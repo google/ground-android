@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.cog
+package com.google.android.ground.ui.map.gms.cog
 
 import java.io.File
 import java.io.RandomAccessFile
-import kotlin.math.cos
-import kotlin.math.log2
-import kotlin.math.pow
-import kotlin.math.roundToInt
+import java.lang.Math.toRadians
+import kotlin.math.*
 import mil.nga.tiff.FieldTagType
 import mil.nga.tiff.FileDirectory
+import timber.log.Timber
 
 /* Circumference of the Earth (m) */
 private const val C_EARTH = 40075016.686
@@ -36,6 +35,25 @@ private const val JFIF_MAJOR_VERSION = 1
 private const val JFIF_MINOR_VERSION = 2
 private const val NO_DENSITY_UNITS = 0
 private val END_OF_IMAGE = byteArrayOf(0xFF, 0xD9)
+
+private fun byteArrayOf(vararg elements: Int) = elements.map(Int::toByte).toByteArray()
+
+private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this.toByte())
+
+private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
+
+// TODO: Why is this falling just short of zoom level (thus using roundToInt())?
+private fun zoomLevelFromScale(scale: Double, latitude: Double): Int =
+  log2(C_EARTH * cos(toRadians(latitude)) / scale).roundToInt() - 8
+
+private fun toTileCoordinates(lat: Double, lon: Double, zoom: Int): Pair<Int, Int> {
+  // Number of tiles along a single dimension at the specified zoom level.
+  val tileCount = 1 shl zoom
+  val x = floor((lon + 180) / 360 * tileCount).toInt()
+  val y = floor((1.0 - asinh(tan(toRadians(lat))) / PI) / 2 * tileCount).toInt()
+  // 2^zoom. We don't use pow() since it only accepts Float or Double.
+  return Pair(x.coerceIn(0, tileCount), y.coerceIn(0, tileCount)+1)
+}
 
 class CogImage(
   private val cogFile: File,
@@ -51,15 +69,23 @@ class CogImage(
   val tileLength = ifd.getIntegerEntryValue(FieldTagType.TileLength).toShort()
   val imageWidth = ifd.getIntegerEntryValue(FieldTagType.ImageWidth).toShort()
   val imageLength = ifd.getIntegerEntryValue(FieldTagType.ImageLength).toShort()
+  // TODO: Move tiepoints to Cog since they're the same for all images?
   val tileCountX = imageWidth / tileWidth
   val tileCountY = imageLength / tileLength
   // TODO: Verify X and Y scales the same.
   val geoAsciiParams = ifd.getStringEntryValue(FieldTagType.GeoAsciiParams)
   val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
-  val zoomLevel =
-    (log2(C_EARTH * cos(Math.toRadians(tiePointLatLng.latitude)) / pixelScaleY) - 8.0).roundToInt()
-  val tiePointTileX = (tiePointLatLng.longitude * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
-  val tiePointTileY = (tiePointLatLng.latitude * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
+  val zoomLevel = zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
+
+  // TODO: Move into private functions, fix math (ex https://gist.github.com/tucotuco/1193577).
+  //  val originTileX = (tiePointLatLng.longitude * 2.0.pow(zoomLevel.toDouble()) /
+  // tileWidth).toInt()
+  //  val originTileY = (tiePointLatLng.latitude * 2.0.pow(zoomLevel.toDouble()) /
+  // tileLength).toInt()
+  val originTile = toTileCoordinates(tiePointLatLng.latitude, tiePointLatLng.longitude, zoomLevel)
+
+  //  val originTileX = (tiePointX * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
+  //  val originTileY = (tiePointY * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
   val jpegTables =
     ifd
       .getLongListEntryValue(FieldTagType.JPEGTables)
@@ -70,9 +96,14 @@ class CogImage(
   // TODO: Verify geoAsciiParams is web mercator.
   // TODO: Verify that tile size is 256x256.
 
-  fun tileIndex(x: Int, y: Int) = (x - tiePointTileX) + (y - tiePointTileY) * tileCountX
+  //  fun tileIndex(x: Int, y: Int) = (x - originTileX) + (y - originTileY) * tileCountX
 
-  fun buildJpegTile(imageBytes: ByteArray): ByteArray =
+  init {
+    // https://developers.google.com/maps/documentation/javascript/examples/map-coordinates
+    Timber.d("Origin: $tiePointLatLng M: ($tiePointX, $tiePointY) Tile: $originTile Z: $zoomLevel")
+  }
+
+  private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
     START_OF_IMAGE + app0Segment(tileWidth, tileLength) + jpegTables + imageBytes + END_OF_IMAGE
 
   /** Build "Application Segment 0" section of header. */
@@ -88,8 +119,9 @@ class CogImage(
       byteArrayOf(0, 0) // Dimensions of empty thumbnail.
 
   fun getTile(x: Int, y: Int): CogTile? {
-    val xIdx = x - tiePointTileX
-    val yIdx = y - tiePointTileY
+    // TODO: Wrap XY coords in data class.
+    val xIdx = x - originTile.first
+    val yIdx = y - originTile.second
     if (xIdx < 0 || yIdx < 0 || xIdx >= tileCountX || yIdx >= tileCountY) return null
     val idx = yIdx * tileCountX + xIdx
     if (idx > offsets.size) return null
@@ -102,9 +134,3 @@ class CogImage(
     return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
   }
 }
-
-private fun byteArrayOf(vararg elements: Int) = elements.map(Int::toByte).toByteArray()
-
-private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this.toByte())
-
-private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
