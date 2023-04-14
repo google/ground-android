@@ -35,7 +35,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.Config
 import com.google.android.ground.R
-import com.google.android.ground.cog.CogTileProvider
+import com.google.android.ground.ui.map.gms.cog.CogTileProvider
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest

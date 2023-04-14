@@ -16,6 +16,7 @@
 package com.google.android.ground
 
 import android.content.Context
+import com.google.android.ground.ui.map.gms.cog.Cog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -48,43 +49,25 @@ class CogTest {
     val x = 251
     val y = 391
     val z = 9
-
+//
     val cogFile = File(context.filesDir, "cogs/9/391/251.tif")
     val tiff: TIFFImage = TiffReader.readTiff(cogFile)
-    val cog = Cog(tiff)
-    val image = cog.imagesByZoomLevel[z] ?: return
-    // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-    //    val cogMaxZoom = cogMinZoom + tiff.fileDirectories.size - 1
-//    val image = CogImage(tiff.fileDirectories[0])
-    //    val offsets = image.getLongListEntryValue(TileOffsets)
-    //    val byteCounts = image.getLongListEntryValue(TileByteCounts)
-    //    val tileWidth = image.getIntegerEntryValue(TileWidth).toShort()
-    //    val tileLength = image.getIntegerEntryValue(TileLength).toShort()
-    //    val imageWidth = image.getIntegerEntryValue(ImageWidth).toShort()
-    //    val imageLength = image.getIntegerEntryValue(ImageLength).toShort()
-    //    val pixelScaleX = image.getDoubleListEntryValue(ModelPixelScale)[0]
-    //    val pixelScaleY = image.getDoubleListEntryValue(ModelPixelScale)[1]
-    //    // TODO: Verify X and Y scales the same.
-    //    val tiePointX = image.getDoubleListEntryValue(ModelTiepoint)[3]
-    //    val tiePointY = image.getDoubleListEntryValue(ModelTiepoint)[4]
-    //    val geoAsciiParams = image.getStringEntryValue(GeoAsciiParams)
-    // TODO: Verify geoAsciiParams is web mercator.
-
-    // TODO: Verify that tile size is 256x256.
-    val idx = image.tileIndex(x, y)
-
-    val outdir = File(context.filesDir, "tiles")
-    outdir.mkdir()
-    val raf = RandomAccessFile(cogFile, "r")
-    val offset = image.offsets[idx] + 2 // Skip extraneous SOI
-    val len = image.byteCounts[idx] - 2
-    val imageBytes = ByteArray(len.toInt())
-    raf.seek(offset)
-    raf.read(imageBytes)
-    val jpeg = image.toBitmap(imageBytes)
-    File(outdir, "tile-$idx.jpg").writeBytes(jpeg)
-    raf.close()
-  }
+    val cog = Cog(cogFile, tiff)
+    val image = cog.getTile(x, y, z)
+//    val image = cog.imagesByZoomLevel[z] ?: return
+//    val idx = image.tileIndex(x, y)
+//    val outdir = File(context.filesDir, "tiles")
+//    outdir.mkdir()
+//    val raf = RandomAccessFile(cogFile, "r")
+//    val offset = image.offsets[idx] + 2 // Skip extraneous SOI
+//    val len = image.byteCounts[idx] - 2
+//    val imageBytes = ByteArray(len.toInt())
+//    raf.seek(offset)
+//    raf.read(imageBytes)
+//    val jpeg = image.buildJpegTile(imageBytes)
+//    File(outdir, "tile-$idx.jpg").writeBytes(jpeg)
+//    raf.close()
+//  }
 
   //    val dir = "/Users/gmiceli/Git/google/ground-android/ground"
   // /data/user/0/com.google.android.ground/files
