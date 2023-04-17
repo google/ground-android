@@ -16,10 +16,7 @@
 package com.google.android.ground
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import javax.annotation.OverridingMethodsMustInvokeSuper
@@ -68,17 +65,5 @@ sealed class BaseMainActivityTest {
   @After
   fun unregisterIdlingResource() {
     IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
-  }
-
-  protected fun skipTermsOfServiceFragment() {
-    // Tap on the checkbox
-    onView(withId(R.id.agreeCheckBox)).perform(click())
-    // Tap on Submit on Terms Fragment
-    onView(withId(R.id.agreeButton)).perform(click())
-  }
-
-  protected fun skipSurveySelectorFragment() {
-    // Tap on the survey list
-    onView(withId(R.id.recycler_view)).perform(click())
   }
 }

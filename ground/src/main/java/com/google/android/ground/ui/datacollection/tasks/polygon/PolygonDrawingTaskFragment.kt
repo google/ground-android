@@ -19,15 +19,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
+import com.google.android.ground.model.geometry.GeometryValidator.isClosed
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>() {
@@ -52,25 +56,27 @@ class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>
   }
 
   override fun onCreateActionButtons() {
-    super.onCreateActionButtons()
-    addButton(ButtonAction.ADD_PIN).setOnClickListener { viewModel.selectCurrentVertex() }
+    addContinueButton()
+    addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
     addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
-    addButton(ButtonAction.UNDO).setOnClickListener { viewModel.removeLastVertex() }
+    addUndoButton()
+    addSkipButton()
   }
 
   override fun onTaskViewAttached() {
-    viewModel.startDrawingFlow()
-    viewModel.isPolygonCompleted.observe(viewLifecycleOwner) { onPolygonUpdated(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.featureValue.collect { onFeatureUpdated(it) }
+    }
   }
 
-  private fun onPolygonUpdated(isPolygonComplete: Boolean) {
-    getButton(ButtonAction.ADD_PIN).updateState {
-      isEnabled = true
-      visibility = if (isPolygonComplete) View.GONE else View.VISIBLE
-    }
-    getButton(ButtonAction.COMPLETE).updateState {
-      isEnabled = true
-      visibility = if (isPolygonComplete) View.VISIBLE else View.GONE
-    }
+  private fun onFeatureUpdated(feature: Feature?) {
+    val vertexCount = feature?.geometry?.size ?: 0
+    val isClosedGeometry = feature?.geometry.isClosed()
+    val isMarkedComplete = viewModel.isMarkedComplete()
+
+    getButton(ButtonAction.ADD_POINT).showIfTrue(!isClosedGeometry)
+    getButton(ButtonAction.COMPLETE).showIfTrue(isClosedGeometry && !isMarkedComplete)
+    getButton(ButtonAction.CONTINUE).showIfTrue(isMarkedComplete)
+    getButton(ButtonAction.UNDO).showIfTrue(vertexCount > 1)
   }
 }

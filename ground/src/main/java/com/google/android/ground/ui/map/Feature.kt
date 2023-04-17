@@ -24,7 +24,7 @@ data class Feature(val tag: Tag, val geometry: Geometry) {
     type: Int,
     flag: Boolean = false,
     geometry: Geometry
-  ) : this(Feature.Tag(id, type, flag), geometry)
+  ) : this(Tag(id, type, flag), geometry)
 
   /**
    * Denotes the kind of entity this map feature represents and contains any additional data it

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.submission
 
-/** User-provided data corresponding to a single [Task]. */
-interface TaskData {
-  fun getDetailsText(): String
-  fun isEmpty(): Boolean
+package com.google.android.ground.model.geometry
+
+object GeometryValidator {
+
+  /** Returns true if the current geometry is closed. */
+  fun Geometry?.isClosed(): Boolean = this is Polygon || this is LinearRing
+
+  /** Returns true of the current list of vertices can generate a closed loop. */
+  fun List<Coordinate>.isComplete(): Boolean = size >= 4 && firstOrNull() == lastOrNull()
 }
-
-fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
