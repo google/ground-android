@@ -28,6 +28,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
+import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
 import java.util.*
 import kotlin.properties.Delegates
@@ -133,7 +134,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   protected fun addButton(action: ButtonAction): TaskButton {
     check(!buttons.contains(action)) { "Button $action already bound" }
     val button =
-      TaskButton.createAndAttachButton(action, taskView.actionButtonsContainer, layoutInflater)
+      TaskButtonFactory.createAndAttachButton(
+        action,
+        taskView.actionButtonsContainer,
+        layoutInflater
+      )
     buttons[action] = button
     return button
   }
