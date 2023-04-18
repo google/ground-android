@@ -4,21 +4,12 @@ import android.content.Context
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import mil.nga.tiff.TIFFImage
-import mil.nga.tiff.TiffReader
-import java.io.File
 
 class CogTileProvider(@ApplicationContext private val context: Context) : TileProvider {
-  private val cog: Cog
-
-  init {
-    val cogFile = File(context.filesDir, "cogs/9/391/248.tif")
-    val tiff: TIFFImage = TiffReader.readTiff(cogFile)
-    cog = Cog(cogFile, tiff)
-  }
+  private val cogs = CogCollection(context.filesDir.path + "/cogs/{z}/{x}/{y}.tif", 9)
 
   override fun getTile(x: Int, y: Int, z: Int): Tile? {
-    val cogTile = cog.getTile(x, y, z) ?: return null
+    val cogTile = cogs.getTile(x, y, z) ?: return null
     return Tile(cogTile.width.toInt(), cogTile.height.toInt(), cogTile.imageBytes)
   }
 }

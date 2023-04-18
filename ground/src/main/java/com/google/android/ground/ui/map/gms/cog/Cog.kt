@@ -16,14 +16,17 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import mil.nga.tiff.TIFFImage
 import java.io.File
+import mil.nga.tiff.TiffReader
 
-class Cog(private val cogFile: File, private val tiff: TIFFImage) {
+class Cog(
+  cogFile: File,
+) {
+  private val tiff = TiffReader.readTiff(cogFile)
+
+  private val imagesByZoomLevel: Map<Int, CogImage>
 
   fun getTile(x: Int, y: Int, z: Int): CogTile? = imagesByZoomLevel[z]?.getTile(x, y)
-
-  val imagesByZoomLevel: Map<Int, CogImage>
 
   init {
     val images = mutableListOf<CogImage>()
