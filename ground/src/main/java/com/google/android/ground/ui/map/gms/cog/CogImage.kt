@@ -16,6 +16,7 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
+import com.google.android.gms.maps.model.LatLng
 import java.io.File
 import java.io.RandomAccessFile
 import java.lang.Math.toRadians
@@ -46,13 +47,41 @@ private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte
 private fun zoomLevelFromScale(scale: Double, latitude: Double): Int =
   log2(C_EARTH * cos(toRadians(latitude)) / scale).roundToInt() - 8
 
-private fun toTileCoordinates(lat: Double, lon: Double, zoom: Int): Pair<Int, Int> {
-  // Number of tiles along a single dimension at the specified zoom level.
-  val tileCount = 1 shl zoom
-  val x = floor((lon + 180) / 360 * tileCount).toInt()
-  val y = floor((1.0 - asinh(tan(toRadians(lat))) / PI) / 2 * tileCount).toInt()
-  // 2^zoom. We don't use pow() since it only accepts Float or Double.
-  return Pair(x.coerceIn(0, tileCount), y.coerceIn(0, tileCount)+1)
+/** Based on https://developers.google.com/maps/documentation/javascript/coordinates */
+private fun LatLng.toWorldCoordinates(): WorldCoordinates {
+  // Truncating to 0.9999 effectively limits latitude to 89.189. This is
+  // about a third of a tile past the edge of the world tile.
+//  if (latitude == 6.315298538330047 && longitude == 94.921875) {
+//    Timber.e("HERE")
+//  }
+  var sinY = sin(latitude * PI / 180.0)
+  sinY = sinY.coerceIn(-0.9999, 0.9999)
+  return WorldCoordinates(
+    TILE_SIZE * (0.5 + longitude / 360.0),
+    TILE_SIZE * (0.5 - ln(((1 + sinY) / (1 - sinY))) / (4 * PI))
+  )
+}
+/// ** Adapted from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Kotlin */
+// private fun LatLng.toTileCoordinates(zoom: Int): TileCoordinates {
+//  // Number of tiles along a single dimension at the specified zoom level.
+//  val zoomFactor = 1 shl zoom
+//  val x = ((longitude + 180) / 360 * zoomFactor).toInt().coerceIn(0, zoomFactor - 1)
+//  val y =
+//    ((1.0 - asinh(tan(toRadians(latitude))) / PI) / 2 * zoomFactor)
+//      .toInt()
+//      .coerceIn(0, zoomFactor - 1)
+//  // Requires y+1 for COG 9/391/248.. why?
+//  return TileCoordinates(x, y, zoom)
+// }
+
+private fun LatLng.toTileCoordinates(z: Int): TileCoordinates =
+  toWorldCoordinates().toTileCoordinates(z)
+
+private fun fromMercatorToLatLng(x: Double, y: Double): LatLng {
+  val n = PI - 2 * PI * y / 256
+  val lng = x / 256 * 360 - 180
+  val lat = 180 / PI * atan(0.5 * (exp(n) - exp(-n)))
+  return LatLng(lat, lng)
 }
 
 class CogImage(
@@ -76,16 +105,7 @@ class CogImage(
   val geoAsciiParams = ifd.getStringEntryValue(FieldTagType.GeoAsciiParams)
   val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
   val zoomLevel = zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
-
-  // TODO: Move into private functions, fix math (ex https://gist.github.com/tucotuco/1193577).
-  //  val originTileX = (tiePointLatLng.longitude * 2.0.pow(zoomLevel.toDouble()) /
-  // tileWidth).toInt()
-  //  val originTileY = (tiePointLatLng.latitude * 2.0.pow(zoomLevel.toDouble()) /
-  // tileLength).toInt()
-  val originTile = toTileCoordinates(tiePointLatLng.latitude, tiePointLatLng.longitude, zoomLevel)
-
-  //  val originTileX = (tiePointX * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
-  //  val originTileY = (tiePointY * 2.0.pow(zoomLevel.toDouble()) / 256).toInt()
+  val originTile = tiePointLatLng.toTileCoordinates(zoomLevel)
   val jpegTables =
     ifd
       .getLongListEntryValue(FieldTagType.JPEGTables)
@@ -94,13 +114,16 @@ class CogImage(
       .dropLast(2) // Skip extraneous EOI.
       .toByteArray()
   // TODO: Verify geoAsciiParams is web mercator.
-  // TODO: Verify that tile size is 256x256.
-
-  //  fun tileIndex(x: Int, y: Int) = (x - originTileX) + (y - originTileY) * tileCountX
+  // TODO: Verify tile size is 256x256.
 
   init {
     // https://developers.google.com/maps/documentation/javascript/examples/map-coordinates
-    Timber.d("Origin: $tiePointLatLng M: ($tiePointX, $tiePointY) Tile: $originTile Z: $zoomLevel")
+    val world = tiePointLatLng.toWorldCoordinates()
+    val tile = world.toTileCoordinates(zoomLevel)
+    Timber.d(
+      "--- File: ${cogFile.path} Origin: $tiePointLatLng M: ($tiePointX, $tiePointY) Tile: $originTile Z: $zoomLevel World: $world  Tile: $tile Origin Tile: $originTile"
+    )
+    //    Timber.d(fromMercatorToLatLng(tiePointX, tiePointY).toString())
   }
 
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
@@ -118,10 +141,17 @@ class CogImage(
       tileHeight.toByteArray() +
       byteArrayOf(0, 0) // Dimensions of empty thumbnail.
 
+  private val blankImage =
+    File("/data/user/0/com.google.android.ground/files/blank.jpg").readBytes()
+
   fun getTile(x: Int, y: Int): CogTile? {
-    // TODO: Wrap XY coords in data class.
-    val xIdx = x - originTile.first
-    val yIdx = y - originTile.second
+    val xIdx = x - originTile.x
+    val yIdx = y - originTile.y
+    // originTile.y is 246 instead of 247 for 9/391/247
+    if (cogFile.path.endsWith("9/391/247.tif")) {
+      Timber.e("---  x=$x y=$y xIdx=$xIdx yIdx=$yIdx z: $zoomLevel o: $originTile tie: $tiePointX, $tiePointY")
+      return CogTile(256, 256, blankImage)
+    }
     if (xIdx < 0 || yIdx < 0 || xIdx >= tileCountX || yIdx >= tileCountY) return null
     val idx = yIdx * tileCountX + xIdx
     if (idx > offsets.size) return null
