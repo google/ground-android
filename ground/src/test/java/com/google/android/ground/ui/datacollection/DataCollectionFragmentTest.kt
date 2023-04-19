@@ -106,7 +106,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_submissionIsLoaded_firstTaskIsShown() {
-    setupSubmission()
+    setupSubmission(mapOf("field id" to Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true)))
     setupFragment()
 
     onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
