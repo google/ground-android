@@ -55,13 +55,15 @@ object FakeData {
       mapOf(USER.email to "data-collector")
     )
 
+  private val LOI_NAME = "loi name"
+
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
       "loi id",
       SURVEY.id,
       JOB,
       null,
-      "loi name",
+      LOI_NAME,
       AuditInfo(USER),
       AuditInfo(USER),
       Point(Coordinate(0.0, 0.0))
@@ -92,7 +94,7 @@ object FakeData {
       SURVEY.id,
       JOB,
       "",
-      "",
+      LOI_NAME,
       AUDIT_INFO,
       AUDIT_INFO,
       Polygon(LinearRing(VERTICES.map { it.coordinate })),
