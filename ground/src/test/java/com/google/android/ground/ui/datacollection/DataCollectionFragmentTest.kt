@@ -75,11 +75,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<List<TaskDataDelta>>
   lateinit var fragment: DataCollectionFragment
 
-  @Before
-  override fun setUp() {
-    super.setUp()
-  }
-
   @Test
   fun created_submissionIsLoaded_loiNameIsShown() {
     setupSubmission()
