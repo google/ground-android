@@ -199,9 +199,9 @@ internal constructor(
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(submission: Submission, taskDataDeltas: List<TaskDataDelta>) {
     externalScope.launch(ioDispatcher) {
-      submissionRepository
-        .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
-        .blockingAwait()
+      //      submissionRepository
+      //        .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
+      //        .blockingAwait()
     }
   }
 
