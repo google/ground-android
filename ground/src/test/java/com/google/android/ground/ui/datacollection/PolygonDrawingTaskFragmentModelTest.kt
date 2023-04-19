@@ -15,20 +15,22 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
-import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.PolygonDrawingState
+import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.Companion.DISTANCE_THRESHOLD_DP
 import com.google.android.ground.ui.map.Feature
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.jraska.livedata.TestObserver
-import com.sharedtest.FakeData
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.junit.Assert
+import kotlin.test.assertNotNull
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -36,162 +38,157 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class PolygonDrawingTaskFragmentModelTest : BaseHiltTest() {
-  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var viewModel: PolygonDrawingViewModel
 
-  private lateinit var polygonCompletedTestObserver: TestObserver<Boolean>
-  private lateinit var drawnGeometryTestObserver: TestObserver<Set<Feature>>
+  private lateinit var featureTestObserver: TestObserver<Feature>
 
   override fun setUp() {
     super.setUp()
-    fakeAuthenticationManager.setUser(FakeData.USER)
-    polygonCompletedTestObserver = TestObserver.test(viewModel.isPolygonCompleted)
-    drawnGeometryTestObserver = TestObserver.test(viewModel.features)
-
-    // Initialize polygon drawing
-    viewModel.startDrawingFlow()
+    featureTestObserver = TestObserver.test(viewModel.featureValue.asLiveData())
   }
 
   @Test
-  fun testStateOnBegin() {
-    val stateTestObserver = viewModel.drawingState.test()
-    viewModel.startDrawingFlow()
-    stateTestObserver.assertValue(PolygonDrawingState::isInProgress)
+  fun testAddVertex() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    // One vertex is selected and another is temporary vertex for rendering.
+    assertGeometry(2, isLineString = true)
   }
 
   @Test
-  fun testSelectCurrentVertex() {
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    validateMapLoiDrawn(1)
+  fun testAddVertex_multiplePoints() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+
+    assertGeometry(4, isLineString = true)
   }
 
   @Test
-  fun testSelectMultipleVertices() {
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(10.0, 10.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
-    viewModel.selectCurrentVertex()
-    validateMapLoiDrawn(1)
-    validatePolygonCompleted(false)
+  fun testUpdateLastVertex_closeToFirstVertex_vertexCountIs2() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    updateLastVertex(COORDINATE_3, true)
+
+    assertGeometry(3, isLineString = true)
   }
 
   @Test
-  fun testUpdateLastVertex_whenVertexCountLessThan3() {
-    viewModel.updateLastVertex(Point(Coordinate(0.0, 0.0)), 100.0)
-    viewModel.updateLastVertex(Point(Coordinate(10.0, 10.0)), 100.0)
-    viewModel.updateLastVertex(Point(Coordinate(20.0, 20.0)), 100.0)
-    validateMapLoiDrawn(1)
-    validatePolygonCompleted(false)
+  fun testUpdateLastVertex_closeToFirstVertex_vertexCountIs3() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+
+    updateLastVertex(COORDINATE_4, true)
+
+    assertGeometry(4, isLinearRing = true)
   }
 
   @Test
-  fun testUpdateLastVertex_whenVertexCountEqualTo3AndLastVertexIsNotNearFirstPoint() {
-    // Select 3 vertices
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(10.0, 10.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
-    viewModel.selectCurrentVertex()
+  fun testRemoveLastVertex_twoVertices() {
+    updateLastVertexAndAdd(COORDINATE_1)
 
-    // Move camera such that distance from last vertex is more than threshold
-    viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 25.0)
-    validateMapLoiDrawn(1)
-    validatePolygonCompleted(false)
-  }
-
-  @Test
-  fun testUpdateLastVertex_whenVertexCountEqualTo3AndLastVertexIsNearFirstPoint() {
-    // Select 3 vertices
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(10.0, 10.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
-    viewModel.selectCurrentVertex()
-
-    // Move camera such that distance from last vertex is equal to threshold
-    viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
-
-    validateMapLoiDrawn(1)
-    validatePolygonCompleted(true)
-  }
-
-  @Test
-  fun testRemoveLastVertex() {
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
     viewModel.removeLastVertex()
-    validateMapLoiDrawn(0)
-    validatePolygonCompleted(false)
+
+    assertGeometry(1, isLineString = true)
   }
 
   @Test
-  fun testRemoveLastVertex_whenNothingIsSelected() {
-    val testObserver = viewModel.drawingState.test()
+  fun testRemoveLastVertex_oneVertex() {
+    updateLastVertex(COORDINATE_1)
+
     viewModel.removeLastVertex()
-    testObserver.assertValue(PolygonDrawingState::isCanceled)
+
+    assertGeometry(0, isLineString = true)
+  }
+
+  @Test
+  fun testRemoveLastVertex_whenEmpty_doesNothing() {
+    updateLastVertex(COORDINATE_1)
+    viewModel.removeLastVertex()
+
+    viewModel.removeLastVertex()
+
+    assertGeometry(0, isLineString = true)
   }
 
   @Test
   fun testRemoveLastVertex_whenPolygonIsComplete() {
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(10.0, 10.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
     viewModel.removeLastVertex()
-    validateMapLoiDrawn(1)
-    validatePolygonCompleted(false)
+
+    assertGeometry(3, isLineString = true)
   }
 
   @Test
-  fun testPolygonDrawingCompleted_whenPolygonIsIncomplete() {
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(10.0, 10.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
-    Assert.assertThrows("Polygon is not complete", IllegalStateException::class.java) {
+  fun testOnCompletePolygonButtonClick_whenPolygonIsIncomplete() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertex(COORDINATE_3, false)
+
+    assertThrows("Polygon is not complete", IllegalStateException::class.java) {
       viewModel.onCompletePolygonButtonClick()
     }
   }
 
   @Test
-  fun testPolygonDrawingCompleted() {
-    val stateTestObserver = viewModel.drawingState.test()
-    viewModel.onCameraMoved(Point(Coordinate(0.0, 0.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(10.0, 10.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.onCameraMoved(Point(Coordinate(20.0, 20.0)))
-    viewModel.selectCurrentVertex()
-    viewModel.updateLastVertex(Point(Coordinate(30.0, 30.0)), 24.0)
+  fun testOnCompletePolygonButtonClick_whenPolygonIsComplete() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
     viewModel.onCompletePolygonButtonClick()
-    stateTestObserver.assertValue { polygonDrawingState: PolygonDrawingState ->
-      polygonDrawingState.isCompleted && polygonDrawingState.polygon?.vertices?.size == 4
+
+    assertGeometry(4, isPolygon = true)
+  }
+
+  private fun assertGeometry(
+    expectedVerticesCount: Int,
+    isLineString: Boolean = false,
+    isLinearRing: Boolean = false,
+    isPolygon: Boolean = false
+  ) {
+    val geometry = featureTestObserver.value()?.geometry
+    if (expectedVerticesCount == 0) {
+      assertThat(geometry).isNull()
+    } else {
+      assertNotNull(geometry)
+      assertWithMessage(geometry.vertices.toString())
+        .that(geometry.size)
+        .isEqualTo(expectedVerticesCount)
+      assertThat(geometry)
+        .isInstanceOf(
+          if (isLineString) LineString::class.java
+          else if (isLinearRing) LinearRing::class.java
+          else if (isPolygon) Polygon::class.java
+          else error("Must be one of LineString, LinearRing, or Polygon")
+        )
     }
   }
 
-  private fun validatePolygonCompleted(isVisible: Boolean) {
-    polygonCompletedTestObserver.assertValue(isVisible)
+  /** Overwrites the last vertex and also adds a new one. */
+  private fun updateLastVertexAndAdd(coordinate: Coordinate) {
+    updateLastVertex(coordinate, false)
+    viewModel.addLastVertex()
   }
 
-  private fun validateMapLoiDrawn(expectedPolygonCount: Int) {
-    drawnGeometryTestObserver.assertValue { features: Set<Feature> ->
-      var actualPolygonCount = 0
-      for (feature in features) {
-        if (feature.geometry is Polygon) actualPolygonCount++
-      }
+  /** Updates the last vertex of the polygon with the given vertex. */
+  private fun updateLastVertex(coordinate: Coordinate, isNearFirstVertex: Boolean = false) {
+    val threshold = DISTANCE_THRESHOLD_DP.toDouble()
+    val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
+    viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
+  }
 
-      // Check whether drawn features contain expected number of polygons.
-      Truth.assertThat(actualPolygonCount).isEqualTo(expectedPolygonCount)
-      true
-    }
+  companion object {
+    private val COORDINATE_1 = Coordinate(0.0, 0.0)
+    private val COORDINATE_2 = Coordinate(10.0, 10.0)
+    private val COORDINATE_3 = Coordinate(20.0, 20.0)
+    private val COORDINATE_4 = Coordinate(30.0, 30.0)
   }
 }

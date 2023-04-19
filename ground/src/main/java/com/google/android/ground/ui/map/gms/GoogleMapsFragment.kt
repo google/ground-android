@@ -87,6 +87,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
+  private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   @Inject lateinit var bitmapUtil: BitmapUtil
@@ -94,6 +95,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private lateinit var map: GoogleMap
 
   private lateinit var clusterManager: FeatureClusterManager
+
+  /**
+   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
+   * start and end of polygon.
+   */
+  private var customCap: CustomCap? = null
 
   override val availableMapTypes: Array<MapType> = MAP_TYPES
 
@@ -249,6 +256,32 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
     multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
 
+  private fun getCustomCap(): CustomCap {
+    if (customCap == null) {
+      customCap = CustomCap(bitmapUtil.bitmapDescriptorFromVector(R.drawable.ic_endpoint))
+    }
+    return checkNotNull(customCap)
+  }
+
+  private fun addPolyline(feature: Feature, points: List<Point>) {
+    val options = PolylineOptions()
+    options.clickable(false)
+
+    val shellVertices = points.map { it.toLatLng() }
+    options.addAll(shellVertices)
+
+    val polyline: Polyline = map.addPolyline(options)
+    polyline.tag = points
+    polyline.startCap = getCustomCap()
+    polyline.endCap = getCustomCap()
+    polyline.width = polylineStrokeWidth.toFloat()
+    // TODO(jsunde): Figure out where we want to get the style from
+    polyline.color = parseColor(Style().color)
+    polyline.jointType = JointType.ROUND
+
+    polylines.getOrPut(feature) { mutableListOf() }.add(polyline)
+  }
+
   private fun addPolygon(feature: Feature, polygon: Polygon) {
     val options = PolygonOptions()
     options.clickable(false)
@@ -281,15 +314,23 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun removeStaleFeatures(features: Set<Feature>) {
-    clusterManager.removeStaleFeatures(
-      features
-        .filter {
-          it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
-            it.tag.type == FeatureType.USER_POINT.ordinal
-        }
-        .toSet()
-    )
+    removeStalePoints(features)
+    removeStalePolylines(features)
+    removeStalePolygons(features)
+  }
 
+  private fun removeStalePoints(features: Set<Feature>) {
+    clusterManager.removeStaleFeatures(features)
+  }
+
+  private fun removeStalePolylines(features: Set<Feature>) {
+    val deletedIds = polylines.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
+    val deletedPolylines = polylines.filter { deletedIds.contains(it.key.tag.id) }
+    deletedPolylines.values.forEach { it.forEach(Polyline::remove) }
+    polylines.minusAssign(deletedPolylines.keys)
+  }
+
+  private fun removeStalePolygons(features: Set<Feature>) {
     val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
     val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
     deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
@@ -299,6 +340,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun removeAllFeatures() {
     clusterManager.removeAllFeatures()
 
+    polylines.values.forEach { it.forEach(Polyline::remove) }
+    polylines.clear()
+
     polygons.values.forEach { it.forEach(MapsPolygon::remove) }
     polygons.clear()
   }
@@ -306,9 +350,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addOrUpdateLocationOfInterest(feature: Feature) {
     when (feature.geometry) {
       is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
+      is LineString,
+      is LinearRing -> addPolyline(feature, feature.geometry.vertices)
       is Polygon -> addPolygon(feature, feature.geometry)
       is MultiPolygon -> addMultiPolygon(feature, feature.geometry)
-      else -> TODO()
     }
   }
 
