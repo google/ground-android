@@ -300,8 +300,6 @@ dependencies {
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
     implementation "mil.nga:tiff:3.0.0"
-    implementation "org.locationtech.proj4j:proj4j:1.2.3"
-    implementation "org.locationtech.proj4j:proj4j-epsg:1.2.3"
 }
 
 // Allow references to generated code.
