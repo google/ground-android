@@ -17,25 +17,39 @@
 package com.google.android.ground.ui.map.gms.cog
 
 import java.io.File
-import timber.log.Timber
 
-class CogCollection(private val tileSetPathTemplate: String, private val tileSetExtentsZ: Int) {
-  fun getCog(x: Int, y: Int, z: Int): Cog? {
-    // TODO: Implement "tileset overviews" to cover lower zoom levels.
-    if (z < tileSetExtentsZ) return null
-    val zDelta = z - tileSetExtentsZ
-    val tileSetX = x shr zDelta
-    val tileSetY = y shr zDelta
-    val tileSetPath =
-      tileSetPathTemplate
-        .replace("{x}", tileSetX.toString())
-        .replace("{y}", tileSetY.toString())
-        .replace("{z}", tileSetExtentsZ.toString())
-//    Timber.e("--- $x, $y, $z --> $tileSetPath")
-    val tileSetFile = File(tileSetPath)
-    if (!tileSetFile.exists()) return null
-    return Cog(tileSetFile)
+class CogCollection(
+  private val cogProvider: CogProvider,
+  private val urlTemplate: String,
+  private val tileSetExtentsZ: Int
+) {
+  private fun getTileSetExtentForTile(tile: TileCoordinates): TileCoordinates? {
+    if (tile.z < tileSetExtentsZ) return null
+    val zDelta = tile.z - tileSetExtentsZ
+    return TileCoordinates(tile.x shr zDelta, tile.y shr zDelta, tileSetExtentsZ)
   }
 
-  fun getTile(x: Int, y: Int, z: Int): CogTile? = getCog(x, y, z)?.getTile(x, y, z)
+  private fun getTileSetUrl(extent: TileCoordinates) =
+    urlTemplate
+      .replace("{x}", extent.x.toString())
+      .replace("{y}", extent.y.toString())
+      .replace("{z}", extent.z.toString())
+
+  fun getCog(tile: TileCoordinates): Cog? {
+    val extent = getTileSetExtentForTile(tile) ?: return null
+    val url = getTileSetUrl(extent)
+    val cogFile = File(url)
+    if (!cogFile.exists()) return null
+    // TODO: Cache headers instead of fetching every time.
+    return cogProvider.getCog(cogFile, extent)
+  }
+
+  /**
+   * Returns the tile for the specified coordinates, or `null` if unavailable.
+   */
+  fun getTile(coordinates: TileCoordinates): CogTile? {
+    val cog = getCog(coordinates) ?: return null
+    val image = cog.imagesByZoomLevel[coordinates.z] ?: return null
+    return image.getTile(coordinates)
+  }
 }
