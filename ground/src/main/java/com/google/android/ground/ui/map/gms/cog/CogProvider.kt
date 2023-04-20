@@ -16,12 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-data class WorldCoordinates(val x: Double, val y: Double) {
-  /**
-   * Based on https://developers.google.com/maps/documentation/javascript/coordinates
-   */
-  fun toTileCoordinates(z: Int): TileCoordinates {
-    val scale = 1 shl z
-    return TileCoordinates(((x * scale) / TILE_SIZE).toInt(), ((y * scale) / TILE_SIZE).toInt(), z)
-  }
+import java.io.File
+
+interface CogProvider {
+  fun getCog(file: File, extent: TileCoordinates): Cog?
 }

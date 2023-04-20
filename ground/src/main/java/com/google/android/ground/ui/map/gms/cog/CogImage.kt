@@ -16,14 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import com.google.android.gms.maps.model.LatLng
 import java.io.File
 import java.io.RandomAccessFile
-import java.lang.Math.toRadians
 import kotlin.math.*
-import mil.nga.tiff.FieldTagType
-import mil.nga.tiff.FileDirectory
-import timber.log.Timber
 
 /* Circumference of the Earth (m) */
 private const val C_EARTH = 40075016.686
@@ -43,91 +38,32 @@ private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this
 
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
-// TODO: Why is this falling just short of zoom level (thus using roundToInt())?
-private fun zoomLevelFromScale(scale: Double, latitude: Double): Int =
-  log2(C_EARTH * cos(toRadians(latitude)) / scale).roundToInt() - 8
-
-/** Based on https://developers.google.com/maps/documentation/javascript/coordinates */
-private fun LatLng.toWorldCoordinates(): WorldCoordinates {
-  // Truncating to 0.9999 effectively limits latitude to 89.189. This is
-  // about a third of a tile past the edge of the world tile.
-//  if (latitude == 6.315298538330047 && longitude == 94.921875) {
-//    Timber.e("HERE")
-//  }
-  var sinY = sin(latitude * PI / 180.0)
-  sinY = sinY.coerceIn(-0.9999, 0.9999)
-  return WorldCoordinates(
-    TILE_SIZE * (0.5 + longitude / 360.0),
-    TILE_SIZE * (0.5 - ln(((1 + sinY) / (1 - sinY))) / (4 * PI))
-  )
-}
-/// ** Adapted from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Kotlin */
-// private fun LatLng.toTileCoordinates(zoom: Int): TileCoordinates {
-//  // Number of tiles along a single dimension at the specified zoom level.
-//  val zoomFactor = 1 shl zoom
-//  val x = ((longitude + 180) / 360 * zoomFactor).toInt().coerceIn(0, zoomFactor - 1)
-//  val y =
-//    ((1.0 - asinh(tan(toRadians(latitude))) / PI) / 2 * zoomFactor)
-//      .toInt()
-//      .coerceIn(0, zoomFactor - 1)
-//  // Requires y+1 for COG 9/391/248.. why?
-//  return TileCoordinates(x, y, zoom)
-// }
-
-private fun LatLng.toTileCoordinates(z: Int): TileCoordinates =
-  toWorldCoordinates().toTileCoordinates(z)
-
-private fun fromMercatorToLatLng(x: Double, y: Double): LatLng {
-  val n = PI - 2 * PI * y / 256
-  val lng = x / 256 * 360 - 180
-  val lat = 180 / PI * atan(0.5 * (exp(n) - exp(-n)))
-  return LatLng(lat, lng)
-}
-
 class CogImage(
-  private val cogFile: File,
-  ifd: FileDirectory,
-  val pixelScaleX: Double = ifd.getDoubleListEntryValue(FieldTagType.ModelPixelScale)[0],
-  val pixelScaleY: Double = ifd.getDoubleListEntryValue(FieldTagType.ModelPixelScale)[1],
-  val tiePointX: Double = ifd.getDoubleListEntryValue(FieldTagType.ModelTiepoint)[3],
-  val tiePointY: Double = ifd.getDoubleListEntryValue(FieldTagType.ModelTiepoint)[4]
+  val cogFile: File,
+  val originTile: TileCoordinates,
+  val offsets: List<Long>,
+  val byteCounts: List<Long>,
+  val tileWidth: Short,
+  val tileLength: Short,
+  val imageWidth: Short,
+  val imageLength: Short,
+  // TODO: Use ByteArray instead?
+  jpegTables: List<Byte>
 ) {
-  val offsets: List<Long> = ifd.getLongListEntryValue(FieldTagType.TileOffsets)
-  val byteCounts: List<Long> = ifd.getLongListEntryValue(FieldTagType.TileByteCounts)
-  val tileWidth = ifd.getIntegerEntryValue(FieldTagType.TileWidth).toShort()
-  val tileLength = ifd.getIntegerEntryValue(FieldTagType.TileLength).toShort()
-  val imageWidth = ifd.getIntegerEntryValue(FieldTagType.ImageWidth).toShort()
-  val imageLength = ifd.getIntegerEntryValue(FieldTagType.ImageLength).toShort()
-  // TODO: Move tiepoints to Cog since they're the same for all images?
   val tileCountX = imageWidth / tileWidth
   val tileCountY = imageLength / tileLength
-  // TODO: Verify X and Y scales the same.
-  val geoAsciiParams = ifd.getStringEntryValue(FieldTagType.GeoAsciiParams)
-  val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
-  val zoomLevel = zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
-  val originTile = tiePointLatLng.toTileCoordinates(zoomLevel)
-  val jpegTables =
-    ifd
-      .getLongListEntryValue(FieldTagType.JPEGTables)
-      .map(Long::toByte)
+  private val jpegTablesBody =
+    jpegTables
       .drop(2) // Skip extraneous SOI.
       .dropLast(2) // Skip extraneous EOI.
       .toByteArray()
-  // TODO: Verify geoAsciiParams is web mercator.
-  // TODO: Verify tile size is 256x256.
+  // TODO: Verify X and Y scales the same.
+  //  val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
+  val zoomLevel = originTile.z // zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
 
-  init {
-    // https://developers.google.com/maps/documentation/javascript/examples/map-coordinates
-    val world = tiePointLatLng.toWorldCoordinates()
-    val tile = world.toTileCoordinates(zoomLevel)
-    Timber.d(
-      "--- File: ${cogFile.path} Origin: $tiePointLatLng M: ($tiePointX, $tiePointY) Tile: $originTile Z: $zoomLevel World: $world  Tile: $tile Origin Tile: $originTile"
-    )
-    //    Timber.d(fromMercatorToLatLng(tiePointX, tiePointY).toString())
-  }
-
+  // TODO: Rename to something more self descriptive.
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
-    START_OF_IMAGE + app0Segment(tileWidth, tileLength) + jpegTables + imageBytes + END_OF_IMAGE
+    START_OF_IMAGE + app0Segment(tileWidth, tileLength) + jpegTablesBody + imageBytes + END_OF_IMAGE
 
   /** Build "Application Segment 0" section of header. */
   private fun app0Segment(tileWidth: Short, tileHeight: Short) =
@@ -141,20 +77,18 @@ class CogImage(
       tileHeight.toByteArray() +
       byteArrayOf(0, 0) // Dimensions of empty thumbnail.
 
-  private val blankImage =
-    File("/data/user/0/com.google.android.ground/files/blank.jpg").readBytes()
+  //  private val blankImage =
+  //    File("/data/user/0/com.google.android.ground/files/blank.jpg").readBytes()
 
-  fun getTile(x: Int, y: Int): CogTile? {
-    val xIdx = x - originTile.x
-    val yIdx = y - originTile.y
-    // originTile.y is 246 instead of 247 for 9/391/247
-    if (cogFile.path.endsWith("9/391/247.tif")) {
-      Timber.e("---  x=$x y=$y xIdx=$xIdx yIdx=$yIdx z: $zoomLevel o: $originTile tie: $tiePointX, $tiePointY")
-      return CogTile(256, 256, blankImage)
-    }
+  fun getTile(tile: TileCoordinates): CogTile? {
+    if (tile.z != zoomLevel)
+      throw IllegalArgumentException("Requested z ($tile.z) != image z ($zoomLevel)")
+    val xIdx = tile.x - originTile.x
+    val yIdx = tile.y - originTile.y
     if (xIdx < 0 || yIdx < 0 || xIdx >= tileCountX || yIdx >= tileCountY) return null
     val idx = yIdx * tileCountX + xIdx
     if (idx > offsets.size) return null
+    // TODO: Refactor, support HTTP.
     val raf = RandomAccessFile(cogFile, "r")
     val offset = offsets[idx] + 2 // Skip extraneous SOI
     val len = byteCounts[idx] - 2
@@ -162,5 +96,9 @@ class CogImage(
     raf.seek(offset)
     raf.read(imageBytes)
     return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
+  }
+
+  override fun toString(): String {
+    return "CogImage(cogFile=$cogFile, originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
   }
 }

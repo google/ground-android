@@ -16,40 +16,14 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import java.io.File
-import mil.nga.tiff.TiffReader
+/**
+ * A single cloud-optimized GeoTIFF file. Only headers and derived metadata are stored in memory;
+ * image data is loaded lazily on demand.
+ */
+class Cog(val extent: TileCoordinates, imageHeaders: List<CogImage>) {
+  val imagesByZoomLevel = imageHeaders.associateBy { it.zoomLevel }
 
-class Cog(
-  cogFile: File,
-) {
-  private val tiff = TiffReader.readTiff(cogFile)
-
-  private val imagesByZoomLevel: Map<Int, CogImage>
-
-  fun getTile(x: Int, y: Int, z: Int): CogTile? = imagesByZoomLevel[z]?.getTile(x, y)
-
-  init {
-    val images = mutableListOf<CogImage>()
-    // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-    for (ifd in tiff.fileDirectories) {
-      if (images.isEmpty()) {
-        // First image is full-size image and defines pixel scale.
-        images.add(CogImage(cogFile, ifd))
-      } else {
-        // Each successive overview has 2x the pixel scale of the previous image.
-        val prev = images.last()
-        images.add(
-          CogImage(
-            cogFile,
-            ifd,
-            prev.pixelScaleX * 2,
-            prev.pixelScaleY * 2,
-            prev.tiePointX,
-            prev.tiePointY
-          )
-        )
-      }
-    }
-    imagesByZoomLevel = images.map { it.zoomLevel to it }.toMap()
+  override fun toString(): String {
+    return "Cog(extent=$extent, imagesByZoomLevel=$imagesByZoomLevel)"
   }
 }
