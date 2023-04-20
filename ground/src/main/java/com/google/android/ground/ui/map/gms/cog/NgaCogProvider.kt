@@ -37,7 +37,7 @@ class NgaCogProvider : CogProvider {
       images.add(
         CogImage(
           file,
-          extent.originTileAtZoom(maxZ - i),
+          extent.originAtZoom(maxZ - i),
           ifd.getLongListEntryValue(TileOffsets),
           ifd.getLongListEntryValue(TileByteCounts),
           ifd.getIntegerEntryValue(TileWidth).toShort(),
