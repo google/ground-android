@@ -23,11 +23,6 @@ class CogCollection(
   private val urlTemplate: String,
   private val tileSetExtentsZ: Int
 ) {
-  private fun getTileSetExtentForTile(tile: TileCoordinates): TileCoordinates? {
-    if (tile.z < tileSetExtentsZ) return null
-    val zDelta = tile.z - tileSetExtentsZ
-    return TileCoordinates(tile.x shr zDelta, tile.y shr zDelta, tileSetExtentsZ)
-  }
 
   private fun getTileSetUrl(extent: TileCoordinates) =
     urlTemplate
@@ -36,7 +31,8 @@ class CogCollection(
       .replace("{z}", extent.z.toString())
 
   fun getCog(tile: TileCoordinates): Cog? {
-    val extent = getTileSetExtentForTile(tile) ?: return null
+    if (tile.z < tileSetExtentsZ) return null
+    val extent = tile.originAtZoom(tileSetExtentsZ)
     val url = getTileSetUrl(extent)
     val cogFile = File(url)
     if (!cogFile.exists()) return null
@@ -44,9 +40,7 @@ class CogCollection(
     return cogProvider.getCog(cogFile, extent)
   }
 
-  /**
-   * Returns the tile for the specified coordinates, or `null` if unavailable.
-   */
+  /** Returns the tile for the specified coordinates, or `null` if unavailable. */
   fun getTile(coordinates: TileCoordinates): CogTile? {
     val cog = getCog(coordinates) ?: return null
     val image = cog.imagesByZoomLevel[coordinates.z] ?: return null

@@ -18,7 +18,6 @@ package com.google.android.ground.ui.map.gms.cog
 
 import java.io.File
 import java.io.RandomAccessFile
-import kotlin.math.*
 
 /* Circumference of the Earth (m) */
 private const val C_EARTH = 40075016.686
