@@ -16,8 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import java.io.File
+import java.net.URL
 
 interface CogProvider {
-  fun getCog(file: File, extent: TileCoordinates): Cog?
+  fun getCog(url: URL, extent: TileCoordinates): Cog?
 }

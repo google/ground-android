@@ -16,8 +16,10 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import java.io.File
-import java.io.RandomAccessFile
+import java.lang.System.currentTimeMillis
+import java.net.HttpURLConnection
+import java.net.URL
+import timber.log.Timber
 
 /* Circumference of the Earth (m) */
 private const val C_EARTH = 40075016.686
@@ -38,7 +40,7 @@ private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
 class CogImage(
-  val cogFile: File,
+  val url: URL,
   val originTile: TileCoordinates,
   val offsets: List<Long>,
   val byteCounts: List<Long>,
@@ -58,7 +60,7 @@ class CogImage(
       .toByteArray()
   // TODO: Verify X and Y scales the same.
   //  val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
-  val zoomLevel = originTile.z // zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
+  val zoomLevel = originTile.zoom // zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
 
   // TODO: Rename to something more self descriptive.
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
@@ -80,24 +82,58 @@ class CogImage(
   //    File("/data/user/0/com.google.android.ground/files/blank.jpg").readBytes()
 
   fun getTile(tile: TileCoordinates): CogTile? {
-    if (tile.z != zoomLevel)
+    if (tile.zoom != zoomLevel)
       throw IllegalArgumentException("Requested z ($tile.z) != image z ($zoomLevel)")
     val xIdx = tile.x - originTile.x
     val yIdx = tile.y - originTile.y
     if (xIdx < 0 || yIdx < 0 || xIdx >= tileCountX || yIdx >= tileCountY) return null
     val idx = yIdx * tileCountX + xIdx
     if (idx > offsets.size) return null
-    // TODO: Refactor, support HTTP.
-    val raf = RandomAccessFile(cogFile, "r")
-    val offset = offsets[idx] + 2 // Skip extraneous SOI
-    val len = byteCounts[idx] - 2
-    val imageBytes = ByteArray(len.toInt())
-    raf.seek(offset)
-    raf.read(imageBytes)
-    return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
+    val from = offsets[idx] + 2 // Skip extraneous SOI
+    val len = byteCounts[idx].toInt() - 2
+    val to = from + len - 1
+
+    val startTimeMillis = currentTimeMillis()
+    val urlConnection = url.openConnection() as HttpURLConnection
+    urlConnection.requestMethod = "GET"
+    urlConnection.setRequestProperty("Range", "bytes=$from-$to")
+    urlConnection.readTimeout = 5 * 1000
+    urlConnection.connect()
+    val inputStream = urlConnection.inputStream
+    try {
+      val responseCode = urlConnection.responseCode
+      if (responseCode == 404 || responseCode != 206) {
+        Timber.d(
+          "Failed to load tile ${tile.x},${tile.y} @ zoom ${tile.zoom}. HTTP $responseCode on $url"
+        )
+        return null
+      }
+      val imageBytes = ByteArray(len)
+      var bytesRead = 0
+      var i: Int
+      while (inputStream.read().also { i = it } != -1) {
+        imageBytes[bytesRead++] = i.toByte()
+      }
+      val time = currentTimeMillis() - startTimeMillis
+      Timber.d(
+        "Fetched tile ${tile.x},${tile.y} @ zoom ${tile.zoom}: ${bytesRead} bytes in $time ms from $url"
+      )
+      if (bytesRead < len) {
+        Timber.d("Read incomplete: $bytesRead of $len bytes read.")
+      }
+      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
+    } finally {
+      inputStream.close()
+      urlConnection.disconnect()
+    }
+    //    val raf = RandomAccessFile(cogFile, "r")
+    //    val imageBytes = ByteArray(len.toInt())
+    //    raf.seek(offset)
+    //    raf.read(imageBytes)
+
   }
 
   override fun toString(): String {
-    return "CogImage(cogFile=$cogFile, originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
+    return "CogImage(url=$url, originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
   }
 }
