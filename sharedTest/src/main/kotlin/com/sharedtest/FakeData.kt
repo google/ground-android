@@ -55,7 +55,7 @@ object FakeData {
       mapOf(USER.email to "data-collector")
     )
 
-  private val LOI_NAME = "loi name"
+  private const val LOI_NAME = "loi name"
 
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
