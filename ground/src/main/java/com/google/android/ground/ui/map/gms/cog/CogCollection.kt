@@ -18,13 +18,20 @@ package com.google.android.ground.ui.map.gms.cog
 
 import android.util.LruCache
 import java.net.URL
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
+/**
+ * Represents a collection of non-overlapping cloud-optimized GeoTIFFs (COGs) whose extents are
+ * determined by the boundaries of web mercator tiles at [tileSetExtentsZoom].
+ */
 class CogCollection(
   private val cogProvider: CogProvider,
   private val urlTemplate: String,
-  private val tileSetExtentsZ: Int
+  private val tileSetExtentsZoom: Int
 ) {
-  private val cache = LruCache<String, Cog>(32)
+  private val cache = LruCache<String, Deferred<Cog?>>(16)
 
   private fun getTileSetUrl(extent: TileCoordinates) =
     URL(
@@ -34,25 +41,33 @@ class CogCollection(
         .replace("{z}", extent.zoom.toString())
     )
 
-  fun getCog(tile: TileCoordinates): Cog? {
-    if (tile.zoom < tileSetExtentsZ) return null
-    val extent = tile.originAtZoom(tileSetExtentsZ)
+  /** Returns the COG containing the tile with the specified coordinates. */
+  private fun getCog(tile: TileCoordinates): Cog? {
+    if (tile.zoom < tileSetExtentsZoom) return null
+    val extent = tile.originAtZoom(tileSetExtentsZoom)
     val url = getTileSetUrl(extent)
-    var cog = cache.get(url.toString())
-    if (cog != null) return cog
-    // TODO: Block on loading of headers from same file.
-    cog = cogProvider.getCog(url, extent)
-    cache.put(url.toString(), cog)
-    //    val cogFile = File(url)
-    //    if (!cogFile.exists()) return null
-    // TODO: Cache headers instead of fetching every time.
-    return cog
+    return runBlocking { getOrFetchCogAsync(url, tile).await() }
   }
 
-  /** Returns the tile for the specified coordinates, or `null` if unavailable. */
-  fun getTile(coordinates: TileCoordinates): CogTile? {
-    val cog = getCog(coordinates) ?: return null
-    val image = cog.imagesByZoomLevel[coordinates.zoom] ?: return null
-    return image.getTile(coordinates)
+  /**
+   * Returns the future containing the COG with the specified extent and URL. The COG is loaded from
+   * in-memory cache if present, otherwise it's asynchronously fetched from remote. The process of
+   * checking in cache and creating the new job is synchronized on the current instance of
+   * CogCollection to prevent duplicate requests due to race conditions.
+   */
+  private fun getOrFetchCogAsync(url: URL, extent: TileCoordinates): Deferred<Cog?> =
+    synchronized(this) { cache.get(url.toString()) ?: fetchCogAsync(url, extent) }
+
+  /**
+   * Asynchronously fetches and returns the COG with the specified extent and URL. The async job is
+   * added to the cache immediately to prevent duplicate fetches from other threads.
+   */
+  private fun fetchCogAsync(url: URL, extent: TileCoordinates): Deferred<Cog?> = runBlocking {
+    @Suppress("DeferredResultUnused")
+    async { cogProvider.getCog(url, extent) }.also { cache.put(url.toString(), it) }
   }
+
+  /** Returns the specified tile, or `null` if unavailable. */
+  fun getTile(tile: TileCoordinates): CogTile? =
+    getCog(tile)?.imagesByZoomLevel?.get(tile.zoom)?.getTile(tile)
 }

@@ -59,9 +59,9 @@ class NgaCogProvider : CogProvider {
             ifd.getLongListEntryValue(JPEGTables).map(Long::toByte)
           )
         )
-        val time = currentTimeMillis() - startTimeMillis
-        Timber.d("Loaded COG headers in $time ms from $url")
       }
+      val time = currentTimeMillis() - startTimeMillis
+      Timber.d("Loaded COG headers in $time ms from $url")
       return Cog(extent, images.toList())
     } finally {
       inputStream.close()

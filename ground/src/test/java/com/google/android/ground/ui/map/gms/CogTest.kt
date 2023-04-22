@@ -43,9 +43,6 @@ class CogTest {
     val basePath = File("/Users/gmiceli/Downloads/tiles2")
     basePath.mkdirs()
     val minZ = 9
-//    val z = 10
-//    val x = 783
-//    val y = 495
     for (z in minZ..14) {
       val f = 1 shl (z - minZ)
       for (x in 391 * f..392 * f) {
