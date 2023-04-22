@@ -27,4 +27,8 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
       TileCoordinates(x shr abs(zoomDelta), y shr abs(zoomDelta), targetZoom)
     }
   }
+
+  override fun toString(): String {
+    return "($x, $y) @ $zoom"
+  }
 }

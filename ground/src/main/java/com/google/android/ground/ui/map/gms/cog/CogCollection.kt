@@ -33,20 +33,17 @@ class CogCollection(
 ) {
   private val cache = LruCache<String, Deferred<Cog?>>(16)
 
-  private fun getTileSetUrl(extent: TileCoordinates) =
-    URL(
-      urlTemplate
-        .replace("{x}", extent.x.toString())
-        .replace("{y}", extent.y.toString())
-        .replace("{z}", extent.zoom.toString())
-    )
+  private fun TileCoordinates.getUrl() =
+    urlTemplate
+      .replace("{x}", x.toString())
+      .replace("{y}", y.toString())
+      .replace("{z}", zoom.toString())
 
   /** Returns the COG containing the tile with the specified coordinates. */
-  private fun getCog(tile: TileCoordinates): Cog? {
+  private fun getCogForTile(tile: TileCoordinates): Cog? {
     if (tile.zoom < tileSetExtentsZoom) return null
     val extent = tile.originAtZoom(tileSetExtentsZoom)
-    val url = getTileSetUrl(extent)
-    return runBlocking { getOrFetchCogAsync(url, tile).await() }
+    return runBlocking { getOrFetchCogAsync(extent.getUrl(), tile).await() }
   }
 
   /**
@@ -55,19 +52,19 @@ class CogCollection(
    * checking in cache and creating the new job is synchronized on the current instance of
    * CogCollection to prevent duplicate requests due to race conditions.
    */
-  private fun getOrFetchCogAsync(url: URL, extent: TileCoordinates): Deferred<Cog?> =
-    synchronized(this) { cache.get(url.toString()) ?: fetchCogAsync(url, extent) }
+  private fun getOrFetchCogAsync(url: String, extent: TileCoordinates): Deferred<Cog?> =
+    synchronized(this) { cache.get(url) ?: fetchCogAsync(url, extent) }
 
   /**
    * Asynchronously fetches and returns the COG with the specified extent and URL. The async job is
    * added to the cache immediately to prevent duplicate fetches from other threads.
    */
-  private fun fetchCogAsync(url: URL, extent: TileCoordinates): Deferred<Cog?> = runBlocking {
+  private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<Cog?> = runBlocking {
     @Suppress("DeferredResultUnused")
-    async { cogProvider.getCog(url, extent) }.also { cache.put(url.toString(), it) }
+    async { cogProvider.getCog(URL(url), extent) }.also { cache.put(url, it) }
   }
 
   /** Returns the specified tile, or `null` if unavailable. */
   fun getTile(tile: TileCoordinates): CogTile? =
-    getCog(tile)?.imagesByZoomLevel?.get(tile.zoom)?.getTile(tile)
+    getCogForTile(tile)?.imagesByZoomLevel?.get(tile.zoom)?.getTile(tile)
 }

@@ -30,6 +30,7 @@ import java.lang.System.currentTimeMillis
 class NgaCogProvider : CogProvider {
   override fun getCog(url: URL, extent: TileCoordinates): Cog? {
     val startTimeMillis = currentTimeMillis()
+    // TODO: Refactor with similar logic in CogCollection.
     val urlConnection = url.openConnection() as HttpURLConnection
     urlConnection.requestMethod = "GET"
     urlConnection.connect()
