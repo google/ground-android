@@ -33,7 +33,7 @@ import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.datacollection.components.TaskViewWithoutHeader
+import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,7 +56,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private var capturedPhotoPath: String? = null
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewWithoutHeader.create(inflater, R.drawable.outline_photo_camera, R.string.take_a_photo)
+    TaskViewFactory.createWithoutHeader(
+      inflater,
+      R.drawable.outline_photo_camera,
+      R.string.take_a_photo
+    )
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)
