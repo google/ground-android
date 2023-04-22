@@ -22,6 +22,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
 
+/** Factory for creating a [TaskView]. */
 object TaskViewFactory {
 
   fun createWithHeader(layoutInflater: LayoutInflater): TaskView {

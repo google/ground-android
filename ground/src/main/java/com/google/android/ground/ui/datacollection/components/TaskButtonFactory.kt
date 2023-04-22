@@ -24,6 +24,10 @@ import com.google.android.ground.databinding.*
 import com.google.android.material.button.MaterialButton
 
 // TODO(Shobhit): Figure out a way to create styled buttons without using XML.
+/**
+ * Factory for creating a [TaskButton] for the given [ButtonAction] and attaching it to the given
+ * container.
+ */
 object TaskButtonFactory {
 
   /** Inflates the button layout and attaches to the given container view. */
