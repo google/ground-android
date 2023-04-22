@@ -17,20 +17,35 @@
 package com.google.android.ground.ui.map.gms
 
 import com.google.android.ground.ui.map.gms.cog.CogCollection
+import com.google.android.ground.ui.map.gms.cog.CogTileProvider
 import com.google.android.ground.ui.map.gms.cog.NgaCogProvider
 import com.google.android.ground.ui.map.gms.cog.TileCoordinates
 import java.io.File
 import org.junit.Test
 
+//const val URL_TEMPLATE = "/Users/gmiceli/Downloads/cogs/{z}/{x}/{y}.tif"
+const val URL_TEMPLATE = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif"
+
 class CogTest {
 
   @Test
   fun cogTest() {
+//    val cogCollection =
+//      CogCollection(NgaCogProvider(), URL_TEMPLATE, 9)
     val cogCollection =
-      CogCollection(NgaCogProvider(), "/Users/gmiceli/Downloads/cogs/{z}/{x}/{y}.tif", 9)
-    val basePath = File("/Users/gmiceli/Downloads/tiles")
+      CogCollection(
+        NgaCogProvider(),
+        "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
+        //          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
+        9
+      )
+
+    val basePath = File("/Users/gmiceli/Downloads/tiles2")
     basePath.mkdirs()
     val minZ = 9
+//    val z = 10
+//    val x = 783
+//    val y = 495
     for (z in minZ..14) {
       val f = 1 shl (z - minZ)
       for (x in 391 * f..392 * f) {

@@ -43,8 +43,8 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.gms.cog.CogTileProvider
 import com.google.android.ground.ui.map.gms.cog.CogCollection
+import com.google.android.ground.ui.map.gms.cog.CogTileProvider
 import com.google.android.ground.ui.map.gms.cog.NgaCogProvider
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
@@ -198,7 +198,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       CogTileProvider(
         CogCollection(
           NgaCogProvider(),
-          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
+          "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
+          //          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
           9
         )
       )

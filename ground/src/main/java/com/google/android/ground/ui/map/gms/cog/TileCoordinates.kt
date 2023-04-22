@@ -18,15 +18,13 @@ package com.google.android.ground.ui.map.gms.cog
 
 import kotlin.math.abs
 
-const val TILE_SIZE: Int = 256
-
-data class TileCoordinates(val x: Int, val y: Int, val z: Int) {
+data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   fun originAtZoom(targetZoom: Int): TileCoordinates {
-    val zDelta = targetZoom - z
-    return if (zDelta > 0) {
-      TileCoordinates(x shl zDelta, y shl zDelta, targetZoom)
+    val zoomDelta = targetZoom - zoom
+    return if (zoomDelta > 0) {
+      TileCoordinates(x shl zoomDelta, y shl zoomDelta, targetZoom)
     } else {
-      TileCoordinates(x shr abs(zDelta), y shr abs(zDelta), targetZoom)
+      TileCoordinates(x shr abs(zoomDelta), y shr abs(zoomDelta), targetZoom)
     }
   }
 }

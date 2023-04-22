@@ -16,7 +16,7 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import java.io.File
+import java.net.URL
 
 class CogCollection(
   private val cogProvider: CogProvider,
@@ -25,25 +25,27 @@ class CogCollection(
 ) {
 
   private fun getTileSetUrl(extent: TileCoordinates) =
-    urlTemplate
-      .replace("{x}", extent.x.toString())
-      .replace("{y}", extent.y.toString())
-      .replace("{z}", extent.z.toString())
+    URL(
+      urlTemplate
+        .replace("{x}", extent.x.toString())
+        .replace("{y}", extent.y.toString())
+        .replace("{z}", extent.zoom.toString())
+    )
 
   fun getCog(tile: TileCoordinates): Cog? {
-    if (tile.z < tileSetExtentsZ) return null
+    if (tile.zoom < tileSetExtentsZ) return null
     val extent = tile.originAtZoom(tileSetExtentsZ)
     val url = getTileSetUrl(extent)
-    val cogFile = File(url)
-    if (!cogFile.exists()) return null
+    //    val cogFile = File(url)
+    //    if (!cogFile.exists()) return null
     // TODO: Cache headers instead of fetching every time.
-    return cogProvider.getCog(cogFile, extent)
+    return cogProvider.getCog(url, extent)
   }
 
   /** Returns the tile for the specified coordinates, or `null` if unavailable. */
   fun getTile(coordinates: TileCoordinates): CogTile? {
     val cog = getCog(coordinates) ?: return null
-    val image = cog.imagesByZoomLevel[coordinates.z] ?: return null
+    val image = cog.imagesByZoomLevel[coordinates.zoom] ?: return null
     return image.getTile(coordinates)
   }
 }
