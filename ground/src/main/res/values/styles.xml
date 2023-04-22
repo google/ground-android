@@ -214,4 +214,13 @@
     <item name="android:textColor">@color/taskBtnTextLightGreen</item>
   </style>
 
+  <style name="ChromeStylePopup" parent="android:Widget.TextView">
+    <item name="android:gravity">center</item>
+    <item name="android:minHeight">50dp</item>
+    <item name="android:minWidth">75dp</item>
+    <item name="android:maxWidth">150dp</item>
+    <item name="android:padding">6dp</item>
+    <item name="android:textColor">@android:color/black</item>
+    <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+  </style>
 </resources>

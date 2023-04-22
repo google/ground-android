@@ -65,6 +65,9 @@ data class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBindi
   override fun bind(fragment: Fragment, viewModel: AbstractTaskViewModel) {
     binding.viewModel = viewModel
     binding.lifecycleOwner = fragment
+    binding.headerCard.setOnClickListener {
+      TaskHeaderPopupView(fragment.requireContext()).show(it, viewModel.taskLabel())
+    }
   }
 
   override fun addTaskView(view: View) {
