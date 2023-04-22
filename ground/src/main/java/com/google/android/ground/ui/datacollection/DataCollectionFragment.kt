@@ -45,8 +45,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private val args: DataCollectionFragmentArgs by navArgs()
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
-  private lateinit var viewPager: ViewPager2
+  private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
+  private lateinit var viewPager: ViewPager2
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -54,9 +55,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = DataCollectionFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
+    binding = DataCollectionFragBinding.inflate(inflater, container, false)
     viewPager = binding.pager
     progressBar = binding.progressBar
     getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
@@ -65,6 +64,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
+
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
