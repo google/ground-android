@@ -16,6 +16,7 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
+import android.util.LruCache
 import java.net.URL
 
 class CogCollection(
@@ -23,6 +24,7 @@ class CogCollection(
   private val urlTemplate: String,
   private val tileSetExtentsZ: Int
 ) {
+  private val cache = LruCache<String, Cog>(32)
 
   private fun getTileSetUrl(extent: TileCoordinates) =
     URL(
@@ -36,10 +38,15 @@ class CogCollection(
     if (tile.zoom < tileSetExtentsZ) return null
     val extent = tile.originAtZoom(tileSetExtentsZ)
     val url = getTileSetUrl(extent)
+    var cog = cache.get(url.toString())
+    if (cog != null) return cog
+    // TODO: Block on loading of headers from same file.
+    cog = cogProvider.getCog(url, extent)
+    cache.put(url.toString(), cog)
     //    val cogFile = File(url)
     //    if (!cogFile.exists()) return null
     // TODO: Cache headers instead of fetching every time.
-    return cogProvider.getCog(url, extent)
+    return cog
   }
 
   /** Returns the tile for the specified coordinates, or `null` if unavailable. */
