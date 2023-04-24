@@ -22,7 +22,7 @@ import io.reactivex.Completable
  * A data store capable of applying changes in the form of [Mutation]s to existing data and managing
  * a queue of [Mutations]s for synchronization with other store(s).
  */
-interface MutationStore<T : Mutation, M> {
+interface LocalMutationStore<T : Mutation, M> {
   /**
    * Applies enqueued mutations to an entity then saves it to the local database, ensuring the
    * latest version of the data is retained.

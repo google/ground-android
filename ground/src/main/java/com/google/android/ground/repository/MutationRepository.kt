@@ -25,7 +25,7 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionMutatio
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.local.stores.SubmissionStore
+import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
@@ -46,7 +46,7 @@ class MutationRepository
 constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
-  private val submissionStore: SubmissionStore,
+  private val localSubmissionStore: LocalSubmissionStore,
   private val schedulers: Schedulers
 ) {
   /**
@@ -63,7 +63,7 @@ constructor(
         .map { it.filter { it.surveyId == survey.id }.map { it.toModelObject() } }
         .subscribeOn(schedulers.io())
     val submissionMutations =
-      submissionStore
+      localSubmissionStore
         .getAllMutationsAndStream()
         .map { list: List<SubmissionMutationEntity> ->
           list.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
@@ -87,7 +87,7 @@ constructor(
       .map { it.toModelObject() }
       .cast(Mutation::class.java)
       .mergeWith(
-        submissionStore
+        localSubmissionStore
           .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
           .flattenAsObservable { it }
           .flatMap { ome ->
@@ -111,7 +111,7 @@ constructor(
 
     return localLocationOfInterestStore
       .updateAll(loiMutations)
-      .andThen(submissionStore.updateAll(submissionMutations))
+      .andThen(localSubmissionStore.updateAll(submissionMutations))
       .subscribeOn(schedulers.io())
   }
 
@@ -128,7 +128,7 @@ constructor(
       .flatMapCompletable { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
-            submissionStore.deleteSubmission(mutation.submissionId)
+            localSubmissionStore.deleteSubmission(mutation.submissionId)
           }
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
@@ -148,7 +148,7 @@ constructor(
 
     return localLocationOfInterestStore
       .updateAll(locationOfInterestMutations)
-      .andThen(submissionStore.updateAll(submissionMutations).subscribeOn(schedulers.io()))
+      .andThen(localSubmissionStore.updateAll(submissionMutations).subscribeOn(schedulers.io()))
       .subscribeOn(schedulers.io())
   }
 
