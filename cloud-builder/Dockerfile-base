@@ -72,6 +72,6 @@ RUN yes | sdkmanager \
     "extras;android;m2repository" \
     "extras;google;m2repository" \
     "extras;google;google_play_services" \
-    "build-tools;30.0.2"
+    "build-tools;30.0.3"
 
 ENTRYPOINT ["bash"]

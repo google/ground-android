@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.datacollection.components.TaskViewWithHeader
+import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -30,7 +30,7 @@ import java.util.*
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewWithHeader.create(inflater)
+    TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = DateTaskFragBinding.inflate(inflater)

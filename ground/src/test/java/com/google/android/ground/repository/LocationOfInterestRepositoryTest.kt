@@ -201,8 +201,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     private val TEST_POINT_OF_INTEREST_1 = createPoint("1", COORDINATE_1)
     private val TEST_POINT_OF_INTEREST_2 = createPoint("2", COORDINATE_2)
     private val TEST_POINT_OF_INTEREST_3 = createPoint("3", COORDINATE_3)
-    private val TEST_AREA_OF_INTEREST_1 = createPolygon("4", listOf(COORDINATE_1, COORDINATE_2))
-    private val TEST_AREA_OF_INTEREST_2 = createPolygon("5", listOf(COORDINATE_2, COORDINATE_3))
+    private val TEST_AREA_OF_INTEREST_1 =
+      createPolygon("4", listOf(COORDINATE_1, COORDINATE_2, COORDINATE_1))
+    private val TEST_AREA_OF_INTEREST_2 =
+      createPolygon("5", listOf(COORDINATE_2, COORDINATE_3, COORDINATE_2))
 
     private val TEST_LOCATIONS_OF_INTEREST =
       listOf(

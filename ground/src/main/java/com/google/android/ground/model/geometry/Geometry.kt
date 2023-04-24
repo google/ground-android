@@ -26,8 +26,16 @@ sealed interface Geometry {
   // subclasses.
   val vertices: List<Point>
 
+  val size: Int
+    get() = vertices.size
+
   /** Returns true if the current geometry is within provided [bounds]. */
   fun isWithinBounds(bounds: LatLngBounds) = vertices.any { bounds.contains(it.toLatLng()) }
+
+  /** Validates that the current [Geometry] is well-formed. */
+  fun validate() {
+    // default no-op implementation
+  }
 }
 
 /**
@@ -63,14 +71,29 @@ data class LineString(val coordinates: List<Coordinate>) : Geometry {
  */
 @Serializable
 data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
+
+  init {
+    validate()
+  }
+
   override val vertices: List<Point> = coordinates.map { Point(it) }
+
+  override fun validate() {
+    // TODO(#1647): Check for vertices count > 3
+    if (coordinates.isEmpty()) {
+      return
+    }
+    if (coordinates.firstOrNull() != coordinates.lastOrNull()) {
+      error("Invalid linear ring")
+    }
+  }
 
   /**
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.
    */
   private fun maximum(): Coordinate {
-    val maximumX = this.coordinates.map { it.x }.maxOrNull()
-    val maximumY = this.coordinates.map { it.y }.maxOrNull()
+    val maximumX = this.coordinates.maxOfOrNull { it.x }
+    val maximumY = this.coordinates.maxOfOrNull { it.y }
 
     return Coordinate(maximumX ?: 0.0, maximumY ?: 0.0)
   }
@@ -79,8 +102,8 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
    * Returns a *synthetic* coordinate containing the minimum x and y coordinate values of this ring.
    */
   private fun minimum(): Coordinate {
-    val minimumX = this.coordinates.map { it.x }.minOrNull()
-    val minimumY = this.coordinates.map { it.y }.minOrNull()
+    val minimumX = this.coordinates.minOfOrNull { it.x }
+    val minimumY = this.coordinates.minOfOrNull { it.y }
 
     return Coordinate(minimumX ?: 0.0, minimumY ?: 0.0)
   }
