@@ -42,17 +42,16 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java8.util.Optional
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.asFlow
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -83,7 +82,7 @@ internal constructor(
     loiId
       .flatMapLatest {
         if (it == null) flowOf(null)
-        else submissionRepository.createSubmission(surveyId, it).toFlowable().asFlow()
+        else submissionRepository.createSubmissionFlow(surveyId, it)
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
@@ -95,9 +94,7 @@ internal constructor(
         if (id == null) flowOf("")
         else
           locationOfInterestRepository
-            .getOfflineLocationOfInterest(surveyId, id)
-            .toFlowable()
-            .asFlow()
+            .getOfflineLocationOfInterestFlow(surveyId, id)
             .map { locationOfInterestHelper.getLabel(it) }
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, "")

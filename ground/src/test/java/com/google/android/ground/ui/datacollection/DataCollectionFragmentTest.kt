@@ -57,6 +57,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -283,12 +284,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       )
 
     onView(allOf(withText(option2Label), isDisplayed())).perform(click())
-    //    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
-    //    advanceUntilIdle()
-    //
-    //    verify(submissionRepository)
-    //      .createOrUpdateSubmission(any(), capture(taskDataDeltaCaptor), eq(true))
-    //    assertThat(taskDataDeltaCaptor.value[0]).isEqualTo(expectedTaskDataDeltas)
+    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
+    advanceUntilIdle()
+
+    verify(submissionRepository)
+      .createOrUpdateSubmission(any(), capture(taskDataDeltaCaptor), eq(true))
+    assertThat(taskDataDeltaCaptor.value[0]).isEqualTo(expectedTaskDataDeltas)
   }
 
   @Test
