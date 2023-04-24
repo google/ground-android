@@ -1,11 +1,11 @@
 package com.google.android.ground
 
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.repository.SurveyRepository
@@ -45,11 +45,9 @@ class HomeScreenTest : BaseMainActivityTest() {
     surveyRepository.activeSurvey = survey
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
 
-    Espresso.onView(ViewMatchers.withId(R.id.hamburger_btn))
-      .check(matches(isDisplayed()))
-      .perform(ViewActions.click())
-    Espresso.onView(ViewMatchers.withId(R.id.nav_view)).check(matches(isDisplayed()))
-    Espresso.onView(ViewMatchers.withId(R.id.nav_offline_areas)).check(matches(not(isEnabled())))
+    onView(withId(R.id.hamburger_btn)).check(matches(isDisplayed())).perform(click())
+    onView(withId(R.id.nav_view)).check(matches(isDisplayed()))
+    onView(withId(R.id.nav_offline_areas)).check(matches(not(isEnabled())))
   }
 
   @Test
@@ -57,10 +55,8 @@ class HomeScreenTest : BaseMainActivityTest() {
     surveyRepository.activeSurvey = surveyBasemaps
     dataBindingIdlingResource.monitorActivity(scenarioRule.scenario)
 
-    Espresso.onView(ViewMatchers.withId(R.id.hamburger_btn))
-      .check(matches(isDisplayed()))
-      .perform(ViewActions.click())
-    Espresso.onView(ViewMatchers.withId(R.id.nav_view)).check(matches(isDisplayed()))
-    Espresso.onView(ViewMatchers.withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
+    onView(withId(R.id.hamburger_btn)).check(matches(isDisplayed())).perform(click())
+    onView(withId(R.id.nav_view)).check(matches(isDisplayed()))
+    onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
   }
 }
