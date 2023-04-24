@@ -146,9 +146,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val option1Label = "Option 1"
     setupSubmission(
       mapOf(
-        "field id" to
+        "task id" to
           Task(
-            "1",
+            "task id",
             0,
             Task.Type.MULTIPLE_CHOICE,
             label,
@@ -264,7 +264,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val taskId = "task id"
     setupSubmission(
       mapOf(
-        "field id" to
+        taskId to
           Task(
             taskId,
             0,

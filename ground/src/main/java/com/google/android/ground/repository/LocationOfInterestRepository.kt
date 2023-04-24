@@ -32,8 +32,6 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -74,12 +72,6 @@ constructor(
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
-
-  fun getOfflineLocationOfInterestFlow(
-    surveyId: String,
-    locationOfInterest: String
-  ): Flow<LocationOfInterest> =
-    getOfflineLocationOfInterest(surveyId, locationOfInterest).toFlowable().asFlow()
 
   /**
    * Creates a mutation entry for the given parameters, applies it to the local db and schedules a

@@ -38,8 +38,6 @@ import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -139,9 +137,6 @@ constructor(
         )
       }
   }
-
-  fun createSubmissionFlow(surveyId: String, locationOfInterestId: String): Flow<Submission> =
-    createSubmission(surveyId, locationOfInterestId).toFlowable().asFlow()
 
   fun deleteSubmission(submission: Submission): @Cold Completable =
     applyAndEnqueue(

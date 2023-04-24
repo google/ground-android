@@ -142,6 +142,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       surveyId = surveyId,
       created = created.toModelObject(),
       lastModified = lastModified.toModelObject(),
+      caption = caption,
       geometry = geometry.getGeometry(),
       job =
         survey.getJob(jobId = jobId).orElseThrow {
