@@ -94,7 +94,7 @@ object FakeData {
       SURVEY.id,
       JOB,
       "",
-      LOI_NAME,
+      "",
       AUDIT_INFO,
       AUDIT_INFO,
       Polygon(LinearRing(VERTICES.map { it.coordinate })),

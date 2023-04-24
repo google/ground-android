@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
+import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Schedulers
@@ -44,7 +45,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private lateinit var binding: DataCollectionFragBinding
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var binding: DataCollectionFragBinding
@@ -72,7 +72,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
-
     lifecycleScope.launch {
       viewModel.submission.filterNotNull().collect { submission: Submission ->
         loadTasks(submission.job.tasksSorted)
@@ -81,7 +80,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
     viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) { onTaskDataUpdated(it) }
   }
-
 
   private fun loadTasks(tasks: List<Task>) {
     val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
