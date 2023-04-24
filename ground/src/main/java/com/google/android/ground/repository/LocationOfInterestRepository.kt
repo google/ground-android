@@ -24,7 +24,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
-import com.google.android.ground.persistence.remote.RemoteDataEvent.EventType.*
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
@@ -69,9 +68,7 @@ constructor(
   ): @Cold Single<LocationOfInterest> =
     localSurveyStore
       .getSurveyById(surveyId)
-      .flatMap() { survey: Survey ->
-        localLoiStore.getLocationOfInterest(survey, locationOfInterest)
-      }
+      .flatMap { survey: Survey -> localLoiStore.getLocationOfInterest(survey, locationOfInterest) }
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
