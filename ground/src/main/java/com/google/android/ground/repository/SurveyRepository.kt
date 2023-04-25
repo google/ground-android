@@ -19,6 +19,9 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
+import com.google.android.ground.persistence.local.room.dao.BaseMapDao
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -51,6 +54,7 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
+  private val baseMapDao: BaseMapDao,
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
   private val _activeSurvey = MutableStateFlow<Survey?>(null)
@@ -106,6 +110,10 @@ constructor(
       .loadSurvey(id)
       .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
       .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
+      .doOnSuccess {
+        // TODO: Define and use a BaseMapStore
+        it.baseMaps.forEach { bm -> baseMapDao.insertOrUpdate(bm.toLocalDataStoreObject(it.id)) }
+      }
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
 

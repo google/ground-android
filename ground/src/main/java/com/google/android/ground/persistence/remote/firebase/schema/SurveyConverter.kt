@@ -63,6 +63,7 @@ internal object SurveyConverter {
         continue
       }
       try {
+        Timber.d("Converting base map source: $url")
         builder.add(BaseMap(URL(url), BaseMap.typeFromExtension(url)))
       } catch (e: MalformedURLException) {
         Timber.d("Skipping base map source in survey with malformed URL")

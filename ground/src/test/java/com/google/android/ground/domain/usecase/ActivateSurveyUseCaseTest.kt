@@ -23,6 +23,7 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -45,6 +46,7 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @BindValue @Mock lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 
@@ -75,6 +77,7 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
 
   @Test
   fun activateSurvey_alreadyAvailableOffline() = runWithTestDispatcher {
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
     localSurveyStore.insertOrUpdateSurvey(SURVEY).await()
 
     activateSurvey(SURVEY.id)
