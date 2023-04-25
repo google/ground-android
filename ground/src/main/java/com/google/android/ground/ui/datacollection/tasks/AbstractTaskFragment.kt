@@ -32,6 +32,7 @@ import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
 import java.util.*
 import kotlin.properties.Delegates
+import org.jetbrains.annotations.TestOnly
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -142,6 +143,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     buttons[action] = button
     return button
   }
+
+  @TestOnly fun getButtons() = buttons
 
   protected fun getButton(action: ButtonAction): TaskButton {
     check(buttons.contains(action)) { "Expected key $action in $buttons" }
