@@ -127,6 +127,7 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     surveyId = surveyId,
     jobId = job.id,
     state = EntityState.DEFAULT,
+    caption = caption,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
     geometry = geometry.toLocalDataStoreObject()
@@ -141,11 +142,12 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       surveyId = surveyId,
       created = created.toModelObject(),
       lastModified = lastModified.toModelObject(),
+      caption = caption,
       geometry = geometry.getGeometry(),
       job =
         survey.getJob(jobId = jobId).orElseThrow {
           LocalDataConsistencyException(
-            "Unknown jobId $this.jobId in location of interest $this.id"
+            "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
         }
     )
@@ -166,6 +168,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     surveyId = surveyId,
     jobId = jobId,
     state = EntityState.DEFAULT,
+    caption = caption,
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo,
@@ -180,6 +183,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     jobId = jobId,
     type = MutationEntityType.fromMutationType(type),
     newGeometry = geometry?.toLocalDataStoreObject(),
+    caption = caption,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
@@ -195,6 +199,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     jobId = jobId,
     type = type.toMutationType(),
     geometry = newGeometry?.getGeometry(),
+    caption = caption,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),

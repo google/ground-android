@@ -129,7 +129,7 @@ constructor(
       .map { locationOfInterest: LocationOfInterest ->
         Submission(
           uuidGenerator.generateUuid(),
-          locationOfInterest.surveyId,
+          surveyId,
           locationOfInterest,
           locationOfInterest.job,
           auditInfo,

@@ -52,8 +52,10 @@ object FakeData {
       "Test survey description",
       mapOf(JOB.id to JOB),
       listOf(),
-      mapOf(Pair(USER.email, "data-collector"))
+      mapOf(USER.email to "data-collector")
     )
+
+  private const val LOI_NAME = "loi name"
 
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
@@ -61,7 +63,7 @@ object FakeData {
       SURVEY.id,
       JOB,
       null,
-      "loi name",
+      LOI_NAME,
       AuditInfo(USER),
       AuditInfo(USER),
       Point(Coordinate(0.0, 0.0))
@@ -110,11 +112,10 @@ object FakeData {
       SURVEY.id,
       LOCATION_OF_INTEREST,
       JOB.copy(
-        id = "taskId",
         tasks =
           mapOf(
-            Pair("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true)),
-            Pair("field id 2", Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true))
+            "field id" to Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true),
+            "field id 2" to Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true)
           )
       ),
       AUDIT_INFO,
