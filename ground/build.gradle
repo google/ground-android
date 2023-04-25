@@ -275,6 +275,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$project.kotlinVersion"
     testImplementation "androidx.navigation:navigation-testing:$project.navigationVersion"
     androidTestImplementation "androidx.navigation:navigation-testing:$project.navigationVersion"
+    testImplementation 'app.cash.turbine:turbine:0.12.3'
 
     // Mockito
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
