@@ -17,6 +17,7 @@ package com.google.android.ground.ui.datacollection.components
 
 import android.view.View
 import com.google.android.ground.model.submission.TaskData
+import org.jetbrains.annotations.TestOnly
 
 /** Wrapper class for holding a button. */
 data class TaskButton(private val view: View) {
@@ -51,6 +52,11 @@ data class TaskButton(private val view: View) {
   fun disable(): TaskButton {
     view.isEnabled = false
     return this
+  }
+
+  @TestOnly
+  fun getView(): View {
+    return view
   }
 
   /** Register a callback to be invoked when this view is clicked. */

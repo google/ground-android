@@ -16,13 +16,14 @@
 
 package com.google.android.ground.ui.datacollection.tasks
 
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
@@ -34,6 +35,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.NavControllerTestUtil
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
 import java8.util.Optional
 import org.hamcrest.core.IsNot.not
@@ -49,12 +51,27 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   lateinit var viewModel: VM
 
   protected fun hasTaskViewWithHeader(task: Task) {
-    onView(ViewMatchers.withId(R.id.data_collection_step_number))
+    onView(withId(R.id.data_collection_step_number))
       .check(matches(withText("Task ${task.index + 1}:")))
       .check(matches(isDisplayed()))
-    onView(ViewMatchers.withId(R.id.data_collection_question))
+    onView(withId(R.id.data_collection_question))
       .check(matches(withText(task.label)))
       .check(matches(isDisplayed()))
+  }
+
+  protected fun hasTaskViewWithoutHeader(label: String) {
+    onView(withId(R.id.header_label)).check(matches(withText(label))).check(matches(isDisplayed()))
+    onView(withId(R.id.header_icon)).check(matches(isDisplayed()))
+  }
+
+  protected fun infoCardHidden() {
+    onView(withId(R.id.infoCard)).check(matches(not(isDisplayed())))
+  }
+
+  protected fun infoCardShown(title: String, value: String) {
+    onView(withId(R.id.infoCard)).check(matches(isDisplayed()))
+    onView(withId(R.id.card_title)).check(matches(withText(title)))
+    onView(withId(R.id.card_value)).check(matches(withText(value)))
   }
 
   protected suspend fun hasTaskData(taskData: TaskData?) {
@@ -65,8 +82,23 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     assertThat(fragment.getButtons()).hasSize(expectedSize)
   }
 
+  protected fun getButton(buttonAction: ButtonAction): View {
+    return fragment.getButtons()[buttonAction]!!.getView()
+  }
+
+  protected fun buttonIsHidden(buttonAction: ButtonAction) {
+    val button = getButton(buttonAction)
+    assertThat(button.visibility).isEqualTo(View.GONE)
+  }
+
   protected fun buttonIsHidden(buttonText: String) {
     onView(withText(buttonText)).check(matches(not(isDisplayed())))
+  }
+
+  protected fun buttonIsEnabled(buttonAction: ButtonAction) {
+    val button = getButton(buttonAction)
+    assertThat(button.visibility).isEqualTo(View.VISIBLE)
+    assertThat(button.isEnabled).isEqualTo(true)
   }
 
   protected fun buttonIsEnabled(buttonText: String) {
