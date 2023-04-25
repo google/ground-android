@@ -29,20 +29,15 @@ enum class ButtonAction(
 
   // All tasks
   CONTINUE(Type.TEXT, Theme.DARK_GREEN, textId = R.string.continue_text),
-  SKIP(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.skip),
+  SKIP(Type.TEXT, Theme.TRANSPARENT, textId = R.string.skip),
   UNDO(Type.ICON, Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
 
   // Drop a pin task
   DROP_PIN(Type.TEXT, Theme.OUTLINED, textId = R.string.drop_pin),
 
   // Draw a polygon task
-  ADD_PIN(
-    Type.TEXT_ICON,
-    Theme.OUTLINED,
-    textId = R.string.add_point,
-    drawableId = R.drawable.ic_add
-  ),
-  COMPLETE(Type.TEXT, Theme.OUTLINED, textId = R.string.complete_polygon);
+  ADD_POINT(Type.TEXT, Theme.OUTLINED, textId = R.string.add_point),
+  COMPLETE(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.complete_polygon);
 
   enum class Type {
     TEXT,
@@ -54,5 +49,6 @@ enum class ButtonAction(
     DARK_GREEN,
     LIGHT_GREEN,
     OUTLINED,
+    TRANSPARENT,
   }
 }

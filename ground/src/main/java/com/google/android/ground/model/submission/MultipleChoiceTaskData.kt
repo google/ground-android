@@ -17,7 +17,6 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Option
 import java8.util.Optional
 import kotlinx.serialization.Serializable
 
@@ -27,10 +26,6 @@ class MultipleChoiceTaskData(
   private val multipleChoice: MultipleChoice?,
   val selectedOptionIds: List<String>
 ) : TaskData {
-
-  fun getFirstId(): Optional<String> = Optional.ofNullable(selectedOptionIds.firstOrNull())
-
-  fun isSelected(option: Option): Boolean = selectedOptionIds.contains(option.id)
 
   // TODO: Make these inner classes non-static and access Task directly.
   override fun getDetailsText(): String =
@@ -54,12 +49,11 @@ class MultipleChoiceTaskData(
   override fun toString(): String = selectedOptionIds.sorted().joinToString()
 
   companion object {
-    @JvmStatic
-    fun fromList(multipleChoice: MultipleChoice?, codes: List<String>): Optional<TaskData> =
-      if (codes.isEmpty()) {
+    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): Optional<TaskData> =
+      if (ids.isEmpty()) {
         Optional.empty()
       } else {
-        Optional.of(MultipleChoiceTaskData(multipleChoice, codes))
+        Optional.of(MultipleChoiceTaskData(multipleChoice, ids))
       }
   }
 }

@@ -18,11 +18,15 @@ package com.google.android.ground.ui.datacollection
 import androidx.lifecycle.*
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -37,9 +41,6 @@ import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.Flowable
-import io.reactivex.processors.BehaviorProcessor
-import io.reactivex.processors.FlowableProcessor
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Provider
@@ -48,33 +49,63 @@ import kotlin.collections.component2
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
 
 /** View model for the Data Collection fragment. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DataCollectionViewModel
 @Inject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val submissionRepository: SubmissionRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
   private val navigator: Navigator,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val savedStateHandle: SavedStateHandle
+  private val savedStateHandle: SavedStateHandle,
+  surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  val submission: @Hot(replays = true) LiveData<Submission>
-  val jobName: @Hot(replays = true) LiveData<String>
-  val loiName: @Hot(replays = true) LiveData<String>
+  // TODO(#1541): Set loiId once Suggest LOI task is completed.
+  private val loiId: StateFlow<String?> = MutableStateFlow(savedStateHandle["locationOfInterestId"])
+  private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
+  private val job: Job =
+    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
+
+  val surveyId: String = surveyRepository.lastActiveSurveyId
+  val submission: StateFlow<Submission?> =
+    loiId
+      .flatMapLatest {
+        if (it == null) flowOf(null)
+        else submissionRepository.createSubmission(surveyId, it).toFlowable().asFlow()
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+  val jobName: StateFlow<String> =
+    MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
+  val loiName: StateFlow<String> =
+    loiId
+      .flatMapLatest { id ->
+        if (id == null) flowOf("")
+        else
+          locationOfInterestRepository
+            .getOfflineLocationOfInterest(surveyId, id)
+            .toFlowable()
+            .asFlow()
+            .map { locationOfInterestHelper.getLabel(it) }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels:
     @Hot(replays = true)
     MutableLiveData<MutableList<AbstractTaskViewModel>> =
     MutableLiveData(mutableListOf())
-  private val argsProcessor: @Hot(replays = true) FlowableProcessor<DataCollectionFragmentArgs> =
-    BehaviorProcessor.create()
 
   private val responses: MutableMap<Task, TaskData?> = HashMap()
 
@@ -85,7 +116,7 @@ internal constructor(
 
   var currentTaskData: TaskData? = null
 
-  var currentTaskViewModel: AbstractTaskViewModel? = null
+  private var currentTaskViewModel: AbstractTaskViewModel? = null
 
   private val currentTaskViewModelLiveData =
     currentPosition.combineWith(taskViewModels) { position, viewModels ->
@@ -99,42 +130,15 @@ internal constructor(
   val currentTaskDataLiveData =
     Transformations.switchMap(currentTaskViewModelLiveData) { it?.taskData }
 
-  lateinit var surveyId: String
   lateinit var submissionId: String
-
-  init {
-    val submissionStream: Flowable<Submission> =
-      argsProcessor.switchMapSingle { args ->
-        surveyId = args.surveyId
-
-        submissionRepository
-          .createSubmission(
-            args.surveyId,
-            args.locationOfInterestId,
-          )
-          .doOnSuccess { submissionId = it.id }
-      }
-
-    submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
-
-    jobName =
-      LiveDataReactiveStreams.fromPublisher(submissionStream.map { it.locationOfInterest.job.name })
-
-    loiName =
-      LiveDataReactiveStreams.fromPublisher(
-        submissionStream.map {
-          locationOfInterestHelper.getLabel(Optional.of(it.locationOfInterest))
-        }
-      )
-  }
-
-  fun loadSubmissionDetails(args: DataCollectionFragmentArgs) = argsProcessor.onNext(args)
 
   fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
     requireNotNull(viewModels)
-    // TODO(#1146): Show toast or error if submission is null
-    val tasks = requireNotNull(submission.value).job.tasksSorted
+    // TODO(#1541): Insert Suggest LOI task to taskList. This will probably involve creating a
+    //  separate ViewModel field for storing the tasks rather than getting them directly from the
+    //  job.
+    val tasks = job.tasksSorted
 
     val task = tasks[position]
     if (position < viewModels.size) {
@@ -167,9 +171,8 @@ internal constructor(
 
     responses[currentTask.task] = currentTaskData
 
-    val submission = submission.value!!
     val currentTaskPosition = currentPosition.value!!
-    val finalTaskPosition = submission.job.tasks.size - 1
+    val finalTaskPosition = job.tasks.size - 1
 
     assert(finalTaskPosition >= 0)
     assert(currentTaskPosition in 0..finalTaskPosition)
@@ -181,6 +184,7 @@ internal constructor(
         responses.map { (task, taskData) ->
           TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData))
         }
+      val submission = submission.value!!
       saveChanges(submission, taskDataDeltas)
 
       // Move to home screen and display a confirmation dialog after that.

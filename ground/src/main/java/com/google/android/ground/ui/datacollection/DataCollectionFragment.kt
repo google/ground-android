@@ -19,18 +19,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
-import androidx.navigation.fragment.navArgs
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
+import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -39,10 +45,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private val args: DataCollectionFragmentArgs by navArgs()
-  private lateinit var binding: DataCollectionFragBinding
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
+  private lateinit var binding: DataCollectionFragBinding
+  private lateinit var progressBar: ProgressBar
   private lateinit var viewPager: ViewPager2
 
   override fun onCreateView(
@@ -52,32 +58,47 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = DataCollectionFragBinding.inflate(inflater, container, false)
+    viewPager = binding.pager
+    progressBar = binding.progressBar
     getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewPager = binding.root.findViewById(R.id.pager)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
+
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
-    viewModel.loadSubmissionDetails(args)
-    viewModel.submission.observe(viewLifecycleOwner) { submission: Submission ->
-      val tasks = submission.job.tasksSorted
-      val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
-      if (currentAdapter == null || currentAdapter.tasks != tasks) {
-        viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
+    lifecycleScope.launch {
+      viewModel.submission.filterNotNull().collect { submission: Submission ->
+        loadTasks(submission.job.tasksSorted)
       }
     }
+    viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
+    viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) { onTaskDataUpdated(it) }
+  }
 
-    viewModel.currentPosition.observe(viewLifecycleOwner) { viewPager.currentItem = it }
-    viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) {
-      viewModel.currentTaskData = it.orElse(null)
+  private fun loadTasks(tasks: List<Task>) {
+    val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
+    if (currentAdapter == null || currentAdapter.tasks != tasks) {
+      viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
     }
 
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
+    // Reset progress bar
+    progressBar.progress = 0
+    progressBar.max = tasks.size
+  }
+
+  private fun onTaskChanged(index: Int) {
+    viewPager.currentItem = index
+    progressBar.progress = index
+  }
+
+  private fun onTaskDataUpdated(taskData: Optional<TaskData>) {
+    viewModel.currentTaskData = taskData.orElse(null)
   }
 
   override fun onBack(): Boolean =

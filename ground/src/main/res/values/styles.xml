@@ -191,6 +191,9 @@
   <style name="TaskChipButton.Transparent">
     <item name="android:backgroundTint">@drawable/task_transparent_btn_selector</item>
     <item name="android:textColor">@color/taskBtnTextTransparent</item>
+  </style>
+
+  <style name="TaskChipButton.Transparent.Outline">
     <item name="strokeColor">@color/taskBtnTransparentStrokeColor</item>
     <item name="strokeWidth">2dp</item>
   </style>
@@ -211,4 +214,13 @@
     <item name="android:textColor">@color/taskBtnTextLightGreen</item>
   </style>
 
+  <style name="ChromeStylePopup" parent="android:Widget.TextView">
+    <item name="android:gravity">center</item>
+    <item name="android:minHeight">50dp</item>
+    <item name="android:minWidth">75dp</item>
+    <item name="android:maxWidth">150dp</item>
+    <item name="android:padding">6dp</item>
+    <item name="android:textColor">@android:color/black</item>
+    <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+  </style>
 </resources>
