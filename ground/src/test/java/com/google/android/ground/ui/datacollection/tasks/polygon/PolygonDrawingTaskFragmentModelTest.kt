@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.BaseHiltTest
@@ -21,7 +21,6 @@ import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.Companion.DISTANCE_THRESHOLD_DP
 import com.google.android.ground.ui.map.Feature
 import com.google.common.truth.Truth.assertThat
@@ -34,6 +33,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+
+// TODO: Convert to fragment test for better coverage
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
