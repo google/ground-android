@@ -34,7 +34,7 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.NavControllerTestUtil
+import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
 import java8.util.Optional
@@ -124,7 +124,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
               // Bind the controller after the view is created but before onViewCreated is called
               Navigation.setViewNavController(
                 fragment.requireView(),
-                NavControllerTestUtil.createTestNavController()
+                createTestNavController(R.id.data_collection_fragment)
               )
             }
           }

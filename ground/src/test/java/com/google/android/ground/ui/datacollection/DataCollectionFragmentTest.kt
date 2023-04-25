@@ -17,10 +17,7 @@
 package com.google.android.ground.ui.datacollection
 
 import android.widget.RadioButton
-import androidx.lifecycle.ViewModelStore
 import androidx.navigation.Navigation
-import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -35,6 +32,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
@@ -327,11 +325,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val argsBundle =
       DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id).build().toBundle()
 
-    val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-    navController.setViewModelStore(ViewModelStore()) // required for graph scoped view models.
-    navController.setGraph(R.navigation.nav_graph)
-    navController.setCurrentDestination(R.id.data_collection_fragment, argsBundle)
-
     hiltActivityScenario()
       .launchFragment<DataCollectionFragment>(
         argsBundle,
@@ -341,7 +334,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
             it.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
               if (viewLifecycleOwner != null) {
                 // Bind the controller after the view is created but before onViewCreated is called.
-                Navigation.setViewNavController(fragment.requireView(), navController)
+                Navigation.setViewNavController(
+                  fragment.requireView(),
+                  createTestNavController(R.id.data_collection_fragment, argsBundle)
+                )
               }
             }
           }

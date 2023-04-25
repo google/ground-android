@@ -16,7 +16,8 @@
 
 package com.google.android.ground.ui.datacollection
 
-import androidx.annotation.IdRes
+import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -28,13 +29,11 @@ object NavControllerTestUtil {
   // TODO: Refactor existing tests to use this util.
 
   /** Creates a [TestNavHostController]. */
-  fun createTestNavController(
-    @IdRes destId: Int = R.id.data_collection_fragment
-  ): TestNavHostController {
+  fun createTestNavController(destId: Int, argsBundle: Bundle = bundleOf()): TestNavHostController {
     val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
     navController.setViewModelStore(ViewModelStore()) // Required for graph scoped view models.
     navController.setGraph(R.navigation.nav_graph)
-    navController.setCurrentDestination(destId)
+    navController.setCurrentDestination(destId, argsBundle)
     return navController
   }
 }
