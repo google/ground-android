@@ -90,10 +90,11 @@
     android:id="@+id/data_collection"
     app:startDestination="@id/data_collection_fragment">
     <argument
-      android:name="surveyId"
+      android:name="locationOfInterestId"
+      app:nullable="true"
       type="string" />
     <argument
-      android:name="locationOfInterestId"
+      android:name="jobId"
       type="string" />
 
     <fragment
@@ -102,10 +103,11 @@
       android:label="@string/collect_data"
       tools:layout="@layout/data_collection_frag">
       <argument
-        android:name="surveyId"
+        android:name="locationOfInterestId"
+        app:nullable="true"
         type="string" />
       <argument
-        android:name="locationOfInterestId"
+        android:name="jobId"
         type="string" />
     </fragment>
 

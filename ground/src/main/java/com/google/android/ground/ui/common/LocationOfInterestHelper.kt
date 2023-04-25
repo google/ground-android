@@ -31,12 +31,12 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
 
   // TODO(#793): Allow user-defined LOI names for other LOI types.
   fun getLabel(locationOfInterest: Optional<LocationOfInterest>): String =
-    locationOfInterest
-      .map { loi ->
-        val caption = loi.caption?.trim { it <= ' ' } ?: ""
-        caption.ifEmpty { getLocationOfInterestType(loi) }
-      }
-      .orElse("")
+    locationOfInterest.map(::getLabel).orElse("")
+
+  fun getLabel(loi: LocationOfInterest): String {
+    val caption = loi.caption?.trim { it <= ' ' } ?: ""
+    return caption.ifEmpty { getLocationOfInterestType(loi) }
+  }
 
   private fun getLocationOfInterestType(locationOfInterest: LocationOfInterest): String =
     when (locationOfInterest.geometry) {

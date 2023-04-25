@@ -27,6 +27,7 @@ import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
+import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
@@ -42,14 +43,15 @@ import com.sharedtest.FakeData.SUBMISSION
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.FakeData.TASK_1_NAME
 import com.sharedtest.FakeData.TASK_2_NAME
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
+import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -67,19 +69,15 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
 
+  @Inject lateinit var activateSurvey: ActivateSurveyUseCase
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
   @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<List<TaskDataDelta>>
   lateinit var fragment: DataCollectionFragment
 
-  @Before
-  override fun setUp() {
-    super.setUp()
-
-    setupSubmission()
-  }
-
   @Test
   fun created_submissionIsLoaded_loiNameIsShown() {
+    setupSubmission()
     setupFragment()
 
     onView(withText(LOCATION_OF_INTEREST.caption)).check(matches(isDisplayed()))
@@ -87,6 +85,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_submissionIsLoaded_jobNameIsShown() {
+    setupSubmission()
     setupFragment()
 
     onView(withText(JOB.name)).check(matches(isDisplayed()))
@@ -94,6 +93,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_submissionIsLoaded_viewPagerAdapterIsSet() {
+    setupSubmission()
     setupFragment()
 
     onView(withId(R.id.pager)).check(matches(isDisplayed()))
@@ -101,7 +101,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_submissionIsLoaded_firstTaskIsShown() {
-    setupSubmission(mapOf(Pair("field id", Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true))))
+    setupSubmission(mapOf("field id" to Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true)))
     setupFragment()
 
     onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
@@ -114,8 +114,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val option1Label = "Option 1"
     setupSubmission(
       mapOf(
-        Pair(
-          "field id",
+        "field id" to
           Task(
             "1",
             0,
@@ -131,7 +130,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
                 MultipleChoice.Cardinality.SELECT_MULTIPLE
               )
           )
-        )
       )
     )
     setupFragment()
@@ -148,10 +146,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val option1Label = "Option 1"
     setupSubmission(
       mapOf(
-        Pair(
-          "field id",
+        "task id" to
           Task(
-            "1",
+            "task id",
             0,
             Task.Type.MULTIPLE_CHOICE,
             label,
@@ -165,7 +162,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
                 MultipleChoice.Cardinality.SELECT_ONE
               )
           )
-        )
       )
     )
     setupFragment()
@@ -178,6 +174,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun onContinueClicked_noUserInput_buttonDisabled() {
+    setupSubmission()
     setupFragment()
 
     onView(allOf(withText("Continue"), isDisplayed(), isNotEnabled())).perform(click())
@@ -188,6 +185,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun onContinueClicked_newTaskIsShown() {
+    setupSubmission()
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
 
@@ -200,6 +198,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun onContinueClicked_thenOnBack_initialTaskIsShown() {
+    setupSubmission()
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
     onView(allOf(withText("Continue"), isDisplayed())).perform(click())
@@ -215,6 +214,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun onContinueClicked_onFinalTask_resultIsSaved() = runWithTestDispatcher {
+    setupSubmission()
     setupFragment()
     val task1Response = "response 1"
     val task2Response = "response 2"
@@ -264,8 +264,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val taskId = "task id"
     setupSubmission(
       mapOf(
-        Pair(
-          "field id",
+        taskId to
           Task(
             taskId,
             0,
@@ -274,7 +273,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
             isRequired = false,
             multipleChoice = multipleChoice
           )
-        )
       )
     )
     setupFragment()
@@ -296,6 +294,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun onBack_firstViewPagerItem_returnsFalse() {
+    setupSubmission()
     setupFragment()
 
     assertThat(fragment.onBack()).isFalse()
@@ -303,17 +302,30 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   private fun setupSubmission(tasks: Map<String, Task>? = null) {
     var submission = SUBMISSION
+    var job = SUBMISSION.job
     if (tasks != null) {
-      submission = submission.copy(job = SUBMISSION.job.copy(tasks = tasks))
+      job = job.copy(tasks = tasks)
+      submission = submission.copy(job = job)
     }
 
     whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
       .thenReturn(Single.just(submission))
+
+    runWithTestDispatcher {
+      // Setup survey and LOIs
+      val jobMap = SURVEY.jobMap.entries.associate { it.key to job }
+      val survey = SURVEY.copy(jobMap = jobMap)
+
+      fakeRemoteDataStore.surveys = listOf(survey)
+      fakeRemoteDataStore.lois = listOf(LOCATION_OF_INTEREST)
+      activateSurvey(SURVEY.id)
+      advanceUntilIdle()
+    }
   }
 
   private fun setupFragment() {
     val argsBundle =
-      DataCollectionFragmentArgs.Builder(SURVEY.id, LOCATION_OF_INTEREST.id).build().toBundle()
+      DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id).build().toBundle()
 
     val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
     navController.setViewModelStore(ViewModelStore()) // required for graph scoped view models.
