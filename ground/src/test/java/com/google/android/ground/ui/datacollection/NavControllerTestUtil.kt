@@ -25,6 +25,8 @@ import com.google.android.ground.R
 /** Helper class for creating [TestNavHostController] for tests. */
 object NavControllerTestUtil {
 
+  // TODO: Refactor existing tests to use this util.
+
   /** Creates a [TestNavHostController]. */
   fun createTestNavController(
     @IdRes destId: Int = R.id.data_collection_fragment
