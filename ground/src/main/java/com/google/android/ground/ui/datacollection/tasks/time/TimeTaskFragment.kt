@@ -26,9 +26,12 @@ import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
+
+  private var timePickerDialog: TimePickerDialog? = null
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -45,8 +48,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     val calendar = Calendar.getInstance()
     val hour = calendar[Calendar.HOUR]
     val minute = calendar[Calendar.MINUTE]
-    val timePickerDialog =
-      TimePickerDialog(
+    TimePickerDialog(
         requireContext(),
         { _, updatedHourOfDay, updatedMinute ->
           val c = Calendar.getInstance()
@@ -58,6 +60,14 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         minute,
         DateFormat.is24HourFormat(requireContext())
       )
-    timePickerDialog.show()
+      .apply {
+        show()
+        timePickerDialog = this
+      }
+  }
+
+  @TestOnly
+  fun getTimePickerDialog(): TimePickerDialog? {
+    return timePickerDialog
   }
 }

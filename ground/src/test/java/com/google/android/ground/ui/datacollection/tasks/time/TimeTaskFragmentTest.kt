@@ -13,73 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.date
+package com.google.android.ground.ui.datacollection.tasks.time
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import com.google.android.ground.R
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-// TODO: Add a test for selecting a date and verifying response.
+// TODO: Add a test for selecting a time and verifying response.
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskViewModel>() {
+class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskViewModel>() {
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
 
   private val task =
-    Task(id = "task_1", index = 0, type = Task.Type.DATE, label = "Date label", isRequired = false)
+    Task(id = "task_1", index = 0, type = Task.Type.TIME, label = "Time label", isRequired = false)
 
   @Test
   fun testHeader() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
   fun testResponse_defaultIsEmpty() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
+    Espresso.onView(ViewMatchers.withId(R.id.user_response_text))
+      .check(ViewAssertions.matches(ViewMatchers.withText("")))
+      .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+      .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
 
-    assertThat(viewModel.responseText.value).isEqualTo("")
+    Truth.assertThat(viewModel.responseText.value).isEqualTo("")
     buttonIsDisabled("Continue")
   }
 
   @Test
   fun testResponse_onUserInput() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(task)
 
-    assertThat(fragment.getDatePickerDialog()).isNull()
-    onView(withId(R.id.user_response_text)).perform(click())
-    assertThat(fragment.getDatePickerDialog()!!.isShowing).isTrue()
+    Truth.assertThat(fragment.getTimePickerDialog()).isNull()
+    Espresso.onView(ViewMatchers.withId(R.id.user_response_text)).perform(ViewActions.click())
+    Truth.assertThat(fragment.getTimePickerDialog()!!.isShowing).isTrue()
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<DateTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<TimeTaskFragment>(task.copy(isRequired = false))
 
     hasButtonCount(2)
     buttonIsDisabled("Continue")
@@ -88,7 +86,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<DateTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<TimeTaskFragment>(task.copy(isRequired = true))
 
     hasButtonCount(2)
     buttonIsDisabled("Continue")
