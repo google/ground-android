@@ -24,10 +24,12 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.hiltActivityScenario
 import com.google.android.ground.launchFragment
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -53,6 +55,10 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(ViewMatchers.withId(R.id.data_collection_question))
       .check(matches(withText(task.label)))
       .check(matches(isDisplayed()))
+  }
+
+  protected suspend fun hasTaskData(taskData: TaskData?) {
+    viewModel.taskDataFlow.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
   protected fun hasButtonCount(expectedSize: Int) {

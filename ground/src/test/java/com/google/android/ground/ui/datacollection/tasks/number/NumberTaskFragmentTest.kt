@@ -23,22 +23,24 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.R
 import com.google.android.ground.CustomViewActions.forceTypeText
+import com.google.android.ground.R
+import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTaskViewModel>() {
@@ -63,7 +65,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() {
+  fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(task)
 
     onView(withId(R.id.user_response_text))
@@ -71,19 +73,19 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    assertThat(viewModel.responseText.value).isEqualTo("")
+    hasTaskData(null)
     buttonIsDisabled("Continue")
   }
 
   @Test
-  fun testResponse_onUserInput_continueButtonIsEnabled() {
+  fun testResponse_onUserInput_continueButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(task)
 
     onView(withId(R.id.user_response_text))
       .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
       .perform(forceTypeText("123"))
 
-    assertThat(viewModel.responseText.value).isEqualTo("123")
+    hasTaskData(NumberTaskData("123"))
     buttonIsEnabled("Continue")
   }
 

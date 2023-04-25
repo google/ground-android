@@ -23,7 +23,6 @@ import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import app.cash.turbine.test
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -33,7 +32,6 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.lang.NullPointerException
@@ -107,10 +105,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    viewModel.taskDataFlow.test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
-    }
+    hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
     buttonIsEnabled("Continue")
   }
 
@@ -137,10 +132,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    viewModel.taskDataFlow.test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
-    }
+    hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
     buttonIsEnabled("Continue")
   }
 

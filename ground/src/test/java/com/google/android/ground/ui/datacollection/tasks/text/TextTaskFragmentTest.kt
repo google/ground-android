@@ -26,19 +26,21 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.*
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskViewModel>() {
@@ -57,7 +59,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() {
+  fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(task)
 
     onView(withId(R.id.user_response_text))
@@ -65,19 +67,19 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    assertThat(viewModel.responseText.value).isEqualTo("")
+    hasTaskData(null)
     buttonIsDisabled("Continue")
   }
 
   @Test
-  fun testResponse_onUserInput_continueButtonIsEnabled() {
+  fun testResponse_onUserInput_continueButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(task)
 
     onView(withId(R.id.user_response_text))
       .check(matches(withInputType(InputType.TYPE_CLASS_TEXT)))
       .perform(typeText("Hello world"))
 
-    assertThat(viewModel.responseText.value).isEqualTo("Hello world")
+    hasTaskData(TextTaskData("Hello world"))
     buttonIsEnabled("Continue")
   }
 
