@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.ground.ui.datacollection.tasks.text
+package com.google.android.ground.ui.datacollection.tasks.number
 
 import android.text.InputType
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.*
+import com.google.android.ground.R
+import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -34,6 +33,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -41,24 +41,30 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskViewModel>() {
+class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTaskViewModel>() {
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
 
   private val task =
-    Task(id = "task_1", index = 0, type = Task.Type.TEXT, label = "Text label", isRequired = false)
+    Task(
+      id = "task_1",
+      index = 0,
+      type = Task.Type.NUMBER,
+      label = "Number label",
+      isRequired = false
+    )
 
   @Test
   fun testHeader() {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<NumberTaskFragment>(task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
   fun testResponse_defaultIsEmpty() {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<NumberTaskFragment>(task)
 
     onView(withId(R.id.user_response_text))
       .check(matches(withText("")))
@@ -71,19 +77,19 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
 
   @Test
   fun testResponse_onUserInput_continueButtonIsEnabled() {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<NumberTaskFragment>(task)
 
     onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(InputType.TYPE_CLASS_TEXT)))
-      .perform(typeText("Hello world"))
+      .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
+      .perform(forceTypeText("123"))
 
-    assertThat(viewModel.responseText.value).isEqualTo("Hello world")
+    assertThat(viewModel.responseText.value).isEqualTo("123")
     buttonIsEnabled("Continue")
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<TextTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<NumberTaskFragment>(task.copy(isRequired = false))
 
     hasButtonCount(2)
     buttonIsDisabled("Continue")
@@ -92,7 +98,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<TextTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<NumberTaskFragment>(task.copy(isRequired = true))
 
     hasButtonCount(2)
     buttonIsDisabled("Continue")
