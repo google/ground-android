@@ -41,7 +41,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   /** Current value. */
   @Deprecated("Use taskDataValue instead") val taskData: LiveData<Optional<TaskData>>
 
-  private val taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
+  val taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
 
   // TODO(Shobhit): Rename to taskData once legacy taskData is cleaned up.
   val taskDataValue: StateFlow<TaskData?> =
