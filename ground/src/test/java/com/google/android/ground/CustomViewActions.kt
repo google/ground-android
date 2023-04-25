@@ -31,8 +31,8 @@ object CustomViewActions {
    *
    * Tracking bug: https://github.com/robolectric/robolectric/issues/5110
    */
-  internal fun forceTypeText(text: String): ViewAction {
-    return object : ViewAction {
+  internal fun forceTypeText(text: String): ViewAction =
+    object : ViewAction {
       override fun getDescription(): String {
         return "force type text"
       }
@@ -46,5 +46,4 @@ object CustomViewActions {
         uiController?.loopMainThreadUntilIdle()
       }
     }
-  }
 }

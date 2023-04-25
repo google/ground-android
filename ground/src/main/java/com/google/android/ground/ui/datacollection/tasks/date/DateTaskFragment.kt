@@ -67,8 +67,5 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
       }
   }
 
-  @TestOnly
-  fun getDatePickerDialog(): DatePickerDialog? {
-    return datePickerDialog
-  }
+  @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
 }

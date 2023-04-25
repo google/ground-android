@@ -66,8 +66,5 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
       }
   }
 
-  @TestOnly
-  fun getTimePickerDialog(): TimePickerDialog? {
-    return timePickerDialog
-  }
+  @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }

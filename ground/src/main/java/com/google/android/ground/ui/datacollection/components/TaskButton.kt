@@ -54,10 +54,7 @@ data class TaskButton(private val view: View) {
     return this
   }
 
-  @TestOnly
-  fun getView(): View {
-    return view
-  }
+  @TestOnly fun getView(): View = view
 
   /** Register a callback to be invoked when this view is clicked. */
   fun setOnClickListener(block: () -> Unit): TaskButton {

@@ -82,9 +82,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     assertThat(fragment.getButtons()).hasSize(expectedSize)
   }
 
-  protected fun getButton(buttonAction: ButtonAction): View {
-    return fragment.getButtons()[buttonAction]!!.getView()
-  }
+  protected fun getButton(buttonAction: ButtonAction): View =
+    fragment.getButtons()[buttonAction]!!.getView()
 
   protected fun buttonIsHidden(buttonAction: ButtonAction) {
     val button = getButton(buttonAction)
