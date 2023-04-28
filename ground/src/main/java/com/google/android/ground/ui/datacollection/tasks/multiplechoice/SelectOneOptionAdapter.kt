@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBinding
@@ -46,18 +47,21 @@ class SelectOneOptionAdapter(
     holder.bind(options[position])
 
     holder.binding.radioButton.isChecked = position == selectedIndex
-
     holder.binding.radioButton.setOnClickListener {
-      val oldPosition = selectedIndex
-      selectedIndex = holder.adapterPosition
-      handleOptionSelected.invoke(listOf(options[selectedIndex]))
+      handleItemStateChange(it, holder.adapterPosition)
+    }
+  }
 
-      holder.binding.radioButton.post {
-        if (oldPosition >= 0) {
-          notifyItemChanged(oldPosition)
-        }
-        notifyItemChanged(selectedIndex)
+  private fun handleItemStateChange(view: View, position: Int) {
+    val oldPosition = selectedIndex
+    selectedIndex = position
+    handleOptionSelected.invoke(listOf(options[selectedIndex]))
+
+    view.post {
+      if (oldPosition >= 0) {
+        notifyItemChanged(oldPosition)
       }
+      notifyItemChanged(selectedIndex)
     }
   }
 

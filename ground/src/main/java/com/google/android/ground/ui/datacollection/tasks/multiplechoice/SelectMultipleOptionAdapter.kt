@@ -42,7 +42,9 @@ class SelectMultipleOptionAdapter(
     holder.bind(options[position])
 
     holder.binding.checkbox.isChecked = position in selectedPositions
-    holder.binding.checkbox.setOnCheckedChangeListener { _, _ -> handleItemStateChanged(position) }
+    holder.binding.checkbox.setOnCheckedChangeListener { _, _ ->
+      handleItemStateChanged(holder.adapterPosition)
+    }
   }
 
   private fun handleItemStateChanged(position: Int) {
