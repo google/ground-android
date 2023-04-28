@@ -19,7 +19,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBinding
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOneOptionAdapter.ViewHolder
 
@@ -64,7 +63,6 @@ class SelectOneOptionAdapter(
 
   override fun getItemCount(): Int = options.size
 
-  /** View item representing the [LocationOfInterest] data in the list. */
   class ViewHolder(internal val binding: MultipleChoiceRadiobuttonItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(option: Option) {

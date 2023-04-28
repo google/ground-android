@@ -40,8 +40,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.instanceOf
-import org.junit.Assert.*
-import org.junit.Ignore
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -122,9 +121,7 @@ class MultipleChoiceTaskFragmentTest :
       .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
   }
 
-  // TODO: fix the below failing test
   @Test
-  @Ignore("Test is currently failing")
   fun testMultipleChoice_whenSelectMultiple_click() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
