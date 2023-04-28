@@ -16,6 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.ByteArrayOutputStream
 import java.lang.System.currentTimeMillis
 import java.net.HttpURLConnection
 import java.net.URL
@@ -37,7 +40,34 @@ private fun byteArrayOf(vararg elements: Int) = elements.map(Int::toByte).toByte
 
 private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this.toByte())
 
+private fun IntArray.toByteArray(): ByteArray = this.copyOf().map { it.toByte() }.toByteArray()
+
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
+
+private fun Bitmap.isMostlyBlank(): Boolean {
+  for (x in 0 until width) {
+    for (y in 0 until height) {
+      val color = getPixel(x, y)
+      val r: Int = color shr 16 and 0xFF
+      val g: Int = color shr 8 and 0xFF
+      val b: Int = color shr 0 and 0xFF
+      if (r + g + b > 10) {
+        return false
+      }
+    }
+  }
+  return true
+}
+
+private fun Bitmap.setAllPixels(color: Int) {
+  for (x in 0 until width) {
+    for (y in 0 until height) {
+      setPixel(x, y, color)
+    }
+  }
+}
+
+const val NIL = 0x00.toByte()
 
 class CogImage(
   val url: URL,
@@ -49,12 +79,12 @@ class CogImage(
   val imageWidth: Short,
   val imageLength: Short,
   // TODO: Use ByteArray instead?
-  jpegTables: List<Byte>
+  jpegTables: List<Byte>?
 ) {
   val tileCountX = imageWidth / tileWidth
   val tileCountY = imageLength / tileLength
   private val jpegTablesBody =
-    jpegTables
+    (jpegTables ?: listOf())
       .drop(2) // Skip extraneous SOI.
       .dropLast(2) // Skip extraneous EOI.
       .toByteArray()
@@ -111,6 +141,7 @@ class CogImage(
       val imageBytes = ByteArray(len)
       var bytesRead = 0
       var i: Int
+      // TODO: Pipe buildJpegTile() into stream and let BitmapFactory read input stream instead.
       while (inputStream.read().also { i = it } != -1) {
         imageBytes[bytesRead++] = i.toByte()
       }
@@ -121,16 +152,42 @@ class CogImage(
       if (bytesRead < len) {
         Timber.d("Read incomplete: $bytesRead of $len bytes read.")
       }
-      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
+
+      // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
+      // pixels with transparent once, we would use the image masks contained in the COG. This
+      // method was used for expediency.
+      val bitmap =
+        BitmapFactory.decodeByteArray(buildJpegTile(imageBytes), 0, len)
+          .copy(Bitmap.Config.ARGB_8888, true)
+      bitmap.setHasAlpha(true)
+      for (x in 0 until bitmap.width) {
+        for (y in 0 until bitmap.height) {
+          val color = bitmap.getPixel(x, y)
+          val r: Int = color shr 16 and 0xFF
+          val g: Int = color shr 8 and 0xFF
+          val b: Int = color shr 0 and 0xFF
+          if (r + g + b < 50) {
+            bitmap.setPixel(x, y, 0)
+          }
+        }
+      }
+      val out = ByteArrayOutputStream()
+      // TODO: Manually build and return BMP instead of recompressing.
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+
+      return CogTile(tileWidth, tileLength, out.toByteArray())
+
+      //        if (imageBytes.all { it == NIL }) return null
+      //      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
     } finally {
       inputStream.close()
       urlConnection.disconnect()
     }
+    // TODO: Add support for local files using:
     //    val raf = RandomAccessFile(cogFile, "r")
     //    val imageBytes = ByteArray(len.toInt())
     //    raf.seek(offset)
     //    raf.read(imageBytes)
-
   }
 
   override fun toString(): String {

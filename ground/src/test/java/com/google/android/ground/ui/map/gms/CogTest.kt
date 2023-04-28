@@ -17,37 +17,35 @@
 package com.google.android.ground.ui.map.gms
 
 import com.google.android.ground.ui.map.gms.cog.CogCollection
-import com.google.android.ground.ui.map.gms.cog.CogTileProvider
 import com.google.android.ground.ui.map.gms.cog.NgaCogProvider
 import com.google.android.ground.ui.map.gms.cog.TileCoordinates
 import java.io.File
+import kotlin.math.pow
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-//const val URL_TEMPLATE = "/Users/gmiceli/Downloads/cogs/{z}/{x}/{y}.tif"
-const val URL_TEMPLATE = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif"
-
+@RunWith(RobolectricTestRunner::class)
 class CogTest {
-
   @Test
   fun cogTest() {
-//    val cogCollection =
-//      CogCollection(NgaCogProvider(), URL_TEMPLATE, 9)
+    val tileExtentZ = 9
     val cogCollection =
       CogCollection(
         NgaCogProvider(),
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
-        //          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
-        9
+        "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
+        tileExtentZ
       )
 
-    val basePath = File("/Users/gmiceli/Downloads/tiles2")
+    val basePath = File("/Users/gmiceli/Downloads/world")
     basePath.mkdirs()
-    val minZ = 9
-    for (z in minZ..14) {
-      val f = 1 shl (z - minZ)
-      for (x in 391 * f..392 * f) {
-        for (y in 247 * f..251 * f) {
-          println("Extracting tile $z/$x/$y")
+    val zRange = 3..3
+    for (z in zRange) {
+      val f = 2.0.pow(z - 9)
+      for (x in (391 * f).toInt()..(392 * f).toInt()) {
+        for (y in (247 * f).toInt()..(251 * f).toInt()) {
+          println("Extracting tile ($x,$y) @ zoom $z")
           val tile = cogCollection.getTile(TileCoordinates(x, y, z)) ?: continue
           File(basePath, "$z-$x-$y.jpg").writeBytes(tile.imageBytes)
         }

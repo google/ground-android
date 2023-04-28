@@ -22,6 +22,8 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
+val WORLD = TileCoordinates(0, 0, 0)
+
 /**
  * Represents a collection of non-overlapping cloud-optimized GeoTIFFs (COGs) whose extents are
  * determined by the boundaries of web mercator tiles at [tileSetExtentsZoom].
@@ -29,9 +31,10 @@ import kotlinx.coroutines.runBlocking
 class CogCollection(
   private val cogProvider: CogProvider,
   private val urlTemplate: String,
-  private val tileSetExtentsZoom: Int
+  private val worldImageUrl: String,
+  private val tileSetExtentsZoom: Int,
+  private val cache: LruCache<String, Deferred<Cog?>> = LruCache(16)
 ) {
-  private val cache = LruCache<String, Deferred<Cog?>>(16)
 
   private fun TileCoordinates.getUrl() =
     urlTemplate
@@ -41,9 +44,14 @@ class CogCollection(
 
   /** Returns the COG containing the tile with the specified coordinates. */
   private fun getCogForTile(tile: TileCoordinates): Cog? {
-    if (tile.zoom < tileSetExtentsZoom) return null
-    val extent = tile.originAtZoom(tileSetExtentsZoom)
-    return runBlocking { getOrFetchCogAsync(extent.getUrl(), tile).await() }
+    // TODO: Consider replacing runBlocking/async iwth synchronized(url) to simplify impl and error
+    // handling.
+    return if (tile.zoom < tileSetExtentsZoom) {
+      runBlocking { getOrFetchCogAsync(worldImageUrl, WORLD).await() }
+    } else {
+      val extent = tile.originAtZoom(tileSetExtentsZoom)
+      runBlocking { getOrFetchCogAsync(extent.getUrl(), extent).await() }
+    }
   }
 
   /**
@@ -60,6 +68,7 @@ class CogCollection(
    * added to the cache immediately to prevent duplicate fetches from other threads.
    */
   private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<Cog?> = runBlocking {
+    // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
     @Suppress("DeferredResultUnused")
     async { cogProvider.getCog(URL(url), extent) }.also { cache.put(url, it) }
   }

@@ -10,8 +10,8 @@ class CogTileProvider(private val cogCollection: CogCollection) : TileProvider {
     try {
       val tile = cogCollection.getTile(coords) ?: return null
       return Tile(tile.width.toInt(), tile.height.toInt(), tile.imageBytes)
-    } catch (e: Error) {
-      Timber.e("Failed to fetch tile at $coords", e)
+    } catch (e: Throwable) {
+      Timber.e(e, "Failed to fetch tile at $coords")
       return null
     }
   }

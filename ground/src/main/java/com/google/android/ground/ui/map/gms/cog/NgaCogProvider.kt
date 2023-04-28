@@ -16,12 +16,13 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
+import java.lang.System.currentTimeMillis
 import java.net.HttpURLConnection
 import java.net.URL
 import mil.nga.tiff.FieldTagType.*
 import mil.nga.tiff.TiffReader
+import mil.nga.tiff.util.TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB
 import timber.log.Timber
-import java.lang.System.currentTimeMillis
 
 /**
  * Implementation of [CogProvider] using the [NGA TIFF Java](https://github.com/ngageoint/tiff-java)
@@ -44,9 +45,16 @@ class NgaCogProvider : CogProvider {
       // This reads only headers and not the whole file.
       val tiff = TiffReader.readTiff(inputStream)
       val images = mutableListOf<CogImage>()
+      // Only include image file directories with RGB image data. Mask images are skipped.
+      // TODO: Use masks to render areas with no data as transparent.
+      val rgbIfds =
+        tiff.fileDirectories.filter {
+          it.getIntegerEntryValue(PhotometricInterpretation).and(PHOTOMETRIC_INTERPRETATION_RGB) !=
+            0
+        }
       // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = extent.zoom + tiff.fileDirectories.size - 1
-      tiff.fileDirectories.forEachIndexed { i, ifd ->
+      val maxZ = extent.zoom + rgbIfds.size - 1
+      rgbIfds.forEachIndexed { i, ifd ->
         images.add(
           CogImage(
             url,
@@ -57,7 +65,7 @@ class NgaCogProvider : CogProvider {
             ifd.getIntegerEntryValue(TileLength).toShort(),
             ifd.getIntegerEntryValue(ImageWidth).toShort(),
             ifd.getIntegerEntryValue(ImageLength).toShort(),
-            ifd.getLongListEntryValue(JPEGTables).map(Long::toByte)
+            ifd.getLongListEntryValue(JPEGTables)?.map(Long::toByte)
           )
         )
       }
