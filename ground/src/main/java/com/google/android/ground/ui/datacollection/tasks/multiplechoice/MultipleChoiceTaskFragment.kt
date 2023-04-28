@@ -46,9 +46,11 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     val multipleChoice = viewModel.task.multipleChoice!!
     recyclerView.setHasFixedSize(true)
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      recyclerView.adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
+      recyclerView.adapter =
+        SelectMultipleOptionAdapter(multipleChoice.options) { viewModel.updateResponse(it) }
     } else {
-      recyclerView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
+      recyclerView.adapter =
+        SelectOneOptionAdapter(multipleChoice.options) { viewModel.updateResponse(it) }
     }
   }
 }

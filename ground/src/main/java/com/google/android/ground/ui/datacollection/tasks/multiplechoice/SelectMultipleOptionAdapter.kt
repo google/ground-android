@@ -28,7 +28,7 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectMu
  */
 class SelectMultipleOptionAdapter(
   private val options: List<Option>,
-  private val viewModel: MultipleChoiceTaskViewModel
+  private val handleOptionSelected: (List<Option>) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
 
   private val selectedPositions = mutableSetOf<Int>()
@@ -52,7 +52,7 @@ class SelectMultipleOptionAdapter(
       selectedPositions.add(position)
     }
 
-    viewModel.updateResponse(
+    handleOptionSelected.invoke(
       options.filterIndexed { index, _ -> selectedPositions.contains(index) }
     )
   }

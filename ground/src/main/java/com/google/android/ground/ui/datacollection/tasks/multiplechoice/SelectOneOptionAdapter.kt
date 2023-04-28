@@ -28,7 +28,7 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOn
  */
 class SelectOneOptionAdapter(
   private val options: List<Option>,
-  private val viewModel: MultipleChoiceTaskViewModel
+  private val handleOptionSelected: (List<Option>) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex = -1
@@ -50,7 +50,7 @@ class SelectOneOptionAdapter(
     holder.binding.radioButton.setOnClickListener {
       val oldPosition = selectedIndex
       selectedIndex = holder.adapterPosition
-      viewModel.updateResponse(listOf(options[selectedIndex]))
+      handleOptionSelected.invoke(listOf(options[selectedIndex]))
 
       holder.binding.radioButton.post {
         if (oldPosition >= 0) {
