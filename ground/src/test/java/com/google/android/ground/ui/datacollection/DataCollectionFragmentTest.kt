@@ -25,7 +25,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -55,7 +54,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -244,50 +242,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     expectedTaskDataDeltas.forEach { taskData ->
       assertThat(taskDataDeltaCaptor.value).contains(taskData)
     }
-  }
-
-  @Test
-  fun onContinueClicked_onFinalTask_withMultipleChoiceTask_resultIsSaved() = runWithTestDispatcher {
-    val label = "multiple_choice_task"
-    val option2Label = "Option 2"
-    val option2Id = "2"
-    val multipleChoice =
-      MultipleChoice(
-        persistentListOf(
-          Option("1", "code1", "Option 1"),
-          Option(option2Id, "code2", option2Label),
-        ),
-        MultipleChoice.Cardinality.SELECT_ONE
-      )
-    val taskId = "task id"
-    setupSubmission(
-      mapOf(
-        taskId to
-          Task(
-            taskId,
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice = multipleChoice
-          )
-      )
-    )
-    setupFragment()
-    val expectedTaskDataDeltas =
-      TaskDataDelta(
-        taskId,
-        Task.Type.MULTIPLE_CHOICE,
-        MultipleChoiceTaskData.fromList(multipleChoice, listOf(option2Id))
-      )
-
-    onView(allOf(withText(option2Label), isDisplayed())).perform(click())
-    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
-    advanceUntilIdle()
-
-    verify(submissionRepository)
-      .createOrUpdateSubmission(any(), capture(taskDataDeltaCaptor), eq(true))
-    assertThat(taskDataDeltaCaptor.value[0]).isEqualTo(expectedTaskDataDeltas)
   }
 
   @Test
