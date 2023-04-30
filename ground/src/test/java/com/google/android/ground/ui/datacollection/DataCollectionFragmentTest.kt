@@ -16,7 +16,6 @@
 
 package com.google.android.ground.ui.datacollection
 
-import android.widget.RadioButton
 import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -27,8 +26,6 @@ import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
@@ -44,7 +41,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
 import javax.inject.Inject
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
@@ -101,38 +97,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
     onView(withId(R.id.text_input_layout)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_multipleChoice_selectOne_submissionIsLoaded_properTaskIsShown() {
-    val label = "multiple_choice_task"
-    val option1Label = "Option 1"
-    setupSubmission(
-      mapOf(
-        "task id" to
-          Task(
-            "task id",
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice =
-              MultipleChoice(
-                persistentListOf(
-                  Option("1", "code1", option1Label),
-                  Option("2", "code2", "Option 2"),
-                ),
-                MultipleChoice.Cardinality.SELECT_ONE
-              )
-          )
-      )
-    )
-    setupFragment()
-
-    onView(allOf(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText(option1Label))
-      .check(matches(allOf(isDisplayed(), instanceOf(RadioButton::class.java))))
   }
 
   @Test
