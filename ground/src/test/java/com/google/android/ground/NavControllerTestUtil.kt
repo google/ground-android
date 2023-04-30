@@ -28,11 +28,11 @@ object NavControllerTestUtil {
   // TODO: Refactor existing tests to use this util.
 
   /** Creates a [TestNavHostController]. */
-  fun createTestNavController(destId: Int, argsBundle: Bundle = bundleOf()): TestNavHostController {
+  fun createTestNavController(destId: Int, argsBundle: Bundle?): TestNavHostController {
     val navController = TestNavHostController(getApplicationContext())
     navController.setViewModelStore(ViewModelStore()) // Required for graph scoped view models.
     navController.setGraph(R.navigation.nav_graph)
-    navController.setCurrentDestination(destId, argsBundle)
+    navController.setCurrentDestination(destId, argsBundle ?: bundleOf())
     return navController
   }
 }

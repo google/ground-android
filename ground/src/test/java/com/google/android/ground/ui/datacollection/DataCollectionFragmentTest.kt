@@ -16,14 +16,12 @@
 
 package com.google.android.ground.ui.datacollection
 
-import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
-import com.google.android.ground.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
@@ -195,23 +193,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val argsBundle =
       DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id).build().toBundle()
 
-    hiltActivityScenario()
-      .launchFragment<DataCollectionFragment>(
-        argsBundle,
-        preTransactionAction = {
-          fragment = this as DataCollectionFragment
-          this.also {
-            it.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
-              if (viewLifecycleOwner != null) {
-                // Bind the controller after the view is created but before onViewCreated is called.
-                Navigation.setViewNavController(
-                  fragment.requireView(),
-                  createTestNavController(R.id.data_collection_fragment, argsBundle)
-                )
-              }
-            }
-          }
-        }
-      )
+    launchFragmentWithNavController<DataCollectionFragment>(
+      argsBundle,
+      destId = R.id.data_collection_fragment
+    ) {
+      fragment = this as DataCollectionFragment
+    }
   }
 }

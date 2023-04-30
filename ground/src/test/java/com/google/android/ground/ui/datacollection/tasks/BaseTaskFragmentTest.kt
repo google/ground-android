@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks
 
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -27,10 +26,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.R
-import com.google.android.ground.hiltActivityScenario
-import com.google.android.ground.launchFragment
+import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -115,22 +112,12 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     viewModel.initialize(task, Optional.empty())
     whenever(dataCollectionViewModel.getTaskViewModel(task.index)).thenReturn(viewModel)
 
-    hiltActivityScenario()
-      .launchFragment<T>(
-        preTransactionAction = {
-          fragment = this as F
-          fragment.position = task.index
-
-          viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
-            if (viewLifecycleOwner != null) {
-              // Bind the controller after the view is created but before onViewCreated is called
-              Navigation.setViewNavController(
-                fragment.requireView(),
-                createTestNavController(R.id.data_collection_fragment)
-              )
-            }
-          }
-        }
-      )
+    launchFragmentWithNavController<T>(
+      destId = R.id.data_collection_fragment,
+      preTransactionAction = {
+        fragment = this as F
+        fragment.position = task.index
+      }
+    )
   }
 }
