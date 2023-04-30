@@ -36,12 +36,11 @@ import org.robolectric.RobolectricTestRunner
 class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var navigator: Navigator
-  private lateinit var fragment: HomeScreenMapContainerFragment
 
   @Before
   override fun setUp() {
     super.setUp()
-    setupFragment()
+    launchFragmentInHiltContainer<HomeScreenMapContainerFragment>()
   }
 
   @Test
@@ -53,13 +52,5 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
     navDirectionsTestObserver.assertValue(
       MapTypeDialogFragmentDirections.showMapTypeDialogFragment(GoogleMapsFragment.MAP_TYPES)
     )
-  }
-
-  private fun setupFragment() {
-    launchFragmentWithNavController<HomeScreenMapContainerFragment>(
-      destId = R.id.home_screen_fragment
-    ) {
-      fragment = this as HomeScreenMapContainerFragment
-    }
   }
 }
