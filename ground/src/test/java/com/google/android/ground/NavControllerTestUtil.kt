@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.datacollection
+package com.google.android.ground
 
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
-import com.google.android.ground.R
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 
 /** Helper class for creating [TestNavHostController] for tests. */
 object NavControllerTestUtil {
@@ -30,7 +29,7 @@ object NavControllerTestUtil {
 
   /** Creates a [TestNavHostController]. */
   fun createTestNavController(destId: Int, argsBundle: Bundle = bundleOf()): TestNavHostController {
-    val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
+    val navController = TestNavHostController(getApplicationContext())
     navController.setViewModelStore(ViewModelStore()) // Required for graph scoped view models.
     navController.setGraph(R.navigation.nav_graph)
     navController.setCurrentDestination(destId, argsBundle)

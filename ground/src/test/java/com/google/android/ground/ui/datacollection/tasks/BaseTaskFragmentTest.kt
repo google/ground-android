@@ -27,6 +27,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.R
 import com.google.android.ground.hiltActivityScenario
 import com.google.android.ground.launchFragment
@@ -34,7 +35,6 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
 import java8.util.Optional

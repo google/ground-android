@@ -22,8 +22,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.android.ground.*
+import com.google.android.ground.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.ui.map.gms.GoogleMapsFragment
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
