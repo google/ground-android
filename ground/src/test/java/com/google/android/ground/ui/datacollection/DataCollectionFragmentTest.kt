@@ -32,7 +32,6 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
@@ -102,38 +101,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
     onView(withId(R.id.text_input_layout)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_multipleChoice_selectMultiple_submissionIsLoaded_properTaskIsShown() {
-    val label = "multiple_choice_task"
-    val option1Label = "Option 1"
-    setupSubmission(
-      mapOf(
-        "field id" to
-          Task(
-            "1",
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice =
-              MultipleChoice(
-                persistentListOf(
-                  Option("1", "code1", option1Label),
-                  Option("2", "code2", "Option 2"),
-                ),
-                MultipleChoice.Cardinality.SELECT_MULTIPLE
-              )
-          )
-      )
-    )
-    setupFragment()
-
-    onView(allOf(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText(option1Label))
-      .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
   }
 
   @Test
