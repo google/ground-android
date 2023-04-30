@@ -97,6 +97,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
   protected fun buttonIsEnabled(buttonAction: ButtonAction) {
     val button = getButton(buttonAction)
+    assertThat(buttonAction.type).isEqualTo(ButtonAction.Type.ICON)
     assertThat(button.visibility).isEqualTo(View.VISIBLE)
     assertThat(button.isEnabled).isEqualTo(true)
   }
