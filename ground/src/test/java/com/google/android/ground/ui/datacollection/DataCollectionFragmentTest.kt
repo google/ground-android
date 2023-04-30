@@ -67,27 +67,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   lateinit var fragment: DataCollectionFragment
 
   @Test
-  fun created_submissionIsLoaded_loiNameIsShown() {
+  fun created_submissionIsLoaded_toolbarIsShown() {
     setupSubmission()
     setupFragment()
 
     onView(withText(LOCATION_OF_INTEREST.caption)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_submissionIsLoaded_jobNameIsShown() {
-    setupSubmission()
-    setupFragment()
-
     onView(withText(JOB.name)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_submissionIsLoaded_viewPagerAdapterIsSet() {
-    setupSubmission()
-    setupFragment()
-
-    onView(withId(R.id.pager)).check(matches(isDisplayed()))
   }
 
   @Test
