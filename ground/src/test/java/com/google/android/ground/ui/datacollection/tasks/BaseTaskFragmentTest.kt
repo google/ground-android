@@ -78,8 +78,9 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     viewModel.taskDataFlow.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
-  protected fun hasButtonCount(expectedSize: Int) {
-    assertThat(fragment.getButtons()).hasSize(expectedSize)
+  protected fun hasButtons(vararg buttonActions: ButtonAction) {
+    // TODO: Also check for order of action buttons.
+    assertThat(fragment.getButtons().keys).containsExactlyElementsIn(buttonActions)
   }
 
   protected fun getButton(buttonAction: ButtonAction): View =

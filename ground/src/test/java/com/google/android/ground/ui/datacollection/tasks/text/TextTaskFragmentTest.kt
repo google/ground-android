@@ -30,6 +30,7 @@ import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -84,10 +85,16 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<TextTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<TextTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
   }
@@ -96,7 +103,6 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<TextTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")
   }
