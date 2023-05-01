@@ -29,6 +29,7 @@ import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -90,10 +91,16 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<NumberTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<NumberTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
   }
@@ -102,7 +109,6 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<NumberTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")
   }

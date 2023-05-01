@@ -26,6 +26,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
@@ -78,10 +79,16 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<DateTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<DateTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
   }
@@ -90,7 +97,6 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<DateTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")
   }

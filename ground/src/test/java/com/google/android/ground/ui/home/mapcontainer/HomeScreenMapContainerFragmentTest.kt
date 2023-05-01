@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -23,7 +22,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.android.ground.*
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.ui.map.gms.GoogleMapsFragment
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -38,12 +36,11 @@ import org.robolectric.RobolectricTestRunner
 class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var navigator: Navigator
-  private lateinit var fragment: HomeScreenMapContainerFragment
 
   @Before
   override fun setUp() {
     super.setUp()
-    setupFragment()
+    launchFragmentInHiltContainer<HomeScreenMapContainerFragment>()
   }
 
   @Test
@@ -55,25 +52,5 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
     navDirectionsTestObserver.assertValue(
       MapTypeDialogFragmentDirections.showMapTypeDialogFragment(GoogleMapsFragment.MAP_TYPES)
     )
-  }
-
-  private fun setupFragment() {
-    hiltActivityScenario()
-      .launchFragment<HomeScreenMapContainerFragment>(
-        preTransactionAction = {
-          fragment = this as HomeScreenMapContainerFragment
-          this.also {
-            it.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
-              if (viewLifecycleOwner != null) {
-                // Bind the controller after the view is created but before onViewCreated is called.
-                Navigation.setViewNavController(
-                  fragment.requireView(),
-                  createTestNavController(R.id.home_screen_fragment)
-                )
-              }
-            }
-          }
-        }
-      )
   }
 }

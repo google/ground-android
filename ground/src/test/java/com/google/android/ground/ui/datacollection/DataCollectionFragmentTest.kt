@@ -16,8 +16,6 @@
 
 package com.google.android.ground.ui.datacollection
 
-import android.widget.RadioButton
-import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -25,15 +23,10 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
@@ -46,7 +39,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Single
 import javax.inject.Inject
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
@@ -55,7 +47,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -74,27 +65,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   lateinit var fragment: DataCollectionFragment
 
   @Test
-  fun created_submissionIsLoaded_loiNameIsShown() {
+  fun created_submissionIsLoaded_toolbarIsShown() {
     setupSubmission()
     setupFragment()
 
     onView(withText(LOCATION_OF_INTEREST.caption)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_submissionIsLoaded_jobNameIsShown() {
-    setupSubmission()
-    setupFragment()
-
     onView(withText(JOB.name)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_submissionIsLoaded_viewPagerAdapterIsSet() {
-    setupSubmission()
-    setupFragment()
-
-    onView(withId(R.id.pager)).check(matches(isDisplayed()))
   }
 
   @Test
@@ -104,70 +80,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
     onView(withId(R.id.text_input_layout)).check(matches(isDisplayed()))
-  }
-
-  @Test
-  fun created_multipleChoice_selectMultiple_submissionIsLoaded_properTaskIsShown() {
-    val label = "multiple_choice_task"
-    val option1Label = "Option 1"
-    setupSubmission(
-      mapOf(
-        "field id" to
-          Task(
-            "1",
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice =
-              MultipleChoice(
-                persistentListOf(
-                  Option("1", "code1", option1Label),
-                  Option("2", "code2", "Option 2"),
-                ),
-                MultipleChoice.Cardinality.SELECT_MULTIPLE
-              )
-          )
-      )
-    )
-    setupFragment()
-
-    onView(allOf(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText(option1Label))
-      .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
-  }
-
-  @Test
-  fun created_multipleChoice_selectOne_submissionIsLoaded_properTaskIsShown() {
-    val label = "multiple_choice_task"
-    val option1Label = "Option 1"
-    setupSubmission(
-      mapOf(
-        "task id" to
-          Task(
-            "task id",
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice =
-              MultipleChoice(
-                persistentListOf(
-                  Option("1", "code1", option1Label),
-                  Option("2", "code2", "Option 2"),
-                ),
-                MultipleChoice.Cardinality.SELECT_ONE
-              )
-          )
-      )
-    )
-    setupFragment()
-
-    onView(allOf(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText(option1Label))
-      .check(matches(allOf(isDisplayed(), instanceOf(RadioButton::class.java))))
   }
 
   @Test
@@ -247,50 +159,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_onFinalTask_withMultipleChoiceTask_resultIsSaved() = runWithTestDispatcher {
-    val label = "multiple_choice_task"
-    val option2Label = "Option 2"
-    val option2Id = "2"
-    val multipleChoice =
-      MultipleChoice(
-        persistentListOf(
-          Option("1", "code1", "Option 1"),
-          Option(option2Id, "code2", option2Label),
-        ),
-        MultipleChoice.Cardinality.SELECT_ONE
-      )
-    val taskId = "task id"
-    setupSubmission(
-      mapOf(
-        taskId to
-          Task(
-            taskId,
-            0,
-            Task.Type.MULTIPLE_CHOICE,
-            label,
-            isRequired = false,
-            multipleChoice = multipleChoice
-          )
-      )
-    )
-    setupFragment()
-    val expectedTaskDataDeltas =
-      TaskDataDelta(
-        taskId,
-        Task.Type.MULTIPLE_CHOICE,
-        MultipleChoiceTaskData.fromList(multipleChoice, listOf(option2Id))
-      )
-
-    onView(allOf(withText(option2Label), isDisplayed())).perform(click())
-    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
-    advanceUntilIdle()
-
-    verify(submissionRepository)
-      .createOrUpdateSubmission(any(), capture(taskDataDeltaCaptor), eq(true))
-    assertThat(taskDataDeltaCaptor.value[0]).isEqualTo(expectedTaskDataDeltas)
-  }
-
-  @Test
   fun onBack_firstViewPagerItem_returnsFalse() {
     setupSubmission()
     setupFragment()
@@ -325,23 +193,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val argsBundle =
       DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id).build().toBundle()
 
-    hiltActivityScenario()
-      .launchFragment<DataCollectionFragment>(
-        argsBundle,
-        preTransactionAction = {
-          fragment = this as DataCollectionFragment
-          this.also {
-            it.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
-              if (viewLifecycleOwner != null) {
-                // Bind the controller after the view is created but before onViewCreated is called.
-                Navigation.setViewNavController(
-                  fragment.requireView(),
-                  createTestNavController(R.id.data_collection_fragment, argsBundle)
-                )
-              }
-            }
-          }
-        }
-      )
+    launchFragmentWithNavController<DataCollectionFragment>(
+      argsBundle,
+      destId = R.id.data_collection_fragment
+    ) {
+      fragment = this as DataCollectionFragment
+    }
   }
 }

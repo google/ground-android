@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks
 
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -28,13 +27,11 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
-import com.google.android.ground.hiltActivityScenario
-import com.google.android.ground.launchFragment
+import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
-import com.google.android.ground.ui.datacollection.NavControllerTestUtil.createTestNavController
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
 import java8.util.Optional
@@ -78,8 +75,9 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     viewModel.taskDataFlow.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
-  protected fun hasButtonCount(expectedSize: Int) {
-    assertThat(fragment.getButtons()).hasSize(expectedSize)
+  protected fun hasButtons(vararg buttonActions: ButtonAction) {
+    // TODO: Also check for order of action buttons.
+    assertThat(fragment.getButtons().keys).containsExactlyElementsIn(buttonActions)
   }
 
   protected fun getButton(buttonAction: ButtonAction): View =
@@ -96,6 +94,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
   protected fun buttonIsEnabled(buttonAction: ButtonAction) {
     val button = getButton(buttonAction)
+    assertThat(buttonAction.type).isEqualTo(ButtonAction.Type.ICON)
     assertThat(button.visibility).isEqualTo(View.VISIBLE)
     assertThat(button.isEnabled).isEqualTo(true)
   }
@@ -113,22 +112,12 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     viewModel.initialize(task, Optional.empty())
     whenever(dataCollectionViewModel.getTaskViewModel(task.index)).thenReturn(viewModel)
 
-    hiltActivityScenario()
-      .launchFragment<T>(
-        preTransactionAction = {
-          fragment = this as F
-          fragment.position = task.index
-
-          viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
-            if (viewLifecycleOwner != null) {
-              // Bind the controller after the view is created but before onViewCreated is called
-              Navigation.setViewNavController(
-                fragment.requireView(),
-                createTestNavController(R.id.data_collection_fragment)
-              )
-            }
-          }
-        }
-      )
+    launchFragmentWithNavController<T>(
+      destId = R.id.data_collection_fragment,
+      preTransactionAction = {
+        fragment = this as F
+        fragment.position = task.index
+      }
+    )
   }
 }
