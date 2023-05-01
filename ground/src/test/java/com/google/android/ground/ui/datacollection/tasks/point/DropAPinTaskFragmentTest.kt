@@ -106,10 +106,16 @@ class DropAPinTaskFragmentTest :
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<DropAPinTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(4)
     buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
     buttonIsHidden(ButtonAction.UNDO)
@@ -120,7 +126,6 @@ class DropAPinTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(4)
     buttonIsHidden("Continue")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)

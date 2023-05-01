@@ -23,6 +23,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.common.truth.Truth
 import dagger.hilt.android.testing.BindValue
@@ -76,10 +77,16 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<TimeTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<TimeTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
   }
@@ -88,7 +95,6 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<TimeTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")
   }
