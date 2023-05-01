@@ -22,6 +22,7 @@ import java.net.URL
 import mil.nga.tiff.FieldTagType.*
 import mil.nga.tiff.TiffReader
 import mil.nga.tiff.util.TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB
+import mil.nga.tiff.util.TiffException
 import timber.log.Timber
 
 /**
@@ -72,6 +73,8 @@ class NgaCogProvider : CogProvider {
       val time = currentTimeMillis() - startTimeMillis
       Timber.d("Loaded COG headers in $time ms from $url")
       return Cog(extent, images.toList())
+    } catch (e: TiffException) {
+      throw CogException("Failed to read COG: ${e.message})")
     } finally {
       inputStream.close()
       urlConnection.disconnect()
