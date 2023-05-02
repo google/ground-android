@@ -36,7 +36,7 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
   private var focusedIndex: Int = 0
   private var indexOfLastLoi: Int = -1
   private val itemsList: MutableList<MapCardUiData> = mutableListOf()
-  private lateinit var cardFocusedListener: (MapCardUiData?) -> Unit
+  private var cardFocusedListener: ((MapCardUiData?) -> Unit)? = null
   private lateinit var collectDataListener: (MapCardUiData) -> Unit
 
   /** Creates a new [RecyclerView.ViewHolder] item without any data. */
@@ -80,7 +80,7 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // Add highlight border if selected.
     val borderDrawable =
       if (focusedIndex == position) {
-        cardFocusedListener.invoke(uiData)
+        cardFocusedListener?.invoke(uiData)
         R.drawable.loi_card_selected_background
       } else {
         R.drawable.loi_card_default_background
