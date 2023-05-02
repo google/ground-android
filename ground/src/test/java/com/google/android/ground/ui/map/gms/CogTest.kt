@@ -16,11 +16,12 @@
 
 package com.google.android.ground.ui.map.gms
 
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.ui.map.gms.cog.CogCollection
 import com.google.android.ground.ui.map.gms.cog.NgaCogProvider
-import com.google.android.ground.ui.map.gms.cog.TileCoordinates
 import java.io.File
-import kotlin.math.pow
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -38,18 +39,35 @@ class CogTest {
         tileExtentZ
       )
 
-    val basePath = File("/Users/gmiceli/Downloads/world")
-    basePath.mkdirs()
-    val zRange = 3..3
-    for (z in zRange) {
-      val f = 2.0.pow(z - 9)
-      for (x in (391 * f).toInt()..(392 * f).toInt()) {
-        for (y in (247 * f).toInt()..(251 * f).toInt()) {
-          println("Extracting tile ($x,$y) @ zoom $z")
-          val tile = cogCollection.getTile(TileCoordinates(x, y, z)) ?: continue
-          File(basePath, "$z-$x-$y.jpg").writeBytes(tile.imageBytes)
-        }
+    val outpath = File("/Users/gmiceli/Downloads/tiles")
+    outpath.mkdirs()
+    //    val tileExtentsZ = 9
+    //    val zRange = 9..9
+    //    val xRange = 391..392
+    //    val yRange = 247..251
+    val southwest = LatLng(4.089672, 95.546853)
+    val northeast = LatLng(5.435577, 96.278013)
+    runBlocking {
+      cogCollection.getTiles(LatLngBounds(southwest, northeast), 9..14).collect {
+        it.fold(
+          { tile ->
+            println("Saving tile ${tile.coordinates}")
+            val (x, y, zoom) = tile.coordinates
+            File(outpath, "$zoom-$x-$y.jpg").writeBytes(tile.imageBytes)
+          },
+          { error -> println("Failure: $error") }
+        )
       }
     }
+    //    for (z in zRange) {
+    //      val f = 2.0.pow(z - tileExtentsZ)
+    //      for (x in xRange.map { (it * f).toInt() }) {
+    //        for (y in yRange.map { (it * f).toInt() }) {
+    //          println("Extracting tile ($x,$y) @ zoom $z")
+    //          val tile = cogCollection.getTile(TileCoordinates(x, y, z)) ?: continue
+    //          File(basePath, "$z-$x-$y.jpg").writeBytes(tile.imageBytes)
+    //        }
+    //      }
+    //    }
   }
 }

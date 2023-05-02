@@ -18,10 +18,15 @@ package com.google.android.ground.ui.map.gms.cog
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.google.android.gms.maps.model.LatLngBounds
 import java.io.ByteArrayOutputStream
 import java.lang.System.currentTimeMillis
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.Result.Companion.failure
+import kotlin.Result.Companion.success
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
 /* Circumference of the Earth (m) */
@@ -111,14 +116,23 @@ class CogImage(
   //  private val blankImage =
   //    File("/data/user/0/com.google.android.ground/files/blank.jpg").readBytes()
 
-  fun getTile(tile: TileCoordinates): CogTile? {
-    if (tile.zoom != zoomLevel)
-      throw IllegalArgumentException("Requested z ($tile.z) != image z ($zoomLevel)")
-    val xIdx = tile.x - originTile.x
-    val yIdx = tile.y - originTile.y
-    if (xIdx < 0 || yIdx < 0 || xIdx >= tileCountX || yIdx >= tileCountY) return null
+  //  fun getTiles(tiles: List<TileCoordinates>): Flow<Result<CogTile>> {
+  fun hasTile(coordinates: TileCoordinates): Boolean {
+    val (x, y, zoom) = coordinates
+    return zoom == zoomLevel &&
+      x >= originTile.x &&
+      y >= originTile.y &&
+      x < tileCountX + originTile.x &&
+      y < tileCountY + originTile.y
+  }
+
+  fun getTile(coordinates: TileCoordinates): CogTile {
+    if (!hasTile(coordinates))
+      throw IllegalArgumentException("Requested $coordinates out of image bounds")
+    val xIdx = coordinates.x - originTile.x
+    val yIdx = coordinates.y - originTile.y
     val idx = yIdx * tileCountX + xIdx
-    if (idx > offsets.size) return null
+    if (idx > offsets.size) throw IllegalArgumentException("idx > offsets")
     val from = offsets[idx] + 2 // Skip extraneous SOI
     val len = byteCounts[idx].toInt() - 2
     val to = from + len - 1
@@ -133,10 +147,9 @@ class CogImage(
     try {
       val responseCode = urlConnection.responseCode
       if (responseCode == 404 || responseCode != 206) {
-        Timber.d(
-          "Failed to load tile ${tile.x},${tile.y} @ zoom ${tile.zoom}. HTTP $responseCode on $url"
+        throw CogException(
+          "Failed to load tile ${coordinates.x},${coordinates.y} @ zoom ${coordinates.zoom}. HTTP $responseCode on $url"
         )
-        return null
       }
       val imageBytes = ByteArray(len)
       var bytesRead = 0
@@ -147,7 +160,7 @@ class CogImage(
       }
       val time = currentTimeMillis() - startTimeMillis
       Timber.d(
-        "Fetched tile ${tile.x},${tile.y} @ zoom ${tile.zoom}: ${bytesRead} bytes in $time ms from $url"
+        "Fetched tile ${coordinates.x},${coordinates.y} @ zoom ${coordinates.zoom}: ${bytesRead} bytes in $time ms from $url"
       )
       if (bytesRead < len) {
         Timber.d("Read incomplete: $bytesRead of $len bytes read.")
@@ -175,7 +188,7 @@ class CogImage(
       // TODO: Manually build and return BMP instead of recompressing.
       bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
 
-      return CogTile(tileWidth, tileLength, out.toByteArray())
+      return CogTile(coordinates, tileWidth, tileLength, out.toByteArray())
 
       //        if (imageBytes.all { it == NIL }) return null
       //      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
@@ -192,5 +205,20 @@ class CogImage(
 
   override fun toString(): String {
     return "CogImage(url=$url, originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
+  }
+
+  fun getTiles(bounds: LatLngBounds): Flow<Result<CogTile>> = flow {
+    val nwTile = TileCoordinates.fromLatLng(bounds.northwest(), zoomLevel)
+    val seTile = TileCoordinates.fromLatLng(bounds.southeast(), zoomLevel)
+    for (y in nwTile.y..seTile.y) {
+      for (x in nwTile.x..seTile.x) {
+        try {
+          val coordinates = TileCoordinates(x, y, zoomLevel)
+          if (hasTile(coordinates)) emit(success(getTile(coordinates)))
+        } catch (e: Throwable) {
+          emit(failure(e))
+        }
+      }
+    }
   }
 }

@@ -30,7 +30,7 @@ import timber.log.Timber
  * library to parse TIFF headers.
  */
 class NgaCogProvider : CogProvider {
-  override fun getCog(url: URL, extent: TileCoordinates): Cog? {
+  override fun getCog(url: URL, extent: TileCoordinates): Cog {
     val startTimeMillis = currentTimeMillis()
     // TODO: Refactor with similar logic in CogCollection.
     val urlConnection = url.openConnection() as HttpURLConnection
@@ -40,8 +40,7 @@ class NgaCogProvider : CogProvider {
     try {
       val responseCode = urlConnection.responseCode
       if (responseCode == 404 || responseCode != 200) {
-        Timber.d("Failed to load COG headers. HTTP $responseCode on $url")
-        return null
+        throw CogException("Failed to load COG headers. HTTP $responseCode on $url")
       }
       // This reads only headers and not the whole file.
       val tiff = TiffReader.readTiff(inputStream)
