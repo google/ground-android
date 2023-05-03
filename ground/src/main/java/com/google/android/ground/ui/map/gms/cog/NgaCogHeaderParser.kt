@@ -17,31 +17,21 @@
 package com.google.android.ground.ui.map.gms.cog
 
 import java.lang.System.currentTimeMillis
-import java.net.HttpURLConnection
-import java.net.URL
 import mil.nga.tiff.FieldTagType.*
 import mil.nga.tiff.TiffReader
 import mil.nga.tiff.util.TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB
 import mil.nga.tiff.util.TiffException
 import timber.log.Timber
+import java.io.InputStream
 
 /**
- * Implementation of [CogProvider] using the [NGA TIFF Java](https://github.com/ngageoint/tiff-java)
+ * Implementation of [CogHeaderParser] using the [NGA TIFF Java](https://github.com/ngageoint/tiff-java)
  * library to parse TIFF headers.
  */
-class NgaCogProvider : CogProvider {
-  override fun getCog(url: URL, extent: TileCoordinates): Cog {
+class NgaCogHeaderParser : CogHeaderParser {
+  override fun getCog(url: String, extent: TileCoordinates, inputStream: InputStream): Cog {
     val startTimeMillis = currentTimeMillis()
-    // TODO: Refactor with similar logic in CogCollection.
-    val urlConnection = url.openConnection() as HttpURLConnection
-    urlConnection.requestMethod = "GET"
-    urlConnection.connect()
-    val inputStream = urlConnection.inputStream
     try {
-      val responseCode = urlConnection.responseCode
-      if (responseCode == 404 || responseCode != 200) {
-        throw CogException("Failed to load COG headers. HTTP $responseCode on $url")
-      }
       // This reads only headers and not the whole file.
       val tiff = TiffReader.readTiff(inputStream)
       val images = mutableListOf<CogImage>()
@@ -53,11 +43,10 @@ class NgaCogProvider : CogProvider {
             0
         }
       // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = extent.zoom + rgbIfds.size - 1
+      val maxZ = extent.zoomLevel + rgbIfds.size - 1
       rgbIfds.forEachIndexed { i, ifd ->
         images.add(
           CogImage(
-            url,
             extent.originAtZoom(maxZ - i),
             ifd.getLongListEntryValue(TileOffsets),
             ifd.getLongListEntryValue(TileByteCounts),
@@ -70,13 +59,12 @@ class NgaCogProvider : CogProvider {
         )
       }
       val time = currentTimeMillis() - startTimeMillis
-      Timber.d("Loaded COG headers in $time ms from $url")
-      return Cog(extent, images.toList())
+      Timber.d("Loaded COG headers in $time ms")
+      return Cog(url, extent, images.toList())
     } catch (e: TiffException) {
       throw CogException("Failed to read COG: ${e.message})")
     } finally {
       inputStream.close()
-      urlConnection.disconnect()
     }
   }
 }

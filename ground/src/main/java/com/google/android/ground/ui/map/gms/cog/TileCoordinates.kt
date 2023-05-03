@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.map.gms.cog
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import java.lang.Math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -27,9 +28,9 @@ private fun sec(x: Double) = 1 / cos(x)
 
 fun Double.toRadians() = this * (PI / 180)
 
-data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
+data class TileCoordinates(val x: Int, val y: Int, val zoomLevel: Int) {
   fun originAtZoom(targetZoom: Int): TileCoordinates {
-    val zoomDelta = targetZoom - zoom
+    val zoomDelta = targetZoom - zoomLevel
     return if (zoomDelta > 0) {
       TileCoordinates(x shl zoomDelta, y shl zoomDelta, targetZoom)
     } else {
@@ -38,7 +39,7 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   }
 
   override fun toString(): String {
-    return "($x, $y) @ $zoom"
+    return "($x, $y) @ $zoomLevel"
   }
 
   companion object {
@@ -48,6 +49,18 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
       val x = zoomFactor * (coords.longitude + 180) / 360
       val y = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / PI)) / 2
       return TileCoordinates(x.toInt(), y.toInt(), zoom)
+    }
+
+    fun withinBounds(bounds: LatLngBounds, zoomLevel: Int): List<TileCoordinates> {
+      val results = mutableListOf<TileCoordinates>()
+      val nwTile = fromLatLng(bounds.northwest(), zoomLevel)
+      val seTile = fromLatLng(bounds.southeast(), zoomLevel)
+      for (y in nwTile.y..seTile.y) {
+        for (x in nwTile.x..seTile.x) {
+          results.add(TileCoordinates(x, y, zoomLevel))
+        }
+      }
+      return results.toList()
     }
   }
 }

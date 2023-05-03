@@ -18,15 +18,9 @@ package com.google.android.ground.ui.map.gms.cog
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.google.android.gms.maps.model.LatLngBounds
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.lang.System.currentTimeMillis
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.Result.Companion.failure
-import kotlin.Result.Companion.success
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
 /* Circumference of the Earth (m) */
@@ -75,7 +69,6 @@ private fun Bitmap.setAllPixels(color: Int) {
 const val NIL = 0x00.toByte()
 
 class CogImage(
-  val url: URL,
   val originTile: TileCoordinates,
   val offsets: List<Long>,
   val byteCounts: List<Long>,
@@ -95,7 +88,7 @@ class CogImage(
       .toByteArray()
   // TODO: Verify X and Y scales the same.
   //  val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
-  val zoomLevel = originTile.zoom // zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
+  val zoomLevel = originTile.zoomLevel // zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
 
   // TODO: Rename to something more self descriptive.
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
@@ -126,76 +119,60 @@ class CogImage(
       y < tileCountY + originTile.y
   }
 
-  fun getTile(coordinates: TileCoordinates): CogTile {
+  fun hasTile(x: Int, y: Int) =
+    x >= originTile.x &&
+      y >= originTile.y &&
+      x < tileCountX + originTile.x &&
+      y < tileCountY + originTile.y
+
+  /** Input stream is not closed. */
+  fun parseTile(coordinates: TileCoordinates, inputStream: InputStream): CogTile {
     if (!hasTile(coordinates))
       throw IllegalArgumentException("Requested $coordinates out of image bounds")
     val xIdx = coordinates.x - originTile.x
     val yIdx = coordinates.y - originTile.y
     val idx = yIdx * tileCountX + xIdx
     if (idx > offsets.size) throw IllegalArgumentException("idx > offsets")
-    val from = offsets[idx] + 2 // Skip extraneous SOI
     val len = byteCounts[idx].toInt() - 2
-    val to = from + len - 1
-
     val startTimeMillis = currentTimeMillis()
-    val urlConnection = url.openConnection() as HttpURLConnection
-    urlConnection.requestMethod = "GET"
-    urlConnection.setRequestProperty("Range", "bytes=$from-$to")
-    urlConnection.readTimeout = 5 * 1000
-    urlConnection.connect()
-    val inputStream = urlConnection.inputStream
-    try {
-      val responseCode = urlConnection.responseCode
-      if (responseCode == 404 || responseCode != 206) {
-        throw CogException(
-          "Failed to load tile ${coordinates.x},${coordinates.y} @ zoom ${coordinates.zoom}. HTTP $responseCode on $url"
-        )
-      }
-      val imageBytes = ByteArray(len)
-      var bytesRead = 0
-      var i: Int
-      // TODO: Pipe buildJpegTile() into stream and let BitmapFactory read input stream instead.
-      while (inputStream.read().also { i = it } != -1) {
-        imageBytes[bytesRead++] = i.toByte()
-      }
-      val time = currentTimeMillis() - startTimeMillis
-      Timber.d(
-        "Fetched tile ${coordinates.x},${coordinates.y} @ zoom ${coordinates.zoom}: ${bytesRead} bytes in $time ms from $url"
-      )
-      if (bytesRead < len) {
-        Timber.d("Read incomplete: $bytesRead of $len bytes read.")
-      }
+    val imageBytes = ByteArray(len)
+    var bytesRead = 0
+    // TODO: Pipe buildJpegTile() into stream and let BitmapFactory read input stream instead.
+    while (bytesRead < len) {
+      val b = inputStream.read()
+      if (b < 0) break
+      imageBytes[bytesRead++] = b.toByte()
+    }
+    val time = currentTimeMillis() - startTimeMillis
+    Timber.d("Fetched tile ${coordinates}: $bytesRead of $len bytes in $time ms")
 
-      // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
-      // pixels with transparent once, we would use the image masks contained in the COG. This
-      // method was used for expediency.
-      val bitmap =
-        BitmapFactory.decodeByteArray(buildJpegTile(imageBytes), 0, len)
-          .copy(Bitmap.Config.ARGB_8888, true)
-      bitmap.setHasAlpha(true)
-      for (x in 0 until bitmap.width) {
-        for (y in 0 until bitmap.height) {
-          val color = bitmap.getPixel(x, y)
-          val r: Int = color shr 16 and 0xFF
-          val g: Int = color shr 8 and 0xFF
-          val b: Int = color shr 0 and 0xFF
-          if (r + g + b < 50) {
-            bitmap.setPixel(x, y, 0)
-          }
+    // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
+    // pixels with transparent once, we would use the image masks contained in the COG. This
+    // method was used for expediency.
+    val bitmap =
+      BitmapFactory.decodeByteArray(buildJpegTile(imageBytes), 0, len)
+        .copy(Bitmap.Config.ARGB_8888, true)
+    bitmap.setHasAlpha(true)
+    for (x in 0 until bitmap.width) {
+      for (y in 0 until bitmap.height) {
+        val color = bitmap.getPixel(x, y)
+        val r: Int = color shr 16 and 0xFF
+        val g: Int = color shr 8 and 0xFF
+        val b: Int = color shr 0 and 0xFF
+        if (r + g + b < 50) {
+          bitmap.setPixel(x, y, 0)
         }
       }
-      val out = ByteArrayOutputStream()
-      // TODO: Manually build and return BMP instead of recompressing.
-      bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-
-      return CogTile(coordinates, tileWidth, tileLength, out.toByteArray())
-
-      //        if (imageBytes.all { it == NIL }) return null
-      //      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
-    } finally {
-      inputStream.close()
-      urlConnection.disconnect()
     }
+    val out = ByteArrayOutputStream()
+    // TODO: Manually build and return BMP instead of recompressing.
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+
+    return CogTile(coordinates, tileWidth, tileLength, out.toByteArray())
+
+    //        if (imageBytes.all { it == NIL }) return null
+    //      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
+
     // TODO: Add support for local files using:
     //    val raf = RandomAccessFile(cogFile, "r")
     //    val imageBytes = ByteArray(len.toInt())
@@ -204,21 +181,33 @@ class CogImage(
   }
 
   override fun toString(): String {
-    return "CogImage(url=$url, originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
+    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
   }
-
-  fun getTiles(bounds: LatLngBounds): Flow<Result<CogTile>> = flow {
-    val nwTile = TileCoordinates.fromLatLng(bounds.northwest(), zoomLevel)
-    val seTile = TileCoordinates.fromLatLng(bounds.southeast(), zoomLevel)
-    for (y in nwTile.y..seTile.y) {
-      for (x in nwTile.x..seTile.x) {
-        try {
-          val coordinates = TileCoordinates(x, y, zoomLevel)
-          if (hasTile(coordinates)) emit(success(getTile(coordinates)))
-        } catch (e: Throwable) {
-          emit(failure(e))
+  /*
+    fun getTiles(bounds: LatLngBounds): Flow<Result<CogTile>> = flow {
+      val nwTile = TileCoordinates.fromLatLng(bounds.northwest(), zoomLevel)
+      val seTile = TileCoordinates.fromLatLng(bounds.southeast(), zoomLevel)
+      for (y in nwTile.y..seTile.y) {
+        for (x in nwTile.x..seTile.x) {
+          try {
+            val coordinates = TileCoordinates(x, y, zoomLevel)
+            if (hasTile(coordinates)) emit(success(getTile(coordinates)))
+          } catch (e: Throwable) {
+            emit(failure(e))
+          }
         }
       }
     }
+  */
+  fun getByteRange(x: Int, y: Int): LongRange? {
+    if (!hasTile(x, y)) return null
+    val xIdx = x - originTile.x
+    val yIdx = y - originTile.y
+    val idx = yIdx * tileCountX + xIdx
+    if (idx > offsets.size) throw IllegalArgumentException("idx > offsets")
+    val from = offsets[idx] + 2 // Skip extraneous SOI
+    val len = byteCounts[idx].toInt() - 2
+    val to = from + len - 1
+    return from..to
   }
 }

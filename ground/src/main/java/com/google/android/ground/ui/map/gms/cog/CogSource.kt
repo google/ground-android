@@ -16,8 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.cog
 
-import java.net.URL
+import java.io.InputStream
 
-interface CogProvider {
-  fun getCog(url: URL, extent: TileCoordinates): Cog
+interface CogSource {
+  fun openStream(url: String, ranges: Iterable<LongRange>? = null): InputStream?
 }

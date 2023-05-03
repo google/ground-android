@@ -45,7 +45,8 @@ import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.gms.cog.CogCollection
 import com.google.android.ground.ui.map.gms.cog.CogTileProvider
-import com.google.android.ground.ui.map.gms.cog.NgaCogProvider
+import com.google.android.ground.ui.map.gms.cog.HttpCogSource
+import com.google.android.ground.ui.map.gms.cog.NgaCogHeaderParser
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -188,7 +189,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val cogProvider =
       CogTileProvider(
         CogCollection(
-          NgaCogProvider(),
+          NgaCogHeaderParser(),
+          HttpCogSource(),
           "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
           "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
           //          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
