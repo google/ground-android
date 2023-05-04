@@ -50,7 +50,7 @@ class CogTest {
     val southwest = LatLng(4.089672, 95.546853)
     val northeast = LatLng(5.435577, 96.278013)
     runBlocking {
-      cogCollection.getTiles(LatLngBounds(southwest, northeast), 9..10).collect {
+      cogCollection.getTiles(LatLngBounds(southwest, northeast), 9..14).collect {
         it.fold(
           { tile ->
             println("Saving tile ${tile.coordinates}")
@@ -71,5 +71,21 @@ class CogTest {
     //        }
     //      }
     //    }
+  }
+
+  @Test
+  fun mergeRanges() {
+    val ranges = listOf(LongRange(0, 3), LongRange(4, 7), LongRange(9, 11), LongRange(13, 15))
+
+    val result = mutableListOf<LongRange>()
+    for (range in ranges) {
+      if (result.isEmpty() || range.first - result.last().last - 1 > 0) {
+        result.add(range)
+      } else {
+        result[result.lastIndex] = LongRange(result.last().first, range.last)
+      }
+    }
+
+    println(result)
   }
 }

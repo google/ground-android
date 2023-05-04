@@ -19,5 +19,5 @@ package com.google.android.ground.ui.map.gms.cog
 import java.io.InputStream
 
 interface CogSource {
-  fun openStream(url: String, ranges: Iterable<LongRange>? = null): InputStream?
+  fun openStream(url: String, byteRange: LongRange? = null): InputStream?
 }
