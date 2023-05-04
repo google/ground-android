@@ -19,10 +19,15 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.StyleRes
+import androidx.core.os.bundleOf
 import androidx.core.util.Preconditions
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelStore
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 
 /**
  * `launchFragmentInContainer` from the androidx.fragment:fragment-testing library is NOT possible
@@ -38,6 +43,38 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
 ): ActivityScenario<HiltTestActivity> =
   hiltActivityScenario(themeResId).launchFragment<T>(fragmentArgs, {}) { this.action() }
 
+/**
+ * Launches a fragment in a Hilt enabled ActivityScenario after setting up the NavController for the
+ * given [destId]. This is needed for injecting view models that are scoped to graph.
+ */
+inline fun <reified T : Fragment> launchFragmentWithNavController(
+  fragmentArgs: Bundle? = null,
+  @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
+  destId: Int,
+  crossinline preTransactionAction: Fragment.() -> Unit = {},
+  crossinline postTransactionAction: Fragment.() -> Unit = {}
+): ActivityScenario<HiltTestActivity> =
+  hiltActivityScenario(themeResId).launchFragment<T>(
+    fragmentArgs,
+    {
+      this.preTransactionAction()
+      viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
+        if (viewLifecycleOwner != null) {
+          val navController = TestNavHostController(getApplicationContext())
+          navController.setViewModelStore(ViewModelStore())
+          // Required for graph scoped view models.
+          navController.setGraph(R.navigation.nav_graph)
+          navController.setCurrentDestination(destId, fragmentArgs ?: bundleOf())
+
+          // Bind the controller after the view is created but before onViewCreated is called.
+          Navigation.setViewNavController(requireView(), navController)
+        }
+      }
+    }
+  ) {
+    this.postTransactionAction()
+  }
+
 /** Instantiates a new activity scenario with Hilt support. */
 fun hiltActivityScenario(
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
@@ -51,7 +88,7 @@ fun hiltActivityScenario(
         themeResId
       )
 
-  return ActivityScenario.launch<HiltTestActivity>(startActivityIntent)
+  return ActivityScenario.launch(startActivityIntent)
 }
 
 /**

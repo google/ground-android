@@ -31,6 +31,7 @@ import io.reactivex.Flowable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -45,6 +46,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AbstractViewModel() {
 
+  val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val surveySummaries: LiveData<List<SurveyItem>>
 
   private val offlineSurveys: Flowable<List<Survey>>
@@ -79,7 +81,9 @@ internal constructor(
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
       // TODO(#1497): Handle exceptions thrown by activateSurvey().
+      displayProgressDialog.value = true
       activateSurveyUseCase(surveyId)
+      displayProgressDialog.value = false
       // TODO(#1490): Show spinner while survey is loading.
       navigateToHomeScreen()
     }
