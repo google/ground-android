@@ -17,10 +17,11 @@ package com.google.android.ground.system
 
 import android.content.res.Resources
 import android.location.Geocoder
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.R
+import com.google.android.ground.exts.GeometryExt.center
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.ui.map.Bounds
 import io.reactivex.Single
 import java.io.IOException
 import java8.util.Optional
@@ -44,16 +45,16 @@ constructor(
    *
    * If no area name is found for the given area, returns a default value.
    */
-  fun getAreaName(bounds: LatLngBounds): @Cold Single<String> =
+  fun getAreaName(bounds: Bounds): @Cold Single<String> =
     Single.fromCallable { getAreaNameInternal(bounds) }
       .doOnError { Timber.e(it, "Couldn't get address for bounds: $bounds") }
       .subscribeOn(schedulers.io())
 
   @Throws(AddressNotFoundException::class, IOException::class)
-  private fun getAreaNameInternal(bounds: LatLngBounds): String {
-    val center = bounds.center
-    val addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1)
-    if (addresses == null || addresses.isEmpty()) {
+  private fun getAreaNameInternal(bounds: Bounds): String {
+    val center = bounds.center()
+    val addresses = geocoder.getFromLocation(center.x, center.y, 1)
+    if (addresses.isNullOrEmpty()) {
       throw AddressNotFoundException("No address found for area.")
     }
     val address = addresses[0]

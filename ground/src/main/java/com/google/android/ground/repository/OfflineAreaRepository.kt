@@ -28,7 +28,6 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
@@ -120,7 +119,7 @@ constructor(
 
   fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
     geocodingManager
-      .getAreaName(area.bounds.toGoogleMapsObject())
+      .getAreaName(area.bounds)
       .map { name -> area.copy(state = OfflineArea.State.IN_PROGRESS, name = name) }
       .flatMapCompletable { enqueueTileSetDownloads(it) }
 
