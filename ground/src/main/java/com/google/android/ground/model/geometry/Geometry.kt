@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.ui.map.gms.toLatLng
 import kotlinx.serialization.Serializable
 
 /** A common ancestor for all geometry types. */
@@ -28,9 +26,6 @@ sealed interface Geometry {
 
   val size: Int
     get() = vertices.size
-
-  /** Returns true if the current geometry is within provided [bounds]. */
-  fun isWithinBounds(bounds: LatLngBounds) = vertices.any { bounds.contains(it.toLatLng()) }
 
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {

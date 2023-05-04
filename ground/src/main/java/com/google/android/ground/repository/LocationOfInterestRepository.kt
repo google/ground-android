@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -27,6 +26,8 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.exts.GeometryExt.contains
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -108,12 +109,12 @@ constructor(
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
     survey: Survey,
-    cameraBoundUpdates: Flowable<LatLngBounds>
+    cameraBoundUpdates: Flowable<Bounds>
   ): Flowable<List<LocationOfInterest>> =
     cameraBoundUpdates
       .switchMap { bounds ->
         getLocationsOfInterestOnceAndStream(survey).map { lois ->
-          lois.filter { it.geometry.isWithinBounds(bounds) }
+          lois.filter { bounds.contains(it.geometry) }
         }
       }
       .distinctUntilChanged()
