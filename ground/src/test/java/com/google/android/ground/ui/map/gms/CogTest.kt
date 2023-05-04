@@ -41,12 +41,8 @@ class CogTest {
         tileExtentZ
       )
 
-    val outpath = File("/Users/gmiceli/Downloads/tiles")
+    val outpath = File("/tmp/tiles")
     outpath.mkdirs()
-    //    val tileExtentsZ = 9
-    //    val zRange = 9..9
-    //    val xRange = 391..392
-    //    val yRange = 247..251
     val southwest = LatLng(4.089672, 95.546853)
     val northeast = LatLng(5.435577, 96.278013)
     runBlocking {
