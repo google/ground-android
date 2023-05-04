@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.persistence.local
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -45,6 +43,7 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.*
+import com.google.android.ground.ui.map.Bounds
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
@@ -469,7 +468,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       OfflineArea(
         "id_1",
         OfflineArea.State.PENDING,
-        LatLngBounds.builder().include(LatLng(0.0, 0.0)).build(),
+        Bounds(Coordinate(0.0, 0.0), Coordinate(0.0, 0.0)),
         "Test Area"
       )
 

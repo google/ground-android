@@ -28,6 +28,7 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
@@ -112,14 +113,16 @@ constructor(
       .flatMap { source -> Flowable.fromIterable(source) }
       .firstOrError()
       .map { baseMap -> downloadOfflineBaseMapSource(baseMap) }
-      .flatMap { json -> geoJsonParser.intersectingTiles(offlineArea.bounds, json) }
+      .flatMap { json ->
+        geoJsonParser.intersectingTiles(offlineArea.bounds.toGoogleMapsObject(), json)
+      }
       .doOnError { throwable ->
         Timber.e(throwable, "couldn't retrieve basemap sources for the active survey")
       }
 
   fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
     geocodingManager
-      .getAreaName(area.bounds)
+      .getAreaName(area.bounds.toGoogleMapsObject())
       .map { name -> area.copy(state = OfflineArea.State.IN_PROGRESS, name = name) }
       .flatMapCompletable { enqueueTileSetDownloads(it) }
 

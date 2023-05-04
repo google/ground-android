@@ -24,7 +24,6 @@ import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.map.gms.toModelObject
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -63,7 +62,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
   private fun panMap(offlineArea: OfflineArea) {
-    mapFragment.viewport = offlineArea.bounds.toModelObject()
+    mapFragment.viewport = offlineArea.bounds
   }
 
   /** Removes the area associated with this fragment from the user's device. */

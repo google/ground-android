@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.persistence.local.room.converter
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -39,6 +37,7 @@ import com.google.android.ground.persistence.local.room.fields.*
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
+import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.net.URL
@@ -238,17 +237,16 @@ fun OfflineArea.toOfflineAreaEntity() =
     id = this.id,
     state = this.state.toLocalDataStoreObject(),
     name = this.name,
-    north = this.bounds.northeast.latitude,
-    east = this.bounds.northeast.longitude,
-    south = this.bounds.southwest.latitude,
-    west = this.bounds.southwest.longitude
+    north = this.bounds.northeast.x,
+    east = this.bounds.northeast.y,
+    south = this.bounds.southwest.x,
+    west = this.bounds.southwest.y
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
-  val northEast = LatLng(this.north, this.east)
-  val southWest = LatLng(this.south, this.west)
-  val bounds = LatLngBounds(southWest, northEast)
-
+  val northEast = Coordinate(this.north, this.east)
+  val southWest = Coordinate(this.south, this.west)
+  val bounds = Bounds(southWest, northEast)
   return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name)
 }
 

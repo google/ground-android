@@ -15,15 +15,10 @@
  */
 package com.google.android.ground.model.basemap
 
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.ui.map.Bounds
 
 /** An area is a contiguous set of tiles that task a geodesic rectangle. */
-data class OfflineArea(
-  val id: String,
-  val state: State,
-  val bounds: LatLngBounds,
-  val name: String
-) {
+data class OfflineArea(val id: String, val state: State, val bounds: Bounds, val name: String) {
   enum class State {
     PENDING,
     IN_PROGRESS,
