@@ -19,6 +19,7 @@ package com.google.android.ground.ui.map.gms
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.ui.map.gms.cog.CogCollection
+import com.google.android.ground.ui.map.gms.cog.CogTileDownloader
 import com.google.android.ground.ui.map.gms.cog.HttpCogSource
 import com.google.android.ground.ui.map.gms.cog.NgaCogHeaderParser
 import java.io.File
@@ -31,42 +32,21 @@ import org.robolectric.RobolectricTestRunner
 class CogTest {
   @Test
   fun cogTest() {
-    val tileExtentZ = 9
     val cogCollection =
       CogCollection(
         NgaCogHeaderParser(),
         HttpCogSource(),
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
-        tileExtentZ
+        9,
+        10
       )
-
-    val outpath = File("/tmp/tiles")
-    outpath.mkdirs()
     val southwest = LatLng(4.089672, 95.546853)
     val northeast = LatLng(5.435577, 96.278013)
+    val downloader = CogTileDownloader(cogCollection, "/tmp/tiles")
     runBlocking {
-      cogCollection.getTiles(LatLngBounds(southwest, northeast), 9..14).collect {
-        it.fold(
-          { tile ->
-            println("Saving tile ${tile.coordinates}")
-            val (x, y, zoom) = tile.coordinates
-            File(outpath, "$zoom-$x-$y.jpg").writeBytes(tile.imageBytes)
-          },
-          { error -> println("Failure: $error") }
-        )
-      }
+      downloader.downloadTiles(LatLngBounds(southwest, northeast))
     }
-    //    for (z in zRange) {
-    //      val f = 2.0.pow(z - tileExtentsZ)
-    //      for (x in xRange.map { (it * f).toInt() }) {
-    //        for (y in yRange.map { (it * f).toInt() }) {
-    //          println("Extracting tile ($x,$y) @ zoom $z")
-    //          val tile = cogCollection.getTile(TileCoordinates(x, y, z)) ?: continue
-    //          File(basePath, "$z-$x-$y.jpg").writeBytes(tile.imageBytes)
-    //        }
-    //      }
-    //    }
   }
 
   @Test

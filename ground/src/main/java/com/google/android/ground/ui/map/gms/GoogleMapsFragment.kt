@@ -194,7 +194,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
           "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
           //          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
-          9
+          9,
+          10
         )
       )
     map.addTileOverlay(TileOverlayOptions().tileProvider(cogProvider))

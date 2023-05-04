@@ -46,8 +46,9 @@ class CogCollection(
   private val urlTemplate: String,
   private val worldImageUrl: String,
   private val tileSetExtentsZoom: Int,
-  private val cache: LruCache<String, Deferred<Cog?>> = LruCache(16)
+  val maxZoomLevel: Int
 ) {
+  private val cache: LruCache<String, Deferred<Cog?>> = LruCache(16)
 
   private fun TileCoordinates.getUrl() =
     urlTemplate
@@ -88,10 +89,7 @@ class CogCollection(
   }
   fun getTile(tile: TileCoordinates): CogTile? = getCogForTile(tile)?.getTile(cogSource, tile)
 
-  fun getTiles(
-    bounds: LatLngBounds,
-    zoomLevels: IntRange
-  ): Flow<Result<CogTile>> = flow {
+  fun getTiles(bounds: LatLngBounds, zoomLevels: IntRange): Flow<Result<CogTile>> = flow {
     // TODO: Handle zoomLevels < tileSetExtentsZoom using world COG.
     // Compute extents of first and last COG covered by specified bounds.
     val nwCog = TileCoordinates.fromLatLng(bounds.northwest(), tileSetExtentsZoom)
