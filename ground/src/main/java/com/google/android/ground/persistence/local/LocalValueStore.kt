@@ -16,8 +16,8 @@
 package com.google.android.ground.persistence.local
 
 import android.content.SharedPreferences
-import com.google.android.ground.exts.GmsExt.defaultMapType
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.gms.GmsExt.defaultMapType
 import com.google.android.ground.ui.settings.Keys
 import com.google.android.ground.util.allowThreadDiskReads
 import com.google.android.ground.util.allowThreadDiskWrites

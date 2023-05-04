@@ -15,9 +15,9 @@
  */
 package com.google.android.ground.persistence.mbtiles
 
-import com.google.android.ground.exts.GmsExt.contains
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.gms.GmsExt.contains
 import java8.util.Optional
 import org.json.JSONArray
 import org.json.JSONObject

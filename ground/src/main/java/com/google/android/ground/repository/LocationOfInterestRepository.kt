@@ -27,7 +27,7 @@ import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.ui.map.Bounds
-import com.google.android.ground.exts.GmsExt.contains
+import com.google.android.ground.ui.map.gms.GmsExt.contains
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
