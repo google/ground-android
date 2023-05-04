@@ -386,7 +386,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     try {
       Color.parseColor(colorHexCode.toString())
     } catch (e: IllegalArgumentException) {
-      Timber.w("Invalid color code in job style: $colorHexCode")
+      Timber.w(e, "Invalid color code in job style: $colorHexCode")
       resources.getColor(R.color.colorMapAccent)
     }
 
