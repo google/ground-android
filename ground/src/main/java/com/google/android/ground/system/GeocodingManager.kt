@@ -18,7 +18,7 @@ package com.google.android.ground.system
 import android.content.res.Resources
 import android.location.Geocoder
 import com.google.android.ground.R
-import com.google.android.ground.exts.GeometryExt.center
+import com.google.android.ground.exts.GmsExt.center
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.ui.map.Bounds

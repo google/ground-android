@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.local
 
 import android.content.SharedPreferences
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.ground.exts.GmsExt.defaultMapType
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.settings.Keys
 import com.google.android.ground.util.allowThreadDiskReads
@@ -52,7 +52,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
 
   /** Id of the basemap type. */
   var mapType: Int
-    get() = allowThreadDiskReads { preferences.getInt(MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID) }
+    get() = allowThreadDiskReads { preferences.getInt(MAP_TYPE, defaultMapType()) }
     set(type) = allowThreadDiskWrites {
       preferences.edit().putInt(MAP_TYPE, type).apply()
       mapTypeProcessor.onNext(type)
