@@ -113,9 +113,7 @@ constructor(
       .flatMap { source -> Flowable.fromIterable(source) }
       .firstOrError()
       .map { baseMap -> downloadOfflineBaseMapSource(baseMap) }
-      .flatMap { json ->
-        geoJsonParser.intersectingTiles(offlineArea.bounds.toGoogleMapsObject(), json)
-      }
+      .flatMap { json -> geoJsonParser.intersectingTiles(offlineArea.bounds, json) }
       .doOnError { throwable ->
         Timber.e(throwable, "couldn't retrieve basemap sources for the active survey")
       }

@@ -15,8 +15,9 @@
  */
 package com.google.android.ground.persistence.mbtiles
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.exts.GeometryExt.contains
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.ui.map.Bounds
 import java8.util.Optional
 import org.json.JSONArray
 import org.json.JSONObject
@@ -37,13 +38,13 @@ import org.json.JSONObject
  */
 internal class TileSetJson(private val json: JSONObject) {
 
-  private val vertices: List<LatLng>
+  private val vertices: List<Coordinate>
     get() {
       val exteriorRing =
         Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY))
           .flatMap { j: JSONObject -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)) }
           .map { j: JSONArray -> j.optJSONArray(0) }
-      return ringCoordinatesToLatLngs(exteriorRing.orElse(null))
+      return jsonArrayToCoordinates(exteriorRing.orElse(null))
     }
 
   val id: Optional<String>
@@ -55,18 +56,18 @@ internal class TileSetJson(private val json: JSONObject) {
   val url: Optional<String>
     get() = Optional.ofNullable(json.optJSONObject(PROPERTIES_KEY)).map { it.optString(URL_KEY) }
 
-  fun boundsIntersect(bounds: LatLngBounds): Boolean = vertices.any { bounds.contains(it) }
+  fun boundsIntersect(bounds: Bounds): Boolean = vertices.any { bounds.contains(it) }
 
-  private fun ringCoordinatesToLatLngs(exteriorRing: JSONArray?): List<LatLng> {
+  private fun jsonArrayToCoordinates(exteriorRing: JSONArray?): List<Coordinate> {
     if (exteriorRing == null) {
       return listOf()
     }
-    val coordinates: MutableList<LatLng> = ArrayList()
+    val coordinates: MutableList<Coordinate> = ArrayList()
     for (i in 0 until exteriorRing.length()) {
       val point = exteriorRing.optJSONArray(i)
       val lat = point.optDouble(1, 0.0)
       val lng = point.optDouble(0, 0.0)
-      coordinates.add(LatLng(lat, lng))
+      coordinates.add(Coordinate(lat, lng))
     }
     return coordinates
   }

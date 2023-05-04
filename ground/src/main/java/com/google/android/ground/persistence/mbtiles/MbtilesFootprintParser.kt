@@ -15,10 +15,10 @@
  */
 package com.google.android.ground.persistence.mbtiles
 
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.basemap.tile.TileSet.Companion.pathFromId
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.ui.map.Bounds
 import io.reactivex.Single
 import java.io.File
 import java.nio.charset.Charset
@@ -53,7 +53,7 @@ class MbtilesFootprintParser @Inject constructor(private val uuidGenerator: Offl
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  fun intersectingTiles(bounds: LatLngBounds, file: File): Single<List<TileSet>> =
+  fun intersectingTiles(bounds: Bounds, file: File): Single<List<TileSet>> =
     getJsonTileSets(file)
       .map { tilesetJsonList ->
         tilesetJsonList
