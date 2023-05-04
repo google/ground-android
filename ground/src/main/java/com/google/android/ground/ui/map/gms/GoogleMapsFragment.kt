@@ -258,7 +258,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
-      customCap = CustomCap(bitmapUtil.bitmapDescriptorFromVector(R.drawable.ic_endpoint))
+      val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
+      customCap = CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
     }
     return checkNotNull(customCap)
   }
