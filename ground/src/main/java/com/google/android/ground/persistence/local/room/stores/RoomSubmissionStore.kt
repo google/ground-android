@@ -44,7 +44,11 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.*
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
+import io.reactivex.SingleSource
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
@@ -117,7 +121,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override fun apply(mutation: SubmissionMutation): Completable =
     when (mutation.type) {
@@ -144,7 +148,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     mutation: SubmissionMutation
   ): Completable =
     submissionDao
-      .update(entity.apply { state = EntityState.DELETED })
+      .update(entity.copy(state = EntityState.DELETED))
       .doOnSubscribe { Timber.d("Marking submission as deleted : $mutation") }
       .ignoreElement()
       .subscribeOn(schedulers.io())
@@ -204,11 +208,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
     Timber.v("Merging submission $this with mutations $mutations")
 
-    return submission.apply {
-      responses = ResponseMapConverter.toString(commitMutations(job, this, mutations))
+    return submission.copy(
+      responses = ResponseMapConverter.toString(commitMutations(job, submission, mutations)),
       lastModified = AuditInfoEntity(UserDetails.fromUser(user), clientTimestamp)
-      Timber.v("Merged submission $this")
-    }
+    )
   }
 
   private fun commitMutations(

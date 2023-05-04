@@ -115,14 +115,13 @@ constructor(
       // Update belongs to another task.
       return
     }
-    photoResult.isHandled = true
     if (photoResult.isEmpty()) {
       clearResponse()
       Timber.v("Photo cleared")
       return
     }
     try {
-      val imageFile = getFileFromResult(photoResult)
+      val imageFile = getFileFromResult(photoResult.copy(isHandled = true))
       val filename = imageFile.name
       val path = imageFile.absolutePath
 
