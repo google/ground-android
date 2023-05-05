@@ -1,4 +1,4 @@
-package com.google.android.ground.ui.map.gms.cog
+package com.google.android.ground.ui.map.gms.tcog
 
 data class CogTile(
   val coordinates: TileCoordinates,

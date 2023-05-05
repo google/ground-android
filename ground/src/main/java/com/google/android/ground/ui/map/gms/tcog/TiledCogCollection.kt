@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.cog
+package com.google.android.ground.ui.map.gms.tcog
 
 import android.util.LruCache
 import com.google.android.gms.maps.model.LatLng
@@ -33,14 +33,13 @@ fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
 
 fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
 
-fun <T, R> Iterable<T>.zipNotNull(transform: (T) -> R?): List<Pair<T, R>> =
-  zip(map(transform)).filter { it.second != null }.map { Pair(it.first, it.second!!) }
-
 /**
- * Represents a collection of non-overlapping cloud-optimized GeoTIFFs (COGs) whose extents are
- * determined by the boundaries of web mercator tiles at [tileSetExtentsZoom].
+ * A collection of tiled cloud-optimized GeoTIFFs (COGs).
+ * non-overlapping
+ * whose extents are
+ * determined by the boundaries of web mercator tiles at a specific zoom level.
  */
-class CogCollection(
+class TiledCogCollection(
   private val cogHeaderParser: CogHeaderParser,
   private val cogSource: CogSource,
   private val urlTemplate: String,

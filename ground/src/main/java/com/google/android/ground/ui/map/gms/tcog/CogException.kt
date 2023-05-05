@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.cog
+package com.google.android.ground.ui.map.gms.tcog
 
 class CogException(message: String) : Exception(message) {}

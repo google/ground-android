@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.cog
+package com.google.android.ground.ui.map.gms.tcog
 
 import com.google.android.gms.maps.model.LatLngBounds
 import java.io.File
 
-class CogTileDownloader(val cogCollection: CogCollection, val outputBasePath: String) {
+class CogTileDownloader(val tiledCogCollection: TiledCogCollection, val outputBasePath: String) {
   suspend fun downloadTiles(bounds: LatLngBounds) {
-    cogCollection.getTiles(bounds, 0..cogCollection.maxZoomLevel).collect {
+    tiledCogCollection.getTiles(bounds, 0..tiledCogCollection.maxZoomLevel).collect {
       it.fold(
         { tile ->
           println("Saving tile ${tile.coordinates}")

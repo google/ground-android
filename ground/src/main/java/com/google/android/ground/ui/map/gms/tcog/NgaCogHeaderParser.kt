@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.cog
+package com.google.android.ground.ui.map.gms.tcog
 
 import java.lang.System.currentTimeMillis
 import mil.nga.tiff.FieldTagType.*

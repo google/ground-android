@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.cog
+package com.google.android.ground.ui.map.gms.tcog
 
 import com.google.android.gms.maps.model.LatLngBounds
 import java.io.InputStream
