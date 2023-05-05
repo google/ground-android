@@ -86,10 +86,8 @@ class TiledCogCollection(
   private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<Cog?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
     @Suppress("DeferredResultUnused")
-    val deferred = async {
-      cogSource.openStream(url)?.use { cogHeaderParser.getCog(url, extent, it) }
-    }
-    cache.put(url, deferred)
+    async { cogSource.openStream(url)?.use { cogHeaderParser.getCog(url, extent, it) } }
+      .also { cache.put(url, it) }
   }
 
   suspend fun getTile(tile: TileCoordinates): CogTile? =

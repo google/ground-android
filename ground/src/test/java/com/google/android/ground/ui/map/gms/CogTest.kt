@@ -38,7 +38,7 @@ class CogTest {
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
         9,
-        10
+        14
       )
     val southwest = LatLng(4.089672, 95.546853)
     val northeast = LatLng(5.435577, 96.278013)
@@ -46,21 +46,5 @@ class CogTest {
     runBlocking {
       downloader.downloadTiles(LatLngBounds(southwest, northeast))
     }
-  }
-
-  @Test
-  fun mergeRanges() {
-    val ranges = listOf(LongRange(0, 3), LongRange(4, 7), LongRange(9, 11), LongRange(13, 15))
-
-    val result = mutableListOf<LongRange>()
-    for (range in ranges) {
-      if (result.isEmpty() || range.first - result.last().last - 1 > 0) {
-        result.add(range)
-      } else {
-        result[result.lastIndex] = LongRange(result.last().first, range.last)
-      }
-    }
-
-    println(result)
   }
 }
