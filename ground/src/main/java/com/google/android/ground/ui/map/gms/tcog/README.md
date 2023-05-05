@@ -26,5 +26,6 @@ All files in the collection must also satisfy the following constraints:
 * Tile size: 256x256
 * Image compression: JPEG
 * ACLs: Public read access
+* Masks: Masks are currently ignored. As a workaround, pixels with RGB value 0x000000 are treated as transparent.
 
 <!-- TODO: Include example usages. -->
