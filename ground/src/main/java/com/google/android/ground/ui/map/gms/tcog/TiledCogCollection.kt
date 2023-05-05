@@ -46,22 +46,28 @@ class TiledCogCollection(
 ) {
   private val cache: LruCache<String, Deferred<Cog?>> = LruCache(16)
 
-  private fun TileCoordinates.getUrl() =
-    sliceUrlTemplate
+  private fun getCogExtentsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
+    if (tileCoordinates.zoom < sliceMinZoom) WORLD else tileCoordinates.originAtZoom(sliceMinZoom)
+
+  /** Returns the COG containing the tile with the specified coordinates. */
+  private suspend fun getCogForTile(tileCoordinates: TileCoordinates): Cog? =
+    getCog(getCogExtentsForTile(tileCoordinates))
+
+  private suspend fun getCog(extent: TileCoordinates): Cog? =
+    getOrFetchCogAsync(getCogUrl(extent), extent).await()
+
+  private fun getCogUrl(extent: TileCoordinates): String {
+    val (x, y, zoom) = extent
+    if (zoom == 0) {
+      return worldImageUrl
+    }
+    if (zoom < sliceMinZoom) {
+      error("Invalid zoom for this collection. Expected 0 or $sliceMinZoom, got $zoom")
+    }
+    return sliceUrlTemplate
       .replace("{x}", x.toString())
       .replace("{y}", y.toString())
       .replace("{z}", zoom.toString())
-
-  /** Returns the COG containing the tile with the specified coordinates. */
-  private fun getCogForTile(tile: TileCoordinates): Cog? {
-    // TODO: Consider replacing runBlocking/async with synchronized(url) to simplify impl and error
-    // handling.
-    return if (tile.zoom < sliceMinZoom) {
-      runBlocking { getOrFetchCogAsync(worldImageUrl, WORLD).await() }
-    } else {
-      val extent = tile.originAtZoom(sliceMinZoom)
-      runBlocking { getOrFetchCogAsync(extent.getUrl(), extent).await() }
-    }
   }
 
   /**
@@ -80,9 +86,12 @@ class TiledCogCollection(
   private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<Cog?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
     @Suppress("DeferredResultUnused")
-    async { cogSource.openStream(url)?.use { cogHeaderParser.getCog(url, extent, it) } }
-      .also { cache.put(url, it) }
+    val deferred = async {
+      cogSource.openStream(url)?.use { cogHeaderParser.getCog(url, extent, it) }
+    }
+    cache.put(url, deferred)
   }
+
   suspend fun getTile(tile: TileCoordinates): CogTile? =
     getCogForTile(tile)?.getTile(cogSource, tile)
 
@@ -91,9 +100,8 @@ class TiledCogCollection(
     if (worldZoomLevels.isNotEmpty()) {
       emitAll(getTiles(WORLD, bounds, worldZoomLevels))
     }
-    // TODO: Handle zoomRange levels < tileSetExtentsZoom using world COG.
-    // Compute extents of first and last COG covered by specified bounds.
     if (sliceZoomLevels.isNotEmpty()) {
+      // Compute extents of first and last COG slice covered by specified bounds.
       val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), sliceMinZoom)
       val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), sliceMinZoom)
       for (y in nwSlice.y..seSlice.y) {
@@ -108,8 +116,7 @@ class TiledCogCollection(
     bounds: LatLngBounds,
     zoomLevels: List<Int>
   ): Flow<CogTile> = flow {
-    // TODO: Add method to get COG by extents w/o recalculating extents.
-    val cog = getCogForTile(cogCoordinates) ?: return@flow
+    val cog = getCog(cogCoordinates) ?: return@flow
     for (zoom in zoomLevels) {
       emitAll(cog.getTiles(cogSource, TileCoordinates.withinBounds(bounds, zoom)))
     }
