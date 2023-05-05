@@ -37,10 +37,10 @@ data class RequestRange(
  * image data is loaded lazily on demand.
  */
 class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogImage>) {
-  val imagesByZoomLevel = imageHeaders.associateBy { it.zoomLevel }
+  val imagesByZoom = imageHeaders.associateBy { it.zoom }
 
   override fun toString(): String {
-    return "Cog(extent=$extent, imagesByZoomLevel=$imagesByZoomLevel)"
+    return "Cog(extent=$extent, imagesByZoom=$imagesByZoom)"
   }
 
   fun parseTiles(
@@ -49,7 +49,7 @@ class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogIm
   ): Flow<Result<CogTile>> = flow {
     var pos: Long? = null
     for (coords in tileCoordinates) {
-      val image = imagesByZoomLevel[coords.zoomLevel]!!
+      val image = imagesByZoom[coords.zoom]!!
       // TODO: Only create parser once per image.
       // TODO: Support non-contiguous tile byte ranges.
       val byteRange = image.getByteRange(coords.x, coords.y)!!
@@ -65,8 +65,8 @@ class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogIm
     }
   }
 
-  fun getTiles(cogSource: CogSource, bounds: LatLngBounds, zoomLevels: IntRange) =
-    getTiles(cogSource, zoomLevels.flatMap { TileCoordinates.withinBounds(bounds, it) })
+  fun getTiles(cogSource: CogSource, bounds: LatLngBounds, zoomRange: IntRange) =
+    getTiles(cogSource, zoomRange.flatMap { TileCoordinates.withinBounds(bounds, it) })
 
   // TODO: Pass cogSource to constructor instead of here.
   private fun getTiles(
@@ -104,7 +104,7 @@ class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogIm
   }
 
   private fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
-    imagesByZoomLevel[tileCoordinate.zoomLevel]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
+    imagesByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
 
   fun getTile(cogSource: CogSource, tileCoordinate: TileCoordinates): CogTile = runBlocking {
     getTiles(cogSource, listOf(tileCoordinate)).first().getOrThrow()

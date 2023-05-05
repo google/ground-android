@@ -28,9 +28,9 @@ private fun sec(x: Double) = 1 / cos(x)
 
 fun Double.toRadians() = this * (PI / 180)
 
-data class TileCoordinates(val x: Int, val y: Int, val zoomLevel: Int) {
+data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   fun originAtZoom(targetZoom: Int): TileCoordinates {
-    val zoomDelta = targetZoom - zoomLevel
+    val zoomDelta = targetZoom - zoom
     return if (zoomDelta > 0) {
       TileCoordinates(x shl zoomDelta, y shl zoomDelta, targetZoom)
     } else {
@@ -39,7 +39,7 @@ data class TileCoordinates(val x: Int, val y: Int, val zoomLevel: Int) {
   }
 
   override fun toString(): String {
-    return "($x, $y) @ $zoomLevel"
+    return "($x, $y) @ $zoom"
   }
 
   companion object {
@@ -51,13 +51,13 @@ data class TileCoordinates(val x: Int, val y: Int, val zoomLevel: Int) {
       return TileCoordinates(x.toInt(), y.toInt(), zoom)
     }
 
-    fun withinBounds(bounds: LatLngBounds, zoomLevel: Int): List<TileCoordinates> {
+    fun withinBounds(bounds: LatLngBounds, zoom: Int): List<TileCoordinates> {
       val results = mutableListOf<TileCoordinates>()
-      val nwTile = fromLatLng(bounds.northwest(), zoomLevel)
-      val seTile = fromLatLng(bounds.southeast(), zoomLevel)
+      val nwTile = fromLatLng(bounds.northwest(), zoom)
+      val seTile = fromLatLng(bounds.southeast(), zoom)
       for (y in nwTile.y..seTile.y) {
         for (x in nwTile.x..seTile.x) {
-          results.add(TileCoordinates(x, y, zoomLevel))
+          results.add(TileCoordinates(x, y, zoom))
         }
       }
       return results.toList()

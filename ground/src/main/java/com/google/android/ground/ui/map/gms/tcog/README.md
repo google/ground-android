@@ -7,8 +7,8 @@ The package supports a narrow subset of the COG spec and requires collections of
 TCOG collections are organized as follows:
 
 * The world is sliced along the extents of web mercator tile extents at a particular zoom level. The collection contains one non-overlapping COG for each of these extents.
-* Each COG file contains one image for each zoom level, from the zoom level used for slicing (`tileSetMinZoomLevel`), up to the max. zoom level included in the collection (`tileSetMaxZoomLevel`).
-* A "world COG" may also be defined to provide lower resolution images of the entire world from zoom level `0` up to `tileSetMinZoomLevel-1`.
+* Each COG file contains one image for each zoom level, from the zoom level used for slicing (`sliceMinZoom`), up to the max. zoom level included in the collection (`maxZoom`).
+* A "world COG" may also be defined to provide lower resolution images of the entire world from zoom level `0`, up to and including `sliceMinZoom - 1`.
 * Each COG is further divided into 256x256 pixel JPEG compressed tiles.
 * Note that since the COGs are sliced exactly along the extents of web mercator tiles, the width and height of images at each zoom level are always integer multiples of 256, with the lowest resolution image in each COG consisting of a single 256x256 tile. 
 

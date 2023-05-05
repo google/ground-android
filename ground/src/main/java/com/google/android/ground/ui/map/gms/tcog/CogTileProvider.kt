@@ -8,8 +8,8 @@ import timber.log.Timber
  * Implements a Maps SDK [TileProvider] for tiles retrieved from a [TiledCogCollection].
  */
 class CogTileProvider(private val tiledCogCollection: TiledCogCollection) : TileProvider {
-  override fun getTile(x: Int, y: Int, z: Int): Tile? {
-    val coords = TileCoordinates(x, y, z)
+  override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
+    val coords = TileCoordinates(x, y, zoom)
     try {
       val tile = tiledCogCollection.getTile(coords) ?: return null
       return Tile(tile.width.toInt(), tile.height.toInt(), tile.imageBytes)

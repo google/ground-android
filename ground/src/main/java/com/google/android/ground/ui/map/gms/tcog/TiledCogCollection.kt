@@ -34,35 +34,33 @@ fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
 fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
 
 /**
- * A collection of tiled cloud-optimized GeoTIFFs (COGs).
- * non-overlapping
- * whose extents are
- * determined by the boundaries of web mercator tiles at a specific zoom level.
+ * A collection of tiled cloud-optimized GeoTIFFs (COGs). See `README.md` for full description of
+ * supported format and usage.
  */
 class TiledCogCollection(
   private val cogHeaderParser: CogHeaderParser,
   private val cogSource: CogSource,
-  private val urlTemplate: String,
+  private val sliceUrlTemplate: String,
   private val worldImageUrl: String,
-  private val tileSetExtentsZoom: Int,
-  val maxZoomLevel: Int
+  private val sliceMinZoom: Int,
+  val maxZoom: Int
 ) {
   private val cache: LruCache<String, Deferred<Cog?>> = LruCache(16)
 
   private fun TileCoordinates.getUrl() =
-    urlTemplate
+    sliceUrlTemplate
       .replace("{x}", x.toString())
       .replace("{y}", y.toString())
-      .replace("{z}", zoomLevel.toString())
+      .replace("{z}", zoom.toString())
 
   /** Returns the COG containing the tile with the specified coordinates. */
   private fun getCogForTile(tile: TileCoordinates): Cog? {
     // TODO: Consider replacing runBlocking/async with synchronized(url) to simplify impl and error
     // handling.
-    return if (tile.zoomLevel < tileSetExtentsZoom) {
+    return if (tile.zoom < sliceMinZoom) {
       runBlocking { getOrFetchCogAsync(worldImageUrl, WORLD).await() }
     } else {
-      val extent = tile.originAtZoom(tileSetExtentsZoom)
+      val extent = tile.originAtZoom(sliceMinZoom)
       runBlocking { getOrFetchCogAsync(extent.getUrl(), extent).await() }
     }
   }
@@ -88,18 +86,18 @@ class TiledCogCollection(
   }
   fun getTile(tile: TileCoordinates): CogTile? = getCogForTile(tile)?.getTile(cogSource, tile)
 
-  fun getTiles(bounds: LatLngBounds, zoomLevels: IntRange): Flow<Result<CogTile>> = flow {
-    // TODO: Handle zoomLevels < tileSetExtentsZoom using world COG.
+  fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Result<CogTile>> = flow {
+    // TODO: Handle zoomRange levels < tileSetExtentsZoom using world COG.
     // Compute extents of first and last COG covered by specified bounds.
-    val nwCog = TileCoordinates.fromLatLng(bounds.northwest(), tileSetExtentsZoom)
-    val seCog = TileCoordinates.fromLatLng(bounds.southeast(), tileSetExtentsZoom)
+    val nwCog = TileCoordinates.fromLatLng(bounds.northwest(), sliceMinZoom)
+    val seCog = TileCoordinates.fromLatLng(bounds.southeast(), sliceMinZoom)
     for (y in nwCog.y..seCog.y) {
       for (x in nwCog.x..seCog.x) {
-        val cogExtents = TileCoordinates(x, y, tileSetExtentsZoom)
+        val cogExtents = TileCoordinates(x, y, sliceMinZoom)
         try {
           // TODO: Add method to get COG by extents w/o recalculating extents.
           val cog = getCogForTile(cogExtents) ?: continue
-          emitAll(cog.getTiles(cogSource, bounds, zoomLevels))
+          emitAll(cog.getTiles(cogSource, bounds, zoomRange))
         } catch (e: Throwable) {
           Timber.d(e, "Error fetching COG $cogExtents")
         }

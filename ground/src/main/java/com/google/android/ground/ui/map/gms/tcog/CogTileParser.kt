@@ -86,33 +86,8 @@ class CogTileParser(val image: CogImage) {
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
 
     return CogTile(coordinates, image.tileWidth, image.tileLength, out.toByteArray())
-
-    //        if (imageBytes.all { it == NIL }) return null
-    //      return CogTile(tileWidth, tileLength, buildJpegTile(imageBytes))
-
-    // TODO: Add support for local files using:
-    //    val raf = RandomAccessFile(cogFile, "r")
-    //    val imageBytes = ByteArray(len.toInt())
-    //    raf.seek(offset)
-    //    raf.read(imageBytes)
   }
 
-  /*
-    fun getTiles(bounds: LatLngBounds): Flow<Result<CogTile>> = flow {
-      val nwTile = TileCoordinates.fromLatLng(bounds.northwest(), zoomLevel)
-      val seTile = TileCoordinates.fromLatLng(bounds.southeast(), zoomLevel)
-      for (y in nwTile.y..seTile.y) {
-        for (x in nwTile.x..seTile.x) {
-          try {
-            val coordinates = TileCoordinates(x, y, zoomLevel)
-            if (hasTile(coordinates)) emit(success(getTile(coordinates)))
-          } catch (e: Throwable) {
-            emit(failure(e))
-          }
-        }
-      }
-    }
-  */
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
     START_OF_IMAGE +
       app0Segment(image.tileWidth, image.tileLength) +

@@ -21,7 +21,7 @@ import java.io.File
 
 class CogTileDownloader(val tiledCogCollection: TiledCogCollection, val outputBasePath: String) {
   suspend fun downloadTiles(bounds: LatLngBounds) {
-    tiledCogCollection.getTiles(bounds, 0..tiledCogCollection.maxZoomLevel).collect {
+    tiledCogCollection.getTiles(bounds, 0..tiledCogCollection.maxZoom).collect {
       it.fold(
         { tile ->
           println("Saving tile ${tile.coordinates}")

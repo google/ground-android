@@ -43,7 +43,7 @@ class NgaCogHeaderParser : CogHeaderParser {
             0
         }
       // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = extent.zoomLevel + rgbIfds.size - 1
+      val maxZ = extent.zoom + rgbIfds.size - 1
       rgbIfds.forEachIndexed { i, ifd ->
         images.add(
           CogImage(

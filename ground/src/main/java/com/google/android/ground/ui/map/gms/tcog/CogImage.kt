@@ -31,12 +31,11 @@ class CogImage(
   val tileCountY = imageLength / tileLength
 
   // TODO: Verify X and Y scales the same.
-  //  val tiePointLatLng = CoordinateTransformer.webMercatorToWgs84(tiePointX, tiePointY)
-  val zoomLevel = originTile.zoomLevel // zoomLevelFromScale(pixelScaleY, tiePointLatLng.latitude)
+  val zoom = originTile.zoom
 
   fun hasTile(coordinates: TileCoordinates): Boolean {
     val (x, y, zoom) = coordinates
-    return zoom == zoomLevel && hasTile(x, y)
+    return zoom == this.zoom && hasTile(x, y)
   }
 
   private fun hasTile(x: Int, y: Int) =
@@ -46,7 +45,7 @@ class CogImage(
       y < tileCountY + originTile.y
 
   override fun toString(): String {
-    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoomLevel=$zoomLevel)"
+    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoom=$zoom)"
   }
 
   fun getByteRange(x: Int, y: Int): LongRange? {
