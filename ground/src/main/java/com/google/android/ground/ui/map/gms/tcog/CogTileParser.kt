@@ -43,32 +43,30 @@ private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte
 class CogTileParser(val image: CogImage) {
   /** Input stream is not closed. */
   fun parseTile(coordinates: TileCoordinates, inputStream: InputStream): CogTile {
-    if (!image.hasTile(coordinates))
-      throw IllegalArgumentException("Requested $coordinates out of image bounds")
-    val xIdx = coordinates.x - image.originTile.x
-    val yIdx = coordinates.y - image.originTile.y
-    val idx = yIdx * image.tileCountX + xIdx
-    if (idx > image.offsets.size) throw IllegalArgumentException("idx > offsets")
-    // TODO: Use image.getByteRange().count here instead
-    val len = image.byteCounts[idx].toInt() - 2
-    val startTimeMillis = currentTimeMillis()
+    val len =
+      image.getByteRange(coordinates.x, coordinates.y)?.count()
+        ?: throw IllegalArgumentException("Requested $coordinates out of image bounds")
     val imageBytes = ByteArray(len)
     var bytesRead = 0
     // TODO: Pipe buildJpegTile() into stream and let BitmapFactory read input stream instead.
+    val startTimeMillis = currentTimeMillis()
     while (bytesRead < len) {
       val b = inputStream.read()
       if (b < 0) break
       imageBytes[bytesRead++] = b.toByte()
     }
     val time = currentTimeMillis() - startTimeMillis
-    Timber.d("Fetched tile ${coordinates}: $bytesRead of $len bytes in $time ms")
+    Timber.d("Fetched tile ${coordinates}: $bytesRead in $time ms")
+    if (bytesRead < len) {
+      Timber.w("Too few bytes received. Expected $len, got $bytesRead")
+    }
 
     // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
     // pixels with transparent once, we would use the image masks contained in the COG. This
     // method was used for expediency.
+    val jpegTile = buildJpegTile(imageBytes)
     val bitmap =
-      BitmapFactory.decodeByteArray(buildJpegTile(imageBytes), 0, len)
-        .copy(Bitmap.Config.ARGB_8888, true)
+      BitmapFactory.decodeByteArray(jpegTile, 0, jpegTile.size).copy(Bitmap.Config.ARGB_8888, true)
     bitmap.setHasAlpha(true)
     for (x in 0 until bitmap.width) {
       for (y in 0 until bitmap.height) {
@@ -91,12 +89,15 @@ class CogTileParser(val image: CogImage) {
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
     START_OF_IMAGE +
       app0Segment(image.tileWidth, image.tileLength) +
-      ((image.jpegTables ?: listOf())
-        .drop(2) // Skip extraneous SOI.
-        .dropLast(2) // Skip extraneous EOI.
-        .toByteArray()) +
-      imageBytes +
+      rawJpegTables(image.jpegTables) +
+      imageBytes.drop(2) + // Drop leading SOI.
       END_OF_IMAGE
+
+  private fun rawJpegTables(jpegTables: ByteArray): ByteArray =
+    jpegTables
+      .drop(2) // Drop leading SOI.
+      .dropLast(2) // Drop trailing EOI.
+      .toByteArray()
 
   /** Build "Application Segment 0" section of header. */
   private fun app0Segment(tileWidth: Short, tileHeight: Short) =

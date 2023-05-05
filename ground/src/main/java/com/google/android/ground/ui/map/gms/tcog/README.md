@@ -1,6 +1,6 @@
-# Tiled cloud-optimized GeoTIFFs (TCOGs)
+# Tiled cloud optimized GeoTIFFs (TCOGs)
 
-This package supports real-time and batch download and rendering of image tiles defined in a collection of specialized [cloud-optimized GeoTIFFs](http://cogeo.org) hosted in Google Cloud Storage or other HTTP file server.
+This package supports real-time and batch download and rendering of image tiles defined in a collection of specialized [cloud optimized GeoTIFFs](http://cogeo.org) hosted in Google Cloud Storage or other HTTP file server.
 
 The package supports a narrow subset of the COG spec and requires collections of COG to be structured according to specific rules. For convenience, we'll call such file collections "tiled COG" or "TCOG" collections.
 

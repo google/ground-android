@@ -38,7 +38,7 @@ class CogTest {
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
         9,
-        10
+        9
       )
     val southwest = LatLng(4.089672, 95.546853)
     val northeast = LatLng(5.435577, 96.278013)

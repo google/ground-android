@@ -43,10 +43,10 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.gms.tcog.TiledCogCollection
 import com.google.android.ground.ui.map.gms.tcog.CogTileProvider
 import com.google.android.ground.ui.map.gms.tcog.HttpCogSource
 import com.google.android.ground.ui.map.gms.tcog.NgaCogHeaderParser
+import com.google.android.ground.ui.map.gms.tcog.TiledCogCollection
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -193,7 +193,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           HttpCogSource(),
           "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/{z}/{x}/{y}.tif",
           "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
-          //          requireContext().filesDir.path + "/cogs/{z}/{x}/{y}.tif",
           9,
           10
         )

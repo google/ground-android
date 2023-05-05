@@ -47,21 +47,21 @@ class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogIm
     tileCoordinates: List<TileCoordinates>,
     inputStream: InputStream
   ): Flow<Result<CogTile>> = flow {
-    var pos: Long? = null
+//    var pos: Long? = null
     for (coords in tileCoordinates) {
       val image = imagesByZoom[coords.zoom]!!
       // TODO: Only create parser once per image.
       // TODO: Support non-contiguous tile byte ranges.
       val byteRange = image.getByteRange(coords.x, coords.y)!!
-      if (pos != null && pos < byteRange.first) {
-        while (pos++ < byteRange.first) {
-          if (inputStream.read() == -1) {
-            throw CogException("Unexpected end of tile response")
-          }
-        }
-      }
+//      if (pos != null && pos < byteRange.first) {
+//        while (pos++ < byteRange.first) {
+//          if (inputStream.read() == -1) {
+//            throw CogException("Unexpected end of tile response")
+//          }
+//        }
+//      }
       emit(success(CogTileParser(image).parseTile(coords, inputStream)))
-      pos = byteRange.last + 1
+//      pos = byteRange.last + 1
     }
   }
 
@@ -78,7 +78,7 @@ class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogIm
       // TODO: Support non contiguous ranges.
       // Tiles are typically 10-20 KB. Allow extra 5 K to allow us to combine ranges into a
       // single request.
-      val maxOverfetch = 5 * 1024
+      val maxOverfetch = 0 //5 * 1024
       for (coords in tileCoordinates) {
         val byteRange = getByteRange(coords) ?: continue
         val prev = if (requestRanges.isEmpty()) null else requestRanges.last()

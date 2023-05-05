@@ -16,17 +16,17 @@
 
 package com.google.android.ground.ui.map.gms.tcog
 
+import java.io.InputStream
 import java.lang.System.currentTimeMillis
 import mil.nga.tiff.FieldTagType.*
 import mil.nga.tiff.TiffReader
 import mil.nga.tiff.util.TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB
 import mil.nga.tiff.util.TiffException
 import timber.log.Timber
-import java.io.InputStream
 
 /**
- * Implementation of [CogHeaderParser] using the [NGA TIFF Java](https://github.com/ngageoint/tiff-java)
- * library to parse TIFF headers.
+ * Implementation of [CogHeaderParser] using the
+ * [NGA TIFF Java](https://github.com/ngageoint/tiff-java) library to parse TIFF headers.
  */
 class NgaCogHeaderParser : CogHeaderParser {
   override fun getCog(url: String, extent: TileCoordinates, inputStream: InputStream): Cog {
@@ -54,7 +54,7 @@ class NgaCogHeaderParser : CogHeaderParser {
             ifd.getIntegerEntryValue(TileLength).toShort(),
             ifd.getIntegerEntryValue(ImageWidth).toShort(),
             ifd.getIntegerEntryValue(ImageLength).toShort(),
-            ifd.getLongListEntryValue(JPEGTables)?.map(Long::toByte)
+            ifd.getLongListEntryValue(JPEGTables)?.map(Long::toByte)?.toByteArray() ?: byteArrayOf()
           )
         )
       }

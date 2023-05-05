@@ -24,8 +24,7 @@ class CogImage(
   val tileLength: Short,
   val imageWidth: Short,
   val imageLength: Short,
-  // TODO: Use ByteArray instead?
-  val jpegTables: List<Byte>?
+  val jpegTables: ByteArray
 ) {
   val tileCountX = imageWidth / tileWidth
   val tileCountY = imageLength / tileLength
@@ -45,7 +44,7 @@ class CogImage(
       y < tileCountY + originTile.y
 
   override fun toString(): String {
-    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTablesBody=.., zoom=$zoom)"
+    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
   }
 
   fun getByteRange(x: Int, y: Int): LongRange? {
@@ -54,8 +53,8 @@ class CogImage(
     val yIdx = y - originTile.y
     val idx = yIdx * tileCountX + xIdx
     if (idx > offsets.size) throw IllegalArgumentException("idx > offsets")
-    val from = offsets[idx] + 2 // Skip extraneous SOI
-    val len = byteCounts[idx].toInt() - 2
+    val from = offsets[idx]
+    val len = byteCounts[idx].toInt()
     val to = from + len - 1
     return from..to
   }
