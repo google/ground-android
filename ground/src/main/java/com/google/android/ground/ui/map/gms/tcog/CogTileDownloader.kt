@@ -19,19 +19,33 @@ package com.google.android.ground.ui.map.gms.tcog
 import com.google.android.gms.maps.model.LatLngBounds
 import java.io.File
 
-class CogTileDownloader(val tiledCogCollection: TiledCogCollection, val outputBasePath: String) {
-  suspend fun downloadTiles(bounds: LatLngBounds) {
-    tiledCogCollection.getTiles(bounds, 0..tiledCogCollection.maxZoom).collect {
-      it.fold(
-        { tile ->
-          println("Saving tile ${tile.coordinates}")
-          val (x, y, zoom) = tile.coordinates
-          val path = File(outputBasePath, "$zoom/$x")
-          path.mkdirs()
-          File(path, "$y.jpg").writeBytes(tile.imageBytes)
-        },
-        { error -> println("Failure: $error") }
-      )
+/**
+ * Downloads tiles across regions at multiple zoom levels.
+ *
+ * @param tiledCogCollection the collection from which tiles will be fetched.
+ * @param outputBasePath the base path on the local file system where tiles should be written.
+ */
+class CogTileDownloader(
+  private val tiledCogCollection: TiledCogCollection,
+  private val outputBasePath: String
+) {
+  /**
+   * Downloads all tiles overlapping the Tiles are written to the object's [outputBasePath] in files
+   * with paths of the form `{z}/{x}/{y}.jpg`.
+   *
+   * @param bounds the bounds used to constrain which tiles are retrieved. Only tiles within or
+   *   overlapping these bounds are retrieved.
+   * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
+   *   all available tiles in the collection as determined by the [TiledCogCollection.maxZoom].
+   */
+  suspend fun downloadTiles(
+    bounds: LatLngBounds,
+    zoomRange: IntRange = 0..tiledCogCollection.maxZoom
+  ) =
+    tiledCogCollection.getTiles(bounds, zoomRange).collect {
+      val (x, y, zoom) = it.coordinates
+      val path = File(outputBasePath, "$zoom/$x")
+      path.mkdirs()
+      File(path, "$y.jpg").writeBytes(it.imageBytes)
     }
-  }
 }

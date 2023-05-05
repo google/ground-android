@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
-import timber.log.Timber
 
 val WORLD = TileCoordinates(0, 0, 0)
 
@@ -40,8 +39,8 @@ fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
 class TiledCogCollection(
   private val cogHeaderParser: CogHeaderParser,
   private val cogSource: CogSource,
-  private val sliceUrlTemplate: String,
   private val worldImageUrl: String,
+  private val sliceUrlTemplate: String,
   private val sliceMinZoom: Int,
   val maxZoom: Int
 ) {
@@ -84,24 +83,35 @@ class TiledCogCollection(
     async { cogSource.openStream(url)?.use { cogHeaderParser.getCog(url, extent, it) } }
       .also { cache.put(url, it) }
   }
-  fun getTile(tile: TileCoordinates): CogTile? = getCogForTile(tile)?.getTile(cogSource, tile)
+  suspend fun getTile(tile: TileCoordinates): CogTile? =
+    getCogForTile(tile)?.getTile(cogSource, tile)
 
-  fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Result<CogTile>> = flow {
+  fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<CogTile> = flow {
+    val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < sliceMinZoom }
+    if (worldZoomLevels.isNotEmpty()) {
+      emitAll(getTiles(WORLD, bounds, worldZoomLevels))
+    }
     // TODO: Handle zoomRange levels < tileSetExtentsZoom using world COG.
     // Compute extents of first and last COG covered by specified bounds.
-    val nwCog = TileCoordinates.fromLatLng(bounds.northwest(), sliceMinZoom)
-    val seCog = TileCoordinates.fromLatLng(bounds.southeast(), sliceMinZoom)
-    for (y in nwCog.y..seCog.y) {
-      for (x in nwCog.x..seCog.x) {
-        val cogExtents = TileCoordinates(x, y, sliceMinZoom)
-        try {
-          // TODO: Add method to get COG by extents w/o recalculating extents.
-          val cog = getCogForTile(cogExtents) ?: continue
-          emitAll(cog.getTiles(cogSource, bounds, zoomRange))
-        } catch (e: Throwable) {
-          Timber.d(e, "Error fetching COG $cogExtents")
+    if (sliceZoomLevels.isNotEmpty()) {
+      val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), sliceMinZoom)
+      val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), sliceMinZoom)
+      for (y in nwSlice.y..seSlice.y) {
+        for (x in nwSlice.x..seSlice.x) {
+          emitAll(getTiles(TileCoordinates(x, y, sliceMinZoom), bounds, sliceZoomLevels))
         }
       }
+    }
+  }
+  private fun getTiles(
+    cogCoordinates: TileCoordinates,
+    bounds: LatLngBounds,
+    zoomLevels: List<Int>
+  ): Flow<CogTile> = flow {
+    // TODO: Add method to get COG by extents w/o recalculating extents.
+    val cog = getCogForTile(cogCoordinates) ?: return@flow
+    for (zoom in zoomLevels) {
+      emitAll(cog.getTiles(cogSource, TileCoordinates.withinBounds(bounds, zoom)))
     }
   }
 }

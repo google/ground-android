@@ -42,23 +42,16 @@ private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte
 
 class CogTileParser(val image: CogImage) {
   /** Input stream is not closed. */
-  fun parseTile(coordinates: TileCoordinates, inputStream: InputStream): CogTile {
-    val len =
-      image.getByteRange(coordinates.x, coordinates.y)?.count()
-        ?: throw IllegalArgumentException("Requested $coordinates out of image bounds")
-    val imageBytes = ByteArray(len)
+  fun parseTile(inputStream: InputStream, numBytes: Int): ByteArray {
+    val imageBytes = ByteArray(numBytes)
     var bytesRead = 0
-    // TODO: Pipe buildJpegTile() into stream and let BitmapFactory read input stream instead.
-    val startTimeMillis = currentTimeMillis()
-    while (bytesRead < len) {
+    while (bytesRead < numBytes) {
       val b = inputStream.read()
       if (b < 0) break
       imageBytes[bytesRead++] = b.toByte()
     }
-    val time = currentTimeMillis() - startTimeMillis
-    Timber.d("Fetched tile ${coordinates}: $bytesRead in $time ms")
-    if (bytesRead < len) {
-      Timber.w("Too few bytes received. Expected $len, got $bytesRead")
+    if (bytesRead < numBytes) {
+      Timber.w("Too few bytes received. Expected $numBytes, got $bytesRead")
     }
 
     // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
@@ -82,8 +75,7 @@ class CogTileParser(val image: CogImage) {
     val out = ByteArrayOutputStream()
     // TODO: Manually build and return BMP instead of recompressing.
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-
-    return CogTile(coordinates, image.tileWidth, image.tileLength, out.toByteArray())
+    return out.toByteArray()
   }
 
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
