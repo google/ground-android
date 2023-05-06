@@ -67,7 +67,7 @@ class CogTileParser(val image: CogImage) {
         val r: Int = color shr 16 and 0xFF
         val g: Int = color shr 8 and 0xFF
         val b: Int = color shr 0 and 0xFF
-        if (r + g + b < 50) {
+        if (r + g + b == 0) {
           bitmap.setPixel(x, y, 0)
         }
       }

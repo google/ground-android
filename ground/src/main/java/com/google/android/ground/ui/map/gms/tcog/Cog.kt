@@ -16,11 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.tcog
 
+import kotlinx.coroutines.flow.*
 import java.io.InputStream
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
 /**
@@ -97,6 +94,6 @@ class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogIm
   private fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
     imagesByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
 
-  suspend fun getTile(cogSource: CogSource, tileCoordinates: TileCoordinates): CogTile =
-    getTiles(cogSource, listOf(tileCoordinates)).first()
+  suspend fun getTile(cogSource: CogSource, tileCoordinates: TileCoordinates): CogTile? =
+    getTiles(cogSource, listOf(tileCoordinates)).firstOrNull()
 }
