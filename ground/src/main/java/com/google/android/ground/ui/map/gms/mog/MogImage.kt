@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.tcog
+package com.google.android.ground.ui.map.gms.mog
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -39,7 +39,7 @@ private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this
 
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
-class CogImageTileMatrix(
+class MogImage(
   val tileWidth: Int,
   val tileLength: Int,
   private val originTile: TileCoordinates,

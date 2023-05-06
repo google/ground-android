@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.tcog
+package com.google.android.ground.ui.map.gms.mog
 
 import android.util.LruCache
 import com.google.android.gms.maps.model.LatLng
@@ -47,23 +47,23 @@ inline fun <T> nullIfNotFound(fn: () -> T) =
   }
 
 /** A collection of cloud-optimized GeoTIFFs (COGs). */
-class CogTilePyramidCollection(
+class MogCollection(
   private val worldCogUrl: String,
   private val cellCogUrlTemplate: String,
   private val cellCogMinZoom: Int,
   val cellCogMaxZoom: Int
 ) : TileProvider {
-  private val cache: LruCache<String, Deferred<CogTilePyramid?>> = LruCache(16)
+  private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
 
   private fun getCogExtentsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < cellCogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(cellCogMinZoom)
 
   /** Returns the COG containing the tile with the specified coordinates. */
-  private suspend fun getCogForTile(tileCoordinates: TileCoordinates): CogTilePyramid? =
+  private suspend fun getCogForTile(tileCoordinates: TileCoordinates): Mog? =
     getCog(getCogExtentsForTile(tileCoordinates))
 
-  private suspend fun getCog(extent: TileCoordinates): CogTilePyramid? =
+  private suspend fun getCog(extent: TileCoordinates): Mog? =
     getOrFetchCogAsync(getCogUrl(extent), extent).await()
 
   private fun getCogUrl(extent: TileCoordinates): String {
@@ -86,14 +86,14 @@ class CogTilePyramidCollection(
    * checking in cache and creating the new job is synchronized on the current instance of
    * CogCollection to prevent duplicate requests due to race conditions.
    */
-  private fun getOrFetchCogAsync(url: String, extent: TileCoordinates): Deferred<CogTilePyramid?> =
+  private fun getOrFetchCogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> =
     synchronized(this) { cache.get(url) ?: fetchCogAsync(url, extent) }
 
   /**
    * Asynchronously fetches and returns the COG with the specified extent and URL. The async job is
    * added to the cache immediately to prevent duplicate fetches from other threads.
    */
-  private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<CogTilePyramid?> =
+  private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> =
     runBlocking {
       // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
       @Suppress("DeferredResultUnused")
@@ -144,12 +144,12 @@ class CogTilePyramidCollection(
     url: String,
     extent: TileCoordinates,
     inputStream: InputStream
-  ): CogTilePyramid {
+  ): Mog {
     val startTimeMillis = System.currentTimeMillis()
     try {
       // This reads only headers and not the whole file.
       val tiff = TiffReader.readTiff(inputStream)
-      val images = mutableListOf<CogImageTileMatrix>()
+      val images = mutableListOf<MogImage>()
       // Only include image file directories with RGB image data. Mask images are skipped.
       // TODO: Render masked areas as transparent.
       val rgbIfds =
@@ -162,7 +162,7 @@ class CogTilePyramidCollection(
       val maxZ = extent.zoom + rgbIfds.size - 1
       rgbIfds.forEachIndexed { i, ifd ->
         images.add(
-          CogImageTileMatrix(
+          MogImage(
             ifd.getIntegerEntryValue(FieldTagType.TileWidth),
             ifd.getIntegerEntryValue(FieldTagType.TileLength),
             extent.originAtZoom(maxZ - i),
@@ -177,7 +177,7 @@ class CogTilePyramidCollection(
       }
       val time = System.currentTimeMillis() - startTimeMillis
       Timber.d("Loaded COG headers in $time ms")
-      return CogTilePyramid(url, images.toList())
+      return Mog(url, images.toList())
     } catch (e: TiffException) {
       error("Failed to read COG: ${e.message})")
     } finally {

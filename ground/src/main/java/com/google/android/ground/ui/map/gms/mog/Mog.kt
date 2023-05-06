@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.tcog
+package com.google.android.ground.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.Tile
 import java.io.InputStream
@@ -40,7 +40,7 @@ data class RequestRange(
  * map tiles for a specific extent rendered at one or more zoom levels. Instances of this class
  * fetch more tiles on calls to [getTile] and [getTiles].
  */
-class CogTilePyramid(val url: String, images: List<CogImageTileMatrix>) {
+class Mog(val url: String, images: List<MogImage>) {
   private val imagesByZoom = images.associateBy { it.zoom }
 
   override fun toString(): String {

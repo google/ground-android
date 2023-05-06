@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.tcog
+package com.google.android.ground.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.LatLngBounds
 import java.io.File
@@ -22,11 +22,11 @@ import java.io.File
 /**
  * Downloads tiles across regions at multiple zoom levels.
  *
- * @param cogTilePyramidCollection the collection from which tiles will be fetched.
+ * @param mogCollection the collection from which tiles will be fetched.
  * @param outputBasePath the base path on the local file system where tiles should be written.
  */
-class CogTileDownloader(
-  private val cogTilePyramidCollection: CogTilePyramidCollection,
+class MogTileDownloader(
+  private val mogCollection: MogCollection,
   private val outputBasePath: String
 ) {
   /**
@@ -37,13 +37,13 @@ class CogTileDownloader(
    *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
    *   all available tiles in the collection as determined by the
-   *   [CogTilePyramidCollection.cellCogMaxZoom].
+   *   [MogCollection.cellCogMaxZoom].
    */
   suspend fun downloadTiles(
     bounds: LatLngBounds,
-    zoomRange: IntRange = 0..cogTilePyramidCollection.cellCogMaxZoom
+    zoomRange: IntRange = 0..mogCollection.cellCogMaxZoom
   ) =
-    cogTilePyramidCollection.getTiles(bounds, zoomRange).collect { (coordinates, tile) ->
+    mogCollection.getTiles(bounds, zoomRange).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()

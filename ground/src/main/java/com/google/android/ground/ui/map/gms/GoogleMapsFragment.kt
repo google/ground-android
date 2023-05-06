@@ -43,7 +43,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.gms.tcog.CogTilePyramidCollection
+import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -185,7 +185,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     val cogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/8"
     val cogProvider =
-      CogTilePyramidCollection(
+      MogCollection(
         "$cogBaseUrl/world.tif",
         "$cogBaseUrl/{x}/{y}.tif",
         8,
