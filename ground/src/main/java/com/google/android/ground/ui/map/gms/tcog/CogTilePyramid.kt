@@ -16,8 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.tcog
 
-import kotlinx.coroutines.flow.*
+import com.google.android.gms.maps.model.Tile
 import java.io.InputStream
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 /**
@@ -35,65 +36,66 @@ data class RequestRange(
 )
 
 /**
- * A single cloud-optimized GeoTIFF file. Only headers and derived metadata are stored in memory;
- * image data is loaded lazily on demand.
+ * A tile pyramid backed by a single cloud optimized GeoTIFF. A tile pyramid is a collection of web
+ * map tiles for a specific extent rendered at one or more zoom levels. Instances of this class
+ * fetch more tiles on calls to [getTile] and [getTiles].
  */
-class Cog(val url: String, val extent: TileCoordinates, imageHeaders: List<CogImage>) {
-  val imagesByZoom = imageHeaders.associateBy { it.zoom }
+class CogTilePyramid(val url: String, images: List<CogImageTileMatrix>) {
+  private val imagesByZoom = images.associateBy { it.zoom }
 
   override fun toString(): String {
-    return "Cog(extent=$extent, imagesByZoom=$imagesByZoom)"
+    return "Cog(url=$url, imagesByZoom=$imagesByZoom)"
   }
 
   private fun parseTiles(
-    tileCoordinates: List<TileCoordinates>,
+    tileCoordinatesList: List<TileCoordinates>,
     inputStream: InputStream
-  ): Flow<CogTile> = flow {
+  ): Flow<Pair<TileCoordinates, Tile>> = flow {
     var pos: Long? = null
-    for (coords in tileCoordinates) {
-      val image = imagesByZoom[coords.zoom]!!
-      val byteRange = image.getByteRange(coords.x, coords.y) ?: error("$coords out of image bounds")
+    for (tileCoordinates in tileCoordinatesList) {
+      val image = imagesByZoom[tileCoordinates.zoom]!!
+      val byteRange =
+        image.getByteRange(tileCoordinates.x, tileCoordinates.y)
+          ?: error("$tileCoordinates out of image bounds")
       if (pos != null && pos < byteRange.first) {
         while (pos++ < byteRange.first) {
           if (inputStream.read() == -1) {
-            throw CogException("Unexpected end of tile response")
+            error("Unexpected end of tile response")
           }
         }
       }
       val startTimeMillis = System.currentTimeMillis()
-      // TODO: Only create parser once per image or pass image into parser.
-      val imageBytes = CogTileParser(image).parseTile(inputStream, byteRange.count())
+      val imageBytes = image.parseTile(inputStream, byteRange.count())
       val time = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Fetched tile ${coords}: ${imageBytes.size} in $time ms")
-      emit(CogTile(coords, image.tileWidth, image.tileLength, imageBytes))
+      Timber.d("Fetched tile ${tileCoordinates}: ${imageBytes.size} in $time ms")
+      emit(Pair(tileCoordinates, Tile(image.tileWidth, image.tileLength, imageBytes)))
       pos = byteRange.last + 1
     }
   }
 
   // TODO: Pass cogSource to constructor instead of here.
-  fun getTiles(cogSource: CogSource, tileCoordinatesList: List<TileCoordinates>): Flow<CogTile> =
+  fun getTiles(tileCoordinatesList: List<TileCoordinates>): Flow<Pair<TileCoordinates, Tile>> =
     flow {
       val requestRanges = mutableListOf<RequestRange>()
-      for (tileCoords in tileCoordinatesList) {
-        val byteRange = getByteRange(tileCoords) ?: continue
+      for (tileCoordinates in tileCoordinatesList) {
+        val byteRange = getByteRange(tileCoordinates) ?: continue
         val prev = if (requestRanges.isEmpty()) null else requestRanges.last()
         if (prev == null || byteRange.first - prev.byteRange.last - 1 > MAX_OVER_FETCH_PER_TILE) {
-          requestRanges.add(RequestRange(byteRange, mutableListOf(tileCoords)))
+          requestRanges.add(RequestRange(byteRange, mutableListOf(tileCoordinates)))
         } else {
           prev.byteRange = LongRange(prev.byteRange.first, byteRange.last)
-          prev.tileCoordinates.add(tileCoords)
+          prev.tileCoordinates.add(tileCoordinates)
         }
       }
       // TODO: Use thread pool to request multiple ranges in parallel.
-      requestRanges.forEach { (byteRange, tileCoords) ->
-        Timber.d("Fetching $byteRange")
-        cogSource.openStream(url, byteRange)?.use { emitAll(parseTiles(tileCoords, it)) }
+      requestRanges.forEach { (byteRange, tileCoordinates) ->
+        UrlInputStream(url, byteRange).use { emitAll(parseTiles(tileCoordinates, it)) }
       }
     }
 
   private fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
     imagesByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
 
-  suspend fun getTile(cogSource: CogSource, tileCoordinates: TileCoordinates): CogTile? =
-    getTiles(cogSource, listOf(tileCoordinates)).firstOrNull()
+  suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
+    getTiles(listOf(tileCoordinates)).firstOrNull()?.second
 }

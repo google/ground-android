@@ -22,11 +22,11 @@ import java.io.File
 /**
  * Downloads tiles across regions at multiple zoom levels.
  *
- * @param tiledCogCollection the collection from which tiles will be fetched.
+ * @param cogTilePyramidCollection the collection from which tiles will be fetched.
  * @param outputBasePath the base path on the local file system where tiles should be written.
  */
 class CogTileDownloader(
-  private val tiledCogCollection: TiledCogCollection,
+  private val cogTilePyramidCollection: CogTilePyramidCollection,
   private val outputBasePath: String
 ) {
   /**
@@ -36,16 +36,17 @@ class CogTileDownloader(
    * @param bounds the bounds used to constrain which tiles are retrieved. Only tiles within or
    *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   *   all available tiles in the collection as determined by the [TiledCogCollection.maxZoom].
+   *   all available tiles in the collection as determined by the
+   *   [CogTilePyramidCollection.cellCogMaxZoom].
    */
   suspend fun downloadTiles(
     bounds: LatLngBounds,
-    zoomRange: IntRange = 0..tiledCogCollection.maxZoom
+    zoomRange: IntRange = 0..cogTilePyramidCollection.cellCogMaxZoom
   ) =
-    tiledCogCollection.getTiles(bounds, zoomRange).collect {
-      val (x, y, zoom) = it.coordinates
+    cogTilePyramidCollection.getTiles(bounds, zoomRange).collect { (coordinates, tile) ->
+      val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()
-      File(path, "$y.jpg").writeBytes(it.imageBytes)
+      File(path, "$y.jpg").writeBytes(tile.data!!)
     }
 }

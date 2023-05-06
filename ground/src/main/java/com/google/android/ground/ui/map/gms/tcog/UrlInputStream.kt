@@ -16,16 +16,27 @@
 
 package com.google.android.ground.ui.map.gms.tcog
 
+import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
 const val READ_TIMEOUT_MS = 5 * 1000
 
-class HttpCogSource : CogSource {
+/**
+ * @constructor Creates a [UrlInputStream] by opening a connection to an actual URL, requesting the
+ *   specified [byteRange] if specified.
+ */
+class UrlInputStream(private val url: String, private val byteRange: LongRange? = null) :
+  InputStream() {
+  private val inputStream: InputStream
 
-  override fun openStream(url: String, byteRange: LongRange?): InputStream? {
-    //    ranges.zipWithNext { a, b -> }
+  init {
+    inputStream = openStream()
+  }
+
+  private fun openStream(): InputStream {
     val urlConnection = URL(url).openConnection() as HttpURLConnection
     urlConnection.requestMethod = "GET"
     urlConnection.readTimeout = READ_TIMEOUT_MS
@@ -34,11 +45,13 @@ class HttpCogSource : CogSource {
     }
     urlConnection.connect()
     val responseCode = urlConnection.responseCode
-    if (responseCode == 404) return null
+    if (responseCode == 404) throw FileNotFoundException("$url not found")
     val expectedResponseCode = if (byteRange == null) 200 else 206
     if (responseCode != expectedResponseCode) {
-      throw CogException("HTTP $responseCode accessing $url")
+      throw IOException("HTTP $responseCode accessing $url")
     }
     return urlConnection.inputStream
   }
+
+  override fun read(): Int = inputStream.read()
 }

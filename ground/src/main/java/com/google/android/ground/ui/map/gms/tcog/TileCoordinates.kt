@@ -29,6 +29,10 @@ private fun sec(x: Double) = 1 / cos(x)
 fun Double.toRadians() = this * (PI / 180)
 
 data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
+  /**
+   * Returns the tile coordinates of the tile at [targetZoom] which falls in the northwest-most
+   * corner of the tile at these coordinates.
+   */
   fun originAtZoom(targetZoom: Int): TileCoordinates {
     val zoomDelta = targetZoom - zoom
     return if (zoomDelta > 0) {
@@ -39,14 +43,17 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   }
 
   override fun toString(): String {
-    return "($x, $y) @ $zoom"
+    return "($x, $y) at zoom $zoom"
   }
 
   companion object {
-    fun fromLatLng(coords: LatLng, zoom: Int): TileCoordinates {
+    /** Tile coordinates of the world as a single tile (0, 0) at zoom level 0. */
+    val WORLD = TileCoordinates(0, 0, 0)
+
+    fun fromLatLng(coordinates: LatLng, zoom: Int): TileCoordinates {
       val zoomFactor = 1 shl zoom
-      val latRad = coords.latitude.toRadians()
-      val x = zoomFactor * (coords.longitude + 180) / 360
+      val latRad = coordinates.latitude.toRadians()
+      val x = zoomFactor * (coordinates.longitude + 180) / 360
       val y = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / PI)) / 2
       return TileCoordinates(x.toInt(), y.toInt(), zoom)
     }

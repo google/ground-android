@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.lang.System.currentTimeMillis
 import timber.log.Timber
 
 /* Circumference of the Earth (m) */
@@ -40,7 +39,49 @@ private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this
 
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
-class CogTileParser(val image: CogImage) {
+class CogImageTileMatrix(
+  val tileWidth: Int,
+  val tileLength: Int,
+  private val originTile: TileCoordinates,
+  private val offsets: List<Long>,
+  private val byteCounts: List<Long>,
+  private val imageWidth: Int,
+  private val imageLength: Int,
+  private val jpegTables: ByteArray
+) {
+  val tileCountX = imageWidth / tileWidth
+  val tileCountY = imageLength / tileLength
+
+  // TODO: Verify X and Y scales the same.
+  val zoom = originTile.zoom
+
+  fun hasTile(coordinates: TileCoordinates): Boolean {
+    val (x, y, zoom) = coordinates
+    return zoom == this.zoom && hasTile(x, y)
+  }
+
+  private fun hasTile(x: Int, y: Int) =
+    x >= originTile.x &&
+      y >= originTile.y &&
+      x < tileCountX + originTile.x &&
+      y < tileCountY + originTile.y
+
+  override fun toString(): String {
+    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
+  }
+
+  fun getByteRange(x: Int, y: Int): LongRange? {
+    if (!hasTile(x, y)) return null
+    val xIdx = x - originTile.x
+    val yIdx = y - originTile.y
+    val idx = yIdx * tileCountX + xIdx
+    if (idx > offsets.size) throw IllegalArgumentException("idx > offsets")
+    val from = offsets[idx]
+    val len = byteCounts[idx].toInt()
+    val to = from + len - 1
+    return from..to
+  }
+
   /** Input stream is not closed. */
   fun parseTile(inputStream: InputStream, numBytes: Int): ByteArray {
     val imageBytes = ByteArray(numBytes)
@@ -80,8 +121,8 @@ class CogTileParser(val image: CogImage) {
 
   private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
     START_OF_IMAGE +
-      app0Segment(image.tileWidth, image.tileLength) +
-      rawJpegTables(image.jpegTables) +
+      app0Segment(tileWidth, tileLength) +
+      rawJpegTables(jpegTables) +
       imageBytes.drop(2) + // Drop leading SOI.
       END_OF_IMAGE
 
@@ -92,14 +133,14 @@ class CogTileParser(val image: CogImage) {
       .toByteArray()
 
   /** Build "Application Segment 0" section of header. */
-  private fun app0Segment(tileWidth: Short, tileHeight: Short) =
+  private fun app0Segment(tileWidth: Int, tileHeight: Int) =
     APP0_MARKER +
       APP0_MIN_LEN.toByteArray() +
       JFIF_IDENTIFIER.toNulTerminatedByteArray() +
       JFIF_MAJOR_VERSION.toByte() +
       JFIF_MINOR_VERSION.toByte() +
       NO_DENSITY_UNITS.toByte() +
-      tileWidth.toByteArray() +
-      tileHeight.toByteArray() +
-      byteArrayOf(0, 0) // Dimensions of empty thumbnail.
+      tileWidth.toShort().toByteArray() +
+      tileHeight.toShort().toByteArray() +
+      kotlin.byteArrayOf(0, 0) // Dimensions of empty thumbnail.
 }

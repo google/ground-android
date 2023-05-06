@@ -18,21 +18,20 @@ package com.google.android.ground.ui.map.gms
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.ui.map.gms.tcog.TiledCogCollection
+import com.google.android.ground.ui.map.gms.tcog.CogTilePyramidCollection
 import com.google.android.ground.ui.map.gms.tcog.CogTileDownloader
 import com.google.android.ground.ui.map.gms.tcog.HttpCogSource
-import com.google.android.ground.ui.map.gms.tcog.NgaCogHeaderParser
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class CogTest {
+class TilePyramidTest {
   @Test
   fun cogTest() {
-    val tiledCogCollection =
-      TiledCogCollection(
+    val cogTilePyramidCollection =
+      CogTilePyramidCollection(
         NgaCogHeaderParser(),
         HttpCogSource(),
         "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
@@ -42,7 +41,7 @@ class CogTest {
       )
     val southwest = LatLng(4.089672, 95.546853)
     val northeast = LatLng(5.435577, 96.278013)
-    val downloader = CogTileDownloader(tiledCogCollection, "/tmp/tiles")
+    val downloader = CogTileDownloader(cogTilePyramidCollection, "/tmp/tiles")
     runBlocking {
       downloader.downloadTiles(LatLngBounds(southwest, northeast))
     }
