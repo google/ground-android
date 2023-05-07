@@ -16,11 +16,12 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.LruCache
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
-import com.google.android.gms.maps.model.TileProvider
+import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
@@ -41,7 +42,7 @@ class MogCollection(
   private val regionMogUrlTemplate: String,
   private val regionMogMinZoom: Int,
   val regionMogMaxZoom: Int
-) : TileProvider {
+) {
   private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
 
   private fun getMogExtentForTile(tileCoordinates: TileCoordinates): TileCoordinates =
@@ -89,16 +90,8 @@ class MogCollection(
       .also { cache.put(url, it) }
   }
 
-  override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {
-    val tileCoordinates = TileCoordinates(x, y, zoom)
-    try {
-      getMogForTile(tileCoordinates)?.getTile(tileCoordinates)
-    } catch (e: Throwable) {
-      // We must catch and log errors ourselves since Maps SDK doesn't do this for us.
-      Timber.d(e, "Error fetching tile at $tileCoordinates")
-      null
-    }
-  }
+  suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
+    getMogForTile(tileCoordinates)?.getTile(tileCoordinates)
 
   fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Pair<TileCoordinates, Tile>> =
     flow {
@@ -161,12 +154,44 @@ class MogCollection(
       }
       val time = System.currentTimeMillis() - startTimeMillis
       Timber.d("Loaded headers from $url in $time ms")
+
       return Mog(url, images.toList())
     } catch (e: TiffException) {
       error("Failed to read $url: ${e.message})")
     } finally {
       inputStream.close()
     }
+  }
+
+  /**
+   * Crude method of making missing pixels transparent. Ideally, rather than replacing dark pixels
+   * with transparent ones, we would use the image masks contained.
+   */
+  fun applyMask(tile: Tile?, tileCoordinates: TileCoordinates): Tile? {
+    // Only apply mask workaround to world COG for now.
+    if (tile?.data == null || tileCoordinates.zoom >= regionMogMinZoom) {
+      return tile
+    }
+    val bitmap =
+      BitmapFactory.decodeByteArray(tile.data, 0, tile.data!!.size)
+        .copy(Bitmap.Config.ARGB_8888, true)
+    bitmap.setHasAlpha(true)
+    for (x in 0 until bitmap.width) {
+      for (y in 0 until bitmap.height) {
+        val color = bitmap.getPixel(x, y)
+        val r: Int = color shr 16 and 0xFF
+        val g: Int = color shr 8 and 0xFF
+        val b: Int = color shr 0 and 0xFF
+        if (r + g + b == 0) {
+          bitmap.setPixel(x, y, 0)
+        }
+      }
+    }
+    val out = ByteArrayOutputStream()
+    // Note: JPEG doesn't support transparency, so need to use PNG or BMP.
+    // TODO: Return raw BMP instead of recompressing to JPEG.
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+    return Tile(tile.width, tile.height, out.toByteArray())
   }
 }
 

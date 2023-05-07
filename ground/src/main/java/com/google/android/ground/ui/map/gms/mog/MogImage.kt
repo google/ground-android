@@ -16,9 +16,6 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import timber.log.Timber
 
@@ -90,31 +87,10 @@ class MogImage(
       Timber.w("Too few bytes received. Expected $numBytes, got $bytesRead")
     }
 
-    // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
-    // pixels with transparent once, we would use the image masks contained. This method was used
-    // for expediency.
-    val jpegTile = buildJpegTile(imageBytes)
-    val bitmap =
-      BitmapFactory.decodeByteArray(jpegTile, 0, jpegTile.size).copy(Bitmap.Config.ARGB_8888, true)
-    bitmap.setHasAlpha(true)
-    for (x in 0 until bitmap.width) {
-      for (y in 0 until bitmap.height) {
-        val color = bitmap.getPixel(x, y)
-        val r: Int = color shr 16 and 0xFF
-        val g: Int = color shr 8 and 0xFF
-        val b: Int = color shr 0 and 0xFF
-        if (r + g + b == 0) {
-          bitmap.setPixel(x, y, 0)
-        }
-      }
-    }
-    val out = ByteArrayOutputStream()
-    // TODO: Manually build and return BMP instead of recompressing.
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-    return out.toByteArray()
+    return buildJfifFile(imageBytes)
   }
 
-  private fun buildJpegTile(imageBytes: ByteArray): ByteArray =
+  private fun buildJfifFile(imageBytes: ByteArray): ByteArray =
     START_OF_IMAGE +
       app0Segment(tileWidth, tileLength) +
       rawJpegTables(jpegTables) +

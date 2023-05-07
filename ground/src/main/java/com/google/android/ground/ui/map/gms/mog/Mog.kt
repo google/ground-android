@@ -65,7 +65,7 @@ class Mog(val url: String, images: List<MogImage>) {
         }
       }
       val startTimeMillis = System.currentTimeMillis()
-      val imageBytes = image.parseTile(inputStream, byteRange.count())
+      var imageBytes = image.parseTile(inputStream, byteRange.count())
       val time = System.currentTimeMillis() - startTimeMillis
       Timber.d("Fetched tile ${tileCoordinates}: ${imageBytes.size} in $time ms")
       emit(Pair(tileCoordinates, Tile(image.tileWidth, image.tileLength, imageBytes)))
