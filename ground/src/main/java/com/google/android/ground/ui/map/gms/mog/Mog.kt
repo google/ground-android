@@ -73,7 +73,6 @@ class Mog(val url: String, images: List<MogImage>) {
     }
   }
 
-  // TODO: Pass cogSource to constructor instead of here.
   fun getTiles(tileCoordinatesList: List<TileCoordinates>): Flow<Pair<TileCoordinates, Tile>> =
     flow {
       val requestRanges = mutableListOf<RequestRange>()

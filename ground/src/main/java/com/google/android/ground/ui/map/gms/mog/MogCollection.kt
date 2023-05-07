@@ -35,76 +35,64 @@ import mil.nga.tiff.util.TiffConstants
 import mil.nga.tiff.util.TiffException
 import timber.log.Timber
 
-fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
-
-fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
-
-inline fun <T> nullIfNotFound(fn: () -> T) =
-  try {
-    fn()
-  } catch (_: FileNotFoundException) {
-    null
-  }
-
-/** A collection of cloud-optimized GeoTIFFs (COGs). */
+/** A collection of Maps Optimized GeoTIFFs (MOGs). */
 class MogCollection(
-  private val worldCogUrl: String,
-  private val cellCogUrlTemplate: String,
-  private val cellCogMinZoom: Int,
-  val cellCogMaxZoom: Int
+  private val worldMogUrl: String,
+  private val regionMogUrlTemplate: String,
+  private val regionMogMinZoom: Int,
+  val regionMogMaxZoom: Int
 ) : TileProvider {
   private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
 
-  private fun getCogExtentsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
-    if (tileCoordinates.zoom < cellCogMinZoom) TileCoordinates.WORLD
-    else tileCoordinates.originAtZoom(cellCogMinZoom)
+  private fun getMogExtentForTile(tileCoordinates: TileCoordinates): TileCoordinates =
+    if (tileCoordinates.zoom < regionMogMinZoom) TileCoordinates.WORLD
+    else tileCoordinates.originAtZoom(regionMogMinZoom)
 
-  /** Returns the COG containing the tile with the specified coordinates. */
-  private suspend fun getCogForTile(tileCoordinates: TileCoordinates): Mog? =
-    getCog(getCogExtentsForTile(tileCoordinates))
+  /** Returns the MOG containing the tile with the specified coordinates. */
+  private suspend fun getMogForTile(tileCoordinates: TileCoordinates): Mog? =
+    getMog(getMogExtentForTile(tileCoordinates))
 
-  private suspend fun getCog(extent: TileCoordinates): Mog? =
-    getOrFetchCogAsync(getCogUrl(extent), extent).await()
+  private suspend fun getMog(extent: TileCoordinates): Mog? =
+    getOrFetchMogAsync(getMogUrl(extent), extent).await()
 
-  private fun getCogUrl(extent: TileCoordinates): String {
+  private fun getMogUrl(extent: TileCoordinates): String {
     val (x, y, zoom) = extent
     if (zoom == 0) {
-      return worldCogUrl
+      return worldMogUrl
     }
-    if (zoom < cellCogMinZoom) {
-      error("Invalid zoom for this collection. Expected 0 or $cellCogMinZoom, got $zoom")
+    if (zoom < regionMogMinZoom) {
+      error("Invalid zoom for this collection. Expected 0 or $regionMogMinZoom, got $zoom")
     }
-    return cellCogUrlTemplate
+    return regionMogUrlTemplate
       .replace("{x}", x.toString())
       .replace("{y}", y.toString())
       .replace("{z}", zoom.toString())
   }
 
   /**
-   * Returns the future containing the COG with the specified extent and URL. The COG is loaded from
-   * in-memory cache if present, otherwise it's asynchronously fetched from remote. The process of
-   * checking in cache and creating the new job is synchronized on the current instance of
-   * CogCollection to prevent duplicate requests due to race conditions.
+   * Returns a future containing the [Mog] with the specified extent and URL. Metadata is either
+   * loaded from in-memory cache if present, or asynchronously fetched if necessary. The process of
+   * checking the cache and creating the new job is synchronized on the current instance to prevent
+   * duplicate parallel requests for the same resource.
    */
-  private fun getOrFetchCogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> =
-    synchronized(this) { cache.get(url) ?: fetchCogAsync(url, extent) }
+  private fun getOrFetchMogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> =
+    synchronized(this) { cache.get(url) ?: fetchMogAsync(url, extent) }
 
   /**
-   * Asynchronously fetches and returns the COG with the specified extent and URL. The async job is
-   * added to the cache immediately to prevent duplicate fetches from other threads.
+   * Asynchronously fetches and returns the [Mog] with the specified extent and URL. The async job
+   * is added to the cache immediately to prevent duplicate fetches from other threads.
    */
-  private fun fetchCogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> =
-    runBlocking {
-      // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
-      @Suppress("DeferredResultUnused")
-      async { nullIfNotFound { UrlInputStream(url) }?.use { readHeader(url, extent, it) } }
-        .also { cache.put(url, it) }
-    }
+  private fun fetchMogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> = runBlocking {
+    // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
+    @Suppress("DeferredResultUnused")
+    async { nullIfNotFound { UrlInputStream(url) }?.use { readHeader(url, extent, it) } }
+      .also { cache.put(url, it) }
+  }
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {
     val tileCoordinates = TileCoordinates(x, y, zoom)
     try {
-      getCogForTile(tileCoordinates)?.getTile(tileCoordinates)
+      getMogForTile(tileCoordinates)?.getTile(tileCoordinates)
     } catch (e: Throwable) {
       // We must catch and log errors ourselves since Maps SDK doesn't do this for us.
       Timber.d(e, "Error fetching tile at $tileCoordinates")
@@ -114,37 +102,33 @@ class MogCollection(
 
   fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Pair<TileCoordinates, Tile>> =
     flow {
-      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < cellCogMinZoom }
+      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < regionMogMinZoom }
       if (worldZoomLevels.isNotEmpty()) {
         emitAll(getTiles(TileCoordinates.WORLD, bounds, worldZoomLevels))
       }
       if (sliceZoomLevels.isNotEmpty()) {
-        // Compute extents of first and last COG slice covered by specified bounds.
-        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), cellCogMinZoom)
-        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), cellCogMinZoom)
+        // Compute extents of first and last region covered by specified bounds.
+        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), regionMogMinZoom)
+        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), regionMogMinZoom)
         for (y in nwSlice.y..seSlice.y) {
           for (x in nwSlice.x..seSlice.x) {
-            emitAll(getTiles(TileCoordinates(x, y, cellCogMinZoom), bounds, sliceZoomLevels))
+            emitAll(getTiles(TileCoordinates(x, y, regionMogMinZoom), bounds, sliceZoomLevels))
           }
         }
       }
     }
   private fun getTiles(
-    cogCoordinates: TileCoordinates,
+    mogExtent: TileCoordinates,
     bounds: LatLngBounds,
     zoomLevels: List<Int>
   ): Flow<Pair<TileCoordinates, Tile>> = flow {
-    val cog = getCog(cogCoordinates) ?: return@flow
+    val mog = getMog(mogExtent) ?: return@flow
     for (zoom in zoomLevels) {
-      emitAll(cog.getTiles(TileCoordinates.withinBounds(bounds, zoom)))
+      emitAll(mog.getTiles(TileCoordinates.withinBounds(bounds, zoom)))
     }
   }
 
-  private fun readHeader(
-    url: String,
-    extent: TileCoordinates,
-    inputStream: InputStream
-  ): Mog {
+  private fun readHeader(url: String, extent: TileCoordinates, inputStream: InputStream): Mog {
     val startTimeMillis = System.currentTimeMillis()
     try {
       // This reads only headers and not the whole file.
@@ -176,12 +160,23 @@ class MogCollection(
         )
       }
       val time = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Loaded COG headers in $time ms")
+      Timber.d("Loaded headers from $url in $time ms")
       return Mog(url, images.toList())
     } catch (e: TiffException) {
-      error("Failed to read COG: ${e.message})")
+      error("Failed to read $url: ${e.message})")
     } finally {
       inputStream.close()
     }
   }
 }
+
+private fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
+
+private fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
+
+private inline fun <T> nullIfNotFound(fn: () -> T) =
+  try {
+    fn()
+  } catch (_: FileNotFoundException) {
+    null
+  }

@@ -37,11 +37,11 @@ class MogTileDownloader(
    *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
    *   all available tiles in the collection as determined by the
-   *   [MogCollection.cellCogMaxZoom].
+   *   [MogCollection.regionMogMaxZoom].
    */
   suspend fun downloadTiles(
     bounds: LatLngBounds,
-    zoomRange: IntRange = 0..mogCollection.cellCogMaxZoom
+    zoomRange: IntRange = 0..mogCollection.regionMogMaxZoom
   ) =
     mogCollection.getTiles(bounds, zoomRange).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates

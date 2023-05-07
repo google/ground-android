@@ -55,11 +55,6 @@ class MogImage(
   // TODO: Verify X and Y scales the same.
   val zoom = originTile.zoom
 
-  fun hasTile(coordinates: TileCoordinates): Boolean {
-    val (x, y, zoom) = coordinates
-    return zoom == this.zoom && hasTile(x, y)
-  }
-
   private fun hasTile(x: Int, y: Int) =
     x >= originTile.x &&
       y >= originTile.y &&
@@ -67,7 +62,7 @@ class MogImage(
       y < tileCountY + originTile.y
 
   override fun toString(): String {
-    return "CogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
+    return "MogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
   }
 
   fun getByteRange(x: Int, y: Int): LongRange? {
@@ -96,8 +91,8 @@ class MogImage(
     }
 
     // Crude method of making missing pixels transparent. Ideally, rather than replacing dark
-    // pixels with transparent once, we would use the image masks contained in the COG. This
-    // method was used for expediency.
+    // pixels with transparent once, we would use the image masks contained. This method was used
+    // for expediency.
     val jpegTile = buildJpegTile(imageBytes)
     val bitmap =
       BitmapFactory.decodeByteArray(jpegTile, 0, jpegTile.size).copy(Bitmap.Config.ARGB_8888, true)

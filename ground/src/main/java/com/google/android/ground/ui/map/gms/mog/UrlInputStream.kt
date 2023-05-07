@@ -54,4 +54,8 @@ class UrlInputStream(private val url: String, private val byteRange: LongRange? 
   }
 
   override fun read(): Int = inputStream.read()
+
+  override fun close() {
+    inputStream.close()
+  }
 }
