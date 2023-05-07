@@ -28,11 +28,12 @@ private fun sec(x: Double) = 1 / cos(x)
 
 fun Double.toRadians() = this * (PI / 180)
 
+/**
+ * Uniquely identifies the coordinates of a web mercator tile by its X and Y coordinates and its
+ * respective zoom level.
+ */
 data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
-  /**
-   * Returns the tile coordinates of the tile at [targetZoom] which falls in the northwest-most
-   * corner of the tile at these coordinates.
-   */
+  /** Returns the coordinates of the tile at [targetZoom] with the same northwest corner. */
   fun originAtZoom(targetZoom: Int): TileCoordinates {
     val zoomDelta = targetZoom - zoom
     return if (zoomDelta > 0) {
@@ -50,6 +51,10 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
     /** Tile coordinates of the world as a single tile (0, 0) at zoom level 0. */
     val WORLD = TileCoordinates(0, 0, 0)
 
+    /**
+     * Returns the coordinates of the tile at a particular zoom containing the specified latitude
+     * and longitude coordinates.
+     */
     fun fromLatLng(coordinates: LatLng, zoom: Int): TileCoordinates {
       val zoomFactor = 1 shl zoom
       val latRad = coordinates.latitude.toRadians()
@@ -58,6 +63,10 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
       return TileCoordinates(x.toInt(), y.toInt(), zoom)
     }
 
+    /**
+     * Returns all tiles at a particular zoom contained within the specified latitude and longitude
+     * bounds.
+     */
     fun withinBounds(bounds: LatLngBounds, zoom: Int): List<TileCoordinates> {
       val results = mutableListOf<TileCoordinates>()
       val nwTile = fromLatLng(bounds.northwest(), zoom)
