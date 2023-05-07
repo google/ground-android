@@ -170,10 +170,6 @@ class MogCollection(
   }
 }
 
-private fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
-
-private fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
-
 private inline fun <T> nullIfNotFound(fn: () -> T) =
   try {
     fn()
