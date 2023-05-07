@@ -184,12 +184,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
-    val cogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/9"
+    val cogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog"
     val cogProvider =
       MogTileProvider(
         MogCollection(
-          "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/world.tif",
-          "$cogBaseUrl/{x}/{y}.tif",
+          "${cogBaseUrl}/world.tif",
+          "$cogBaseUrl/{z}/{x}/{y}.tif",
           9,
           14
         )

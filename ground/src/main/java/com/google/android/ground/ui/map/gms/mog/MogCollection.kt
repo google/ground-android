@@ -39,15 +39,15 @@ import timber.log.Timber
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
 class MogCollection(
   private val worldMogUrl: String,
-  private val regionMogUrlTemplate: String,
-  private val regionMogMinZoom: Int,
-  val regionMogMaxZoom: Int
+  private val hiResMogUrlTemplate: String,
+  private val hiResMogMinZoom: Int,
+  val hiResMogMaxZoom: Int
 ) {
   private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
 
   private fun getMogExtentForTile(tileCoordinates: TileCoordinates): TileCoordinates =
-    if (tileCoordinates.zoom < regionMogMinZoom) TileCoordinates.WORLD
-    else tileCoordinates.originAtZoom(regionMogMinZoom)
+    if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
+    else tileCoordinates.originAtZoom(hiResMogMinZoom)
 
   /** Returns the MOG containing the tile with the specified coordinates. */
   private suspend fun getMogForTile(tileCoordinates: TileCoordinates): Mog? =
@@ -61,10 +61,10 @@ class MogCollection(
     if (zoom == 0) {
       return worldMogUrl
     }
-    if (zoom < regionMogMinZoom) {
-      error("Invalid zoom for this collection. Expected 0 or $regionMogMinZoom, got $zoom")
+    if (zoom < hiResMogMinZoom) {
+      error("Invalid zoom for this collection. Expected 0 or $hiResMogMinZoom, got $zoom")
     }
-    return regionMogUrlTemplate
+    return hiResMogUrlTemplate
       .replace("{x}", x.toString())
       .replace("{y}", y.toString())
       .replace("{z}", zoom.toString())
@@ -95,17 +95,17 @@ class MogCollection(
 
   fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Pair<TileCoordinates, Tile>> =
     flow {
-      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < regionMogMinZoom }
+      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
       if (worldZoomLevels.isNotEmpty()) {
         emitAll(getTiles(TileCoordinates.WORLD, bounds, worldZoomLevels))
       }
       if (sliceZoomLevels.isNotEmpty()) {
         // Compute extents of first and last region covered by specified bounds.
-        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), regionMogMinZoom)
-        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), regionMogMinZoom)
+        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), hiResMogMinZoom)
+        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), hiResMogMinZoom)
         for (y in nwSlice.y..seSlice.y) {
           for (x in nwSlice.x..seSlice.x) {
-            emitAll(getTiles(TileCoordinates(x, y, regionMogMinZoom), bounds, sliceZoomLevels))
+            emitAll(getTiles(TileCoordinates(x, y, hiResMogMinZoom), bounds, sliceZoomLevels))
           }
         }
       }
@@ -169,7 +169,7 @@ class MogCollection(
    */
   fun applyMask(tile: Tile?, tileCoordinates: TileCoordinates): Tile? {
     // Only apply mask workaround to world COG for now.
-    if (tile?.data == null || tileCoordinates.zoom >= regionMogMinZoom) {
+    if (tile?.data == null || tileCoordinates.zoom >= hiResMogMinZoom) {
       return tile
     }
     val bitmap =
