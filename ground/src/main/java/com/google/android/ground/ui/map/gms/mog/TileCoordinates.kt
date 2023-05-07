@@ -24,10 +24,6 @@ import kotlin.math.cos
 import kotlin.math.ln
 import kotlin.math.tan
 
-private fun sec(x: Double) = 1 / cos(x)
-
-fun Double.toRadians() = this * (PI / 180)
-
 /**
  * Uniquely identifies the coordinates of a web mercator tile by its X and Y coordinates and its
  * respective zoom level.
@@ -36,11 +32,8 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   /** Returns the coordinates of the tile at [targetZoom] with the same northwest corner. */
   fun originAtZoom(targetZoom: Int): TileCoordinates {
     val zoomDelta = targetZoom - zoom
-    return if (zoomDelta > 0) {
-      TileCoordinates(x shl zoomDelta, y shl zoomDelta, targetZoom)
-    } else {
-      TileCoordinates(x shr abs(zoomDelta), y shr abs(zoomDelta), targetZoom)
-    }
+    val scale = { x: Int -> if (zoomDelta > 0) x shl zoomDelta else x shr abs(zoomDelta) }
+    return TileCoordinates(scale(x), scale(y), targetZoom)
   }
 
   override fun toString(): String {
@@ -80,3 +73,9 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
     }
   }
 }
+
+/** Returns the secant of angle `x` given in radians. */
+private fun sec(x: Double) = 1 / cos(x)
+
+/** Converts degrees into radians. */
+private fun Double.toRadians() = this * (PI / 180)

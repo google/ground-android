@@ -45,6 +45,63 @@ class MogCollection(
 ) {
   private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
 
+  /** Returns the tile for the specified tile coordinates, or `null` if not available. */
+  suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
+    getMogForTile(tileCoordinates)?.getTile(tileCoordinates)
+
+  /**
+   * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
+   * tile's respective coordinates.
+   */
+  fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Pair<TileCoordinates, Tile>> =
+    flow {
+      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
+      if (worldZoomLevels.isNotEmpty()) {
+        emitAll(getTiles(TileCoordinates.WORLD, bounds, worldZoomLevels))
+      }
+      if (sliceZoomLevels.isNotEmpty()) {
+        // Compute extents of first and last region covered by specified bounds.
+        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), hiResMogMinZoom)
+        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), hiResMogMinZoom)
+        for (y in nwSlice.y..seSlice.y) {
+          for (x in nwSlice.x..seSlice.x) {
+            emitAll(getTiles(TileCoordinates(x, y, hiResMogMinZoom), bounds, sliceZoomLevels))
+          }
+        }
+      }
+    }
+
+  /**
+   * Crude method of making missing pixels transparent. Ideally, rather than replacing dark pixels
+   * with transparent ones, we would use the image masks contained.
+   */
+  fun applyMask(tile: Tile?, tileCoordinates: TileCoordinates): Tile? {
+    // Only apply mask workaround to world COG for now.
+    if (tile?.data == null || tileCoordinates.zoom >= hiResMogMinZoom) {
+      return tile
+    }
+    val bitmap =
+      BitmapFactory.decodeByteArray(tile.data, 0, tile.data!!.size)
+        .copy(Bitmap.Config.ARGB_8888, true)
+    bitmap.setHasAlpha(true)
+    for (x in 0 until bitmap.width) {
+      for (y in 0 until bitmap.height) {
+        val color = bitmap.getPixel(x, y)
+        val r: Int = color shr 16 and 0xFF
+        val g: Int = color shr 8 and 0xFF
+        val b: Int = color shr 0 and 0xFF
+        if (r + g + b == 0) {
+          bitmap.setPixel(x, y, 0)
+        }
+      }
+    }
+    val out = ByteArrayOutputStream()
+    // Note: JPEG doesn't support transparency, so need to use PNG or BMP.
+    // TODO: Return raw BMP instead of recompressing to JPEG.
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+    return Tile(tile.width, tile.height, out.toByteArray())
+  }
+
   private fun getMogExtentForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(hiResMogMinZoom)
@@ -90,26 +147,6 @@ class MogCollection(
       .also { cache.put(url, it) }
   }
 
-  suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
-    getMogForTile(tileCoordinates)?.getTile(tileCoordinates)
-
-  fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Pair<TileCoordinates, Tile>> =
-    flow {
-      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
-      if (worldZoomLevels.isNotEmpty()) {
-        emitAll(getTiles(TileCoordinates.WORLD, bounds, worldZoomLevels))
-      }
-      if (sliceZoomLevels.isNotEmpty()) {
-        // Compute extents of first and last region covered by specified bounds.
-        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), hiResMogMinZoom)
-        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), hiResMogMinZoom)
-        for (y in nwSlice.y..seSlice.y) {
-          for (x in nwSlice.x..seSlice.x) {
-            emitAll(getTiles(TileCoordinates(x, y, hiResMogMinZoom), bounds, sliceZoomLevels))
-          }
-        }
-      }
-    }
   private fun getTiles(
     mogExtent: TileCoordinates,
     bounds: LatLngBounds,
@@ -161,37 +198,6 @@ class MogCollection(
     } finally {
       inputStream.close()
     }
-  }
-
-  /**
-   * Crude method of making missing pixels transparent. Ideally, rather than replacing dark pixels
-   * with transparent ones, we would use the image masks contained.
-   */
-  fun applyMask(tile: Tile?, tileCoordinates: TileCoordinates): Tile? {
-    // Only apply mask workaround to world COG for now.
-    if (tile?.data == null || tileCoordinates.zoom >= hiResMogMinZoom) {
-      return tile
-    }
-    val bitmap =
-      BitmapFactory.decodeByteArray(tile.data, 0, tile.data!!.size)
-        .copy(Bitmap.Config.ARGB_8888, true)
-    bitmap.setHasAlpha(true)
-    for (x in 0 until bitmap.width) {
-      for (y in 0 until bitmap.height) {
-        val color = bitmap.getPixel(x, y)
-        val r: Int = color shr 16 and 0xFF
-        val g: Int = color shr 8 and 0xFF
-        val b: Int = color shr 0 and 0xFF
-        if (r + g + b == 0) {
-          bitmap.setPixel(x, y, 0)
-        }
-      }
-    }
-    val out = ByteArrayOutputStream()
-    // Note: JPEG doesn't support transparency, so need to use PNG or BMP.
-    // TODO: Return raw BMP instead of recompressing to JPEG.
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-    return Tile(tile.width, tile.height, out.toByteArray())
   }
 }
 
