@@ -36,15 +36,15 @@ data class RequestRange(
 )
 
 /**
- * A tile pyramid backed by a single cloud optimized GeoTIFF. A tile pyramid is a collection of web
- * map tiles for a specific extent rendered at one or more zoom levels. Instances of this class
- * fetch more tiles on calls to [getTile] and [getTiles].
+ * A single Maps Optimized GeoTIFF (MOG). MOGs are [Cloud Optimized GeoTIFFs (COGs)](cogeo.org)
+ * clipped and configured for visualization with Google Maps Platform. This class stores metadata
+ * and provides the ability to fetch tiles on demand with [getTile] and [getTiles].
  */
 class Mog(val url: String, images: List<MogImage>) {
   private val imagesByZoom = images.associateBy { it.zoom }
 
   override fun toString(): String {
-    return "Cog(url=$url, imagesByZoom=$imagesByZoom)"
+    return "Mog(url=$url, imagesByZoom=$imagesByZoom)"
   }
 
   private fun parseTiles(
