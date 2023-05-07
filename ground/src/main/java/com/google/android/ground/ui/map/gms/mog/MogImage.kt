@@ -46,8 +46,8 @@ class MogImage(
   private val imageLength: Int,
   private val jpegTables: ByteArray
 ) {
-  val tileCountX = imageWidth / tileWidth
-  val tileCountY = imageLength / tileLength
+  private val tileCountX = imageWidth / tileWidth
+  private val tileCountY = imageLength / tileLength
 
   // TODO: Verify X and Y scales the same.
   val zoom = originTile.zoom

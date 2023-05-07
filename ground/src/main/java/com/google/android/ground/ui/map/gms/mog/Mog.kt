@@ -38,7 +38,7 @@ data class RequestRange(
 /**
  * A single Maps Optimized GeoTIFF (MOG). MOGs are [Cloud Optimized GeoTIFFs (COGs)](cogeo.org)
  * clipped and configured for visualization with Google Maps Platform. This class stores metadata
- * and provides the ability to fetch tiles on demand with [getTile] and [getTiles].
+ * and fetches tiles on demand via [getTile] and [getTiles].
  */
 class Mog(val url: String, images: List<MogImage>) {
   private val imagesByZoom = images.associateBy { it.zoom }
