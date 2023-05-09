@@ -30,10 +30,10 @@ data class CameraPosition(
         target.y,
         zoomLevel.toString(),
         isAllowZoomOut,
-        bounds?.southwest?.x.toString(),
-        bounds?.southwest?.y.toString(),
-        bounds?.northeast?.x.toString(),
-        bounds?.northeast?.y.toString(),
+        bounds?.south.toString(),
+        bounds?.west.toString(),
+        bounds?.north.toString(),
+        bounds?.east.toString(),
       )
       .joinToString { it.toString() }
 

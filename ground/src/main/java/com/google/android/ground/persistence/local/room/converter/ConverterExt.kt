@@ -237,10 +237,10 @@ fun OfflineArea.toOfflineAreaEntity() =
     id = this.id,
     state = this.state.toLocalDataStoreObject(),
     name = this.name,
-    north = this.bounds.northeast.x,
-    east = this.bounds.northeast.y,
-    south = this.bounds.southwest.x,
-    west = this.bounds.southwest.y
+    north = this.bounds.north,
+    east = this.bounds.east,
+    south = this.bounds.south,
+    west = this.bounds.west
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
