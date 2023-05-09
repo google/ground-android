@@ -30,40 +30,39 @@ import timber.log.Timber
  */
 const val MAX_OVER_FETCH_PER_TILE = 1 * 20 * 1024
 
-data class RequestRange(
-  var byteRange: LongRange,
-  var tileCoordinates: MutableList<TileCoordinates>
-)
-
 /**
  * A single Maps Optimized GeoTIFF (MOG). MOGs are [Cloud Optimized GeoTIFFs (COGs)](cogeo.org)
  * clipped and configured for visualization with Google Maps Platform. This class stores metadata
  * and fetches tiles on demand via [getTile] and [getTiles].
  */
-class Mog(val url: String, images: List<MogImage>) {
+class Mog(val url: String, val extent: TileCoordinates, images: List<MogImage>) {
   private val imagesByZoom = images.associateBy { it.zoom }
 
   suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
-    getTiles(listOf(tileCoordinates)).firstOrNull()?.second
+    fetchTiles(getTilesRequests(listOf(tileCoordinates)).first()).firstOrNull()?.second
 
-  fun getTiles(tileCoordinatesList: List<TileCoordinates>): Flow<Pair<TileCoordinates, Tile>> =
-    flow {
-      val requestRanges = mutableListOf<RequestRange>()
-      for (tileCoordinates in tileCoordinatesList) {
-        val byteRange = getByteRange(tileCoordinates) ?: continue
-        val prev = if (requestRanges.isEmpty()) null else requestRanges.last()
-        if (prev == null || byteRange.first - prev.byteRange.last - 1 > MAX_OVER_FETCH_PER_TILE) {
-          requestRanges.add(RequestRange(byteRange, mutableListOf(tileCoordinates)))
-        } else {
-          prev.byteRange = LongRange(prev.byteRange.first, byteRange.last)
-          prev.tileCoordinates.add(tileCoordinates)
-        }
-      }
-      // TODO: Use thread pool to request multiple ranges in parallel.
-      requestRanges.forEach { (byteRange, tileCoordinates) ->
-        UrlInputStream(url, byteRange).use { emitAll(parseTiles(tileCoordinates, it)) }
+  fun getTilesRequests(tileCoordinatesList: List<TileCoordinates>): List<TilesRequest> {
+    val tilesRequests = mutableListOf<TilesRequest>()
+    for (tileCoordinates in tileCoordinatesList) {
+      val byteRange = getByteRange(tileCoordinates) ?: continue
+      val prev = if (tilesRequests.isEmpty()) null else tilesRequests.last()
+      if (prev == null || byteRange.first - prev.byteRange.last - 1 > MAX_OVER_FETCH_PER_TILE) {
+        tilesRequests.add(TilesRequest(url, extent, byteRange, mutableListOf(tileCoordinates)))
+      } else {
+        prev.byteRange = LongRange(prev.byteRange.first, byteRange.last)
+        prev.tileCoordinates.add(tileCoordinates)
       }
     }
+    return tilesRequests
+  }
+
+  // TODO: Use thread pool to request multiple ranges in parallel.
+  fun fetchTiles(tilesRequest: TilesRequest): Flow<Pair<TileCoordinates, Tile>> = flow {
+    UrlInputStream(tilesRequest.url, tilesRequest.byteRange).use {
+      emitAll(parseTiles(tilesRequest.tileCoordinates, it))
+    }
+  }
+
   override fun toString(): String {
     return "Mog(url=$url, imagesByZoom=$imagesByZoom)"
   }

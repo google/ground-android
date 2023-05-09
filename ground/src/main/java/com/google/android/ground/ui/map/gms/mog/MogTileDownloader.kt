@@ -16,7 +16,6 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import com.google.android.gms.maps.model.LatLngBounds
 import java.io.File
 
 /**
@@ -36,14 +35,11 @@ class MogTileDownloader(
    * @param bounds the bounds used to constrain which tiles are retrieved. Only tiles within or
    *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   *   all available tiles in the collection as determined by the
-   *   [MogCollection.hiResMogMaxZoom].
+   *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
-  suspend fun downloadTiles(
-    bounds: LatLngBounds,
-    zoomRange: IntRange = 0..mogCollection.hiResMogMaxZoom
-  ) =
-    mogCollection.getTiles(bounds, zoomRange).collect { (coordinates, tile) ->
+  suspend fun downloadTiles(tilesRequests: List<TilesRequest>) =
+    // TODOO: Refactor fetching into new class (`MogClient?`).
+    mogCollection.fetchTiles(tilesRequests).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()

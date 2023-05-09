@@ -47,29 +47,52 @@ class MogCollection(
 
   /** Returns the tile for the specified tile coordinates, or `null` if not available. */
   suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
-    getMogForTile(tileCoordinates)?.getTile(tileCoordinates)
+    getMog(getMogExtentForTile(tileCoordinates))?.getTile(tileCoordinates)
+
+  suspend fun getTilesRequests(
+    bounds: LatLngBounds,
+    zoomRange: IntRange = 0..hiResMogMaxZoom
+  ): List<TilesRequest> {
+    val requests = mutableListOf<TilesRequest>()
+    val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
+    if (worldZoomLevels.isNotEmpty()) {
+      requests.addAll(getTilesRequests(TileCoordinates.WORLD, bounds, worldZoomLevels))
+    }
+    if (sliceZoomLevels.isNotEmpty()) {
+      // Compute extents of first and last region covered by specified bounds.
+      val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), hiResMogMinZoom)
+      val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), hiResMogMinZoom)
+      for (y in nwSlice.y..seSlice.y) {
+        for (x in nwSlice.x..seSlice.x) {
+          val mogExtent = TileCoordinates(x, y, hiResMogMinZoom)
+          requests.addAll(getTilesRequests(mogExtent, bounds, sliceZoomLevels))
+        }
+      }
+    }
+    return requests
+  }
+
+  private suspend fun getTilesRequests(
+    mogExtent: TileCoordinates,
+    bounds: LatLngBounds,
+    zoomLevels: List<Int>
+  ): List<TilesRequest> {
+    val mog = getMog(mogExtent) ?: return listOf()
+    return zoomLevels.flatMap { zoom ->
+      mog.getTilesRequests(TileCoordinates.withinBounds(bounds, zoom))
+    }
+  }
 
   /**
    * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
    * tile's respective coordinates.
    */
-  fun getTiles(bounds: LatLngBounds, zoomRange: IntRange): Flow<Pair<TileCoordinates, Tile>> =
-    flow {
-      val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
-      if (worldZoomLevels.isNotEmpty()) {
-        emitAll(getTiles(TileCoordinates.WORLD, bounds, worldZoomLevels))
-      }
-      if (sliceZoomLevels.isNotEmpty()) {
-        // Compute extents of first and last region covered by specified bounds.
-        val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), hiResMogMinZoom)
-        val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), hiResMogMinZoom)
-        for (y in nwSlice.y..seSlice.y) {
-          for (x in nwSlice.x..seSlice.x) {
-            emitAll(getTiles(TileCoordinates(x, y, hiResMogMinZoom), bounds, sliceZoomLevels))
-          }
-        }
-      }
+  fun fetchTiles(tilesRequests: List<TilesRequest>): Flow<Pair<TileCoordinates, Tile>> = flow {
+    tilesRequests.forEach { request ->
+      val mog = getMog(request.mogExtent) ?: return@flow
+      emitAll(mog.fetchTiles(request))
     }
+  }
 
   /**
    * Crude method of making missing pixels transparent. Ideally, rather than replacing dark pixels
@@ -105,10 +128,6 @@ class MogCollection(
   private fun getMogExtentForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(hiResMogMinZoom)
-
-  /** Returns the MOG containing the tile with the specified coordinates. */
-  private suspend fun getMogForTile(tileCoordinates: TileCoordinates): Mog? =
-    getMog(getMogExtentForTile(tileCoordinates))
 
   private suspend fun getMog(extent: TileCoordinates): Mog? =
     getOrFetchMogAsync(getMogUrl(extent), extent).await()
@@ -147,17 +166,6 @@ class MogCollection(
       .also { cache.put(url, it) }
   }
 
-  private fun getTiles(
-    mogExtent: TileCoordinates,
-    bounds: LatLngBounds,
-    zoomLevels: List<Int>
-  ): Flow<Pair<TileCoordinates, Tile>> = flow {
-    val mog = getMog(mogExtent) ?: return@flow
-    for (zoom in zoomLevels) {
-      emitAll(mog.getTiles(TileCoordinates.withinBounds(bounds, zoom)))
-    }
-  }
-
   private fun readHeader(url: String, extent: TileCoordinates, inputStream: InputStream): Mog {
     val startTimeMillis = System.currentTimeMillis()
     try {
@@ -192,7 +200,7 @@ class MogCollection(
       val time = System.currentTimeMillis() - startTimeMillis
       Timber.d("Loaded headers from $url in $time ms")
 
-      return Mog(url, images.toList())
+      return Mog(url, extent, images.toList())
     } catch (e: TiffException) {
       error("Failed to read $url: ${e.message})")
     } finally {
