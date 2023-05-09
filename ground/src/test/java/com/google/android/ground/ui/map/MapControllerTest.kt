@@ -79,8 +79,8 @@ class MapControllerTest : BaseHiltTest() {
     val cameraUpdates = mapController.getCameraUpdates().test()
     locationSharedFlow.emit(
       Location("test provider").apply {
-        latitude = TEST_COORDINATE.x
-        longitude = TEST_COORDINATE.y
+        latitude = TEST_COORDINATE.latitude
+        longitude = TEST_COORDINATE.longitude
       }
     )
     advanceUntilIdle()

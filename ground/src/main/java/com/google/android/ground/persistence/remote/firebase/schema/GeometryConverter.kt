@@ -72,7 +72,7 @@ object GeometryConverter {
     listToIndexedMap(multiPolygon.polygons.map(this::getPolygonCoordinates))
 
   private fun coordinateToGeoPoint(coordinate: Coordinate): GeoPoint =
-    GeoPoint(coordinate.x, coordinate.y)
+    GeoPoint(coordinate.latitude, coordinate.longitude)
 
   private fun <T> listToIndexedMap(list: List<T>): IndexedMap<T> =
     list.mapIndexed { index, value -> index.toString() to value }.toMap()

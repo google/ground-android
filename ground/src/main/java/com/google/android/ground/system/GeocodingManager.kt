@@ -53,7 +53,7 @@ constructor(
   @Throws(AddressNotFoundException::class, IOException::class)
   private fun getAreaNameInternal(bounds: Bounds): String {
     val center = bounds.center()
-    val addresses = geocoder.getFromLocation(center.x, center.y, 1)
+    val addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1)
     if (addresses.isNullOrEmpty()) {
       throw AddressNotFoundException("No address found for area.")
     }

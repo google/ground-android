@@ -19,6 +19,7 @@ import kotlinx.serialization.Serializable
 
 /** A coordinate on a two-dimensional Cartesian plane. */
 @Serializable
-data class Coordinate(val x: Double, val y: Double) : Comparable<Coordinate> {
-  override fun compareTo(other: Coordinate): Int = compareValuesBy(this, other, { it.x }, { it.y })
+data class Coordinate(val latitude: Double, val longitude: Double) : Comparable<Coordinate> {
+  override fun compareTo(other: Coordinate): Int =
+    compareValuesBy(this, other, { it.latitude }, { it.longitude })
 }

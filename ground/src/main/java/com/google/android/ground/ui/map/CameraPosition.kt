@@ -26,8 +26,8 @@ data class CameraPosition(
 
   fun serialize(): String =
     arrayOf<Any>(
-        target.x,
-        target.y,
+        target.latitude,
+        target.longitude,
         zoomLevel.toString(),
         isAllowZoomOut,
         bounds?.south.toString(),

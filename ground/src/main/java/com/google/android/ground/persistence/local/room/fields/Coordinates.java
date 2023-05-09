@@ -66,8 +66,8 @@ public abstract class Coordinates {
   @NonNull
   public static Coordinates fromPoint(Point point) {
     return Coordinates.builder()
-        .setLatitude(point.getCoordinate().getX())
-        .setLongitude(point.getCoordinate().getY())
+        .setLatitude(point.getCoordinate().getLatitude())
+        .setLongitude(point.getCoordinate().getLongitude())
         .build();
   }
 }

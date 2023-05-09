@@ -24,7 +24,7 @@ import com.google.android.ground.ui.map.Bounds
 
 fun LatLng.toModelObject(): Coordinate = Coordinate(this.latitude, this.longitude)
 
-fun Coordinate.toGoogleMapsObject(): LatLng = LatLng(this.x, this.y)
+fun Coordinate.toGoogleMapsObject(): LatLng = LatLng(this.latitude, this.longitude)
 
 fun LatLngBounds.toModelObject(): Bounds =
   Bounds(this.southwest.toModelObject(), this.northeast.toModelObject())
@@ -34,6 +34,6 @@ fun Bounds.toGoogleMapsObject(): LatLngBounds =
 
 fun LatLng.toCoordinate(): Coordinate = Coordinate(latitude, longitude)
 
-fun Point.toLatLng(): LatLng = LatLng(coordinate.x, coordinate.y)
+fun Point.toLatLng(): LatLng = LatLng(coordinate.latitude, coordinate.longitude)
 
 fun Location.toCoordinate(): Coordinate = Coordinate(latitude, longitude)

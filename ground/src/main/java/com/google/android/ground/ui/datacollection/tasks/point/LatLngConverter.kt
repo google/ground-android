@@ -27,7 +27,7 @@ object LatLngConverter {
 
   /** Converts the given coordinate in decimal format to D°M′S″ format. */
   fun processCoordinate(coordinate: Coordinate): String =
-    "${convertLatToDMS(coordinate.x)} ${convertLongToDMS(coordinate.y)}"
+    "${convertLatToDMS(coordinate.latitude)} ${convertLongToDMS(coordinate.longitude)}"
 
   private fun convertLatToDMS(lat: Double): String {
     val orientation = if (lat > 0) "N" else "S"
