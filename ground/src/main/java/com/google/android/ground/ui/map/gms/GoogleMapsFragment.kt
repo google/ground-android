@@ -43,6 +43,8 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -181,6 +183,20 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       )
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
+
+
+    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/6"
+    val mogProvider =
+      MogTileProvider(
+        MogCollection(
+          "$mogBaseUrl/world.tif",
+          "$mogBaseUrl/{x}/{y}.tif",
+          6,
+
+          14
+        )
+      )
+    map.addTileOverlay(TileOverlayOptions().tileProvider(mogProvider))
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
