@@ -20,11 +20,11 @@
 # Workflow:
 # --------
 #
-#  Copy cache --> Extract tar -->                      -------> Code quality -------> Unit tests ------------------------>
-#                                \                   /                                                                     \
-#                                 > Build debug apks                                                                       Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
-#                                /                   \                                                                     /
-#  Fetch google-services.json -->                      (master only)-----> Authorize Gcloud --> Instrumented tests ------>
+#  Copy cache --> Extract tar -->                      --------------------> Code quality --------------------------->
+#                                \                   /                                                                \
+#                                 > Build debug apks ----------------------> Unit tests -------------------------------> Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
+#                                /                   \                                                                /
+#  Fetch google-services.json -->                      (master only)-----> Authorize Gcloud --> Instrumented tests -->
 #
 # Notes:
 # ------
@@ -103,7 +103,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:30'
     id: &unit_tests 'Run unit tests'
     waitFor:
-      - *code_quality
+      - *assemble_debug
     args:
       - '-c'
       - |
@@ -153,6 +153,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_reports 'Save reports to GCS'
     waitFor:
+      - *code_quality
       - *unit_tests
       - *instrumented_tests
     args: [ 'cp', '-r',
