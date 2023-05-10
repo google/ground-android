@@ -50,7 +50,7 @@ class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoic
         SelectMultipleOptionAdapter(multipleChoice.options) { viewModel.updateResponse(it) }
     } else {
       recyclerView.adapter =
-        SelectOneOptionAdapter(multipleChoice.options) { viewModel.updateResponse(it) }
+        SelectOneOptionAdapter(multipleChoice.options) { viewModel.updateResponse(listOf(it)) }
     }
   }
 }

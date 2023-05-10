@@ -54,9 +54,7 @@ class SelectMultipleOptionAdapter(
       selectedPositions.add(position)
     }
 
-    handleOptionSelected.invoke(
-      options.filterIndexed { index, _ -> selectedPositions.contains(index) }
-    )
+    handleOptionSelected(options.filterIndexed { index, _ -> selectedPositions.contains(index) })
   }
 
   override fun getItemCount(): Int = options.size

@@ -29,7 +29,7 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOn
  */
 class SelectOneOptionAdapter(
   private val options: List<Option>,
-  private val handleOptionSelected: (List<Option>) -> Unit
+  private val handleOptionSelected: (Option) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex = -1
@@ -55,7 +55,7 @@ class SelectOneOptionAdapter(
   private fun handleItemStateChange(view: View, position: Int) {
     val oldPosition = selectedIndex
     selectedIndex = position
-    handleOptionSelected.invoke(listOf(options[selectedIndex]))
+    handleOptionSelected(options[selectedIndex])
 
     view.post {
       if (oldPosition >= 0) {
