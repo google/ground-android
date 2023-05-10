@@ -129,6 +129,7 @@ open class HomeScreenFragmentTest : BaseHiltTest() {
       onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
 
       navDirectionsTestObserver.assertValue(expectedNavDirection)
+      fragment.drawerClosed()
     }
 
     companion object {
@@ -157,6 +158,19 @@ private fun HomeScreenFragment.openDrawer() {
   onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
   onView(withId(R.id.hamburger_btn)).check(matches(ViewMatchers.isDisplayed())).perform(click())
 
+  computeScrollForDrawerLayout()
+
+  onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen(Gravity.START)))
+  onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
+}
+
+private fun HomeScreenFragment.drawerClosed() {
+  computeScrollForDrawerLayout()
+
+  onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
+}
+
+private fun HomeScreenFragment.computeScrollForDrawerLayout() {
   val drawerLayout = requireView().findViewById<DrawerLayout>(R.id.drawer_layout)
   // Note that this only initiates a single computeScroll() in Robolectric. Normally, Android
   // will compute several of these across multiple draw calls, but one seems sufficient for
@@ -169,7 +183,4 @@ private fun HomeScreenFragment.openDrawer() {
   // adjustments to simulate the render loop.
   // Tracking bug: https://github.com/robolectric/robolectric/issues/5954
   drawerLayout.computeScroll()
-
-  onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen(Gravity.START)))
-  onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
 }
