@@ -26,8 +26,8 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
+@AndroidEntryPoint(AbstractFragment::class)
+class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener {
 
   @Inject lateinit var popups: EphemeralPopups
 

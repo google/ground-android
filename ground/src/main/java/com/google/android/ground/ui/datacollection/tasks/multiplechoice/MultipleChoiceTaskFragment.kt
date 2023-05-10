@@ -35,8 +35,8 @@ import dagger.hilt.android.AndroidEntryPoint
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
  * task.
  */
-@AndroidEntryPoint
-class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
+@AndroidEntryPoint(AbstractTaskFragment::class)
+class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoiceTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithHeader(inflater)

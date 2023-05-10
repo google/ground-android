@@ -44,8 +44,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
-@AndroidEntryPoint
-class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
+@AndroidEntryPoint(AbstractMapContainerFragment::class)
+class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel

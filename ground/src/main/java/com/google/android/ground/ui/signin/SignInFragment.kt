@@ -24,9 +24,8 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import dagger.hilt.android.AndroidEntryPoint
 
-// TODO: Remove scoping since Fragments are no longer injected.
-@AndroidEntryPoint
-class SignInFragment : AbstractFragment(), BackPressListener {
+@AndroidEntryPoint(AbstractFragment::class)
+class SignInFragment : Hilt_SignInFragment(), BackPressListener {
 
   private lateinit var viewModel: SignInViewModel
 

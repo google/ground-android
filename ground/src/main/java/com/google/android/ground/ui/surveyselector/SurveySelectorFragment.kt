@@ -32,8 +32,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 /** User interface implementation of survey selector screen. */
-@AndroidEntryPoint
-class SurveySelectorFragment : AbstractFragment(), BackPressListener {
+@AndroidEntryPoint(AbstractFragment::class)
+class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener {
 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding

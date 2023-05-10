@@ -48,9 +48,9 @@ import timber.log.Timber
  * side drawer. This is the default view in the application, and gets swapped out for other
  * fragments (e.g., view submission and edit submission) at runtime.
  */
-@AndroidEntryPoint
+@AndroidEntryPoint(AbstractFragment::class)
 class HomeScreenFragment :
-  AbstractFragment(),
+  Hilt_HomeScreenFragment(),
   BackPressListener,
   NavigationView.OnNavigationItemSelectedListener,
   OnGlobalLayoutListener {

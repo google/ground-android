@@ -38,8 +38,8 @@ import java.util.List;
 import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 
-@AndroidEntryPoint
-public class LocationOfInterestSelectorFragment extends AbstractDialogFragment {
+@AndroidEntryPoint(AbstractDialogFragment.class)
+public class LocationOfInterestSelectorFragment extends Hilt_LocationOfInterestSelectorFragment {
   @Inject EphemeralPopups popups;
 
   private LocationOfInterestSelectorViewModel viewModel;

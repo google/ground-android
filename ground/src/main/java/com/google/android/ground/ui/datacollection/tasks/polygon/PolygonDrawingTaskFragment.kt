@@ -33,8 +33,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
-class PolygonDrawingTaskFragment : AbstractTaskFragment<PolygonDrawingViewModel>() {
+@AndroidEntryPoint(AbstractTaskFragment::class)
+class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawingViewModel>() {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
   @Inject lateinit var mapFragment: MapFragment
