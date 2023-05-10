@@ -63,8 +63,8 @@ import timber.log.Timber
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-@AndroidEntryPoint
-class GoogleMapsFragment : SupportMapFragment(), MapFragment {
+@AndroidEntryPoint(SupportMapFragment::class)
+class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
@@ -133,8 +133,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
     // watermark from flying up too high due to the combination of translateY and big inset
     // size due to keyboard.
+    setCompassPadding(view, 0, insets.systemWindowInsetTop + 200, 0, 0)
     setWatermarkPadding(view, 20, 0, 0, min(insetBottom, 250) + 8)
     return insets
+  }
+
+  private fun setCompassPadding(view: View, left: Int, top: Int, right: Int, bottom: Int) {
+    // Compass may be null if Maps failed to load.
+    val compass = view.findViewWithTag<ImageView>("GoogleMapCompass") ?: return
+    val params = compass.layoutParams as RelativeLayout.LayoutParams
+    params.setMargins(left, top, right, bottom)
+    compass.layoutParams = params
   }
 
   private fun setWatermarkPadding(view: View, left: Int, top: Int, right: Int, bottom: Int) {
@@ -187,11 +196,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     map.setOnMapClickListener(this::onMapClick)
 
     with(map.uiSettings) {
-      isRotateGesturesEnabled = false
-      isTiltGesturesEnabled = false
+      isRotateGesturesEnabled = true
+      isTiltGesturesEnabled = true
       isMyLocationButtonEnabled = false
       isMapToolbarEnabled = false
-      isCompassEnabled = false
+      isCompassEnabled = true
       isIndoorLevelPickerEnabled = false
     }
   }

@@ -29,8 +29,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /** The fragment provides a UI for managing a single offline area on the user's device. */
-@AndroidEntryPoint
-class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFragment() {
+@AndroidEntryPoint(AbstractMapContainerFragment::class)
+class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFragment() {
 
   private lateinit var viewModel: OfflineAreaViewerViewModel
 

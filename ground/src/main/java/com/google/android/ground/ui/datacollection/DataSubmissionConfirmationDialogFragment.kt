@@ -22,8 +22,8 @@ import com.google.android.ground.databinding.DataSubmissionConfirmationDialogBin
 import com.google.android.ground.ui.common.AbstractDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
-class DataSubmissionConfirmationDialogFragment : AbstractDialogFragment() {
+@AndroidEntryPoint(AbstractDialogFragment::class)
+class DataSubmissionConfirmationDialogFragment : Hilt_DataSubmissionConfirmationDialogFragment() {
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     super.onCreateDialog(savedInstanceState)
