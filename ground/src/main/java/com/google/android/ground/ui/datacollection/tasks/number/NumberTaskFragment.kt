@@ -25,8 +25,8 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment allowing the user to answer questions to complete a task. */
-@AndroidEntryPoint
-class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
+@AndroidEntryPoint(AbstractTaskFragment::class)
+class NumberTaskFragment : Hilt_NumberTaskFragment<NumberTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithHeader(layoutInflater)

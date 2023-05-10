@@ -34,8 +34,8 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-@AndroidEntryPoint
-public class SubmissionListFragment extends AbstractFragment {
+@AndroidEntryPoint(AbstractFragment.class)
+public class SubmissionListFragment extends Hilt_SubmissionListFragment {
 
   @Inject Navigator navigator;
 

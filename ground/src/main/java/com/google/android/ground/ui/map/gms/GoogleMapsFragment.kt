@@ -63,8 +63,8 @@ import timber.log.Timber
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-@AndroidEntryPoint
-class GoogleMapsFragment : SupportMapFragment(), MapFragment {
+@AndroidEntryPoint(SupportMapFragment::class)
+class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */

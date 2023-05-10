@@ -22,9 +22,9 @@ import com.google.android.ground.databinding.DialogPolygonInfoBinding
 import com.google.android.ground.ui.common.AbstractDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+@AndroidEntryPoint(AbstractDialogFragment::class)
 class PolygonDrawingInfoDialogFragment(private val onGetStartedButtonClick: Runnable) :
-  AbstractDialogFragment() {
+  Hilt_PolygonDrawingInfoDialogFragment() {
   lateinit var binding: DialogPolygonInfoBinding
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

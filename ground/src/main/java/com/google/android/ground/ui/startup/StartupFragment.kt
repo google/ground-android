@@ -30,8 +30,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import timber.log.Timber
 
-@AndroidEntryPoint
-class StartupFragment : AbstractFragment() {
+@AndroidEntryPoint(AbstractFragment::class)
+class StartupFragment : Hilt_StartupFragment() {
 
   @Inject lateinit var authenticationManager: AuthenticationManager
   @Inject lateinit var googleApiManager: GoogleApiManager
