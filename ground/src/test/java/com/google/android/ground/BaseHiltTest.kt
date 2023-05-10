@@ -47,10 +47,10 @@ open class BaseHiltTest {
 
   @Inject lateinit var testDispatcher: TestDispatcher
 
+  private var initializedPicasso = false
+
   open fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
     runTest(context = testDispatcher, testBody = testBody)
-
-  private var initializedPicasso = false
 
   @Before
   @OverridingMethodsMustInvokeSuper

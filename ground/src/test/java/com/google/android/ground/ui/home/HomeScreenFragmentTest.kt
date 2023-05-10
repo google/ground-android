@@ -146,9 +146,7 @@ open class HomeScreenFragmentTest : BaseHiltTest() {
           arrayOf(
             "Settings",
             HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
-          ),
-          // TODO: Fix drawer item click test for sign out.
-          // arrayOf("Sign out")
+          )
         )
     }
   }
