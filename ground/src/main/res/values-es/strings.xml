@@ -75,7 +75,6 @@
   <string name="google_api_install_failed">Falló la instalación de los servicios de Google Play</string>
   <string name="sign_in_unsuccessful">Iniciar sesión sin éxito</string>
   <string name="sign_out">Salir</string>
-  <string name="cancel">Cancelar</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Mapas base sin conexión</string>
@@ -123,7 +122,6 @@
   <string name="add_point">Agregar punto</string>
   <string name="complete_polygon">Completo</string>
   <string name="select_loi_type">Elija un tipo de característica</string>
-  <string name="get_started_button_text">Empezar</string>
   <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
   <string name="location_accuracy">%.2fm</string>
 
