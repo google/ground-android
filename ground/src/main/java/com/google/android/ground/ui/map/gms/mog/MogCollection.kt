@@ -18,81 +18,28 @@ package com.google.android.ground.ui.map.gms.mog
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.LruCache
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
 import java.io.ByteArrayOutputStream
-import java.io.FileNotFoundException
-import java.io.InputStream
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
-import mil.nga.tiff.FieldTagType
-import mil.nga.tiff.TiffReader
-import mil.nga.tiff.util.TiffConstants
-import mil.nga.tiff.util.TiffException
-import timber.log.Timber
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
-@Suppress("MemberVisibilityCanBePrivate")
 class MogCollection(
   val worldMogUrl: String,
   val hiResMogUrlTemplate: String,
   val hiResMogMinZoom: Int,
   val hiResMogMaxZoom: Int
 ) {
-  private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
-
-  /** Returns the tile for the specified tile coordinates, or `null` if not available. */
-  suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
-    getMog(getMogBoundsForTile(tileCoordinates))?.getTile(tileCoordinates)
-
-  suspend fun getTilesRequests(
-    bounds: LatLngBounds,
-    zoomRange: IntRange = 0..hiResMogMaxZoom
-  ): List<TilesRequest> {
-    val requests = mutableListOf<TilesRequest>()
-    val (worldZoomLevels, sliceZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
-    if (worldZoomLevels.isNotEmpty()) {
-      requests.addAll(getTilesRequests(TileCoordinates.WORLD, bounds, worldZoomLevels))
+  fun getMogUrl(bounds: TileCoordinates): String {
+    val (x, y, zoom) = bounds
+    if (zoom == 0) {
+      return worldMogUrl
     }
-    if (sliceZoomLevels.isNotEmpty()) {
-      // Compute extents of first and last region covered by specified bounds.
-      val nwSlice = TileCoordinates.fromLatLng(bounds.northwest(), hiResMogMinZoom)
-      val seSlice = TileCoordinates.fromLatLng(bounds.southeast(), hiResMogMinZoom)
-      for (y in nwSlice.y..seSlice.y) {
-        for (x in nwSlice.x..seSlice.x) {
-          val mogExtent = TileCoordinates(x, y, hiResMogMinZoom)
-          requests.addAll(getTilesRequests(mogExtent, bounds, sliceZoomLevels))
-        }
-      }
+    if (zoom < hiResMogMinZoom) {
+      error("Invalid zoom for this collection. Expected 0 or $hiResMogMinZoom, got $zoom")
     }
-    return requests
-  }
-
-  private suspend fun getTilesRequests(
-    mogExtent: TileCoordinates,
-    bounds: LatLngBounds,
-    zoomLevels: List<Int>
-  ): List<TilesRequest> {
-    val mog = getMog(mogExtent) ?: return listOf()
-    return zoomLevels.flatMap { zoom ->
-      mog.getTilesRequests(TileCoordinates.withinBounds(bounds, zoom))
-    }
-  }
-
-  /**
-   * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
-   * tile's respective coordinates.
-   */
-  fun fetchTiles(tilesRequests: List<TilesRequest>): Flow<Pair<TileCoordinates, Tile>> = flow {
-    tilesRequests.forEach { request ->
-      val mog = getMog(request.mogBounds) ?: return@flow
-      emitAll(mog.fetchTiles(request))
-    }
+    return hiResMogUrlTemplate
+      .replace("{x}", x.toString())
+      .replace("{y}", y.toString())
+      .replace("{z}", zoom.toString())
   }
 
   /**
@@ -126,99 +73,8 @@ class MogCollection(
     return Tile(tile.width, tile.height, out.toByteArray())
   }
 
-  /**
-   * Returns the bounds of the MOG containing the tile with the specified coordinates.
-   */
-  private fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
+  /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
+  fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(hiResMogMinZoom)
-
-  /**
-   * Returns to MOG with bounds corresponding to the specified tile coordinates.
-   */
-  private suspend fun getMog(bounds: TileCoordinates): Mog? =
-    getOrFetchMogAsync(getMogUrl(bounds), bounds).await()
-
-  private fun getMogUrl(extent: TileCoordinates): String {
-    val (x, y, zoom) = extent
-    if (zoom == 0) {
-      return worldMogUrl
-    }
-    if (zoom < hiResMogMinZoom) {
-      error("Invalid zoom for this collection. Expected 0 or $hiResMogMinZoom, got $zoom")
-    }
-    return hiResMogUrlTemplate
-      .replace("{x}", x.toString())
-      .replace("{y}", y.toString())
-      .replace("{z}", zoom.toString())
-  }
-
-  /**
-   * Returns a future containing the [Mog] with the specified extent and URL. Metadata is either
-   * loaded from in-memory cache if present, or asynchronously fetched if necessary. The process of
-   * checking the cache and creating the new job is synchronized on the current instance to prevent
-   * duplicate parallel requests for the same resource.
-   */
-  private fun getOrFetchMogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> =
-    synchronized(this) { cache.get(url) ?: fetchMogAsync(url, extent) }
-
-  /**
-   * Asynchronously fetches and returns the [Mog] with the specified extent and URL. The async job
-   * is added to the cache immediately to prevent duplicate fetches from other threads.
-   */
-  private fun fetchMogAsync(url: String, extent: TileCoordinates): Deferred<Mog?> = runBlocking {
-    // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
-    @Suppress("DeferredResultUnused")
-    async { nullIfNotFound { UrlInputStream(url) }?.use { readHeader(url, extent, it) } }
-      .also { cache.put(url, it) }
-  }
-
-  private fun readHeader(url: String, extent: TileCoordinates, inputStream: InputStream): Mog {
-    val startTimeMillis = System.currentTimeMillis()
-    try {
-      // This reads only headers and not the whole file.
-      val tiff = TiffReader.readTiff(inputStream)
-      val images = mutableListOf<MogImageMetadata>()
-      // Only include image file directories with RGB image data. Mask images are skipped.
-      // TODO: Render masked areas as transparent.
-      val rgbIfds =
-        tiff.fileDirectories.filter {
-          it
-            .getIntegerEntryValue(FieldTagType.PhotometricInterpretation)
-            .and(TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB) != 0
-        }
-      // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = extent.zoom + rgbIfds.size - 1
-      rgbIfds.forEachIndexed { i, ifd ->
-        images.add(
-          MogImageMetadata(
-            ifd.getIntegerEntryValue(FieldTagType.TileWidth),
-            ifd.getIntegerEntryValue(FieldTagType.TileLength),
-            extent.originAtZoom(maxZ - i),
-            ifd.getLongListEntryValue(FieldTagType.TileOffsets),
-            ifd.getLongListEntryValue(FieldTagType.TileByteCounts),
-            ifd.getIntegerEntryValue(FieldTagType.ImageWidth),
-            ifd.getIntegerEntryValue(FieldTagType.ImageLength),
-            ifd.getLongListEntryValue(FieldTagType.JPEGTables)?.map(Long::toByte)?.toByteArray()
-              ?: byteArrayOf()
-          )
-        )
-      }
-      val time = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Loaded headers from $url in $time ms")
-
-      return Mog(url, extent, images.toList())
-    } catch (e: TiffException) {
-      error("Failed to read $url: ${e.message})")
-    } finally {
-      inputStream.close()
-    }
-  }
 }
-
-private inline fun <T> nullIfNotFound(fn: () -> T) =
-  try {
-    fn()
-  } catch (_: FileNotFoundException) {
-    null
-  }

@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class MogTest {
+class MogMetadataTest {
   @Test
   fun getTile() {
     // TODO

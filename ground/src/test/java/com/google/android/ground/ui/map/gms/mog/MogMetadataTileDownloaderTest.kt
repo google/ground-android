@@ -25,7 +25,7 @@ import org.robolectric.RobolectricTestRunner
 import java.lang.System.currentTimeMillis
 
 @RunWith(RobolectricTestRunner::class)
-class MogTileDownloaderTest {
+class MogMetadataTileDownloaderTest {
   @Test
   fun downloadTiles() = runBlocking {
     // Indonesia: LngLatBbox(west=95.00933042066814, south=-11.007616494507769,
