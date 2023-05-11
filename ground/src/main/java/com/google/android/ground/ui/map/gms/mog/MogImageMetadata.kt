@@ -36,23 +36,25 @@ private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this
 
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
-class MogImage(
+/** Metadata describing a single full-resolution or overview image in a MOG. */
+@Suppress("MemberVisibilityCanBePrivate")
+class MogImageMetadata(
   val tileWidth: Int,
   val tileLength: Int,
-  private val originTile: TileCoordinates,
-  private val offsets: List<Long>,
-  private val byteCounts: List<Long>,
-  private val imageWidth: Int,
-  private val imageLength: Int,
-  private val jpegTables: ByteArray
+  val originTile: TileCoordinates,
+  val offsets: List<Long>,
+  val byteCounts: List<Long>,
+  val imageWidth: Int,
+  val imageLength: Int,
+  val jpegTables: ByteArray
 ) {
-  private val tileCountX = imageWidth / tileWidth
-  private val tileCountY = imageLength / tileLength
+  val tileCountX = imageWidth / tileWidth
+  val tileCountY = imageLength / tileLength
 
-  // TODO: Verify X and Y scales the same.
+  // TODO: Verify X and Y scales are the same.
   val zoom = originTile.zoom
 
-  private fun hasTile(x: Int, y: Int) =
+  fun hasTile(x: Int, y: Int) =
     x >= originTile.x &&
       y >= originTile.y &&
       x < tileCountX + originTile.x &&

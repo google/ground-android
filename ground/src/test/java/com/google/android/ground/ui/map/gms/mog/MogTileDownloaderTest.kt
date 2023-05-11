@@ -34,17 +34,17 @@ class MogTileDownloaderTest {
     val northeast = LatLng(5.904411619513165, 141.01944540877238)
 //    val southwest = LatLng(4.089672, 95.546853)
 //    val northeast = LatLng(5.435577, 96.278013)
-    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/6"
-    val mogCollection = MogCollection("$mogBaseUrl/world.tif", "$mogBaseUrl/{x}/{y}.tif", 6, 14)
+    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/8"
+    val mogCollection = MogCollection("$mogBaseUrl/world.tif", "$mogBaseUrl/{x}/{y}.tif", 8, 14)
     val downloader = MogTileDownloader(mogCollection, "/tmp/tiles")
     var startTimeMillis = currentTimeMillis()
     println("Fetching headers...")
     val requests = mogCollection.getTilesRequests(LatLngBounds(southwest, northeast))
 
-    println("Fetched in ${(currentTimeMillis() - startTimeMillis)/1000.0}s")
+    println("Headers in ${(currentTimeMillis() - startTimeMillis)/1000.0}s")
     println("# requests: ${requests.size}")
-    println("# files:    ${requests.map { it.url }.distinct().size}")
-    println("# tiles:    ${requests.sumOf { it.tileCoordinates.size }}")
+    println("# files:    ${requests.map { it.mogUrl }.distinct().size}")
+    println("# tiles:    ${requests.sumOf { it.tileCoordinatesList.size }}")
     //      downloader.downloadTiles(requests)
   }
 }

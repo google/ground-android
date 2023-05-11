@@ -38,7 +38,7 @@ class MogTileDownloader(
    *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
   suspend fun downloadTiles(tilesRequests: List<TilesRequest>) =
-    // TODOO: Refactor fetching into new class (`MogClient?`).
+    // TODO: Refactor fetching into new class (`MogClient?`).
     mogCollection.fetchTiles(tilesRequests).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")

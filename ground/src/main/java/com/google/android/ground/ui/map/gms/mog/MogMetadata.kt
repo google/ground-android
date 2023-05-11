@@ -35,7 +35,7 @@ const val MAX_OVER_FETCH_PER_TILE = 1 * 20 * 1024
  * clipped and configured for visualization with Google Maps Platform. This class stores metadata
  * and fetches tiles on demand via [getTile] and [getTiles].
  */
-class Mog(val url: String, val extent: TileCoordinates, images: List<MogImage>) {
+class Mog(val url: String, val bounds: TileCoordinates, images: List<MogImageMetadata>) {
   private val imagesByZoom = images.associateBy { it.zoom }
 
   suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
@@ -48,10 +48,10 @@ class Mog(val url: String, val extent: TileCoordinates, images: List<MogImage>) 
       val prev = tilesRequests.lastOrNull()
       if (prev == null || byteRange.first - prev.byteRange.last - 1 > MAX_OVER_FETCH_PER_TILE) {
         tilesRequests.add(
-          MutableTilesRequest(url, extent, byteRange, mutableListOf(tileCoordinates))
+          MutableTilesRequest(url, bounds, byteRange, mutableListOf(tileCoordinates))
         )
       } else {
-        prev.extentRange(byteRange.last, tileCoordinates)
+        prev.extendRange(byteRange.last, tileCoordinates)
       }
     }
     return tilesRequests.map { it.toTilesRequest() }
@@ -59,7 +59,7 @@ class Mog(val url: String, val extent: TileCoordinates, images: List<MogImage>) 
 
   // TODO: Use thread pool to request multiple ranges in parallel.
   fun fetchTiles(tilesRequest: TilesRequest): Flow<Pair<TileCoordinates, Tile>> = flow {
-    UrlInputStream(tilesRequest.imageUrl, tilesRequest.byteRange).use {
+    UrlInputStream(tilesRequest.mogUrl, tilesRequest.byteRange).use {
       emitAll(parseTiles(tilesRequest.tileCoordinatesList, it))
     }
   }

@@ -37,17 +37,18 @@ import mil.nga.tiff.util.TiffException
 import timber.log.Timber
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
+@Suppress("MemberVisibilityCanBePrivate")
 class MogCollection(
-  private val worldMogUrl: String,
-  private val hiResMogUrlTemplate: String,
-  private val hiResMogMinZoom: Int,
+  val worldMogUrl: String,
+  val hiResMogUrlTemplate: String,
+  val hiResMogMinZoom: Int,
   val hiResMogMaxZoom: Int
 ) {
   private val cache: LruCache<String, Deferred<Mog?>> = LruCache(16)
 
   /** Returns the tile for the specified tile coordinates, or `null` if not available. */
   suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
-    getMog(getMogExtentForTile(tileCoordinates))?.getTile(tileCoordinates)
+    getMog(getMogBoundsForTile(tileCoordinates))?.getTile(tileCoordinates)
 
   suspend fun getTilesRequests(
     bounds: LatLngBounds,
@@ -89,7 +90,7 @@ class MogCollection(
    */
   fun fetchTiles(tilesRequests: List<TilesRequest>): Flow<Pair<TileCoordinates, Tile>> = flow {
     tilesRequests.forEach { request ->
-      val mog = getMog(request.imageBounds) ?: return@flow
+      val mog = getMog(request.mogBounds) ?: return@flow
       emitAll(mog.fetchTiles(request))
     }
   }
@@ -125,12 +126,18 @@ class MogCollection(
     return Tile(tile.width, tile.height, out.toByteArray())
   }
 
-  private fun getMogExtentForTile(tileCoordinates: TileCoordinates): TileCoordinates =
+  /**
+   * Returns the bounds of the MOG containing the tile with the specified coordinates.
+   */
+  private fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(hiResMogMinZoom)
 
-  private suspend fun getMog(extent: TileCoordinates): Mog? =
-    getOrFetchMogAsync(getMogUrl(extent), extent).await()
+  /**
+   * Returns to MOG with bounds corresponding to the specified tile coordinates.
+   */
+  private suspend fun getMog(bounds: TileCoordinates): Mog? =
+    getOrFetchMogAsync(getMogUrl(bounds), bounds).await()
 
   private fun getMogUrl(extent: TileCoordinates): String {
     val (x, y, zoom) = extent
@@ -171,7 +178,7 @@ class MogCollection(
     try {
       // This reads only headers and not the whole file.
       val tiff = TiffReader.readTiff(inputStream)
-      val images = mutableListOf<MogImage>()
+      val images = mutableListOf<MogImageMetadata>()
       // Only include image file directories with RGB image data. Mask images are skipped.
       // TODO: Render masked areas as transparent.
       val rgbIfds =
@@ -184,7 +191,7 @@ class MogCollection(
       val maxZ = extent.zoom + rgbIfds.size - 1
       rgbIfds.forEachIndexed { i, ifd ->
         images.add(
-          MogImage(
+          MogImageMetadata(
             ifd.getIntegerEntryValue(FieldTagType.TileWidth),
             ifd.getIntegerEntryValue(FieldTagType.TileLength),
             extent.originAtZoom(maxZ - i),
