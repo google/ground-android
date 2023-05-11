@@ -15,9 +15,7 @@
  */
 package com.google.android.ground
 
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
@@ -47,8 +45,6 @@ open class BaseHiltTest {
 
   @Inject lateinit var testDispatcher: TestDispatcher
 
-  private var initializedPicasso = false
-
   open fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
     runTest(context = testDispatcher, testBody = testBody)
 
@@ -56,18 +52,5 @@ open class BaseHiltTest {
   @OverridingMethodsMustInvokeSuper
   open fun setUp() {
     hiltRule.inject()
-  }
-
-  fun initPicasso(context: Context) {
-    if (initializedPicasso) {
-      return
-    }
-    try {
-      Picasso.setSingletonInstance(Picasso.Builder(context).build())
-    } catch (_: Exception) {
-      // ignore failures if context is already set
-      // Tracking bug : https://github.com/square/picasso/issues/1929
-    }
-    initializedPicasso = true
   }
 }

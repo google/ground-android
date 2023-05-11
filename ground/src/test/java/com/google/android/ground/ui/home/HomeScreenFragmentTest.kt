@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.home
 
+import android.content.Context
 import android.view.Gravity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavDirections
@@ -34,6 +35,7 @@ import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.net.URL
 import javax.inject.Inject
@@ -47,12 +49,71 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
 
+abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
+
+  private lateinit var fragment: HomeScreenFragment
+  private var initializedPicasso = false
+
+  @Before
+  override fun setUp() {
+    super.setUp()
+    launchFragmentInHiltContainer<HomeScreenFragment> {
+      fragment = this as HomeScreenFragment
+      initPicasso(fragment.requireContext())
+    }
+  }
+
+  private fun initPicasso(context: Context) {
+    if (initializedPicasso) {
+      return
+    }
+    try {
+      Picasso.setSingletonInstance(Picasso.Builder(context).build())
+    } catch (_: Exception) {
+      // ignore failures if context is already set
+      // Tracking bug : https://github.com/square/picasso/issues/1929
+    }
+    initializedPicasso = true
+  }
+
+  protected fun openDrawer() {
+    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
+    onView(withId(R.id.hamburger_btn)).check(matches(ViewMatchers.isDisplayed())).perform(click())
+    computeScrollForDrawerLayout()
+    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen(Gravity.START)))
+    onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
+  }
+
+  protected fun verifyDrawerClosed() {
+    computeScrollForDrawerLayout()
+    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
+  }
+
+  /**
+   * Invoke this method before doing any verifications on navigation drawer after performing an
+   * action on it.
+   */
+  private fun computeScrollForDrawerLayout() {
+    val drawerLayout = fragment.requireView().findViewById<DrawerLayout>(R.id.drawer_layout)
+    // Note that this only initiates a single computeScroll() in Robolectric. Normally, Android
+    // will compute several of these across multiple draw calls, but one seems sufficient for
+    // Robolectric. Note that Robolectric is also *supposed* to handle the animation loop one call
+    // to this method initiates in the view choreographer class, but it seems to not actually
+    // flush the choreographer per observation. In Espresso, this method is automatically called
+    // during draw (and a few other situations), but it's fine to call it directly once to kick it
+    // off (to avoid disparity between Espresso/Robolectric runs of the tests).
+    // NOTE TO DEVELOPERS: if this ever flakes, we can probably put this in a loop with fake time
+    // adjustments to simulate the render loop.
+    // Tracking bug: https://github.com/robolectric/robolectric/issues/5954
+    drawerLayout.computeScroll()
+  }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-open class HomeScreenFragmentTest : BaseHiltTest() {
+class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
-  private lateinit var fragment: HomeScreenFragment
   @Inject lateinit var surveyRepository: SurveyRepository
 
   private val surveyWithoutBasemap: Survey =
@@ -74,21 +135,12 @@ open class HomeScreenFragmentTest : BaseHiltTest() {
       id = "BASEMAPS"
     )
 
-  @Before
-  override fun setUp() {
-    super.setUp()
-    launchFragmentInHiltContainer<HomeScreenFragment> {
-      fragment = this as HomeScreenFragment
-      initPicasso(fragment.requireContext())
-    }
-  }
-
   @Test
   fun offlineBasemapMenuIsDisabledWhenActiveSurveyHasNoBasemap() = runWithTestDispatcher {
     surveyRepository.activeSurvey = surveyWithoutBasemap
     advanceUntilIdle()
 
-    fragment.openDrawer()
+    openDrawer()
     onView(withId(R.id.nav_offline_areas)).check(matches(not(isEnabled())))
   }
 
@@ -97,88 +149,46 @@ open class HomeScreenFragmentTest : BaseHiltTest() {
     surveyRepository.activeSurvey = surveyWithBasemap
     advanceUntilIdle()
 
-    fragment.openDrawer()
+    openDrawer()
     onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
   }
+}
 
-  @HiltAndroidTest
-  @RunWith(ParameterizedRobolectricTestRunner::class)
-  class NavigationDrawerItemClickTest(
-    private val menuItemLabel: String,
-    private val expectedNavDirection: NavDirections?
-  ) : BaseHiltTest() {
+@HiltAndroidTest
+@RunWith(ParameterizedRobolectricTestRunner::class)
+class NavigationDrawerItemClickTest(
+  private val menuItemLabel: String,
+  private val expectedNavDirection: NavDirections?
+) : AbstractHomeScreenFragmentTest() {
 
-    private lateinit var fragment: HomeScreenFragment
-    @Inject lateinit var navigator: Navigator
-    @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var navigator: Navigator
 
-    @Before
-    override fun setUp() {
-      super.setUp()
-      launchFragmentInHiltContainer<HomeScreenFragment> {
-        fragment = this as HomeScreenFragment
-        initPicasso(fragment.requireContext())
-      }
-    }
+  @Test
+  fun clickDrawerMenuItem() {
+    val navDirectionsTestObserver = navigator.getNavigateRequests().test()
 
-    @Test
-    fun clickDrawerMenuItem() {
-      val navDirectionsTestObserver = navigator.getNavigateRequests().test()
+    openDrawer()
+    onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
 
-      fragment.openDrawer()
-      onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
-
-      navDirectionsTestObserver.assertValue(expectedNavDirection)
-      fragment.drawerClosed()
-    }
-
-    companion object {
-      @JvmStatic
-      @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-      fun data() =
-        listOf(
-          arrayOf(
-            "Change survey",
-            HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
-          ),
-          arrayOf("Sync status", HomeScreenFragmentDirections.showSyncStatus()),
-          arrayOf("Offline base maps", HomeScreenFragmentDirections.showOfflineAreas()),
-          arrayOf(
-            "Settings",
-            HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
-          )
-        )
-    }
+    navDirectionsTestObserver.assertValue(expectedNavDirection)
+    verifyDrawerClosed()
   }
-}
 
-private fun HomeScreenFragment.openDrawer() {
-  onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
-  onView(withId(R.id.hamburger_btn)).check(matches(ViewMatchers.isDisplayed())).perform(click())
-
-  computeScrollForDrawerLayout()
-
-  onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen(Gravity.START)))
-  onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
-}
-
-private fun HomeScreenFragment.drawerClosed() {
-  computeScrollForDrawerLayout()
-
-  onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
-}
-
-private fun HomeScreenFragment.computeScrollForDrawerLayout() {
-  val drawerLayout = requireView().findViewById<DrawerLayout>(R.id.drawer_layout)
-  // Note that this only initiates a single computeScroll() in Robolectric. Normally, Android
-  // will compute several of these across multiple draw calls, but one seems sufficient for
-  // Robolectric. Note that Robolectric is also *supposed* to handle the animation loop one call
-  // to this method initiates in the view choreographer class, but it seems to not actually
-  // flush the choreographer per observation. In Espresso, this method is automatically called
-  // during draw (and a few other situations), but it's fine to call it directly once to kick it
-  // off (to avoid disparity between Espresso/Robolectric runs of the tests).
-  // NOTE TO DEVELOPERS: if this ever flakes, we can probably put this in a loop with fake time
-  // adjustments to simulate the render loop.
-  // Tracking bug: https://github.com/robolectric/robolectric/issues/5954
-  drawerLayout.computeScroll()
+  companion object {
+    @JvmStatic
+    @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
+    fun data() =
+      listOf(
+        arrayOf(
+          "Change survey",
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+        ),
+        arrayOf("Sync status", HomeScreenFragmentDirections.showSyncStatus()),
+        arrayOf("Offline base maps", HomeScreenFragmentDirections.showOfflineAreas()),
+        arrayOf(
+          "Settings",
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
+        )
+      )
+  }
 }
