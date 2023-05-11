@@ -89,7 +89,7 @@ class MogCollection(
    */
   fun fetchTiles(tilesRequests: List<TilesRequest>): Flow<Pair<TileCoordinates, Tile>> = flow {
     tilesRequests.forEach { request ->
-      val mog = getMog(request.mogExtent) ?: return@flow
+      val mog = getMog(request.imageBounds) ?: return@flow
       emitAll(mog.fetchTiles(request))
     }
   }

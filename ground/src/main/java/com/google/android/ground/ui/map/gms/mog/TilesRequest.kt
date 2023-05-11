@@ -15,10 +15,55 @@ package com.google.android.ground.ui.map.gms.mog
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// TODO: Make immutable.
+
+/** A request for one or more tiles from a particular file. */
 data class TilesRequest(
-  var url: String,
-  var mogExtent: TileCoordinates,
-  var byteRange: LongRange,
-  var tileCoordinates: MutableList<TileCoordinates>
+  /** The URL of the source image. */
+  val imageUrl: String,
+
+  /** The web mercator tile coordinates corresponding to the bounding box of the source image. */
+  val imageBounds: TileCoordinates,
+
+  /**
+   * The start and end index of the relevant bytes to be fetched from the source image. Indices
+   * start from 0. End index is inclusive.
+   */
+  val byteRange: LongRange,
+
+  /**
+   * The list of coordinates of the web mercator tile(s) being requested. The exact number of bytes
+   * in [byteRange] occupied by each tile is defined in the image source's headers.
+   */
+  val tileCoordinatesList: List<TileCoordinates>
 )
+
+data class MutableTilesRequest(
+  /** The URL of the source image. */
+  var imageUrl: String,
+
+  /** The web mercator tile coordinates corresponding to the bounding box of the source image. */
+  var imageBounds: TileCoordinates,
+
+  /**
+   * The start and end index of the relevant bytes to be fetched from the source image. Indices
+   * start from 0. End index is inclusive.
+   */
+  var byteRange: LongRange,
+
+  /**
+   * The list of coordinates of the web mercator tile(s) being requested. The exact number of bytes
+   * in [byteRange] occupied by each tile is defined in the image source's headers.
+   */
+  val tileCoordinatesList: MutableList<TileCoordinates>
+) {
+  fun toTilesRequest() = TilesRequest(imageUrl, imageBounds, byteRange, tileCoordinatesList)
+
+  /**
+   * Adds an additional tile to be fetched by extending the number of bytes requested and its
+   * corresponding tile coordinates.
+   */
+  fun extentRange(newEnd: Long, newTileCoordinates: TileCoordinates) {
+    byteRange = LongRange(byteRange.first, newEnd)
+    tileCoordinatesList.add(newTileCoordinates)
+  }
+}
