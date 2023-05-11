@@ -29,8 +29,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /** Dialog fragment containing a list of [MapType] for updating basemap layer. */
-@AndroidEntryPoint
-class MapTypeDialogFragment : BottomSheetDialogFragment() {
+@AndroidEntryPoint(BottomSheetDialogFragment::class)
+class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
 
   @Inject lateinit var mapStateRepository: MapStateRepository
 

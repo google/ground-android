@@ -37,8 +37,8 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 /** Fragment containing the contents of the bottom sheet shown when a LOI is selected. */
-@AndroidEntryPoint
-public class LocationOfInterestDetailsFragment extends AbstractFragment {
+@AndroidEntryPoint(AbstractFragment.class)
+public class LocationOfInterestDetailsFragment extends Hilt_LocationOfInterestDetailsFragment {
 
   private LocationOfInterestDetailsViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;

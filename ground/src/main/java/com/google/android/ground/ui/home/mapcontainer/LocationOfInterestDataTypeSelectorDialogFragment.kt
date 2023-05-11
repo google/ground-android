@@ -24,10 +24,10 @@ import com.google.android.ground.ui.common.AbstractDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.function.Consumer
 
-@AndroidEntryPoint
+@AndroidEntryPoint(AbstractDialogFragment::class)
 class LocationOfInterestDataTypeSelectorDialogFragment(
   private val onSelectLocationOfInterestDataType: Consumer<Int>
-) : AbstractDialogFragment() {
+) : Hilt_LocationOfInterestDataTypeSelectorDialogFragment() {
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     super.onCreateDialog(savedInstanceState)
 

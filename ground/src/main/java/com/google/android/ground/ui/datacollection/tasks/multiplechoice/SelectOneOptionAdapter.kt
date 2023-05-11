@@ -16,10 +16,10 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBinding
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOneOptionAdapter.ViewHolder
 
@@ -29,7 +29,7 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOn
  */
 class SelectOneOptionAdapter(
   private val options: List<Option>,
-  private val viewModel: MultipleChoiceTaskViewModel
+  private val handleOptionSelected: (Option) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
 
   private var selectedIndex = -1
@@ -47,24 +47,26 @@ class SelectOneOptionAdapter(
     holder.bind(options[position])
 
     holder.binding.radioButton.isChecked = position == selectedIndex
-
     holder.binding.radioButton.setOnClickListener {
-      val oldPosition = selectedIndex
-      selectedIndex = holder.adapterPosition
-      viewModel.updateResponse(listOf(options[selectedIndex]))
+      handleItemStateChange(it, holder.adapterPosition)
+    }
+  }
 
-      holder.binding.radioButton.post {
-        if (oldPosition >= 0) {
-          notifyItemChanged(oldPosition)
-        }
-        notifyItemChanged(selectedIndex)
+  private fun handleItemStateChange(view: View, position: Int) {
+    val oldPosition = selectedIndex
+    selectedIndex = position
+    handleOptionSelected(options[selectedIndex])
+
+    view.post {
+      if (oldPosition >= 0) {
+        notifyItemChanged(oldPosition)
       }
+      notifyItemChanged(selectedIndex)
     }
   }
 
   override fun getItemCount(): Int = options.size
 
-  /** View item representing the [LocationOfInterest] data in the list. */
   class ViewHolder(internal val binding: MultipleChoiceRadiobuttonItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(option: Option) {

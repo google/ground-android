@@ -18,11 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.SelectionTracker.SelectionObserver
-import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
@@ -35,8 +30,8 @@ import dagger.hilt.android.AndroidEntryPoint
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
  * task.
  */
-@AndroidEntryPoint
-class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
+@AndroidEntryPoint(AbstractTaskFragment::class)
+class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoiceTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -51,41 +46,11 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     val multipleChoice = viewModel.task.multipleChoice!!
     recyclerView.setHasFixedSize(true)
     if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      val adapter = SelectMultipleOptionAdapter(multipleChoice.options, viewModel)
-      adapter.setHasStableIds(true)
-      recyclerView.adapter = adapter
-      setupMultipleSelectionTracker(recyclerView, adapter)
+      recyclerView.adapter =
+        SelectMultipleOptionAdapter(multipleChoice.options) { viewModel.updateResponse(it) }
     } else {
-      recyclerView.adapter = SelectOneOptionAdapter(multipleChoice.options, viewModel)
+      recyclerView.adapter =
+        SelectOneOptionAdapter(multipleChoice.options) { viewModel.updateResponse(listOf(it)) }
     }
-  }
-
-  private fun setupMultipleSelectionTracker(view: RecyclerView, adapter: SelectionAdapter<*>) {
-    val itemKeyProvider =
-      object : ItemKeyProvider<Long>(SCOPE_CACHED) {
-        override fun getKey(position: Int): Long = adapter.getItemId(position)
-
-        override fun getPosition(key: Long): Int = key.toInt()
-      }
-
-    val itemDetailsLookup: ItemDetailsLookup<Long> = OptionListItemDetailsLookup(view)
-
-    val selectionTracker =
-      SelectionTracker.Builder(
-          "option_selection",
-          view,
-          itemKeyProvider,
-          itemDetailsLookup,
-          StorageStrategy.createLongStorage()
-        )
-        .build()
-
-    selectionTracker.addObserver(
-      object : SelectionObserver<Long>() {
-        override fun onItemStateChanged(key: Long, selected: Boolean) {
-          adapter.handleItemStateChanged(key.toInt(), selected)
-        }
-      }
-    )
   }
 }

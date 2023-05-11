@@ -37,8 +37,8 @@ import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
 
-@AndroidEntryPoint
-class SubmissionDetailsFragment : AbstractFragment() {
+@AndroidEntryPoint(AbstractFragment::class)
+class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
 
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var popups: EphemeralPopups
