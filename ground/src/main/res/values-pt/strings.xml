@@ -68,7 +68,6 @@
   <string name="google_api_install_failed">Google Play Services instalação falhada</string>
   <string name="sign_in_unsuccessful">Entrar sem sucesso</string>
   <string name="sign_out">Sair</string>
-  <string name="cancel">Cancelar</string>
 
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
@@ -108,6 +107,5 @@
   <string name="point">Ponto</string>
   <string name="polygon">Polígono</string>
   <string name="select_loi_type">Escolha um tipo de recurso</string>
-  <string name="get_started_button_text">Iniciar</string>
   <string name="add_polygon_instructions">Arraste o mapa e toque em “Adicionar ponto“ para adicionar pontos ao seu polígono. Para terminar, volte ao ponto original e toque em “Concluir“.</string>
 </resources>
