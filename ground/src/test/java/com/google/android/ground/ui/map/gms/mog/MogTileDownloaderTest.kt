@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class MogMetadataTileDownloaderTest {
+class MogTileDownloaderTest {
   @Test
   fun downloadTiles() = runBlocking {
     // Indonesia: LngLatBbox(west=95.00933042066814, south=-11.007616494507769,
@@ -47,6 +47,6 @@ class MogMetadataTileDownloaderTest {
     println("# files:    ${requests.map { it.mogMetadata.url }.distinct().size}")
     println("# tiles:    ${requests.sumOf { it.tileCoordinatesList.size }}")
 
-//    downloader.downloadTiles(requests)
+    //    downloader.downloadTiles(requests)
   }
 }
