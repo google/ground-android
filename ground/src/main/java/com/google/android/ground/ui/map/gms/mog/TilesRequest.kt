@@ -18,11 +18,7 @@ package com.google.android.ground.ui.map.gms.mog
 
 /** A request for one or more tiles from a particular file. */
 data class TilesRequest(
-  /** The URL of the source MOG. */
-  val mogUrl: String,
-
-  /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
-  val mogBounds: TileCoordinates,
+  val mogMetadata: MogMetadata,
 
   /**
    * The start and end index of the relevant bytes to be fetched from the source image. Indices
@@ -38,11 +34,13 @@ data class TilesRequest(
 )
 
 data class MutableTilesRequest(
-  /** The URL of the source MOG. */
-  var mogUrl: String,
+  var mogMetadata: MogMetadata,
 
-  /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
-  var mogBounds: TileCoordinates,
+//  /** The URL of the source MOG. */
+//  var mogUrl: String,
+//
+//  /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
+//  var mogBounds: TileCoordinates,
 
   /**
    * The start and end index of the relevant bytes to be fetched from the source image. Indices
@@ -56,7 +54,7 @@ data class MutableTilesRequest(
    */
   val tileCoordinatesList: MutableList<TileCoordinates>
 ) {
-  fun toTilesRequest() = TilesRequest(mogUrl, mogBounds, byteRange, tileCoordinatesList)
+  fun toTilesRequest() = TilesRequest(mogMetadata, byteRange, tileCoordinatesList)
 
   /**
    * Adds an additional tile to be fetched by extending the number of bytes requested and its

@@ -21,12 +21,14 @@ import com.google.android.gms.maps.model.TileProvider
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
-class MogTileProvider(private val mogCollection: MogCollection) : TileProvider {
+class MogTileProvider(private val collection: MogCollection) : TileProvider {
+  private val client = MogClient(collection)
+
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {
     val tileCoordinates = TileCoordinates(x, y, zoom)
     try {
-      val tile = mogCollection.getTile(tileCoordinates)
-      mogCollection.applyMask(tile, tileCoordinates)
+      client.getTile(tileCoordinates)
+      //      mogCollection.applyMask(tile, tileCoordinates)
     } catch (e: Throwable) {
       // Maps SDK doesn't log exceptions thrown by [getTile] implementations, so we log them here.
       Timber.d(e, "Error fetching tile at $tileCoordinates")

@@ -22,24 +22,25 @@ import com.google.android.gms.maps.model.Tile
 import java.io.ByteArrayOutputStream
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
+@Suppress("MemberVisibilityCanBePrivate")
 class MogCollection(
   val worldMogUrl: String,
-  val hiResMogUrlTemplate: String,
+  val hiResMogUrl: String,
   val hiResMogMinZoom: Int,
   val hiResMogMaxZoom: Int
 ) {
   fun getMogUrl(bounds: TileCoordinates): String {
     val (x, y, zoom) = bounds
     if (zoom == 0) {
-      return worldMogUrl
+      return worldMogUrl.replace("{z}", hiResMogMinZoom.toString())
     }
     if (zoom < hiResMogMinZoom) {
       error("Invalid zoom for this collection. Expected 0 or $hiResMogMinZoom, got $zoom")
     }
-    return hiResMogUrlTemplate
+    return hiResMogUrl
       .replace("{x}", x.toString())
       .replace("{y}", y.toString())
-      .replace("{z}", zoom.toString())
+      .replace("{z}", hiResMogMinZoom.toString())
   }
 
   /**

@@ -16,10 +16,7 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import com.google.android.gms.maps.model.Tile
-import java.io.InputStream
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
 
 /**
  * Contiguous tiles are fetched in a single request. To minimize the number of server requests, we
@@ -35,65 +32,21 @@ const val MAX_OVER_FETCH_PER_TILE = 1 * 20 * 1024
  * clipped and configured for visualization with Google Maps Platform. This class stores metadata
  * and fetches tiles on demand via [getTile] and [getTiles].
  */
-class MogMetadata(val url: String, val bounds: TileCoordinates, images: List<MogImageMetadata>) {
-  private val imagesByZoom = images.associateBy { it.zoom }
+class MogMetadata(
+  /** The URL of the source MOG. */
+  val url: String,
+  /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
+  val bounds: TileCoordinates,
+  imageMetadata: List<MogImageMetadata>
+) {
+  private val imageMetadataByZoom = imageMetadata.associateBy { it.zoom }
 
-  suspend fun getTile(tileCoordinates: TileCoordinates): Tile? =
-    fetchTiles(getTilesRequests(listOf(tileCoordinates)).first()).firstOrNull()?.second
-
-  fun getTilesRequests(tileCoordinatesList: List<TileCoordinates>): List<TilesRequest> {
-    val tilesRequests = mutableListOf<MutableTilesRequest>()
-    for (tileCoordinates in tileCoordinatesList) {
-      val byteRange = getByteRange(tileCoordinates) ?: continue
-      val prev = tilesRequests.lastOrNull()
-      if (prev == null || byteRange.first - prev.byteRange.last - 1 > MAX_OVER_FETCH_PER_TILE) {
-        tilesRequests.add(
-          MutableTilesRequest(url, bounds, byteRange, mutableListOf(tileCoordinates))
-        )
-      } else {
-        prev.extendRange(byteRange.last, tileCoordinates)
-      }
-    }
-    return tilesRequests.map { it.toTilesRequest() }
-  }
-
-  // TODO: Use thread pool to request multiple ranges in parallel.
-  fun fetchTiles(tilesRequest: TilesRequest): Flow<Pair<TileCoordinates, Tile>> = flow {
-    UrlInputStream(tilesRequest.mogUrl, tilesRequest.byteRange).use {
-      emitAll(parseTiles(tilesRequest.tileCoordinatesList, it))
-    }
-  }
+  fun getImageMetadata(zoomLevel: Int): MogImageMetadata? = imageMetadataByZoom[zoomLevel]
 
   override fun toString(): String {
-    return "Mog(url=$url, imagesByZoom=$imagesByZoom)"
+    return "Mog(url=$url, imagesByZoom=$imageMetadataByZoom)"
   }
 
-  private fun parseTiles(
-    tileCoordinatesList: List<TileCoordinates>,
-    inputStream: InputStream
-  ): Flow<Pair<TileCoordinates, Tile>> = flow {
-    var pos: Long? = null
-    for (tileCoordinates in tileCoordinatesList) {
-      val image = imagesByZoom[tileCoordinates.zoom]!!
-      val byteRange =
-        image.getByteRange(tileCoordinates.x, tileCoordinates.y)
-          ?: error("$tileCoordinates out of image bounds")
-      if (pos != null && pos < byteRange.first) {
-        while (pos++ < byteRange.first) {
-          if (inputStream.read() == -1) {
-            error("Unexpected end of tile response")
-          }
-        }
-      }
-      val startTimeMillis = System.currentTimeMillis()
-      val imageBytes = image.parseTile(inputStream, byteRange.count())
-      val time = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Fetched tile ${tileCoordinates}: ${imageBytes.size} in $time ms")
-      emit(Pair(tileCoordinates, Tile(image.tileWidth, image.tileLength, imageBytes)))
-      pos = byteRange.last + 1
-    }
-  }
-
-  private fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
-    imagesByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
+  fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
+    imageMetadataByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
 }

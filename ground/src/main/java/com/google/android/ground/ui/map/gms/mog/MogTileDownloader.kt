@@ -24,25 +24,17 @@ import java.io.File
  * @param mogCollection the collection from which tiles will be fetched.
  * @param outputBasePath the base path on the local file system where tiles should be written.
  */
-class MogTileDownloader(
-  private val mogCollection: MogCollection,
-  private val outputBasePath: String
-) {
+class MogTileDownloader(private val client: MogClient, private val outputBasePath: String) {
   /**
-   * Downloads all tiles overlapping the Tiles are written to the object's [outputBasePath] in files
-   * with paths of the form `{z}/{x}/{y}.jpg`.
-   *
-   * @param bounds the bounds used to constrain which tiles are retrieved. Only tiles within or
-   *   overlapping these bounds are retrieved.
-   * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
+   * Executes the provided [tilesRequests], writing resulting tiles to [outputBasePath] in sub=paths
+   * of the form `{z}/{x}/{y}.jpg`.
    */
-  suspend fun downloadTiles(tilesRequests: List<TilesRequest>) =
-    // TODO: Refactor fetching into new class (`MogClient?`).
-    mogCollection.fetchTiles(tilesRequests).collect { (coordinates, tile) ->
+  suspend fun downloadTiles(tilesRequests: List<TilesRequest>) {
+    client.getTiles(tilesRequests).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()
       File(path, "$y.jpg").writeBytes(tile.data!!)
     }
+  }
 }

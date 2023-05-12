@@ -184,18 +184,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
-
-    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/2022/cog/9"
+    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/2022/cog/{z}"
     val mogProvider =
-      MogTileProvider(
-        MogCollection(
-          "$mogBaseUrl/world.tif",
-          "$mogBaseUrl/{x}/{y}.tif",
-          9,
-          14
-        )
-      )
-    map.addTileOverlay(TileOverlayOptions() .tileProvider(mogProvider))
+      MogTileProvider(MogCollection("$mogBaseUrl/world.tif", "$mogBaseUrl/{x}/{y}.tif", 8, 14))
+    map.addTileOverlay(TileOverlayOptions().tileProvider(mogProvider))
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)

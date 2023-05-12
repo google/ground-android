@@ -18,11 +18,11 @@ package com.google.android.ground.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import java.lang.System.currentTimeMillis
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.lang.System.currentTimeMillis
 
 @RunWith(RobolectricTestRunner::class)
 class MogMetadataTileDownloaderTest {
@@ -32,19 +32,21 @@ class MogMetadataTileDownloaderTest {
     // east=141.01944540877238, north=5.904411619513165)
     val southwest = LatLng(-11.007616494507769, 95.00933042066814)
     val northeast = LatLng(5.904411619513165, 141.01944540877238)
-//    val southwest = LatLng(4.089672, 95.546853)
-//    val northeast = LatLng(5.435577, 96.278013)
-    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/s2/2022/cog/8"
+    //    val southwest = LatLng(4.089672, 95.546853)
+    //    val northeast = LatLng(5.435577, 96.278013)
+    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/2022/cog/{z}"
     val mogCollection = MogCollection("$mogBaseUrl/world.tif", "$mogBaseUrl/{x}/{y}.tif", 8, 14)
-    val downloader = MogTileDownloader(mogCollection, "/tmp/tiles")
-    var startTimeMillis = currentTimeMillis()
+    val client = MogClient(mogCollection)
+    val downloader = MogTileDownloader(client, "/tmp/tiles")
+    val startTimeMillis = currentTimeMillis()
     println("Fetching headers...")
-    val requests = mogCollection.getTilesRequests(LatLngBounds(southwest, northeast))
+    val requests = client.buildTilesRequests(LatLngBounds(southwest, northeast))
 
     println("Headers in ${(currentTimeMillis() - startTimeMillis)/1000.0}s")
     println("# requests: ${requests.size}")
-    println("# files:    ${requests.map { it.mogUrl }.distinct().size}")
+    println("# files:    ${requests.map { it.mogMetadata.url }.distinct().size}")
     println("# tiles:    ${requests.sumOf { it.tileCoordinatesList.size }}")
-    //      downloader.downloadTiles(requests)
+
+//    downloader.downloadTiles(requests)
   }
 }
