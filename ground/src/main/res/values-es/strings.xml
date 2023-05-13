@@ -110,8 +110,6 @@
   <string name="time">Hora</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Estado de sincronización</string>
-  <string name="polygon">Polígono</string>
-  <string name="point">Punto</string>
   <string name="layer_label_format">Capa: %s</string>
 
   <!-- Shown in toolbar overflow menu, used to show imported locationOfInterest properties. -->
@@ -121,7 +119,6 @@
 
   <string name="add_point">Agregar punto</string>
   <string name="complete_polygon">Completo</string>
-  <string name="select_loi_type">Elija un tipo de característica</string>
   <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
   <string name="location_accuracy">%.2fm</string>
 
