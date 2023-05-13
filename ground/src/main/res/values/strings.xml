@@ -117,8 +117,6 @@
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Sync status</string>
-  <string name="polygon">Polygon</string>
-  <string name="point">Point</string>
   <string name="layer_label_format">Job: %s</string>
 
   <!-- Shown in toolbar overflow menu, used to show imported locationOfInterest properties. -->
@@ -129,7 +127,6 @@
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
-  <string name="select_loi_type">Choose a locationOfInterest type</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
   <string name="location_accuracy">%.2fm</string>
 
