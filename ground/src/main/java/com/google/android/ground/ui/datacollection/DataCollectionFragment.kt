@@ -39,8 +39,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
-@AndroidEntryPoint
-class DataCollectionFragment : AbstractFragment(), BackPressListener {
+@AndroidEntryPoint(AbstractFragment::class)
+class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
