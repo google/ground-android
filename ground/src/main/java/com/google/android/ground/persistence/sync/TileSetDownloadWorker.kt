@@ -21,6 +21,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
+import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.reactivex.Completable
@@ -171,6 +172,9 @@ constructor(
       Result.failure()
     } catch (e: TileSetDownloadException) {
       Timber.e(e, "Downloads for tiles failed: $pendingTileSets")
+      if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
+        return Result.failure()
+      }
       Result.retry()
     } catch (e: Exception) {
       Timber.e(e, "Unexpected error ${e.message}")
