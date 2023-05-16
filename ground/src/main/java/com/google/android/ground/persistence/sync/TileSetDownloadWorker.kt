@@ -76,12 +76,10 @@ constructor(
           }
         }
       }
-    } catch (e: IOException) {
+    } catch (e: MalformedURLException) {
       // Just bubble up, as we don't want to continually attempt to re-download from an invalid URL
-      if (e is MalformedURLException) {
-        throw e
-      }
-
+      throw e
+    } catch (e: IOException) {
       throw TileSetDownloadException("Failed to download tile", e)
     }
   }

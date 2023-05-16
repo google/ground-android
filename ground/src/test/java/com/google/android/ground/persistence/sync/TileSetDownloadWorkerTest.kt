@@ -100,7 +100,7 @@ class TileSetDownloadWorkerTest : BaseHiltTest() {
   fun doWork_RetriesOnFailure() {
     // Force an IOException by writing to a closed stream.
     `when`(mockContext.openFileOutput("TILESET", Context.MODE_PRIVATE))
-      .thenReturn(FileOutputStream("fake").also { it.close() })
+      .thenReturn(FileOutputStream("fake").apply { close() })
     val tiles =
       TileSet(
         url = "http://google.com",
