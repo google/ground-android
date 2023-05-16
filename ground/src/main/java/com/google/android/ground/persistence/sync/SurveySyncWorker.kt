@@ -53,10 +53,11 @@ constructor(
       }
     } catch (e: Throwable) {
       Timber.e("error syncing survey in the background", e)
-      if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
-        return Result.failure()
+      return if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
+        Result.failure()
+      } else {
+        Result.retry()
       }
-      return Result.retry()
     }
 
     return Result.success()

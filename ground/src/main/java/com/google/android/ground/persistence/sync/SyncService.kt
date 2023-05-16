@@ -72,6 +72,6 @@ abstract class SyncService {
     private val DEFAULT_NETWORK_TYPE = NetworkType.CONNECTED
 
     /** Default number of times to retry failed work. */
-    internal val DEFAULT_MAX_RETRY_ATTEMPTS = 10
+    internal const val DEFAULT_MAX_RETRY_ATTEMPTS = 10
   }
 }
