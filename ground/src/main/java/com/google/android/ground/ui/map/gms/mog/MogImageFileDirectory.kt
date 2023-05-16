@@ -38,7 +38,7 @@ private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte
 
 /** Metadata describing a single full-resolution or overview image in a MOG. */
 @Suppress("MemberVisibilityCanBePrivate")
-class MogImageMetadata(
+class MogImageFileDirectory(
   val tileWidth: Int,
   val tileLength: Int,
   val originTile: TileCoordinates,

@@ -21,16 +21,16 @@ import java.io.File
 /**
  * Downloads tiles across regions at multiple zoom levels.
  *
- * @param mogCollection the collection from which tiles will be fetched.
+ * @param client the client to be used for fetching metadata and tiles..
  * @param outputBasePath the base path on the local file system where tiles should be written.
  */
 class MogTileDownloader(private val client: MogClient, private val outputBasePath: String) {
   /**
-   * Executes the provided [tilesRequests], writing resulting tiles to [outputBasePath] in sub=paths
+   * Executes the provided [mogTileRequests], writing resulting tiles to [outputBasePath] in sub=paths
    * of the form `{z}/{x}/{y}.jpg`.
    */
-  suspend fun downloadTiles(tilesRequests: List<TilesRequest>) {
-    client.getTiles(tilesRequests).collect { (coordinates, tile) ->
+  suspend fun downloadTiles(mogTileRequests: List<MogTileRequest>) {
+    client.getTiles(mogTileRequests).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()

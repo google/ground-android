@@ -43,8 +43,8 @@ class MogClient(val collection: MogCollection) {
    * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
    * tile's respective coordinates.
    */
-  fun getTiles(tilesRequests: List<TilesRequest>): Flow<Pair<TileCoordinates, Tile>> = flow {
-    tilesRequests.forEach { emitAll(getTiles(it)) }
+  fun getTiles(mogTileRequests: List<MogTileRequest>): Flow<Pair<TileCoordinates, Tile>> = flow {
+    mogTileRequests.forEach { emitAll(getTiles(it)) }
   }
 
   /**
@@ -52,29 +52,31 @@ class MogClient(val collection: MogCollection) {
    * `null` if not available.
    */
   suspend fun getTile(tileCoordinates: TileCoordinates): Tile? {
-    val metadata = getMogMetadataForTile(tileCoordinates) ?: return null
-    val byteRange = metadata.getByteRange(tileCoordinates) ?: return null
-    val request = TilesRequest(metadata, byteRange, listOf(tileCoordinates))
-    return getTiles(request).firstOrNull()?.second
+    val mogMetadata = getMogMetadataForTile(tileCoordinates) ?: return null
+    val byteRange = mogMetadata.getByteRange(tileCoordinates) ?: return null
+    val tileRange = MogTileRange(byteRange, listOf(tileCoordinates))
+    val request = MogTileRequest(mogMetadata, tileRange)
+    val (_, tile) = getTiles(request).firstOrNull() ?: return null
+    return tile
   }
 
   /**
-   * Builds requests for tiles overlapping the specified bounds at the specified zoomRanges.
+   * Returns the byte ranges of tiles overlapping the specified [bounds] and [zoomRanges].
    *
    * @param bounds the bounds used to constrain which tiles are retrieved. Only tiles within or
    *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
    *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
-  suspend fun buildTilesRequests(
+  suspend fun getTileRequests(
     bounds: LatLngBounds,
     zoomRange: IntRange = 0..collection.hiResMogMaxZoom
-  ): List<TilesRequest> {
+  ): List<MogTileRequest> {
     val hiResMogMinZoom = collection.hiResMogMinZoom
-    val requests = mutableListOf<TilesRequest>()
+    val requests = mutableListOf<MogTileRequest>()
     val (loResZoomLevels, hiResZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
     if (loResZoomLevels.isNotEmpty()) {
-      requests.addAll(buildTilesRequests(TileCoordinates.WORLD, bounds, loResZoomLevels))
+      requests.addAll(getTileRequests(TileCoordinates.WORLD, bounds, loResZoomLevels))
     }
     if (hiResZoomLevels.isNotEmpty()) {
       // Compute extents of first and last region covered by specified bounds.
@@ -83,7 +85,7 @@ class MogClient(val collection: MogCollection) {
       for (y in nwMogBounds.y..seMogBounds.y) {
         for (x in nwMogBounds.x..seMogBounds.x) {
           val mogBounds = TileCoordinates(x, y, hiResMogMinZoom)
-          requests.addAll(buildTilesRequests(mogBounds, bounds, hiResZoomLevels))
+          requests.addAll(getTileRequests(mogBounds, bounds, hiResZoomLevels))
         }
       }
     }
@@ -93,29 +95,29 @@ class MogClient(val collection: MogCollection) {
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? =
     getMogMetadata(collection.getMogBoundsForTile(tileCoordinates))
 
-  private suspend fun buildTilesRequests(
+  private suspend fun getTileRequests(
     mogBounds: TileCoordinates,
     tileBounds: LatLngBounds,
     zoomLevels: List<Int>
-  ): List<TilesRequest> {
+  ): List<MogTileRequest> {
     val mogMetadata = getMogMetadata(mogBounds) ?: return listOf()
-    return zoomLevels.flatMap { zoom ->
-      buildTilesRequests(mogMetadata, TileCoordinates.withinBounds(tileBounds, zoom))
-    }
+    return zoomLevels
+      .flatMap { zoom ->
+        getTileRanges(mogMetadata, TileCoordinates.withinBounds(tileBounds, zoom))
+      }
+      .map { MogTileRequest(mogMetadata, it) }
   }
 
-  private fun buildTilesRequests(
+  private fun getTileRanges(
     mogMetadata: MogMetadata,
     tileCoordinatesList: List<TileCoordinates>
-  ): List<TilesRequest> {
+  ): List<MogTileRange> {
     val tilesRequests = mutableListOf<MutableTilesRequest>()
     for (tileCoordinates in tileCoordinatesList) {
       val byteRange = mogMetadata.getByteRange(tileCoordinates) ?: continue
       val prev = tilesRequests.lastOrNull()
       if (prev == null || byteRange.first - prev.byteRange.last - 1 > MAX_OVER_FETCH_PER_TILE) {
-        tilesRequests.add(
-          MutableTilesRequest(mogMetadata, byteRange, mutableListOf(tileCoordinates))
-        )
+        tilesRequests.add(MutableTilesRequest(byteRange, mutableListOf(tileCoordinates)))
       } else {
         prev.extendRange(byteRange.last, tileCoordinates)
       }
@@ -159,7 +161,7 @@ class MogClient(val collection: MogCollection) {
     try {
       // This reads only headers and not the whole file.
       val tiff = TiffReader.readTiff(inputStream)
-      val images = mutableListOf<MogImageMetadata>()
+      val images = mutableListOf<MogImageFileDirectory>()
       // Only include image file directories with RGB image data. Mask images are skipped.
       // TODO: Render masked areas as transparent.
       val rgbIfds =
@@ -172,7 +174,7 @@ class MogClient(val collection: MogCollection) {
       val maxZ = extent.zoom + rgbIfds.size - 1
       rgbIfds.forEachIndexed { i, ifd ->
         images.add(
-          MogImageMetadata(
+          MogImageFileDirectory(
             ifd.getIntegerEntryValue(FieldTagType.TileWidth),
             ifd.getIntegerEntryValue(FieldTagType.TileLength),
             extent.originAtZoom(maxZ - i),
@@ -197,19 +199,21 @@ class MogClient(val collection: MogCollection) {
   }
 
   // TODO: Use thread pool to request multiple ranges in parallel.
-  fun getTiles(tilesRequest: TilesRequest): Flow<Pair<TileCoordinates, Tile>> = flow {
-    UrlInputStream(tilesRequest.mogMetadata.url, tilesRequest.byteRange).use {
-      emitAll(readTiles(tilesRequest, it))
+  fun getTiles(mogTileRequest: MogTileRequest): Flow<Pair<TileCoordinates, Tile>> = flow {
+    val (mogMetadata, mogTileRange) = mogTileRequest
+    UrlInputStream(mogMetadata.url, mogTileRange.byteRange).use {
+      emitAll(readTiles(mogTileRequest, it))
     }
   }
 
   private fun readTiles(
-    tilesRequest: TilesRequest,
+    mogTileRequest: MogTileRequest,
     inputStream: InputStream
   ): Flow<Pair<TileCoordinates, Tile>> = flow {
+    val (mogMetadata, mogTileRange) = mogTileRequest
     var pos: Long? = null
-    for (tileCoordinates in tilesRequest.tileCoordinatesList) {
-      val image = tilesRequest.mogMetadata.getImageMetadata(tileCoordinates.zoom)!!
+    for (tileCoordinates in mogTileRange.tileCoordinatesList) {
+      val image = mogMetadata.getImageMetadata(tileCoordinates.zoom)!!
       val byteRange =
         image.getByteRange(tileCoordinates.x, tileCoordinates.y)
           ?: error("$tileCoordinates out of image bounds")

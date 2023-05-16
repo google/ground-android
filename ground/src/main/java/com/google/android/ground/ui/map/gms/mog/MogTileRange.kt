@@ -16,45 +16,37 @@ package com.google.android.ground.ui.map.gms.mog
  * limitations under the License.
  */
 
-/** A request for one or more tiles from a particular file. */
-data class TilesRequest(
-  val mogMetadata: MogMetadata,
-
+/** A contiguous range of bytes in a MOG and coordinates of tiles of interest stored therein. */
+data class MogTileRange(
   /**
-   * The start and end index of the relevant bytes to be fetched from the source image. Indices
-   * start from 0. End index is inclusive.
+   * The start and end index of the relevant bytes in the MOG. Indices start from 0. End index is
+   * inclusive.
    */
   val byteRange: LongRange,
 
   /**
-   * The list of coordinates of the web mercator tile(s) being requested. The exact number of bytes
-   * in [byteRange] occupied by each tile is defined in the image source's headers.
+   * Relevant list of coordinates of the web mercator tile(s) referenced by [byteRange]. Tiles
+   * located within the range but not included in this list are ignored or skipped. The exact number
+   * of bytes occupied by each tile is defined in the image source's headers.
    */
   val tileCoordinatesList: List<TileCoordinates>
 )
 
 data class MutableTilesRequest(
-  var mogMetadata: MogMetadata,
-
-//  /** The URL of the source MOG. */
-//  var mogUrl: String,
-//
-//  /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
-//  var mogBounds: TileCoordinates,
-
   /**
-   * The start and end index of the relevant bytes to be fetched from the source image. Indices
-   * start from 0. End index is inclusive.
+   * The start and end index of the relevant bytes in the MOG. Indices start from 0. End index is
+   * inclusive.
    */
   var byteRange: LongRange,
 
   /**
-   * The list of coordinates of the web mercator tile(s) being requested. The exact number of bytes
-   * in [byteRange] occupied by each tile is defined in the image source's headers.
+   * Relevant list of coordinates of the web mercator tile(s) referenced by [byteRange]. Tiles
+   * located within the range but not included in this list are ignored or skipped. The exact number
+   * of bytes occupied by each tile is defined in the image source's headers.
    */
   val tileCoordinatesList: MutableList<TileCoordinates>
 ) {
-  fun toTilesRequest() = TilesRequest(mogMetadata, byteRange, tileCoordinatesList)
+  fun toTilesRequest() = MogTileRange(byteRange, tileCoordinatesList)
 
   /**
    * Adds an additional tile to be fetched by extending the number of bytes requested and its
