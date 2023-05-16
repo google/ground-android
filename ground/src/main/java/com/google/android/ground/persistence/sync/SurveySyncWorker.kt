@@ -44,20 +44,23 @@ constructor(
       return Result.failure()
     }
 
-    // It's ok to block here since WorkManager calls doWork() on a background thread.
-    runBlocking {
-      Timber.d("Syncing survey $surveyId")
-      syncSurvey(surveyId)
+    try {
+      // It's ok to block here since WorkManager calls doWork() on a background thread.
+      runBlocking {
+        Timber.d("Syncing survey $surveyId")
+        syncSurvey(surveyId)
+      }
+    } catch (e: Throwable) {
+      Timber.e("error syncing survey in the background", e)
+      return Result.retry()
     }
 
-    // TODO(https://github.com/google/ground-android/issues/1383): Also sync remote LOIs to localdb.
-    // TODO: Handle failures - log and retry.
     return Result.success()
   }
 
   companion object {
     /** The key in worker input data containing the id of the survey to be synced. */
-    private const val SURVEY_ID_PARAM_KEY = "surveyId"
+    internal const val SURVEY_ID_PARAM_KEY = "surveyId"
 
     /** Returns a new work [Data] object containing the specified survey id. */
     fun createInputData(surveyId: String): Data =

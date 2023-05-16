@@ -28,6 +28,7 @@ import io.reactivex.Observable
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.MalformedURLException
 import java.net.URL
 import timber.log.Timber
 
@@ -65,7 +66,6 @@ constructor(
       }
 
       connection.connect()
-
       connection.inputStream.use { inputStream ->
         context.openFileOutput(tileSet.path, mode).use { fos ->
           val byteChunk = ByteArray(BUFFER_SIZE)
@@ -77,6 +77,11 @@ constructor(
         }
       }
     } catch (e: IOException) {
+      // Just bubble up, as we don't want to continually attempt to re-download from an invalid URL
+      if (e is MalformedURLException) {
+        throw e
+      }
+
       throw TileSetDownloadException("Failed to download tile", e)
     }
   }
@@ -109,7 +114,7 @@ constructor(
         )
       )
       .andThen(Completable.fromRunnable { downloadTileFile(tileSet, requestProperties) })
-      .onErrorResumeNext { e ->
+      .doOnError { e ->
         Timber.d(e, "Failed to download tile: $tileSet")
         localTileSetStore.insertOrUpdateTileSet(
           tileSet.copy(
@@ -154,8 +159,7 @@ constructor(
    * and does not re-download the file.
    */
   override fun doWork(): Result {
-    val pendingTileSets =
-      localTileSetStore.pendingTileSets().blockingGet() ?: return Result.success()
+    val pendingTileSets = localTileSetStore.pendingTileSets().blockingGet()
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.
@@ -164,8 +168,14 @@ constructor(
     return try {
       processTileSets(pendingTileSets).blockingAwait()
       Result.success()
-    } catch (t: Throwable) {
-      Timber.d(t, "Downloads for tiles failed: $pendingTileSets")
+    } catch (e: MalformedURLException) {
+      Timber.e(e, "can't download tileset from malformed URL ${e.message}")
+      Result.failure()
+    } catch (e: TileSetDownloadException) {
+      Timber.e(e, "Downloads for tiles failed: $pendingTileSets")
+      Result.retry()
+    } catch (e: Exception) {
+      Timber.e(e, "Unexpected error ${e.message}")
       Result.failure()
     }
   }
