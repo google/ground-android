@@ -118,6 +118,7 @@ class TileSetDownloadWorkerTest : BaseHiltTest() {
 
     val result = worker.doWork()
     assertThat(result).isEqualTo(Result.retry())
+    File("fake").delete()
   }
 
   @Test
