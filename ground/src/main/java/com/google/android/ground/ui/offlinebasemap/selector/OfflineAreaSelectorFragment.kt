@@ -33,8 +33,8 @@ import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorV
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
+@AndroidEntryPoint(AbstractMapContainerFragment::class)
+class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 

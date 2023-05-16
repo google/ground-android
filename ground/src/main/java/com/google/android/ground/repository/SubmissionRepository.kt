@@ -23,8 +23,8 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.local.stores.SubmissionStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -52,7 +52,7 @@ class SubmissionRepository
 @Inject
 constructor(
   private val localSurveyStore: LocalSurveyStore,
-  private val localSubmissionStore: SubmissionStore,
+  private val localSubmissionStore: LocalSubmissionStore,
   private val remoteDataStore: RemoteDataStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,

@@ -28,8 +28,8 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectMu
  */
 class SelectMultipleOptionAdapter(
   private val options: List<Option>,
-  private val viewModel: MultipleChoiceTaskViewModel
-) : SelectionAdapter<ViewHolder>() {
+  private val handleOptionSelected: (List<Option>) -> Unit
+) : RecyclerView.Adapter<ViewHolder>() {
 
   private val selectedPositions = mutableSetOf<Int>()
 
@@ -42,25 +42,22 @@ class SelectMultipleOptionAdapter(
     holder.bind(options[position])
 
     holder.binding.checkbox.isChecked = position in selectedPositions
+    holder.binding.checkbox.setOnCheckedChangeListener { _, _ ->
+      handleItemStateChanged(holder.adapterPosition)
+    }
   }
 
-  override fun getItemCount(): Int = options.size
-
-  override fun getItemId(position: Int): Long = position.toLong()
-
-  override fun getPosition(key: Long): Int = key.toInt()
-
-  override fun handleItemStateChanged(position: Int, selected: Boolean) {
+  private fun handleItemStateChanged(position: Int) {
     if (position in selectedPositions) {
       selectedPositions.remove(position)
     } else {
       selectedPositions.add(position)
     }
 
-    viewModel.updateResponse(
-      options.filterIndexed { index, _ -> selectedPositions.contains(index) }
-    )
+    handleOptionSelected(options.filterIndexed { index, _ -> selectedPositions.contains(index) })
   }
+
+  override fun getItemCount(): Int = options.size
 
   class ViewHolder(internal val binding: MultipleChoiceCheckboxItemBinding) :
     RecyclerView.ViewHolder(binding.root) {

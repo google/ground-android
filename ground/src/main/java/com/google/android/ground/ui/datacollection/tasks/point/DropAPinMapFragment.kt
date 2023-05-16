@@ -33,9 +33,9 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
+@AndroidEntryPoint(AbstractMapContainerFragment::class)
 class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
-  AbstractMapContainerFragment() {
+  Hilt_DropAPinMapFragment() {
 
   private lateinit var binding: MapTaskFragBinding
   private lateinit var mapViewModel: BaseMapViewModel

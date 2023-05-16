@@ -36,6 +36,7 @@ jacocoAndroidUnitTestReport {
         '**/*AutoValue_*',
         '**/DataBind*',
         '**/*_Factory*',
+        '**/Hilt_*',
         '**/*FragmentArgs*',
         '**/*FragmentDirections*',
         '**/LocalDatabase_Impl*',

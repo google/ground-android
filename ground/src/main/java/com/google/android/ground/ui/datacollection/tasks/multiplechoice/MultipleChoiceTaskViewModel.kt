@@ -16,18 +16,13 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import java8.util.Optional
 import javax.inject.Inject
 
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
-
-  fun getCurrentResponse(): Optional<MultipleChoiceTaskData> =
-    taskData.value?.map { it as MultipleChoiceTaskData } ?: Optional.empty()
 
   fun updateResponse(options: List<Option>) {
     setResponse(fromList(task.multipleChoice, options.map(Option::id)))

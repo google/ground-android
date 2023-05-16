@@ -70,6 +70,12 @@ internal constructor(
     isSubmissionButtonVisible.value = false
   }
 
+  fun showSurveySelector() {
+    navigator.navigate(
+      HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+    )
+  }
+
   fun showOfflineAreas() {
     navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
   }
