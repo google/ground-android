@@ -15,14 +15,16 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.content.res.Resources
 import androidx.lifecycle.*
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
@@ -53,6 +55,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.serialization.decodeFromHexString
+import kotlinx.serialization.encodeToHexString
+import kotlinx.serialization.protobuf.ProtoBuf
 
 /** View model for the Data Collection fragment. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -69,6 +74,7 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
+  private val resources: Resources,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
@@ -77,6 +83,44 @@ internal constructor(
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
+  private val suggestLoiGeometryKey = "suggestedLocationOfInterestGeometry"
+  // Serialized SuggestLoi Geometry
+  private val suggestLoiGeometry: StateFlow<Geometry?> =
+    MutableStateFlow<String?>(savedStateHandle[suggestLoiGeometryKey])
+      .map {
+        if (it != null) {
+          ProtoBuf.decodeFromHexString<Geometry>(it)
+        } else {
+          it
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+  val tasks: List<Task> = buildList {
+    when (val suggestTaskType = job.suggestLoiTaskType) {
+      Task.Type.DROP_A_PIN ->
+        add(
+          Task(
+            id = "-1",
+            index = -1,
+            suggestTaskType,
+            resources.getString(R.string.new_location),
+            isRequired = true
+          )
+        )
+      Task.Type.DRAW_POLYGON ->
+        add(
+          Task(
+            id = "-1",
+            index = -1,
+            suggestTaskType,
+            resources.getString(R.string.new_location),
+            isRequired = true
+          )
+        )
+      else -> {}
+    }
+    addAll(job.tasksSorted)
+  }
 
   val surveyId: String = surveyRepository.lastActiveSurveyId
   val submission: StateFlow<Submission?> =
@@ -135,10 +179,6 @@ internal constructor(
   fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
     requireNotNull(viewModels)
-    // TODO(#1541): Insert Suggest LOI task to taskList. This will probably involve creating a
-    //  separate ViewModel field for storing the tasks rather than getting them directly from the
-    //  job.
-    val tasks = job.tasksSorted
 
     val task = tasks[position]
     if (position < viewModels.size) {
@@ -169,13 +209,17 @@ internal constructor(
       return
     }
 
-    responses[currentTask.task] = currentTaskData
-
     val currentTaskPosition = currentPosition.value!!
-    val finalTaskPosition = job.tasks.size - 1
+    val finalTaskPosition = tasks.size - 1
 
     assert(finalTaskPosition >= 0)
     assert(currentTaskPosition in 0..finalTaskPosition)
+
+    if (currentTaskPosition == 0 && job.suggestLoiTaskType != null) {
+      handleSuggestLoiTaskResult(currentTask)
+    } else {
+      responses[currentTask.task] = currentTaskData
+    }
 
     if (currentTaskPosition != finalTaskPosition) {
       setCurrentPosition(currentPosition.value!! + 1)
@@ -184,8 +228,7 @@ internal constructor(
         responses.map { (task, taskData) ->
           TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData))
         }
-      val submission = submission.value!!
-      saveChanges(submission, taskDataDeltas)
+      saveChanges(taskDataDeltas)
 
       // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
@@ -196,9 +239,29 @@ internal constructor(
     }
   }
 
+  private fun handleSuggestLoiTaskResult(taskViewModel: AbstractTaskViewModel) {
+    when (val taskData = taskViewModel.taskDataFlow.value) {
+      is LocationTaskData -> {
+        // Update suggested LOI
+        savedStateHandle[suggestLoiGeometryKey] =
+          ProtoBuf.encodeToHexString(Point(taskData.cameraPosition.target))
+      }
+      else -> {
+        // TODO(#1351): Process result of DRAW_POLYGON task
+      }
+    }
+  }
+
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
-  private fun saveChanges(submission: Submission, taskDataDeltas: List<TaskDataDelta>) {
+  private fun saveChanges(taskDataDeltas: List<TaskDataDelta>) {
     externalScope.launch(ioDispatcher) {
+      val geometry = suggestLoiGeometry.value
+      if (job.suggestLoiTaskType != null && geometry != null) {
+        locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId)
+      }
+
+      val submission = submission.value!!
+
       submissionRepository
         .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
         .blockingAwait()

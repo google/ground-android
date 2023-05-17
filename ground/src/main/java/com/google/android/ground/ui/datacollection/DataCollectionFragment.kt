@@ -72,11 +72,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
-    lifecycleScope.launch {
-      viewModel.submission.filterNotNull().collect { submission: Submission ->
-        loadTasks(submission.job.tasksSorted)
-      }
-    }
+    loadTasks(viewModel.tasks)
     viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
     viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) { onTaskDataUpdated(it) }
   }

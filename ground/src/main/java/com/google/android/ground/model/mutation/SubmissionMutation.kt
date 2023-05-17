@@ -19,7 +19,8 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskDataDelta
 import java.util.*
 
-data class SubmissionMutation(
+data class SubmissionMutation
+constructor(
   override val id: Long? = null,
   override val type: Type = Type.UNKNOWN,
   override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
