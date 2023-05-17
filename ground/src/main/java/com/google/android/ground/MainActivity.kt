@@ -37,8 +37,8 @@ import timber.log.Timber
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.
  */
-@AndroidEntryPoint
-class MainActivity : AbstractActivity() {
+@AndroidEntryPoint(AbstractActivity::class)
+class MainActivity : Hilt_MainActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
 
   @Inject lateinit var errorManager: ApplicationErrorManager

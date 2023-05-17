@@ -44,8 +44,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
-@AndroidEntryPoint
-class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
+@AndroidEntryPoint(AbstractMapContainerFragment::class)
+class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -69,13 +69,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       .subscribe { onZoomThresholdCrossed() }
 
     adapter = MapCardAdapter()
-    adapter.setLoiCardFocusedListener {
-      when (it) {
-        is MapCardUiData.LoiCardUiData -> mapFragment.setActiveLocationOfInterest(it.loi.id)
-        is MapCardUiData.SuggestLoiCardUiData,
-        null -> mapFragment.setActiveLocationOfInterest(null)
-      }
-    }
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
 
     lifecycleScope.launch {
@@ -175,6 +168,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       onBottomSheetStateChange(state, mapFragment)
     }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
+    adapter.setLoiCardFocusedListener {
+      when (it) {
+        is MapCardUiData.LoiCardUiData -> mapFragment.setActiveLocationOfInterest(it.loi.id)
+        is MapCardUiData.SuggestLoiCardUiData,
+        null -> mapFragment.setActiveLocationOfInterest(null)
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel

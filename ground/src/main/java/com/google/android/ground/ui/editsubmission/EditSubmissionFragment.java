@@ -44,8 +44,9 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
-@AndroidEntryPoint
-public class EditSubmissionFragment extends AbstractFragment implements BackPressListener {
+@AndroidEntryPoint(AbstractFragment.class)
+public class EditSubmissionFragment extends Hilt_EditSubmissionFragment implements
+    BackPressListener {
 
   /** String constant keys used for persisting state in {@see Bundle} objects. */
   private static final class BundleKeys {

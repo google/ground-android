@@ -32,9 +32,9 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
+@AndroidEntryPoint(AbstractMapContainerFragment::class)
 class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
-  AbstractMapContainerFragment() {
+  Hilt_PolygonDrawingMapFragment() {
 
   private lateinit var binding: MapTaskFragBinding
   private lateinit var mapViewModel: BaseMapViewModel

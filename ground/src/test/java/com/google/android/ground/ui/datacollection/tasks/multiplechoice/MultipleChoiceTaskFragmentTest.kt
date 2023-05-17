@@ -30,6 +30,7 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.testing.BindValue
@@ -40,8 +41,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.instanceOf
-import org.junit.Assert.*
-import org.junit.Ignore
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -122,9 +122,7 @@ class MultipleChoiceTaskFragmentTest :
       .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
   }
 
-  // TODO: fix the below failing test
   @Test
-  @Ignore("Test is currently failing")
   fun testMultipleChoice_whenSelectMultiple_click() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
@@ -137,10 +135,16 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<MultipleChoiceTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
   }
@@ -149,7 +153,6 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(2)
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")
   }

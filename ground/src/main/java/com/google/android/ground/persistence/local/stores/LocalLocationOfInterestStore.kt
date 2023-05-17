@@ -28,7 +28,7 @@ import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 
 interface LocalLocationOfInterestStore :
-  MutationStore<LocationOfInterestMutation, LocationOfInterest> {
+  LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
   /**
    * Returns a long-lived stream that emits the full set of LOIs for a survey on subscribe, and
    * continues to return the full set each time a LOI is added/changed/removed.

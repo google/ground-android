@@ -32,8 +32,8 @@ import javax.inject.Inject
  * tiles. Users can manage their areas within this fragment. They can delete areas they no longer
  * need or access the UI used to select and download a new area to the device.
  */
-@AndroidEntryPoint
-class OfflineAreasFragment : AbstractFragment() {
+@AndroidEntryPoint(AbstractFragment::class)
+class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
 
   @Inject lateinit var navigator: Navigator
 

@@ -17,7 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.point
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.assertion.ViewAssertions.*
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.model.task.Task
@@ -30,6 +31,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.hamcrest.core.IsNot.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -49,7 +51,7 @@ class DropAPinTaskFragmentTest :
       id = "task_1",
       index = 0,
       type = Task.Type.DROP_A_PIN,
-      label = "Drop a pin",
+      label = "Task for dropping a pin",
       isRequired = false
     )
 
@@ -58,6 +60,15 @@ class DropAPinTaskFragmentTest :
     setupTaskFragment<DropAPinTaskFragment>(task)
 
     hasTaskViewWithoutHeader("Drop a pin")
+  }
+
+  @Test
+  fun testHeader_click_displaysTaskLabel() = runWithTestDispatcher {
+    setupTaskFragment<DropAPinTaskFragment>(task)
+
+    onView(withText("Drop a pin")).perform(click())
+
+    onView(withText("Task for dropping a pin")).check(matches(isDisplayed()))
   }
 
   @Test
@@ -106,10 +117,16 @@ class DropAPinTaskFragmentTest :
   }
 
   @Test
+  fun testActionButtons() {
+    setupTaskFragment<DropAPinTaskFragment>(task)
+
+    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN)
+  }
+
+  @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = false))
 
-    hasButtonCount(4)
     buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
     buttonIsHidden(ButtonAction.UNDO)
@@ -120,7 +137,6 @@ class DropAPinTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = true))
 
-    hasButtonCount(4)
     buttonIsHidden("Continue")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)

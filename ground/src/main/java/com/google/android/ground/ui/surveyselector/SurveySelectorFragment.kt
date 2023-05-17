@@ -15,31 +15,39 @@
  */
 package com.google.android.ground.ui.surveyselector
 
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.ProgressDialogs
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 /** User interface implementation of survey selector screen. */
-@AndroidEntryPoint
-class SurveySelectorFragment : AbstractFragment(), BackPressListener {
+@AndroidEntryPoint(AbstractFragment::class)
+class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener {
 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
+  private var progressDialog: ProgressDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
     viewModel.surveySummaries.observe(this) { adapter.updateData(it) }
+    lifecycleScope.launch {
+      viewModel.displayProgressDialog.collect { handleDisplayProgressDialog(it) }
+    }
   }
 
   override fun onCreateView(
@@ -73,6 +81,28 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         }
       )
       show()
+    }
+  }
+
+  private fun handleDisplayProgressDialog(visible: Boolean) {
+    if (visible) {
+      showProgressDialog()
+    } else {
+      dismissProgressDialog()
+    }
+  }
+
+  private fun showProgressDialog() {
+    if (progressDialog == null) {
+      progressDialog = ProgressDialogs.modalSpinner(requireContext(), R.string.loading)
+    }
+    progressDialog?.show()
+  }
+
+  private fun dismissProgressDialog() {
+    if (progressDialog != null) {
+      progressDialog?.dismiss()
+      progressDialog = null
     }
   }
 

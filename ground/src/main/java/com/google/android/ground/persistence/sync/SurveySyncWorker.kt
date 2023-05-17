@@ -22,6 +22,7 @@ import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.runBlocking
@@ -44,20 +45,27 @@ constructor(
       return Result.failure()
     }
 
-    // It's ok to block here since WorkManager calls doWork() on a background thread.
-    runBlocking {
-      Timber.d("Syncing survey $surveyId")
-      syncSurvey(surveyId)
+    try {
+      // It's ok to block here since WorkManager calls doWork() on a background thread.
+      runBlocking {
+        Timber.d("Syncing survey $surveyId")
+        syncSurvey(surveyId)
+      }
+    } catch (e: Throwable) {
+      Timber.e("error syncing survey in the background", e)
+      return if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
+        Result.failure()
+      } else {
+        Result.retry()
+      }
     }
 
-    // TODO(https://github.com/google/ground-android/issues/1383): Also sync remote LOIs to localdb.
-    // TODO: Handle failures - log and retry.
     return Result.success()
   }
 
   companion object {
     /** The key in worker input data containing the id of the survey to be synced. */
-    private const val SURVEY_ID_PARAM_KEY = "surveyId"
+    internal const val SURVEY_ID_PARAM_KEY = "surveyId"
 
     /** Returns a new work [Data] object containing the specified survey id. */
     fun createInputData(surveyId: String): Data =

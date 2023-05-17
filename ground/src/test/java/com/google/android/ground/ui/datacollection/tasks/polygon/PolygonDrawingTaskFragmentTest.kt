@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.number
+package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import android.text.InputType
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.CustomViewActions.forceTypeText
-import com.google.android.ground.R
-import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -44,7 +38,8 @@ import org.robolectric.RobolectricTestRunner
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTaskViewModel>() {
+class PolygonDrawingTaskFragmentTest :
+  BaseTaskFragmentTest<PolygonDrawingTaskFragment, PolygonDrawingViewModel>() {
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
@@ -53,63 +48,66 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
     Task(
       id = "task_1",
       index = 0,
-      type = Task.Type.NUMBER,
-      label = "Number label",
+      type = Task.Type.DRAW_POLYGON,
+      label = "Task for drawing a polygon",
       isRequired = false
     )
 
   @Test
   fun testHeader() {
-    setupTaskFragment<NumberTaskFragment>(task)
+    setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
-    hasTaskViewWithHeader(task)
+    hasTaskViewWithoutHeader("Draw an area")
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
-    setupTaskFragment<NumberTaskFragment>(task)
+  fun testHeader_click_displaysTaskLabel() = runWithTestDispatcher {
+    setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
+    onView(withText("Draw an area")).perform(click())
 
-    hasTaskData(null)
-    buttonIsDisabled("Continue")
+    onView(withText("Task for drawing a polygon")).check(matches(isDisplayed()))
   }
 
   @Test
-  fun testResponse_onUserInput_continueButtonIsEnabled() = runWithTestDispatcher {
-    setupTaskFragment<NumberTaskFragment>(task)
+  fun testInfoCard_noTaskData() {
+    setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
-      .perform(forceTypeText("123"))
-
-    hasTaskData(NumberTaskData("123"))
-    buttonIsEnabled("Continue")
+    infoCardHidden()
   }
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<NumberTaskFragment>(task)
+    setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+    hasButtons(
+      ButtonAction.CONTINUE,
+      ButtonAction.SKIP,
+      ButtonAction.UNDO,
+      ButtonAction.ADD_POINT,
+      ButtonAction.COMPLETE
+    )
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<NumberTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<PolygonDrawingTaskFragment>(task.copy(isRequired = false))
 
-    buttonIsDisabled("Continue")
+    buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
+    buttonIsHidden(ButtonAction.UNDO)
+    buttonIsEnabled("Add point")
+    buttonIsHidden("Complete")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<NumberTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<PolygonDrawingTaskFragment>(task.copy(isRequired = true))
 
-    buttonIsDisabled("Continue")
+    buttonIsHidden("Continue")
     buttonIsHidden("Skip")
+    buttonIsHidden(ButtonAction.UNDO)
+    buttonIsEnabled("Add point")
+    buttonIsHidden("Complete")
   }
 }

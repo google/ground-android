@@ -34,12 +34,14 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
   @Inject lateinit var workerFactory: HiltWorkerFactory
 
   init {
-    Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else CrashReportingTree())
+    Timber.plant(if (isReleaseBuild()) CrashReportingTree() else Timber.DebugTree())
   }
+
+  private fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 
   override fun onCreate() {
     super.onCreate()
-    if (BuildConfig.DEBUG) {
+    if (!isReleaseBuild()) {
       Timber.d("DEBUG build config active; enabling debug tooling")
 
       // Log failures when trying to do work in the UI thread.
