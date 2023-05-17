@@ -15,8 +15,6 @@
  */
 package mogtest
 
-import java.io.*
-
 enum class TiffTag(val id: Int, val isArray: Boolean) {
   ImageLength(257, false),
   ImageWidth(256, false),
