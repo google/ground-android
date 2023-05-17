@@ -26,14 +26,5 @@ object TiffConstants {
   /** TIFF file Identifier. */
   const val FILE_IDENTIFIER = 42
 
-  /** Image File Directory header / number of entries bytes. */
-  const val IFD_HEADER_BYTES = 2
-
-  /** Image File Directory offset to the next IFD bytes. */
-  const val IFD_OFFSET_BYTES = 4
-
-  /** Image File Directory entry bytes. */
-  const val IFD_ENTRY_BYTES = 12
-
   const val PHOTOMETRIC_INTERPRETATION_RGB = 2
 }
