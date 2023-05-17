@@ -299,8 +299,6 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
-
-    implementation "mil.nga:tiff:3.0.0"
 }
 
 // Allow references to generated code.

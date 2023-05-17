@@ -25,15 +25,15 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
-import mil.nga.tiff.FieldTagType
-import mil.nga.tiff.TiffReader
-import mil.nga.tiff.util.TiffConstants
-import mil.nga.tiff.util.TiffException
+import mogtest.MogMetadataReader
+import mogtest.TiffConstants
+import mogtest.TiffTag
 import timber.log.Timber
 
-/** Client responsible for fetching MOG headers and image tiles. */
+/** Client responsible for fetching MOG metadata and image tiles. */
 class MogClient(val collection: MogCollection) {
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
+  private val tileIndexCache: LruCache<Pair<String, Int>, Deferred<MogImageTileIndex>> = LruCache(16 * 50 * 50)
 
   @Suppress("MemberVisibilityCanBePrivate")
   suspend fun getMogMetadata(bounds: TileCoordinates): MogMetadata? =
@@ -154,44 +154,45 @@ class MogClient(val collection: MogCollection) {
 
   private fun readHeader(
     url: String,
-    extent: TileCoordinates,
+    bounds: TileCoordinates,
     inputStream: InputStream
   ): MogMetadata {
     val startTimeMillis = System.currentTimeMillis()
     try {
       // This reads only headers and not the whole file.
-      val tiff = TiffReader.readTiff(inputStream)
+      val ifds = MogMetadataReader.readIfds(inputStream)
       val images = mutableListOf<MogImageFileDirectory>()
       // Only include image file directories with RGB image data. Mask images are skipped.
       // TODO: Render masked areas as transparent.
       val rgbIfds =
-        tiff.fileDirectories.filter {
-          it
-            .getIntegerEntryValue(FieldTagType.PhotometricInterpretation)
-            .and(TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB) != 0
+        ifds.filter {
+          (it[TiffTag.PhotometricInterpretation] as Int).and(
+            TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB
+          ) != 0
         }
       // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = extent.zoom + rgbIfds.size - 1
-      rgbIfds.forEachIndexed { i, ifd ->
+      val maxZ = bounds.zoom + rgbIfds.size - 1
+      rgbIfds.forEachIndexed { i, entry ->
         images.add(
           MogImageFileDirectory(
-            ifd.getIntegerEntryValue(FieldTagType.TileWidth),
-            ifd.getIntegerEntryValue(FieldTagType.TileLength),
-            extent.originAtZoom(maxZ - i),
-            ifd.getLongListEntryValue(FieldTagType.TileOffsets),
-            ifd.getLongListEntryValue(FieldTagType.TileByteCounts),
-            ifd.getIntegerEntryValue(FieldTagType.ImageWidth),
-            ifd.getIntegerEntryValue(FieldTagType.ImageLength),
-            ifd.getLongListEntryValue(FieldTagType.JPEGTables)?.map(Long::toByte)?.toByteArray()
+            entry[TiffTag.TileWidth] as Int,
+            entry[TiffTag.TileLength] as Int,
+            bounds.originAtZoom(maxZ - i),
+            entry[TiffTag.TileOffsets] as LongRange,
+            entry[TiffTag.TileByteCounts] as LongRange,
+            entry[TiffTag.ImageWidth] as Int,
+            entry[TiffTag.ImageLength] as Int,
+            (entry[TiffTag.JPEGTables] as List<*>?)?.map { (it as Long).toByte() }?.toByteArray()
               ?: byteArrayOf()
           )
         )
       }
+      val tiff = MogMetadata(url, bounds, rgbIfds)
       val time = System.currentTimeMillis() - startTimeMillis
       Timber.d("Loaded headers from $url in $time ms")
 
-      return MogMetadata(url, extent, images.toList())
-    } catch (e: TiffException) {
+      return MogMetadata(url, bounds, images.toList())
+    } catch (e: Throwable) {
       error("Failed to read $url: ${e.message})")
     } finally {
       inputStream.close()

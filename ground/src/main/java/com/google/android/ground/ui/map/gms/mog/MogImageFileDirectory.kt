@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import java.io.InputStream
+import java.lang.IllegalStateException
 import timber.log.Timber
 
 /* Circumference of the Earth (m) */
@@ -42,8 +43,8 @@ class MogImageFileDirectory(
   val tileWidth: Int,
   val tileLength: Int,
   val originTile: TileCoordinates,
-  val offsets: List<Long>,
-  val byteCounts: List<Long>,
+  val tileOffsetsByteRange: LongRange,
+  val byteCountsByteRange: LongRange,
   val imageWidth: Int,
   val imageLength: Int,
   val jpegTables: ByteArray
@@ -64,17 +65,6 @@ class MogImageFileDirectory(
     return "MogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
   }
 
-  fun getByteRange(x: Int, y: Int): LongRange? {
-    if (!hasTile(x, y)) return null
-    val xIdx = x - originTile.x
-    val yIdx = y - originTile.y
-    val idx = yIdx * tileCountX + xIdx
-    if (idx > offsets.size) throw IllegalArgumentException("idx > offsets")
-    val from = offsets[idx]
-    val len = byteCounts[idx].toInt()
-    val to = from + len - 1
-    return from..to
-  }
 
   /** Input stream is not closed. */
   fun parseTile(inputStream: InputStream, numBytes: Int): ByteArray {
