@@ -17,9 +17,12 @@ package com.google.android.ground.model.geometry
 
 import kotlinx.serialization.Serializable
 
-/** A coordinate on a two-dimensional Cartesian plane. */
+/**
+ * A coordinate in reference to the Earth and using https://en.wikipedia.org/wiki/Decimal_degrees to
+ * represent lat/lng.
+ */
 @Serializable
-data class Coordinate(val latitude: Double, val longitude: Double) : Comparable<Coordinate> {
+data class Coordinate(val lat: Double, val lng: Double) : Comparable<Coordinate> {
   override fun compareTo(other: Coordinate): Int =
-    compareValuesBy(this, other, { it.latitude }, { it.longitude })
+    compareValuesBy(this, other, { it.lat }, { it.lng })
 }

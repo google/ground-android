@@ -88,8 +88,7 @@ fun formatVertices(vertices: List<Point>): String? {
     return null
   }
   val gson = Gson()
-  val verticesArray =
-    vertices.map { (coordinate): Point -> listOf(coordinate.latitude, coordinate.longitude) }
+  val verticesArray = vertices.map { (coordinate): Point -> listOf(coordinate.lat, coordinate.lng) }
   return gson.toJson(verticesArray)
 }
 

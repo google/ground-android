@@ -87,20 +87,20 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
    * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.
    */
   private fun maximum(): Coordinate {
-    val maximumX = this.coordinates.maxOfOrNull { it.latitude }
-    val maximumY = this.coordinates.maxOfOrNull { it.longitude }
+    val maximumLat = this.coordinates.maxOfOrNull { it.lat }
+    val maximumLng = this.coordinates.maxOfOrNull { it.lng }
 
-    return Coordinate(maximumX ?: 0.0, maximumY ?: 0.0)
+    return Coordinate(maximumLat ?: 0.0, maximumLng ?: 0.0)
   }
 
   /**
    * Returns a *synthetic* coordinate containing the minimum x and y coordinate values of this ring.
    */
   private fun minimum(): Coordinate {
-    val minimumX = this.coordinates.minOfOrNull { it.latitude }
-    val minimumY = this.coordinates.minOfOrNull { it.longitude }
+    val minimumLat = this.coordinates.minOfOrNull { it.lat }
+    val minimumLng = this.coordinates.minOfOrNull { it.lng }
 
-    return Coordinate(minimumX ?: 0.0, minimumY ?: 0.0)
+    return Coordinate(minimumLat ?: 0.0, minimumLng ?: 0.0)
   }
 
   /**
