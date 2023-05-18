@@ -21,8 +21,6 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
@@ -35,7 +33,7 @@ internal constructor(@param:ApplicationContext private val context: Context) {
   @Throws(IOException::class)
   fun fromUri(url: Uri?): Bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, url)
 
-  fun bitmapDescriptorFromVector(resId: Int): BitmapDescriptor {
+  fun fromVector(resId: Int): Bitmap {
     val vectorDrawable = ContextCompat.getDrawable(context, resId)!!
 
     // Specify a bounding rectangle for the Drawable.
@@ -48,6 +46,6 @@ internal constructor(@param:ApplicationContext private val context: Context) {
       )
     val canvas = Canvas(bitmap)
     vectorDrawable.draw(canvas)
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
+    return bitmap
   }
 }

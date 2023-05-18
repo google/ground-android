@@ -63,7 +63,7 @@ internal object LoiMutationConverter {
     return map.toPersistentMap()
   }
 
-  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.x, point.coordinate.y)
+  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.lat, point.coordinate.lng)
 
   private fun toGeoPointList(point: List<Point>): List<GeoPoint> = point.map { toGeoPoint(it) }
 }

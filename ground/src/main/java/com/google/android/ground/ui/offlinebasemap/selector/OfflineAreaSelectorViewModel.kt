@@ -18,7 +18,6 @@ package com.google.android.ground.ui.offlinebasemap.selector
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.R
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -32,6 +31,7 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
@@ -67,7 +67,7 @@ internal constructor(
   private val remoteTileRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val downloadMessages: LiveData<Event<DownloadMessage>>
   val remoteTileSets: Flowable<List<TileSet>>
-  private var viewport: LatLngBounds? = null
+  private var viewport: Bounds? = null
 
   init {
     downloadMessages =
@@ -88,7 +88,7 @@ internal constructor(
     return DownloadMessage.FAILURE
   }
 
-  fun setViewport(viewport: LatLngBounds?) {
+  fun setViewport(viewport: Bounds?) {
     this.viewport = viewport
   }
 

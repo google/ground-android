@@ -15,13 +15,12 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.mutation.Mutation.Type.CREATE
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
+import com.google.android.ground.ui.map.Bounds
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
@@ -149,33 +148,33 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() {
-    val southwest = LatLng(-60.0, -60.0)
-    val northeast = LatLng(-50.0, -50.0)
+    val southwest = Coordinate(-60.0, -60.0)
+    val northeast = Coordinate(-50.0, -50.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(LatLngBounds(southwest, northeast)))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
       .test()
       .assertValues(listOf())
   }
 
   @Test
   fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() {
-    val southwest = LatLng(-20.0, -20.0)
-    val northeast = LatLng(-10.0, -10.0)
+    val southwest = Coordinate(-20.0, -20.0)
+    val northeast = Coordinate(-10.0, -10.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(LatLngBounds(southwest, northeast)))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
       .test()
       .assertValues(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
   }
 
   @Test
   fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() {
-    val southwest = LatLng(-20.0, -20.0)
-    val northeast = LatLng(20.0, 20.0)
+    val southwest = Coordinate(-20.0, -20.0)
+    val northeast = Coordinate(20.0, 20.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(LatLngBounds(southwest, northeast)))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
       .test()
       .assertValues(
         listOf(

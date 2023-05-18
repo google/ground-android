@@ -28,7 +28,6 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel.DownloadMessage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -81,13 +80,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
       .subscribe(mapFragment::addRemoteTileOverlays)
 
     viewModel.requestRemoteTileSets()
-
-    mapFragment.cameraMovedEvents
-      .map { mapFragment.viewport }
-      .startWith(mapFragment.viewport)
-      .map { it.toGoogleMapsObject() }
-      .`as`(autoDisposable(this))
-      .subscribe(viewModel::setViewport)
+    viewModel.cameraBoundUpdates.`as`(autoDisposable(this)).subscribe(viewModel::setViewport)
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
