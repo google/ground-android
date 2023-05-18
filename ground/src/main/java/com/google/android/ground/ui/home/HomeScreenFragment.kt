@@ -61,7 +61,6 @@ class HomeScreenFragment :
   @Inject lateinit var authenticationManager: AuthenticationManager
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var schedulers: Schedulers
 
@@ -164,16 +163,6 @@ class HomeScreenFragment :
     return false
   }
 
-  private fun showSurveySelector() {
-    navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
-    )
-  }
-
-  private fun showOfflineAreas() {
-    homeScreenViewModel.showOfflineAreas()
-  }
-
   private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
     binding.locationOfInterestDetailsChrome.toolbarWrapper.setPadding(
       0,
@@ -238,9 +227,9 @@ class HomeScreenFragment :
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.nav_change_survey -> showSurveySelector()
+      R.id.nav_change_survey -> homeScreenViewModel.showSurveySelector()
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
-      R.id.nav_offline_areas -> showOfflineAreas()
+      R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
       R.id.nav_sign_out -> authenticationManager.signOut()
     }
