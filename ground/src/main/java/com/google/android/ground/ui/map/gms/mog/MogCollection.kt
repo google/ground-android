@@ -43,39 +43,8 @@ class MogCollection(
       .replace("{z}", hiResMogMinZoom.toString())
   }
 
-  /**
-   * Crude method of making missing pixels transparent. Ideally, rather than replacing dark pixels
-   * with transparent ones, we would use the image masks contained.
-   */
-  fun applyMask(tile: Tile?, tileCoordinates: TileCoordinates): Tile? {
-    // Only apply mask workaround to world COG for now.
-    if (tile?.data == null || tileCoordinates.zoom >= hiResMogMinZoom) {
-      return tile
-    }
-    val bitmap =
-      BitmapFactory.decodeByteArray(tile.data, 0, tile.data!!.size)
-        .copy(Bitmap.Config.ARGB_8888, true)
-    bitmap.setHasAlpha(true)
-    for (x in 0 until bitmap.width) {
-      for (y in 0 until bitmap.height) {
-        val color = bitmap.getPixel(x, y)
-        val r: Int = color shr 16 and 0xFF
-        val g: Int = color shr 8 and 0xFF
-        val b: Int = color shr 0 and 0xFF
-        if (r + g + b == 0) {
-          bitmap.setPixel(x, y, 0)
-        }
-      }
-    }
-    val out = ByteArrayOutputStream()
-    // Note: JPEG doesn't support transparency, so need to use PNG or BMP.
-    // TODO: Return raw BMP instead of recompressing to JPEG.
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-    return Tile(tile.width, tile.height, out.toByteArray())
-  }
-
   /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
-  fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
+  fun getMogCoordinatesForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(hiResMogMinZoom)
 }

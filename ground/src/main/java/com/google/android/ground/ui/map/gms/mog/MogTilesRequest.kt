@@ -17,18 +17,19 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
-data class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>)
+class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
+  val byteRange = TileByteRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
+}
 
-class MutableMogTilesRequest(var sourceUrl: String, val tiles: MutableList<MogTileMetadata>) {
+class MutableMogTilesRequest(var sourceUrl: String) {
+  val tiles = mutableListOf<MogTileMetadata>()
+
   fun toTilesRequest() = MogTilesRequest(sourceUrl, tiles)
 
-  fun appendTiles(newTiles: List<MogTileMetadata>) {
-//    require(this.sourceUrl == other.sourceUrl) {
-//      "Can't append tiles  with different source URLs"
-//    }
-    require(this.tiles.last().byteRange.last < newTiles.first().byteRange.first) {
-      "Can't append tile  with non-consecutive and non-overlapping byte range"
+  fun appendTile(newTile: MogTileMetadata) {
+    require(tiles.isEmpty() || tiles.last().byteRange.last < newTile.byteRange.first) {
+      "Can't append tile with non-consecutive byte range"
     }
-    this.tiles.addAll(newTiles)
+    tiles.add(newTile)
   }
 }

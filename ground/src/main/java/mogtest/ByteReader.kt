@@ -20,24 +20,22 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 import java.util.*
-import timber.log.Timber
 
 @Deprecated(" delete me")
 class ByteReader(private val bytes: ByteArray) {
-  var nextByte = 0
+  var pos = 0
   var byteOrder: ByteOrder = ByteOrder.nativeOrder()
 
-  fun setNextByte(nextByte: Long) {
-    Timber.w("STEP: ${nextByte - this.nextByte}")
-    if (nextByte < this.nextByte) {
-      error("CANT BACKTRACK")
+  fun skipTo(newPos: Long) {
+    if (this.pos > newPos) {
+      println("!!!")
     }
-    if (nextByte >= bytes!!.size) {
-      error(
-        "Byte offset out of range. Total Bytes: " + bytes.size + ", Byte offset: " + nextByte
-      )
+    //    println("STEP: ${this.nextByte} -> $nextByte")
+    require(newPos >= this.pos) { "Can't scan backwards in stream" }
+    if (newPos >= bytes.size) {
+      error("Byte offset out of range. Total Bytes: " + bytes.size + ", Byte offset: " + newPos)
     }
-    this.nextByte = nextByte.toInt()
+    this.pos = newPos.toInt()
   }
 
   /**
@@ -49,8 +47,8 @@ class ByteReader(private val bytes: ByteArray) {
    */
   @Throws(UnsupportedEncodingException::class)
   fun readString(num: Int): String? {
-    val value = readString(nextByte, num)
-    nextByte += num
+    val value = readString(pos, num)
+    pos += num
     return value
   }
 
@@ -66,8 +64,8 @@ class ByteReader(private val bytes: ByteArray) {
   fun readString(offset: Int, num: Int): String? {
     verifyRemainingBytes(offset, num)
     var value: String? = null
-    if (num != 1 || bytes!![offset].toInt() != 0) {
-      value = String(bytes!!, offset, num, StandardCharsets.US_ASCII)
+    if (num != 1 || bytes[offset].toInt() != 0) {
+      value = String(bytes, offset, num, StandardCharsets.US_ASCII)
     }
     return value
   }
@@ -78,8 +76,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return byte
    */
   fun readByte(): Byte {
-    val value = readByte(nextByte)
-    nextByte++
+    val value = readByte(pos)
+    pos++
     return value
   }
 
@@ -91,7 +89,7 @@ class ByteReader(private val bytes: ByteArray) {
    */
   fun readByte(offset: Int): Byte {
     verifyRemainingBytes(offset, 1)
-    return bytes!![offset]
+    return bytes[offset]
   }
 
   /**
@@ -100,8 +98,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return unsigned byte as short
    */
   fun readUnsignedByte(): Short {
-    val value = readUnsignedByte(nextByte)
-    nextByte++
+    val value = readUnsignedByte(pos)
+    pos++
     return value
   }
 
@@ -121,8 +119,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return short
    */
   fun readShort(): Short {
-    val value = readShort(nextByte)
-    nextByte += 2
+    val value = readShort(pos)
+    pos += 2
     return value
   }
 
@@ -143,8 +141,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return unsigned short as int
    */
   fun readUnsignedShort(): Int {
-    val value = readUnsignedShort(nextByte)
-    nextByte += 2
+    val value = readUnsignedShort(pos)
+    pos += 2
     return value
   }
 
@@ -164,8 +162,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return integer
    */
   fun readInt(): Int {
-    val value = readInt(nextByte)
-    nextByte += 4
+    val value = readInt(pos)
+    pos += 4
     return value
   }
 
@@ -186,8 +184,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return unsigned int as long
    */
   fun readUnsignedInt(): Long {
-    val value = readUnsignedInt(nextByte)
-    nextByte += 4
+    val value = readUnsignedInt(pos)
+    pos += 4
     return value
   }
 
@@ -207,8 +205,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return float
    */
   fun readFloat(): Float {
-    val value = readFloat(nextByte)
-    nextByte += 4
+    val value = readFloat(pos)
+    pos += 4
     return value
   }
 
@@ -229,8 +227,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return double
    */
   fun readDouble(): Double {
-    val value = readDouble(nextByte)
-    nextByte += 8
+    val value = readDouble(pos)
+    pos += 8
     return value
   }
 
@@ -252,7 +250,7 @@ class ByteReader(private val bytes: ByteArray) {
    * @param bytesToRead number of bytes to read
    */
   private fun verifyRemainingBytes(offset: Int, bytesToRead: Int) {
-    if (offset + bytesToRead > bytes!!.size) {
+    if (offset + bytesToRead > bytes.size) {
       error(
         "No more remaining bytes to read. Total Bytes: " +
           bytes.size +

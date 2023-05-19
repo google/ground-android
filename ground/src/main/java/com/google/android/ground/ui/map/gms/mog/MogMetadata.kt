@@ -34,7 +34,7 @@ const val MAX_OVER_FETCH_PER_TILE = 1 * 20 * 1024
  */
 class MogMetadata(
   /** The URL of the source MOG. */
-  val url: String,
+  val sourceUrl: String,
   /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
   val bounds: TileCoordinates,
   imageMetadata: List<MogImageMetadata>
@@ -44,7 +44,7 @@ class MogMetadata(
   fun getImageMetadata(zoom: Int): MogImageMetadata? = imageMetadataByZoom[zoom]
 
   override fun toString(): String {
-    return "Mog(url=$url, bounds=$bounds, ifdsByZoom=$imageMetadataByZoom)"
+    return "Mog(url=$sourceUrl, bounds=$bounds, ifdsByZoom=$imageMetadataByZoom)"
   }
 
   //  fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =

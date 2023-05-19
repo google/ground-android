@@ -16,45 +16,33 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import com.google.android.gms.maps.model.Tile
 import java.io.InputStream
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import timber.log.Timber
-
-/* Circumference of the Earth (m) */
-private val START_OF_IMAGE = byteArrayOf(0xFF, 0xD8)
-private val APP0_MARKER = byteArrayOf(0xFF, 0xE0)
-// Marker segment length with no thumbnails.
-private const val APP0_MIN_LEN: Short = 16
-private const val JFIF_IDENTIFIER = "JFIF"
-private const val JFIF_MAJOR_VERSION = 1
-private const val JFIF_MINOR_VERSION = 2
-private const val NO_DENSITY_UNITS = 0
-private val END_OF_IMAGE = byteArrayOf(0xFF, 0xD9)
-
-private fun byteArrayOf(vararg elements: Int) = elements.map(Int::toByte).toByteArray()
-
-private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this.toByte())
-
-private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
 class MogTileReader(private val inputStream: InputStream) {
   private var pos: Long = Long.MAX_VALUE
 
-  fun readTile(tileMetadata: MogTileMetadata): Tile {
-    val (_, imageMetadata, tileCoordinates, byteRange) = tileMetadata
+  fun readTiles(tiles: List<MogTileMetadata>): Flow<MogTile> = flow {
+    tiles.forEach { emit(readTile(it)) }
+  }
 
+  private suspend fun readTile(metadata: MogTileMetadata): MogTile {
+    val tileReader = MogTileReader(inputStream)
+    val startTimeMillis = System.currentTimeMillis()
+    val tileData = tileReader.readTileData(metadata.byteRange)
+    val time = System.currentTimeMillis() - startTimeMillis
+    Timber.d("Read tile ${metadata.tileCoordinates}: ${tileData.size} in $time ms")
+
+    return MogTile(metadata, tileData)
+  }
+
+  private fun readTileData(byteRange: TileByteRange): ByteArray {
     // Skip bytes for non-contiguous tile byte ranges.
     skipToPos(byteRange.first)
 
-    val startTimeMillis = System.currentTimeMillis()
-
-    val rawTileBytes = readTileBytes(inputStream, byteRange.count())
-
-    val time = System.currentTimeMillis() - startTimeMillis
-    Timber.d("Fetched tile ${tileCoordinates}: ${rawTileBytes.size} in $time ms")
-
-    val jfifFileBytes = buildJfifFile(imageMetadata, rawTileBytes)
-    return Tile(imageMetadata.tileWidth, imageMetadata.tileLength, jfifFileBytes)
+    return readTileData(byteRange.count())
   }
 
   private fun skipToPos(newPos: Long) {
@@ -66,7 +54,7 @@ class MogTileReader(private val inputStream: InputStream) {
   }
 
   /** Reads and returns a tile. Doesn't close the stream. */
-  private fun readTileBytes(inputStream: InputStream, numBytes: Int): ByteArray {
+  private fun readTileData(numBytes: Int): ByteArray {
     val bytes = ByteArray(numBytes)
     var bytesRead = 0
     while (bytesRead < numBytes) {
@@ -80,29 +68,4 @@ class MogTileReader(private val inputStream: InputStream) {
     }
     return bytes
   }
-
-  private fun buildJfifFile(imageMetadata: MogImageMetadata, imageBytes: ByteArray): ByteArray =
-    START_OF_IMAGE +
-      app0Segment(imageMetadata.tileWidth, imageMetadata.tileLength) +
-      rawJpegTables(imageMetadata.jpegTables) +
-      imageBytes.drop(2) + // Drop leading SOI.
-      END_OF_IMAGE
-
-  private fun rawJpegTables(jpegTables: ByteArray): ByteArray =
-    jpegTables
-      .drop(2) // Drop leading SOI.
-      .dropLast(2) // Drop trailing EOI.
-      .toByteArray()
-
-  /** Build "Application Segment 0" section of header. */
-  private fun app0Segment(tileWidth: Int, tileHeight: Int) =
-    APP0_MARKER +
-      APP0_MIN_LEN.toByteArray() +
-      JFIF_IDENTIFIER.toNulTerminatedByteArray() +
-      JFIF_MAJOR_VERSION.toByte() +
-      JFIF_MINOR_VERSION.toByte() +
-      NO_DENSITY_UNITS.toByte() +
-      tileWidth.toShort().toByteArray() +
-      tileHeight.toShort().toByteArray() +
-      kotlin.byteArrayOf(0, 0) // Dimensions of empty thumbnail.
 }

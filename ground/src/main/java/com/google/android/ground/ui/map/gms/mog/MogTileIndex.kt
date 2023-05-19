@@ -17,7 +17,7 @@
 package com.google.android.ground.ui.map.gms.mog
 
 class MogTileIndex(
-  val ifd: MogImageMetadata,
+  val imageMetadata: MogImageMetadata,
   // TODO: Replace with LongRange
   val tileOffsets: List<Long>,
   val byteCounts: List<Long>
@@ -25,10 +25,10 @@ class MogTileIndex(
 
   fun getByteRange(x: Int, y: Int): LongRange? {
     // TODO: Check actual length of arrays as well.
-    if (!ifd.hasTile(x, y)) return null
-    val xIdx = x - ifd.originTile.x
-    val yIdx = y - ifd.originTile.y
-    val idx = yIdx * ifd.tileCountX + xIdx
+    if (!imageMetadata.hasTile(x, y)) return null
+    val xIdx = x - imageMetadata.originTile.x
+    val yIdx = y - imageMetadata.originTile.y
+    val idx = yIdx * imageMetadata.tileCountX + xIdx
     if (idx > tileOffsets.size) throw IllegalArgumentException("idx > offsets")
     val from = tileOffsets[idx]
     val len = byteCounts[idx].toInt()

@@ -24,6 +24,7 @@ enum class TiffTag(val id: Int, val isArray: Boolean) {
   TileLength(323, false),
   TileOffsets(324, true),
   TileWidth(322, false);
+
   /**
    * Get the tag id
    *

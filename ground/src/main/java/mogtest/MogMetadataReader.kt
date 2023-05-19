@@ -22,13 +22,14 @@ import mogtest.TiffTagDataType.*
 import timber.log.Timber
 
 object MogMetadataReader {
-  fun readMetadata(stream: InputStream): List<Map<TiffTag, Any?>> {
+  // TODO: Refactor Map into IDF class.
+  fun readImageFileDirectories(stream: InputStream): List<Map<TiffTag, Any?>> {
     val bytes = IOUtils.streamBytes(stream)
     val reader = ByteReader(bytes)
-    return readMetadata(reader)
+    return readImageFileDirectories(reader)
   }
 
-  private fun readMetadata(reader: ByteReader): List<Map<TiffTag, Any?>> {
+  private fun readImageFileDirectories(reader: ByteReader): List<Map<TiffTag, Any?>> {
 
     // Read the 2 bytes of byte order
     var byteOrderString: String? = null
@@ -61,7 +62,7 @@ object MogMetadataReader {
     var byteOffset = initialByteOffset
     val ifdEntries = mutableListOf<Map<TiffTag, Any?>>()
     while (byteOffset != 0L) {
-      readIfdEntries(reader, byteOffset)
+      println("OFFSET: $byteOffset")
       ifdEntries.add(readIfdEntries(reader, byteOffset))
       byteOffset = reader.readUnsignedInt()
     }
@@ -70,7 +71,7 @@ object MogMetadataReader {
 
   private fun readIfdEntries(reader: ByteReader, byteOffset: Long): Map<TiffTag, Any?> {
     // Set the next byte to read from
-    reader.setNextByte(byteOffset)
+    reader.skipTo(byteOffset)
 
     val entries = hashMapOf<TiffTag, Any?>()
 
@@ -88,9 +89,9 @@ object MogMetadataReader {
       val count = reader.readUnsignedInt()
 
       // Save off the next byte to read location
-      val nextByte = reader.nextByte
+      val nextByte = reader.pos
 
-      Timber.e("Pos before values: ${reader.nextByte}")
+      Timber.e("Pos before values: ${reader.pos}")
 
       // Read the field values
       val values = readFieldValues(reader, fieldTag, dataType, count)
@@ -101,7 +102,7 @@ object MogMetadataReader {
       }
 
       // Restore the next byte to read location
-      reader.setNextByte((nextByte + 4).toLong())
+      reader.skipTo((nextByte + 4).toLong())
     }
     return entries
   }

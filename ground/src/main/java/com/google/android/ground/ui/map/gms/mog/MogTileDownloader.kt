@@ -26,15 +26,16 @@ import java.io.File
  */
 class MogTileDownloader(private val client: MogClient, private val outputBasePath: String) {
   /**
-   * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub=paths
-   * of the form `{z}/{x}/{y}.jpg`.
+   * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub-paths of
+   * the form `{z}/{x}/{y}.jpg`.
    */
   suspend fun downloadTiles(requests: List<MogTilesRequest>) {
-    client.getTiles(requests).collect { (coordinates, tile) ->
-      val (x, y, zoom) = coordinates
+    client.getTiles(requests).collect { tile ->
+      val (x, y, zoom) = tile.metadata.tileCoordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()
-      File(path, "$y.jpg").writeBytes(tile.data!!)
+      val gmsTile = tile.toGmsTile()
+      File(path, "$y.jpg").writeBytes(gmsTile.data!!)
     }
   }
 }
