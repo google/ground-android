@@ -16,8 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
+import com.google.android.gms.maps.model.Tile
 import java.io.InputStream
-import java.lang.IllegalStateException
 import timber.log.Timber
 
 /* Circumference of the Earth (m) */
@@ -37,55 +37,54 @@ private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this
 
 private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
 
-/** Metadata describing a single full-resolution or overview image in a MOG. */
-@Suppress("MemberVisibilityCanBePrivate")
-class MogImageFileDirectory(
-  val tileWidth: Int,
-  val tileLength: Int,
-  val originTile: TileCoordinates,
-  val tileOffsetsByteRange: LongRange,
-  val byteCountsByteRange: LongRange,
-  val imageWidth: Int,
-  val imageLength: Int,
-  val jpegTables: ByteArray
-) {
-  val tileCountX = imageWidth / tileWidth
-  val tileCountY = imageLength / tileLength
+class MogTileReader(private val inputStream: InputStream) {
+  private var pos: Long = Long.MAX_VALUE
 
-  // TODO: Verify X and Y scales are the same.
-  val zoom = originTile.zoom
+  fun readTile(tileMetadata: MogTileMetadata): Tile {
+    val (_, imageMetadata, tileCoordinates, byteRange) = tileMetadata
 
-  fun hasTile(x: Int, y: Int) =
-    x >= originTile.x &&
-      y >= originTile.y &&
-      x < tileCountX + originTile.x &&
-      y < tileCountY + originTile.y
+    // Skip bytes for non-contiguous tile byte ranges.
+    skipToPos(byteRange.first)
 
-  override fun toString(): String {
-    return "MogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
+    val startTimeMillis = System.currentTimeMillis()
+
+    val rawTileBytes = readTileBytes(inputStream, byteRange.count())
+
+    val time = System.currentTimeMillis() - startTimeMillis
+    Timber.d("Fetched tile ${tileCoordinates}: ${rawTileBytes.size} in $time ms")
+
+    val jfifFileBytes = buildJfifFile(imageMetadata, rawTileBytes)
+    return Tile(imageMetadata.tileWidth, imageMetadata.tileLength, jfifFileBytes)
   }
 
+  private fun skipToPos(newPos: Long) {
+    if (newPos < pos) error("Can't scan backwards in input stream")
+    while (newPos > pos) {
+      if (inputStream.read() == -1) error("Unexpected end of tile response")
+      pos++
+    }
+  }
 
-  /** Input stream is not closed. */
-  fun parseTile(inputStream: InputStream, numBytes: Int): ByteArray {
-    val imageBytes = ByteArray(numBytes)
+  /** Reads and returns a tile. Doesn't close the stream. */
+  private fun readTileBytes(inputStream: InputStream, numBytes: Int): ByteArray {
+    val bytes = ByteArray(numBytes)
     var bytesRead = 0
     while (bytesRead < numBytes) {
       val b = inputStream.read()
       if (b < 0) break
-      imageBytes[bytesRead++] = b.toByte()
+      bytes[bytesRead++] = b.toByte()
+      pos++
     }
     if (bytesRead < numBytes) {
       Timber.w("Too few bytes received. Expected $numBytes, got $bytesRead")
     }
-
-    return buildJfifFile(imageBytes)
+    return bytes
   }
 
-  private fun buildJfifFile(imageBytes: ByteArray): ByteArray =
+  private fun buildJfifFile(imageMetadata: MogImageMetadata, imageBytes: ByteArray): ByteArray =
     START_OF_IMAGE +
-      app0Segment(tileWidth, tileLength) +
-      rawJpegTables(jpegTables) +
+      app0Segment(imageMetadata.tileWidth, imageMetadata.tileLength) +
+      rawJpegTables(imageMetadata.jpegTables) +
       imageBytes.drop(2) + // Drop leading SOI.
       END_OF_IMAGE
 

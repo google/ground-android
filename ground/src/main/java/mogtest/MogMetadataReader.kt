@@ -22,13 +22,13 @@ import mogtest.TiffTagDataType.*
 import timber.log.Timber
 
 object MogMetadataReader {
-  fun readIfds(stream: InputStream): List<Map<TiffTag, Any?>> {
+  fun readMetadata(stream: InputStream): List<Map<TiffTag, Any?>> {
     val bytes = IOUtils.streamBytes(stream)
     val reader = ByteReader(bytes)
-    return readTiff(reader)
+    return readMetadata(reader)
   }
 
-  private fun readTiff(reader: ByteReader): List<Map<TiffTag, Any?>> {
+  private fun readMetadata(reader: ByteReader): List<Map<TiffTag, Any?>> {
 
     // Read the 2 bytes of byte order
     var byteOrderString: String? = null
@@ -85,7 +85,7 @@ object MogMetadataReader {
       val fieldTag: TiffTag? = TiffTag.byId(fieldTagValue)
       val tagTypeId = reader.readUnsignedShort()
       val dataType: TiffTagDataType = TiffTagDataType.byId(tagTypeId)
-      val typeCount = reader.readUnsignedInt()
+      val count = reader.readUnsignedInt()
 
       // Save off the next byte to read location
       val nextByte = reader.nextByte
@@ -93,7 +93,7 @@ object MogMetadataReader {
       Timber.e("Pos before values: ${reader.nextByte}")
 
       // Read the field values
-      val values = readFieldValues(reader, fieldTag, dataType, typeCount)
+      val values = readFieldValues(reader, fieldTag, dataType, count)
 
       // Create and add a file directory if the tag is recognized.
       if (fieldTag != null) {
@@ -110,21 +110,21 @@ object MogMetadataReader {
     reader: ByteReader,
     fieldTag: TiffTag?,
     dataType: TiffTagDataType,
-    typeCount: Long
+    count: Long
   ): Any? {
-    // If the value is larger and not stored inline, determine the offset
-    val fieldSize = dataType.bytes * typeCount
+    // Large values aren't stored inline, so we store a reference for retrieval in a separate
+    // request.
+    val fieldSize = dataType.bytes * count
     if (fieldSize > 4) {
       val valueOffset = reader.readUnsignedInt()
       return LongRange(valueOffset, valueOffset + fieldSize)
     }
 
-    // Read the directory entry values
-    val valuesList = getValues(reader, dataType, typeCount)
+    val valuesList = readValues(reader, dataType, count)
 
     // Get the single or array values
     return if (
-      typeCount == 1L &&
+      count == 1L &&
         fieldTag != null &&
         !fieldTag.isArray &&
         !(dataType == RATIONAL || dataType == SRATIONAL)
@@ -140,17 +140,18 @@ object MogMetadataReader {
    *
    * @param reader byte reader
    * @param dataType field type
-   * @param typeCount type count
+   * @param count type count
    * @return values
    */
-  private fun getValues(
+  fun readValues(
     reader: ByteReader,
     dataType: TiffTagDataType,
-    typeCount: Long
+    count: Long
   ): List<Any?> {
     var values: MutableList<Any?> = ArrayList()
-    Timber.e("TypeCount: $typeCount")
-    for (i in 0 until typeCount) {
+    Timber.e("TypeCount: $count")
+    // Use UInt and repeat here instead.
+    for(i in 1..count) {
       when (dataType) {
         ASCII -> values.add(reader.readString(1))
         BYTE,

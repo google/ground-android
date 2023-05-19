@@ -37,16 +37,16 @@ class MogMetadata(
   val url: String,
   /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
   val bounds: TileCoordinates,
-  ifds: List<MogImageFileDirectory>
+  imageMetadata: List<MogImageMetadata>
 ) {
-  private val ifdsByZoom = ifds.associateBy { it.zoom }
+  private val imageMetadataByZoom = imageMetadata.associateBy { it.zoom }
 
-  fun getImageMetadata(zoomLevel: Int): MogImageFileDirectory? = ifdsByZoom[zoomLevel]
+  fun getImageMetadata(zoom: Int): MogImageMetadata? = imageMetadataByZoom[zoom]
 
   override fun toString(): String {
-    return "Mog(url=$url, bounds=$bounds, ifdsByZoom=$ifdsByZoom)"
+    return "Mog(url=$url, bounds=$bounds, ifdsByZoom=$imageMetadataByZoom)"
   }
 
-  fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
-    ifdsByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
+  //  fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
+  //    ifdsByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
 }

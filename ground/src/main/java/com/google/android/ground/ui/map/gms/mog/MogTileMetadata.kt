@@ -16,4 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-data class MogTileRequest(val mogMetadata: MogMetadata, val mogTileRange: MogTileRange)
+data class MogTileMetadata(
+  // TODO: Move out of here into MogClient cache.
+  val imageMetadata: MogImageMetadata,
+  val tileCoordinates: TileCoordinates,
+  val byteRange: TileByteRange
+)

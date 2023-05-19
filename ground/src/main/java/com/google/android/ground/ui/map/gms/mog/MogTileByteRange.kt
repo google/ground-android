@@ -17,7 +17,7 @@ package com.google.android.ground.ui.map.gms.mog
  */
 
 /** A contiguous range of bytes in a MOG and coordinates of tiles of interest stored therein. */
-data class MogTileRange(
+data class MogTileByteRange(
   /**
    * The start and end index of the relevant bytes in the MOG. Indices start from 0. End index is
    * inclusive.
@@ -32,7 +32,7 @@ data class MogTileRange(
   val tileCoordinatesList: List<TileCoordinates>
 )
 
-data class MutableTilesRequest(
+data class MutableTileByteRange(
   /**
    * The start and end index of the relevant bytes in the MOG. Indices start from 0. End index is
    * inclusive.
@@ -46,7 +46,7 @@ data class MutableTilesRequest(
    */
   val tileCoordinatesList: MutableList<TileCoordinates>
 ) {
-  fun toTilesRequest() = MogTileRange(byteRange, tileCoordinatesList)
+  fun toTilesRequest() = MogTileByteRange(byteRange, tileCoordinatesList)
 
   /**
    * Adds an additional tile to be fetched by extending the number of bytes requested and its

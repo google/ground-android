@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import timber.log.Timber
 
-@Deprecated("delete me")
+@Deprecated(" delete me")
 class ByteReader(private val bytes: ByteArray) {
   var nextByte = 0
   var byteOrder: ByteOrder = ByteOrder.nativeOrder()

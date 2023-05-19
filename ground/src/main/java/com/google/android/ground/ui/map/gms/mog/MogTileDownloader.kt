@@ -26,11 +26,11 @@ import java.io.File
  */
 class MogTileDownloader(private val client: MogClient, private val outputBasePath: String) {
   /**
-   * Executes the provided [mogTileRequests], writing resulting tiles to [outputBasePath] in sub=paths
+   * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub=paths
    * of the form `{z}/{x}/{y}.jpg`.
    */
-  suspend fun downloadTiles(mogTileRequests: List<MogTileRequest>) {
-    client.getTiles(mogTileRequests).collect { (coordinates, tile) ->
+  suspend fun downloadTiles(requests: List<MogTilesRequest>) {
+    client.getTiles(requests).collect { (coordinates, tile) ->
       val (x, y, zoom) = coordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()

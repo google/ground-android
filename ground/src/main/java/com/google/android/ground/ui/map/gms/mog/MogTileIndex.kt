@@ -16,8 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-class MogImageTileIndex(
-  val ifd: MogImageFileDirectory,
+class MogTileIndex(
+  val ifd: MogImageMetadata,
+  // TODO: Replace with LongRange
   val tileOffsets: List<Long>,
   val byteCounts: List<Long>
 ) {

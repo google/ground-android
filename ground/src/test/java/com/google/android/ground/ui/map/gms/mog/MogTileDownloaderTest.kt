@@ -40,12 +40,12 @@ class MogTileDownloaderTest {
     val downloader = MogTileDownloader(client, "/tmp/tiles")
     val startTimeMillis = currentTimeMillis()
     println("Fetching headers...")
-    val requests = client.getTileRequests(LatLngBounds(southwest, northeast))
+    val requests = client.getTilesRequests(LatLngBounds(southwest, northeast))
 
     println("Headers in ${(currentTimeMillis() - startTimeMillis)/1000.0}s")
     println("# requests: ${requests.size}")
     println("# files:    ${requests.map { it.mogMetadata.url }.distinct().size}")
-    println("# tiles:    ${requests.sumOf { it.mogTileRange.tileCoordinatesList.size }}")
+    println("# tiles:    ${requests.sumOf { it.mogTileByteRange.tileCoordinatesList.size }}")
 
     //    downloader.downloadTiles(requests)
   }
