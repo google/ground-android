@@ -47,6 +47,8 @@ constructor(
   private val uuidGenerator: OfflineUuidGenerator
 ) {
 
+  private var strFilePattern = Regex("^[a-zA-Z0-9._ -]+\\.(png|jpg)$")
+
   private val rootDir: File?
     get() = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
@@ -96,6 +98,9 @@ constructor(
    */
   fun getLocalFileFromRemotePath(destinationPath: String): File {
     val filename = destinationPath.split('/').last()
+    if (!filename.matches(strFilePattern)) {
+      throw IllegalArgumentException("Invalid filename $filename")
+    }
     val file = File(rootDir, filename)
     if (!file.exists()) {
       Timber.e("File not found: %s", file.path)

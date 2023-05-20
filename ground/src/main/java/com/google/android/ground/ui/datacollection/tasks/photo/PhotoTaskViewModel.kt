@@ -205,6 +205,7 @@ constructor(
       return userMediaRepository.savePhoto(result.bitmap, result.taskId)
     }
     if (result.path != null) {
+      Timber.d("Photo saved %s : %b", result.path, File(result.path).exists())
       return File(result.path)
     }
 

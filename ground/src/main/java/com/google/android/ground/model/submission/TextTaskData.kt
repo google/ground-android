@@ -25,6 +25,8 @@ data class TextTaskData(val text: String) : TaskData {
 
   override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
 
+  override fun toString(): String = text
+
   companion object {
     @JvmStatic
     fun fromString(text: String): Optional<TaskData> =

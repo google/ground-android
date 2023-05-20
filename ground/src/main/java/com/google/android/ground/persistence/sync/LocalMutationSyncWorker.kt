@@ -116,6 +116,7 @@ constructor(
       .filter { (_, taskType, newResponse): TaskDataDelta ->
         taskType === Task.Type.PHOTO && newResponse.isPresent
       }
+      // TODO: Instead of using toString(), add a method getSerializedValue() in TaskData.
       .map { (_, _, newResponse): TaskDataDelta -> newResponse.get().toString() }
       .flatMapCompletable { remotePath: String ->
         Completable.fromRunnable { photoSyncWorkManager.enqueueSyncWorker(remotePath) }
