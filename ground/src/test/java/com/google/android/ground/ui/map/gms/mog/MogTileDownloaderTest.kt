@@ -27,17 +27,14 @@ import org.robolectric.RobolectricTestRunner
 class MogTileDownloaderTest {
   @Test
   fun downloadTiles() = runBlocking {
-    // Indonesia: LngLatBbox(west=95.00933042066814, south=-11.007616494507769,
-    // east=141.01944540877238, north=5.904411619513165)
-    val southwest = LatLng(-11.007616494507769, 95.00933042066814)
-    val northeast = LatLng(5.904411619513165, 141.01944540877238)
-    //    val southwest = LatLng(4.089672, 95.546853)
-    //    val northeast = LatLng(5.435577, 96.278013)
+// Aceh province.
+    val aoi = LatLngBounds(LatLng(2.03, 95.03), LatLng(5.95, 98.42))
+
     val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/2022/cog/8"
     val mogCollection = MogCollection("$mogBaseUrl/world.tif", "$mogBaseUrl/{x}/{y}.tif", 8, 14)
     val downloader = MogTileDownloader(mogCollection, "/tmp/tiles")
     var startTimeMillis = System.currentTimeMillis()
     println("Fetching headers...")
-    downloader.downloadTiles(LatLngBounds(southwest, northeast), 12..14)
+    downloader.downloadTiles(aoi, 12..12)
   }
 }
