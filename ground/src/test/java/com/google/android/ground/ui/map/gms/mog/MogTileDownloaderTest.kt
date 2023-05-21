@@ -31,27 +31,27 @@ import org.robolectric.annotation.ConscryptMode.Mode.OFF
 class MogTileDownloaderTest {
   @Test
   fun downloadTiles() = runBlocking {
-    //    // All of Indonesia.
-    //    val aoi = LatLngBounds(LatLng(-11.00, 95.01), LatLng(5.90, 141.02))
-    // Aceh province only.
+    // Aceh province.
     val aoi = LatLngBounds(LatLng(2.03, 95.03), LatLng(5.95, 98.42))
-    val mogBaseUrl = "https://storage.googleapis.com/ground-raster-basemaps/2022/cog/{z}"
-    val mogCollection = MogCollection("$mogBaseUrl/world.tif", "$mogBaseUrl/{x}/{y}.tif", 8, 14)
+    val baseUrl = "https://storage.googleapis.com/ground-raster-basemaps/2022/cog/{z}"
+    val mogCollection = MogCollection("$baseUrl/world.tif", "$baseUrl/{x}/{y}.tif", 8, 14)
     val client = MogClient(mogCollection)
-    val downloader = MogTileDownloader(client, "/tmp/tiles")
 
     println("Fetching headers...")
     val startTimeMillis = currentTimeMillis()
-    val requests = client.getTilesRequests(aoi)
+    val requests = client.getTilesRequests(aoi, 12..12)
+
     val timeSecs = (currentTimeMillis() - startTimeMillis) / 1000.0
     val numRequests = requests.size
     val numFiles = requests.map { it.sourceUrl }.distinct().size
     val numTiles = requests.sumOf { it.tiles.count() }
-    println("Headers in %.1f".format(timeSecs))
+    println("...in %.1fs".format(timeSecs))
     println("# requests: $numRequests")
     println("# files:    $numFiles")
     println("# tiles:    $numTiles")
+
     // Download!
+    val downloader = MogTileDownloader(client, "/tmp/tiles")
     downloader.downloadTiles(requests)
   }
 }

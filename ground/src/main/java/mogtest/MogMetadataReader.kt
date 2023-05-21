@@ -20,15 +20,12 @@ import java.nio.ByteOrder
 import java.util.*
 import mogtest.TiffTagDataType.*
 
-class MogMetadataReader {
-  // TODO: Refactor Map into IDF class.
-  fun readImageFileDirectories(stream: InputStream): List<Map<TiffTag, Any?>> {
-    val bytes = IOUtils.streamBytes(stream)
-    val reader = ByteReader(bytes)
-    return readImageFileDirectories(reader)
-  }
+class MogMetadataReader(stream: InputStream) {
+  private val bytes = IOUtils.streamBytes(stream)
+  private val reader = ByteReader(bytes)
 
-  private fun readImageFileDirectories(reader: ByteReader): List<Map<TiffTag, Any?>> {
+  // TODO: Refactor Map into its own class.
+  fun readImageFileDirectories(): List<Map<TiffTag, Any?>> {
     reader.byteOrder =
       when (val str = reader.readString(2)) {
         TiffConstants.BYTE_ORDER_LITTLE_ENDIAN -> ByteOrder.LITTLE_ENDIAN
@@ -36,40 +33,40 @@ class MogMetadataReader {
         else -> error("Invalid byte order: $str")
       }
 
+    // TODO: Add support for BigTIFF.
     if (reader.readUnsignedShort() != TiffConstants.FILE_IDENTIFIER) {
       error("Invalid or unsupported TIFF file identifier")
     }
 
     // Get the TIFF Image
-    return readIfds(reader)
+    return readIfds()
   }
 
-  private fun readIfds(reader: ByteReader): List<Map<TiffTag, Any?>> {
+  private fun readIfds(): List<Map<TiffTag, Any?>> {
     val ifdEntries = mutableListOf<Map<TiffTag, Any?>>()
     while (true) {
       val byteOffset = reader.readUnsignedInt()
-      if (byteOffset != 0L) break
+      if (byteOffset == 0L) break
       reader.setOffset(byteOffset)
-      val entries = readIfdEntries(reader)
+      val entries = readIfdEntries()
       ifdEntries.add(entries)
     }
     return ifdEntries
   }
 
-  private fun readIfdEntries(reader: ByteReader): Map<TiffTag, Any?> {
+  private fun readIfdEntries(): Map<TiffTag, Any?> {
     val entries = hashMapOf<TiffTag, Any?>()
     val entryCount = reader.readUnsignedShort()
-    // Read each entry and the values
-    for (entryNum in 0 until entryCount) {
+    repeat(entryCount) {
       val fieldTagValue = reader.readUnsignedShort()
       val fieldTag: TiffTag? = TiffTag.byId(fieldTagValue)
       val tagTypeId = reader.readUnsignedShort()
       val dataType: TiffTagDataType = TiffTagDataType.byId(tagTypeId)
-      val count = reader.readUnsignedInt()
+      val valueCount = reader.readUnsignedInt().toInt()
 
-      val nextByte = reader.offset
+      val valueOffset = reader.offset
 
-      val values = readFieldValues(reader, fieldTag, dataType, count)
+      val values = readFieldValues(fieldTag, dataType, valueCount)
 
       // Only store recognized fields.
       if (fieldTag != null) {
@@ -77,18 +74,17 @@ class MogMetadataReader {
       }
 
       // Scan back to next value in case we went off reading values which weren't inline.
-      reader.setOffset((nextByte + 4).toLong())
+      reader.setOffset((valueOffset + 4).toLong())
     }
     return entries
   }
 
   private fun readFieldValues(
-    reader: ByteReader,
     fieldTag: TiffTag?,
     dataType: TiffTagDataType,
-    count: Long
+    valueCount: Int
   ): Any? {
-    val fieldSize = dataType.bytes * count
+    val fieldSize = dataType.bytes * valueCount
     // Larger values aren't stored inline. Instead, a pointer to the offset of the actual values
     // is stored.
     if (fieldSize > 4) {
@@ -96,11 +92,11 @@ class MogMetadataReader {
       reader.setOffset(valueOffset)
     }
 
-    val valuesList = readValues(reader, dataType, count)
+    val valuesList = readValues(dataType, valueCount)
 
     // Get the single or array values
     return if (
-      count == 1L &&
+      valueCount == 1 &&
         fieldTag != null &&
         !fieldTag.isArray &&
         !(dataType == RATIONAL || dataType == SRATIONAL)
@@ -111,10 +107,9 @@ class MogMetadataReader {
     }
   }
 
-  fun readValues(reader: ByteReader, dataType: TiffTagDataType, count: Long): List<Any?> {
+  fun readValues(dataType: TiffTagDataType, valueCount: Int): List<Any?> {
     var values: MutableList<Any?> = ArrayList()
-    // TODO: Use UInt and repeat here instead.
-    for (i in 1..count) {
+    repeat(valueCount) {
       when (dataType) {
         ASCII -> values.add(reader.readString(1))
         BYTE,

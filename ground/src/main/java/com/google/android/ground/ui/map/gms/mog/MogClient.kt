@@ -62,7 +62,7 @@ class MogClient(val collection: MogCollection) {
       requests.addAll(getTileRequestsForPyramid(WORLD, tileBounds, loResZoomLevels))
     }
     if (hiResZoomLevels.isNotEmpty()) {
-      // Compute extents of first and last region covered by specified bounds.
+      // Compute tile coordinates of first and last MOG covered by specified bounds.
       val nwMogCoordinates = TileCoordinates.fromLatLng(tileBounds.northwest(), hiResMogMinZoom)
       val seMogCoordinates = TileCoordinates.fromLatLng(tileBounds.southeast(), hiResMogMinZoom)
       for (y in nwMogCoordinates.y..seMogCoordinates.y) {
@@ -189,8 +189,8 @@ class MogClient(val collection: MogCollection) {
     val startTimeMillis = System.currentTimeMillis()
     try {
       // This reads only headers and not the whole file.
-      val reader = MogMetadataReader()
-      val tagValues = reader.readImageFileDirectories(inputStream)
+      val reader = MogMetadataReader(inputStream)
+      val tagValues = reader.readImageFileDirectories()
       val imageMetadata = mutableListOf<MogImageMetadata>()
       // Only include image file directories with RGB image data. Mask images are skipped.
       // TODO: Render masked areas as transparent.
