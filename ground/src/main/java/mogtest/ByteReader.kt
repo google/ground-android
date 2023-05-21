@@ -23,19 +23,16 @@ import java.util.*
 
 @Deprecated(" delete me")
 class ByteReader(private val bytes: ByteArray) {
-  var pos = 0
+  var offset = 0
   var byteOrder: ByteOrder = ByteOrder.nativeOrder()
 
-  fun skipTo(newPos: Long) {
-    if (this.pos > newPos) {
-      println("!!!")
-    }
+  fun setOffset(newOffset: Long) {
     //    println("STEP: ${this.nextByte} -> $nextByte")
-    require(newPos >= this.pos) { "Can't scan backwards in stream" }
-    if (newPos >= bytes.size) {
-      error("Byte offset out of range. Total Bytes: " + bytes.size + ", Byte offset: " + newPos)
+//    require(newPos >= this.pos) { "Can't scan backwards in stream" }
+    if (newOffset >= bytes.size) {
+      error("Byte offset out of range. Total Bytes: " + bytes.size + ", Byte offset: " + newOffset)
     }
-    this.pos = newPos.toInt()
+    this.offset = newOffset.toInt()
   }
 
   /**
@@ -47,8 +44,8 @@ class ByteReader(private val bytes: ByteArray) {
    */
   @Throws(UnsupportedEncodingException::class)
   fun readString(num: Int): String? {
-    val value = readString(pos, num)
-    pos += num
+    val value = readString(offset, num)
+    offset += num
     return value
   }
 
@@ -76,8 +73,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return byte
    */
   fun readByte(): Byte {
-    val value = readByte(pos)
-    pos++
+    val value = readByte(offset)
+    offset++
     return value
   }
 
@@ -98,8 +95,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return unsigned byte as short
    */
   fun readUnsignedByte(): Short {
-    val value = readUnsignedByte(pos)
-    pos++
+    val value = readUnsignedByte(offset)
+    offset++
     return value
   }
 
@@ -119,8 +116,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return short
    */
   fun readShort(): Short {
-    val value = readShort(pos)
-    pos += 2
+    val value = readShort(offset)
+    offset += 2
     return value
   }
 
@@ -141,8 +138,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return unsigned short as int
    */
   fun readUnsignedShort(): Int {
-    val value = readUnsignedShort(pos)
-    pos += 2
+    val value = readUnsignedShort(offset)
+    offset += 2
     return value
   }
 
@@ -162,8 +159,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return integer
    */
   fun readInt(): Int {
-    val value = readInt(pos)
-    pos += 4
+    val value = readInt(offset)
+    offset += 4
     return value
   }
 
@@ -184,8 +181,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return unsigned int as long
    */
   fun readUnsignedInt(): Long {
-    val value = readUnsignedInt(pos)
-    pos += 4
+    val value = readUnsignedInt(offset)
+    offset += 4
     return value
   }
 
@@ -205,8 +202,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return float
    */
   fun readFloat(): Float {
-    val value = readFloat(pos)
-    pos += 4
+    val value = readFloat(offset)
+    offset += 4
     return value
   }
 
@@ -227,8 +224,8 @@ class ByteReader(private val bytes: ByteArray) {
    * @return double
    */
   fun readDouble(): Double {
-    val value = readDouble(pos)
-    pos += 8
+    val value = readDouble(offset)
+    offset += 8
     return value
   }
 

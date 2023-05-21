@@ -46,7 +46,6 @@ class MogTileReader(private val inputStream: InputStream) {
   }
 
   private fun skipToPos(newPos: Long) {
-    if (newPos < pos) error("Can't scan backwards in input stream")
     while (newPos > pos) {
       if (inputStream.read() == -1) error("Unexpected end of tile response")
       pos++

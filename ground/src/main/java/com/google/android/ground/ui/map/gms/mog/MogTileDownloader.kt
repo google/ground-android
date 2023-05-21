@@ -16,6 +16,14 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
+import android.graphics.Bitmap.CompressFormat
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.graphics.decodeBitmap
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import java.io.File
 
 /**
@@ -29,13 +37,19 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
    * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub-paths of
    * the form `{z}/{x}/{y}.jpg`.
    */
+  @RequiresApi(Build.VERSION_CODES.S)
   suspend fun downloadTiles(requests: List<MogTilesRequest>) {
+    // TODO: Return download status as Flow.
     client.getTiles(requests).collect { tile ->
       val (x, y, zoom) = tile.metadata.tileCoordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()
       val gmsTile = tile.toGmsTile()
-      File(path, "$y.jpg").writeBytes(gmsTile.data!!)
+      val img = BitmapFactory.decodeByteArray(gmsTile.data, 0, gmsTile.data!!.size)
+      File(path, "$y.jpg").outputStream().use {
+        img.compress(CompressFormat.JPEG, 100, it);
+      }
+//      File(path, "$y.jpg").writeBytes(gmsTile.data!!)
     }
   }
 }

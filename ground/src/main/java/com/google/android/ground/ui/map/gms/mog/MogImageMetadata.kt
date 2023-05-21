@@ -25,8 +25,8 @@ class MogImageMetadata(
   val tileWidth: Int,
   val tileLength: Int,
   val originTile: TileCoordinates,
-  val tileOffsetsByteRange: LongRange,
-  val byteCountsByteRange: LongRange,
+  val tileOffsets: List<Long>,
+  val byteCounts: List<Long>,
   val imageWidth: Int,
   val imageLength: Int,
   val jpegTables: ByteArray
@@ -43,8 +43,19 @@ class MogImageMetadata(
       x < tileCountX + originTile.x &&
       y < tileCountY + originTile.y
 
+  fun getByteRange(x: Int, y: Int): LongRange? {
+    if (!hasTile(x, y)) return null
+    val xIdx = x - originTile.x
+    val yIdx = y - originTile.y
+    val idx = yIdx * tileCountX + xIdx
+    if (idx > tileOffsets.size) throw IllegalArgumentException("idx > offsets")
+    val from = tileOffsets[idx]
+    val len = byteCounts[idx].toInt()
+    val to = from + len - 1
+    return from..to
+  }
+
   override fun toString(): String {
     return "MogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
   }
-
 }

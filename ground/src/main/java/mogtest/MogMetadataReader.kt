@@ -19,9 +19,8 @@ import java.io.InputStream
 import java.nio.ByteOrder
 import java.util.*
 import mogtest.TiffTagDataType.*
-import timber.log.Timber
 
-object MogMetadataReader {
+class MogMetadataReader {
   // TODO: Refactor Map into IDF class.
   fun readImageFileDirectories(stream: InputStream): List<Map<TiffTag, Any?>> {
     val bytes = IOUtils.streamBytes(stream)
@@ -30,79 +29,55 @@ object MogMetadataReader {
   }
 
   private fun readImageFileDirectories(reader: ByteReader): List<Map<TiffTag, Any?>> {
-
-    // Read the 2 bytes of byte order
-    var byteOrderString: String? = null
-    byteOrderString = reader.readString(2)
-
-    // Determine the byte order
-    var byteOrder: ByteOrder? = null
-    byteOrder =
-      when (byteOrderString) {
+    reader.byteOrder =
+      when (val str = reader.readString(2)) {
         TiffConstants.BYTE_ORDER_LITTLE_ENDIAN -> ByteOrder.LITTLE_ENDIAN
         TiffConstants.BYTE_ORDER_BIG_ENDIAN -> ByteOrder.BIG_ENDIAN
-        else -> error("Invalid byte order: $byteOrderString")
+        else -> error("Invalid byte order: $str")
       }
-    reader.byteOrder = byteOrder
 
-    // Validate the TIFF file identifier
-    val tiffIdentifier = reader.readUnsignedShort()
-    if (tiffIdentifier != TiffConstants.FILE_IDENTIFIER) {
-      error("Invalid file identifier, not a TIFF")
+    if (reader.readUnsignedShort() != TiffConstants.FILE_IDENTIFIER) {
+      error("Invalid or unsupported TIFF file identifier")
     }
 
-    // Get the offset in bytes of the first image file directory (IFD)
-    val byteOffset = reader.readUnsignedInt()
-
     // Get the TIFF Image
-    return readIfds(reader, byteOffset)
+    return readIfds(reader)
   }
 
-  private fun readIfds(reader: ByteReader, initialByteOffset: Long): List<Map<TiffTag, Any?>> {
-    var byteOffset = initialByteOffset
+  private fun readIfds(reader: ByteReader): List<Map<TiffTag, Any?>> {
     val ifdEntries = mutableListOf<Map<TiffTag, Any?>>()
-    while (byteOffset != 0L) {
-      println("OFFSET: $byteOffset")
-      ifdEntries.add(readIfdEntries(reader, byteOffset))
-      byteOffset = reader.readUnsignedInt()
+    while (true) {
+      val byteOffset = reader.readUnsignedInt()
+      if (byteOffset != 0L) break
+      reader.setOffset(byteOffset)
+      val entries = readIfdEntries(reader)
+      ifdEntries.add(entries)
     }
     return ifdEntries
   }
 
-  private fun readIfdEntries(reader: ByteReader, byteOffset: Long): Map<TiffTag, Any?> {
-    // Set the next byte to read from
-    reader.skipTo(byteOffset)
-
+  private fun readIfdEntries(reader: ByteReader): Map<TiffTag, Any?> {
     val entries = hashMapOf<TiffTag, Any?>()
-
-    // Read the number of directory entries
-    val numDirectoryEntries = reader.readUnsignedShort()
-
+    val entryCount = reader.readUnsignedShort()
     // Read each entry and the values
-    for (entryCount in 0 until numDirectoryEntries) {
-
-      // Read the field tag, field type, and type count
+    for (entryNum in 0 until entryCount) {
       val fieldTagValue = reader.readUnsignedShort()
       val fieldTag: TiffTag? = TiffTag.byId(fieldTagValue)
       val tagTypeId = reader.readUnsignedShort()
       val dataType: TiffTagDataType = TiffTagDataType.byId(tagTypeId)
       val count = reader.readUnsignedInt()
 
-      // Save off the next byte to read location
-      val nextByte = reader.pos
+      val nextByte = reader.offset
 
-      Timber.e("Pos before values: ${reader.pos}")
-
-      // Read the field values
       val values = readFieldValues(reader, fieldTag, dataType, count)
 
-      // Create and add a file directory if the tag is recognized.
+      // Only store recognized fields.
       if (fieldTag != null) {
         entries[fieldTag] = values
       }
 
-      // Restore the next byte to read location
-      reader.skipTo((nextByte + 4).toLong())
+      // Scan back to next value in case we went off reading values which weren't inline.
+      reader.setOffset((nextByte + 4).toLong())
     }
     return entries
   }
@@ -113,12 +88,12 @@ object MogMetadataReader {
     dataType: TiffTagDataType,
     count: Long
   ): Any? {
-    // Large values aren't stored inline, so we store a reference for retrieval in a separate
-    // request.
     val fieldSize = dataType.bytes * count
+    // Larger values aren't stored inline. Instead, a pointer to the offset of the actual values
+    // is stored.
     if (fieldSize > 4) {
       val valueOffset = reader.readUnsignedInt()
-      return LongRange(valueOffset, valueOffset + fieldSize)
+      reader.setOffset(valueOffset)
     }
 
     val valuesList = readValues(reader, dataType, count)
@@ -136,23 +111,10 @@ object MogMetadataReader {
     }
   }
 
-  /**
-   * Get the directory entry values
-   *
-   * @param reader byte reader
-   * @param dataType field type
-   * @param count type count
-   * @return values
-   */
-  fun readValues(
-    reader: ByteReader,
-    dataType: TiffTagDataType,
-    count: Long
-  ): List<Any?> {
+  fun readValues(reader: ByteReader, dataType: TiffTagDataType, count: Long): List<Any?> {
     var values: MutableList<Any?> = ArrayList()
-    Timber.e("TypeCount: $count")
-    // Use UInt and repeat here instead.
-    for(i in 1..count) {
+    // TODO: Use UInt and repeat here instead.
+    for (i in 1..count) {
       when (dataType) {
         ASCII -> values.add(reader.readString(1))
         BYTE,
