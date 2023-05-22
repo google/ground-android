@@ -98,7 +98,7 @@ constructor(
    */
   fun getLocalFileFromRemotePath(destinationPath: String): File {
     val filename = destinationPath.split('/').last()
-    require(filename.matches(strFilePattern))
+    require(filename.matches(strFilePattern)) { "Invalid filename $filename" }
     val file = File(rootDir, filename)
     if (!file.exists()) {
       Timber.e("File not found: %s", file.path)
