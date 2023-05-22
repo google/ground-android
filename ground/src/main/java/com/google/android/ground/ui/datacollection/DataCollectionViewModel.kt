@@ -78,8 +78,10 @@ internal constructor(
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  // TODO(#1541): Set loiId once Suggest LOI task is completed.
-  private val loiId: StateFlow<String?> = MutableStateFlow(savedStateHandle["locationOfInterestId"])
+  private val loiIdKey = "locationOfInterestId"
+  // TODO(jsunde): Set up a proper StateFlow for this SavedStateHandle data
+  private val loiId: StateFlow<String?> = savedStateHandle.getStateFlow(loiIdKey, null)
+
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
@@ -257,14 +259,17 @@ internal constructor(
     externalScope.launch(ioDispatcher) {
       val geometry = suggestLoiGeometry.value
       if (job.suggestLoiTaskType != null && geometry != null) {
+        val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
+        savedStateHandle[loiIdKey] = loi.id
+
         locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId)
       }
 
-      val submission = submission.value!!
-
-      submissionRepository
-        .createOrUpdateSubmission(submission, taskDataDeltas, isNew = true)
-        .blockingAwait()
+      submission.collect {
+        submissionRepository
+          .createOrUpdateSubmission(it!!, taskDataDeltas, isNew = true)
+          .blockingAwait()
+      }
     }
   }
 

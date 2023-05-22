@@ -16,8 +16,10 @@
 package com.google.android.ground.repository
 
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -28,6 +30,7 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import io.reactivex.Completable
@@ -49,7 +52,8 @@ constructor(
   private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val authManager: AuthenticationManager
+  private val authManager: AuthenticationManager,
+  private val uuidGenerator: OfflineUuidGenerator,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
@@ -76,6 +80,18 @@ constructor(
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
+
+  fun createLocationOfInterest(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
+    val auditInfo = AuditInfo(authManager.currentUser)
+    return LocationOfInterest(
+      id = uuidGenerator.generateUuid(),
+      surveyId = surveyId,
+      geometry = geometry,
+      job = job,
+      created = auditInfo,
+      lastModified = auditInfo
+    )
+  }
 
   fun createLocationOfInterestForGeometry(geometry: Geometry, surveyId: String): @Cold Completable =
     applyAndEnqueue(
