@@ -58,6 +58,7 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.serialization.decodeFromHexString
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.protobuf.ProtoBuf
+import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -87,8 +88,10 @@ internal constructor(
   private val suggestLoiGeometryKey = "suggestedLocationOfInterestGeometry"
   // Serialized SuggestLoi Geometry
   private val suggestLoiGeometry: StateFlow<Geometry?> =
-    MutableStateFlow<String?>(savedStateHandle[suggestLoiGeometryKey])
+    savedStateHandle.getStateFlow<String?>(suggestLoiGeometryKey, null)
       .map {
+        // TODO(jsunde): Remove additional logs before submitting
+        Timber.e("[DEBUG123] mapping geometry: $it")
         if (it != null) {
           ProtoBuf.decodeFromHexString<Geometry>(it)
         } else {
@@ -127,6 +130,7 @@ internal constructor(
   val submission: StateFlow<Submission?> =
     loiId
       .flatMapLatest {
+        Timber.e("[DEBUG123] mapping loiId to Submission, loiId: $it")
         if (it == null) flowOf(null)
         else submissionRepository.createSubmission(surveyId, it).toFlowable().asFlow()
       }
@@ -244,8 +248,12 @@ internal constructor(
     when (val taskData = taskViewModel.taskDataFlow.value) {
       is LocationTaskData -> {
         // Update suggested LOI
+        Timber.e("[DEBUG123] Setting geometry: ${taskData.cameraPosition.target}")
+        Timber.e("[DEBUG123] Setting geometry, encoded geometry: ${ProtoBuf.encodeToHexString(Point(taskData.cameraPosition.target))}")
         savedStateHandle[suggestLoiGeometryKey] =
           ProtoBuf.encodeToHexString(Point(taskData.cameraPosition.target))
+
+        Timber.e("[DEBUG123] Setting geometry, persisted geometry: ${savedStateHandle.get<String>(suggestLoiGeometryKey)}")
       }
       else -> {
         // TODO(#1351): Process result of DRAW_POLYGON task
@@ -256,18 +264,23 @@ internal constructor(
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(taskDataDeltas: List<TaskDataDelta>) {
     externalScope.launch(ioDispatcher) {
-      val geometry = suggestLoiGeometry.value
-      if (job.suggestLoiTaskType != null && geometry != null) {
-        val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
-        savedStateHandle[loiIdKey] = loi.id
+      suggestLoiGeometry.collect {
+        val geometry = it
+        Timber.e("[DEBUG123] Setting loiId, geometry: $geometry")
+        if (job.suggestLoiTaskType != null && geometry != null) {
+          val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
+          Timber.e("[DEBUG123] Setting loiId: ${loi.id}")
+          savedStateHandle[loiIdKey] = loi.id
 
-        locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId)
-      }
+          locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId)
+        }
 
-      submission.collect {
-        submissionRepository
-          .createOrUpdateSubmission(it!!, taskDataDeltas, isNew = true)
-          .blockingAwait()
+        submission.collect {
+          Timber.e("[DEBUG123] Trying to write user responses, submission: $it")
+          submissionRepository
+            .createOrUpdateSubmission(it!!, taskDataDeltas, isNew = true)
+            .blockingAwait()
+        }
       }
     }
   }
