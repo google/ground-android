@@ -21,34 +21,32 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
-class MogTileReader(private val inputStream: InputStream) {
-  private var pos: Long = Long.MAX_VALUE
+class MogTileReader(private val inputStream: InputStream, initialOffset: Long) {
+  private var offset: Long = initialOffset
 
   fun readTiles(tiles: List<MogTileMetadata>): Flow<MogTile> = flow {
     tiles.forEach { emit(readTile(it)) }
   }
 
-  private suspend fun readTile(metadata: MogTileMetadata): MogTile {
-    val tileReader = MogTileReader(inputStream)
+  private fun readTile(tileMetadata: MogTileMetadata): MogTile {
     val startTimeMillis = System.currentTimeMillis()
-    val tileData = tileReader.readTileData(metadata.byteRange)
+    val tileData = readTileData(tileMetadata.byteRange)
     val time = System.currentTimeMillis() - startTimeMillis
-    Timber.d("Read tile ${metadata.tileCoordinates}: ${tileData.size} in $time ms")
-
-    return MogTile(metadata, tileData)
+    Timber.d("Read tile ${tileMetadata.tileCoordinates}: ${tileData.size} in $time ms")
+    return MogTile(tileMetadata, tileData)
   }
 
   private fun readTileData(byteRange: TileByteRange): ByteArray {
     // Skip bytes for non-contiguous tile byte ranges.
-    skipToPos(byteRange.first)
+    skipToOffset(byteRange.first)
 
     return readTileData(byteRange.count())
   }
 
-  private fun skipToPos(newPos: Long) {
-    while (newPos > pos) {
+  private fun skipToOffset(newOffset: Long) {
+    while (offset < newOffset) {
       if (inputStream.read() == -1) error("Unexpected end of tile response")
-      pos++
+      offset++
     }
   }
 
@@ -60,7 +58,7 @@ class MogTileReader(private val inputStream: InputStream) {
       val b = inputStream.read()
       if (b < 0) break
       bytes[bytesRead++] = b.toByte()
-      pos++
+      offset++
     }
     if (bytesRead < numBytes) {
       Timber.w("Too few bytes received. Expected $numBytes, got $bytesRead")

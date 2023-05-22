@@ -90,7 +90,9 @@ class MogClient(val collection: MogCollection) {
    */
   private fun getTiles(tilesRequest: MogTilesRequest): Flow<MogTile> = flow {
     UrlInputStream(tilesRequest.sourceUrl, tilesRequest.byteRange).use { inputStream ->
-      emitAll(MogTileReader(inputStream).readTiles(tilesRequest.tiles))
+      emitAll(
+        MogTileReader(inputStream, tilesRequest.byteRange.first).readTiles(tilesRequest.tiles)
+      )
     }
   }
   //  private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? =
