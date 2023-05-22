@@ -18,8 +18,8 @@ package com.google.android.ground.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import kotlin.system.measureTimeMillis
 import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +30,6 @@ import org.robolectric.annotation.ConscryptMode.Mode.OFF
 @RunWith(RobolectricTestRunner::class)
 @ConscryptMode(OFF)
 class MogTileDownloaderTest {
-  @OptIn(ExperimentalTime::class)
   @Test
   fun downloadTiles() = runBlocking {
     // Aceh province.
@@ -41,21 +40,24 @@ class MogTileDownloaderTest {
 
     println("Fetching headers...")
     val requests: List<MogTilesRequest>
-    val headerLoadSecs =
-      measureTime { requests = client.getTilesRequests(aoi, 0..14) }.inWholeSeconds
+    val headerLoadTimeMillis = measureTimeMillis { requests = client.getTilesRequests(aoi, 0..14) }
     val numRequests = requests.size
     val numFiles = requests.map { it.sourceUrl }.distinct().size
     val numTiles = requests.sumOf { it.tiles.count() }
-    println("...in %.1fs".format(headerLoadSecs))
+    println("...in %.1fs".format(headerLoadTimeMillis / 1000))
     println("# requests: $numRequests")
     println("# files:    $numFiles")
     println("# tiles:    $numTiles")
 
     // Download!
-    val downloadSecs =
-      measureTime { MogTileDownloader(client, "/tmp/tiles").downloadTiles(requests) }.inWholeSeconds
+    val downloadTimeMillis = measureTimeMillis {
+      MogTileDownloader(client, "/tmp/tiles").downloadTiles(requests)
+    }
     println(
-      "Downloaded $numTiles in %.1fs (%.1fs/tile)".format(downloadSecs, downloadSecs / numTiles)
+      "Downloaded $numTiles in %.1fs (%dms/tile)".format(
+        downloadTimeMillis / 1000,
+        downloadTimeMillis / numTiles
+      )
     )
   }
 }
