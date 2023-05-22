@@ -54,9 +54,9 @@ class MogTileDownloaderTest {
       MogTileDownloader(client, "/tmp/tiles").downloadTiles(requests)
     }
     println(
-      "Downloaded $numTiles in %.1fs (%dms/tile)".format(
+      "Downloaded $numTiles in %.1fs (%dms / tile)".format(
         downloadTimeMillis / 1000.0,
-        downloadTimeMillis / numTiles
+        downloadTimeMillis.toDouble() / numTiles
       )
     )
   }
