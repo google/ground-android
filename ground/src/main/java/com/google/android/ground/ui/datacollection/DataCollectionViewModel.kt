@@ -79,7 +79,6 @@ internal constructor(
 ) : AbstractViewModel() {
 
   private val loiIdKey = "locationOfInterestId"
-  // TODO(jsunde): Set up a proper StateFlow for this SavedStateHandle data
   private val loiId: StateFlow<String?> = savedStateHandle.getStateFlow(loiIdKey, null)
 
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
