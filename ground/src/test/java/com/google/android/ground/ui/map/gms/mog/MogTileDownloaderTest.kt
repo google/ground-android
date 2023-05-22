@@ -44,7 +44,7 @@ class MogTileDownloaderTest {
     val numRequests = requests.size
     val numFiles = requests.map { it.sourceUrl }.distinct().size
     val numTiles = requests.sumOf { it.tiles.count() }
-    println("...in %.1fs".format(headerLoadTimeMillis / 1000))
+    println("...in %.1fs".format(headerLoadTimeMillis / 1000.0))
     println("# requests: $numRequests")
     println("# files:    $numFiles")
     println("# tiles:    $numTiles")
@@ -55,7 +55,7 @@ class MogTileDownloaderTest {
     }
     println(
       "Downloaded $numTiles in %.1fs (%dms/tile)".format(
-        downloadTimeMillis / 1000,
+        downloadTimeMillis / 1000.0,
         downloadTimeMillis / numTiles
       )
     )
