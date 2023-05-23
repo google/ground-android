@@ -16,4 +16,7 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-typealias TileByteRange = LongRange
+/**
+ * The start and end indices (both inclusive) of relevant data in a resource.
+ */
+typealias ContentRange = LongRange

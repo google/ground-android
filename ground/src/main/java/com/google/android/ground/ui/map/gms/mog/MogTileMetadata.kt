@@ -21,7 +21,7 @@ data class MogTileMetadata(
   val width: Int,
   val height: Int,
   val jpegTables: ByteArray,
-  val byteRange: TileByteRange
+  val byteRange: ContentRange
 ) {
   // Default [equals] and [hashCode] behavior doesn't take array members into account. Defend
   // against accidental usage by throwing exception if called.

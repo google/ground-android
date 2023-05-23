@@ -18,7 +18,7 @@ package com.google.android.ground.ui.map.gms.mog
 
 /** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
 class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
-  val byteRange = TileByteRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
+  val byteRange = ContentRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
 }
 
 class MutableMogTilesRequest(var sourceUrl: String) {

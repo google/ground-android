@@ -36,7 +36,7 @@ class MogTileReader(private val inputStream: InputStream, initialOffset: Long) {
     return MogTile(tileMetadata, tileData)
   }
 
-  private fun readTileData(byteRange: TileByteRange): ByteArray {
+  private fun readTileData(byteRange: ContentRange): ByteArray {
     // Skip bytes for non-contiguous tile byte ranges.
     skipToOffset(byteRange.first)
 

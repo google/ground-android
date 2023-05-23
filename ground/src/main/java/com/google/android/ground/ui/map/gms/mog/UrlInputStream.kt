@@ -28,7 +28,7 @@ const val READ_TIMEOUT_MS = 5 * 1000
  * @constructor Creates a [UrlInputStream] by opening a connection to an actual URL, requesting the
  *   specified [byteRange] if specified.
  */
-class UrlInputStream(private val url: String, private val byteRange: LongRange? = null) :
+class UrlInputStream(private val url: String, private val byteRange: ContentRange? = null) :
   InputStream() {
   private val inputStream: InputStream
 

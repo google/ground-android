@@ -40,7 +40,7 @@ class MogImageMetadata(
       x < tileCountX + originTile.x &&
       y < tileCountY + originTile.y
 
-  fun getByteRange(x: Int, y: Int): LongRange? {
+  fun getByteRange(x: Int, y: Int): ContentRange? {
     if (!hasTile(x, y)) return null
     val xIdx = x - originTile.x
     val yIdx = y - originTile.y
