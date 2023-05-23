@@ -25,7 +25,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
-import mogtest.*
 import timber.log.Timber
 
 /** Client responsible for fetching MOG metadata and image tiles. */
@@ -33,14 +32,16 @@ class MogClient(val collection: MogCollection) {
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
-  @Suppress("MemberVisibilityCanBePrivate")
-  suspend fun getMogMetadata(bounds: TileCoordinates): MogMetadata? =
-    getMogMetadata(collection.getMogUrl(bounds), bounds)
+  suspend fun getTile(tileCoordinates: TileCoordinates): MogTile? {
+    val mogMetadata = getMogMetadataForTile(tileCoordinates) ?: return null
+    val tileMetadata = getTileMetadata(mogMetadata, tileCoordinates) ?: return null
+    val requests = getTileRequests(mogMetadata, listOf(tileMetadata))
+    return getTiles(requests).first()
+  }
 
-  //  fun getTiles(mogTileSetRequests: List<MogTileSetRequest>): Flow<Pair<TileCoordinates, Tile>> =
-  //    flow {
-  //      mogTileSetRequests.forEach { emitAll(getTiles(it)) }
-  //    }
+  @Suppress("MemberVisibilityCanBePrivate")
+  suspend fun getMogMetadata(mogBounds: TileCoordinates): MogMetadata? =
+    getMogMetadata(collection.getMogUrl(mogBounds), mogBounds)
 
   /**
    * Returns the byte ranges of tiles overlapping the specified [tileBounds] and [zoomRange]s,
@@ -95,11 +96,11 @@ class MogClient(val collection: MogCollection) {
       )
     }
   }
-  //  private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? =
-  //    getMogMetadata(collection.getMogCoordinatesForTile(tileCoordinates))
+  private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? =
+    getMogMetadata(collection.getMogCoordinatesForTile(tileCoordinates))
 
-  //  suspend fun getImageMetadataForTile(tileCoordinates: TileCoordinates) =
-  //    getMogMetadataForTile(tileCoordinates)?.getImageMetadata(tileCoordinates.zoom)
+  private suspend fun getImageMetadataForTile(tileCoordinates: TileCoordinates) =
+    getMogMetadataForTile(tileCoordinates)?.getImageMetadata(tileCoordinates.zoom)
 
   private suspend fun getTileRequestsForPyramid(
     mogCoordinates: TileCoordinates,
@@ -107,7 +108,7 @@ class MogClient(val collection: MogCollection) {
     zoomLevels: List<Int>
   ): List<MogTilesRequest> {
     val mogMetadata = getMogMetadata(mogCoordinates) ?: return listOf()
-    val tiles = zoomLevels.flatMap { zoom -> tileMetadataAtZoom(mogMetadata, tileBounds, zoom) }
+    val tiles = zoomLevels.flatMap { zoom -> getTileMetadata(mogMetadata, tileBounds, zoom) }
     return getTileRequests(mogMetadata, tiles)
   }
 
@@ -127,7 +128,7 @@ class MogClient(val collection: MogCollection) {
     return tilesRequests.map { it.toTilesRequest() }
   }
 
-  private suspend fun tileMetadataAtZoom(
+  private suspend fun getTileMetadata(
     mogMetadata: MogMetadata,
     tileBounds: LatLngBounds,
     zoom: Int
@@ -192,19 +193,14 @@ class MogClient(val collection: MogCollection) {
     try {
       // This reads only headers and not the whole file.
       val reader = MogMetadataReader(inputStream)
-      val tagValues = reader.readImageFileDirectories()
+      val ifds = reader.readImageFileDirectories()
       val imageMetadata = mutableListOf<MogImageMetadata>()
       // Only include image file directories with RGB image data. Mask images are skipped.
       // TODO: Render masked areas as transparent.
-      val rgbIfds =
-        tagValues.filter {
-          (it[TiffTag.PhotometricInterpretation] as Int).and(
-            TiffConstants.PHOTOMETRIC_INTERPRETATION_RGB
-          ) != 0
-        }
+
       // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = mogBounds.zoom + rgbIfds.size - 1
-      rgbIfds.forEachIndexed { i, entry ->
+      val maxZ = mogBounds.zoom + ifds.size - 1
+      ifds.forEachIndexed { i, entry ->
         imageMetadata.add(
           MogImageMetadata(
             entry[TiffTag.TileWidth] as Int,
@@ -215,7 +211,7 @@ class MogClient(val collection: MogCollection) {
             entry[TiffTag.TileByteCounts] as List<Long>,
             entry[TiffTag.ImageWidth] as Int,
             entry[TiffTag.ImageLength] as Int,
-            (entry[TiffTag.JPEGTables] as List<*>?)?.map { (it as Short).toByte() }?.toByteArray()
+            (entry[TiffTag.JPEGTables] as List<*>?)?.map { (it as Int).toByte() }?.toByteArray()
               ?: byteArrayOf()
           )
         )

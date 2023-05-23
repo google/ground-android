@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package mogtest
+package com.google.android.ground.ui.map.gms.mog
 
 enum class TiffTagDataType(
   /** Number of bytes per field value. */

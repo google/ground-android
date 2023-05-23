@@ -16,11 +16,6 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import com.google.android.gms.maps.model.Tile
-import java.io.ByteArrayOutputStream
-
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
 @Suppress("MemberVisibilityCanBePrivate")
 class MogCollection(

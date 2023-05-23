@@ -299,6 +299,8 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+
+    implementation "com.google.guava:guava:31.1-android"
 }
 
 // Allow references to generated code.

@@ -27,8 +27,7 @@ class MogTileProvider(collection: MogCollection) : TileProvider {
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {
     val tileCoordinates = TileCoordinates(x, y, zoom)
     try {
-      null
-//      client.getTile(tileCoordinates)?.toGmsTile()
+      client.getTile(tileCoordinates)?.toGmsTile()
     } catch (e: Throwable) {
       // Maps SDK doesn't log exceptions thrown by [TileProvider] implementations, so we do it here.
       Timber.d(e, "Error fetching tile at $tileCoordinates")

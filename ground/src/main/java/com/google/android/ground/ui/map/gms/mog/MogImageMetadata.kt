@@ -16,9 +16,6 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import java.io.InputStream
-import timber.log.Timber
-
 /** Metadata describing a single full-resolution or overview image in a MOG. */
 @Suppress("MemberVisibilityCanBePrivate")
 class MogImageMetadata(
