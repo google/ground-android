@@ -31,24 +31,6 @@ enum class TiffTag(val id: Int, val isArray: Boolean) {
    * @return tag id
    */
   companion object {
-    /** Mapping between ids and field tag types */
-    private val idMapping: MutableMap<Int, TiffTag> = HashMap()
-
-    /** Load the id mapping */
-    init {
-      for (fieldTag in values()) {
-        idMapping[fieldTag.id] = fieldTag
-      }
-    }
-
-    /**
-     * Get a field tag type by id
-     *
-     * @param id tag id
-     * @return field tag type
-     */
-    fun byId(id: Int): TiffTag? {
-      return idMapping[id]
-    }
+    val byId: Map<Int, TiffTag> = values().associateBy { it.id }
   }
 }

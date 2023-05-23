@@ -15,59 +15,55 @@
  */
 package com.google.android.ground.ui.map.gms.mog
 
+/**
+ * Not all types are used by this implementation, but all are included here for completeness.
+ */
 enum class TiffTagDataType(
-  /** Number of bytes per field value. */
-  val bytes: Int
+  /** Number of bytes occupied by a single value of this type. */
+  val sizeInBytes: Int
 ) {
-  /** 8-bit unsigned integer */
+  /** 8-bit unsigned integer. */
   BYTE(1),
 
-  /** 8-bit byte that contains a 7-bit ASCII code; the last byte must be NUL (binary zero) */
+  /** A NUL (0) terminated ASCII string. */
   ASCII(1),
 
-  /** 16-bit (2-byte) unsigned integer */
+  /** 16-bit (2-byte) unsigned integer. */
   SHORT(2),
 
-  /** 32-bit (4-byte) unsigned integer */
+  /** 32-bit (4-byte) unsigned integer. */
   LONG(4),
 
-  /** Two LONGs: the first represents the numerator of a fraction; the second, the denominator */
+  /** Two LONG values representing the numerator and denominator of a fraction, respectively. */
   RATIONAL(8),
 
-  /** An 8-bit signed (twos-complement) integer */
+  /** An 8-bit signed (two's complement) integer. */
   SBYTE(1),
 
-  /** An 8-bit byte that may contain anything, depending on the definition of the field */
+  /** An 8-bit value whose interpretation is tag dependent. */
   UNDEFINED(1),
 
-  /** A 16-bit (2-byte) signed (twos-complement) integer */
+  /** A 16-bit (2-byte) signed (two's complement) integer. */
   SSHORT(2),
 
-  /** A 32-bit (4-byte) signed (twos-complement) integer */
+  /** A 32-bit (4-byte) signed (two's ccomplement) integer. */
   SLONG(4),
 
-  /** Two SLONG’s: the first represents the numerator of a fraction, the second the denominator */
+  /** Two SLONG values representing the numerator and denominator of a fraction, respectively. */
   SRATIONAL(8),
 
-  /** Single precision (4-byte) IEEE format */
+  /** Single precision (4-byte) IEEE floating point number. */
   FLOAT(4),
 
-  /** Double precision (8-byte) IEEE format */
+  /** Double precision (8-byte) IEEE floating point number. */
   DOUBLE(8);
-  /**
-   * Get the number of bytes per value
-   *
-   * @return number of bytes
-   */
-  val id: Int
-    get() = ordinal + 1
 
   companion object {
     fun byId(id: Int): TiffTagDataType =
       try {
         values()[id - 1]
       } catch (e: ArrayIndexOutOfBoundsException) {
-        error("Unknown field type value $id")
+        error("Unsupported tag data type $id")
       }
   }
 }

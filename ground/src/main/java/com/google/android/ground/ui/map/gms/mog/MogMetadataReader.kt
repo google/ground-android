@@ -56,7 +56,7 @@ class MogMetadataReader(sourceStream: InputStream) {
   private fun createDataInput(byteOrderCode: String): DataInput =
     when (byteOrderCode) {
       BYTE_ORDER_LITTLE_ENDIAN ->
-        // TODO: Upgrade to Guava 31.2 once released and remove @Supress.
+        // TODO: Upgrade to Guava 31.2 once released and remove @Suppress.
         @Suppress("UnstableApiUsage") LittleEndianDataInputStream(seekable)
       BYTE_ORDER_BIG_ENDIAN -> DataInputStream(seekable)
       else -> error("Invalid byte order: $byteOrderCode")
@@ -78,7 +78,7 @@ class MogMetadataReader(sourceStream: InputStream) {
     val entries = hashMapOf<TiffTag, Any?>()
     val entryCount = dataInput.readUnsignedShort()
     repeat(entryCount) {
-      val tag: TiffTag? = TiffTag.byId(dataInput.readUnsignedShort())
+      val tag: TiffTag? = TiffTag.byId[dataInput.readUnsignedShort()]
       val dataType: TiffTagDataType = TiffTagDataType.byId(dataInput.readUnsignedShort())
       val dataCount = dataInput.readUnsignedInt().toInt()
 
@@ -98,7 +98,7 @@ class MogMetadataReader(sourceStream: InputStream) {
   }
 
   private fun readTagData(fieldTag: TiffTag?, dataType: TiffTagDataType, valueCount: Int): Any? {
-    val fieldSize = dataType.bytes * valueCount
+    val fieldSize = dataType.sizeInBytes * valueCount
     // Larger values aren't stored inline. Instead, a pointer to the position of the actual values
     // is stored.
     if (fieldSize > 4) {
