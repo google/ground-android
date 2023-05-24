@@ -17,7 +17,10 @@ package com.google.android.ground.model.geometry
 
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.ui.map.gms.toLatLng
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 
 /** A common ancestor for all geometry types. */
 @Serializable
@@ -43,24 +46,28 @@ sealed interface Geometry {
  * shell ring.
  */
 @Serializable
+@SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override val vertices: List<Point> = shell.vertices
 }
 
 /** Represents a single point. */
 @Serializable
+@SerialName("point")
 data class Point(val coordinate: Coordinate) : Geometry {
   override val vertices: List<Point> = listOf(this)
 }
 
 /** A collection of [Polygon]s. */
 @Serializable
+@SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override val vertices: List<Point> = polygons.flatMap { it.vertices }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
 @Serializable
+@SerialName("line_string")
 data class LineString(val coordinates: List<Coordinate>) : Geometry {
   override val vertices: List<Point> = coordinates.map { Point(it) }
 }
@@ -70,6 +77,7 @@ data class LineString(val coordinates: List<Coordinate>) : Geometry {
  * equal.
  */
 @Serializable
+@SerialName("linear_ring")
 data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
 
   init {
@@ -116,3 +124,11 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
   fun contains(other: LinearRing) =
     this.maximum() >= other.maximum() && this.minimum() <= other.minimum()
 }
+
+val geometrySerializer = Json { SerializersModule {
+  polymorphic(Geometry::class, Point::class, Point.serializer())
+  polymorphic(Geometry::class, Polygon::class, Polygon.serializer())
+  polymorphic(Geometry::class, MultiPolygon::class, MultiPolygon.serializer())
+  polymorphic(Geometry::class, LineString::class, LineString.serializer())
+  polymorphic(Geometry::class, LinearRing::class, LinearRing.serializer())
+} }

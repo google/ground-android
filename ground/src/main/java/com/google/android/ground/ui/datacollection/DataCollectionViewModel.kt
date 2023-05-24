@@ -23,6 +23,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.geometrySerializer
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.Task
@@ -55,9 +56,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.serialization.decodeFromHexString
-import kotlinx.serialization.encodeToHexString
-import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
@@ -87,18 +87,19 @@ internal constructor(
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
   private val suggestLoiGeometryKey = "suggestedLocationOfInterestGeometry"
   // Serialized SuggestLoi Geometry
+  private val encodedGeometryStateFlow: StateFlow<String?> = savedStateHandle.getStateFlow<String?>(suggestLoiGeometryKey, null)
   private val suggestLoiGeometry: StateFlow<Geometry?> =
-    savedStateHandle.getStateFlow<String?>(suggestLoiGeometryKey, null)
+    encodedGeometryStateFlow
       .map {
         // TODO(jsunde): Remove additional logs before submitting
         Timber.e("[DEBUG123] mapping geometry: $it")
         if (it != null) {
-          ProtoBuf.decodeFromHexString<Geometry>(it)
+          geometrySerializer.decodeFromString<Geometry>(it)
         } else {
           it
         }
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+      .stateIn(viewModelScope, SharingStarted.Eagerly, null)
   val tasks: List<Task> = buildList {
     when (val suggestTaskType = job.suggestLoiTaskType) {
       Task.Type.DROP_A_PIN ->
@@ -249,9 +250,11 @@ internal constructor(
       is LocationTaskData -> {
         // Update suggested LOI
         Timber.e("[DEBUG123] Setting geometry: ${taskData.cameraPosition.target}")
-        Timber.e("[DEBUG123] Setting geometry, encoded geometry: ${ProtoBuf.encodeToHexString(Point(taskData.cameraPosition.target))}")
-        savedStateHandle[suggestLoiGeometryKey] =
-          ProtoBuf.encodeToHexString(Point(taskData.cameraPosition.target))
+        Timber.e("[DEBUG123] Setting geometry, encoded geometry: ${geometrySerializer.encodeToString(Point(taskData.cameraPosition.target))}")
+        val encodedLoi = geometrySerializer.encodeToString(Point(taskData.cameraPosition.target))
+//        Timber.e("[DEBUG123] Setting geometry, decoded Point: ${geometrySerializer.decodeFromString<Point>(encodedLoi)}")
+//        Timber.e("[DEBUG123] Setting geometry, decoded Geometry: ${geometrySerializer.decodeFromString<Geometry>(encodedLoi)}")
+        savedStateHandle[suggestLoiGeometryKey] = encodedLoi
 
         Timber.e("[DEBUG123] Setting geometry, persisted geometry: ${savedStateHandle.get<String>(suggestLoiGeometryKey)}")
       }
@@ -272,7 +275,7 @@ internal constructor(
           Timber.e("[DEBUG123] Setting loiId: ${loi.id}")
           savedStateHandle[loiIdKey] = loi.id
 
-          locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId)
+          locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId).blockingAwait()
         }
 
         submission.collect {
