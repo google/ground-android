@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.home.mapcontainer.cards
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -59,22 +60,8 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   /** Binds [LocationOfInterest] data to [LoiViewHolder] or [SuggestLoiViewHolder]. */
   override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-    val uiData: MapCardUiData = itemsList[position]
-
-    var loiCard: MaterialCardView
-    when (uiData) {
-      is MapCardUiData.LoiCardUiData -> {
-        with(holder as LoiViewHolder) {
-          bind(uiData.loi)
-          loiCard = binding.loiCard
-        }
-      }
-      is MapCardUiData.SuggestLoiCardUiData ->
-        with(holder as SuggestLoiViewHolder) {
-          bind(uiData.job)
-          loiCard = binding.loiCard
-        }
-    }
+    val uiData = itemsList[position]
+    val cardHolder = bindViewHolder(uiData, holder)
 
     // TODO(#1483): Selected card color should match job color
     // Add highlight border if selected.
@@ -85,10 +72,8 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
       } else {
         R.drawable.loi_card_default_background
       }
-    loiCard.background =
-      ResourcesCompat.getDrawable(holder.itemView.context.resources, borderDrawable, null)
-
-    loiCard.setOnClickListener { collectDataListener.invoke(uiData) }
+    cardHolder.setCardBackground(borderDrawable)
+    cardHolder.setOnClickListener { collectDataListener(uiData) }
   }
 
   /** Returns the size of the list. */
@@ -119,9 +104,34 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     this.collectDataListener = listener
   }
 
+  private fun bindViewHolder(
+    uiData: MapCardUiData,
+    holder: RecyclerView.ViewHolder
+  ): CardViewHolder =
+    when (uiData) {
+      is MapCardUiData.LoiCardUiData -> {
+        (holder as LoiViewHolder).apply { bind(uiData.loi) }
+      }
+      is MapCardUiData.SuggestLoiCardUiData -> {
+        (holder as SuggestLoiViewHolder).apply { bind(uiData.job) }
+      }
+    }
+
+  abstract class CardViewHolder(itemView: View, private val cardView: MaterialCardView) :
+    RecyclerView.ViewHolder(itemView) {
+
+    fun setCardBackground(borderDrawable: Int) {
+      with(cardView) { background = ResourcesCompat.getDrawable(resources, borderDrawable, null) }
+    }
+
+    fun setOnClickListener(callback: () -> Unit) {
+      cardView.setOnClickListener { callback() }
+    }
+  }
+
   /** View item representing the [LocationOfInterest] data in the list. */
   class LoiViewHolder(internal val binding: LoiCardItemBinding) :
-    RecyclerView.ViewHolder(binding.root) {
+    CardViewHolder(binding.root, binding.loiCard) {
 
     fun bind(loi: LocationOfInterest) {
       binding.viewModel = LoiCardViewModel(loi)
@@ -130,7 +140,7 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   /** View item representing the Suggestion Loi Job data in the list. */
   class SuggestLoiViewHolder(internal val binding: SuggestLoiCardItemBinding) :
-    RecyclerView.ViewHolder(binding.root) {
+    CardViewHolder(binding.root, binding.loiCard) {
 
     fun bind(job: Job) {
       binding.viewModel = SuggestLoiCardViewModel(job)
