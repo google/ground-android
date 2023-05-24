@@ -16,23 +16,22 @@
 package com.google.android.ground.ui.datacollection
 
 import android.content.res.Resources
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.*
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
-import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
@@ -54,56 +53,32 @@ import kotlin.collections.component2
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
-import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DataCollectionViewModel
 @Inject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
-  private val submissionRepository: SubmissionRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
   private val navigator: Navigator,
+  private val submitDataUseCase: SubmitDataUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
   private val resources: Resources,
-  private val authManager: AuthenticationManager,
+  locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val loiIdKey = "locationOfInterestId"
-  private val loiId: StateFlow<String?> = savedStateHandle.getStateFlow(loiIdKey, null)
-
+  private val loiId: String? = savedStateHandle["locationOfInterestId"]
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
-  private val suggestLoiGeometryKey = "suggestedLocationOfInterestGeometry"
-  // Serialized SuggestLoi Geometry
-  private val encodedGeometryStateFlow: StateFlow<ByteArray?> =
-    savedStateHandle.getStateFlow<ByteArray?>(suggestLoiGeometryKey, null)
-  private val suggestLoiGeometry: StateFlow<GeometryWrapper?> =
-    encodedGeometryStateFlow
-      .map {
-        // TODO(jsunde): Remove additional logs before submitting
-        Timber.e("[DEBUG123] mapping geometry: $it")
-        if (it != null) {
-          GeometryWrapperTypeConverter.fromByteArray(
-            it
-          ) // geometrySerializer.decodeFromString<Geometry>(it)
-        } else {
-          it
-        }
-      }
-      .stateIn(viewModelScope, SharingStarted.Eagerly, null)
   val tasks: List<Task> = buildList {
     when (val suggestTaskType = job.suggestLoiTaskType) {
       Task.Type.DROP_A_PIN ->
@@ -132,28 +107,17 @@ internal constructor(
   }
 
   val surveyId: String = surveyRepository.lastActiveSurveyId
-  val submission: StateFlow<Submission?> =
-    loiId
-      .flatMapLatest {
-        Timber.e("[DEBUG123] mapping loiId to Submission, loiId: $it")
-        if (it == null) flowOf(null)
-        else submissionRepository.createSubmission(surveyId, it).toFlowable().asFlow()
-      }
-      .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
   val loiName: StateFlow<String> =
-    loiId
-      .flatMapLatest { id ->
-        if (id == null) flowOf("")
-        else
-          locationOfInterestRepository
-            .getOfflineLocationOfInterest(surveyId, id)
-            .toFlowable()
-            .asFlow()
-            .map { locationOfInterestHelper.getLabel(it) }
-      }
+    (if (loiId == null) flowOf("")
+      else
+        locationOfInterestRepository
+          .getOfflineLocationOfInterest(surveyId, loiId)
+          .toFlowable()
+          .asFlow()
+          .map { locationOfInterestHelper.getLabel(it) })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels:
@@ -161,7 +125,7 @@ internal constructor(
     MutableLiveData<MutableList<AbstractTaskViewModel>> =
     MutableLiveData(mutableListOf())
 
-  private val responses: MutableMap<Task, TaskData?> = HashMap()
+  private val responses: MutableMap<Task, TaskData?> = LinkedHashMap()
 
   private val currentPositionKey = "currentPosition"
   // Tracks the user's current position in the list of tasks for the current Job
@@ -225,11 +189,7 @@ internal constructor(
     assert(finalTaskPosition >= 0)
     assert(currentTaskPosition in 0..finalTaskPosition)
 
-    if (currentTaskPosition == 0 && job.suggestLoiTaskType != null) {
-      handleSuggestLoiTaskResult(currentTask)
-    } else {
-      responses[currentTask.task] = currentTaskData
-    }
+    responses[currentTask.task] = currentTaskData
 
     if (currentTaskPosition != finalTaskPosition) {
       setCurrentPosition(currentPosition.value!! + 1)
@@ -249,47 +209,10 @@ internal constructor(
     }
   }
 
-  private fun handleSuggestLoiTaskResult(taskViewModel: AbstractTaskViewModel) {
-    when (val taskData = taskViewModel.taskDataFlow.value) {
-      is LocationTaskData -> {
-        // Update suggested LOI
-        val encodedLoi =
-          GeometryWrapperTypeConverter.toByteArray(
-            GeometryWrapper(Point(taskData.cameraPosition.target))
-          )
-
-        Timber.e("[DEBUG123] Setting encodedLoi: $encodedLoi")
-        savedStateHandle[suggestLoiGeometryKey] = encodedLoi
-      }
-      else -> {
-        // TODO(#1351): Process result of DRAW_POLYGON task
-      }
-    }
-  }
-
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(taskDataDeltas: List<TaskDataDelta>) {
     externalScope.launch(ioDispatcher) {
-      suggestLoiGeometry.collect {
-        val geometry = it?.getGeometry()
-        Timber.e("[DEBUG123] Setting loiId, geometry: $geometry")
-        if (job.suggestLoiTaskType != null && geometry != null) {
-          val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
-          locationOfInterestRepository
-            .applyAndEnqueue(loi.toMutation(Mutation.Type.CREATE, authManager.currentUser.id))
-            .blockingAwait()
-
-          Timber.e("[DEBUG123] Setting loiId: ${loi.id}")
-          savedStateHandle[loiIdKey] = loi.id
-        }
-
-        submission.collectLatest {
-          Timber.e("[DEBUG123] Trying to write user responses, submission: $it")
-          submissionRepository
-            .createOrUpdateSubmission(it!!, taskDataDeltas, isNew = true)
-            .blockingAwait()
-        }
-      }
+      submitDataUseCase.invoke(loiId, job, surveyId, taskDataDeltas)
     }
   }
 

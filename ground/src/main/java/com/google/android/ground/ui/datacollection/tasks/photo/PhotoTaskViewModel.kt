@@ -74,7 +74,6 @@ constructor(
     LiveDataReactiveStreams.fromPublisher(detailsTextFlowable().map { it.isNotEmpty() })
 
   private var surveyId: String? = null
-  private var submissionId: String? = null
 
   private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
   private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
@@ -99,16 +98,12 @@ constructor(
     this.surveyId = surveyId
   }
 
-  fun setSubmissionId(submissionId: String?) {
-    this.submissionId = submissionId
-  }
-
   fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.isHandled) {
       return
     }
-    if (surveyId == null || submissionId == null) {
-      Timber.e("surveyId or submissionId not set")
+    if (surveyId == null) {
+      Timber.e("surveyId not set")
       return
     }
     if (photoResult.taskId != task.id) {
@@ -130,7 +125,7 @@ constructor(
       userMediaRepository.addImageToGallery(path, filename)
 
       // Update taskData.
-      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, submissionId!!, filename)
+      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, filename)
       updateResponse(remoteDestinationPath)
     } catch (e: IOException) {
       // TODO: Report error.
