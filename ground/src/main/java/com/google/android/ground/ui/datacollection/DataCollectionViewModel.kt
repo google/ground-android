@@ -23,6 +23,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
@@ -31,6 +32,7 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
@@ -45,6 +47,11 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java8.util.Optional
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,11 +59,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,6 +76,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
   private val resources: Resources,
+  private val authManager: AuthenticationManager,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
@@ -85,14 +88,17 @@ internal constructor(
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
   private val suggestLoiGeometryKey = "suggestedLocationOfInterestGeometry"
   // Serialized SuggestLoi Geometry
-  private val encodedGeometryStateFlow: StateFlow<ByteArray?> = savedStateHandle.getStateFlow<ByteArray?>(suggestLoiGeometryKey, null)
+  private val encodedGeometryStateFlow: StateFlow<ByteArray?> =
+    savedStateHandle.getStateFlow<ByteArray?>(suggestLoiGeometryKey, null)
   private val suggestLoiGeometry: StateFlow<GeometryWrapper?> =
     encodedGeometryStateFlow
       .map {
         // TODO(jsunde): Remove additional logs before submitting
         Timber.e("[DEBUG123] mapping geometry: $it")
         if (it != null) {
-          GeometryWrapperTypeConverter.fromByteArray(it)//geometrySerializer.decodeFromString<Geometry>(it)
+          GeometryWrapperTypeConverter.fromByteArray(
+            it
+          ) // geometrySerializer.decodeFromString<Geometry>(it)
         } else {
           it
         }
@@ -247,7 +253,12 @@ internal constructor(
     when (val taskData = taskViewModel.taskDataFlow.value) {
       is LocationTaskData -> {
         // Update suggested LOI
-        val encodedLoi = GeometryWrapperTypeConverter.toByteArray(GeometryWrapper(Point(taskData.cameraPosition.target)))
+        val encodedLoi =
+          GeometryWrapperTypeConverter.toByteArray(
+            GeometryWrapper(Point(taskData.cameraPosition.target))
+          )
+
+        Timber.e("[DEBUG123] Setting encodedLoi: $encodedLoi")
         savedStateHandle[suggestLoiGeometryKey] = encodedLoi
       }
       else -> {
@@ -264,10 +275,12 @@ internal constructor(
         Timber.e("[DEBUG123] Setting loiId, geometry: $geometry")
         if (job.suggestLoiTaskType != null && geometry != null) {
           val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
+          locationOfInterestRepository
+            .applyAndEnqueue(loi.toMutation(Mutation.Type.CREATE, authManager.currentUser.id))
+            .blockingAwait()
+
           Timber.e("[DEBUG123] Setting loiId: ${loi.id}")
           savedStateHandle[loiIdKey] = loi.id
-
-          locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId).blockingAwait()
         }
 
         submission.collectLatest {

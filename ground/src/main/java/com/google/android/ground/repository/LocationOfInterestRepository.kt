@@ -93,17 +93,6 @@ constructor(
     )
   }
 
-  fun createLocationOfInterestForGeometry(geometry: Geometry, surveyId: String): @Cold Completable =
-    applyAndEnqueue(
-      LocationOfInterestMutation(
-        type = Mutation.Type.CREATE,
-        syncStatus = SyncStatus.PENDING,
-        surveyId = surveyId,
-        userId = authManager.currentUser.id,
-        geometry = geometry
-      )
-    )
-
   /**
    * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
    * task for remote sync if the local transaction is successful.
