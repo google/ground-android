@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.home.mapcontainer.cards
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

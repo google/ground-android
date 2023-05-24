@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardViewModel
 import com.jraska.livedata.TestObserver
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest

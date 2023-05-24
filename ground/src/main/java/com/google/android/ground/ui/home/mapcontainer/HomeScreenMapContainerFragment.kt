@@ -36,6 +36,8 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
+import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional

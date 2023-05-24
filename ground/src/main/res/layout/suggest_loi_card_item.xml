@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.SuggestLoiCardViewModel" />
+      type="com.google.android.ground.ui.home.mapcontainer.cards.SuggestLoiCardViewModel" />
   </data>
 
   <com.google.android.material.card.MaterialCardView
