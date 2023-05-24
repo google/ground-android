@@ -16,23 +16,23 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import androidx.room.TypeConverter
-import com.google.android.ground.model.geometry.geometrySerializer
 import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import org.json.JSONException
 import timber.log.Timber
 
 object GeometryWrapperTypeConverter {
 
   @TypeConverter
-  fun toByteArray(geometryWrapper: GeometryWrapper?): String? =
-    geometryWrapper?.getGeometry()?.let { geometrySerializer.encodeToString(it) }
+  fun toByteArray(geometryWrapper: GeometryWrapper?): ByteArray? =
+    geometryWrapper?.getGeometry().let { ProtoBuf.encodeToByteArray(it) }
 
   @TypeConverter
-  fun fromByteArray(jsonString: String?): GeometryWrapper? =
+  fun fromByteArray(jsonString: ByteArray?): GeometryWrapper? =
     try {
-      jsonString?.let { GeometryWrapper.fromGeometry(geometrySerializer.decodeFromString(it)) }
+      jsonString?.let { GeometryWrapper.fromGeometry(ProtoBuf.decodeFromByteArray(it)) }
     } catch (e: JSONException) {
       Timber.d(e, "Invalid Geometry in db")
       null

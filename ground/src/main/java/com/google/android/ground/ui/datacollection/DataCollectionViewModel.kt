@@ -21,12 +21,12 @@ import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.geometrySerializer
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
+import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -45,20 +45,18 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java8.util.Optional
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -87,14 +85,14 @@ internal constructor(
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
   private val suggestLoiGeometryKey = "suggestedLocationOfInterestGeometry"
   // Serialized SuggestLoi Geometry
-  private val encodedGeometryStateFlow: StateFlow<String?> = savedStateHandle.getStateFlow<String?>(suggestLoiGeometryKey, null)
-  private val suggestLoiGeometry: StateFlow<Geometry?> =
+  private val encodedGeometryStateFlow: StateFlow<ByteArray?> = savedStateHandle.getStateFlow<ByteArray?>(suggestLoiGeometryKey, null)
+  private val suggestLoiGeometry: StateFlow<GeometryWrapper?> =
     encodedGeometryStateFlow
       .map {
         // TODO(jsunde): Remove additional logs before submitting
         Timber.e("[DEBUG123] mapping geometry: $it")
         if (it != null) {
-          geometrySerializer.decodeFromString<Geometry>(it)
+          GeometryWrapperTypeConverter.fromByteArray(it)//geometrySerializer.decodeFromString<Geometry>(it)
         } else {
           it
         }
@@ -135,7 +133,7 @@ internal constructor(
         if (it == null) flowOf(null)
         else submissionRepository.createSubmission(surveyId, it).toFlowable().asFlow()
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+      .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
@@ -249,14 +247,8 @@ internal constructor(
     when (val taskData = taskViewModel.taskDataFlow.value) {
       is LocationTaskData -> {
         // Update suggested LOI
-        Timber.e("[DEBUG123] Setting geometry: ${taskData.cameraPosition.target}")
-        Timber.e("[DEBUG123] Setting geometry, encoded geometry: ${geometrySerializer.encodeToString(Point(taskData.cameraPosition.target))}")
-        val encodedLoi = geometrySerializer.encodeToString(Point(taskData.cameraPosition.target))
-//        Timber.e("[DEBUG123] Setting geometry, decoded Point: ${geometrySerializer.decodeFromString<Point>(encodedLoi)}")
-//        Timber.e("[DEBUG123] Setting geometry, decoded Geometry: ${geometrySerializer.decodeFromString<Geometry>(encodedLoi)}")
+        val encodedLoi = GeometryWrapperTypeConverter.toByteArray(GeometryWrapper(Point(taskData.cameraPosition.target)))
         savedStateHandle[suggestLoiGeometryKey] = encodedLoi
-
-        Timber.e("[DEBUG123] Setting geometry, persisted geometry: ${savedStateHandle.get<String>(suggestLoiGeometryKey)}")
       }
       else -> {
         // TODO(#1351): Process result of DRAW_POLYGON task
@@ -268,7 +260,7 @@ internal constructor(
   private fun saveChanges(taskDataDeltas: List<TaskDataDelta>) {
     externalScope.launch(ioDispatcher) {
       suggestLoiGeometry.collect {
-        val geometry = it
+        val geometry = it?.getGeometry()
         Timber.e("[DEBUG123] Setting loiId, geometry: $geometry")
         if (job.suggestLoiTaskType != null && geometry != null) {
           val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
@@ -278,7 +270,7 @@ internal constructor(
           locationOfInterestRepository.createLocationOfInterestForGeometry(geometry, surveyId).blockingAwait()
         }
 
-        submission.collect {
+        submission.collectLatest {
           Timber.e("[DEBUG123] Trying to write user responses, submission: $it")
           submissionRepository
             .createOrUpdateSubmission(it!!, taskDataDeltas, isNew = true)
