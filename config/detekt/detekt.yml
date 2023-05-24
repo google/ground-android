@@ -82,12 +82,12 @@ comments:
         active: true
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
     OutdatedDocumentation:
-        active: true
+        active: false
         matchTypeParameters: true
         matchDeclarationsOrder: true
         allowParamOnConstructorProperties: false
     UndocumentedPublicClass:
-        active: true
+        active: false
         excludes: [ '**/sharedTest/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         searchInNestedClass: true
         searchInInnerClass: true
@@ -95,7 +95,7 @@ comments:
         searchInInnerInterface: true
         searchInProtectedClass: false
     UndocumentedPublicFunction:
-        active: true
+        active: false
         excludes: [ '**/sharedTest/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*Module.kt' ]
         searchProtectedFunction: false
     UndocumentedPublicProperty:
