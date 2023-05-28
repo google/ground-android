@@ -169,7 +169,7 @@ class MapCardAdapter(
     CardViewHolder(binding.root, binding.loiCard) {
 
     fun bind(job: Job) {
-      binding.viewModel = SuggestLoiCardViewModel(job)
+      with(binding) { jobName.text = job.name }
     }
   }
 }
