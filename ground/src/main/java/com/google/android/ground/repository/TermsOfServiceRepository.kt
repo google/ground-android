@@ -34,6 +34,8 @@ constructor(
   private val localValueStore: LocalValueStore
 ) {
 
+  var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
+
   suspend fun getTermsOfService(): TermsOfService? =
     runCatching {
         // TODO: Maybe parse the exception and display to the user.
@@ -43,6 +45,4 @@ constructor(
           .awaitSingleOrNull()
       }
       .getOrNull()
-
-  var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 }
