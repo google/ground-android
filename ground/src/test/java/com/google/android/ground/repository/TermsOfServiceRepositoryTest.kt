@@ -20,6 +20,7 @@ import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
+import io.reactivex.Maybe
 import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,13 +35,19 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetTermsOfService() {
-    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
+    fakeRemoteDataStore.termsOfService = Maybe.just(FakeData.TERMS_OF_SERVICE)
     termsOfServiceRepository.termsOfService.test().assertResult(FakeData.TERMS_OF_SERVICE)
   }
 
   @Test
   fun testGetTermsOfService_whenMissing_doesNotThrowException() {
-    fakeRemoteDataStore.termsOfService = null
+    fakeRemoteDataStore.termsOfService = Maybe.empty()
+    termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
+  }
+
+  @Test
+  fun testGetTermsOfService_whenErrorFetchingTos_doesNotThrowException() {
+    fakeRemoteDataStore.termsOfService = Maybe.error(Error("some error"))
     termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
   }
 

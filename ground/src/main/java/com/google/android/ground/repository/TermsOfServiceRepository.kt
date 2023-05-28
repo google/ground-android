@@ -39,6 +39,7 @@ constructor(
     get() =
       remoteDataStore
         .loadTermsOfService()
+        .onErrorComplete() // TODO: Maybe parse the exception and display to the user as well.
         .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
 
   var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
