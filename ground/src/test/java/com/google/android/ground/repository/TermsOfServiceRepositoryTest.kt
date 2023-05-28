@@ -22,6 +22,7 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Maybe
 import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,21 +35,21 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
   @Test
-  fun testGetTermsOfService() {
+  fun testGetTermsOfService() = runBlocking {
     fakeRemoteDataStore.termsOfService = Maybe.just(FakeData.TERMS_OF_SERVICE)
-    termsOfServiceRepository.termsOfService.test().assertResult(FakeData.TERMS_OF_SERVICE)
+    assertThat(termsOfServiceRepository.getTermsOfService()).isEqualTo(FakeData.TERMS_OF_SERVICE)
   }
 
   @Test
-  fun testGetTermsOfService_whenMissing_doesNotThrowException() {
+  fun testGetTermsOfService_whenMissing_doesNotThrowException() = runBlocking {
     fakeRemoteDataStore.termsOfService = Maybe.empty()
-    termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
+    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
-  fun testGetTermsOfService_whenErrorFetchingTos_doesNotThrowException() {
+  fun testGetTermsOfService_whenErrorFetchingTos_doesNotThrowException() = runBlocking {
     fakeRemoteDataStore.termsOfService = Maybe.error(Error("some error"))
-    termsOfServiceRepository.termsOfService.test().assertNoValues().assertComplete()
+    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
