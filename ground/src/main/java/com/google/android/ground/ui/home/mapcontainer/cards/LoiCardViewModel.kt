@@ -21,7 +21,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
-import kotlinx.coroutines.rx2.await
 
 class LoiCardViewModel(
   private val submissionRepository: SubmissionRepository,
@@ -36,7 +35,7 @@ class LoiCardViewModel(
   }
 
   suspend fun getSubmissionsText(): String {
-    val submissions = submissionRepository.getSubmissions(loi.surveyId, loi.id, loi.job.id).await()
+    val submissions = submissionRepository.getSubmissions(loi)
     return when (val count = submissions.size) {
       0 -> "No submissions"
       1 -> "$count submission"
