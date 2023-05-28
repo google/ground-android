@@ -15,31 +15,19 @@
  */
 package com.google.android.ground.ui.home.mapcontainer.cards
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.AbstractViewModel
 
-class LoiCardViewModel(
-  private val submissionRepository: SubmissionRepository,
-  private val loi: LocationOfInterest
-) : AbstractViewModel() {
-  val loiName: @Hot(replays = true) LiveData<String>
-  val loiJobName: @Hot(replays = true) LiveData<String>
+/** Helper class for creating user-visible text. */
+object LoiCardUtil {
 
-  init {
-    loiName = MutableLiveData(loi.caption ?: loi.type.name)
-    loiJobName = MutableLiveData(loi.job.name)
-  }
+  fun getDisplayLoiName(loi: LocationOfInterest): String = loi.caption ?: loi.type.name
 
-  suspend fun getSubmissionsText(): String {
-    val submissions = submissionRepository.getSubmissions(loi)
-    return when (val count = submissions.size) {
+  fun getJobName(loi: LocationOfInterest): String? = loi.job.name
+
+  fun getSubmissionsText(count: Int): String =
+    when (count) {
       0 -> "No submissions"
       1 -> "$count submission"
       else -> "$count submissions"
     }
-  }
 }

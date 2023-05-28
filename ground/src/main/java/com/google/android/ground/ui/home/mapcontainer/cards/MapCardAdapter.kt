@@ -152,9 +152,15 @@ class MapCardAdapter(
       lifecycleScope: LifecycleCoroutineScope,
       loi: LocationOfInterest
     ) {
-      val viewModel = LoiCardViewModel(submissionRepository, loi)
-      binding.viewModel = viewModel
-      lifecycleScope.launch { binding.submissions.text = viewModel.getSubmissionsText() }
+      with(binding) {
+        loiName.text = LoiCardUtil.getDisplayLoiName(loi)
+        jobName.text = LoiCardUtil.getJobName(loi)
+
+        lifecycleScope.launch {
+          val count = submissionRepository.getSubmissions(loi).size
+          submissions.text = LoiCardUtil.getSubmissionsText(count)
+        }
+      }
     }
   }
 
