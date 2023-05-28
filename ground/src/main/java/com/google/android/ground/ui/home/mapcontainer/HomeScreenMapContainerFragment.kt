@@ -30,6 +30,7 @@ import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LocationOfInterestType
+import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -41,6 +42,7 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
+import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -48,6 +50,8 @@ import timber.log.Timber
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
+
+  @Inject lateinit var submissionRepository: SubmissionRepository
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -70,7 +74,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    adapter = MapCardAdapter()
+    adapter = MapCardAdapter(submissionRepository, lifecycleScope)
     adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
 
     lifecycleScope.launch {

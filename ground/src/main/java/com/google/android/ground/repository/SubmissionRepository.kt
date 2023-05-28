@@ -72,18 +72,18 @@ constructor(
   fun getSubmissions(
     surveyId: String,
     locationOfInterestId: String,
-    taskId: String
+    jobId: String
   ): @Cold Single<List<Submission>> =
     // TODO: Only fetch first n fields.
     locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .flatMap { locationOfInterest: LocationOfInterest ->
-        getSubmissions(locationOfInterest, taskId)
+        getSubmissions(locationOfInterest, jobId)
       }
 
   private fun getSubmissions(
     locationOfInterest: LocationOfInterest,
-    taskId: String
+    jobId: String
   ): @Cold Single<List<Submission>> {
     val remoteSync =
       remoteDataStore
@@ -94,7 +94,7 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, taskId))
+    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, jobId))
   }
 
   private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =

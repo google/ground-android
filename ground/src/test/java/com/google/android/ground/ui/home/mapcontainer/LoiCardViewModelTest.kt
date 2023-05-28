@@ -31,21 +31,21 @@ class LoiCardViewModelTest : BaseHiltTest() {
 
   @Test
   fun testLoiNameWithPoint_whenCaptionIsNull() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = null))
+    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = null), submissionCounter)
 
     TestObserver.test(viewModel.loiName).assertValue("POINT")
   }
 
   @Test
   fun testLoiNameWithPolygon_whenCaptionIsNull() {
-    val viewModel = LoiCardViewModel(TEST_AREA.copy(caption = null))
+    val viewModel = LoiCardViewModel(TEST_AREA.copy(caption = null), submissionCounter)
 
     TestObserver.test(viewModel.loiName).assertValue("POLYGON")
   }
 
   @Test
   fun testLoiName_whenCaptionIsAvailable() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = "some value"))
+    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = "some value"), submissionCounter)
 
     TestObserver.test(viewModel.loiName).assertValue("some value")
   }
@@ -53,7 +53,7 @@ class LoiCardViewModelTest : BaseHiltTest() {
   @Test
   fun testLoiJobName_whenNameIsNull() {
     val job = TEST_LOI.job.copy(name = null)
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(job = job))
+    val viewModel = LoiCardViewModel(TEST_LOI.copy(job = job), submissionCounter)
 
     TestObserver.test(viewModel.loiJobName).assertValue(null)
   }
@@ -61,7 +61,7 @@ class LoiCardViewModelTest : BaseHiltTest() {
   @Test
   fun testLoiJobName_whenNameIsAvailable() {
     val job = TEST_LOI.job.copy(name = "job name")
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(job = job))
+    val viewModel = LoiCardViewModel(TEST_LOI.copy(job = job), submissionCounter)
 
     TestObserver.test(viewModel.loiJobName).assertValue("job name")
   }
