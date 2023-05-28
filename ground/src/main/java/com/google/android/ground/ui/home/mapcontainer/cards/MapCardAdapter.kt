@@ -63,16 +63,11 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     val uiData = itemsList[position]
     val cardHolder = bindViewHolder(uiData, holder)
 
-    // TODO(#1483): Selected card color should match job color
-    // Add highlight border if selected.
-    val borderDrawable =
-      if (focusedIndex == position) {
-        cardFocusedListener?.invoke(uiData)
-        R.drawable.loi_card_selected_background
-      } else {
-        R.drawable.loi_card_default_background
-      }
-    cardHolder.setCardBackground(borderDrawable)
+    val shouldFocus = focusedIndex == position
+    if (shouldFocus) {
+      cardFocusedListener?.invoke(uiData)
+    }
+    cardHolder.setCardBackground(shouldFocus)
     cardHolder.setOnClickListener { collectDataListener(uiData) }
   }
 
@@ -120,9 +115,20 @@ class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
   abstract class CardViewHolder(itemView: View, private val cardView: MaterialCardView) :
     RecyclerView.ViewHolder(itemView) {
 
-    fun setCardBackground(borderDrawable: Int) {
-      with(cardView) { background = ResourcesCompat.getDrawable(resources, borderDrawable, null) }
-    }
+    // TODO(#1483): Selected card color should match job color.
+    fun setCardBackground(shouldFocus: Boolean) =
+      with(cardView) {
+        background =
+          ResourcesCompat.getDrawable(
+            resources,
+            if (shouldFocus) {
+              R.drawable.loi_card_selected_background
+            } else {
+              R.drawable.loi_card_default_background
+            },
+            null
+          )
+      }
 
     fun setOnClickListener(callback: () -> Unit) {
       cardView.setOnClickListener { callback() }
