@@ -70,9 +70,8 @@ constructor(
    * ```
    * 2. Relevant submissions are returned directly from the local data store.
    */
-  suspend fun getSubmissions(loi: LocationOfInterest): List<Submission> {
-    return getSubmissions(loi.surveyId, loi.id, loi.job.id).await()
-  }
+  suspend fun getSubmissions(loi: LocationOfInterest): List<Submission> =
+    getSubmissions(loi.surveyId, loi.id, loi.job.id).await()
 
   fun getSubmissions(
     surveyId: String,
