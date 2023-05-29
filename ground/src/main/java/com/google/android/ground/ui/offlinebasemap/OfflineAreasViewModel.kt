@@ -17,7 +17,7 @@ package com.google.android.ground.ui.offlinebasemap
 
 import android.view.View
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -55,11 +55,9 @@ internal constructor(
           Timber.e(it, "Unexpected error accessing offline basemaps in the local store.")
         }
         .onErrorReturnItem(listOf())
-    this.offlineAreas = LiveDataReactiveStreams.fromPublisher(offlineAreas)
+    this.offlineAreas = offlineAreas.toLiveData()
     noAreasMessageVisibility =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineAreas.map { if (it.isEmpty()) View.VISIBLE else View.GONE }
-      )
+      offlineAreas.map { if (it.isEmpty()) View.VISIBLE else View.GONE }.toLiveData()
   }
 
   /** Navigate to the offline area selector UI from the offline basemaps UI. */

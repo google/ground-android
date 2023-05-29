@@ -17,7 +17,7 @@ package com.google.android.ground.ui.offlinebasemap.selector
 
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.toLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
@@ -71,15 +71,15 @@ internal constructor(
 
   init {
     downloadMessages =
-      LiveDataReactiveStreams.fromPublisher(
-        downloadClicks.switchMapSingle { baseMap: OfflineArea ->
+      downloadClicks
+        .switchMapSingle { baseMap: OfflineArea ->
           offlineAreaRepository
             .addOfflineAreaAndEnqueue(baseMap)
             .toSingleDefault(DownloadMessage.STARTED)
             .onErrorReturn { e: Throwable -> onEnqueueError(e) }
             .map { Event.create(it) }
         }
-      )
+        .toLiveData()
     remoteTileSets = remoteTileRequests.switchMapSingle { offlineAreaRepository.tileSets() }
   }
 

@@ -30,7 +30,7 @@ class LocationSharedFlowCallback(
   private val coroutineScope: CoroutineScope
 ) : LocationCallback() {
   override fun onLocationResult(locationResult: LocationResult) {
-    coroutineScope.launch { locationUpdates.emit(locationResult.lastLocation) }
+    coroutineScope.launch { locationResult.lastLocation?.let { locationUpdates.emit(it) } }
   }
 
   override fun onLocationAvailability(p0: LocationAvailability) {
