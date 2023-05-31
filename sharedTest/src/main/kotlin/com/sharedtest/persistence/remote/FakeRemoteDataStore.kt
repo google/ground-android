@@ -38,7 +38,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var surveys = emptyList<Survey>()
 
   // TODO(#1373): Delete once new LOI sync is implemented.
-  var termsOfService: TermsOfService? = null
+  var termsOfService: Maybe<TermsOfService> = Maybe.empty()
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
@@ -49,8 +49,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
       surveys.firstOrNull { it.id == surveyId } ?: throw NotFoundException("Invalid survey id")
     )
 
-  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
-    if (termsOfService == null) Maybe.empty() else Maybe.just(termsOfService)
+  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> = termsOfService
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(

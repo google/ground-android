@@ -32,8 +32,10 @@ import com.sharedtest.TestObservers.observeUntilFirstChange
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
+import io.reactivex.Maybe
 import io.reactivex.observers.TestObserver
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Test
@@ -42,6 +44,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowToast
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
@@ -124,7 +127,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
+    fakeRemoteDataStore.termsOfService = Maybe.just(FakeData.TERMS_OF_SERVICE)
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -140,7 +143,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosMissing() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = null
+    fakeRemoteDataStore.termsOfService = Maybe.empty()
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
