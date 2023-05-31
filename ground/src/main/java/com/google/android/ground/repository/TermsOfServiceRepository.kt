@@ -19,11 +19,10 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Maybe
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.awaitSingleOrNull
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS: Long = 30
 
@@ -35,11 +34,15 @@ constructor(
   private val localValueStore: LocalValueStore
 ) {
 
-  val termsOfService: @Cold Maybe<TermsOfService>
-    get() =
-      remoteDataStore
-        .loadTermsOfService()
-        .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
-
   var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
+
+  suspend fun getTermsOfService(): TermsOfService? =
+    runCatching {
+        // TODO(#1691): Maybe parse the exception and display to the user.
+        remoteDataStore
+          .loadTermsOfService()
+          .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
+          .awaitSingleOrNull()
+      }
+      .getOrNull()
 }
