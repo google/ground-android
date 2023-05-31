@@ -38,7 +38,7 @@ constructor(
 
   suspend fun getTermsOfService(): TermsOfService? =
     runCatching {
-        // TODO: Maybe parse the exception and display to the user.
+        // TODO(#1691): Maybe parse the exception and display to the user.
         remoteDataStore
           .loadTermsOfService()
           .timeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_SECS, TimeUnit.SECONDS)
