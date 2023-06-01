@@ -43,9 +43,8 @@ class MogMetadata(
 
   fun getImageMetadata(zoom: Int): MogImageMetadata? = imageMetadataByZoom[zoom]
 
-  override fun toString(): String {
-    return "Mog(url=$sourceUrl, bounds=$bounds, ifdsByZoom=$imageMetadataByZoom)"
-  }
+  override fun toString(): String =
+    "Mog(url=$sourceUrl, bounds=$bounds, ifdsByZoom=$imageMetadataByZoom)"
 
   //  fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
   //    ifdsByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)

@@ -19,7 +19,6 @@ package com.google.android.ground.ui.map.gms.mog
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlin.system.measureTimeMillis
-import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith

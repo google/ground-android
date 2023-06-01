@@ -15,9 +15,7 @@
  */
 package com.google.android.ground.ui.map.gms.mog
 
-/**
- * Not all types are used by this implementation, but all are included here for completeness.
- */
+/** Not all types are used by this implementation, but all are included here for completeness. */
 enum class TiffTagDataType(
   /** Number of bytes occupied by a single value of this type. */
   val sizeInBytes: Int

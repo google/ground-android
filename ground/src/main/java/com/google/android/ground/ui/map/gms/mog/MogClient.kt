@@ -48,9 +48,9 @@ class MogClient(val collection: MogCollection) {
    * fetching required metadata if not already in cache.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only tiles within or
-   *   overlapping these bounds are retrieved.
+   * overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
+   * all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
   suspend fun getTilesRequests(
     tileBounds: LatLngBounds,
@@ -99,9 +99,6 @@ class MogClient(val collection: MogCollection) {
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? =
     getMogMetadata(collection.getMogCoordinatesForTile(tileCoordinates))
 
-  private suspend fun getImageMetadataForTile(tileCoordinates: TileCoordinates) =
-    getMogMetadataForTile(tileCoordinates)?.getImageMetadata(tileCoordinates.zoom)
-
   private suspend fun getTileRequestsForPyramid(
     mogCoordinates: TileCoordinates,
     tileBounds: LatLngBounds,
@@ -128,7 +125,7 @@ class MogClient(val collection: MogCollection) {
     return tilesRequests.map { it.toTilesRequest() }
   }
 
-  private suspend fun getTileMetadata(
+  private fun getTileMetadata(
     mogMetadata: MogMetadata,
     tileBounds: LatLngBounds,
     zoom: Int
@@ -211,7 +208,7 @@ class MogClient(val collection: MogCollection) {
             entry[TiffTag.TileByteCounts] as List<Long>,
             entry[TiffTag.ImageWidth] as Int,
             entry[TiffTag.ImageLength] as Int,
-            (entry[TiffTag.JPEGTables] as List<*>?)?.map { (it as Int).toByte() }?.toByteArray()
+            (entry[TiffTag.JPEGTables] as? List<*>)?.map { (it as Int).toByte() }?.toByteArray()
               ?: byteArrayOf()
           )
         )

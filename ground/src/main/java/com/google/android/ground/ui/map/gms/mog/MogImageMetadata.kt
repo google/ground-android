@@ -45,14 +45,24 @@ class MogImageMetadata(
     val xIdx = x - originTile.x
     val yIdx = y - originTile.y
     val idx = yIdx * tileCountX + xIdx
-    if (idx > tileOffsets.size) throw IllegalArgumentException("idx > offsets")
+    require(idx <= tileOffsets.size) { "idx > offsets" }
     val from = tileOffsets[idx]
     val len = byteCounts[idx].toInt()
     val to = from + len - 1
     return from..to
   }
 
-  override fun toString(): String {
-    return "MogImage(originTile=$originTile, offsets=.., byteCounts=.., tileWidth=$tileWidth, tileLength=$tileLength, imageWidth=$imageWidth, imageLength=$imageLength, tileCountX=$tileCountX, tileCountY=$tileCountY, jpegTables=.., zoom=$zoom)"
-  }
+  override fun toString(): String =
+    "MogImage(" +
+      "originTile=$originTile, " +
+      "offsets=.., " +
+      "byteCounts=.., " +
+      "tileWidth=$tileWidth, " +
+      "tileLength=$tileLength, " +
+      "imageWidth=$imageWidth, " +
+      "imageLength=$imageLength, " +
+      "tileCountX=$tileCountX, " +
+      "tileCountY=$tileCountY, " +
+      "jpegTables=.., " +
+      "zoom=$zoom)"
 }

@@ -17,10 +17,10 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import java.io.ByteArrayInputStream
+import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 class SeekableBufferedInputStreamTest {

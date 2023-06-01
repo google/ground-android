@@ -36,9 +36,7 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
     return TileCoordinates(scale(x), scale(y), targetZoom)
   }
 
-  override fun toString(): String {
-    return "($x, $y) at zoom $zoom"
-  }
+  override fun toString(): String = "($x, $y) at zoom $zoom"
 
   companion object {
     /** Tile coordinates of the world as a single tile (0, 0) at zoom level 0. */
