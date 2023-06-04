@@ -19,7 +19,6 @@ package com.google.android.ground.ui.home.mapcontainer.cards
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
@@ -68,12 +67,9 @@ class MapCardAdapter(
   override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
     val uiData = itemsList[position]
     val cardHolder = bindViewHolder(submissionRepository, lifecycleScope, uiData, holder)
-
-    val shouldFocus = focusedIndex == position
-    if (shouldFocus) {
+    if (focusedIndex == position) {
       cardFocusedListener?.invoke(uiData)
     }
-    cardHolder.setCardBackground(shouldFocus)
     cardHolder.setOnClickListener { collectDataListener(uiData) }
   }
 
@@ -122,22 +118,6 @@ class MapCardAdapter(
 
   abstract class CardViewHolder(itemView: View, private val cardView: MaterialCardView) :
     RecyclerView.ViewHolder(itemView) {
-
-    // TODO(#1483): Selected card color should match job color.
-    fun setCardBackground(shouldFocus: Boolean) =
-      with(cardView) {
-        background =
-          ResourcesCompat.getDrawable(
-            resources,
-            if (shouldFocus) {
-              R.drawable.loi_card_selected_background
-            } else {
-              R.drawable.loi_card_default_background
-            },
-            null
-          )
-      }
-
     fun setOnClickListener(callback: () -> Unit) {
       cardView.setOnClickListener { callback() }
     }
