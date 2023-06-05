@@ -10,6 +10,7 @@ import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.system.auth.AuthenticationManager
+import timber.log.Timber
 import javax.inject.Inject
 
 class SubmitDataUseCase
@@ -20,6 +21,11 @@ constructor(
   private val submissionRepository: SubmissionRepository,
 ) {
 
+  /**
+   * Creates a Submission for the given [job] with the user's responses from the [taskDataDeltas].
+   * If [loiId] is null a new LOI is created based on the first [TaskDataDelta] since the Suggest
+   * LOI task is the first task in the Data Collection flow when a new LOI is being suggested.
+   */
   @Transaction
   operator fun invoke(
     loiId: String?,
