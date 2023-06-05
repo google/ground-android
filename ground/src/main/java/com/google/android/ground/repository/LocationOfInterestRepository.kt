@@ -33,6 +33,8 @@ import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.gms.GmsExt.contains
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -128,12 +130,12 @@ constructor(
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
     survey: Survey,
-    cameraBoundUpdates: Flowable<LatLngBounds>
+    cameraBoundUpdates: Flowable<Bounds>
   ): Flowable<List<LocationOfInterest>> =
     cameraBoundUpdates
       .switchMap { bounds ->
         getLocationsOfInterestOnceAndStream(survey).map { lois ->
-          lois.filter { it.geometry.isWithinBounds(bounds) }
+          lois.filter { bounds.contains(it.geometry) }
         }
       }
       .distinctUntilChanged()

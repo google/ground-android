@@ -21,4 +21,9 @@ import com.google.android.ground.model.geometry.Coordinate
  * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
  * northeast coordinates.
  */
-data class Bounds(val southwest: Coordinate, val northeast: Coordinate)
+data class Bounds(val southwest: Coordinate, val northeast: Coordinate) {
+  val north = northeast.lat
+  val east = northeast.lng
+  val south = southwest.lat
+  val west = southwest.lng
+}

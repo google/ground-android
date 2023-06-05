@@ -37,7 +37,6 @@ import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirecti
 import io.reactivex.Observable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.rx2.awaitSingleOrNull
 import kotlinx.coroutines.rx2.rxObservable
 import timber.log.Timber
 
@@ -106,7 +105,7 @@ constructor(
 
   private suspend fun onUserSignedIn(user: User): NavDirections {
     userRepository.saveUserSuspend(user)
-    val tos = termsOfServiceRepository.termsOfService.awaitSingleOrNull()
+    val tos = termsOfServiceRepository.getTermsOfService()
     return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
       reactivateLastSurvey()
       getDirectionAfterSignIn()
