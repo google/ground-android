@@ -40,7 +40,12 @@ internal object LoiMutationConverter {
     map[LoiConverter.JOB_ID] = mutation.jobId
 
     when (val geometry = mutation.geometry) {
-      is Point -> map[LoiConverter.LOCATION] = toGeoPoint(geometry)
+      is Point -> {
+        val geometryMap: MutableMap<String, Any> = HashMap()
+        geometryMap[LoiConverter.GEOMETRY_COORDINATES] = toGeoPoint(geometry)
+        geometryMap[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POINT_TYPE
+        map[LoiConverter.GEOMETRY] = geometryMap
+      }
       is Polygon -> {
         val geometryMap: MutableMap<String, Any> = HashMap()
         geometryMap[LoiConverter.GEOMETRY_COORDINATES] = toGeoPointList(geometry.shell.vertices)
