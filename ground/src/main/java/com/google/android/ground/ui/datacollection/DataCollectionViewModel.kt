@@ -127,8 +127,7 @@ internal constructor(
       currentTaskViewModel
     }
 
-  val currentTaskDataLiveData =
-    Transformations.switchMap(currentTaskViewModelLiveData) { it?.taskData }
+  val currentTaskDataLiveData = currentTaskViewModelLiveData.switchMap { it?.taskData }
 
   lateinit var submissionId: String
 

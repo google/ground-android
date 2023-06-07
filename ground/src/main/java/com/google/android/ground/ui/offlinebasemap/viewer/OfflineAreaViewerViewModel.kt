@@ -17,7 +17,7 @@ package com.google.android.ground.ui.offlinebasemap.viewer
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.basemap.OfflineArea
 import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.repository.MapStateRepository
@@ -89,15 +89,13 @@ constructor(
         .doOnError { Timber.e(it, "Couldn't render area %s", offlineAreaId) }
         .toFlowable(BackpressureStrategy.LATEST)
 
-    areaName =
-      LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable.map(OfflineArea::name))
+    areaName = offlineAreaItemAsFlowable.map(OfflineArea::name).toLiveData()
     areaStorageSize =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineAreaItemAsFlowable
-          .flatMap { offlineAreaRepository.getIntersectingDownloadedTileSetsOnceAndStream(it) }
-          .map { tileSets: Set<TileSet> -> tileSetsToTotalStorageSize(tileSets) }
-      )
-    offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable)
+      offlineAreaItemAsFlowable
+        .flatMap { offlineAreaRepository.getIntersectingDownloadedTileSetsOnceAndStream(it) }
+        .map { tileSets: Set<TileSet> -> tileSetsToTotalStorageSize(tileSets) }
+        .toLiveData()
+    offlineArea = offlineAreaItemAsFlowable.toLiveData()
     disposeOnClear(
       removeAreaClicks
         .map { offlineArea.getValue()!!.id }
