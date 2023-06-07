@@ -51,7 +51,6 @@
   <color name="taskBtnIconTintTransparent">@color/paletteGreen</color>
 
   <!-- Updated Color palette -->
-  <color name="seed">#34A853</color>
   <color name="md_theme_primary">#006E2C</color>
   <color name="md_theme_onPrimary">#FFFFFF</color>
   <color name="md_theme_primaryContainer">#89FA9B</color>
