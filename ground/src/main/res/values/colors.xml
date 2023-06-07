@@ -33,9 +33,6 @@
   <!-- Palette -->
   <color name="paletteGreen">#216C2E</color>
 
-  <!-- Loi Card -->
-  <color name="colorJobCardBorderSelected">#FA7B17</color>
-
   <!--  Suggest Loi Card-->
   <color name="colorLightGreenCardBackground">#D5E8D0</color>
   <color name="colorLightGreenButton">#8CD88D</color>

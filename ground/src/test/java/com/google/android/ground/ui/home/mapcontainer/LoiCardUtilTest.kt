@@ -15,54 +15,58 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import com.google.android.ground.BaseHiltTest
-import com.jraska.livedata.TestObserver
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getDisplayLoiName
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getJobName
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getSubmissionsText
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LoiCardViewModelTest : BaseHiltTest() {
+class LoiCardUtilTest {
 
   @Test
   fun testLoiNameWithPoint_whenCaptionIsNull() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = null))
-
-    TestObserver.test(viewModel.loiName).assertValue("POINT")
+    assertThat(getDisplayLoiName(TEST_LOI.copy(caption = null))).isEqualTo("POINT")
   }
 
   @Test
   fun testLoiNameWithPolygon_whenCaptionIsNull() {
-    val viewModel = LoiCardViewModel(TEST_AREA.copy(caption = null))
-
-    TestObserver.test(viewModel.loiName).assertValue("POLYGON")
+    assertThat(getDisplayLoiName(TEST_AREA.copy(caption = null))).isEqualTo("POLYGON")
   }
 
   @Test
   fun testLoiName_whenCaptionIsAvailable() {
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(caption = "some value"))
-
-    TestObserver.test(viewModel.loiName).assertValue("some value")
+    assertThat(getDisplayLoiName(TEST_LOI.copy(caption = "some value"))).isEqualTo("some value")
   }
 
   @Test
   fun testLoiJobName_whenNameIsNull() {
     val job = TEST_LOI.job.copy(name = null)
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(job = job))
-
-    TestObserver.test(viewModel.loiJobName).assertValue(null)
+    assertThat(getJobName(TEST_LOI.copy(job = job))).isNull()
   }
 
   @Test
   fun testLoiJobName_whenNameIsAvailable() {
     val job = TEST_LOI.job.copy(name = "job name")
-    val viewModel = LoiCardViewModel(TEST_LOI.copy(job = job))
+    assertThat(getJobName(TEST_LOI.copy(job = job))).isEqualTo("job name")
+  }
 
-    TestObserver.test(viewModel.loiJobName).assertValue("job name")
+  @Test
+  fun testSubmissionsText_whenZero() {
+    assertThat(getSubmissionsText(0)).isEqualTo("No submissions")
+  }
+
+  @Test
+  fun testSubmissionsText_whenOne() {
+    assertThat(getSubmissionsText(1)).isEqualTo("1 submission")
+  }
+
+  @Test
+  fun testSubmissionsText_whenTwo() {
+    assertThat(getSubmissionsText(2)).isEqualTo("2 submissions")
   }
 
   companion object {
