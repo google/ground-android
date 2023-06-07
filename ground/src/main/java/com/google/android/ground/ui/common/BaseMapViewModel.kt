@@ -17,8 +17,8 @@ package com.google.android.ground.ui.common
 
 import android.Manifest
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
@@ -98,11 +98,8 @@ constructor(
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   init {
-    cameraUpdateRequests =
-      LiveDataReactiveStreams.fromPublisher(
-        mapController.getCameraUpdates().map { Event.create(it) }
-      )
-    baseMapType = LiveDataReactiveStreams.fromPublisher(mapStateRepository.mapTypeFlowable)
+    cameraUpdateRequests = mapController.getCameraUpdates().map { Event.create(it) }.toLiveData()
+    baseMapType = mapStateRepository.mapTypeFlowable.toLiveData()
   }
 
   private suspend fun toggleLocationLock() {

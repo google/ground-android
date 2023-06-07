@@ -38,6 +38,7 @@ import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -69,21 +70,24 @@ constructor(
    * ```
    * 2. Relevant submissions are returned directly from the local data store.
    */
+  suspend fun getSubmissions(loi: LocationOfInterest): List<Submission> =
+    getSubmissions(loi.surveyId, loi.id, loi.job.id).await()
+
   fun getSubmissions(
     surveyId: String,
     locationOfInterestId: String,
-    taskId: String
+    jobId: String
   ): @Cold Single<List<Submission>> =
     // TODO: Only fetch first n fields.
     locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .flatMap { locationOfInterest: LocationOfInterest ->
-        getSubmissions(locationOfInterest, taskId)
+        getSubmissions(locationOfInterest, jobId)
       }
 
   private fun getSubmissions(
     locationOfInterest: LocationOfInterest,
-    taskId: String
+    jobId: String
   ): @Cold Single<List<Submission>> {
     val remoteSync =
       remoteDataStore
@@ -94,7 +98,7 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, taskId))
+    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, jobId))
   }
 
   private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =

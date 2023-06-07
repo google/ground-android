@@ -17,7 +17,7 @@ package com.google.android.ground.ui.submissiondetails
 
 import android.view.View
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.repository.SubmissionRepository
@@ -55,21 +55,18 @@ internal constructor(
       }
 
     // TODO: Refactor to expose the fetched submission directly.
-    submission = LiveDataReactiveStreams.fromPublisher(submissionStream)
-    progressBarVisibility =
-      LiveDataReactiveStreams.fromPublisher(submissionStream.map { getProgressBarVisibility(it) })
+    submission = submissionStream.toLiveData()
+    progressBarVisibility = submissionStream.map { getProgressBarVisibility(it) }.toLiveData()
     title =
-      LiveDataReactiveStreams.fromPublisher(
-        submissionStream
-          .map { getLocationOfInterest(it) }
-          .map { locationOfInterestHelper.getLabel(it) }
-      )
+      submissionStream
+        .map { getLocationOfInterest(it) }
+        .map { locationOfInterestHelper.getLabel(it) }
+        .toLiveData()
     subtitle =
-      LiveDataReactiveStreams.fromPublisher(
-        submissionStream
-          .map { getLocationOfInterest(it) }
-          .map { locationOfInterestHelper.getCreatedBy(it) }
-      )
+      submissionStream
+        .map { getLocationOfInterest(it) }
+        .map { locationOfInterestHelper.getCreatedBy(it) }
+        .toLiveData()
   }
 
   fun loadSubmissionDetails(args: SubmissionDetailsFragmentArgs) {

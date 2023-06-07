@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer
+package com.google.android.ground.ui.home.mapcontainer.cards
 
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
-/** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
-sealed interface MapCardUiData {
+/** Helper class for creating user-visible text. */
+object LoiCardUtil {
 
-  data class LoiCardUiData(val loi: LocationOfInterest) : MapCardUiData
+  fun getDisplayLoiName(loi: LocationOfInterest): String = loi.caption ?: loi.type.name
 
-  data class SuggestLoiCardUiData(val job: Job) : MapCardUiData
+  fun getJobName(loi: LocationOfInterest): String? = loi.job.name
+
+  fun getSubmissionsText(count: Int): String =
+    when (count) {
+      0 -> "No submissions"
+      1 -> "$count submission"
+      else -> "$count submissions"
+    }
 }
