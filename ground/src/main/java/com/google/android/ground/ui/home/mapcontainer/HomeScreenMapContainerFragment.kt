@@ -155,7 +155,12 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
           )
         )
       is MapCardUiData.SuggestLoiCardUiData -> {
-        // TODO(#1541): Handle navigation to Data Collection flow with additional Suggest LOI task
+        navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            null,
+            cardUiData.job.id
+          )
+        )
       }
     }
   }
