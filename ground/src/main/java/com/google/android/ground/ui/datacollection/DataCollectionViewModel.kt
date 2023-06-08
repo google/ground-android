@@ -80,28 +80,8 @@ internal constructor(
   private val job: Job =
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
   val tasks: List<Task> = buildList {
-    when (val suggestTaskType = job.suggestLoiTaskType) {
-      Task.Type.DROP_A_PIN ->
-        add(
-          Task(
-            id = "-1",
-            index = -1,
-            suggestTaskType,
-            resources.getString(R.string.new_location),
-            isRequired = true
-          )
-        )
-      Task.Type.DRAW_POLYGON ->
-        add(
-          Task(
-            id = "-1",
-            index = -1,
-            suggestTaskType,
-            resources.getString(R.string.new_location),
-            isRequired = true
-          )
-        )
-      else -> {}
+    if (job.suggestLoiTaskType != null) {
+      add(createSuggestLoiTask(job.suggestLoiTaskType))
     }
     addAll(job.tasksSorted)
   }
@@ -219,6 +199,15 @@ internal constructor(
   fun setCurrentPosition(position: Int) {
     savedStateHandle[currentPositionKey] = position
   }
+
+  private fun createSuggestLoiTask(taskType: Task.Type): Task =
+    Task(
+      id = "-1",
+      index = -1,
+      taskType,
+      resources.getString(R.string.new_location),
+      isRequired = true
+    )
 
   companion object {
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =

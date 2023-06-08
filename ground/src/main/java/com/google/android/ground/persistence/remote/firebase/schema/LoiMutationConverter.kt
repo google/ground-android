@@ -40,18 +40,12 @@ internal object LoiMutationConverter {
     map[LoiConverter.JOB_ID] = mutation.jobId
 
     when (val geometry = mutation.geometry) {
-      is Point -> {
-        val geometryMap: MutableMap<String, Any> = HashMap()
-        geometryMap[LoiConverter.GEOMETRY_COORDINATES] = toGeoPoint(geometry)
-        geometryMap[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POINT_TYPE
-        map[LoiConverter.GEOMETRY] = geometryMap
-      }
-      is Polygon -> {
-        val geometryMap: MutableMap<String, Any> = HashMap()
-        geometryMap[LoiConverter.GEOMETRY_COORDINATES] = toGeoPointList(geometry.shell.vertices)
-        geometryMap[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
-        map[LoiConverter.GEOMETRY] = geometryMap
-      }
+      is Point -> map.addGeometryCoordinates(toGeoPoint(geometry), LoiConverter.POINT_TYPE)
+      is Polygon ->
+        map.addGeometryCoordinates(
+          toGeoPointList(geometry.shell.vertices),
+          LoiConverter.POLYGON_TYPE
+        )
       else -> {}
     }
 
@@ -66,6 +60,16 @@ internal object LoiMutationConverter {
       Mutation.Type.UNKNOWN -> throw UnsupportedOperationException()
     }
     return map.toPersistentMap()
+  }
+
+  private fun MutableMap<String, Any>.addGeometryCoordinates(
+    geometryCoordinates: Any,
+    geometryType: String
+  ) {
+    val geometryMap: MutableMap<String, Any> = HashMap()
+    geometryMap[LoiConverter.GEOMETRY_COORDINATES] = geometryCoordinates
+    geometryMap[LoiConverter.GEOMETRY_TYPE] = geometryType
+    this[LoiConverter.GEOMETRY] = geometryMap
   }
 
   private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.lat, point.coordinate.lng)
