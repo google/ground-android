@@ -41,7 +41,7 @@ internal object ResponseJsonConverter {
       is NumberTaskData -> taskData.value
       is DateTaskData -> dateToIsoString(taskData.date)
       is TimeTaskData -> dateToIsoString(taskData.time)
-      is LocationTaskData -> taskData.cameraPosition.serialize()
+      is DropAPinTaskData -> taskData.cameraPosition.serialize()
       else -> throw UnsupportedOperationException("Unimplemented taskData ${taskData.javaClass}")
     }
 
@@ -100,10 +100,10 @@ internal object ResponseJsonConverter {
       Task.Type.DRAW_POLYGON,
       Task.Type.DROP_A_PIN -> {
         if (obj === JSONObject.NULL) {
-          LocationTaskData.fromString("")
+          DropAPinTaskData.fromString("")
         } else {
           DataStoreException.checkType(String::class.java, obj)
-          LocationTaskData.fromString(obj as String)
+          DropAPinTaskData.fromString(obj as String)
         }
       }
       Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
