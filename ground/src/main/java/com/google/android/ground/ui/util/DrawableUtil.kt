@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.util
 
-import android.content.Context
 import android.content.res.Resources
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
@@ -24,7 +23,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.color.MaterialColors
 import javax.inject.Inject

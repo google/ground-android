@@ -56,7 +56,9 @@ class MapTypeAdapter(
       } else {
         R.attr.colorOnSurface
       }
-    holder.binding.textView.setTextColor(MaterialColors.getColor(holder.binding.textView, textColor))
+    holder.binding.textView.setTextColor(
+      MaterialColors.getColor(holder.binding.textView, textColor)
+    )
     val borderDrawable =
       if (selectedIndex == position) {
         R.drawable.map_type_item_selected_background
