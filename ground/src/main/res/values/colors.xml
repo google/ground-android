@@ -77,7 +77,4 @@
   <color name="md_theme_inverseSurface">#2E312D</color>
   <color name="md_theme_inverseOnSurface">#F0F1EB</color>
   <color name="md_theme_inversePrimary">#6DDD81</color>
-  <color name="md_theme_surfaceTint">#006E2C</color>
-  <color name="md_theme_outlineVariant">#C1C9BE</color>
-  <color name="md_theme_scrim">#000000</color>
 </resources>
