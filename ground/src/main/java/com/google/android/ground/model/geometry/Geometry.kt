@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.model.geometry
 
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.ui.map.gms.toLatLng
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -122,10 +120,12 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
     this.maximum() >= other.maximum() && this.minimum() <= other.minimum()
 }
 
-val geometrySerializer = Json { SerializersModule {
-  polymorphic(Geometry::class, Point::class, Point.serializer())
-  polymorphic(Geometry::class, Polygon::class, Polygon.serializer())
-  polymorphic(Geometry::class, MultiPolygon::class, MultiPolygon.serializer())
-  polymorphic(Geometry::class, LineString::class, LineString.serializer())
-  polymorphic(Geometry::class, LinearRing::class, LinearRing.serializer())
-} }
+val geometrySerializer = Json {
+  SerializersModule {
+    polymorphic(Geometry::class, Point::class, Point.serializer())
+    polymorphic(Geometry::class, Polygon::class, Polygon.serializer())
+    polymorphic(Geometry::class, MultiPolygon::class, MultiPolygon.serializer())
+    polymorphic(Geometry::class, LineString::class, LineString.serializer())
+    polymorphic(Geometry::class, LinearRing::class, LinearRing.serializer())
+  }
+}

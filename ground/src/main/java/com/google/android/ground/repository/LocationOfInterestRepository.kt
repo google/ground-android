@@ -15,14 +15,12 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
