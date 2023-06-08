@@ -17,17 +17,13 @@
   -->
 
 <resources>
-  <color name="colorPrimary">#3B4563</color>
-  <color name="colorAccent">#009113</color>
   <color name="colorMapAccent">#ff9131</color>
   <color name="colorMapBlue">#4F87ED</color>
-  <color name="colorBackground">#FAFAFA</color>
   <color name="colorGrey300">#E0E0E0</color>
   <color name="colorGrey500">#9E9E9E</color>
   <color name="colorGrey600">#757575</color>
   <color name="colorGrey800">#424242</color>
   <color name="colorForeground">#212121</color>
-  <color name="colorAlert">#d2004d</color>
   <color name="colorNavMenuItem">#333333</color>
 
   <!-- Palette -->
@@ -47,8 +43,6 @@
   <color name="taskBtnLightGreen">#D5E8D0</color>
   <color name="taskBtnTextLightGreen">#000000</color>
   <color name="taskBtnTransparentStrokeColor">#747775</color>
-  <color name="taskBtnTextTransparent">@color/paletteGreen</color>
-  <color name="taskBtnIconTintTransparent">@color/paletteGreen</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>

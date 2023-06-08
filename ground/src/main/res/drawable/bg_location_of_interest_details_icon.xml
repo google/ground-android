@@ -19,7 +19,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
   android:shape="oval">
 
-  <solid android:color="@color/colorBackground"/>
+  <solid android:color="?attr/colorSurface"/>
 
   <size
     android:width="@dimen/loi_details_icon_bg_diameter"

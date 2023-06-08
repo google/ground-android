@@ -34,8 +34,6 @@
 
   <style name="AppTheme.Base" parent="Theme.Material3.DayNight.NoActionBar">
     <!-- See https://material.io/develop/android/theming/color/ for full list. -->
-    <item name="colorAccent">@color/colorAccent</item>
-
     <item name="colorPrimary">@color/md_theme_primary</item>
     <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
     <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
@@ -65,7 +63,7 @@
   </style>
 
   <style name="LocationOfInterestDetailsToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-    <item name="colorControlNormal">@color/colorBackground</item>
+    <item name="colorControlNormal">?attr/colorSurface</item>
     <item name="android:textColor">@color/colorForeground</item>
   </style>
 
@@ -79,10 +77,10 @@
   </style>
 
   <style name="PrimaryToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
-    <item name="android:background">@color/colorBackground</item>
+    <item name="android:background">?attr/colorSurface</item>
     <item name="gndToolbarTitleStyle">@style/ToolbarTitle</item>
     <item name="gndToolbarSubtitleStyle">@style/ToolbarSubtitle</item>
-    <item name="colorControlNormal">@color/colorAccent</item>
+    <item name="colorControlNormal">?attr/colorPrimary</item>
   </style>
 
   <style name="SubmissionListText">
@@ -128,23 +126,23 @@
 
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
-    <item name="boxStrokeColor">@color/colorAccent</item>
+    <item name="boxStrokeColor">?attr/colorPrimary</item>
   </style>
 
   <style name="ImageButton" parent="Widget.AppCompat.ImageButton">
-    <item name="android:tint">@color/colorAccent</item>
+    <item name="android:tint">?attr/colorPrimary</item>
     <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
   </style>
 
   <style name="ChipButton" parent="Widget.MaterialComponents.Chip.Action">
-    <item name="chipBackgroundColor">@color/colorAccent</item>
+    <item name="chipBackgroundColor">?attr/colorPrimary</item>
     <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
     <item name="chipStartPadding">@dimen/chip_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_button_padding</item>
     <item name="chipMinHeight">@dimen/chip_button_min_height</item>
     <!-- textColor inside textAppearance stopped working in 28.0.0-rc02. -->
-    <item name="chipIconTint">@color/colorBackground</item>
-    <item name="android:textColor">@color/colorBackground</item>
+    <item name="chipIconTint">?attr/colorSurface</item>
+    <item name="android:textColor">?attr/colorSurface</item>
     <item name="android:textAppearance">@style/ChipButtonText</item>
   </style>
 
@@ -216,7 +214,7 @@
 
   <style name="TaskChipButton.Transparent">
     <item name="android:backgroundTint">@drawable/task_transparent_btn_selector</item>
-    <item name="android:textColor">@color/taskBtnTextTransparent</item>
+    <item name="android:textColor">?attr/colorPrimary</item>
   </style>
 
   <style name="TaskChipButton.Transparent.Outline">
@@ -225,12 +223,12 @@
   </style>
 
   <style name="TaskChipButton.Transparent.TextAndIcon">
-    <item name="iconTint">@color/taskBtnIconTintTransparent</item>
+    <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
   <style name="JobButton" parent="ChipButton">
     <item name="android:backgroundTint">@color/paletteGreen</item>
-    <item name="android:textColor">@color/colorBackground</item>
+    <item name="android:textColor">?attr/colorSurface</item>
     <item name="android:textSize">13sp</item>
     <item name="android:layout_marginTop">12dp</item>
   </style>
