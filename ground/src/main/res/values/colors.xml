@@ -49,4 +49,32 @@
   <color name="taskBtnTransparentStrokeColor">#747775</color>
   <color name="taskBtnTextTransparent">@color/paletteGreen</color>
   <color name="taskBtnIconTintTransparent">@color/paletteGreen</color>
+
+  <!-- Updated Color palette -->
+  <color name="md_theme_primary">#006E2C</color>
+  <color name="md_theme_onPrimary">#FFFFFF</color>
+  <color name="md_theme_primaryContainer">#89FA9B</color>
+  <color name="md_theme_onPrimaryContainer">#002108</color>
+  <color name="md_theme_secondary">#516351</color>
+  <color name="md_theme_onSecondary">#FFFFFF</color>
+  <color name="md_theme_secondaryContainer">#D4E8D1</color>
+  <color name="md_theme_onSecondaryContainer">#0F1F11</color>
+  <color name="md_theme_tertiary">#39656C</color>
+  <color name="md_theme_onTertiary">#FFFFFF</color>
+  <color name="md_theme_tertiaryContainer">#BDEAF3</color>
+  <color name="md_theme_onTertiaryContainer">#001F24</color>
+  <color name="md_theme_error">#BA1A1A</color>
+  <color name="md_theme_onError">#FFFFFF</color>
+  <color name="md_theme_errorContainer">#FFDAD6</color>
+  <color name="md_theme_onErrorContainer">#410002</color>
+  <color name="md_theme_outline">#727970</color>
+  <color name="md_theme_background">#FCFDF7</color>
+  <color name="md_theme_onBackground">#1A1C19</color>
+  <color name="md_theme_surface">#F9FAF4</color>
+  <color name="md_theme_onSurface">#1A1C19</color>
+  <color name="md_theme_surfaceVariant">#DDE5D9</color>
+  <color name="md_theme_onSurfaceVariant">#424940</color>
+  <color name="md_theme_inverseSurface">#2E312D</color>
+  <color name="md_theme_inverseOnSurface">#F0F1EB</color>
+  <color name="md_theme_inversePrimary">#6DDD81</color>
 </resources>
