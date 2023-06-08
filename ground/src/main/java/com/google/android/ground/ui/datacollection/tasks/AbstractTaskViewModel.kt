@@ -17,8 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks
 
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
@@ -59,11 +59,8 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   lateinit var task: Task
 
   init {
-    taskData =
-      LiveDataReactiveStreams.fromPublisher(
-        taskDataSubject.distinctUntilChanged().startWith(Optional.empty())
-      )
-    responseText = LiveDataReactiveStreams.fromPublisher(detailsTextFlowable())
+    taskData = taskDataSubject.distinctUntilChanged().startWith(Optional.empty()).toLiveData()
+    responseText = detailsTextFlowable().toLiveData()
   }
 
   // TODO: Add a reference of Task in TaskData for simplification.

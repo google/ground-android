@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
@@ -57,8 +57,8 @@ internal constructor(
 
   init {
     surveySummaries =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineSurveys.flatMap { offlineSurveys: List<Survey> ->
+      offlineSurveys
+        .flatMap { offlineSurveys: List<Survey> ->
           allSurveys.map { allSurveys: List<Survey> ->
             allSurveys
               .map { createSurveyItem(it, offlineSurveys) }
@@ -66,7 +66,7 @@ internal constructor(
               .sortedByDescending { it.isAvailableOffline }
           }
         }
-      )
+        .toLiveData()
   }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =

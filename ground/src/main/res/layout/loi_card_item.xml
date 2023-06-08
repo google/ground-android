@@ -20,12 +20,6 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <data>
-    <variable
-      name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.LoiCardViewModel" />
-  </data>
-
   <com.google.android.material.card.MaterialCardView
     android:id="@+id/loi_card"
     android:layout_width="match_parent"
@@ -46,29 +40,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@{viewModel.loiJobName}"
         android:textSize="@dimen/loi_card_item_title_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Map the terrain" />
-      <androidx.constraintlayout.utils.widget.ImageFilterView
-        android:id="@+id/loiIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:tint="@color/colorGrey800"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/jobName"
-        app:srcCompat="@drawable/ic_outline_room_24" />
       <TextView
         android:id="@+id/loiName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:text="@{viewModel.loiName}"
-        app:layout_constraintBottom_toBottomOf="@id/loiIcon"
-        app:layout_constraintStart_toEndOf="@id/loiIcon"
+        app:layout_constraintStart_toStartOf="@id/jobName"
         app:layout_constraintTop_toBottomOf="@id/jobName"
         tools:text="Quilombolas" />
       <TextView
@@ -77,9 +59,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/loi_card_item_margin"
-        android:text="@{viewModel.loiSubmissions}"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loiIcon"
+        app:layout_constraintTop_toBottomOf="@id/loiName"
         tools:text="No submissions" />
       <Button
         android:id="@+id/collectData"

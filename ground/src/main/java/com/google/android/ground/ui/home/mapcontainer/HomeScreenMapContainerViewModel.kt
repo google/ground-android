@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.toLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
@@ -45,7 +45,8 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 @SharedViewModel
@@ -96,8 +97,8 @@ internal constructor(
     // LOIs that are persisted to the local and remote dbs.
 
     mapLocationOfInterestFeatures =
-      LiveDataReactiveStreams.fromPublisher(
-        surveyRepository.activeSurveyFlowable.switchMap { survey ->
+      surveyRepository.activeSurveyFlowable
+        .switchMap { survey ->
           if (survey.isPresent)
             locationOfInterestRepository
               .getLocationsOfInterestOnceAndStream(survey.get())
@@ -106,18 +107,17 @@ internal constructor(
               .distinctUntilChanged()
           else Flowable.just(setOf())
         }
-      )
+        .toLiveData()
 
     mbtilesFilePaths =
-      LiveDataReactiveStreams.fromPublisher(
-        offlineAreaRepository.downloadedTileSetsOnceAndStream().map { set: Set<TileSet> ->
-          set.map(TileSet::path).toPersistentSet()
-        }
-      )
+      offlineAreaRepository
+        .downloadedTileSetsOnceAndStream()
+        .map { set: Set<TileSet> -> set.map(TileSet::path).toSet() }
+        .toLiveData()
 
     loisWithinMapBoundsAtVisibleZoomLevel =
-      LiveDataReactiveStreams.fromPublisher(
-        surveyRepository.activeSurveyFlowable.switchMap { survey ->
+      surveyRepository.activeSurveyFlowable
+        .switchMap { survey ->
           cameraZoomUpdates.switchMap { zoomLevel ->
             if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && survey.isPresent)
               locationOfInterestRepository.getWithinBoundsOnceAndStream(
@@ -127,7 +127,7 @@ internal constructor(
             else Flowable.just(listOf())
           }
         }
-      )
+        .toLiveData()
 
     suggestLoiJobs =
       surveyRepository.activeSurveyFlow.map {

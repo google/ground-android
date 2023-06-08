@@ -18,8 +18,8 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
@@ -66,12 +66,9 @@ constructor(
   private var capturedPhotoPath: String? = null
 
   val uri: LiveData<Uri> =
-    LiveDataReactiveStreams.fromPublisher(
-      detailsTextFlowable().switchMapSingle { userMediaRepository.getDownloadUrl(it) }
-    )
+    detailsTextFlowable().switchMapSingle { userMediaRepository.getDownloadUrl(it) }.toLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> =
-    LiveDataReactiveStreams.fromPublisher(detailsTextFlowable().map { it.isNotEmpty() })
+  val isPhotoPresent: LiveData<Boolean> = detailsTextFlowable().map { it.isNotEmpty() }.toLiveData()
 
   private var surveyId: String? = null
 
