@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
