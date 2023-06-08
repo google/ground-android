@@ -21,6 +21,6 @@
   <size
     android:width="20dp"
     android:height="20dp" />
-  <solid android:color="@color/colorBackground" />
+  <solid android:color="?attr/colorSurface" />
   <corners android:radius="30dp" />
 </shape>

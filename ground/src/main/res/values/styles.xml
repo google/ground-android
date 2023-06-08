@@ -64,11 +64,11 @@
 
   <style name="LocationOfInterestDetailsToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     <item name="colorControlNormal">?attr/colorSurface</item>
-    <item name="android:textColor">@color/colorForeground</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-    <item name="android:textColor">@color/colorForeground</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
@@ -120,7 +120,7 @@
   </style>
 
   <style name="SubmissionDetails.Task.Value" parent="AppTheme.Base">
-    <item name="android:textColor">@color/colorForeground</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
     <item name="android:textSize">@dimen/task_value_text_size</item>
   </style>
 
@@ -180,7 +180,7 @@
     <item name="android:layout_height">wrap_content</item>
     <item name="android:layout_marginTop">24dp</item>
     <item name="android:textAppearance">@style/TextAppearance.AppCompat.Headline</item>
-    <item name="android:textColor">@color/colorForeground</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
     <item name="android:textStyle">bold</item>
   </style>
 

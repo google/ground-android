@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.ground.ui.common.TwoLineToolbar
@@ -83,7 +84,7 @@ abstract class AbstractActivity : AppCompatActivity() {
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color
     // programmatically without needing to remember to update the icon.
-    val icon = drawableUtil.getDrawable(upIconId, R.color.colorAccent)
+    val icon = drawableUtil.getDrawable(toolbar.rootView, upIconId, R.attr.colorPrimary)
     supportActionBar!!.setHomeAsUpIndicator(icon)
   }
 

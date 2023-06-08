@@ -25,6 +25,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTypeDialogItemBinding
 import com.google.android.ground.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
 import com.google.android.ground.ui.map.MapType
+import com.google.android.material.color.MaterialColors
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [MapType] data with the [ViewHolder]
@@ -51,11 +52,11 @@ class MapTypeAdapter(
     holder.binding.textView.text = context.getString(itemsViewModel.labelId)
     val textColor =
       if (selectedIndex == position) {
-        R.color.colorAccent
+        R.attr.colorPrimary
       } else {
-        R.color.colorForeground
+        R.attr.colorOnSurface
       }
-    holder.binding.textView.setTextColor(context.resources.getColor(textColor, null))
+    holder.binding.textView.setTextColor(MaterialColors.getColor(holder.binding.textView, textColor))
     val borderDrawable =
       if (selectedIndex == position) {
         R.drawable.map_type_item_selected_background
