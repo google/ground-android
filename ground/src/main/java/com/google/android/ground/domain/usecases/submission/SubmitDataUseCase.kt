@@ -41,6 +41,7 @@ constructor(
    * LOI task is the first task in the Data Collection flow when a new LOI is being suggested.
    */
   @Transaction
+  @Suppress("UseIfInsteadOfWhen")
   operator fun invoke(
     loiId: String?,
     job: Job,
@@ -58,7 +59,7 @@ constructor(
         }
         else ->
           // TODO(#1351): Process result of DRAW_POLYGON task
-          throw IllegalStateException("No suggest LOI Task found when loi ID was null")
+          error("No suggest LOI Task found when loi ID was null")
       }
     }
 
