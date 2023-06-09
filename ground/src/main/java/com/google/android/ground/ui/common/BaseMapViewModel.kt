@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.common
 
 import android.Manifest
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
@@ -29,8 +28,6 @@ import com.google.android.ground.system.*
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
-import com.google.android.material.color.MaterialColors
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -45,7 +42,6 @@ import timber.log.Timber
 open class BaseMapViewModel
 @Inject
 constructor(
-  @param:ApplicationContext private val context: Context,
   private val locationManager: LocationManager,
   private val mapStateRepository: MapStateRepository,
   private val settingsManager: SettingsManager,

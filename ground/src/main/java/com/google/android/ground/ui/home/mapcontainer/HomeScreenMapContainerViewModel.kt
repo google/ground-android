@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
@@ -40,7 +39,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.MapController
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -55,7 +53,6 @@ import timber.log.Timber
 class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
-  @ApplicationContext private val context: Context,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
@@ -66,7 +63,6 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository
 ) :
   BaseMapViewModel(
-    context,
     locationManager,
     mapStateRepository,
     settingsManager,

@@ -57,7 +57,6 @@ constructor(
   mapController: MapController
 ) :
   BaseMapViewModel(
-    context,
     locationManager,
     mapStateRepository,
     settingsManager,
