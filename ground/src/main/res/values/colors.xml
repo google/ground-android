@@ -22,26 +22,6 @@
   <color name="colorGrey300">#E0E0E0</color>
   <color name="colorGrey500">#9E9E9E</color>
   <color name="colorGrey600">#757575</color>
-  <color name="colorGrey800">#424242</color>
-  <color name="colorNavMenuItem">#333333</color>
-
-  <!-- Palette -->
-  <color name="paletteGreen">#216C2E</color>
-
-  <!--  Suggest Loi Card-->
-  <color name="colorLightGreenCardBackground">#D5E8D0</color>
-  <color name="colorLightGreenButton">#8CD88D</color>
-
-  <!-- Data Submission Confirmation -->
-  <color name="colorDataSubmissionConfirmationGreen">@color/paletteGreen</color>
-
-  <!-- Task UI Components -->
-  <color name="taskBottomControlsBackground">#FCFDF7</color>
-  <color name="taskBtnDarkGreen">#47854B</color>
-  <color name="taskBtnTextDarkGreen">#FFFFFF</color>
-  <color name="taskBtnLightGreen">#D5E8D0</color>
-  <color name="taskBtnTextLightGreen">#000000</color>
-  <color name="taskBtnTransparentStrokeColor">#747775</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>
