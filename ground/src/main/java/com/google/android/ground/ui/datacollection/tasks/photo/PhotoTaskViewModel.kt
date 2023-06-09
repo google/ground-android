@@ -18,8 +18,8 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
@@ -66,15 +66,11 @@ constructor(
   private var capturedPhotoPath: String? = null
 
   val uri: LiveData<Uri> =
-    LiveDataReactiveStreams.fromPublisher(
-      detailsTextFlowable().switchMapSingle { userMediaRepository.getDownloadUrl(it) }
-    )
+    detailsTextFlowable().switchMapSingle { userMediaRepository.getDownloadUrl(it) }.toLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> =
-    LiveDataReactiveStreams.fromPublisher(detailsTextFlowable().map { it.isNotEmpty() })
+  val isPhotoPresent: LiveData<Boolean> = detailsTextFlowable().map { it.isNotEmpty() }.toLiveData()
 
   private var surveyId: String? = null
-  private var submissionId: String? = null
 
   private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
   private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
@@ -99,16 +95,12 @@ constructor(
     this.surveyId = surveyId
   }
 
-  fun setSubmissionId(submissionId: String?) {
-    this.submissionId = submissionId
-  }
-
   fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.isHandled) {
       return
     }
-    if (surveyId == null || submissionId == null) {
-      Timber.e("surveyId or submissionId not set")
+    if (surveyId == null) {
+      Timber.e("surveyId not set")
       return
     }
     if (photoResult.taskId != task.id) {
@@ -129,7 +121,7 @@ constructor(
       userMediaRepository.addImageToGallery(path, filename)
 
       // Update taskData.
-      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, submissionId!!, filename)
+      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, filename)
       updateResponse(remoteDestinationPath)
     } catch (e: IOException) {
       // TODO: Report error.

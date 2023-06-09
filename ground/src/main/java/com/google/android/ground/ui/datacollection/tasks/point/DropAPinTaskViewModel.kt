@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.point
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.submission.DropAPinTaskData
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -46,7 +46,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   }
 
   fun updateResponse(position: CameraPosition) {
-    setResponse(Optional.of(LocationTaskData(position)))
+    setResponse(Optional.of(DropAPinTaskData(position)))
     features.postValue(setOf(createFeature(Point(position.target))))
   }
 

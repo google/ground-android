@@ -15,19 +15,22 @@
  */
 package com.google.android.ground.model.submission
 
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.CameraPosition
 import java8.util.Optional
 
-data class LocationTaskData(val cameraPosition: CameraPosition) : TaskData {
+data class DropAPinTaskData(val cameraPosition: CameraPosition) : TaskData {
   override fun getDetailsText(): String = cameraPosition.serialize()
 
   override fun isEmpty(): Boolean = false
+
+  fun getPoint(): Point = Point(cameraPosition.target)
 
   companion object {
     fun fromString(serializedValue: String): Optional<TaskData> {
       val cameraPosition = CameraPosition.deserialize(serializedValue)
       return if (cameraPosition == null) Optional.empty()
-      else Optional.of(LocationTaskData(cameraPosition))
+      else Optional.of(DropAPinTaskData(cameraPosition))
     }
   }
 }
