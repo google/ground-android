@@ -20,6 +20,6 @@
   <corners android:radius="8dp" />
   <stroke
     android:width="5dp"
-    android:color="@color/colorAccent" />
+    android:color="?attr/colorPrimary" />
   <solid android:color="#FFFFFF" />
 </shape>
