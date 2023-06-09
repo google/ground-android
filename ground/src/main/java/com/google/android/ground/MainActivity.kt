@@ -61,6 +61,7 @@ class MainActivity : Hilt_MainActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
+    applicationContext.setTheme(R.style.AppTheme)
     super.onCreate(savedInstanceState)
 
     // Set up event streams first. Navigator must be listening when auth is first initialized.

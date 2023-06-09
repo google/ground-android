@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.offlinebasemap.selector
 
+import android.content.Context
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
@@ -33,6 +34,7 @@ import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.MapController
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
@@ -42,6 +44,7 @@ import timber.log.Timber
 class OfflineAreaSelectorViewModel
 @Inject
 internal constructor(
+  @ApplicationContext private val context: Context,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val offlineUuidGenerator: OfflineUuidGenerator,
   private val resources: Resources,
@@ -52,6 +55,7 @@ internal constructor(
   mapController: MapController,
 ) :
   BaseMapViewModel(
+    context,
     locationManager,
     mapStateRepository,
     settingsManager,
