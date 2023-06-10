@@ -26,7 +26,7 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
-    android:backgroundTint="@color/colorLightGreenCardBackground"
+    android:backgroundTint="?attr/colorSecondaryContainer"
     android:orientation="vertical"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
@@ -43,7 +43,7 @@
         android:src="@drawable/add_location_alt_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/colorGrey800" />
+        app:tint="?attr/colorOnSurfaceVariant" />
       <TextView
         android:id="@+id/jobName"
         android:layout_width="wrap_content"
