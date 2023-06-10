@@ -57,7 +57,7 @@ class FeatureClusterRenderer(
     try {
       Color.parseColor(colorHexCode.toString())
     } catch (e: IllegalArgumentException) {
-      Timber.w("Invalid color code in job style: $colorHexCode")
+      Timber.w(e, "Invalid color code in job style: $colorHexCode")
       context?.resources?.getColor(R.color.colorMapAccent) ?: 0
     }
 
