@@ -27,8 +27,8 @@ data class LocationOfInterestEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "survey_id") val surveyId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
-  @ColumnInfo(name = "state") var state: EntityState, // TODO: Rename to DeletionState.
-  @ColumnInfo(name = "caption") var caption: String?,
+  @ColumnInfo(name = "state") val state: EntityState, // TODO: Rename to DeletionState.
+  @ColumnInfo(name = "caption") val caption: String?,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
   val geometry: GeometryWrapper?

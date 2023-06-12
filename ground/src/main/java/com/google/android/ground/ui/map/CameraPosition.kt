@@ -21,7 +21,7 @@ data class CameraPosition(
   val target: Coordinate,
   val zoomLevel: Float? = null,
   val isAllowZoomOut: Boolean = false,
-  var bounds: Bounds? = null
+  val bounds: Bounds? = null
 ) {
 
   fun serialize(): String =

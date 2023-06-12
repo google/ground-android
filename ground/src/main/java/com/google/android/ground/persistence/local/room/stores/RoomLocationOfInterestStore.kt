@@ -158,7 +158,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     mutation: LocationOfInterestMutation
   ): Completable =
     locationOfInterestDao
-      .update(entity.apply { state = EntityState.DELETED })
+      .update(entity.copy(state = EntityState.DELETED))
       .doOnSubscribe { Timber.d("Marking location of interest as deleted : $mutation") }
       .ignoreElement()
 
