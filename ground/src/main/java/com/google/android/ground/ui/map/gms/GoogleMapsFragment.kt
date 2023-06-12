@@ -111,8 +111,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
     locationOfInterestInteractionSubject
 
-  private val polylineStrokeWidth: Int
-    get() = resources.getDimension(R.dimen.polyline_stroke_width).toInt()
+  private val polylineStrokeWidth: Float
+    get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
   override var mapType: Int
     get() = map.mapType
@@ -180,34 +180,26 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onMapReady(map: GoogleMap) {
     this.map = map
-    this.clusterManager = FeatureClusterManager(context, map)
-    this.clusterRenderer =
+
+    // TODO(jsunde): Figure out where we want to get the style from parseColor(Style().color)
+    val featureColor = parseColor(Style().color)
+
+    clusterManager = FeatureClusterManager(context, map)
+    clusterRenderer =
       FeatureClusterRenderer(
-        context,
+        requireContext(),
         map,
         clusterManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom
+        map.cameraPosition.zoom,
+        featureColor
       )
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
-    // TODO(jsunde): Figure out where we want to get the style from
-    //  parseColor(Style().color)
-    this.polylineRenderer =
-      PolylineRenderer(
-        map,
-        getCustomCap(),
-        polylineStrokeWidth.toFloat(),
-        parseColor(Style().color)
-      )
-    this.polygonRenderer =
-      PolygonRenderer(
-        map,
-        polylineStrokeWidth.toFloat(),
-        parseColor("#55ffffff"),
-        parseColor(Style().color)
-      )
+    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
+    polygonRenderer =
+      PolygonRenderer(map, polylineStrokeWidth, parseColor("#55ffffff"), featureColor)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)

@@ -16,13 +16,10 @@
 package com.google.android.ground.ui.map.gms
 
 import android.content.Context
-import android.graphics.Color
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.ground.R
-import com.google.android.ground.model.job.Style
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -36,7 +33,7 @@ import timber.log.Timber
  * individual markers for each cluster item.
  */
 class FeatureClusterRenderer(
-  private val context: Context?,
+  context: Context,
   private val map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
   private val clusteringZoomThreshold: Float,
@@ -48,21 +45,14 @@ class FeatureClusterRenderer(
    * run on the main thread.
    */
   var zoom: Float,
+  private val markerColor: Int
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
   var previousActiveLoiId: String? = null
-  private val markerIconFactory: MarkerIconFactory? = context?.let { MarkerIconFactory(it) }
+  private val markerIconFactory: MarkerIconFactory = MarkerIconFactory(context)
 
-  private fun parseColor(colorHexCode: String?): Int =
-    try {
-      Color.parseColor(colorHexCode.toString())
-    } catch (e: IllegalArgumentException) {
-      Timber.w(e, "Invalid color code in job style: $colorHexCode")
-      context?.resources?.getColor(R.color.colorMapAccent) ?: 0
-    }
-
-  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor? =
-    markerIconFactory?.getMarkerIcon(parseColor(Style().color), map.cameraPosition.zoom, isSelected)
+  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(markerColor, map.cameraPosition.zoom, isSelected)
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
@@ -82,7 +72,7 @@ class FeatureClusterRenderer(
     }
   }
 
-  private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor? {
+  private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     var totalWithData = 0
 
     cluster.items.forEach {
@@ -91,13 +81,11 @@ class FeatureClusterRenderer(
       }
     }
 
-    val icon =
-      markerIconFactory?.getClusterIcon(
-        parseColor(Style().color),
-        map.cameraPosition.zoom,
-        "$totalWithData/" + cluster.items.size
-      )
-    return icon
+    return markerIconFactory.getClusterIcon(
+      markerColor,
+      map.cameraPosition.zoom,
+      "$totalWithData/" + cluster.items.size
+    )
   }
 
   override fun onBeforeClusterRendered(
