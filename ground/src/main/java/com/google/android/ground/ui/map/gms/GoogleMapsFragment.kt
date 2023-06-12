@@ -192,8 +192,22 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
-    this.polylineRenderer = PolylineRenderer(map)
-    this.polygonRenderer = PolygonRenderer(map)
+    // TODO(jsunde): Figure out where we want to get the style from
+    //  parseColor(Style().color)
+    this.polylineRenderer =
+      PolylineRenderer(
+        map,
+        getCustomCap(),
+        polylineStrokeWidth.toFloat(),
+        parseColor(Style().color)
+      )
+    this.polygonRenderer =
+      PolygonRenderer(
+        map,
+        polylineStrokeWidth.toFloat(),
+        parseColor("#55ffffff"),
+        parseColor(Style().color)
+      )
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -265,9 +279,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
-  private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
-    multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
-
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
       val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
@@ -305,33 +316,11 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     when (feature.geometry) {
       is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
       is LineString,
-      is LinearRing -> addPolyline(feature)
-      is Polygon -> addPolygon(feature, feature.geometry)
-      is MultiPolygon -> addMultiPolygon(feature, feature.geometry)
+      is LinearRing -> polylineRenderer.addFeature(feature, feature.geometry)
+      is Polygon -> polygonRenderer.addFeature(feature, feature.geometry)
+      is MultiPolygon ->
+        feature.geometry.polygons.forEach { polygonRenderer.addFeature(feature, it) }
     }
-  }
-
-  private fun addPolyline(feature: Feature) {
-    // TODO(jsunde): Figure out where we want to get the style from
-    polylineRenderer.addPolyline(
-      feature,
-      feature.geometry.vertices,
-      getCustomCap(),
-      polylineStrokeWidth.toFloat(),
-      parseColor(Style().color)
-    )
-  }
-
-  private fun addPolygon(feature: Feature, geometry: Polygon) {
-    // TODO(jsunde): Figure out where we want to get the style from
-    //  parseColor(Style().color)
-    polygonRenderer.addPolygon(
-      feature,
-      geometry,
-      polylineStrokeWidth.toFloat(),
-      parseColor("#55ffffff"),
-      parseColor(Style().color)
-    )
   }
 
   override fun renderFeatures(features: Set<Feature>) {

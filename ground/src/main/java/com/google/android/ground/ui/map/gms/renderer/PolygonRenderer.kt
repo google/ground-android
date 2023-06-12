@@ -4,23 +4,24 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.PolygonOptions
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.toLatLng
 
-class PolygonRenderer(map: GoogleMap) : FeatureRenderer(map) {
+class PolygonRenderer(
+  map: GoogleMap,
+  private val strokeWidth: Float,
+  private val fillColor: Int,
+  private val strokeColor: Int
+) : FeatureRenderer(map) {
 
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
-  fun addPolygon(
-    feature: Feature,
-    polygon: Polygon,
-    strokeWidth: Float,
-    fillColor: Int,
-    strokeColor: Int
-  ) {
+  override fun addFeature(feature: Feature, geometry: Geometry) {
+    val polygon = geometry as Polygon
     val options = PolygonOptions()
     options.clickable(false)
 

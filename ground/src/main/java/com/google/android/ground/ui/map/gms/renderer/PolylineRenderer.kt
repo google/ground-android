@@ -5,21 +5,21 @@ import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.toLatLng
 
-class PolylineRenderer(map: GoogleMap) : FeatureRenderer(map) {
+class PolylineRenderer(
+  map: GoogleMap,
+  private val customCap: CustomCap,
+  private val strokeWidth: Float,
+  private val strokeColor: Int
+) : FeatureRenderer(map) {
 
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
 
-  fun addPolyline(
-    feature: Feature,
-    points: List<Point>,
-    customCap: CustomCap,
-    strokeWidth: Float,
-    strokeColor: Int
-  ) {
+  override fun addFeature(feature: Feature, geometry: Geometry) {
+    val points = geometry.vertices
     val options = PolylineOptions()
     options.clickable(false)
 
