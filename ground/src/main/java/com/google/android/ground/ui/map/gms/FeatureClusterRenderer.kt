@@ -51,8 +51,10 @@ class FeatureClusterRenderer(
   var previousActiveLoiId: String? = null
   private val markerIconFactory: MarkerIconFactory = MarkerIconFactory(context)
 
+  private fun getCurrentZoomLevel() = map.cameraPosition.zoom
+
   private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(markerColor, map.cameraPosition.zoom, isSelected)
+    markerIconFactory.getMarkerIcon(markerColor, getCurrentZoomLevel(), isSelected)
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
@@ -65,17 +67,10 @@ class FeatureClusterRenderer(
   }
 
   private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
-    var totalWithData = 0
-
-    cluster.items.forEach {
-      if (it.feature.tag.flag) {
-        totalWithData++
-      }
-    }
-
+    val totalWithData = cluster.items.count { it.feature.tag.flag }
     return markerIconFactory.getClusterIcon(
       markerColor,
-      map.cameraPosition.zoom,
+      getCurrentZoomLevel(),
       "$totalWithData/" + cluster.items.size
     )
   }
