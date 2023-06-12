@@ -10,12 +10,11 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.toLatLng
 
-class PolygonRenderer : FeatureRenderer {
+class PolygonRenderer(map: GoogleMap) : FeatureRenderer(map) {
 
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   fun addPolygon(
-    map: GoogleMap,
     feature: Feature,
     polygon: Polygon,
     strokeWidth: Float,

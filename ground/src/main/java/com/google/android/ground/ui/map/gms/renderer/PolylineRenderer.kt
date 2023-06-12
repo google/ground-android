@@ -9,12 +9,11 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.toLatLng
 
-class PolylineRenderer : FeatureRenderer {
+class PolylineRenderer(map: GoogleMap) : FeatureRenderer(map) {
 
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
 
   fun addPolyline(
-    map: GoogleMap,
     feature: Feature,
     points: List<Point>,
     customCap: CustomCap,

@@ -88,8 +88,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
-  private val polylineRenderer = PolylineRenderer()
-  private val polygonRenderer = PolygonRenderer()
+  private lateinit var polylineRenderer: PolylineRenderer
+  private lateinit var polygonRenderer: PolygonRenderer
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -191,6 +191,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       )
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
+
+    this.polylineRenderer = PolylineRenderer(map)
+    this.polygonRenderer = PolygonRenderer(map)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -311,7 +314,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun addPolyline(feature: Feature) {
     // TODO(jsunde): Figure out where we want to get the style from
     polylineRenderer.addPolyline(
-      map,
       feature,
       feature.geometry.vertices,
       getCustomCap(),
@@ -324,7 +326,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     // TODO(jsunde): Figure out where we want to get the style from
     //  parseColor(Style().color)
     polygonRenderer.addPolygon(
-      map,
       feature,
       geometry,
       polylineStrokeWidth.toFloat(),
