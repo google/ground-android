@@ -56,20 +56,12 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    if (item.feature.tag.id == clusterManager.activeLocationOfInterest) {
-      markerOptions.icon(getMarkerIcon(true))
-    } else {
-      markerOptions.icon(getMarkerIcon(false))
-    }
+    markerOptions.icon(getMarkerIcon(item.isSelected()))
   }
 
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
     super.onClusterItemUpdated(item, marker)
-    if (item.feature.tag.id == clusterManager.activeLocationOfInterest) {
-      marker.setIcon(getMarkerIcon(true))
-    } else {
-      marker.setIcon(getMarkerIcon(false))
-    }
+    marker.setIcon(getMarkerIcon(item.isSelected()))
   }
 
   private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
@@ -122,4 +114,7 @@ class FeatureClusterRenderer(
   ): Boolean =
     previousActiveLoiId != clusterManager.activeLocationOfInterest ||
       super.shouldRender(oldClusters, newClusters)
+
+  private fun FeatureClusterItem.isSelected() =
+    feature.tag.id == clusterManager.activeLocationOfInterest
 }
