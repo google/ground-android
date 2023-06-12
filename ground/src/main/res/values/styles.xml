@@ -72,7 +72,7 @@
   </style>
 
   <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
-    <item name="android:textColor">@color/colorGrey600</item>
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     <item name="android:textSize">12sp</item>
   </style>
 
@@ -102,7 +102,7 @@
   </style>
 
   <style name="SubmissionListText.TaskLabel">
-    <item name="android:textColor">@color/colorGrey600</item>
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     <item name="android:textSize">@dimen/submission_list_task_label_size</item>
   </style>
 
@@ -115,7 +115,7 @@
   </style>
 
   <style name="SubmissionDetails.Task.Label" parent="AppTheme.Base">
-    <item name="android:textColor">@color/colorGrey600</item>
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     <item name="android:textSize">@dimen/task_label_text_size</item>
   </style>
 

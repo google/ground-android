@@ -18,9 +18,6 @@
 
 <resources>
   <color name="colorMapAccent">#ff9131</color>
-  <color name="colorGrey300">#E0E0E0</color>
-  <color name="colorGrey500">#9E9E9E</color>
-  <color name="colorGrey600">#757575</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>

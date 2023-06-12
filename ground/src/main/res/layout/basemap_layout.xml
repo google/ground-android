@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:onClick="@{() -> fragment.showMapTypeSelectorDialog()}"
-        android:tint="@color/colorGrey500"
+        android:tint="?attr/colorOutline"
         app:backgroundTint="?attr/colorSurface"
         app:fabSize="mini"
         app:layout_constraintEnd_toEndOf="parent"

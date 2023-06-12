@@ -33,8 +33,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:navigationBarColor="@color/colorGrey500"
-    app:statusBarBackground="@color/colorGrey500">
+    android:navigationBarColor="?attr/colorOutline"
+    app:statusBarBackground="?attr/colorOutline">
 
     <RelativeLayout
       android:layout_width="match_parent"
