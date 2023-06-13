@@ -45,7 +45,7 @@
       android:id="@+id/offline_area_viewer_map_frame"
       android:layout_width="match_parent"
       android:layout_height="240dp"
-      android:background="@color/colorGrey300"
+      android:background="?attr/colorSurfaceVariant"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.333"
       app:layout_constraintStart_toStartOf="parent"
