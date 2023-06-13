@@ -24,7 +24,6 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
         mavenLocal()
         maven { url "https://maven.google.com" }
         maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
@@ -34,16 +33,16 @@ buildscript {
     }
     dependencies {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
-        classpath 'com.android.tools.build:gradle:7.4.0'
-        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.google.gms:google-services:4.3.15'
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.5.0"
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.5'
 
         // Performance Monitoring plugin: https://firebase.google.com/docs/perf-mon
-        classpath 'com.google.firebase:perf-plugin:1.4.1'
+        classpath 'com.google.firebase:perf-plugin:1.4.2'
 
         // Crashlytics plugin
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.0'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
 
         // Kotlin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -71,7 +70,6 @@ allprojects {
         maven { url "https://maven.google.com" }
         maven { url "https://jitpack.io" }
         maven { url "https://repo.osgeo.org/repository/release/" } // GeoTools
-        jcenter()
         mavenCentral()
     }
 }
@@ -140,5 +138,5 @@ ext {
     androidMinSdk = 24
     androidTargetSdk = 30
 
-    gmsMapsVersion = '17.0.1'
+    gmsMapsVersion = '18.1.0'
 }

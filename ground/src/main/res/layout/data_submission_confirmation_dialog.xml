@@ -31,7 +31,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:srcCompat="@drawable/round_check_circle_24"
-    app:tint="@color/colorDataSubmissionConfirmationGreen" />
+    app:tint="?attr/colorPrimary" />
 
   <TextView
     android:id="@+id/title"
@@ -65,7 +65,7 @@
     android:layout_marginTop="48dp"
     android:layout_marginBottom="24dp"
     android:text="@string/done"
-    app:backgroundTint="@color/colorDataSubmissionConfirmationGreen"
+    app:backgroundTint="?attr/colorPrimary"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"

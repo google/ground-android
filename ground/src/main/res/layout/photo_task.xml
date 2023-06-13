@@ -51,6 +51,6 @@
       android:visibility="@{viewModel.isEditable() ? View.VISIBLE : View.GONE}"
       app:backgroundTint="@android:color/transparent"
       app:srcCompat="@drawable/ic_baseline_delete_24"
-      app:tint="@color/colorGrey300" />
+      app:tint="?attr/colorSurfaceVariant" />
   </FrameLayout>
 </layout>

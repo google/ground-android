@@ -83,7 +83,7 @@ abstract class AbstractActivity : AppCompatActivity() {
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color
     // programmatically without needing to remember to update the icon.
-    val icon = drawableUtil.getDrawable(upIconId, R.color.colorAccent)
+    val icon = drawableUtil.getDrawable(toolbar.rootView, upIconId, R.attr.colorPrimary)
     supportActionBar!!.setHomeAsUpIndicator(icon)
   }
 

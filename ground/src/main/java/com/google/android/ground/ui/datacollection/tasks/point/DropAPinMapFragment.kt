@@ -24,7 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.submission.DropAPinTaskData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
@@ -64,7 +64,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.taskDataValue.collect {
-          setDroppedPinAsInfoCard((it as? LocationTaskData)?.cameraPosition)
+          setDroppedPinAsInfoCard((it as? DropAPinTaskData)?.cameraPosition)
         }
       }
     }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2023 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+  <!-- Updated Color palette -->
+  <color name="md_theme_primary">#6DDD81</color>
+  <color name="md_theme_onPrimary">#003914</color>
+  <color name="md_theme_primaryContainer">#005320</color>
+  <color name="md_theme_onPrimaryContainer">#89FA9B</color>
+  <color name="md_theme_secondary">#B8CCB5</color>
+  <color name="md_theme_onSecondary">#243425</color>
+  <color name="md_theme_secondaryContainer">#3A4B3A</color>
+  <color name="md_theme_onSecondaryContainer">#D4E8D1</color>
+  <color name="md_theme_tertiary">#A1CED7</color>
+  <color name="md_theme_onTertiary">#00363D</color>
+  <color name="md_theme_tertiaryContainer">#1F4D54</color>
+  <color name="md_theme_onTertiaryContainer">#BDEAF3</color>
+  <color name="md_theme_error">#FFB4AB</color>
+  <color name="md_theme_onError">#690005</color>
+  <color name="md_theme_errorContainer">#93000A</color>
+  <color name="md_theme_onErrorContainer">#FFDAD6</color>
+  <color name="md_theme_outline">#8B9389</color>
+  <color name="md_theme_background">#1A1C19</color>
+  <color name="md_theme_onBackground">#E2E3DD</color>
+  <color name="md_theme_surface">#111411</color>
+  <color name="md_theme_onSurface">#C6C7C2</color>
+  <color name="md_theme_surfaceVariant">#424940</color>
+  <color name="md_theme_onSurfaceVariant">#C1C9BE</color>
+  <color name="md_theme_inverseSurface">#E2E3DD</color>
+  <color name="md_theme_inverseOnSurface">#1A1C19</color>
+  <color name="md_theme_inversePrimary">#006E2C</color>
+</resources>

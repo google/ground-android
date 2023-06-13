@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.util
+package com.google.android.ground.ui.map.gms.renderer
 
-import timber.log.Timber
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.ui.map.Feature
 
-object Enums {
-  @JvmStatic
-  fun <T : Enum<T>> toEnum(enumClass: Class<T>, value: String): T =
-    try {
-      java.lang.Enum.valueOf(enumClass, value.uppercase())
-    } catch (e: IllegalArgumentException) {
-      Timber.e(e, "Failed to convert $value to enum $enumClass")
-      enumClass.enumConstants?.get(0)!!
-    }
+sealed class FeatureRenderer(val map: GoogleMap) {
+  abstract fun addFeature(feature: Feature, geometry: Geometry)
+  abstract fun removeStaleFeatures(features: Set<Feature>)
+  abstract fun removeAllFeatures()
 }
