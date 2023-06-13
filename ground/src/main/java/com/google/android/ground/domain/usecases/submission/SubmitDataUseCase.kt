@@ -26,6 +26,7 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import javax.inject.Inject
+import timber.log.Timber
 
 class SubmitDataUseCase
 @Inject
@@ -48,6 +49,7 @@ constructor(
     surveyId: String,
     taskDataDeltas: List<TaskDataDelta>
   ) {
+    Timber.v("Submitting data for loi: $loiId")
     var loiIdToSubmit = loiId
     val taskDataDeltasToSubmit = taskDataDeltas.toMutableList()
 
@@ -63,11 +65,13 @@ constructor(
       }
     }
 
-    submissionRepository.saveSubmission(
-      surveyId,
-      requireNotNull(loiIdToSubmit) { "No LOI found present for submission" },
-      taskDataDeltasToSubmit
-    )
+    submissionRepository
+      .saveSubmission(
+        surveyId,
+        requireNotNull(loiIdToSubmit) { "No LOI found present for submission" },
+        taskDataDeltasToSubmit
+      )
+      .blockingAwait()
   }
 
   private fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
