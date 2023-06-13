@@ -21,9 +21,7 @@ import com.google.android.gms.maps.model.TileProvider
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
-/**
- * Fetches and returns MOG tiles to Maps SDK for display as a tile overlay.
- */
+/** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
 class MogTileProvider(collection: MogCollection) : TileProvider {
   private val client = MogClient(collection)
 

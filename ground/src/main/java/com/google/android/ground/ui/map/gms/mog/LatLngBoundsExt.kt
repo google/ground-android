@@ -19,12 +19,8 @@ package com.google.android.ground.ui.map.gms.mog
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 
-/**
- * Returns the coordinates of the northwest corner of the bounds.
- */
+/** Returns the coordinates of the northwest corner of the bounds. */
 fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
 
-/**
- * Returns the coordinates of the southeast corner of the bounds.
- */
+/** Returns the coordinates of the southeast corner of the bounds. */
 fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)

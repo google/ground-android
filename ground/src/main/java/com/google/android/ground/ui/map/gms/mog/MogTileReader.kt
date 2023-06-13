@@ -21,9 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
-/**
- * Reads tiles from an [InputStream].
- */
+/** Reads tiles from an [InputStream]. */
 class MogTileReader(private val inputStream: InputStream, initialOffset: Long) {
   private var offset: Long = initialOffset
 
@@ -31,9 +29,7 @@ class MogTileReader(private val inputStream: InputStream, initialOffset: Long) {
     tiles.forEach { emit(readTile(it)) }
   }
 
-  /**
-   * Read and return the tile with the specified metadata.
-   */
+  /** Read and return the tile with the specified metadata. */
   private fun readTile(tileMetadata: MogTileMetadata): MogTile {
     val startTimeMillis = System.currentTimeMillis()
     val tileData = readTileData(tileMetadata.byteRange)
