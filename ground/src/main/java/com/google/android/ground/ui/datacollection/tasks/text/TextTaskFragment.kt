@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.text
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.databinding.QuestionTaskFragBinding
+import com.google.android.ground.databinding.TextTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -32,7 +32,7 @@ class TextTaskFragment : Hilt_TextTaskFragment<TextTaskViewModel>() {
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = QuestionTaskFragBinding.inflate(inflater)
+    val taskBinding = TextTaskFragBinding.inflate(inflater)
     taskBinding.viewModel = viewModel
     taskBinding.lifecycleOwner = this
     return taskBinding.root

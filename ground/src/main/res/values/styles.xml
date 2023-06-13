@@ -125,7 +125,6 @@
   </style>
 
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
-    <!-- TODO -->
     <item name="boxStrokeColor">?attr/colorPrimary</item>
   </style>
 
