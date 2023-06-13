@@ -25,6 +25,8 @@ data class MogTileMetadata(
 ) {
   // Default [equals] and [hashCode] behavior doesn't take array members into account. Defend
   // against accidental usage by throwing exception if called.
+  @Suppress("detekt:ExceptionRaisedInUnexpectedLocation")
   override fun equals(other: Any?) = throw UnsupportedOperationException()
+  @Suppress("detekt:ExceptionRaisedInUnexpectedLocation")
   override fun hashCode() = throw UnsupportedOperationException()
 }

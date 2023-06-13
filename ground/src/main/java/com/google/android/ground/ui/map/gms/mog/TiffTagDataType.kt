@@ -58,11 +58,9 @@ enum class TiffTagDataType(
   DOUBLE(8);
 
   companion object {
-    fun byId(id: Int): TiffTagDataType =
-      try {
-        values()[id - 1]
-      } catch (e: ArrayIndexOutOfBoundsException) {
-        error("Unsupported tag data type $id")
-      }
+    fun byId(id: Int): TiffTagDataType {
+      check(id >= 1 && id <= values().size) { "Unsupported tag data type $id" }
+      return values()[id - 1]
+    }
   }
 }

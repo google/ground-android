@@ -100,6 +100,7 @@ class MogMetadataReader(sourceStream: InputStream) {
   }
 
   private fun readTagData(fieldTag: TiffTag?, dataType: TiffTagDataType, valueCount: Int): Any? {
+    if (fieldTag == null) return null
     val fieldSize = dataType.sizeInBytes * valueCount
     // Larger values aren't stored inline. Instead, a pointer to the position of the actual values
     // is stored.
@@ -110,15 +111,10 @@ class MogMetadataReader(sourceStream: InputStream) {
 
     val valuesList = readTagValues(dataType, valueCount)
 
-    return if (
-      valueCount == 1 &&
-        fieldTag != null &&
-        !fieldTag.isArray &&
-        !(dataType == RATIONAL || dataType == SRATIONAL)
-    ) {
-      valuesList[0]
-    } else {
+    return if (fieldTag.isArray) {
       valuesList
+    } else {
+      valuesList.firstOrNull()
     }
   }
 
