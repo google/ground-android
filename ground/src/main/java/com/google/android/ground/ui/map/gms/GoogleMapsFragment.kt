@@ -32,17 +32,18 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
+import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,8 +88,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
-  private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
-  private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
+  private lateinit var polylineRenderer: PolylineRenderer
+  private lateinit var polygonRenderer: PolygonRenderer
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -110,8 +111,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
     locationOfInterestInteractionSubject
 
-  private val polylineStrokeWidth: Int
-    get() = resources.getDimension(R.dimen.polyline_stroke_width).toInt()
+  private val polylineStrokeWidth: Float
+    get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
   override var mapType: Int
     get() = map.mapType
@@ -179,17 +180,26 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onMapReady(map: GoogleMap) {
     this.map = map
-    this.clusterManager = FeatureClusterManager(context, map)
-    this.clusterRenderer =
+
+    // TODO(jsunde): Figure out where we want to get the style from parseColor(Style().color)
+    val featureColor = parseColor(Style().color)
+
+    clusterManager = FeatureClusterManager(context, map)
+    clusterRenderer =
       FeatureClusterRenderer(
-        context,
+        requireContext(),
         map,
         clusterManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom
+        map.cameraPosition.zoom,
+        featureColor
       )
     clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
+
+    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
+    polygonRenderer =
+      PolygonRenderer(map, polylineStrokeWidth, parseColor("#55ffffff"), featureColor)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -210,8 +220,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     val candidates = mutableListOf<Feature>()
     val processed = ArrayList<String>()
 
-    for ((feature, value) in
-      polygons.filter { it.key.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }) {
+    for ((feature, value) in polygonRenderer.getPolygonsWithLoi()) {
       val loiId = feature.tag.id
 
       if (processed.contains(loiId)) {
@@ -262,56 +271,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
-  private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
-    multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
-
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
       val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
       customCap = CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
     }
     return checkNotNull(customCap)
-  }
-
-  private fun addPolyline(feature: Feature, points: List<Point>) {
-    val options = PolylineOptions()
-    options.clickable(false)
-
-    val shellVertices = points.map { it.toLatLng() }
-    options.addAll(shellVertices)
-
-    val polyline: Polyline = map.addPolyline(options)
-    polyline.tag = points
-    polyline.startCap = getCustomCap()
-    polyline.endCap = getCustomCap()
-    polyline.width = polylineStrokeWidth.toFloat()
-    // TODO(jsunde): Figure out where we want to get the style from
-    polyline.color = parseColor(Style().color)
-    polyline.jointType = JointType.ROUND
-
-    polylines.getOrPut(feature) { mutableListOf() }.add(polyline)
-  }
-
-  private fun addPolygon(feature: Feature, polygon: Polygon) {
-    val options = PolygonOptions()
-    options.clickable(false)
-
-    val shellVertices = polygon.shell.vertices.map { it.toLatLng() }
-    options.addAll(shellVertices)
-
-    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> point.toLatLng() } }
-    holes.forEach { options.addHole(it) }
-
-    val mapsPolygon = map.addPolygon(options)
-    mapsPolygon.tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
-    mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
-    // TODO(jsunde): Figure out where we want to get the style from
-    //  parseColor(Style().color)
-    mapsPolygon.fillColor = parseColor("#55ffffff")
-    mapsPolygon.strokeColor = parseColor(Style().color)
-    mapsPolygon.strokeJointType = JointType.ROUND
-
-    polygons.getOrPut(feature) { mutableListOf() }.add(mapsPolygon)
   }
 
   private fun onMapClick(latLng: LatLng) = handleAmbiguity(latLng)
@@ -325,45 +290,28 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     removeStalePoints(features)
-    removeStalePolylines(features)
-    removeStalePolygons(features)
+    polylineRenderer.removeStaleFeatures(features)
+    polygonRenderer.removeStaleFeatures(features)
   }
 
   private fun removeStalePoints(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(features)
   }
 
-  private fun removeStalePolylines(features: Set<Feature>) {
-    val deletedIds = polylines.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
-    val deletedPolylines = polylines.filter { deletedIds.contains(it.key.tag.id) }
-    deletedPolylines.values.forEach { it.forEach(Polyline::remove) }
-    polylines.minusAssign(deletedPolylines.keys)
-  }
-
-  private fun removeStalePolygons(features: Set<Feature>) {
-    val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
-    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
-    deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
-    polygons.minusAssign(deletedPolygons.keys)
-  }
-
   private fun removeAllFeatures() {
     clusterManager.removeAllFeatures()
-
-    polylines.values.forEach { it.forEach(Polyline::remove) }
-    polylines.clear()
-
-    polygons.values.forEach { it.forEach(MapsPolygon::remove) }
-    polygons.clear()
+    polylineRenderer.removeAllFeatures()
+    polygonRenderer.removeAllFeatures()
   }
 
   private fun addOrUpdateLocationOfInterest(feature: Feature) {
     when (feature.geometry) {
       is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
       is LineString,
-      is LinearRing -> addPolyline(feature, feature.geometry.vertices)
-      is Polygon -> addPolygon(feature, feature.geometry)
-      is MultiPolygon -> addMultiPolygon(feature, feature.geometry)
+      is LinearRing -> polylineRenderer.addFeature(feature, feature.geometry)
+      is Polygon -> polygonRenderer.addFeature(feature, feature.geometry)
+      is MultiPolygon ->
+        feature.geometry.polygons.forEach { polygonRenderer.addFeature(feature, it) }
     }
   }
 
@@ -386,7 +334,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     try {
       Color.parseColor(colorHexCode.toString())
     } catch (e: IllegalArgumentException) {
-      Timber.w("Invalid color code in job style: $colorHexCode")
+      Timber.w(e, "Invalid color code in job style: $colorHexCode")
       resources.getColor(R.color.colorMapAccent)
     }
 

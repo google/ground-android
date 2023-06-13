@@ -24,7 +24,7 @@ constructor(
   val taskId: String,
   val bitmap: Bitmap? = null,
   val path: String? = null,
-  var isHandled: Boolean = false
+  val isHandled: Boolean = false
 ) {
   fun isEmpty(): Boolean = bitmap == null && path == null
 }
