@@ -24,6 +24,8 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
+private const val NULL_CHAR = 0.toChar()
+
 /** Instances of this class are not thread-safe. */
 class MogMetadataReader(sourceStream: InputStream) {
   private val seekable = SeekableInputStream(sourceStream)
@@ -119,48 +121,34 @@ class MogMetadataReader(sourceStream: InputStream) {
   }
 
   private fun readTagValues(dataType: TiffTagDataType, valueCount: Int): List<Any?> {
-    var values: MutableList<Any?> = ArrayList()
-    repeat(valueCount) {
-      when (dataType) {
-        ASCII -> values.add(dataInput.readChar())
-        BYTE,
-        UNDEFINED -> values.add(dataInput.readUnsignedByte())
-        SBYTE -> values.add(dataInput.readByte())
-        SHORT -> values.add(dataInput.readUnsignedShort())
-        SSHORT -> values.add(dataInput.readShort())
-        LONG -> values.add(dataInput.readUnsignedInt())
-        SLONG -> values.add(dataInput.readInt())
-        RATIONAL -> {
-          values.add(dataInput.readUnsignedInt())
-          values.add(dataInput.readUnsignedInt())
-        }
-        SRATIONAL -> {
-          values.add(dataInput.readInt())
-          values.add(dataInput.readInt())
-        }
-        FLOAT -> values.add(dataInput.readFloat())
-        DOUBLE -> values.add(dataInput.readDouble())
-      }
+    val values: MutableList<Any?> = ArrayList()
+    repeat(valueCount) { values.add(readTagValue(dataType)) }
+
+    return if (dataType == ASCII) {
+      tiffAsciiValuesToStringList(values)
+    } else {
+      values
+    }
+  }
+
+  private fun readTagValue(dataType: TiffTagDataType): Any =
+    when (dataType) {
+      ASCII -> dataInput.readChar()
+      BYTE,
+      UNDEFINED -> dataInput.readUnsignedByte()
+      SBYTE -> dataInput.readByte()
+      SHORT -> dataInput.readUnsignedShort()
+      SSHORT -> dataInput.readShort()
+      LONG -> dataInput.readUnsignedInt()
+      SLONG -> dataInput.readInt()
+      FLOAT -> dataInput.readFloat()
+      DOUBLE -> dataInput.readDouble()
+      else -> throw UnsupportedOperationException("Unsupported tag type $dataType")
     }
 
-    // If ASCII characters, combine the strings
-    if (dataType == ASCII) {
-      val stringValues: MutableList<Any?> = ArrayList()
-      var stringValue = StringBuilder()
-      for (value in values) {
-        if (value == null) {
-          if (stringValue.isNotEmpty()) {
-            stringValues.add(stringValue.toString())
-            stringValue = StringBuilder()
-          }
-        } else {
-          stringValue.append(value.toString())
-        }
-      }
-      values = stringValues
-    }
-    return values
-  }
+  /** Returns the ASCII TIFF field values as a string of lists, splitting strings by `null`. */
+  private fun tiffAsciiValuesToStringList(values: List<Any?>): List<String> =
+    values.map { it?.toString() ?: NULL_CHAR }.joinToString().split(NULL_CHAR)
 }
 
 fun DataInput.readUnsignedInt(): Long = readInt().toLong() and 0xffffffffL

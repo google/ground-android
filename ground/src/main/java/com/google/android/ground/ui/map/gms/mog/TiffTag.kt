@@ -20,7 +20,7 @@ enum class TiffTag(val id: Int, val isArray: Boolean) {
   ImageLength(257, false),
   ImageWidth(256, false),
   PhotometricInterpretation(262, false),
-  JPEGTables(347, false),
+  JPEGTables(347, true),
   TileByteCounts(325, true),
   TileLength(323, false),
   TileOffsets(324, true),

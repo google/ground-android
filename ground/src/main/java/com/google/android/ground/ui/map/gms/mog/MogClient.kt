@@ -233,7 +233,7 @@ class MogClient(val collection: MogCollection) {
       )
     }
     val time = System.currentTimeMillis() - startTimeMillis
-    Timber.d("Loaded header from $sourceUrl in $time ms")
+    Timber.d("Read headers from $sourceUrl in $time ms")
     return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
   }
 }
