@@ -200,13 +200,7 @@ internal constructor(
   }
 
   private fun createSuggestLoiTask(taskType: Task.Type): Task =
-    Task(
-      id = "-1",
-      index = -1,
-      taskType,
-      resources.getString(R.string.new_location),
-      isRequired = true
-    )
+    Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
