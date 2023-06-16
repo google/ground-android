@@ -125,6 +125,9 @@ constructor(
   fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
     localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
+  suspend fun getAllGeometries(survey: Survey): List<Geometry> =
+    remoteDataStore.loadLocationsOfInterest(survey).map { it.geometry }
+
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
     survey: Survey,

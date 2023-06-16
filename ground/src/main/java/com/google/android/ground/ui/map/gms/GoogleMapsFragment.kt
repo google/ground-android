@@ -271,6 +271,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
+  override fun moveCamera(bounds: Bounds) {
+    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
+  }
+
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
       val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
