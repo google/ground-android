@@ -18,6 +18,7 @@ package com.google.android.ground.ui.map
 import android.location.Location
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.LocationManager
@@ -25,6 +26,7 @@ import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Flowable
 import java8.util.Optional
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -41,8 +43,10 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class MapControllerTest : BaseHiltTest() {
   @Mock lateinit var locationManager: LocationManager
+  @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Mock lateinit var surveyRepository: SurveyRepository
   @Mock lateinit var mapStateRepository: MapStateRepository
+  @Mock lateinit var defaultDispatcher: CoroutineDispatcher
 
   private val locationSharedFlow: MutableSharedFlow<Location> = MutableSharedFlow()
 
@@ -51,7 +55,14 @@ class MapControllerTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    mapController = MapController(locationManager, surveyRepository, mapStateRepository)
+    mapController =
+      MapController(
+        locationManager,
+        locationOfInterestRepository,
+        surveyRepository,
+        mapStateRepository,
+        defaultDispatcher
+      )
     `when`(locationManager.locationUpdates).thenReturn(locationSharedFlow)
   }
 

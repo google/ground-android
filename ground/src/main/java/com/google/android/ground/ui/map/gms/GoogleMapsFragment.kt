@@ -200,7 +200,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       if (bounds != null) {
         moveCamera(bounds)
       }
-      return@setOnClusterClickListener true
+      true
     }
 
     clusterManager.renderer = clusterRenderer
