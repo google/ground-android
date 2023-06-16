@@ -42,6 +42,7 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
@@ -194,7 +195,14 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         map.cameraPosition.zoom,
         featureColor
       )
-    clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
+    clusterManager.setOnClusterClickListener { cluster ->
+      val bounds = cluster.items.map { it.feature.geometry }.toBounds()
+      if (bounds != null) {
+        moveCamera(bounds)
+      }
+      return@setOnClusterClickListener true
+    }
+
     clusterManager.renderer = clusterRenderer
 
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
@@ -240,17 +248,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       locationOfInterestInteractionSubject.onNext(result)
     }
   }
-
-  /** Handles both cluster and marker clicks. */
-  private fun onClusterItemClick(item: FeatureClusterItem): Boolean =
-    if (map.uiSettings.isZoomGesturesEnabled) {
-      locationOfInterestInteractionSubject.onNext(listOf(item.feature))
-      // Allow map to pan to marker.
-      false
-    } else {
-      // Prevent map from panning to marker.
-      true
-    }
 
   override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
     val projection = map.projection
