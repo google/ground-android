@@ -50,9 +50,9 @@ class MogClient(val collection: MogCollection) {
    * fetching required metadata if not already in cache.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only tiles within or
-   *   overlapping these bounds are retrieved.
+   * overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
+   * all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
   suspend fun getTilesRequests(
     tileBounds: LatLngBounds,
