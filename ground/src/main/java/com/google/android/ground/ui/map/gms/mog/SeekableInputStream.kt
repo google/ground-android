@@ -19,7 +19,12 @@ package com.google.android.ground.ui.map.gms.mog
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-/** Implementation of [InputStream] which allows reading bytes from a given position directly. */
+/**
+ * [InputStream] which mimicks random access to a stream by reading bytes into a buffer while
+ * maintaining a pointer to the current position which can be moved forwards or backwards
+ * on demand. When moving the pointer past the last position read, additional bytes
+ * are read and added to the buffer as needed.
+ */
 class SeekableInputStream(private val inputStream: InputStream) : InputStream() {
   private var currentPosition = 0
   private val buffer = ByteBuffer.allocate(BUFFER_BYTES)
