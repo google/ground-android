@@ -19,6 +19,7 @@ package com.google.android.ground.ui.map.gms.mog
 import java.io.InputStream
 import java.nio.ByteBuffer
 
+/** Implementation of [InputStream] which allows reading bytes from a given position directly. */
 class SeekableInputStream(private val inputStream: InputStream) : InputStream() {
   private var currentPosition = 0
   private val buffer = ByteBuffer.allocate(BUFFER_BYTES)
