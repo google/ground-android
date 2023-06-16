@@ -43,7 +43,7 @@ class SeekableInputStream(private val inputStream: InputStream) : InputStream() 
     return data
   }
 
-  /** Moves the pointer to the new position. */
+  /** Moves the pointer to the specified position, reading additional bytes from the source stream as needed. */
   fun seek(newPosition: Int) {
     if (newPosition < currentPosition) {
       currentPosition = newPosition
