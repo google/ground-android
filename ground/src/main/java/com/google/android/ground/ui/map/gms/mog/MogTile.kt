@@ -39,7 +39,7 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
   private fun app0Segment() =
     APP0_MARKER +
       APP0_MIN_LEN.toByteArray() +
-      JFIF_IDENTIFIER.toNulTerminatedByteArray() +
+      JFIF_IDENTIFIER.toNullTerminatedByteArray() +
       JFIF_MAJOR_VERSION.toByte() +
       JFIF_MINOR_VERSION.toByte() +
       NO_DENSITY_UNITS.toByte() +
@@ -63,4 +63,4 @@ private fun byteArrayOf(vararg elements: Int) = elements.map(Int::toByte).toByte
 
 private fun Short.toByteArray() = byteArrayOf(this.toInt().shr(8).toByte(), this.toByte())
 
-private fun String.toNulTerminatedByteArray() = this.toByteArray() + 0x00.toByte()
+private fun String.toNullTerminatedByteArray() = this.toByteArray() + 0x00.toByte()

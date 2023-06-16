@@ -19,40 +19,38 @@ package com.google.android.ground.ui.map.gms.mog
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-class SeekableInputStream(private val sourceStream: InputStream) : InputStream() {
-  private var pos = 0
-  private val buffer = ByteBuffer.allocate(256 * 1024)
-  private var mark = 0
-
-  val position: Int
-    get() = pos
+class SeekableInputStream(private val inputStream: InputStream) : InputStream() {
+  private var currentPosition = 0
+  private val buffer = ByteBuffer.allocate(BUFFER_BYTES)
+  private var lastMarkedPosition = 0
 
   override fun read(): Int {
-    val i: Int
-    if (pos < buffer.position()) {
-      i = buffer.get(pos).toUByte().toInt()
+    val data: Int
+    if (currentPosition < buffer.position()) {
+      data = buffer.get(currentPosition).toUByte().toInt()
     } else {
-      i = sourceStream.read()
-      if (i < 0) return i
-      buffer.put(i.toByte())
+      data = inputStream.read()
+      if (data == END_OF_STREAM) return data
+      buffer.put(data.toByte())
     }
-    pos++
-    return i
+    currentPosition++
+    return data
   }
 
-  fun seek(newPos: Int) {
-    if (newPos < pos) {
-      this.pos = newPos
+  /** Moves the pointer to the new position. */
+  fun seek(newPosition: Int) {
+    if (newPosition < currentPosition) {
+      currentPosition = newPosition
     } else {
-      repeat(newPos - pos) {
-        val n = read()
-        if (n == -1) error("Unexpected EOF")
+      repeat(newPosition - currentPosition) {
+        val data = read()
+        if (data == END_OF_STREAM) error("Unexpected EOF")
       }
     }
   }
 
   override fun mark(readlimit: Int) {
-    this.mark = pos
+    lastMarkedPosition = currentPosition
   }
 
   fun mark() {
@@ -60,6 +58,11 @@ class SeekableInputStream(private val sourceStream: InputStream) : InputStream()
   }
 
   override fun reset() {
-    seek(this.mark)
+    seek(lastMarkedPosition)
+  }
+
+  companion object {
+    private const val BUFFER_BYTES = 256 * 1024 // 256 KB
+    private const val END_OF_STREAM = -1
   }
 }

@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.ground.ui.map.gms.mog
 
-// TODO(#1596): Add unit tests
-/** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
-data class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
-  val byteRange = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
-}
+import org.junit.Assert.assertThrows
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-class MutableMogTilesRequest(var sourceUrl: String) {
-  val tiles = mutableListOf<MogTileMetadata>()
+@RunWith(RobolectricTestRunner::class)
+class MogTileMetadataTest {
 
-  fun toTilesRequest() = MogTilesRequest(sourceUrl, tiles)
+  private val testMogTileMetadata =
+    MogTileMetadata(TileCoordinates(10, 20, 10), 100, 100, ByteArray(10), LongRange(0, 10))
 
-  fun appendTile(newTile: MogTileMetadata) {
-    require(tiles.isEmpty() || tiles.last().byteRange.last < newTile.byteRange.first) {
-      "Can't append tile with non-consecutive byte range"
+  @Test
+  fun testEquals_throwsError() {
+    assertThrows(UnsupportedOperationException::class.java) {
+      testMogTileMetadata.equals(testMogTileMetadata.copy(width = 100))
     }
-    tiles.add(newTile)
+  }
+
+  @Test
+  fun testHashcode_throwsError() {
+    assertThrows(UnsupportedOperationException::class.java) { testMogTileMetadata.hashCode() }
   }
 }
