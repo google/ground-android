@@ -22,6 +22,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+const val TEST_WORLD_URL = "world_url/{z}/world.tif"
+const val TEST_HIGH_RES_URL = "high_res_url/{z}/{x}/{y}.tif"
+const val TEST_HIGH_RES_MIN_ZOOM = 5
+const val TEST_HIGH_RES_MAX_ZOOM = 14
+
 @RunWith(RobolectricTestRunner::class)
 class MogCollectionTest {
 
@@ -83,12 +88,5 @@ class MogCollectionTest {
         mogCollection.getMogBoundsForTile(TileCoordinates(10, 20, TEST_HIGH_RES_MIN_ZOOM + 1))
       )
       .isEqualTo(TileCoordinates(5, 10, 5))
-  }
-
-  companion object {
-    const val TEST_WORLD_URL = "world_url/{z}/world.tif"
-    const val TEST_HIGH_RES_URL = "high_res_url/{z}/{x}/{y}.tif"
-    const val TEST_HIGH_RES_MIN_ZOOM = 5
-    const val TEST_HIGH_RES_MAX_ZOOM = 14
   }
 }

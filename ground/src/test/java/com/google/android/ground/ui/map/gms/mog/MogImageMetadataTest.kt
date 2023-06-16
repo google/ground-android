@@ -24,16 +24,16 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class MogImageMetadataTest {
 
-  // TileCountX = 5, TileCountY = 5
+  // TileCountX = 4, TileCountY = 4
   private val testMogImageMetadata =
     MogImageMetadata(
       originTile = TileCoordinates(10, 10, 10),
-      tileWidth = 100,
-      tileLength = 100,
+      tileWidth = 256,
+      tileLength = 256,
       tileOffsets = listOf(),
       byteCounts = listOf(),
-      imageWidth = 500,
-      imageLength = 500,
+      imageWidth = 1024,
+      imageLength = 1024,
       jpegTables = ByteArray(10)
     )
 
@@ -62,7 +62,7 @@ class MogImageMetadataTest {
     assertThrows(IllegalArgumentException::class.java) {
       testMogImageMetadata
         .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
-        .getByteRange(12, 12)
+        .getByteRange(13, 13)
     }
   }
 
@@ -73,7 +73,7 @@ class MogImageMetadataTest {
           .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
           .getByteRange(11, 11)
       )
-      .isEqualTo(LongRange(7, 13))
+      .isEqualTo(LongRange(6, 11))
   }
 
   @Test

@@ -50,9 +50,9 @@ class MogClient(val collection: MogCollection) {
    * fetching required metadata if not already in cache.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only tiles within or
-   * overlapping these bounds are retrieved.
+   *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   * all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
+   *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
   suspend fun getTilesRequests(
     tileBounds: LatLngBounds,
@@ -91,7 +91,6 @@ class MogClient(val collection: MogCollection) {
    * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
    * tile's respective coordinates.
    */
-  // TODO(#1596): Cache the jpeg files locally instead of downloading each time.
   private fun getTiles(tilesRequest: MogTilesRequest): Flow<MogTile> = flow {
     UrlInputStream(tilesRequest.sourceUrl, tilesRequest.byteRange).use { inputStream ->
       emitAll(
@@ -113,11 +112,11 @@ class MogClient(val collection: MogCollection) {
    * ranges are consolidated to minimized the number of individual requests required.
    */
   private suspend fun getTileRequestsForPyramid(
-    mogCoordinates: TileCoordinates,
+    mogBounds: TileCoordinates,
     tileBounds: LatLngBounds,
     zoomLevels: List<Int>
   ): List<MogTilesRequest> {
-    val mogMetadata = getMogMetadata(mogCoordinates) ?: return listOf()
+    val mogMetadata = getMogMetadata(mogBounds) ?: return listOf()
     val tiles = zoomLevels.flatMap { zoom -> getTileMetadata(mogMetadata, tileBounds, zoom) }
     return getTileRequests(mogMetadata.sourceUrl, tiles)
   }
@@ -193,44 +192,50 @@ class MogClient(val collection: MogCollection) {
    */
   private fun getMogMetadataFromRemoteAsync(
     url: String,
-    mogCoordinates: TileCoordinates
+    mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
     async {
-        nullIfNotFound { UrlInputStream(url) }?.use { readMogMetadata(url, mogCoordinates, it) }
+        nullIfNotFound { UrlInputStream(url) }?.use { readMogMetadataAndClose(url, mogBounds, it) }
       }
       .also { cache.put(url, it) }
   }
 
-  /**
-   * Reads the metadata from the specified input stream. The stream is not closed upon completion or
-   * on error.
-   */
-  private fun readMogMetadata(
+  /** Reads the metadata from the specified input stream. */
+  private fun readMogMetadataAndClose(
     sourceUrl: String,
     mogBounds: TileCoordinates,
     inputStream: InputStream
   ): MogMetadata {
     val startTimeMillis = System.currentTimeMillis()
-    inputStream.use { inputStreamAutoCloseable ->
-      // Read the MOG headers (not the whole file).
-      val reader = MogMetadataReader(SeekableInputStream(inputStreamAutoCloseable))
-      val ifds = reader.readImageFileDirectories()
-      val imageMetadata = mutableListOf<MogImageMetadata>()
-      // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
-      val maxZ = mogBounds.zoom + ifds.size - 1
-      ifds.forEachIndexed { i, entry ->
-        imageMetadata.add(
-          MogImageMetadata.fromTiffTags(
-            originTile = mogBounds.originAtZoom(maxZ - i),
-            tiffTagToValue = entry
-          )
-        )
+    return inputStream
+      .use { readMogMetadata(sourceUrl, mogBounds, it) }
+      .apply {
+        val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+        Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
       }
-      val time = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Read headers from $sourceUrl in $time ms")
-      return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
+  }
+
+  private fun readMogMetadata(
+    sourceUrl: String,
+    mogBounds: TileCoordinates,
+    inputStream: InputStream
+  ): MogMetadata {
+    // Read the MOG headers (not the whole file).
+    val reader = MogMetadataReader(SeekableInputStream(inputStream))
+    val ifds = reader.readImageFileDirectories()
+    val imageMetadata = mutableListOf<MogImageMetadata>()
+    // IFDs are in decreasing detail (decreasing zoom), starting with max, ending with min zoom.
+    val maxZ = mogBounds.zoom + ifds.size - 1
+    ifds.forEachIndexed { i, entry ->
+      imageMetadata.add(
+        MogImageMetadata.fromTiffTags(
+          originTile = mogBounds.originAtZoom(maxZ - i),
+          tiffTagToValue = entry
+        )
+      )
     }
+    return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
   }
 }
 

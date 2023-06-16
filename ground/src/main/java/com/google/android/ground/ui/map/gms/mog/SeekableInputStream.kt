@@ -19,11 +19,14 @@ package com.google.android.ground.ui.map.gms.mog
 import java.io.InputStream
 import java.nio.ByteBuffer
 
+private const val BUFFER_BYTES = 256 * 1024 // 256 KB
+private const val END_OF_STREAM = -1
+
 /**
  * [InputStream] which mimicks random access to a stream by reading bytes into a buffer while
- * maintaining a pointer to the current position which can be moved forwards or backwards
- * on demand. When moving the pointer past the last position read, additional bytes
- * are read and added to the buffer as needed.
+ * maintaining a pointer to the current position which can be moved forwards or backwards on demand.
+ * When moving the pointer past the last position read, additional bytes are read and added to the
+ * buffer as needed.
  */
 class SeekableInputStream(private val inputStream: InputStream) : InputStream() {
   private var currentPosition = 0
@@ -43,7 +46,10 @@ class SeekableInputStream(private val inputStream: InputStream) : InputStream() 
     return data
   }
 
-  /** Moves the pointer to the specified position, reading additional bytes from the source stream as needed. */
+  /**
+   * Moves the pointer to the specified position, reading additional bytes from the source stream as
+   * needed.
+   */
   fun seek(newPosition: Int) {
     if (newPosition < currentPosition) {
       currentPosition = newPosition
@@ -65,10 +71,5 @@ class SeekableInputStream(private val inputStream: InputStream) : InputStream() 
 
   override fun reset() {
     seek(lastMarkedPosition)
-  }
-
-  companion object {
-    private const val BUFFER_BYTES = 256 * 1024 // 256 KB
-    private const val END_OF_STREAM = -1
   }
 }
