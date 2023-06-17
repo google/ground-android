@@ -104,7 +104,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       zoomLevel = max(zoomLevel, map.currentZoomLevel)
     }
 
-    // TODO(Shobhit): Ensure that the order of preference is correct.
+    // TODO(#1712): Fix this once CameraPosition is refactored to not contain duplicated state
     if (bounds != null) {
       map.moveCamera(bounds)
     } else if (target != null && zoomLevel != null) {

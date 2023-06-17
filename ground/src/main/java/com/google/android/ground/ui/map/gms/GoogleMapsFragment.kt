@@ -47,6 +47,7 @@ import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -195,14 +196,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         map.cameraPosition.zoom,
         featureColor
       )
-    clusterManager.setOnClusterClickListener { cluster ->
-      val bounds = cluster.items.map { it.feature.geometry }.toBounds()
-      if (bounds != null) {
-        moveCamera(bounds)
-      }
-      true
-    }
-
+    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
@@ -221,6 +215,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       isCompassEnabled = true
       isIndoorLevelPickerEnabled = false
     }
+  }
+
+  private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
+    // Move the camera to point to LOIs within the current cluster
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    return true
   }
 
   // Handle taps on ambiguous features.
