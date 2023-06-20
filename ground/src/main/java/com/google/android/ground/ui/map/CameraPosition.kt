@@ -17,8 +17,10 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinate
 
+// TODO(#1712): Fix duplicate parameters, (target, zoomLevel) & bounds model the same info and
+//  isAllowZoomOut doesn't even belong here.
 data class CameraPosition(
-  val target: Coordinate,
+  val target: Coordinate? = null,
   val zoomLevel: Float? = null,
   val isAllowZoomOut: Boolean = false,
   val bounds: Bounds? = null
@@ -26,8 +28,8 @@ data class CameraPosition(
 
   fun serialize(): String =
     arrayOf<Any>(
-        target.lat,
-        target.lng,
+        target?.lat.toString(),
+        target?.lng.toString(),
         zoomLevel.toString(),
         isAllowZoomOut,
         bounds?.south.toString(),

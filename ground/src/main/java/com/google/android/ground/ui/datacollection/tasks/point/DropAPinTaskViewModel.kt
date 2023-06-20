@@ -47,7 +47,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
 
   fun updateResponse(position: CameraPosition) {
     setResponse(Optional.of(DropAPinTaskData(position)))
-    features.postValue(setOf(createFeature(Point(position.target))))
+    features.postValue(setOf(createFeature(Point(position.target!!))))
   }
 
   /** Creates a new map [Feature] representing the point placed by the user. */

@@ -42,10 +42,12 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -194,7 +196,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         map.cameraPosition.zoom,
         featureColor
       )
-    clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
+    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
@@ -213,6 +215,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       isCompassEnabled = true
       isIndoorLevelPickerEnabled = false
     }
+  }
+
+  private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
+    // Move the camera to point to LOIs within the current cluster
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    return true
   }
 
   // Handle taps on ambiguous features.
@@ -241,17 +249,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  /** Handles both cluster and marker clicks. */
-  private fun onClusterItemClick(item: FeatureClusterItem): Boolean =
-    if (map.uiSettings.isZoomGesturesEnabled) {
-      locationOfInterestInteractionSubject.onNext(listOf(item.feature))
-      // Allow map to pan to marker.
-      false
-    } else {
-      // Prevent map from panning to marker.
-      true
-    }
-
   override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
     val projection = map.projection
     val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
@@ -270,6 +267,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+
+  override fun moveCamera(bounds: Bounds) {
+    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
+  }
 
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
