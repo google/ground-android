@@ -16,11 +16,14 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinate
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -28,15 +31,19 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.rx2.asFlowable
+import kotlinx.coroutines.rx2.rxObservable
 
 @Singleton
 class MapController
 @Inject
 constructor(
   private val locationManager: LocationManager,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val surveyRepository: SurveyRepository,
-  private val mapStateRepository: MapStateRepository
+  private val mapStateRepository: MapStateRepository,
+  @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) {
 
   private val cameraUpdatesSubject: @Hot Subject<CameraPosition> = PublishSubject.create()
@@ -63,13 +70,18 @@ constructor(
   private fun getCameraUpdatedFromSurveyChanges(): Flowable<CameraPosition> =
     surveyRepository.activeSurveyFlowable
       .filter { it.isPresent }
-      .map { it.get().id }
-      .flatMap { surveyId ->
-        val position = mapStateRepository.getCameraPosition(surveyId)
+      .map { it.get() }
+      .flatMap { survey ->
+        val position = mapStateRepository.getCameraPosition(survey.id)
         if (position != null) {
           Flowable.just(position.copy(isAllowZoomOut = true))
         } else {
-          Flowable.empty()
+          rxObservable(defaultDispatcher) {
+              locationOfInterestRepository.getAllGeometries(survey).toBounds()?.let {
+                send(CameraPosition(bounds = it))
+              }
+            }
+            .toFlowable(BackpressureStrategy.LATEST)
         }
       }
 

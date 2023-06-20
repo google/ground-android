@@ -17,21 +17,22 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
-@Suppress("MemberVisibilityCanBePrivate")
 class MogCollection(
-  val worldMogUrl: String,
-  val hiResMogUrl: String,
+  private val worldMogUrl: String,
+  private val hiResMogUrl: String,
   val hiResMogMinZoom: Int,
   val hiResMogMaxZoom: Int
 ) {
   fun getMogUrl(bounds: TileCoordinates): String {
     val (x, y, zoom) = bounds
     if (zoom == 0) {
+      worldMogUrl.checkContainsAll("{z}")
       return worldMogUrl.replace("{z}", hiResMogMinZoom.toString())
     }
     if (zoom < hiResMogMinZoom) {
       error("Invalid zoom for this collection. Expected 0 or $hiResMogMinZoom, got $zoom")
     }
+    hiResMogUrl.checkContainsAll("{x}", "{y}", "{z}")
     return hiResMogUrl
       .replace("{x}", x.toString())
       .replace("{y}", y.toString())
@@ -42,4 +43,8 @@ class MogCollection(
   fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
     if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
     else tileCoordinates.originAtZoom(hiResMogMinZoom)
+
+  private fun String.checkContainsAll(vararg substrings: String) {
+    substrings.forEach { param -> check(this.contains(param)) { "$this doesn't contain $param" } }
+  }
 }
