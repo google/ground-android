@@ -120,11 +120,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
-      .setOnClickListener {
-        viewModel.clearResponse()
-        dataCollectionViewModel.onContinueClicked()
-      }
+      .setOnClickListener { onSkip() }
       .showIfTrue(viewModel.isTaskOptional())
+
+  protected open fun onSkip() {
+    viewModel.clearResponse()
+    dataCollectionViewModel.onContinueClicked()
+  }
 
   fun addUndoButton() =
     addButton(ButtonAction.UNDO)
