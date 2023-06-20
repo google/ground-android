@@ -17,19 +17,18 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /** Metadata describing a single full-resolution or overview image in a MOG. */
-@Suppress("MemberVisibilityCanBePrivate")
-class MogImageMetadata(
+data class MogImageMetadata(
+  val originTile: TileCoordinates,
   val tileWidth: Int,
   val tileLength: Int,
-  val originTile: TileCoordinates,
   val tileOffsets: List<Long>,
   val byteCounts: List<Long>,
   val imageWidth: Int,
   val imageLength: Int,
   val jpegTables: ByteArray
 ) {
-  val tileCountX = imageWidth / tileWidth
-  val tileCountY = imageLength / tileLength
+  private val tileCountX = imageWidth / tileWidth
+  private val tileCountY = imageLength / tileLength
 
   // TODO: Verify X and Y scales are the same.
   val zoom = originTile.zoom
@@ -45,7 +44,7 @@ class MogImageMetadata(
     val xIdx = x - originTile.x
     val yIdx = y - originTile.y
     val idx = yIdx * tileCountX + xIdx
-    require(idx <= tileOffsets.size) { "idx > offsets" }
+    require(idx < tileOffsets.size) { "idx >= offsets" }
     val from = tileOffsets[idx]
     val len = byteCounts[idx].toInt()
     val to = from + len - 1
@@ -65,4 +64,32 @@ class MogImageMetadata(
       "tileCountY=$tileCountY, " +
       "jpegTables=.., " +
       "zoom=$zoom)"
+
+  // Default [equals] and [hashCode] behavior doesn't take array members into account. Defend
+  // against accidental usage by throwing exception if called.
+  @Suppress("detekt:ExceptionRaisedInUnexpectedLocation")
+  override fun equals(other: Any?) = throw UnsupportedOperationException()
+  @Suppress("detekt:ExceptionRaisedInUnexpectedLocation")
+  override fun hashCode() = throw UnsupportedOperationException()
+
+  companion object {
+    fun fromTiffTags(
+      originTile: TileCoordinates,
+      tiffTagToValue: Map<TiffTag, Any?>
+    ): MogImageMetadata =
+      MogImageMetadata(
+        originTile,
+        tiffTagToValue[TiffTag.TileWidth] as Int,
+        tiffTagToValue[TiffTag.TileLength] as Int,
+        // TODO: Refactor casts into typed accessors.
+        tiffTagToValue[TiffTag.TileOffsets] as List<Long>,
+        tiffTagToValue[TiffTag.TileByteCounts] as List<Long>,
+        tiffTagToValue[TiffTag.ImageWidth] as Int,
+        tiffTagToValue[TiffTag.ImageLength] as Int,
+        (tiffTagToValue[TiffTag.JPEGTables] as? List<*>)
+          ?.map { (it as Int).toByte() }
+          ?.toByteArray()
+          ?: byteArrayOf()
+      )
+  }
 }

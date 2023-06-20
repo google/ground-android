@@ -96,14 +96,23 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapFragment) {
     Timber.v("Update camera: %s", newPosition)
-    if (newPosition.zoomLevel != null) {
-      var zoomLevel = newPosition.zoomLevel
-      if (!newPosition.isAllowZoomOut) {
-        zoomLevel = max(zoomLevel, map.currentZoomLevel)
-      }
-      map.moveCamera(newPosition.target, zoomLevel)
+    val bounds = newPosition.bounds
+    val target = newPosition.target
+    var zoomLevel = newPosition.zoomLevel
+
+    if (target != null && zoomLevel != null && !newPosition.isAllowZoomOut) {
+      zoomLevel = max(zoomLevel, map.currentZoomLevel)
+    }
+
+    // TODO(#1712): Fix this once CameraPosition is refactored to not contain duplicated state
+    if (bounds != null) {
+      map.moveCamera(bounds)
+    } else if (target != null && zoomLevel != null) {
+      map.moveCamera(target, zoomLevel)
+    } else if (target != null) {
+      map.moveCamera(target)
     } else {
-      map.moveCamera(newPosition.target)
+      error("Must have either target or bounds set")
     }
 
     // Manually notify that the camera has moved as `mapFragment.cameraMovedEvents` only returns

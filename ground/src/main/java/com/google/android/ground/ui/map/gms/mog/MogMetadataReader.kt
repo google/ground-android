@@ -20,15 +20,13 @@ import com.google.android.ground.ui.map.gms.mog.TiffTagDataType.*
 import com.google.common.io.LittleEndianDataInputStream
 import java.io.DataInput
 import java.io.DataInputStream
-import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
 private const val NULL_CHAR = 0.toChar()
-
+// TODO(#1596): Add unit tests.
 /** Instances of this class are not thread-safe. */
-class MogMetadataReader(sourceStream: InputStream) {
-  private val seekable = SeekableInputStream(sourceStream)
+class MogMetadataReader(private val seekable: SeekableInputStream) {
   private lateinit var dataInput: DataInput
 
   // TODO: Refactor Map into its own class.

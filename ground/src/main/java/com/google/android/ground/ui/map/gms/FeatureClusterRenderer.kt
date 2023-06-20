@@ -95,7 +95,7 @@ class FeatureClusterRenderer(
    * Only true when the current zoom level is lesser than a set threshold.
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    zoom < clusteringZoomThreshold && cluster.size > 1
+    zoom < clusteringZoomThreshold
 
   /**
    * Determines if the renderer should re-render clusters.

@@ -38,6 +38,7 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.reactive.awaitFirst
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -121,9 +122,13 @@ constructor(
       MutationEntitySyncStatus.FAILED
     )
 
-  /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
+  /** Returns a flowable of all [LocationOfInterest] for the given [Survey]. */
   fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
     localLoiStore.getLocationsOfInterestOnceAndStream(survey)
+
+  /** Returns a list of geometries associated with the given [Survey]. */
+  suspend fun getAllGeometries(survey: Survey): List<Geometry> =
+    getLocationsOfInterestOnceAndStream(survey).awaitFirst().map { it.geometry }
 
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(

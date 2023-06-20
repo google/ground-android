@@ -32,12 +32,12 @@ const val MAX_OVER_FETCH_PER_TILE = 1 * 20 * 1024
  * clipped and configured for visualization with Google Maps Platform. This class stores metadata
  * and fetches tiles on demand via [getTile] and [getTiles].
  */
-class MogMetadata(
+data class MogMetadata(
   /** The URL of the source MOG. */
   val sourceUrl: String,
   /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
   val bounds: TileCoordinates,
-  imageMetadata: List<MogImageMetadata>
+  val imageMetadata: List<MogImageMetadata>
 ) {
   private val imageMetadataByZoom = imageMetadata.associateBy { it.zoom }
 
@@ -45,7 +45,4 @@ class MogMetadata(
 
   override fun toString(): String =
     "Mog(url=$sourceUrl, bounds=$bounds, ifdsByZoom=$imageMetadataByZoom)"
-
-  //  fun getByteRange(tileCoordinate: TileCoordinates): LongRange? =
-  //    ifdsByZoom[tileCoordinate.zoom]?.getByteRange(tileCoordinate.x, tileCoordinate.y)
 }

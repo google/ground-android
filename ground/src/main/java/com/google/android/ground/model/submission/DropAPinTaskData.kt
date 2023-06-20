@@ -24,7 +24,7 @@ data class DropAPinTaskData(val cameraPosition: CameraPosition) : TaskData {
 
   override fun isEmpty(): Boolean = false
 
-  fun getPoint(): Point = Point(cameraPosition.target)
+  fun getPoint(): Point = Point(cameraPosition.target!!)
 
   companion object {
     fun fromString(serializedValue: String): Optional<TaskData> {
