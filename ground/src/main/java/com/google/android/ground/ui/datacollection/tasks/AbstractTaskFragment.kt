@@ -96,8 +96,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the fragment is ready to add buttons to the current [TaskView]. */
   open fun onCreateActionButtons() {
-    addContinueButton()
     addSkipButton()
+    addContinueButton()
   }
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
