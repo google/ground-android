@@ -383,7 +383,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
-  override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
+  override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
