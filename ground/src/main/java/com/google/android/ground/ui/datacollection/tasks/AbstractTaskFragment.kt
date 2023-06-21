@@ -121,23 +121,25 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
-      .setOnClickListener {
-        if (viewModel.responseText.value.isNullOrEmpty()) {
-          onSkip()
-        } else {
-          AlertDialog.Builder(requireContext())
-            .setCancelable(true)
-            .setTitle(R.string.warning)
-            .setMessage(R.string.data_deletion_warning)
-            .setNegativeButton(R.string.cancel_button_label) { _, _ -> }
-            .setPositiveButton(R.string.confirm_button_label) { _, _ -> onSkip() }
-            .create()
-            .show()
-        }
-      }
+      .setOnClickListener { onSkip() }
       .showIfTrue(viewModel.isTaskOptional())
 
-  protected open fun onSkip() {
+  private fun onSkip() {
+    if (viewModel.responseText.value.isNullOrEmpty()) {
+      skip()
+    } else {
+      AlertDialog.Builder(requireContext())
+        .setCancelable(true)
+        .setTitle(R.string.warning)
+        .setMessage(R.string.data_deletion_warning)
+        .setNegativeButton(R.string.cancel_button_label) { _, _ -> }
+        .setPositiveButton(R.string.confirm_button_label) { _, _ -> skip() }
+        .create()
+        .show()
+    }
+  }
+
+  protected open fun skip() {
     viewModel.clearResponse()
     dataCollectionViewModel.onContinueClicked()
   }
