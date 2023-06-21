@@ -32,14 +32,21 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint(AbstractTaskFragment::class)
 class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoiceTaskViewModel>() {
+  private lateinit var binding: MultipleChoiceTaskFragBinding
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val binding = MultipleChoiceTaskFragBinding.inflate(inflater)
+    binding = MultipleChoiceTaskFragBinding.inflate(inflater)
     setupMultipleChoice(binding.selectOptionList)
     return binding.root
+  }
+
+  override fun onSkip() {
+    super.onSkip()
+
+    setupMultipleChoice(binding.selectOptionList)
   }
 
   private fun setupMultipleChoice(recyclerView: RecyclerView) {
