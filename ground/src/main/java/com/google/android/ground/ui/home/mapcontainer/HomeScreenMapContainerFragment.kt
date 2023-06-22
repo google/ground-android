@@ -154,14 +154,13 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
             cardUiData.loi.job.id
           )
         )
-      is MapCardUiData.SuggestLoiCardUiData -> {
+      is MapCardUiData.SuggestLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
             cardUiData.job.id
           )
         )
-      }
     }
   }
 
@@ -197,7 +196,9 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
           .filter { it.type === LocationOfInterestType.POINT }
           .ifPresent { mapContainerViewModel.panAndZoomCamera(it.geometry.vertices[0]) }
       }
-      BottomSheetState.Visibility.HIDDEN -> map.enableGestures()
+      BottomSheetState.Visibility.HIDDEN -> {
+        map.enableGestures()
+      }
     }
   }
 
