@@ -34,7 +34,7 @@ private const val CHANNEL_NAME = "sync channel"
 @Singleton
 class NotificationManager
 @Inject
-internal constructor(@param:ApplicationContext private val context: Context) {
+internal constructor(@ApplicationContext private val context: Context) {
 
   init {
     if (VERSION.SDK_INT >= VERSION_CODES.O) {

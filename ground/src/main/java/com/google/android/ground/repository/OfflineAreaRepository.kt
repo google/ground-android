@@ -231,7 +231,7 @@ constructor(
         val tileFile = downloadOfflineBaseMapSource(baseMap)
         geoJsonParser.allTiles(tileFile)
       }
-      BaseMapType.TILED_WEB_MAP ->
+      BaseMapType.TILED_WEB_MAP -> {
         Single.just(
           listOf(
             TileSet(
@@ -243,6 +243,7 @@ constructor(
             )
           )
         )
+      }
       else -> {
         Timber.d("Unknown basemap source type")
         // Try to read a tile from the URL anyway.

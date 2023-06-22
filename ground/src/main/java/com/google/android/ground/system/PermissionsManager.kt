@@ -34,7 +34,7 @@ import timber.log.Timber
 class PermissionsManager
 @Inject
 constructor(
-  @param:ApplicationContext private val context: Context,
+  @ApplicationContext private val context: Context,
   private val activityStreams: ActivityStreams
 ) {
   /**

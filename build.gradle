@@ -59,7 +59,7 @@ plugins {
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
     id "com.ncorti.ktfmt.gradle" version "0.11.0"
     id "com.google.dagger.hilt.android" version "$hiltVersion" apply false
-    id "io.gitlab.arturbosch.detekt" version "1.22.0"
+    id "io.gitlab.arturbosch.detekt" version "1.23.0"
 }
 
 allprojects {
@@ -84,7 +84,7 @@ subprojects {
 }
 
 detekt {
-    toolVersion = "1.22.0"
+    toolVersion = "1.23.0"
 
     source = files("ground/src", "sharedTest/src")
     allRules = true

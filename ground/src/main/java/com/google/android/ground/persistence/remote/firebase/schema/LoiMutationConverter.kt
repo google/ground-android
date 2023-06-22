@@ -55,9 +55,13 @@ internal object LoiMutationConverter {
         map[LoiConverter.CREATED] = auditInfo
         map[LoiConverter.LAST_MODIFIED] = auditInfo
       }
-      Mutation.Type.UPDATE -> map.put(LoiConverter.LAST_MODIFIED, auditInfo)
+      Mutation.Type.UPDATE -> {
+        map[LoiConverter.LAST_MODIFIED] = auditInfo
+      }
       Mutation.Type.DELETE,
-      Mutation.Type.UNKNOWN -> throw UnsupportedOperationException()
+      Mutation.Type.UNKNOWN -> {
+        throw UnsupportedOperationException()
+      }
     }
     return map.toPersistentMap()
   }
