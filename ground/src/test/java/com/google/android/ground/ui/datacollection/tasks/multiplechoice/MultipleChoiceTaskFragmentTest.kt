@@ -15,10 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
+import android.content.Context
 import android.widget.RadioButton
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -33,6 +36,7 @@ import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.android.material.checkbox.MaterialCheckBox
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.lang.NullPointerException
@@ -53,6 +57,7 @@ import org.robolectric.RobolectricTestRunner
 class MultipleChoiceTaskFragmentTest :
   BaseTaskFragmentTest<MultipleChoiceTaskFragment, MultipleChoiceTaskViewModel>() {
 
+  @Inject @ApplicationContext lateinit var context: Context
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
 
@@ -147,6 +152,29 @@ class MultipleChoiceTaskFragmentTest :
 
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
+  }
+
+  @Test
+  fun testActionButtons_dataEntered_skipButtonTapped_confirmationDialogIsShown() {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
+    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+
+    onView(withText("Option 1")).perform(click())
+
+    onView(withText("Skip")).perform(click())
+    onView(withText(context.getString(R.string.skip_dialog_title)))
+      .inRoot(isDialog())
+      .check(matches(isDisplayed()))
+  }
+
+  @Test
+  fun testActionButtons_noDataEntered_skipButtonTapped_confirmationDialogIsNotShown() {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
+    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+
+    onView(withText("Skip")).perform(click())
+    onView(withText(context.getString(R.string.skip_dialog_title)))
+      .inRoot(isDialog()).check(doesNotExist())
   }
 
   @Test
