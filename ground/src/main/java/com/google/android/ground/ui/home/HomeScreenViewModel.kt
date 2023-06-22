@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -26,12 +25,10 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
-import com.google.android.ground.ui.home.BottomSheetState.Companion.visible
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 
 @SharedViewModel
 class HomeScreenViewModel
@@ -53,16 +50,6 @@ internal constructor(
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
-  }
-
-  fun onLocationOfInterestSelected(locationOfInterest: LocationOfInterest?) {
-    showBottomSheet(locationOfInterest)
-  }
-
-  private fun showBottomSheet(loi: LocationOfInterest?) {
-    Timber.d("showing bottom sheet")
-    isSubmissionButtonVisible.value = true
-    bottomSheetState.value = visible(loi!!)
   }
 
   fun onBottomSheetHidden() {
