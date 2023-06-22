@@ -25,13 +25,9 @@ import org.hamcrest.Matchers
 /** ViewAction for item within recycler view item. */
 fun <T : View> recyclerChildAction(@IdRes id: Int, block: T.() -> Unit): ViewAction =
   object : ViewAction {
-    override fun getConstraints(): Matcher<View> {
-      return Matchers.any(View::class.java)
-    }
+    override fun getConstraints(): Matcher<View> = Matchers.any(View::class.java)
 
-    override fun getDescription(): String {
-      return "Performing action on RecyclerView child item"
-    }
+    override fun getDescription(): String = "Performing action on RecyclerView child item"
 
     override fun perform(uiController: UiController, view: View) {
       view.findViewById<T>(id).block()
