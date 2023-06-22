@@ -31,7 +31,7 @@ private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCod
 class GoogleApiManager
 @Inject
 constructor(
-  @param:ApplicationContext private val context: Context,
+  @ApplicationContext private val context: Context,
   private val googleApiAvailability: GoogleApiAvailability,
   private val activityStreams: ActivityStreams
 ) {

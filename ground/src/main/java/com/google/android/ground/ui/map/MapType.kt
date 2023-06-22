@@ -27,6 +27,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class MapType(
   val type: Int,
-  @field:StringRes @param:StringRes val labelId: Int,
-  @field:DrawableRes @param:DrawableRes val imageId: Int
+  @field:StringRes @StringRes val labelId: Int,
+  @field:DrawableRes @DrawableRes val imageId: Int
 ) : Parcelable

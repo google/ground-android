@@ -25,9 +25,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
 
-class BitmapUtil
-@Inject
-internal constructor(@param:ApplicationContext private val context: Context) {
+class BitmapUtil @Inject internal constructor(@ApplicationContext private val context: Context) {
 
   /** Retrieves an image for the given url as a [Bitmap]. */
   @Throws(IOException::class)
