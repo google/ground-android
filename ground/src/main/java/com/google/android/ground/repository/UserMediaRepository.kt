@@ -42,7 +42,7 @@ import timber.log.Timber
 class UserMediaRepository
 @Inject
 constructor(
-   @ApplicationContext private val context: Context,
+  @ApplicationContext private val context: Context,
   private val remoteStorageManager: RemoteStorageManager,
   private val uuidGenerator: OfflineUuidGenerator
 ) {
