@@ -62,6 +62,7 @@ output-reports:
         - 'XmlOutputReport'
         # - 'HtmlOutputReport'
         - 'MdOutputReport'
+        - 'SarifOutputReport'
 
 comments:
     active: true
@@ -203,6 +204,8 @@ coroutines:
         active: true
     SleepInsteadOfDelay:
         active: true
+    SuspendFunSwallowedCancellation:
+        active: true
     SuspendFunWithCoroutineScopeReceiver:
         active: true
     SuspendFunWithFlowReturnType:
@@ -320,7 +323,6 @@ naming:
     BooleanPropertyNaming:
         active: true
         allowedPattern: '^(is|has|are)'
-        ignoreOverridden: true
     ClassNaming:
         active: true
         classPattern: '[A-Z][a-zA-Z0-9]*'
@@ -329,7 +331,6 @@ naming:
         parameterPattern: '[a-z][A-Za-z0-9]*'
         privateParameterPattern: '[a-z][A-Za-z0-9]*'
         excludeClassPattern: '$^'
-        ignoreOverridden: true
     EnumNaming:
         active: true
         enumEntryPattern: '[A-Z][_a-zA-Z0-9]*'
@@ -347,12 +348,10 @@ naming:
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         functionPattern: '[a-z][a-zA-Z0-9]*'
         excludeClassPattern: '$^'
-        ignoreOverridden: true
     FunctionParameterNaming:
         active: true
         parameterPattern: '[a-z][A-Za-z0-9]*'
         excludeClassPattern: '$^'
-        ignoreOverridden: true
     InvalidPackageDeclaration:
         active: true
         rootPackage: ''
@@ -394,7 +393,6 @@ naming:
         variablePattern: '[a-z][A-Za-z0-9]*'
         privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
         excludeClassPattern: '$^'
-        ignoreOverridden: true
 
 performance:
     active: true
@@ -420,6 +418,8 @@ potential-bugs:
         active: true
         forbiddenTypePatterns:
             - 'kotlin.String'
+    CastNullableToNonNullableType:
+        active: true
     CastToNullableType:
         active: true
     Deprecation:
@@ -486,6 +486,8 @@ potential-bugs:
         active: true
     NullableToStringCall:
         active: true
+    PropertyUsedBeforeDeclaration:
+        active: true
     UnconditionalJumpStatementInLoop:
         active: true
     UnnecessaryNotNullCheck:
@@ -514,6 +516,14 @@ style:
     active: true
     AlsoCouldBeApply:
         active: true
+    BracesOnIfStatements:
+        active: false
+        singleLine: 'never'
+        multiLine: 'always'
+    BracesOnWhenStatements:
+        active: true
+        singleLine: 'necessary'
+        multiLine: 'consistent'
     CanBeNonNullable:
         active: true
     CascadingCallWrapping:
@@ -527,11 +537,22 @@ style:
         active: false
         conversionFunctionPrefix:
             - 'to'
+        allowOperators: false
     DataClassShouldBeImmutable:
         active: true
     DestructuringDeclarationWithTooManyEntries:
         active: true
         maxDestructuringEntries: 3
+    DoubleNegativeLambda:
+        active: true
+        negativeFunctions:
+            -   reason: 'Use `takeIf` instead.'
+                value: 'takeUnless'
+            -   reason: 'Use `all` instead.'
+                value: 'none'
+        negativeFunctionNameParts:
+            - 'not'
+            - 'non'
     EqualsNullCall:
         active: true
     EqualsOnSignatureLine:
@@ -544,14 +565,33 @@ style:
         active: true
         includeLineWrapping: true
         excludes: [ '**/*Module.kt' ]
+    ForbiddenAnnotation:
+        active: true
+        annotations:
+            -   reason: 'it is a java annotation. Use `Suppress` instead.'
+                value: 'java.lang.SuppressWarnings'
+            -   reason: 'it is a java annotation. Use `kotlin.Deprecated` instead.'
+                value: 'java.lang.Deprecated'
+            -   reason: 'it is a java annotation. Use `kotlin.annotation.MustBeDocumented` instead.'
+                value: 'java.lang.annotation.Documented'
+            -   reason: 'it is a java annotation. Use `kotlin.annotation.Target` instead.'
+                value: 'java.lang.annotation.Target'
+            -   reason: 'it is a java annotation. Use `kotlin.annotation.Retention` instead.'
+                value: 'java.lang.annotation.Retention'
+            -   reason: 'it is a java annotation. Use `kotlin.annotation.Repeatable` instead.'
+                value: 'java.lang.annotation.Repeatable'
+            -   reason: 'Kotlin does not support @Inherited annotation, see https://youtrack.jetbrains.com/issue/KT-22265'
+                value: 'java.lang.annotation.Inherited'
     ForbiddenComment:
         active: true
-        values:
-            # - 'FIXME:'
-            - 'STOPSHIP:'
-            # - 'TODO:'
+        comments:
+            -   reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'
+                value: 'FIXME:'
+            -   reason: 'Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code.'
+                value: 'STOPSHIP:'
+            # -   reason: 'Forbidden TODO todo marker in comment, please do the changes.'
+            #    value: 'TODO:'
         allowedPatterns: ''
-        customMessage: ''
     ForbiddenImport:
         active: false
         imports: [ ]
@@ -596,8 +636,6 @@ style:
         ignoreEnums: false
         ignoreRanges: false
         ignoreExtensionFunctions: true
-    MandatoryBracesIfStatements:
-        active: false
     MandatoryBracesLoops:
         active: false
     MaxChainedCallsOnSameLine:
@@ -619,6 +657,9 @@ style:
     MultilineRawStringIndentation:
         active: true
         indentSize: 4
+        trimmingMethods:
+            - 'trimIndent'
+            - 'trimMargin'
     NestedClassesVisibility:
         active: true
     NewLineAtEndOfFile:
@@ -657,6 +698,10 @@ style:
         active: true
     SerialVersionUIDInSerializableClass:
         active: true
+    StringShouldBeRawString:
+        active: true
+        maxEscapedCharacterCount: 2
+        ignoredCharacters: [ ]
     SpacingBetweenPackageAndImports:
         active: true
     ThrowsCount:
@@ -667,6 +712,9 @@ style:
         active: true
     TrimMultilineRawString:
         active: true
+        trimmingMethods:
+            - 'trimIndent'
+            - 'trimMargin'
     UnderscoresInNumericLiterals:
         active: false
         acceptableLength: 4
@@ -675,10 +723,12 @@ style:
         active: true
         excludes: [ '**Module**' ]
     UnnecessaryAnnotationUseSiteTarget:
-        active: false
+        active: true
     UnnecessaryApply:
         active: true
     UnnecessaryBackticks:
+        active: true
+    UnnecessaryBracesAroundTrailingLambda:
         active: true
     UnnecessaryFilter:
         active: true
@@ -695,9 +745,14 @@ style:
         active: true
     UnusedImports:
         active: true
+    UnusedParameter:
+        active: true
     UnusedPrivateClass:
         active: true
     UnusedPrivateMember:
+        active: true
+        allowedNames: ''
+    UnusedPrivateProperty:
         active: true
         allowedNames: '(_|ignored|expected|serialVersionUID)'
     UseAnyOrNoneInsteadOfFind:
@@ -717,7 +772,10 @@ style:
         active: true
     UseIfInsteadOfWhen:
         active: true
+        ignoreWhenContainingVariableDeclaration: false
     UseIsNullOrEmpty:
+        active: true
+    UseLet:
         active: true
     UseOrEmpty:
         active: true
