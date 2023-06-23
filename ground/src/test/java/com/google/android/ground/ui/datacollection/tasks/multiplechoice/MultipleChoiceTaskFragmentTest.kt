@@ -51,6 +51,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowAlertDialog
+import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -164,7 +166,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
 
     onView(withText("Skip")).perform(click())
-    assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
+    assertThat(ShadowAlertDialog.getLatestDialog().isShowing).isTrue()
   }
 
   @Test
@@ -173,7 +175,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Skip")).perform(click())
-    assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
+    assertThat(ShadowAlertDialog.getLatestDialog().isShowing).isFalse()
   }
 
   @Test
