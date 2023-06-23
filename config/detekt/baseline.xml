@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues />
   <CurrentIssues>
     <ID>DataClassShouldBeImmutable:TaskButton.kt$TaskButton$private var taskUpdatedCallback: ((button: TaskButton, taskData: TaskData?) -&gt; Unit)? = null</ID>
     <ID>LongMethod:SubmissionLocalDataStoreConverterTest.kt$SubmissionLocalDataStoreConverterTest$@Test fun testToSubmission()</ID>
-    <ID>LoopWithTooManyJumpStatements:DataBindingIdlingResource.kt$DataBindingIdlingResource$for (b in bindings()) { if (b == null) { continue } if (!b.hasPendingBindings()) { idle = true break } }</ID>
+    <ID>LoopWithTooManyJumpStatements:DataBindingIdlingResource.kt$DataBindingIdlingResource$for</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -35,7 +35,6 @@ import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
-import com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorViewModel
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -67,7 +66,6 @@ class HomeScreenFragment :
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var locationOfInterestSelectorViewModel: LocationOfInterestSelectorViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -75,16 +73,11 @@ class HomeScreenFragment :
       ->
       onApplyWindowInsets(insets)
     }
-    locationOfInterestSelectorViewModel =
-      getViewModel(LocationOfInterestSelectorViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     homeScreenViewModel.bottomSheetState.observe(this) { onBottomSheetStateChange(it) }
     homeScreenViewModel.openDrawerRequests.`as`(RxAutoDispose.autoDisposable(this)).subscribe {
       openDrawer()
     }
-    locationOfInterestSelectorViewModel.locationOfInterestClicks
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { homeScreenViewModel.onLocationOfInterestSelected(it) }
   }
 
   override fun onCreateView(

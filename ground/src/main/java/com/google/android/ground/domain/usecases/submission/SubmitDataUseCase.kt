@@ -56,9 +56,8 @@ constructor(
     if (loiId == null) {
       // loiIds are null for Suggest LOI data collection flows
       when (val suggestLoiTaskData = taskDataDeltasToSubmit.removeAt(0).newTaskData.orElse(null)) {
-        is DropAPinTaskData -> {
+        is DropAPinTaskData ->
           loiIdToSubmit = saveLoi(suggestLoiTaskData.getPoint(), job, surveyId).id
-        }
         else ->
           // TODO(#1351): Process result of DRAW_POLYGON task
           error("No suggest LOI Task found when loi ID was null")

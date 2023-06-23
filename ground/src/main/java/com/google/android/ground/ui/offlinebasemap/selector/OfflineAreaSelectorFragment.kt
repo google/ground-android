@@ -77,7 +77,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     viewModel.remoteTileSets
       .map { tileSets -> tileSets.map { it.url } }
       .`as`(autoDisposable(this))
-      .subscribe(mapFragment::addRemoteTileOverlays)
+      .subscribe(mapFragment::addWebTileOverlays)
 
     viewModel.requestRemoteTileSets()
     viewModel.cameraBoundUpdates.`as`(autoDisposable(this)).subscribe(viewModel::setViewport)

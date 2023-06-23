@@ -378,12 +378,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
-  private fun addRemoteTileOverlay(url: String) {
+  private fun addWebTileOverlay(url: String) {
     val webTileProvider = WebTileProvider(url)
     map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
-  override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
+  override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest

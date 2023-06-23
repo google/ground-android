@@ -33,13 +33,9 @@ object CustomViewActions {
    */
   internal fun forceTypeText(text: String): ViewAction =
     object : ViewAction {
-      override fun getDescription(): String {
-        return "force type text"
-      }
+      override fun getDescription(): String = "force type text"
 
-      override fun getConstraints(): Matcher<View> {
-        return allOf(isEnabled())
-      }
+      override fun getConstraints(): Matcher<View> = allOf(isEnabled())
 
       override fun perform(uiController: UiController?, view: View?) {
         (view as? EditText)?.append(text)
