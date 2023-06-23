@@ -15,15 +15,13 @@
  */
 package com.google.android.ground.ui.signin
 
-import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import javax.inject.Inject
 
-class SignInViewModel
-@Inject
-internal constructor(private val authenticationManager: AuthenticationManager) :
+class SignInViewModel @Inject internal constructor(private val userRepository: UserRepository) :
   AbstractViewModel() {
   fun onSignInButtonClick() {
-    authenticationManager.signIn()
+    userRepository.signIn()
   }
 }

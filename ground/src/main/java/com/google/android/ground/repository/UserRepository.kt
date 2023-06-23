@@ -36,9 +36,7 @@ constructor(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore
-) {
-  val currentUser: User
-    get() = authenticationManager.currentUser
+) : AuthenticationManager by authenticationManager {
 
   fun saveUser(user: User): @Cold Completable = localUserStore.insertOrUpdateUser(user)
 
