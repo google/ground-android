@@ -36,6 +36,7 @@ import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -50,6 +51,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -162,9 +164,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
 
     onView(withText("Skip")).perform(click())
-    onView(withText(context.getString(R.string.skip_dialog_title)))
-      .inRoot(isDialog())
-      .check(matches(isDisplayed()))
+    assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
   }
 
   @Test
@@ -173,8 +173,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Skip")).perform(click())
-    onView(withText(context.getString(R.string.skip_dialog_title)))
-      .inRoot(isDialog()).check(doesNotExist())
+    assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
   }
 
   @Test
