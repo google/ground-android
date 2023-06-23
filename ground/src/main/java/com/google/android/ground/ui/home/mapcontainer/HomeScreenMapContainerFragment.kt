@@ -29,7 +29,6 @@ import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.locationofinterest.LocationOfInterestType
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -40,6 +39,7 @@ import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
+import com.google.maps.android.data.Point
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
@@ -193,8 +193,9 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
         // selected. This will involve calculating centroid and possibly zoom level based on
         // vertices.
         loi
-          .filter { it.type === LocationOfInterestType.POINT }
-          .ifPresent { mapContainerViewModel.panAndZoomCamera(it.geometry.vertices[0]) }
+          .map { it.geometry }
+          .filter { it is Point }
+          .ifPresent { mapContainerViewModel.panAndZoomCamera(it.vertices[0]) }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()
