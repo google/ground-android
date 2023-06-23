@@ -31,9 +31,9 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.*
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -57,11 +57,11 @@ class HomeScreenFragment :
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
 
-  @Inject lateinit var authenticationManager: AuthenticationManager
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var schedulers: Schedulers
+  @Inject lateinit var userRepository: UserRepository
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -110,7 +110,7 @@ class HomeScreenFragment :
   private fun updateNavHeader() {
     val navHeader = binding.navView.getHeaderView(0)
     val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
-    headerBinding.user = authenticationManager.currentUser
+    headerBinding.user = userRepository.currentUser
   }
 
   override fun onGlobalLayout() {
@@ -224,7 +224,7 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> authenticationManager.signOut()
+      R.id.nav_sign_out -> userRepository.signOut()
     }
     closeDrawer()
     return true
